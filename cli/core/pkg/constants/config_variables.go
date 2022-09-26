@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package constants provides tanzu cli constants.
 package constants
 
 // Configuration variable name constants

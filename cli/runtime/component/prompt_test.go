@@ -78,5 +78,4 @@ func Test_PromptOptions(t *testing.T) {
 	assert.Equal("?", options.Icons.Question.Text)
 	assert.Equal("cyan+b", options.Icons.Question.Format)
 	assert.Equal(2, len(opts))
-
 }

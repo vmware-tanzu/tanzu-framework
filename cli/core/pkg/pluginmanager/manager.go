@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+//nolint:gocritic
 // Package pluginmanager is resposible for plugin discovery and installation
 package pluginmanager
 
@@ -313,6 +314,7 @@ func InstalledPluginsDescriptors() (pluginDescriptions []*cliapi.PluginDescripto
 	if err != nil {
 		return nil, fmt.Errorf("error while getting installed plugin: %q", err)
 	}
+
 	availablePlugins := append(standalonePlugins, serverPlugins...)
 
 	for _, info := range availablePlugins {

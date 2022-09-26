@@ -688,7 +688,7 @@ func Test_VerifyRegistry(t *testing.T) {
 	assert.Nil(err)
 }
 
-func configureAndTestVerifyRegistry(testImage, defaultRegistry, customImageRepository, allowedRegistries string) error { //nolint:unparam
+func configureAndTestVerifyRegistry(testImage, defaultRegistry, customImageRepository, allowedRegistries string) error {
 	config.DefaultAllowedPluginRepositories = defaultRegistry
 	os.Setenv(constants.ConfigVariableCustomImageRepository, customImageRepository)
 	os.Setenv(constants.AllowedRegistries, allowedRegistries)

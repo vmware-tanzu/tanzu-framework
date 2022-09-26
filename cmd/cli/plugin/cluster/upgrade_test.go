@@ -22,6 +22,10 @@ import (
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
+const (
+	FakeNamespace = "fake-namespace"
+)
+
 var _ = Describe("getValidTKRVersionForUpgradeGivenTKRNamePrefix", func() {
 	var (
 		tkrs              []runv1alpha1.TanzuKubernetesRelease
@@ -47,7 +51,7 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenTKRNamePrefix", func() {
 	Context("When user provides TKR name prefix and cluster had TKR version label", func() {
 		BeforeEach(func() {
 			clusterName = "fake-cluster-name"
-			namespace = "fake-namespace"
+			namespace = FakeNamespace
 			clusterLabels = map[string]string{
 				"tanzuKubernetesRelease": "v1.17.18---vmware.1-tkg.2",
 			}
@@ -381,7 +385,7 @@ var _ = Describe("getValidTKRVersionFromClusterForUpgrade", func() {
 
 		BeforeEach(func() {
 			cluster = getFakeCluster("fake-cluster", "")
-			cluster.Namespace = "fake-namespace"
+			cluster.Namespace = FakeNamespace
 			tkrNamePrefix = TkrVersionPrefix_v1_18
 		})
 		It("should return error", func() {
@@ -402,7 +406,7 @@ var _ = Describe("getClusterResource", func() {
 	BeforeEach(func() {
 		clusterClient = &fakes.ClusterClient{}
 		clusterName = "fake-cluster"
-		namespace = "fake-namespace"
+		namespace = FakeNamespace
 	})
 
 	JustBeforeEach(func() {
@@ -424,7 +428,7 @@ var _ = Describe("getClusterResource", func() {
 	Context("when resource is found ", func() {
 
 		BeforeEach(func() {
-			namespace = "fake-namespace"
+			namespace = FakeNamespace
 			clusterClient.GetResourceCalls(func(c interface{}, name, namespace string, pv clusterclient.PostVerifyrFunc, opt *clusterclient.PollOptions) error {
 				cc := c.(*clusterv1.Cluster)
 				fc := getFakeCluster(clusterName, "")

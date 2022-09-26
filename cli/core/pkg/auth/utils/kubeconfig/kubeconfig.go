@@ -1,6 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package kubeconfig provides kubeconfig access functions.
 package kubeconfig
 
 import (

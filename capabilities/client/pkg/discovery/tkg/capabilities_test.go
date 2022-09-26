@@ -48,7 +48,6 @@ func TestHasNSX(t *testing.T) {
 }
 
 func TestIsTKGS(t *testing.T) {
-
 	discoveryClientWithTKC := func() (*DiscoveryClient, error) {
 		return newFakeDiscoveryClient(tanzuRunAPIResourceList, Scheme, nil)
 	}

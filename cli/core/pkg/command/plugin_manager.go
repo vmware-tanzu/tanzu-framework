@@ -105,7 +105,8 @@ var listPluginCmd = &cobra.Command{
 
 			return nil
 		}
-
+		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
+		//nolint:staticcheck
 		descriptors, err := cli.ListPlugins()
 		if err != nil {
 			return err
@@ -482,7 +483,7 @@ func getRepositories() *cli.MultiRepo {
 
 // getInstalledElseAvailablePluginVersion return installed plugin version if plugin is installed
 // if not installed it returns available recommanded plugin version
-func getInstalledElseAvailablePluginVersion(p plugin.Discovered) string {
+func getInstalledElseAvailablePluginVersion(p plugin.Discovered) string { // nolint:gocritic
 	installedOrAvailableVersion := p.InstalledVersion
 	if installedOrAvailableVersion == "" {
 		installedOrAvailableVersion = p.RecommendedVersion
