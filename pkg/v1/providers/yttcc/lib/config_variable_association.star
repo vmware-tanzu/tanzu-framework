@@ -56,6 +56,7 @@ return {
 "VSPHERE_INSECURE": ["vsphere"],
 "VSPHERE_CONTROL_PLANE_ENDPOINT": ["vsphere"],
 "VSPHERE_CONTROL_PLANE_ENDPOINT_PORT": ["vsphere"],
+"VSPHERE_ENABLE_NODE_ANTI_AFFINITY": ["vsphere"],
 
 "NSXT_POD_ROUTING_ENABLED": ["vsphere"],
 "NSXT_ROUTER_PATH": ["vsphere"],

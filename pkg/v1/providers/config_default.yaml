@@ -163,6 +163,9 @@ VSPHERE_INSECURE: false
 #! Virtual IP address or FQDN for the cluster's control plane nodes
 VSPHERE_CONTROL_PLANE_ENDPOINT:
 VSPHERE_CONTROL_PLANE_ENDPOINT_PORT: 6443
+#! ENABLE_NODE_ANTI_AFFINITY is a feature gate for vsphere,
+#! It is set to True by default
+VSPHERE_ENABLE_NODE_ANTI_AFFINITY: "true"
 #! NSX-T specific configurations for enabling NSX-T routable pods
 #! set this to true to enable NSX-T routable pods
 NSXT_POD_ROUTING_ENABLED: false

@@ -28,6 +28,21 @@ var _ = Describe("Cluster-API Provider vSphere Ytt Templating", func() {
 		}
 	})
 
+	It("enables AntiAffinity feature gate on capv-controller-manager Deployment", func() {
+		output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, nil)
+		Expect(err).NotTo(HaveOccurred())
+		docs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+			"$.kind":          "Deployment",
+			"$.metadata.name": "capv-controller-manager",
+		})
+		Expect(err).NotTo(HaveOccurred())
+		Expect(docs).To(HaveLen(1))
+		Expect(docs[0]).To(HaveYAMLPathWithValue(
+			"$.spec.template.spec.containers[0].args[2]",
+			"--feature-gates=NodeAntiAffinity=${NODE_ANTI_AFFINITY:=true}",
+		))
+	})
+
 	Context("when the httpProxy data value is provided", func() {
 		BeforeEach(func() {
 			values = `#@data/values

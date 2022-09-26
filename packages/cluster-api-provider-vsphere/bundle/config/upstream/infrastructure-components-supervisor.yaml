@@ -1345,6 +1345,7 @@ spec:
       - args:
         - --enable-leader-election
         - --logtostderr
+        - --feature-gates=NodeAntiAffinity=${NODE_ANTI_AFFINITY:=true}
         - --v=4
         env:
         - name: SERVICE_ACCOUNTS_CM_NAMESPACE
