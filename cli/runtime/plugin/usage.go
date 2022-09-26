@@ -4,15 +4,10 @@
 package plugin
 
 import (
-	"fmt"
-	"os"
-	"strings"
-	"text/template"
-	"unicode"
-
-	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	"os"
+	"text/template"
 )
 
 // UsageFunc is the usage func for a plugin.
@@ -22,12 +17,6 @@ var UsageFunc = func(c *cobra.Command) error {
 		return err
 	}
 	return t.Execute(os.Stdout, c)
-}
-
-var au aurora.Aurora
-
-func init() {
-	au = aurora.NewAurora(!component.IsTTYEnabled())
 }
 
 // CmdTemplate is the template for plugin commands.
@@ -58,32 +47,9 @@ Use "{{if beginsWith .CommandPath "tanzu "}}{{.CommandPath}}{{else}}tanzu {{.Com
 
 // TemplateFuncs are the template usage funcs.
 var TemplateFuncs = template.FuncMap{
-	"rpad":                    rpad,
-	"bold":                    bold,
-	"underline":               underline,
-	"trimTrailingWhitespaces": trimRightSpace,
-	"beginsWith":              beginsWith,
-}
-
-// rpad adds padding to the right of a string.
-// from https://github.com/spf13/cobra/blob/993cc5372a05240dfd59e3ba952748b36b2cd117/cobra.go#L29
-func rpad(s string, padding int) string {
-	tmpl := fmt.Sprintf("%%-%ds", padding)
-	return fmt.Sprintf(tmpl, s)
-}
-
-func underline(s string) string {
-	return au.Underline(s).String()
-}
-
-func bold(s string) string {
-	return au.Bold(s).String()
-}
-
-func trimRightSpace(s string) string {
-	return strings.TrimRightFunc(s, unicode.IsSpace)
-}
-
-func beginsWith(s, prefix string) bool {
-	return strings.HasPrefix(s, prefix)
+	"rpad":                    component.Rpad,
+	"bold":                    component.Bold,
+	"underline":               component.Underline,
+	"trimTrailingWhitespaces": component.TrimRightSpace,
+	"beginsWith":              component.BeginsWith,
 }

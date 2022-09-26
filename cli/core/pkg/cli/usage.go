@@ -5,14 +5,10 @@ package cli
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"io"
 	"os"
-	"strings"
 	"text/template"
-	"unicode"
-
-	"github.com/logrusorgru/aurora"
-	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
@@ -23,12 +19,6 @@ type CmdMap map[string][]*cobra.Command
 
 // MainUsage create the main usage display for tanzu cli.
 type MainUsage struct{}
-
-var au aurora.Aurora
-
-func init() {
-	au = aurora.NewAurora(!component.IsTTYEnabled())
-}
 
 // NewMainUsage creates an instance of Usage.
 func NewMainUsage() *MainUsage {
@@ -67,7 +57,7 @@ func (u *MainUsage) GenerateDescriptor(c *cobra.Command, w io.Writer) error {
 	if err != nil {
 		serverString = "Not logged in"
 	} else {
-		serverString = fmt.Sprintf("Logged in to %s", underline(s.Name))
+		serverString = fmt.Sprintf("Logged in to %s", component.Underline(s.Name))
 	}
 	d := struct {
 		*cobra.Command
@@ -147,32 +137,9 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 
 // TemplateFuncs are the template usage funcs.
 var TemplateFuncs = template.FuncMap{
-	"rpad":                    rpad,
-	"bold":                    bold,
-	"underline":               underline,
-	"trimTrailingWhitespaces": trimRightSpace,
-	"beginsWith":              beginsWith,
-}
-
-// rpad adds padding to the right of a string.
-// from https://github.com/spf13/cobra/blob/993cc5372a05240dfd59e3ba952748b36b2cd117/cobra.go#L29
-func rpad(s string, padding int) string {
-	tmpl := fmt.Sprintf("%%-%ds", padding)
-	return fmt.Sprintf(tmpl, s)
-}
-
-func underline(s string) string {
-	return au.Underline(s).String()
-}
-
-func bold(s string) string {
-	return au.Bold(s).String()
-}
-
-func trimRightSpace(s string) string {
-	return strings.TrimRightFunc(s, unicode.IsSpace)
-}
-
-func beginsWith(s, prefix string) bool {
-	return strings.HasPrefix(s, prefix)
+	"rpad":                    component.Rpad,
+	"bold":                    component.Bold,
+	"underline":               component.Underline,
+	"trimTrailingWhitespaces": component.TrimRightSpace,
+	"beginsWith":              component.BeginsWith,
 }
