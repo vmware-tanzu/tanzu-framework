@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests
+module github.com/vmware-tanzu/tanzu-framework/providers/tests
 
 go 1.17
 
@@ -67,4 +67,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace github.com/vmware-tanzu/tanzu-framework/test/pkg => ../../../../test/pkg
+replace github.com/vmware-tanzu/tanzu-framework/test/pkg => ../../test/pkg
