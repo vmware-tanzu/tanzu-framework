@@ -15,6 +15,9 @@ metadata:
 spec:
   infrastructureRef:
     kind: VSphereCluster
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    name: test-cluster-tcbt
+    namespace: cluster-namespace
   clusterNetwork:
     pods:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
@@ -61,7 +64,11 @@ metadata:
 spec:
   kubeadmConfigSpec: {}
   machineTemplate:
-    infrastructureRef: {}
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: VSphereMachineTemplate
+      name: test-cluster-tcbt-control-plane
+      namespace: cluster-namespace
   replicas: 3
   version: v1.22.3
 ---
@@ -71,6 +78,9 @@ metadata:
   name: test-cluster-tcbt
   namespace: cluster-namespace
 spec:
+  identityRef:
+    kind: Secret
+    name: test-cluster-tcbt
   thumbprint: test-thumbprint
   server: vsphere-server.local
 ---

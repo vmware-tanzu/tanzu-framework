@@ -32,6 +32,9 @@ metadata:
 spec:
   infrastructureRef:
     kind: VSphereCluster
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    name: test-cluster-4
+    namespace: cluster-namespace-4
   clusterNetwork:
     pods:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
@@ -44,8 +47,20 @@ metadata:
   name: test-cluster-4
   namespace: cluster-namespace-4
 spec:
+  identityRef:
+    kind: Secret
+    name: test-cluster-tcbt-4
   thumbprint: test-thumbprint
   server: vsphere-server.local
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-tcbt-4
+  namespace: cluster-namespace-4
+data:
+  password: QWRtaW4hMjM= # Admin!23
+  username: YWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2Fs # administrator@vsphere.local
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
