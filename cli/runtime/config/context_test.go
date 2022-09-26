@@ -329,7 +329,7 @@ func TestSetCurrentContext(t *testing.T) {
 			}
 			currSrv, err := GetCurrentServer()
 			assert.NoError(t, err)
-			if err != nil {
+			if tc.errStr == "" {
 				assert.Equal(t, tc.ctxName, currSrv.Name)
 			}
 		})

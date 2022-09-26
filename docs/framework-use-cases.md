@@ -56,7 +56,7 @@ eventually manifest as undesirable patterns.
 
 ### Solution
 
-Framework provides Capability discovery [GO package](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities/discovery)
+Framework provides Capability discovery [Go package](https://github.com/vmware-tanzu/tanzu-framework/tree/main/capabilities/client/pkg/discovery)
 and [Capability API](https://github.com/vmware-tanzu/tanzu-framework/blob/main/apis/run/v1alpha1/capability_types.go)
 to query a cluster's capabilities. It can be used to understand the API surface
 area and query for objects in the cluster.

@@ -77,6 +77,7 @@ endif
 # Package tooling related variables
 PACKAGE_VERSION ?= ${BUILD_VERSION}
 REPO_BUNDLE_VERSION ?= ${BUILD_VERSION}
+PLUGIN_PATH ?= ./cmd/cli/plugin
 
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR}:$(DOCKER_VOL_OPTS) quay.io/goswagger/swagger:v0.21.0
@@ -243,6 +244,20 @@ build-plugin-admin-with-oci-discovery: ${CLI_ADMIN_JOBS_OCI_DISCOVERY} publish-a
 
 .PHONY: build-plugin-admin-with-local-discovery
 build-plugin-admin-with-local-discovery: ${CLI_ADMIN_JOBS_LOCAL_DISCOVERY} publish-admin-plugins-all-local ## Build Tanzu CLI admin plugins with Local standalone discovery
+
+.PHONY: build-plugin-local
+build-plugin-local: prepare-builder ## Build given CLI Plugin locally, needs PLUGIN_NAME
+	@if [ "${PLUGIN_NAME}" = "" ] || [ ! -d ${PLUGIN_PATH}/${PLUGIN_NAME} ]; then \
+		echo "The PLUGIN_NAME: '${PLUGIN_NAME}' is not valid or not exists or empty, please provide valid PLUGIN_NAME." ; \
+	else \
+		$(BUILDER) cli compile --match "$(PLUGIN_NAME)" --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path $(PLUGIN_PATH) --target local --artifacts artifacts/${GOHOSTOS}/${GOHOSTARCH}/cli ; \
+	fi
+
+.PHONY: install-plugin-local
+install-plugin-local: build-plugin-local ## Build and Install given CLI Plugin locally, needs PLUGIN_NAME
+	@if [ "${PLUGIN_NAME}" != "" ] && [ -d ${PLUGIN_PATH}/${PLUGIN_NAME} ]; then \
+		tanzu plugin install ${PLUGIN_NAME} --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli ; \
+	fi
 
 .PHONY: build-plugin-admin-%
 build-plugin-admin-%: prepare-builder
@@ -490,14 +505,17 @@ test: generate manifests build-cli-mocks ## Run tests
 	#Test core cli runtime library
 	$(MAKE) test -C cli/runtime
 
-	#Test core cli
+	# Test core cli
 	$(MAKE) test -C cli/core
 
-	#Test tkg module
+	# Test tkg module
 	$(MAKE) test -C tkg
 
 	# Test feature gates
 	$(MAKE) test -C featuregates
+
+	# Test capabilities
+	$(MAKE) test -C capabilities
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
@@ -668,7 +686,7 @@ generate-package-secret: ## Generate the default package values secret. Usage: m
 	@if [ $(PACKAGE) == 'pinniped' ]; then \
 	  ./pinniped-components/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas} ;\
 	elif [ $(PACKAGE) == 'capabilities' ]; then \
-	  ./pkg/v1/sdk/capabilities/hack/generate-package-secret.sh -v tkr=${tkr} --data-value-yaml 'rbac.podSecurityPolicyNames=[${psp}]';\
+	  ./capabilities/hack/generate-package-secret.sh -v tkr=${tkr} --data-value-yaml 'rbac.podSecurityPolicyNames=[${psp}]';\
 	else \
 	  echo "invalid PACKAGE: $(PACKAGE)" ;\
 	  exit 1 ;\
@@ -728,7 +746,7 @@ COMPONENTS ?=  \
   addons \
   cliplugins \
   pkg/v2/tkr/webhook/infra-machine \
-  pkg/v1/sdk/capabilities \
+  capabilities \
   pkg/v2/tkr/webhook/tkr-conversion \
   pkg/v2/tkr/webhook/cluster/tkr-resolver \
   pinniped-components/tanzu-auth-controller-manager \

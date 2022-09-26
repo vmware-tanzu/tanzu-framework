@@ -9,12 +9,12 @@ import (
 	"github.com/aunum/log"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	capdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
 var descriptor = cliapi.PluginDescriptor{
