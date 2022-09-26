@@ -12,7 +12,7 @@ import (
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
+	tkgauth "github.com/vmware-tanzu/tanzu-framework/tkg/auth"
 
 	tkgclient "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"

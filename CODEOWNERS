@@ -9,7 +9,7 @@
 /cmd/cli/plugin/secret @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /cmd/cli/plugin/tkr @vmware-tanzu/tanzu-framework-reviewers @prkalle
 /docs @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners @vmware-tanzu/tkg-addons-owners @vmware-tanzu/tanzu-framework-lcm-reviewers @vmware-tanzu/tanzu-framework-docs
-/pkg/v1/auth/tkg @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
+/tkg/auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
 /pkg/v1/cli @vmware-tanzu/tanzu-framework-reviewers
 /pkg/v1/providers @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers @vmware-tanzu/tkg-infra-x
 /pkg/v1/providers/ytt/02_addons/auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
