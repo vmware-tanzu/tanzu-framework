@@ -1,38 +1,40 @@
-# Details on BOM usage in TKG library
+# Details on BoM usage in the TKG library
 
 ## Introduction
 
 BoM stands for Bill of Materials and there are 2 types of BoM files:
 
-* TKG BoM file   (1 file per release)
-* TKR BoM files (multiple files per release)
+* a TKG BoM file   (1 file per TKG release)
+* TKR BoM files (multiple files per TKG release)
 
 ### TKG BoM file
 
-* contains information about TKG related component which mainly gets associated with management cluster creation
-  * This file includes the TKG version under release.version key and default TKR version under default.k8sVersion key
-  * This includes cluster-api provider components, pinniped components, image repo information, and many more.
-  * [A sample TKG BoM file](example-boms/tkg-bom.yaml)
+* This file contains information about TKG related components which mainly get associated with management cluster creation.
+  * It specifies the TKG version under the `release.version` key and the default TKR version under the `default.k8sVersion` key.
+  * It also specifies cluster-api provider components, pinniped components, image repo information, and many more.
 
-### TKR BoM file
+[A sample TKG BoM file is available here.](example-boms/tkg-bom.yaml)
 
-* this file contains information related to
-  * specific k8s version
-  * node images to use with (vsphere, aws, azure) for the matching k8s version
-  * add-ons specific components
-  * [A sample TKR BoM file](example-boms/tkr-bom.yaml)
+### TKR BoM files
 
-## Bundling BoM files into TKG library
+* These files contain information related to:
+  * the specific k8s version,
+  * node images to use with (vsphere, aws, azure) for the matching k8s version,
+  * add-ons specific components.
 
-* Tanzu CLI is decoupled from TKG BoM file (and TKR BoM file) and won't be bundled in CLI library.
-* Tanzu CLI is compiled with TKG Compatibility Image path( build time constant ). Tanzu CLI at runtime downloads the compatibility file and determines the TKG BoM image path from the compatibility file (version matching the management-cluster plugin version currently installed) and downloads the BoM files as well to the user's machine. [reference](../../../tkg/tkgconfigupdater/ensure.go)
+[A sample TKR BoM file is available here.](example-boms/tkr-bom.yaml)
 
-### Why do we need TKG Compatibility Image?
+## Bundling BoM files into the TKG library
 
-If the BoM files are bundled with CLI, and when there is a CVE fix in any images/components that are part of TKG/TKR BoM file for an existing release, this would warrant a new CLI release.
-By using a TKG Compatibility Image, a new CLI release can be avoided. The release team can publish a new compatibility image(new Tag) with updated TKG BoM paths for a given management-cluster plugin version, and CLI would download the new Compatibility Image(with the latest Image Tag) and there by can download and use the updated TKG/TKR BoM files while creating a new management cluster.
+* The TKG BoM file (and TKR BoM files) are decoupled from the Tanzu CLI and the CLI runtime library.
+* Instead, the Tanzu CLI is compiled with a TKG Compatibility Image path (which is a build-time constant). At runtime, the CLI downloads this compatibility file and uses it to determine the location of the appropriate TKG/TKR BoM files (choosing the version that matches the version of the management-cluster plugin currently installed).  The CLI then downloads the correct BoM files to the user's machine. [Reference.](../../../tkg/tkgconfigupdater/ensure.go)
 
-Sample compatibility file is as shown below:
+### Why do we need a TKG Compatibility Image?
+
+If the BoM files were bundled with the CLI, and if, at a later time, there were a CVE fix for any images/components that are part of the TKG/TKR BoM files for an existing release, this would require a new CLI release.
+By using a TKG Compatibility Image, a new CLI release can be avoided in such a case. The release team can publish a new Compatibility Image (using a new git tag) with updated TKG BoM paths for a given version of the management-cluster plugin.  The CLI would then download the new Compatibility Image (using the latest Image tag) and thereby be able to download and use the updated TKG/TKR BoM files while creating a new management cluster.
+
+A sample compatibility file is shown below:
 
 ```yaml
 version: v2
@@ -47,7 +49,7 @@ managementClusterPluginVersions:
      tag: v1.5.0
 ```
 
-Sample compatibility file after the updating the BoM version(new BoM which has images/components with CVE fixes for v1.5.0) is shown below. The new compatibility image would be pushed to image repository with updated tag( eg: **tkg/tkg-compatibility:v3**)
+Below is a new sample compatibility file after updating the BoM version (new BoM which has images/components with CVE fixes for v1.5.0). The new Compatibility Image would be pushed to an image repository along with an updated tag (e.g., **tkg/tkg-compatibility:v3**)
 
 ```yaml
 version: v3
@@ -64,24 +66,24 @@ managementClusterPluginVersions:
 
 Notes:
 
-* Once we create a management cluster it is running the TKR controller which reconciles all the supported TKR and updates TKR compatibility.
-* For workload cluster creation, CLI can download the necessary TKR to the user's local machine from the management cluster (existing ConfigMap on MC) and uses downloaded TKR to create a workload cluster.
+* Once a management cluster is created, it runs the TKR controller which reconciles all the supported TKR and updates TKR compatibility.
+* For workload cluster creation, the CLI can download the necessary TKR BoM files to the user's local machine directly from the management cluster (using an existing ConfigMap on the management cluster).
 
-### Why do we need to download TKR BoM locally to the user's machine if not present locally?
+### Why do we need to download the TKR BoM files locally?
 
-* This is required because cluster template creation logic is still running locally with the TKG library which internally uses YTT
-* To generate cluster templates using YTT overlays and easy implementation we are downloading the TKR BoM file locally before generating the cluster template
-* This allows users to read and understand the content of the TKR BoM file for debugging purpose
+* This is required because the cluster template creation logic is still running locally with the TKG library which internally uses YTT
+* To generate cluster templates using YTT overlays easily we are downloading the TKR BoM files locally before generating the cluster templates
+* This allows users to read and understand the content of the TKR BoM files for debugging purpose
 
-## Updating TKG Compatibility Image Path into the TKG library
+## Updating the TKG Compatibility Image Path into the TKG library
 
-1. Update `TKG_DEFAULT_IMAGE_REPOSITORY` and `TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH` variable inside [Makefile](../../../Makefile)
-2. Run make configure-bom  that will update build time constants for downloading the TKG compatibility file.
-3. Commit Makefile changes alongside with constants file.
+1. Update the `TKG_DEFAULT_IMAGE_REPOSITORY` and `TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH` variables inside [Makefile](../../../Makefile)
+2. Run `make configure-bom` which will update the build-time constants for downloading the TKG compatibility file.
+3. Commit the `Makefile` changes alongside the changes generated to the constants file.
 
-## How are the BoM files getting used in CLI and cluster template creation with ytt
+## How are the BoM files getting used in the CLI and the cluster template creation with ytt
 
-### How are the BoM files getting used in TKG CLI?
+### How are the BoM files getting used in the TKG CLI?
 
 * TKG Compatibility file metadata is bundled into TKG library as build time constants
 * When the tkgctl client gets created, as part of ensuring prerequisites, tkg-compatibility file and BoM files are extracted to the BoM file location. For tanzu cli it will be,$HOME/.tanzu/tkg/compatibility and $HOME/.tanzu/tkg/bom respectively. If there is a compatibility file already present in the user's local file system, the new compatibility file would not be downloaded. User can delete the compatibility file so that tanzu CLI would download the latest compatibility file(or user can do `tanzu config init` or `tanzu management-cluster create --force-config-update -f <filename>`).
