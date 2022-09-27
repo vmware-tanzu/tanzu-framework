@@ -21,6 +21,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -100,6 +102,10 @@ func (r *AntreaConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cniv1alpha1.AntreaConfig{}).
 		WithOptions(options).
+		Watches(
+			&source.Kind{Type: &clusterapiv1beta1.Cluster{}},
+			handler.EnqueueRequestsFromMapFunc(r.ClusterToAntreaConfig),
+		).
 		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.AntreaConfigKind, r.Config.SystemNamespace, r.Log)).
 		Complete(r)
 }

@@ -22,6 +22,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -98,6 +100,10 @@ func (r *CalicoConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cniv1alpha1.CalicoConfig{}).
 		WithOptions(options).
+		Watches(
+			&source.Kind{Type: &clusterapiv1beta1.Cluster{}},
+			handler.EnqueueRequestsFromMapFunc(r.ClusterToCalicoConfig),
+		).
 		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.CalicoConfigKind, r.Config.SystemNamespace, r.Log)).
 		Complete(r)
 }
