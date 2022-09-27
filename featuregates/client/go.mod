@@ -12,8 +12,8 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../../packageclients
 	github.com/vmware-tanzu/tanzu-framework/tkg => ../../tkg
-	github.com/vmware-tanzu/tanzu-framework/tkr => ./tkr
-	github.com/vmware-tanzu/tanzu-framework/util => ./util
+	github.com/vmware-tanzu/tanzu-framework/tkr => ../../tkr
+	github.com/vmware-tanzu/tanzu-framework/util => ../../util
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 )
 
