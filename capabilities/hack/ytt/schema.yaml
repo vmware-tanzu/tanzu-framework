@@ -13,6 +13,12 @@ deployment:
       operator: ""
       #@schema/nullable
       tolerationSeconds: 0
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+      value: ""
+      operator: ""
+      #@schema/nullable
+      tolerationSeconds: 0
 rbac:
   #! PSP resource names capabilities controller should use in its ClusterRole rules.
   podSecurityPolicyNames:
