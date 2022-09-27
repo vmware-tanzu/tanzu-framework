@@ -29,9 +29,9 @@ import (
 	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
 
-// VSphereClusterToVSphereCSIConfig returns a list of Requests with VSphereCSIConfig ObjectKey
-func (r *VSphereCSIConfigReconciler) VSphereClusterToVSphereCSIConfig(o client.Object) []ctrl.Request {
-	cluster, ok := o.(*capvvmwarev1beta1.VSphereCluster)
+// ClusterToVSphereCSIConfig returns a list of Requests with VSphereCSIConfig ObjectKey
+func (r *VSphereCSIConfigReconciler) ClusterToVSphereCSIConfig(o client.Object) []ctrl.Request {
+	cluster, ok := o.(*clusterv1beta1.Cluster)
 	if !ok {
 		r.Log.Error(errors.New("invalid type"),
 			"Expected to receive Cluster resource",
@@ -39,7 +39,7 @@ func (r *VSphereCSIConfigReconciler) VSphereClusterToVSphereCSIConfig(o client.O
 		return nil
 	}
 
-	r.Log.V(4).Info("Mapping cluster to VSphereCSIConfig")
+	r.Log.V(4).Info("Mapping Cluster to VSphereCSIConfig")
 
 	configs := &csiv1alpha1.VSphereCSIConfigList{}
 
