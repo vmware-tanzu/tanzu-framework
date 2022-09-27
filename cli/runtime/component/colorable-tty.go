@@ -2,11 +2,12 @@ package component
 
 import (
 	"fmt"
-	auroraPackage "github.com/logrusorgru/aurora"
-	"github.com/mattn/go-isatty"
 	"os"
 	"strings"
 	"unicode"
+
+	auroraPackage "github.com/logrusorgru/aurora"
+	"github.com/mattn/go-isatty"
 )
 
 var aurora auroraPackage.Aurora

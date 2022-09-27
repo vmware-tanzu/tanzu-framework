@@ -5,10 +5,11 @@ package cli
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
 	"os"
 	"text/template"
+
+	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"

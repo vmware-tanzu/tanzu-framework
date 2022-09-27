@@ -4,10 +4,11 @@
 package plugin
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"os"
 	"text/template"
+
+	"github.com/spf13/cobra"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 )
 
 // UsageFunc is the usage func for a plugin.
