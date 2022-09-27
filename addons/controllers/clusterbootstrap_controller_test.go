@@ -187,9 +187,15 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				for _, pkg := range clusterBootstrap.Spec.AdditionalPackages {
 					pkgInstallName := util.GeneratePackageInstallName(cluster.Name, pkg.RefName)
 					err := k8sClient.Get(ctx, client.ObjectKey{Name: pkgInstallName, Namespace: constants.TKGSystemNS}, pkgInstall)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(len(pkgInstall.OwnerReferences) == 0).To(BeTrue())
-
+					// Since Foobar provider does not have a controller to create the data values secret and update to the status, the foobar packageInstall
+					// should not be created so far.
+					if pkg.RefName == foobarCarvelPackageName {
+						Expect(err).Should(HaveOccurred())
+						Expect(strings.Contains(err.Error(), "packageinstalls.packaging.carvel.dev \"test-cluster-tcbt-foobar\" not found")).To(BeTrue())
+					} else {
+						Expect(err).ToNot(HaveOccurred())
+						Expect(len(pkgInstall.OwnerReferences) == 0).To(BeTrue())
+					}
 				}
 
 				By("verifying that CNI has been populated properly")

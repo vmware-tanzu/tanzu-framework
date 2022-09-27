@@ -905,6 +905,15 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 	if remoteSecret != nil {
 		r.Log.Info(fmt.Sprintf("created or patched secret %s/%s for package %s on cluster %s/%s", remoteSecret.Namespace, remoteSecret.Name, remotePackage.Name, cluster.Namespace,
 			cluster.Name))
+	} else if remoteSecret == nil && cbPkg.ValuesFrom != nil && cbPkg.ValuesFrom.ProviderRef != nil {
+		// We expect the remoteSecret to be created when ProviderRef is not empty, because all addon controllers
+		// will generate the local secrets for their addon configs(like AntreaConfig) and copy to the remote cluster. If the
+		// remoteSecret is empty, it means the corresponding addon's controller has not finished generating the local secret.
+		// For such case, the pkgi creation will be skipped to avoid creating pkgi with empty remoteSecret while the
+		// addon config is provided.
+		r.Log.Info(fmt.Sprintf("skip creating the packageInstall for the package %s on cluster %s/%s since the data values secret is not generated yet",
+			remotePackage.Name, cluster.Namespace, cluster.Name))
+		return nil
 	}
 
 	pkgi, err := r.createOrPatchPackageInstallOnRemote(cluster, cbPkg, remoteSecret, clusterClient)
@@ -968,7 +977,11 @@ func (r *ClusterBootstrapReconciler) getDataValueSecretFromBootstrapPackage(clus
 		// logging has been handled in GetDataValueSecretNameFromBootstrapPackage()
 		return nil, err
 	}
-	if secretName == "" {
+	if secretName == "" && cbpkg.ValuesFrom != nil && cbpkg.ValuesFrom.ProviderRef != nil {
+		r.Log.Info(fmt.Sprintf("the data values secret is required but not found in the provider's status yet for ClusterBootstrapPackage: %s, nothing to be created or patched on cluster %s/%s",
+			cbpkg.RefName, cluster.Namespace, cluster.Name))
+		return nil, nil
+	} else if secretName == "" {
 		r.Log.Info(fmt.Sprintf("no data values secret is needed for ClusterBootstrapPackage: %s, nothing to be created or patched on cluster %s/%s",
 			cbpkg.RefName, cluster.Namespace, cluster.Name))
 		return nil, nil
