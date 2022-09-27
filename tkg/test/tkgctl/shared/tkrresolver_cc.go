@@ -143,7 +143,7 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 		Expect(err).To(BeNil())
 
 		By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
-		mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err = GetClients(context, mngtempFilePath)
+		mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, _, err = GetClients(context, mngtempFilePath)
 		Expect(err).NotTo(HaveOccurred())
 
 	})
@@ -217,7 +217,7 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, tempKubeConfigFilePath, ""), 2)
 
 		By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-		wlcClient, _, _, _, err = GetClients(context, tempKubeConfigFilePath)
+		wlcClient, _, _, _, _, err = GetClients(context, tempKubeConfigFilePath)
 		Expect(err).NotTo(HaveOccurred())
 
 		// verify addons are deployed successfully

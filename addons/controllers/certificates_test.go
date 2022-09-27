@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/webhooks"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 )
@@ -30,8 +31,8 @@ var _ = Describe("Webhook", func() {
 
 	Context("server's certificate and key", func() {
 		It("should be generated and written to the webhook server CertDir", func() {
-			print(certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
-			secret, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
+			print(certPath, keyPath, constants.WebhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
+			secret, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, constants.WebhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(secret).NotTo(BeNil())
 			cert, err := cert2.CertsFromFile(certPath)
@@ -53,7 +54,7 @@ var _ = Describe("Webhook", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 		It("should fail update when label selector is not provided", func() {
-			_, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "")
+			_, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, constants.WebhookScrtName, addonNamespace, webhookServiceName, "")
 			Expect(err).To(HaveOccurred())
 		})
 	})

@@ -18,6 +18,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
+	capvidentity "sigs.k8s.io/cluster-api-provider-vsphere/pkg/identity"
+	capvmanager "sigs.k8s.io/cluster-api-provider-vsphere/pkg/manager"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -95,15 +97,13 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	d.TLSThumbprint = vsphereCluster.Spec.Thumbprint
 	d.Server = vsphereCluster.Spec.Server
 
-	// derive vSphere username and password from the <cluster name> secret
-	clusterSecret, err := r.getSecret(ctx, cluster.Namespace, cluster.Name)
+	// derive vSphere username and password using CAPV util function
+	clusterCredentials, err := capvidentity.GetCredentials(ctx, r.Client, vsphereCluster, capvmanager.DefaultPodNamespace)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "could not fetch credentials for VSphereCluster %s/%s", vsphereCluster.Namespace, vsphereCluster.Name)
 	}
-	d.Username, d.Password, err = getUsernameAndPasswordFromSecret(clusterSecret)
-	if err != nil {
-		return nil, err
-	}
+	d.Username = clusterCredentials.Username
+	d.Password = clusterCredentials.Password
 
 	// get the control plane machine template
 	cpMachineTemplate, err := cutil.ControlPlaneVsphereMachineTemplateNonParavirtualForCluster(ctx, r.Client, cluster)

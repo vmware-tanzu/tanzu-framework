@@ -30,6 +30,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -86,11 +87,54 @@ func parseObjects(f *os.File, cfg *rest.Config) (*yamlutil.YAMLOrJSONDecoder, me
 	return decoder, mapper, err
 }
 
-// DeleteResources using unstructured objects from a yaml/json file provided by decoder.
-func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interface, waitForDeletion bool) error {
+// deleteObject deletes an unstructured object and returns error unless there is a conflict
+func deleteObject(resource dynamic.ResourceInterface, obj *unstructured.Unstructured) error {
 	deletionPropagation := metav1.DeletePropagationForeground
 	gracePeriodSeconds := int64(0)
 
+	if err := resource.Delete(context.Background(), obj.GetName(),
+		metav1.DeleteOptions{GracePeriodSeconds: &gracePeriodSeconds,
+			PropagationPolicy: &deletionPropagation}); err != nil && !apierrors.IsConflict(err) {
+		return err
+	}
+	return nil
+}
+
+// removeFinalizersFromObject removes all finalizers from an unstructured object
+// returns true if object doesn't exist anymore
+func removeFinalizersFromObject(resource dynamic.ResourceInterface, obj *unstructured.Unstructured) (bool, error) {
+	obj, err := resource.Get(context.Background(), obj.GetName(), metav1.GetOptions{})
+	if err == nil {
+		fmt.Fprintln(ginkgo.GinkgoWriter, "remove finalizers", obj.GetFinalizers(), obj.GetName())
+		obj.SetFinalizers(nil)
+
+		if _, err = resource.Update(context.Background(), obj, metav1.UpdateOptions{}); err != nil {
+			fmt.Fprintf(ginkgo.GinkgoWriter, "remove finalizers fails when update with %v\n", err.Error())
+			return false, err
+		}
+		fmt.Fprintf(ginkgo.GinkgoWriter, "object is %v\n", obj)
+		return false, nil
+	}
+	if apierrors.IsNotFound(err) {
+		return true, nil
+	}
+	fmt.Fprintf(ginkgo.GinkgoWriter, "remove finalizers fails with %v\n", err.Error())
+	return false, err
+}
+
+// DeleteNamespace finalizes and deletes a namespace given its name
+func DeleteNamespace(ctx context.Context, clientset *kubernetes.Clientset, namespace string) error {
+	_, err := clientset.CoreV1().Namespaces().Finalize(ctx, &v1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{Name: namespace},
+	}, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+	return clientset.CoreV1().Namespaces().Delete(ctx, namespace, metav1.DeleteOptions{})
+}
+
+// DeleteResources using unstructured objects from a yaml/json file provided by decoder.
+func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interface, waitForDeletion bool) error {
 	decoder, mapper, err := parseObjects(f, cfg)
 	if err != nil {
 		return err
@@ -105,10 +149,7 @@ func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 				return err
 			}
 		}
-
-		if err := resource.Delete(context.Background(), unstructuredObj.GetName(),
-			metav1.DeleteOptions{GracePeriodSeconds: &gracePeriodSeconds,
-				PropagationPolicy: &deletionPropagation}); err != nil {
+		if err = deleteObject(resource, unstructuredObj); err != nil {
 			return err
 		}
 	}
@@ -131,22 +172,8 @@ func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 			}
 
 			fmt.Fprintln(ginkgo.GinkgoWriter, "wait for deletion", unstructuredObj.GetName())
-			if err := wait.Poll(time.Second*5, time.Second*10, func() (done bool, err error) {
-				obj, err := resource.Get(context.Background(), unstructuredObj.GetName(), metav1.GetOptions{})
-
-				if err == nil {
-					fmt.Fprintln(ginkgo.GinkgoWriter, "remove finalizers", obj.GetFinalizers(), unstructuredObj.GetName())
-					obj.SetFinalizers(nil)
-					_, err = resource.Update(context.Background(), obj, metav1.UpdateOptions{})
-					if err != nil {
-						return false, err
-					}
-					return false, nil
-				}
-				if apierrors.IsNotFound(err) {
-					return true, nil
-				}
-				return false, err
+			if err := wait.Poll(time.Second*5, time.Second*20, func() (done bool, err error) {
+				return removeFinalizersFromObject(resource, unstructuredObj)
 			}); err != nil {
 				return err
 			}

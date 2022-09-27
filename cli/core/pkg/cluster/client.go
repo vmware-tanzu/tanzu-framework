@@ -1,3 +1,7 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// Package cluster provides functions to manipulate the package
 package cluster
 
 import (
@@ -72,7 +76,7 @@ type client struct {
 // if kubeconfig path is empty it gets default path
 // if options.poller is nil it creates default poller. You should only pass custom poller for unit testing
 // if options.crtClientFactory is nil it creates default CrtClientFactory
-func NewClient(kubeConfigPath string, context string, options Options) (Client, error) { // nolint:gocritic
+func NewClient(kubeConfigPath string, context string, options Options) (Client, error) { //nolint:gocritic
 	var err error
 	var rules *clientcmd.ClientConfigLoadingRules
 	if kubeConfigPath == "" {
@@ -145,13 +149,15 @@ func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error
 
 	imageRepoMap := make(map[string]string)
 
+	//nolint:gocritic
 	for _, cm := range cmList.Items {
 		mapString, ok := cm.Data["imageRepoMap"]
 		if !ok {
 			continue
 		}
 		irm := make(map[string]string)
-		err = yaml.Unmarshal([]byte(mapString), &irm)
+
+		_ = yaml.Unmarshal([]byte(mapString), &irm)
 		for k, v := range irm {
 			if _, exists := imageRepoMap[k]; exists {
 				return nil, errors.Errorf("multiple references of image repository %q found while doing image repository override", k)
@@ -159,12 +165,10 @@ func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error
 			imageRepoMap[k] = v
 		}
 	}
-
 	return imageRepoMap, nil
 }
 
 func (c *client) getK8sClients(crtClientFactory CrtClientFactory, discoveryClientFactory DiscoveryClientFactory, dynamicClientFactory DynamicClientFactory) error {
-
 	var crtClient crtclient.Client
 	var discoveryClient discovery.DiscoveryInterface
 	config, err := clientcmd.LoadFromFile(c.kubeConfigPath)

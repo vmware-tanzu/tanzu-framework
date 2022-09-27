@@ -141,8 +141,11 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 		for _, filePath := range []string{clusterResourceFilePath} {
 			f, err := os.Open(filePath)
 			Expect(err).ToNot(HaveOccurred())
-			err = testutil.DeleteResources(f, cfg, dynamicClient, true)
-			Expect(err).ToNot(HaveOccurred())
+			if err = testutil.DeleteResources(f, cfg, dynamicClient, true); !apierrors.IsNotFound(err) {
+				// namespace has been explicitly deleted using testutil.DeleteNamespace
+				// ignore its NotFound error here
+				Expect(err).ToNot(HaveOccurred())
+			}
 			Expect(f.Close()).ToNot(HaveOccurred())
 		}
 	})
@@ -208,7 +211,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 					return false
 				}
 				secretData := string(secret.Data["values.yaml"])
-				Expect(len(secretData)).Should(Not(BeZero()))
+				Expect(len(secretData)).ShouldNot(BeZero())
 				Expect(strings.Contains(secretData, "vsphereCPI:")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "mode: vsphereCPI")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "datacenter: dc0")).Should(BeTrue())
@@ -250,6 +253,48 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 		})
 	})
 
+	Context("reconcile VSphereCPIConfig manifests in non-paravirtual mode, with multi-tenancy enabled", func() {
+
+		identity := &capvv1beta1.VSphereClusterIdentity{}
+		identitySecret := &v1.Secret{}
+		identityNamespace := "capv-system"
+
+		BeforeEach(func() {
+			clusterName = "test-cluster-cpi-multi-tenancy"
+			clusterResourceFilePath = "testdata/test-vsphere-cpi-non-paravirtual-multi-tenancy.yaml"
+		})
+
+		JustAfterEach(func() {
+			Expect(testutil.DeleteNamespace(ctx, clientSet, identityNamespace)).To(Succeed())
+		})
+
+		It("Should reconcile VSphereCPIConfig and create data values secret for VSphereCPIConfig on management cluster", func() {
+			identityName := "multi-tenancy"
+			Expect(k8sClient.Get(ctx, client.ObjectKey{Name: identityName}, identity)).To(Succeed())
+			Expect(k8sClient.Get(ctx, client.ObjectKey{Name: identityName, Namespace: identityNamespace}, identitySecret)).To(Succeed())
+
+			identity.Status.Ready = true
+			Expect(k8sClient.Status().Update(ctx, identity)).To(Succeed())
+
+			secret := &v1.Secret{}
+			Eventually(func() bool {
+				secretKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName),
+				}
+				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+					return false
+				}
+				secretData := string(secret.Data["values.yaml"])
+				Expect(len(secretData)).ShouldNot(BeZero())
+				Expect(strings.Contains(secretData, "username: foo")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "password: bar")).Should(BeTrue())
+
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+		})
+	})
+
 	Context("reconcile VSphereCPIConfig manifests in paravirtual mode, with floating IP", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-cpi-paravirtual"
@@ -266,7 +311,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				if err != nil {
 					return false
 				}
-				Expect(len(secretData)).Should(Not(BeZero()))
+				Expect(len(secretData)).ShouldNot(BeZero())
 				Expect(strings.Contains(secretData, "vsphereCPI:")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "mode: vsphereParavirtualCPI")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "clusterAPIVersion: cluster.x-k8s.io/v1beta1")).Should(BeTrue())
