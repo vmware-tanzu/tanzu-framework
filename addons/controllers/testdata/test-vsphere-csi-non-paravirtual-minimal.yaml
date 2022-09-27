@@ -64,6 +64,9 @@ metadata:
   name: test-cluster-csi-minimal
   namespace: default
 spec:
+  identityRef:
+    kind: Secret
+    name: test-cluster-csi-minimal
   thumbprint: thumbprint-yadayada
   server: vsphere-server.local
 ---

@@ -59,6 +59,9 @@ metadata:
   name: test-cluster-csi
   namespace: default
 spec:
+  identityRef:
+    kind: Secret
+    name: test-cluster-csi
   thumbprint: test-thumbprint
   server: vsphere-server.local
 ---
