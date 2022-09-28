@@ -300,6 +300,6 @@ var (
 	// KappControllerConfigKind is the Kind for KappControllerConfig object
 	KappControllerConfigKind = reflect.TypeOf(runv1alpha3.KappControllerConfig{}).Name()
 
-	// VSphereCSIConfigKind is the Kind for csi AwsEbsCSIConfig object
+	// AwsEbsCSIConfigKind is the Kind for csi AwsEbsCSIConfig object
 	AwsEbsCSIConfigKind = reflect.TypeOf(csiv1alpha1.AwsEbsCSIConfig{}).Name()
 )

@@ -87,6 +87,7 @@ var _ = Describe("AwsEbsCSIConfig Reconciler", func() {
 				}
 				Expect(len(config.OwnerReferences)).Should(Equal(1))
 				Expect(config.OwnerReferences[0].Name).Should(Equal(testClusterName))
+				Expect(*config.Status.SecretRef).Should(Equal(fmt.Sprintf("%s-%s-data-values", testClusterName, constants.AwsEbsCSIAddonName)))
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
@@ -102,7 +103,6 @@ var _ = Describe("AwsEbsCSIConfig Reconciler", func() {
 				// check data values secret contents
 				Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
 				secretData := string(secret.Data["values.yaml"])
-				// fmt.Printf("%v/n======", secretData)
 				Expect(strings.Contains(secretData, "deployment_replicas: 2")).Should(BeTrue())
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())

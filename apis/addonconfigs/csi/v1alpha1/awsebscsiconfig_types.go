@@ -46,7 +46,7 @@ type AwsEbsCSIConfigList struct {
 // AwsEbsCSI is the Schema for the awsebscsiconfigs API
 type AwsEbsCSI struct {
 	// The namespace csi components are to be deployed in
-	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:Required
 	Namespace string `json:"namespace"`
 
 	// +kubebuilder:validation:Optional
