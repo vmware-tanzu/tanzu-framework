@@ -53,7 +53,7 @@ func init() {
 	availableUpgradesCmd.AddCommand(getAvailableUpgradesCmd)
 }
 
-func availableUpgrades(cmd *cobra.Command, args []string) error {
+func availableUpgrades(cmd *cobra.Command, args []string) error { //nolint:gocyclo
 	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err

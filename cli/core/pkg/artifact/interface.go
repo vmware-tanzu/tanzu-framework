@@ -14,6 +14,8 @@ import (
 type Artifact interface {
 	// Fetch the binary for a plugin version.
 	Fetch() ([]byte, error)
+	// FetchTest the test binary for a plugin version.
+	FetchTest() ([]byte, error)
 }
 
 // NewURIArtifact creates new artifacts based on the URI

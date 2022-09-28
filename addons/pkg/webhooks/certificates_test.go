@@ -15,12 +15,13 @@ import (
 	cert2 "k8s.io/client-go/util/cert"
 	"k8s.io/client-go/util/keyutil"
 	"knative.dev/pkg/webhook/certificates/resources"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 )
 
 const (
 	addonNamespace     = "tkg-system"
 	webhookServiceName = "webhook-service"
-	webhookScrtName    = "webhook-tls"
 )
 
 var (
@@ -51,7 +52,7 @@ var _ = Describe("Webhook", func() {
 
 	Context("server's certificate and key", func() {
 		It("should be generated and written to the webhook server CertDir", func() {
-			secret, err := resources.MakeSecret(ctx, webhookScrtName, addonNamespace, webhookServiceName)
+			secret, err := resources.MakeSecret(ctx, constants.WebhookScrtName, addonNamespace, webhookServiceName)
 			Expect(err).ToNot(HaveOccurred())
 			err = WriteServerTLSToFileSystem(ctx, certPath, keyPath, secret)
 			Expect(err).ToNot(HaveOccurred())
@@ -68,7 +69,7 @@ var _ = Describe("Webhook", func() {
 			Expect(key).To(Equal(orgKey))
 		})
 		It("should only be written to file system if content is different", func() {
-			secret, err := resources.MakeSecret(ctx, webhookScrtName, addonNamespace, webhookServiceName)
+			secret, err := resources.MakeSecret(ctx, constants.WebhookScrtName, addonNamespace, webhookServiceName)
 			Expect(err).ToNot(HaveOccurred())
 			err = WriteServerTLSToFileSystem(ctx, certPath, keyPath, secret)
 			Expect(err).ToNot(HaveOccurred())
@@ -94,7 +95,7 @@ var _ = Describe("Webhook", func() {
 			Expect(firstKeyPathModifiedTime.Equal(secondKeyPathModifiedTime))
 		})
 		It("Should be rewritten to file system if content will be different", func() {
-			secret, err := resources.MakeSecret(ctx, webhookScrtName, addonNamespace, webhookServiceName)
+			secret, err := resources.MakeSecret(ctx, constants.WebhookScrtName, addonNamespace, webhookServiceName)
 			Expect(err).ToNot(HaveOccurred())
 			err = WriteServerTLSToFileSystem(ctx, certPath, keyPath, secret)
 			Expect(err).ToNot(HaveOccurred())
@@ -123,7 +124,7 @@ var _ = Describe("Webhook", func() {
 
 		})
 		It("Should be rewritten to file system if files are missing", func() {
-			secret, err := resources.MakeSecret(ctx, webhookScrtName, addonNamespace, webhookServiceName)
+			secret, err := resources.MakeSecret(ctx, constants.WebhookScrtName, addonNamespace, webhookServiceName)
 			Expect(err).ToNot(HaveOccurred())
 			err = WriteServerTLSToFileSystem(ctx, certPath, keyPath, secret)
 			Expect(err).ToNot(HaveOccurred())
@@ -150,7 +151,7 @@ var _ = Describe("Webhook", func() {
 
 		})
 		It("should become invalid after one week", func() {
-			secret, err := resources.MakeSecret(ctx, webhookScrtName, addonNamespace, webhookServiceName)
+			secret, err := resources.MakeSecret(ctx, constants.WebhookScrtName, addonNamespace, webhookServiceName)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(secret).NotTo(BeNil())
 			err = ValidateTLSSecret(secret, time.Hour*24) // valid cert life is one week. One day should not make it invalid

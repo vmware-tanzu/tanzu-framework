@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+//nolint:gocritic
 package command
 
 import (
@@ -235,7 +236,8 @@ var initConfigCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-
+		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
+		//nolint:staticcheck
 		descriptors, err := cli.ListPlugins()
 		if err != nil {
 			return err

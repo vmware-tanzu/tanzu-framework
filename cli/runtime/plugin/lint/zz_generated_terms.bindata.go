@@ -104,11 +104,9 @@ func bindataHackLinterCliwordlistYml() (*asset, error) {
 	return a, nil
 }
 
-//
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
-//
 func Asset(name string) ([]byte, error) {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	if f, ok := _bindata[cannonicalName]; ok {
@@ -121,11 +119,9 @@ func Asset(name string) ([]byte, error) {
 	return nil, &os.PathError{Op: "open", Path: name, Err: os.ErrNotExist}
 }
 
-//
 // MustAsset is like Asset but panics when Asset would return an error.
 // It simplifies safe initialization of global variables.
 // nolint: deadcode
-//
 func MustAsset(name string) []byte {
 	a, err := Asset(name)
 	if err != nil {
@@ -135,10 +131,8 @@ func MustAsset(name string) []byte {
 	return a
 }
 
-//
 // AssetInfo loads and returns the asset info for the given name.
 // It returns an error if the asset could not be found or could not be loaded.
-//
 func AssetInfo(name string) (os.FileInfo, error) {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	if f, ok := _bindata[cannonicalName]; ok {
@@ -151,10 +145,8 @@ func AssetInfo(name string) (os.FileInfo, error) {
 	return nil, &os.PathError{Op: "open", Path: name, Err: os.ErrNotExist}
 }
 
-//
 // AssetNames returns the names of the assets.
 // nolint: deadcode
-//
 func AssetNames() []string {
 	names := make([]string, 0, len(_bindata))
 	for name := range _bindata {
@@ -163,28 +155,26 @@ func AssetNames() []string {
 	return names
 }
 
-//
 // _bindata is a table, holding each asset generator, mapped to its name.
-//
 var _bindata = map[string]func() (*asset, error){
 	"hack/linter/cli-wordlist.yml": bindataHackLinterCliwordlistYml,
 }
 
-//
 // AssetDir returns the file names below a certain
 // directory embedded in the file by go-bindata.
 // For example if you run go-bindata on data/... and data contains the
 // following hierarchy:
-//     data/
-//       foo.txt
-//       img/
-//         a.png
-//         b.png
+//
+//	data/
+//	  foo.txt
+//	  img/
+//	    a.png
+//	    b.png
+//
 // then AssetDir("data") would return []string{"foo.txt", "img"}
 // AssetDir("data/img") would return []string{"a.png", "b.png"}
 // AssetDir("foo.txt") and AssetDir("notexist") would return an error
 // AssetDir("") will return []string{"data"}.
-//
 func AssetDir(name string) ([]string, error) {
 	node := _bintree
 	if len(name) != 0 {

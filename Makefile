@@ -505,14 +505,17 @@ test: generate manifests build-cli-mocks ## Run tests
 	#Test core cli runtime library
 	$(MAKE) test -C cli/runtime
 
-	#Test core cli
+	# Test core cli
 	$(MAKE) test -C cli/core
 
-	#Test tkg module
+	# Test tkg module
 	$(MAKE) test -C tkg
 
 	# Test feature gates
 	$(MAKE) test -C featuregates
+
+	# Test capabilities
+	$(MAKE) test -C capabilities
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
@@ -534,7 +537,7 @@ go-lint: tools ## Run linting of go source
 	@for i in $(GO_MODULES); do \
 		echo "-- Linting $$i --"; \
 		pushd $${i}; \
-		$(GOLANGCI_LINT) run -v --timeout=10m || exit 1; \
+		$(GOLANGCI_LINT) run -v --timeout=10m; \
 		popd; \
 	done
 
@@ -683,7 +686,7 @@ generate-package-secret: ## Generate the default package values secret. Usage: m
 	@if [ $(PACKAGE) == 'pinniped' ]; then \
 	  ./pinniped-components/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas} ;\
 	elif [ $(PACKAGE) == 'capabilities' ]; then \
-	  ./pkg/v1/sdk/capabilities/hack/generate-package-secret.sh -v tkr=${tkr} --data-value-yaml 'rbac.podSecurityPolicyNames=[${psp}]';\
+	  ./capabilities/hack/generate-package-secret.sh -v tkr=${tkr} --data-value-yaml 'rbac.podSecurityPolicyNames=[${psp}]';\
 	else \
 	  echo "invalid PACKAGE: $(PACKAGE)" ;\
 	  exit 1 ;\
@@ -743,7 +746,7 @@ COMPONENTS ?=  \
   addons \
   cliplugins \
   pkg/v2/tkr/webhook/infra-machine \
-  pkg/v1/sdk/capabilities \
+  capabilities \
   pkg/v2/tkr/webhook/tkr-conversion \
   pkg/v2/tkr/webhook/cluster/tkr-resolver \
   pinniped-components/tanzu-auth-controller-manager \

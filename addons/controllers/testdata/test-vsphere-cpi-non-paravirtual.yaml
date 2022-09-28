@@ -43,6 +43,9 @@ metadata:
   name: test-cluster-cpi
   namespace: default
 spec:
+  identityRef:
+    kind: Secret
+    name: test-cluster-cpi
   thumbprint: test-thumbprint
   server: vsphere-server.local
 ---

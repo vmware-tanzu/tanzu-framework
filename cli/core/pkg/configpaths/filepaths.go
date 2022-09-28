@@ -1,6 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package configpaths provides functions to handle config files
 package configpaths
 
 import (

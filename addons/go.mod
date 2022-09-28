@@ -4,10 +4,7 @@ go 1.17
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs => ./../apis/addonconfigs
-	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../cli/runtime
-	github.com/vmware-tanzu/tanzu-framework/packageclients => ../packageclients
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 )
 
@@ -73,6 +70,7 @@ require (
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/hashicorp/go-version v1.3.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/k14s/semver/v4 v4.0.1-0.20210701191048-266d47ac6115 // indirect
@@ -87,6 +85,9 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
+	github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707 // indirect
+	github.com/vmware-tanzu/vm-operator/external/ncp v0.0.0-20211209213435-0f4ab286f64f // indirect
+	github.com/vmware/govmomi v0.27.1 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
@@ -102,8 +103,11 @@ require (
 	google.golang.org/genproto v0.0.0-20220308174144-ae0e22291548 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	gopkg.in/fsnotify.v1 v1.4.7 // indirect
+	gopkg.in/gcfg.v1 v1.2.3 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
+	gopkg.in/warnings.v0 v0.1.2 // indirect
 	k8s.io/cluster-bootstrap v0.23.4 // indirect
 	k8s.io/component-base v0.23.5 // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect

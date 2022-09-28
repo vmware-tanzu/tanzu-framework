@@ -3,10 +3,10 @@ module github.com/vmware-tanzu/tanzu-framework/tkg
 go 1.17
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework => ../
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
+	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ../capabilities/client
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ../cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../packageclients
@@ -72,9 +72,10 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220824221239-af5a644ffef7
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/core v0.0.0-20220914003300-5b2ed024556a
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
-	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-20220908202723-7a1ddb97efab
+	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-00010101000000-000000000000
 	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4

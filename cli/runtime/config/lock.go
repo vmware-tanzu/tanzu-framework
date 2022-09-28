@@ -65,7 +65,6 @@ func ReleaseTanzuConfigLock() {
 	tanzuConfigLock = nil
 	// Unlock the mutex to allow other concurrent calls to acquire and configure the tanzuConfigLock
 	mutex.Unlock()
-	return
 }
 
 // IsTanzuConfigLockAcquired checks the lock status and returns

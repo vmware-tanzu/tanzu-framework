@@ -184,6 +184,8 @@ func getAvailablePlugins() ([]*cliapi.PluginDescriptor, error) {
 			plugins = append(plugins, &p[i])
 		}
 	} else {
+		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
+		//nolint:staticcheck
 		plugins, err = cli.ListPlugins()
 		if err != nil {
 			return nil, fmt.Errorf("find available plugins: %w", err)
@@ -210,6 +212,8 @@ func checkAndInstallMissingPlugins(plugins []*cliapi.PluginDescriptor) ([]*cliap
 		if err != nil {
 			return nil, err
 		}
+		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
+		//nolint:staticcheck
 		plugins, err = cli.ListPlugins()
 		if err != nil {
 			return nil, fmt.Errorf("find available plugins: %w", err)

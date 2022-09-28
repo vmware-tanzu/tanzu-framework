@@ -485,6 +485,8 @@ OS_NAME: ""
 OS_VERSION: ""
 OS_ARCH: ""
 
+USE_TOPOLOGY_CATEGORIES: false
+
 
 
 #! ---------------------------------------------------------------------

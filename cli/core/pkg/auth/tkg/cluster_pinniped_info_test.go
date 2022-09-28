@@ -36,7 +36,6 @@ var _ = Describe("Kubeconfig Tests", func() {
 		servCert                 *x509.Certificate
 	)
 
-	const kubeconfig1Path = "../fakes/config/kubeconfig/config1.yaml"
 	Describe("Get cluster-info from the cluster", func() {
 		BeforeEach(func() {
 			tlsserver = ghttp.NewTLSServer()

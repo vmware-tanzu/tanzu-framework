@@ -4,11 +4,13 @@ minimumRequiredVersion: 0.12.0
 directories:
   - path: bundle/config/upstream
     contents:
-      - path: crds
+      - path: crds/run
+        manual: {}
+      - path: crds/core
         directory:
-          path: ../../apis/run/config/crd/bases/
+          path: ../../apis/core/config/crd/bases/
         includePaths:
-          - run.tanzu.vmware.com_capabilities.yaml
+          - core.tanzu.vmware.com_capabilities.yaml
       - path: rbac.yaml
         manual: {}
       - path: tanzu-capabilities-controller-manager.yaml

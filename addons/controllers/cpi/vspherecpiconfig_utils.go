@@ -18,6 +18,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
+	capvidentity "sigs.k8s.io/cluster-api-provider-vsphere/pkg/identity"
+	capvmanager "sigs.k8s.io/cluster-api-provider-vsphere/pkg/manager"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -30,9 +32,9 @@ import (
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
 
-// VSphereClusterToVSphereCPIConfig returns a list of Requests with VSphereCPIConfig ObjectKey based on Cluster events
-func (r *VSphereCPIConfigReconciler) VSphereClusterToVSphereCPIConfig(o client.Object) []ctrl.Request {
-	cluster, ok := o.(*capvvmwarev1beta1.VSphereCluster)
+// ClusterToVSphereCPIConfig returns a list of Requests with VSphereCPIConfig ObjectKey based on Cluster events
+func (r *VSphereCPIConfigReconciler) ClusterToVSphereCPIConfig(o client.Object) []ctrl.Request {
+	cluster, ok := o.(*clusterapiv1beta1.Cluster)
 	if !ok {
 		r.Log.Error(errors.New("invalid type"),
 			"Expected to receive Cluster resource",
@@ -40,7 +42,7 @@ func (r *VSphereCPIConfigReconciler) VSphereClusterToVSphereCPIConfig(o client.O
 		return nil
 	}
 
-	r.Log.V(4).Info("Mapping VSphereCluster to VSphereCPIConfig")
+	r.Log.V(4).Info("Mapping Cluster to VSphereCPIConfig")
 
 	cs := &cpiv1alpha1.VSphereCPIConfigList{}
 	_ = r.List(context.Background(), cs)
@@ -95,15 +97,13 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	d.TLSThumbprint = vsphereCluster.Spec.Thumbprint
 	d.Server = vsphereCluster.Spec.Server
 
-	// derive vSphere username and password from the <cluster name> secret
-	clusterSecret, err := r.getSecret(ctx, cluster.Namespace, cluster.Name)
+	// derive vSphere username and password using CAPV util function
+	clusterCredentials, err := capvidentity.GetCredentials(ctx, r.Client, vsphereCluster, capvmanager.DefaultPodNamespace)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "could not fetch credentials for VSphereCluster %s/%s", vsphereCluster.Namespace, vsphereCluster.Name)
 	}
-	d.Username, d.Password, err = getUsernameAndPasswordFromSecret(clusterSecret)
-	if err != nil {
-		return nil, err
-	}
+	d.Username = clusterCredentials.Username
+	d.Password = clusterCredentials.Password
 
 	// get the control plane machine template
 	cpMachineTemplate, err := cutil.ControlPlaneVsphereMachineTemplateNonParavirtualForCluster(ctx, r.Client, cluster)
