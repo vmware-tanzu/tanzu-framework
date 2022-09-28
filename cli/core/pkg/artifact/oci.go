@@ -57,3 +57,8 @@ func (g *OCIArtifact) Fetch() ([]byte, error) {
 
 	return bytesData, nil
 }
+
+// FetchTest returns test artifact
+func (g *OCIArtifact) FetchTest() ([]byte, error) {
+	return nil, errors.New("fetching test plugin from OCI source is not yet supported")
+}

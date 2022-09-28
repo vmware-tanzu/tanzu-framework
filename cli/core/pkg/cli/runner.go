@@ -140,5 +140,10 @@ func (r *Runner) pluginPath() string {
 }
 
 func (r *Runner) testPluginPath() string {
-	return filepath.Join(r.pluginRoot, "test", BinTestFromPluginName(r.name))
+	return TestPluginPathFromPluginPath(r.pluginAbsPath)
+}
+
+func TestPluginPathFromPluginPath(pluginPath string) string {
+	testPluginFilename := "test-" + filepath.Base(pluginPath)
+	return filepath.Join(filepath.Dir(pluginPath), testPluginFilename)
 }

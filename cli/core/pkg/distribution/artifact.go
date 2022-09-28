@@ -80,6 +80,27 @@ func (aMap Artifacts) Fetch(version, os, arch string) ([]byte, error) {
 		"arch:%s", version, os, arch)
 }
 
+// FetchTest the test binary for a plugin version.
+func (aMap Artifacts) FetchTest(version, os, arch string) ([]byte, error) {
+	a, err := aMap.GetArtifact(version, os, arch)
+	if err != nil {
+		return nil, err
+	}
+
+	if a.Image != "" {
+		return artifact.NewOCIArtifact(a.Image).FetchTest()
+	}
+	if a.URI != "" {
+		u, err := artifact.NewURIArtifact(a.URI)
+		if err != nil {
+			return nil, err
+		}
+		return u.FetchTest()
+	}
+
+	return nil, errors.Errorf("invalid artifact for version:%s, os:%s, arch:%s", version, os, arch)
+}
+
 // GetDigest returns the SHA256 hash of the binary for a plugin version.
 func (aMap Artifacts) GetDigest(version, os, arch string) (string, error) {
 	a, err := aMap.GetArtifact(version, os, arch)

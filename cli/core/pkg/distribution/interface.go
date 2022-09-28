@@ -12,6 +12,9 @@ type Distribution interface {
 	// Fetch the binary for a plugin version.
 	Fetch(version, os, arch string) ([]byte, error)
 
+	// FetchTest the test binary for a plugin version.
+	FetchTest(version, os, arch string) ([]byte, error)
+
 	// GetDigest returns the SHA256 hash of the binary for a plugin version.
 	GetDigest(version, os, arch string) (string, error)
 
