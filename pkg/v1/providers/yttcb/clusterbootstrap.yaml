@@ -181,22 +181,23 @@ metadata:
   annotations:
     tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
 spec:
+  #@ if data.values.CNI == "antrea":
   cni:
-    #@ if data.values.CNI == "antrea":
     refName: antrea*
     valuesFrom:
       providerRef:
         apiGroup: cni.tanzu.vmware.com
         kind: AntreaConfig
         name: #@ data.values.CLUSTER_NAME
-    #@ elif data.values.CNI == "calico":
+  #@ elif data.values.CNI == "calico":
+  cni:
     refName: calico*
     valuesFrom:
       providerRef:
         apiGroup: cni.tanzu.vmware.com
         kind: CalicoConfig
         name: #@ data.values.CLUSTER_NAME
-    #@ end
+  #@ end
   #@ if vspherecpi_configs_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
   cpi:
     refName: vsphere-cpi*
