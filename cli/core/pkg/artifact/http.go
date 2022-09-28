@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -71,4 +73,9 @@ func (g *HTTPArtifact) Fetch() ([]byte, error) {
 	}
 
 	return out, nil
+}
+
+// FetchTest returns test artifact
+func (g *HTTPArtifact) FetchTest() ([]byte, error) {
+	return nil, errors.New("fetching test plugin from HTTP source is not yet supported")
 }
