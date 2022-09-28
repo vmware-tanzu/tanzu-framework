@@ -161,6 +161,20 @@ spec:
                       type: string
                   type: object
                 type: array
+              kappControllerVersionSelection:
+                description: KappControllerVersionSelection specifies the versions
+                  of kapp-controller which can install this package
+                properties:
+                  constraints:
+                    type: string
+                type: object
+              kubernetesVersionSelection:
+                description: KubernetesVersionSelection specifies the versions of
+                  k8s which this package can be installed on
+                properties:
+                  constraints:
+                    type: string
+                type: object
               licenses:
                 description: Description of the licenses that apply to the package
                   software (optional; Array of strings)
@@ -525,6 +539,55 @@ spec:
                                           name:
                                             type: string
                                         type: object
+                                      downwardAPI:
+                                        properties:
+                                          items:
+                                            items:
+                                              properties:
+                                                fieldPath:
+                                                  description: 'Required: Selects
+                                                    a field of the app: only annotations,
+                                                    labels, uid, name and namespace
+                                                    are supported.'
+                                                  type: string
+                                                kappControllerVersion:
+                                                  description: 'Optional: Get running
+                                                    KappController version, defaults
+                                                    (empty) to retrieving the current
+                                                    running version.. Can be manually
+                                                    supplied instead.'
+                                                  properties:
+                                                    version:
+                                                      type: string
+                                                  type: object
+                                                kubernetesAPIs:
+                                                  description: 'Optional: Get running
+                                                    KubernetesAPIs from cluster, defaults
+                                                    (empty) to retrieving the APIs
+                                                    from the cluster. Can be manually
+                                                    supplied instead, e.g ["group/version",
+                                                    "group2/version2"]'
+                                                  properties:
+                                                    groupVersions:
+                                                      items:
+                                                        type: string
+                                                      type: array
+                                                  type: object
+                                                kubernetesVersion:
+                                                  description: 'Optional: Get running
+                                                    Kubernetes version from cluster,
+                                                    defaults (empty) to retrieving
+                                                    the version from the cluster.
+                                                    Can be manually supplied instead.'
+                                                  properties:
+                                                    version:
+                                                      type: string
+                                                  type: object
+                                                name:
+                                                  type: string
+                                              type: object
+                                            type: array
+                                        type: object
                                       path:
                                         type: string
                                       secretRef:
@@ -539,6 +602,24 @@ spec:
                               description: Use helm template command to render helm
                                 chart
                               properties:
+                                kubernetesAPIs:
+                                  description: 'Optional: Use kubernetes group/versions
+                                    resources available in the live cluster'
+                                  properties:
+                                    groupVersions:
+                                      items:
+                                        type: string
+                                      type: array
+                                  type: object
+                                kubernetesVersion:
+                                  description: 'Optional: Get Kubernetes version,
+                                    defaults (empty) to retrieving the version from
+                                    the cluster. Can be manually overridden to a value
+                                    instead.'
+                                  properties:
+                                    version:
+                                      type: string
+                                  type: object
                                 name:
                                   description: Set name explicitly, default is App
                                     CR's name (optional; v0.13.0+)
@@ -559,6 +640,55 @@ spec:
                                         properties:
                                           name:
                                             type: string
+                                        type: object
+                                      downwardAPI:
+                                        properties:
+                                          items:
+                                            items:
+                                              properties:
+                                                fieldPath:
+                                                  description: 'Required: Selects
+                                                    a field of the app: only annotations,
+                                                    labels, uid, name and namespace
+                                                    are supported.'
+                                                  type: string
+                                                kappControllerVersion:
+                                                  description: 'Optional: Get running
+                                                    KappController version, defaults
+                                                    (empty) to retrieving the current
+                                                    running version.. Can be manually
+                                                    supplied instead.'
+                                                  properties:
+                                                    version:
+                                                      type: string
+                                                  type: object
+                                                kubernetesAPIs:
+                                                  description: 'Optional: Get running
+                                                    KubernetesAPIs from cluster, defaults
+                                                    (empty) to retrieving the APIs
+                                                    from the cluster. Can be manually
+                                                    supplied instead, e.g ["group/version",
+                                                    "group2/version2"]'
+                                                  properties:
+                                                    groupVersions:
+                                                      items:
+                                                        type: string
+                                                      type: array
+                                                  type: object
+                                                kubernetesVersion:
+                                                  description: 'Optional: Get running
+                                                    Kubernetes version from cluster,
+                                                    defaults (empty) to retrieving
+                                                    the version from the cluster.
+                                                    Can be manually supplied instead.'
+                                                  properties:
+                                                    version:
+                                                      type: string
+                                                  type: object
+                                                name:
+                                                  type: string
+                                              type: object
+                                            type: array
                                         type: object
                                       path:
                                         type: string
@@ -688,6 +818,55 @@ spec:
                                         properties:
                                           name:
                                             type: string
+                                        type: object
+                                      downwardAPI:
+                                        properties:
+                                          items:
+                                            items:
+                                              properties:
+                                                fieldPath:
+                                                  description: 'Required: Selects
+                                                    a field of the app: only annotations,
+                                                    labels, uid, name and namespace
+                                                    are supported.'
+                                                  type: string
+                                                kappControllerVersion:
+                                                  description: 'Optional: Get running
+                                                    KappController version, defaults
+                                                    (empty) to retrieving the current
+                                                    running version.. Can be manually
+                                                    supplied instead.'
+                                                  properties:
+                                                    version:
+                                                      type: string
+                                                  type: object
+                                                kubernetesAPIs:
+                                                  description: 'Optional: Get running
+                                                    KubernetesAPIs from cluster, defaults
+                                                    (empty) to retrieving the APIs
+                                                    from the cluster. Can be manually
+                                                    supplied instead, e.g ["group/version",
+                                                    "group2/version2"]'
+                                                  properties:
+                                                    groupVersions:
+                                                      items:
+                                                        type: string
+                                                      type: array
+                                                  type: object
+                                                kubernetesVersion:
+                                                  description: 'Optional: Get running
+                                                    Kubernetes version from cluster,
+                                                    defaults (empty) to retrieving
+                                                    the version from the cluster.
+                                                    Can be manually supplied instead.'
+                                                  properties:
+                                                    version:
+                                                      type: string
+                                                  type: object
+                                                name:
+                                                  type: string
+                                              type: object
+                                            type: array
                                         type: object
                                       path:
                                         type: string
@@ -1098,6 +1277,51 @@ spec:
                                   name:
                                     type: string
                                 type: object
+                              downwardAPI:
+                                properties:
+                                  items:
+                                    items:
+                                      properties:
+                                        fieldPath:
+                                          description: 'Required: Selects a field
+                                            of the app: only annotations, labels,
+                                            uid, name and namespace are supported.'
+                                          type: string
+                                        kappControllerVersion:
+                                          description: 'Optional: Get running KappController
+                                            version, defaults (empty) to retrieving
+                                            the current running version.. Can be manually
+                                            supplied instead.'
+                                          properties:
+                                            version:
+                                              type: string
+                                          type: object
+                                        kubernetesAPIs:
+                                          description: 'Optional: Get running KubernetesAPIs
+                                            from cluster, defaults (empty) to retrieving
+                                            the APIs from the cluster. Can be manually
+                                            supplied instead, e.g ["group/version",
+                                            "group2/version2"]'
+                                          properties:
+                                            groupVersions:
+                                              items:
+                                                type: string
+                                              type: array
+                                          type: object
+                                        kubernetesVersion:
+                                          description: 'Optional: Get running Kubernetes
+                                            version from cluster, defaults (empty)
+                                            to retrieving the version from the cluster.
+                                            Can be manually supplied instead.'
+                                          properties:
+                                            version:
+                                              type: string
+                                          type: object
+                                        name:
+                                          type: string
+                                      type: object
+                                    type: array
+                                type: object
                               path:
                                 type: string
                               secretRef:
@@ -1111,6 +1335,23 @@ spec:
                     helmTemplate:
                       description: Use helm template command to render helm chart
                       properties:
+                        kubernetesAPIs:
+                          description: 'Optional: Use kubernetes group/versions resources
+                            available in the live cluster'
+                          properties:
+                            groupVersions:
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                        kubernetesVersion:
+                          description: 'Optional: Get Kubernetes version, defaults
+                            (empty) to retrieving the version from the cluster. Can
+                            be manually overridden to a value instead.'
+                          properties:
+                            version:
+                              type: string
+                          type: object
                         name:
                           description: Set name explicitly, default is App CR's name
                             (optional; v0.13.0+)
@@ -1131,6 +1372,51 @@ spec:
                                 properties:
                                   name:
                                     type: string
+                                type: object
+                              downwardAPI:
+                                properties:
+                                  items:
+                                    items:
+                                      properties:
+                                        fieldPath:
+                                          description: 'Required: Selects a field
+                                            of the app: only annotations, labels,
+                                            uid, name and namespace are supported.'
+                                          type: string
+                                        kappControllerVersion:
+                                          description: 'Optional: Get running KappController
+                                            version, defaults (empty) to retrieving
+                                            the current running version.. Can be manually
+                                            supplied instead.'
+                                          properties:
+                                            version:
+                                              type: string
+                                          type: object
+                                        kubernetesAPIs:
+                                          description: 'Optional: Get running KubernetesAPIs
+                                            from cluster, defaults (empty) to retrieving
+                                            the APIs from the cluster. Can be manually
+                                            supplied instead, e.g ["group/version",
+                                            "group2/version2"]'
+                                          properties:
+                                            groupVersions:
+                                              items:
+                                                type: string
+                                              type: array
+                                          type: object
+                                        kubernetesVersion:
+                                          description: 'Optional: Get running Kubernetes
+                                            version from cluster, defaults (empty)
+                                            to retrieving the version from the cluster.
+                                            Can be manually supplied instead.'
+                                          properties:
+                                            version:
+                                              type: string
+                                          type: object
+                                        name:
+                                          type: string
+                                      type: object
+                                    type: array
                                 type: object
                               path:
                                 type: string
@@ -1259,6 +1545,51 @@ spec:
                                   name:
                                     type: string
                                 type: object
+                              downwardAPI:
+                                properties:
+                                  items:
+                                    items:
+                                      properties:
+                                        fieldPath:
+                                          description: 'Required: Selects a field
+                                            of the app: only annotations, labels,
+                                            uid, name and namespace are supported.'
+                                          type: string
+                                        kappControllerVersion:
+                                          description: 'Optional: Get running KappController
+                                            version, defaults (empty) to retrieving
+                                            the current running version.. Can be manually
+                                            supplied instead.'
+                                          properties:
+                                            version:
+                                              type: string
+                                          type: object
+                                        kubernetesAPIs:
+                                          description: 'Optional: Get running KubernetesAPIs
+                                            from cluster, defaults (empty) to retrieving
+                                            the APIs from the cluster. Can be manually
+                                            supplied instead, e.g ["group/version",
+                                            "group2/version2"]'
+                                          properties:
+                                            groupVersions:
+                                              items:
+                                                type: string
+                                              type: array
+                                          type: object
+                                        kubernetesVersion:
+                                          description: 'Optional: Get running Kubernetes
+                                            version from cluster, defaults (empty)
+                                            to retrieving the version from the cluster.
+                                            Can be manually supplied instead.'
+                                          properties:
+                                            version:
+                                              type: string
+                                          type: object
+                                        name:
+                                          type: string
+                                      type: object
+                                    type: array
+                                type: object
                               path:
                                 type: string
                               secretRef:
@@ -1309,6 +1640,38 @@ spec:
                     type: integer
                   finished:
                     type: boolean
+                  kapp:
+                    description: KappDeployStatus contains the associated AppCR deployed
+                      resources
+                    properties:
+                      associatedResources:
+                        description: AssociatedResources contains the associated App
+                          label, namespaces and GKs
+                        properties:
+                          groupKinds:
+                            items:
+                              description: GroupKind specifies a Group and a Kind,
+                                but does not force a version.  This is useful for
+                                identifying concepts during lookup stages without
+                                having partially valid types
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                              required:
+                              - group
+                              - kind
+                              type: object
+                            type: array
+                          label:
+                            type: string
+                          namespaces:
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                    type: object
                   startedAt:
                     format: date-time
                     type: string
@@ -1840,6 +2203,38 @@ spec:
                     type: integer
                   finished:
                     type: boolean
+                  kapp:
+                    description: KappDeployStatus contains the associated AppCR deployed
+                      resources
+                    properties:
+                      associatedResources:
+                        description: AssociatedResources contains the associated App
+                          label, namespaces and GKs
+                        properties:
+                          groupKinds:
+                            items:
+                              description: GroupKind specifies a Group and a Kind,
+                                but does not force a version.  This is useful for
+                                identifying concepts during lookup stages without
+                                having partially valid types
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                              required:
+                              - group
+                              - kind
+                              type: object
+                            type: array
+                          label:
+                            type: string
+                          namespaces:
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                    type: object
                   startedAt:
                     format: date-time
                     type: string
@@ -1903,7 +2298,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kapp-controller.carvel.dev/version: v0.38.4
+    kapp-controller.carvel.dev/version: v0.41.2
     kbld.k14s.io/images: |
       - origins:
         - local:
@@ -1911,10 +2306,10 @@ metadata:
         - git:
             dirty: false
             remoteURL: https://github.com/vmware-tanzu/carvel-kapp-controller
-            sha: cf8fc08cafd1893f5a9006cfdfbd3d1c42878941
+            sha: 8b093174e9139a277101a8104091a6070e6eb77b
             tags:
-            - v0.38.4
-        url: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
+            - v0.41.2
+        url: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:320415138e1c7deec1e523c0a30901e54c3475736f82fb9985b76989e284fd79
   name: kapp-controller
   namespace: kapp-controller
 spec:
@@ -1932,6 +2327,7 @@ spec:
       - args:
         - -packaging-global-namespace=kapp-controller-packaging-global
         - -enable-api-priority-and-fairness=True
+        - -tls-cipher-suites=
         env:
         - name: KAPPCTRL_MEM_TMP_DIR
           value: /etc/kappctrl-mem-tmp
@@ -1943,7 +2339,7 @@ spec:
               fieldPath: metadata.namespace
         - name: KAPPCTRL_API_PORT
           value: "10350"
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:320415138e1c7deec1e523c0a30901e54c3475736f82fb9985b76989e284fd79
         name: kapp-controller
         ports:
         - containerPort: 10350
@@ -1965,12 +2361,12 @@ spec:
           name: template-fs
         - mountPath: /home/kapp-controller
           name: home
-      - command:
-        - /kapp-controller-sidecarexec
+      - args:
+        - --sidecarexec
         env:
         - name: KAPPCTRL_SIDECAREXEC_SOCK
           value: /etc/kappctrl-mem-tmp/sidecarexec.sock
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:320415138e1c7deec1e523c0a30901e54c3475736f82fb9985b76989e284fd79
         name: kapp-controller-sidecarexec
         resources:
           requests:
@@ -2129,6 +2525,97 @@ rules:
   - prioritylevelconfigurations
   - flowschemas
   verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kapp-controller-user-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts/token
+  verbs:
+  - create
+- apiGroups:
+  - kappctrl.k14s.io
+  resources:
+  - apps
+  - apps/status
+  verbs:
+  - '*'
+- apiGroups:
+  - packaging.carvel.dev
+  resources:
+  - packageinstalls
+  - packageinstalls/status
+  - packageinstalls/finalizers
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - '*'
+- apiGroups:
+  - packaging.carvel.dev
+  resources:
+  - packagerepositories
+  - packagerepositories/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - internal.packaging.carvel.dev
+  resources:
+  - internalpackagemetadatas
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - data.packaging.carvel.dev
+  resources:
+  - packagemetadatas
+  - packagemetadatas/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - internal.packaging.carvel.dev
+  resources:
+  - internalpackages
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - data.packaging.carvel.dev
+  resources:
+  - packages
+  - packages/status
+  verbs:
+  - get
   - list
   - watch
 ---
