@@ -105,7 +105,7 @@ jobs:
     - name: Upload coverage reports to Codecov with GitHub Action
       uses: codecov/codecov-action@v3
       with:
-        files: ./coverage1.txt,./coverage2.txt,./coverage3.txt,./addons/coverage.txt,./pinniped-components/post-deploy/coverage.txt,./pinniped-components/tanzu-auth-controller-manager/coverage.txt
+        files: ./coverage1.txt,./coverage2.txt,./coverage3.txt,./addons/coverage.txt,./pinniped-components/post-deploy/coverage.txt,./pinniped-components/tanzu-auth-controller-manager/coverage.txt,./cli/core/coverage.txt,./cli/runtime/coverage.txt,./tkg/coverage.txt,./featuregates/client/cover.out,./featuregates/controller/cover.out,./capabilities/client/cover.out,./capabilities/controller/cover.out
 
   check:
     name: Lint
