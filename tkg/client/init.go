@@ -430,7 +430,6 @@ func (c *TkgClient) PatchClusterInitOperations(regionalClusterClient clusterclie
 			return errors.Wrap(err, "unable to remove kapp-controller labels from the clusterclass resources")
 		}
 	}
-
 	return err
 }
 
@@ -445,7 +444,6 @@ func (c *TkgClient) MoveObjects(fromKubeconfigPath, toKubeconfigPath, namespace 
 }
 
 func (c *TkgClient) ensureKindCluster(kubeconfig string, useExistingCluster bool, backupPath string) (string, error) {
-
 	// skip if using existing cluster
 	if useExistingCluster {
 		if kubeconfig == "" {

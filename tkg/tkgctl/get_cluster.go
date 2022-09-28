@@ -66,8 +66,8 @@ func (t *tkgctl) IsClusterExists(clustername, namespace string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	for _, cluster := range clusters {
-		if cluster.Name == clustername && cluster.Namespace == namespace {
+	for index := range clusters {
+		if clusters[index].Name == clustername && clusters[index].Namespace == namespace {
 			return true, nil
 		}
 	}

@@ -467,7 +467,7 @@ func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient
 	if !ok {
 		return errors.Errorf("management cluster %s ako add-on secret yaml data parse error", clusterName)
 	}
-	akoSetting["delete_config"] = "true"
+	akoSetting["delete_config"] = trueStr
 	akoAddonSecretData, err = yaml.Marshal(&values)
 	if err != nil {
 		return err

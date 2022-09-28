@@ -18,7 +18,7 @@ const (
 	ErrorMsgClusterExistsAlready    = "cluster with name %s already exists, please specify another name"
 	ErrorMsgClusterListError        = "unable to get list of workload clusters managed by current management cluster"
 
-	ErrorMsgCClassInputFeatureFlagDisabled = "Input file is cluster class based but CLI feature flag '%v' is disabled, make sure its enabled to create cluster class based cluster"
+	ErrorMsgCClassInputFeatureFlagDisabled = "input file is cluster class based but CLI feature flag '%v' is disabled, make sure its enabled to create cluster class based cluster"
 
 	PacificGCMControllerDeployment = "vmware-system-tkg-controller-manager"
 	PacificGCMControllerNamespace  = "vmware-system-tkg"
@@ -141,7 +141,7 @@ const (
 	PackageTypeLabel = "tkg.tanzu.vmware.com/package-type"
 	// CLIPluginImageRepositoryOverrideLabel is the label on the configmap which specifies CLIPlugin image repository override
 	CLIPluginImageRepositoryOverrideLabel = "cli.tanzu.vmware.com/cliplugin-image-repository-override"
-	//KappController labels
+	// KappController labels
 	KappControllerAppLabel         = "kapp.k14s.io/app"
 	KappControllerAssociationLabel = "kapp.k14s.io/association"
 )
@@ -154,7 +154,7 @@ const (
 	PackageTypeManagement              = "management"
 )
 
-// Avi aka. NSX Advanced LoadBalancer version regex expression
+// AviControllerVersionRegex Avi aka. NSX Advanced LoadBalancer version regex expression
 const AviControllerVersionRegex = `^\d+(\.\d+)*$`
 
 const (

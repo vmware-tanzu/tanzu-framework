@@ -31,6 +31,11 @@ import (
 
 var isStringDigitsHyphenAndLowerCaseChars = regexp.MustCompile(`^[a-z0-9-]*$`).MatchString
 
+const (
+	trueStr  = "true"
+	falseStr = "false"
+)
+
 func getDefaultKubeConfigFile() string {
 	rules := clientcmd.NewDefaultClientConfigLoadingRules()
 	return rules.GetDefaultFilename()
@@ -38,12 +43,11 @@ func getDefaultKubeConfigFile() string {
 
 func getCurrentContextFromDefaultKubeConfig() (string, error) {
 	defaultKubeconfig := getDefaultKubeConfigFile()
-	config, err := clientcmd.LoadFromFile(defaultKubeconfig)
+	configObj, err := clientcmd.LoadFromFile(defaultKubeconfig)
 	if err != nil {
 		return "", err
 	}
-
-	return config.CurrentContext, nil
+	return configObj.CurrentContext, nil
 }
 
 // MergeKubeConfigAndSwitchContext merges kubeconfig and switches the kube-context
@@ -111,7 +115,7 @@ func GetCurrentClusterKubeConfigFromFile(kubeConfigPath string) ([]byte, error) 
 	if err != nil {
 		return nil, err
 	}
-	config, err := clientcmd.Load(bytes)
+	configObj, err := clientcmd.Load(bytes)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to load kubeconfig")
 	}
@@ -123,30 +127,30 @@ func GetCurrentClusterKubeConfigFromFile(kubeConfigPath string) ([]byte, error) 
 	user := ""
 	clusterName := ""
 
-	for k, v := range config.Contexts {
-		if k == config.CurrentContext {
+	for k, v := range configObj.Contexts {
+		if k == configObj.CurrentContext {
 			user = v.AuthInfo
 			clusterName = v.Cluster
 			contexts[k] = v
 		}
 	}
 
-	for k, v := range config.Clusters {
+	for k, v := range configObj.Clusters {
 		if k == clusterName {
 			clusters[k] = v
 		}
 	}
 
-	for k, v := range config.AuthInfos {
+	for k, v := range configObj.AuthInfos {
 		if k == user {
 			users[k] = v
 		}
 	}
 
-	config.AuthInfos = users
-	config.Clusters = clusters
-	config.Contexts = contexts
-	return clientcmd.Write(*config)
+	configObj.AuthInfos = users
+	configObj.Clusters = clusters
+	configObj.Contexts = contexts
+	return clientcmd.Write(*configObj)
 }
 
 func getTKGKubeConfigPath(persist bool) (string, error) {
@@ -192,28 +196,28 @@ func getTKGKubeConfigPath(persist bool) (string, error) {
 
 // DeleteContextFromKubeConfig deletes the context and the cluster information from give kubeconfigPath
 func DeleteContextFromKubeConfig(kubeconfigPath, context string) error {
-	config, err := clientcmd.LoadFromFile(kubeconfigPath)
+	confiObj, err := clientcmd.LoadFromFile(kubeconfigPath)
 	if err != nil {
 		return errors.Wrap(err, "unable to load kube config")
 	}
 
 	clusterName := ""
 	// if the context is not present in the kubeconfigPath, nothing to do
-	c, ok := config.Contexts[context]
+	c, ok := confiObj.Contexts[context]
 	if !ok {
 		return nil
 	}
 	clusterName = c.Cluster
 
-	delete(config.Contexts, context)
-	delete(config.Clusters, clusterName)
+	delete(confiObj.Contexts, context)
+	delete(confiObj.Clusters, clusterName)
 
 	shouldWarn := false
-	if config.CurrentContext == context {
-		config.CurrentContext = ""
+	if confiObj.CurrentContext == context {
+		confiObj.CurrentContext = ""
 		shouldWarn = true
 	}
-	err = clientcmd.WriteToFile(*config, kubeconfigPath)
+	err = clientcmd.WriteToFile(*confiObj, kubeconfigPath)
 	if err != nil {
 		return errors.Wrapf(err, "failed to delete the context '%s' ", context)
 	}
@@ -429,11 +433,11 @@ func getCCPlanFromLegacyPlan(plan string) (string, error) {
 
 // Sets the appropriate CAPI ClusterTopology configuration unless it has been explicitly overridden
 func (c *TkgClient) ensureClusterTopologyConfiguration() {
-	clusterTopologyValueToSet := "true"
+	clusterTopologyValueToSet := trueStr
 	if !c.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
 		value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
 		if err != nil {
-			clusterTopologyValueToSet = "false"
+			clusterTopologyValueToSet = falseStr
 		} else {
 			log.V(6).Infof("%v configuration already set to %q", constants.ConfigVariableClusterTopology, value)
 			return

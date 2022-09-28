@@ -29,9 +29,10 @@ const inputFileAwsEmptyClass = "../fakes/config/cluster_aws_emptyClass.yaml"
 const inputFileMultipleObjectsAws = "../fakes/config/cluster_aws_multipleObjects.yaml"
 const inputFileAzure = "../fakes/config/cluster_azure.yaml"
 const inputFileVsphere = "../fakes/config/cluster_vsphere.yaml"
-const inputFileTKGS_ClusterClass = "../fakes/config/cluster_tkgs.yaml"
-const inputFileTKGS_TKC = "../fakes/config/cluster_tkgs_tkc.yaml"
+const inputFileTKGSClusterClass = "../fakes/config/cluster_tkgs.yaml"
+const inputFileTKGSTKC = "../fakes/config/cluster_tkgs_tkc.yaml"
 const inputFileLegacy = "../fakes/config/cluster1_config.yaml"
+const errFeatureStatus = "error while checking feature status in featuregate" //nolint:goimports
 
 var testingDir string
 
@@ -598,7 +599,7 @@ var _ = Describe("TKGS Cluster - cluster_tkgs.yaml as input file for 'tanzu clus
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      inputFileTKGS_ClusterClass,
+				ClusterConfigFile:      inputFileTKGSClusterClass,
 			}
 		})
 		It("Environment should be updated with legacy variables with input cluster attribute values:", func() {
@@ -642,13 +643,13 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      inputFileTKGS_ClusterClass,
+				ClusterConfigFile:      inputFileTKGSClusterClass,
 			}
 			fg = &fakes.FakeFeatureGateHelper{}
-			kubeConfigPath := inputFileTKGS_ClusterClass
+			kubeConfigPath := inputFileTKGSClusterClass
 			regionContext = region.RegionContext{
 				ContextName:    "queen-anne-context",
-				SourceFilePath: inputFileTKGS_ClusterClass,
+				SourceFilePath: inputFileTKGSClusterClass,
 			}
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			tkgConfigReaderWriter.Set(constants.ConfigVariableClusterPlan, "dev")
@@ -722,7 +723,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 		})
 
 		It("Return error when featuregate api throws error", func() {
-			errorMsg := "error while checking feature status in featuregate"
+			errorMsg := errFeatureStatus
 			fg.FeatureActivatedInNamespaceReturns(true, fmt.Errorf(errorMsg))
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
@@ -751,13 +752,13 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      inputFileTKGS_TKC,
+				ClusterConfigFile:      inputFileTKGSTKC,
 			}
 			fg = &fakes.FakeFeatureGateHelper{}
-			kubeConfigPath := inputFileTKGS_TKC
+			kubeConfigPath := inputFileTKGSTKC
 			regionContext = region.RegionContext{
 				ContextName:    "queen-anne-context",
-				SourceFilePath: inputFileTKGS_TKC,
+				SourceFilePath: inputFileTKGSTKC,
 			}
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			tkgConfigReaderWriter.Set(constants.ConfigVariableClusterPlan, "dev")
@@ -826,7 +827,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 		})
 
 		It("create cluster even when tkc-api featuregate api throws error", func() {
-			errorMsg := "error while checking feature status in featuregate"
+			errorMsg := errFeatureStatus
 			fg.FeatureActivatedInNamespaceReturns(true, fmt.Errorf(errorMsg))
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
