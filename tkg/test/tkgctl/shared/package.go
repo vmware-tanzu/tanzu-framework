@@ -582,9 +582,14 @@ func GetManagementClusterResources(ctx context.Context, mccl client.Client, dyna
 				if err != nil {
 					return nil, err
 				}
-				secretName, _, err := unstructured.NestedString(provider.UnstructuredContent(), "status", "secretRef")
+				secretName, found, err := unstructured.NestedString(provider.UnstructuredContent(), "status", "secretRef")
 				if err != nil {
 					return nil, err
+				}
+				if !found || secretName == "" {
+					// We expect the secretRef to be present under status subresource and its value gets updated by
+					// the corresponding controller after cluster is created. If it is not exist, throw an error.
+					return nil, fmt.Errorf("the secret is not found for the provider %s/%s", provider.GroupVersionKind().Kind, provider.GetName())
 				}
 				clusterResources = append(clusterResources, ClusterResource{name: provider.GetName(), namespace: clusterNamespace, obj: provider})
 				clusterResources = append(clusterResources, ClusterResource{name: secretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
