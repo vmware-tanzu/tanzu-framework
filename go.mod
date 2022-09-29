@@ -10,6 +10,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ./cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ./cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ./packageclients
+	github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr => ./pkg/v1/tkr
 	github.com/vmware-tanzu/tanzu-framework/tkg => ./tkg
 	github.com/vmware-tanzu/tanzu-framework/tkr => ./tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ./util
@@ -23,18 +24,14 @@ retract [v1.4.0-pre-alpha-1, v1.4.0-pre-alpha-2]
 require (
 	github.com/Jeffail/gabs v1.4.0
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
-	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
 	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-logr/logr v1.2.3
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.8
-	github.com/google/go-containerregistry v0.10.0
 	github.com/gosuri/uitable v0.0.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/jeremywohl/flatten v1.0.1
-	github.com/k14s/imgpkg v0.17.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
@@ -44,6 +41,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/core v0.0.0-20220914003300-5b2ed024556a
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/tkg v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/tkr v0.0.0-00010101000000-000000000000
 	golang.org/x/oauth2 v0.0.0-20220608161450-d0670ef3b1eb
@@ -93,7 +91,6 @@ require (
 	github.com/aws/amazon-vpc-cni-k8s v1.10.1 // indirect
 	github.com/aws/aws-sdk-go v1.40.56 // indirect
 	github.com/awslabs/goformation/v4 v4.19.5 // indirect
-	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/briandowns/spinner v1.19.0 // indirect
@@ -107,6 +104,7 @@ require (
 	github.com/coredns/corefile-migration v1.0.17 // indirect
 	github.com/cppforlife/cobrautil v0.0.0-20220411122935-c28a9f274a4e // indirect
 	github.com/cppforlife/color v1.9.1-0.20200716202919-6706ac40b835 // indirect
+	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dimchansky/utfbom v1.1.1 // indirect
@@ -126,7 +124,7 @@ require (
 	github.com/getkin/kin-openapi v0.94.0 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/go-ldap/ldap/v3 v3.3.0 // indirect
-	github.com/go-logr/zapr v1.2.3 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-openapi/analysis v0.19.5 // indirect
 	github.com/go-openapi/errors v0.19.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
@@ -144,6 +142,7 @@ require (
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/cel-go v0.10.0 // indirect
+	github.com/google/go-containerregistry v0.10.0 // indirect
 	github.com/google/go-github/v33 v33.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -162,6 +161,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b // indirect
+	github.com/k14s/imgpkg v0.17.0 // indirect
 	github.com/k14s/kbld v0.32.0 // indirect
 	github.com/k14s/semver/v4 v4.0.1-0.20210701191048-266d47ac6115 // indirect
 	github.com/k14s/starlark-go v0.0.0-20200720175618-3a5c849cc368 // indirect
@@ -222,13 +222,13 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220824221239-af5a644ffef7 // indirect
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-00010101000000-000000000000 // indirect
+	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware/govmomi v0.27.1 // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.19.1 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
