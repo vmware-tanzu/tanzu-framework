@@ -83,21 +83,21 @@ Notes:
 
 ## How are the BoM files getting used in the CLI and the cluster template creation with ytt
 
-### How are the BoM files getting used in the TKG CLI?
+### How are the BoM files getting used in the Tanzu CLI?
 
-* TKG Compatibility file metadata is bundled into TKG library as build time constants
-* When the tkgctl client gets created, as part of ensuring prerequisites, tkg-compatibility file and BoM files are extracted to the BoM file location. For tanzu cli it will be,$HOME/.tanzu/tkg/compatibility and $HOME/.tanzu/tkg/bom respectively. If there is a compatibility file already present in the user's local file system, the new compatibility file would not be downloaded. User can delete the compatibility file so that tanzu CLI would download the latest compatibility file(or user can do `tanzu config init` or `tanzu management-cluster create --force-config-update -f <filename>`).
-* Library implements [tkgconfigbom](../../../tkg/tkgconfigbom/client.go) package which implements methods to read TKG and TKR BoM files.
-* TKG CLI reads in these BoM files from the user's local filesystem and uses the content of TKG and TKR BoM files for the various purpose, a few of those are listed below:
-  * Uses TKG BoM file to determine image repository to use for provider installation and updates images section under TKG settings file $HOME/.tanzu/tkg/config.yaml
-  * Reads TKR BoM file to select correct AMI, Azure image to use. Uses the same information for the vSphere VM template verification purpose
-  * Uses  information in TKR BoM to set config variables like KUBERNETES_VERSION, AMI_ID, AZURE_IMAGE_* etc
-* Another use is in cluster template generation but for that, we will be using ytt library to directly read in BoM file as text files as described in next section.
+* TKG Compatibility file metadata is bundled into the TKG library as build-time constants
+* When the `tkgctl` client gets created, as part of ensuring prerequisites, the tkg-compatibility file and BoM files are extracted to the BoM file location. For the tanzu CLI this location will be, `$HOME/.tanzu/tkg/compatibility` and `$HOME/.tanzu/tkg/bom` respectively. If there is a compatibility file already present in the user's local file system, the new compatibility file will not be downloaded. Users can choose to delete the existing compatibility file so that the tanzu CLI will download the latest compatibility file (alternatively, users can run `tanzu config init` or `tanzu management-cluster create --force-config-update -f <filename>`).
+* The TKG Library implements the [tkgconfigbom](../../../tkg/tkgconfigbom/client.go) package which provides functions to read TKG and TKR BoM files.
+* The CLI reads in these BoM files from the user's local filesystem and uses their content for various purposes, of which a few are listed below:
+  * Uses the TKG BoM file to determine which image repository to use for provider installation and updates the images section under the TKG settings file $HOME/.tanzu/tkg/config.yaml
+  * Reads the TKR BoM file to select the correct AMI or Azure image to use. Uses the same information for the purpose of vSphere VM template verification
+  * Uses information in the TKR BoM to set configuration variables like `KUBERNETES_VERSION`, `AMI_ID`, `AZURE_IMAGE_*`, etc.
+* Another use of BoM files is for cluster template generation.  In that case, the ytt library is used to directly read the BoM files as text files.  This is described in next section.
 
-### How the cluster template creation with ytt uses BoM file?
+### How the cluster template creation with ytt uses BoM files?
 
-* When creating cluster template with ytt we read files mentioned in `cluster-template-definition-<plan>.yaml` which includes BoM file with file-mark as text-plain. Meaning BoM files will be read in as plain text file instead of base-template or overlay files.
-* Once the BoM files are read during the cluster template generation process into the ytt engine, the code mentioned in config_default.yaml converts it to data_values as part of the boms map. As mentioned below
+* When creating a cluster template with ytt we read files mentioned in `cluster-template-definition-<plan>.yaml` which includes BoM files with file-mark `text-plain`. This means BoM files will be read in as plain-text files instead of as a base-template or overlay files.
+* Once the BoM files are read into the ytt engine during the cluster template generation process, the code mentioned in `config_default.yaml` converts them to `data_values` as part of the ytt `boms` map. This shown below:
 
 ```yaml
 #! ---------------------------------------------------------------------
@@ -114,13 +114,13 @@ boms:
   bom_data: #@ yaml.decode(data.read(file))
 ```
 
-* This will store all BoM files present under $HOME/.tanzu/tkg/bom into the boms array
-* TKG library sets TKG_DEFAULT_BOM config variable before generating cluster template which gets used to determine default BoM file with helper functions
-* ytt overlays have some helper functions to get `get_default_tkr_bom_data`, `get_bom_data_for_tkr_name`, `get_default_tkg_bom_data` which gets used during overlays
-* Using the functions mentioned above, ytt overlays are written in a way that reads the correct BoM file based on the given TKR, and files in the correct image name and image tag.
+* This will store all BoM files present under `$HOME/.tanzu/tkg/bom` into the `boms` array
+* The TKG library sets the `TKG_DEFAULT_BOM` configuration variable before generating the cluster template which gets used to determine the default BoM file with helper functions
+* ytt overlays have some getter helper functions which gets used during overlays: `get_default_tkr_bom_data`, `get_bom_data_for_tkr_name`, `get_default_tkg_bom_data`
+* Using the functions mentioned above, ytt overlays are written in a way that reads the correct BoM file based on the given TKR and files in the correct image name and image tag.
 
-## How TKG library determines the BoM files in the user's file system is outdated and needs to be replaced or not?
+## How the TKG library determines if the BoM files in the user's file system are outdated and need to be replaced?
 
-* As part of [ensurePrerequisite](../../../tkg/tkgctl/client.go) whenever we create tkgctl client, [EnsureBOMFiles](../../../tkg/tkgconfigupdater/ensure.go) function is invoked
-* This function checks the default TKG BoM file name (determined from the tkg-compatibility file) and compares it with the BoM file present in the user's local filesystem
-* If the default TKG BoM filename does not exist, TKG will back up the old BoM directory and extract bundled BoM file into the user's BoM directory
+* As part of [ensurePrerequisite](../../../tkg/tkgctl/client.go) whenever we create the `tkgctl` client, the [EnsureBOMFiles](../../../tkg/tkgconfigupdater/ensure.go) function is invoked
+* This function checks the default TKG BoM file name (determined from the `tkg-compatibility` file) and compares it with the BoM file present in the user's local filesystem
+* If the default TKG BoM filename does not exist, TKG will back up the old BoM directory and extract the bundled BoM file into the user's BoM directory
