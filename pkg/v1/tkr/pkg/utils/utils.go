@@ -10,9 +10,9 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 // UpgradesNotAvailableError is an error type to return when upgrades are not available
@@ -75,7 +75,7 @@ func GetAvailableUpgrades(clusterName, namespace string, tkr *runv1alpha1.TanzuK
 	}
 
 	var availableUpgradeList []string
-	//TODO: Message format was changed to follow TKGs, keeping this old format check for backward compatibility.Can be cleaned up after couple minor version releases.
+	// TODO: Message format was changed to follow TKGs, keeping this old format check for backward compatibility.Can be cleaned up after couple minor version releases.
 	if strings.Contains(upgradeMsg, "TKR(s)") {
 		// Example for TKGm :upgradeMsg - "Deprecated, TKR(s) with later version is available: <tkr-name-1>,<tkr-name-2>"
 		strs := strings.Split(upgradeMsg, ": ")
@@ -97,7 +97,7 @@ func GetAvailableUpgrades(clusterName, namespace string, tkr *runv1alpha1.TanzuK
 		if !strings.HasPrefix(availableUpgradeList[idx], "v") {
 			availableUpgradeList[idx] = "v" + availableUpgradeList[idx]
 		}
-		availableUpgradeList[idx] = utils.GetTkrNameFromTkrVersion(availableUpgradeList[idx])
+		availableUpgradeList[idx] = version.Label(availableUpgradeList[idx])
 	}
 
 	return availableUpgradeList, nil

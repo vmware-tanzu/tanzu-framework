@@ -16,7 +16,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/uuid"
-	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
@@ -58,7 +57,6 @@ func TestAPIs(t *testing.T) {
 }
 
 func addToScheme(scheme *runtime.Scheme) {
-	_ = clientgoscheme.AddToScheme(scheme)
 	_ = capi.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = runv1.AddToScheme(scheme)

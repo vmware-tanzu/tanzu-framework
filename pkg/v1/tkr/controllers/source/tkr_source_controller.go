@@ -39,7 +39,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	mgrcontext "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/context"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/patchset"
+	"github.com/vmware-tanzu/tanzu-framework/util/patchset"
 )
 
 // TanzuKubernetesReleaseReconciler reconciles a TanzuKubernetesRelease object
