@@ -65,7 +65,7 @@ func (r *VSphereCSIConfigReconciler) ClusterToVSphereCSIConfig(o client.Object) 
 				UID:        cluster.UID,
 			}
 
-			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == fmt.Sprintf("%s-%s-package", cluster.Name, constants.CSIAddonName) {
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) {
 				r.Log.V(4).Info("Adding VSphereCSIConfig for reconciliation",
 					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
 
