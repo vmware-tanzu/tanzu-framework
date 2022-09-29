@@ -94,6 +94,10 @@ func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 	c, err := ctrl.NewControllerManagedBy(mgr).
 		For(&csiv1alpha1.VSphereCSIConfig{}).
 		WithOptions(options).
+		Watches(
+			&source.Kind{Type: &clusterapiv1beta1.Cluster{}},
+			handler.EnqueueRequestsFromMapFunc(r.ClusterToVSphereCSIConfig),
+		).
 		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCSIConfigKind, r.Config.SystemNamespace, r.Log)).
 		Build(r)
 	if err != nil {
@@ -139,8 +143,8 @@ func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.Log = r.Log.WithValues("VSphereCSIConfig", req.NamespacedName)
-	ctx = logr.NewContext(ctx, r.Log)
+	l := r.Log.WithValues("VSphereCSIConfig", req.NamespacedName)
+	ctx = logr.NewContext(ctx, l)
 	logger := log.FromContext(ctx)
 
 	vcsiConfig := &csiv1alpha1.VSphereCSIConfig{}

@@ -229,7 +229,7 @@ var _ = Describe("Utils", func() {
 
 			Context("when CLUSTER_TOPOLOGY is explicitly overridden", func() {
 				It("The retains the value", func() {
-					var value string
+					var value string //nolint:govet
 					tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, "false")
 					tkgClient.ensureClusterTopologyConfiguration()
 					value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)

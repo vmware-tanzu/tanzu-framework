@@ -45,3 +45,32 @@ func (l *LocalArtifact) Fetch() ([]byte, error) {
 	}
 	return b, nil
 }
+
+// FetchTest reads test plugin artifact based on the local plugin artifact path
+// To fetch the test binary from the plugin we are using plugin binary path and creating test plugin path from it
+// If the plugin binary path is `artifacts/darwin/amd64/cli/cluster/v0.27.0-dev/tanzu-cluster-darwin_amd64`
+// then test plugin binary will be under `artifacts/darwin/amd64/cli/cluster/v0.27.0-dev/test/` directory
+func (l *LocalArtifact) FetchTest() ([]byte, error) {
+	// test plugin directory based on the plugin binary location
+	testPluginDir := filepath.Join(filepath.Dir(l.Path), "test")
+	dirEntries, err := os.ReadDir(testPluginDir)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to read test plugin directory")
+	}
+	if len(dirEntries) != 1 {
+		return nil, errors.Errorf("expected only 1 file under the '%v' directory, but found %v files", testPluginDir, len(dirEntries))
+	}
+
+	// Assuming the file under the test directory is the test plugin binary
+	testPluginFile := dirEntries[0]
+	if testPluginFile.IsDir() {
+		return nil, errors.Errorf("expected to find test plugin binary but found directory %q", testPluginFile.Name())
+	}
+
+	testPluginPath := filepath.Join(testPluginDir, testPluginFile.Name())
+	b, err := os.ReadFile(testPluginPath)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error while reading test artifact")
+	}
+	return b, nil
+}

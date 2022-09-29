@@ -32,9 +32,9 @@ import (
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
 
-// VSphereClusterToVSphereCPIConfig returns a list of Requests with VSphereCPIConfig ObjectKey based on Cluster events
-func (r *VSphereCPIConfigReconciler) VSphereClusterToVSphereCPIConfig(o client.Object) []ctrl.Request {
-	cluster, ok := o.(*capvvmwarev1beta1.VSphereCluster)
+// ClusterToVSphereCPIConfig returns a list of Requests with VSphereCPIConfig ObjectKey based on Cluster events
+func (r *VSphereCPIConfigReconciler) ClusterToVSphereCPIConfig(o client.Object) []ctrl.Request {
+	cluster, ok := o.(*clusterapiv1beta1.Cluster)
 	if !ok {
 		r.Log.Error(errors.New("invalid type"),
 			"Expected to receive Cluster resource",
@@ -42,7 +42,7 @@ func (r *VSphereCPIConfigReconciler) VSphereClusterToVSphereCPIConfig(o client.O
 		return nil
 	}
 
-	r.Log.V(4).Info("Mapping VSphereCluster to VSphereCPIConfig")
+	r.Log.V(4).Info("Mapping Cluster to VSphereCPIConfig")
 
 	cs := &cpiv1alpha1.VSphereCPIConfigList{}
 	_ = r.List(context.Background(), cs)

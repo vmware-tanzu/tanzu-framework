@@ -1852,7 +1852,7 @@ func getDockerBridgeNetworkCidr() (string, error) {
 	return networkCidr, nil
 }
 
-// ConfigureAndValidateAVIConfiguration validates the configuration inputs of Avi aka. NSX Advanced Load Balancer
+// ConfigureAndValidateAviConfiguration validates the configuration inputs of Avi aka. NSX Advanced Load Balancer
 func (c *TkgClient) ConfigureAndValidateAviConfiguration() error {
 	aviEnable, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviEnable)
 	// ignoring error because AVI_ENABLE is an optional configuration
@@ -1935,7 +1935,7 @@ func (c *TkgClient) ValidateAviControllerAccount(aviClient avi.Client) error {
 	return nil
 }
 
-// ValidateAVIControllerVersion validates AVI controller version format, it shoulde be something like 20.1.7
+// ValidateAviControllerVersion validates AVI controller version format, it shoulde be something like 20.1.7
 func (c *TkgClient) ValidateAviControllerVersion() error {
 	aviVersion, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerVersion)
 	if aviVersion == "" {
@@ -1948,7 +1948,7 @@ func (c *TkgClient) ValidateAviControllerVersion() error {
 	return nil
 }
 
-// ValidateAVICloud validates if configured cloud exists or not
+// ValidateAviCloud validates if configured cloud exists or not
 func (c *TkgClient) ValidateAviCloud(aviClient avi.Client) error {
 	aviCloud, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviCloudName)
 	if err != nil {
@@ -1960,7 +1960,7 @@ func (c *TkgClient) ValidateAviCloud(aviClient avi.Client) error {
 	return nil
 }
 
-// ValidateAVIManagementClusterServiceEngineGroup validates if configured service engine group exists or not
+// ValidateAviServiceEngineGroup validates if configured service engine group exists or not
 func (c *TkgClient) ValidateAviServiceEngineGroup(aviClient avi.Client) error {
 	aviServiceEngineGroup, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviServiceEngineGroup)
 	if err != nil {
@@ -1972,7 +1972,7 @@ func (c *TkgClient) ValidateAviServiceEngineGroup(aviClient avi.Client) error {
 	return nil
 }
 
-// ValidateAVIManagementClusterServiceEngineGroup validates if configured management cluster service engine group exists or not
+// ValidateAviManagementClusterServiceEngineGroup validates if configured management cluster service engine group exists or not
 func (c *TkgClient) ValidateAviManagementClusterServiceEngineGroup(aviClient avi.Client) error {
 	aviManagementClusterSEG, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterServiceEngineGroup)
 	// this field is optional, only validates if it has value
@@ -1984,7 +1984,7 @@ func (c *TkgClient) ValidateAviManagementClusterServiceEngineGroup(aviClient avi
 	return nil
 }
 
-// ValidateAVIControlPlaneNetwork validates if workload clusters' data plane vip network is valid or not
+// ValidateAviDataPlaneNetwork validates if workload clusters' data plane vip network is valid or not
 func (c *TkgClient) ValidateAviDataPlaneNetwork(aviClient avi.Client) error {
 	aviDataNetworkName, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviDataPlaneNetworkName)
 	if err != nil {
@@ -1994,13 +1994,13 @@ func (c *TkgClient) ValidateAviDataPlaneNetwork(aviClient avi.Client) error {
 	if err != nil {
 		return err
 	}
-	if err = c.ValidateAviNetwork(aviDataNetworkName, aviDataNetworkCIDR, aviClient); err != nil {
+	if err := c.ValidateAviNetwork(aviDataNetworkName, aviDataNetworkCIDR, aviClient); err != nil {
 		return err
 	}
 	return nil
 }
 
-// ValidateAVIControlPlaneNetwork validates if workload clusters' control plane vip network is valid or not
+// ValidateAviControlPlaneNetwork validates if workload clusters' control plane vip network is valid or not
 func (c *TkgClient) ValidateAviControlPlaneNetwork(aviClient avi.Client) error {
 	aviControlPlaneNetworkName, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControlPlaneNetworkName)
 	aviControlPlaneNetworkCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControlPlaneNetworkCIDR)
@@ -2013,7 +2013,7 @@ func (c *TkgClient) ValidateAviControlPlaneNetwork(aviClient avi.Client) error {
 	return nil
 }
 
-// ValidateAVIManagementClusterDataPlaneNetwork checks if configured management cluster data plane vip network is valid or not
+// ValidateAviManagementClusterDataPlaneNetwork checks if configured management cluster data plane vip network is valid or not
 func (c *TkgClient) ValidateAviManagementClusterDataPlaneNetwork(aviClient avi.Client) error {
 	aviManagementClusterDataPlaneNetworkName, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterDataPlaneNetworkName)
 	aviManagementClusterDataPlaneNetworkCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR)
@@ -2026,7 +2026,7 @@ func (c *TkgClient) ValidateAviManagementClusterDataPlaneNetwork(aviClient avi.C
 	return nil
 }
 
-// ValidateAVIManagementClusterControlPlaneNetwork checks if configured management cluster control plane vip network is valid or not
+// ValidateAviManagementClusterControlPlaneNetwork checks if configured management cluster control plane vip network is valid or not
 func (c *TkgClient) ValidateAviManagementClusterControlPlaneNetwork(aviClient avi.Client) error {
 	aviManagementClusterControlPlaneNetworkName, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName)
 	aviManagementClusterControlPlaneNetworkCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR)
@@ -2039,7 +2039,7 @@ func (c *TkgClient) ValidateAviManagementClusterControlPlaneNetwork(aviClient av
 	return nil
 }
 
-// ValidateAVINetwork validates if the network can be found in AVI controller or not and the subnet CIDR format is correct or not
+// ValidateAviNetwork validates if the network can be found in AVI controller or not and the subnet CIDR format is correct or not
 func (c *TkgClient) ValidateAviNetwork(networkName, networkCIDR string, aviClient avi.Client) error {
 	_, err := aviClient.GetVipNetworkByName(networkName)
 	if err != nil {

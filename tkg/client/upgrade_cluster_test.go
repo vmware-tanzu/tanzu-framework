@@ -206,8 +206,8 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 
 	Describe("When upgrading cluster", func() {
 		BeforeEach(func() {
-			newK8sVersion = "v1.18.0+vmware.1"     // nolint:goconst
-			currentK8sVersion = "v1.17.3+vmware.2" // nolint:goconst
+			newK8sVersion = "v1.18.0+vmware.1"
+			currentK8sVersion = "v1.17.3+vmware.2"
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
 			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindVSphereMachineTemplate), nil)
@@ -567,7 +567,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		return nil
 	}
 
-	getVCClientAndDataCenter = func(clusterName, clusterNamespace, vsphereMachineTemplateObjectName string) (vc.Client, string, error) { // nolint:unparam
+	getVCClientAndDataCenter = func(clusterName, clusterNamespace, vsphereMachineTemplateObjectName string) (vc.Client, string, error) { //nolint:unparam
 		return vcClient, "dc0", nil
 	}
 

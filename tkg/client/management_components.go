@@ -106,7 +106,7 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kube
 	var err error
 
 	if upgrade {
-		userProviderConfigValues, err = c.getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecontext)
+		userProviderConfigValues, err = c.getUserConfigVariableValueMapFromSecret(kubeconfig, kubecontext)
 	} else {
 		userProviderConfigValues, err = c.getUserConfigVariableValueMap()
 	}
@@ -137,7 +137,7 @@ func (c *TkgClient) getUserConfigVariableValueMap() (map[string]interface{}, err
 	return c.GetUserConfigVariableValueMap(path, c.TKGConfigReaderWriter())
 }
 
-func (c *TkgClient) getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecontext string) (map[string]interface{}, error) {
+func (c *TkgClient) getUserConfigVariableValueMapFromSecret(kubeconfig, kubecontext string) (map[string]interface{}, error) {
 	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get cluster client")

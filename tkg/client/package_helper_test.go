@@ -22,38 +22,41 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
-const bootstrapObject = "../fakes/config/clusterbootstrap.yaml"
-const kappControllerObj = "../fakes/config/kapp-controller_object.yaml"
+const (
+	bootstrapObject = "../fakes/config/clusterbootstrap.yaml"
+	packageNotFound = "package not found"
+)
 
+//nolint:goimports
 var (
 	fakeMgtClusterClient *fakes.ClusterClient
 	fakeWcClusterClient  *fakes.ClusterClient
 	timeout              time.Duration
 	clusterBootstrap     *runtanzuv1alpha3.ClusterBootstrap
-	pkg_kapp             *kapppkgv1alpha1.Package
-	pkg_cni              *kapppkgv1alpha1.Package
-	pkg_csi              *kapppkgv1alpha1.Package
-	pkg_cpi              *kapppkgv1alpha1.Package
+	pkgKapp              *kapppkgv1alpha1.Package
+	pkgCni               *kapppkgv1alpha1.Package
+	pkgCsi               *kapppkgv1alpha1.Package
+	pkgCpi               *kapppkgv1alpha1.Package
 )
 
-const pkg_kappObjStr = `apiVersion: packaging.carvel.dev/v1alpha1
+const pkgKappObjStr = `apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 spec:
     refname: kapp-controller.tanzu.vmware.com
     version: 0.38.4+vmware.1-tkg.2-zshippable`
-const pkg_cniObjStr = `apiVersion: packaging.carvel.dev/v1alpha1
+const pkgCniObjStr = `apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 metadata:
 spec:
     refname: antrea.tanzu.vmware.com
     version: 0.38.4+vmware.1-tkg.2-zshippable`
-const pkg_csiObjStr = `apiVersion: packaging.carvel.dev/v1alpha1
+const pkgCsiObjStr = `apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 spec:
     refname: vsphere-pv-csi.tanzu.vmware.com
     version: 0.38.4+vmware.1-tkg.2-zshippable`
 
-const pkg_cpiObjStr = `apiVersion: packaging.carvel.dev/v1alpha1
+const pkgCpiObjStr = `apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 spec:
     refname: vsphere-cpi.tanzu.vmware.com
@@ -64,18 +67,18 @@ func init() {
 	bs, _ := os.ReadFile(bootstrapObject)
 	clusterBootstrap = &runtanzuv1alpha3.ClusterBootstrap{}
 	//Expect(yaml.Unmarshal(bs, clusterBootstrap)).To(Succeed(), "Failed to convert the cluster bootstrap input file to yaml")
-	yaml.Unmarshal(bs, clusterBootstrap)
-	pkg_kapp = &kapppkgv1alpha1.Package{}
-	yaml.Unmarshal([]byte(pkg_kappObjStr), pkg_kapp)
+	yaml.Unmarshal(bs, clusterBootstrap) //nolint:errcheck
+	pkgKapp = &kapppkgv1alpha1.Package{}
+	yaml.Unmarshal([]byte(pkgKappObjStr), pkgKapp) //nolint:errcheck
 
-	pkg_cni = &kapppkgv1alpha1.Package{}
-	yaml.Unmarshal([]byte(pkg_cniObjStr), pkg_cni)
+	pkgCni = &kapppkgv1alpha1.Package{}
+	yaml.Unmarshal([]byte(pkgCniObjStr), pkgCni) //nolint:errcheck
 
-	pkg_csi = &kapppkgv1alpha1.Package{}
-	yaml.Unmarshal([]byte(pkg_csiObjStr), pkg_csi)
+	pkgCsi = &kapppkgv1alpha1.Package{}
+	yaml.Unmarshal([]byte(pkgCsiObjStr), pkgCsi) //nolint:errcheck
 
-	pkg_cpi = &kapppkgv1alpha1.Package{}
-	yaml.Unmarshal([]byte(pkg_cpiObjStr), pkg_cpi)
+	pkgCpi = &kapppkgv1alpha1.Package{}
+	yaml.Unmarshal([]byte(pkgCpiObjStr), pkgCpi) //nolint:errcheck
 }
 
 var _ = Describe("unit tests for monitor addon's packages installation", func() {
@@ -126,7 +129,7 @@ var _ = Describe("unit tests for monitor addon's packages installation", func() 
 			BeforeEach(func() {
 				setFakeClientAndCalls()
 				err := errors.New(errorStr)
-				fakeMgtClusterClient.GetPackageReturnsOnCall(0, pkg_kapp, err)
+				fakeMgtClusterClient.GetPackageReturnsOnCall(0, pkgKapp, err)
 			})
 			It("should return error", func() {
 				_, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name)
@@ -136,7 +139,7 @@ var _ = Describe("unit tests for monitor addon's packages installation", func() 
 		})
 
 		When("package installation not successful because of MC packages error, should return error", func() {
-			packageNotFound := "package not found"
+			packageNotFound := packageNotFound
 			BeforeEach(func() {
 				setFakeClientAndCalls()
 				fakeMgtClusterClient.WaitForPackageInstallReturns(errors.New(packageNotFound))
@@ -150,7 +153,7 @@ var _ = Describe("unit tests for monitor addon's packages installation", func() 
 			})
 		})
 		When("package installation not successful because of WC packages error, should return error", func() {
-			packageNotFound := "package not found"
+			packageNotFound := packageNotFound
 			BeforeEach(func() {
 				setFakeClientAndCalls()
 				fakeWcClusterClient.WaitForPackageInstallReturns(errors.New(packageNotFound))
@@ -171,9 +174,9 @@ func setFakeClientAndCalls() {
 	fakeMgtClusterClient = &fakes.ClusterClient{}
 	fakeWcClusterClient = &fakes.ClusterClient{}
 	fakeMgtClusterClient.WaitForPackageInstallReturns(nil)
-	fakeMgtClusterClient.GetPackageReturnsOnCall(0, pkg_kapp, nil)
+	fakeMgtClusterClient.GetPackageReturnsOnCall(0, pkgKapp, nil)
 	fakeWcClusterClient.WaitForPackageInstallReturns(nil)
-	fakeWcClusterClient.GetPackageReturnsOnCall(0, pkg_cni, nil)
-	fakeWcClusterClient.GetPackageReturnsOnCall(1, pkg_csi, nil)
-	fakeWcClusterClient.GetPackageReturnsOnCall(2, pkg_cpi, nil)
+	fakeWcClusterClient.GetPackageReturnsOnCall(0, pkgCni, nil)
+	fakeWcClusterClient.GetPackageReturnsOnCall(1, pkgCsi, nil)
+	fakeWcClusterClient.GetPackageReturnsOnCall(2, pkgCpi, nil)
 }

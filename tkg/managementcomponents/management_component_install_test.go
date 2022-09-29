@@ -20,6 +20,10 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 )
 
+const (
+	addonsManager = "addons-manager"
+)
+
 func Test(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "ManagementComponent Suite")
@@ -176,12 +180,6 @@ var _ = Describe("Test WaitForManagementPackages", func() {
 })
 
 var _ = Describe("Test PauseAddonLifecycleManagement", func() {
-
-	type fakeGroupResource struct {
-		Group    string
-		Resource string
-	}
-
 	var (
 		clusterClient *fakes.ClusterClient
 		err           error
@@ -196,7 +194,7 @@ var _ = Describe("Test PauseAddonLifecycleManagement", func() {
 	BeforeEach(func() {
 		clusterClient = &fakes.ClusterClient{}
 		clusterName = "mgmtCluster"
-		addonName = "addons-manager"
+		addonName = addonsManager
 	})
 
 	JustBeforeEach(func() {
@@ -228,11 +226,6 @@ var _ = Describe("Test PauseAddonLifecycleManagement", func() {
 })
 
 var _ = Describe("Test NoopDeletePackageInstall", func() {
-	type fakeGroupResource struct {
-		Group    string
-		Resource string
-	}
-
 	var (
 		clusterClient *fakes.ClusterClient
 		err           error
@@ -245,7 +238,7 @@ var _ = Describe("Test NoopDeletePackageInstall", func() {
 
 	BeforeEach(func() {
 		clusterClient = &fakes.ClusterClient{}
-		addonName = "addons-manager"
+		addonName = addonsManager
 		clusterClient.PatchResourceReturns(nil)
 		clusterClient.DeleteResourceReturns(nil)
 	})
@@ -295,12 +288,6 @@ var _ = Describe("Test NoopDeletePackageInstall", func() {
 })
 
 var _ = Describe("Test DeleteAddonSecret", func() {
-
-	type fakeGroupResource struct {
-		Group    string
-		Resource string
-	}
-
 	var (
 		clusterClient *fakes.ClusterClient
 		err           error
@@ -313,7 +300,7 @@ var _ = Describe("Test DeleteAddonSecret", func() {
 
 	BeforeEach(func() {
 		clusterClient = &fakes.ClusterClient{}
-		addonName = "addons-manager"
+		addonName = addonsManager
 		clusterClient.GetResourceReturns(nil)
 		clusterClient.UpdateResourceReturns(nil)
 		clusterClient.PatchResourceReturns(nil)
@@ -382,11 +369,6 @@ var _ = Describe("Test DeleteAddonSecret", func() {
 
 var _ = Describe("Test AddonSecretExists", func() {
 
-	type fakeGroupResource struct {
-		Group    string
-		Resource string
-	}
-
 	var (
 		clusterClient               *fakes.ClusterClient
 		err                         error
@@ -399,7 +381,7 @@ var _ = Describe("Test AddonSecretExists", func() {
 
 	BeforeEach(func() {
 		clusterClient = &fakes.ClusterClient{}
-		addonName = "addons-manager"
+		addonName = addonsManager
 		clusterClient.GetResourceReturns(nil)
 		clusterClient.UpdateResourceReturns(nil)
 		clusterClient.PatchResourceReturns(nil)

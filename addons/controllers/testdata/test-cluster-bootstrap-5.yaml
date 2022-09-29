@@ -46,6 +46,9 @@ metadata:
 spec:
   infrastructureRef:
     kind: VSphereCluster
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    name: test-cluster-5
+    namespace: cluster-namespace-5
   clusterNetwork:
     pods:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
@@ -58,6 +61,9 @@ metadata:
   name: test-cluster-5
   namespace: cluster-namespace-5
 spec:
+  identityRef:
+    kind: Secret
+    name: test-cluster-tcbt-5
   thumbprint: test-thumbprint
   server: vsphere-server.local
 ---
@@ -76,6 +82,15 @@ spec:
           - networkName: test-network
             dhcp6: true
             dhcp4: false
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-tcbt-5
+  namespace: cluster-namespace-5
+data:
+  password: QWRtaW4hMjM= # Admin!23
+  username: YWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2Fs # administrator@vsphere.local
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package

@@ -19,7 +19,7 @@ func main() {
 	defer Cleanup()
 	p, err := plugin.NewPlugin(descriptor)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err) //nolint:gocritic
 	}
 	p.Cmd.RunE = test
 	if err := p.Execute(); err != nil {

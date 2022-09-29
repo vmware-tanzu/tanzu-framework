@@ -15,6 +15,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 )
 
+//nolint:funlen,gocyclo
 func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.Cluster, options *SetMachineDeploymentOptions) error {
 	var update *capi.MachineDeploymentTopology
 	var base *capi.MachineDeploymentTopology
@@ -127,6 +128,7 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 	return createNewMachineDeployment(clusterClient, cluster, options, base)
 }
 
+//nolint:gocyclo
 func createNewMachineDeployment(clusterClient clusterclient.Client, cluster *capi.Cluster, options *SetMachineDeploymentOptions, base *capi.MachineDeploymentTopology) error {
 	if options.NodeMachineType != "" {
 		var workerVariable = getClusterVariableByName("worker", base.Variables.Overrides)
@@ -214,6 +216,7 @@ func createNewMachineDeployment(clusterClient clusterclient.Client, cluster *cap
 	return clusterClient.UpdateResource(cluster, options.ClusterName, options.Namespace)
 }
 
+//nolint:gocyclo
 func setVSphereVCenterOptions(options *SetMachineDeploymentOptions, base *capi.MachineDeploymentTopology, cluster *capi.Cluster) error {
 	if options.VSphere.CloneMode != "" || options.VSphere.Datacenter != "" || options.VSphere.Datastore != "" ||
 		options.VSphere.Folder != "" || options.VSphere.Network != "" || options.VSphere.ResourcePool != "" ||

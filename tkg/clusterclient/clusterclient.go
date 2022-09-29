@@ -506,9 +506,9 @@ func (c *client) GetKubeConfigPath() string {
 }
 
 // Apply runs kubectl apply every `interval` until it succeeds or a timeout is reached.
-func (c *client) Apply(yaml string) error {
+func (c *client) Apply(yamlStr string) error {
 	_, err := c.poller.PollImmediateWithGetter(kubectlApplyRetryInterval, kubectlApplyRetryTimeout, func() (interface{}, error) {
-		return nil, c.kubectlApply(yaml)
+		return nil, c.kubectlApply(yamlStr)
 	})
 	return err
 }
@@ -1291,13 +1291,13 @@ func (c *client) kubectlApplyFile(url string) error {
 	return nil
 }
 
-func (c *client) kubectlApply(yaml string) error {
+func (c *client) kubectlApply(yamlStr string) error {
 	f, err := os.CreateTemp("", "kubeapply-")
 	if err != nil {
 		return errors.Wrap(err, "unable to create temp file")
 	}
 	defer removeAppliedFile(f)
-	err = os.WriteFile(f.Name(), []byte(yaml), constants.ConfigFilePermissions)
+	err = os.WriteFile(f.Name(), []byte(yamlStr), constants.ConfigFilePermissions)
 	if err != nil {
 		return errors.Wrap(err, "unable to write temp file")
 	}
@@ -1593,14 +1593,14 @@ func (c *client) UpdateReplicas(resourceReference interface{}, resourceName, res
 }
 
 func (c *client) GetPacificTKCAPIVersion() (string, error) {
-	yaml, err := c.poller.PollImmediateWithGetter(kubectlApplyRetryInterval, kubectlApplyRetryTimeout, func() (interface{}, error) {
+	yamlOutput, err := c.poller.PollImmediateWithGetter(kubectlApplyRetryInterval, kubectlApplyRetryTimeout, func() (interface{}, error) {
 		return c.kubectlExplainResource("tkc")
 	})
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get kubectl explain response for tkc resource")
 	}
 
-	yamlBytes := yaml.([]byte)
+	yamlBytes := yamlOutput.([]byte)
 	re := regexp.MustCompile(`VERSION:(.*)\n`)
 	match := re.FindStringSubmatch(string(yamlBytes))
 	if len(match) == 0 || strings.TrimSpace(match[1]) == "" {
@@ -2301,7 +2301,7 @@ func (c *client) RemoveCEIPTelemetryJob(clusterName string) error {
 	return nil
 }
 
-func (c *client) AddCEIPTelemetryJob(clusterName, providerName string, bomConfig *tkgconfigbom.BOMConfiguration, isProd, labels, httpProxy, httpsProxy, noProxy string) error {
+func (c *client) AddCEIPTelemetryJob(clusterName, providerName string, bomConfig *tkgconfigbom.BOMConfiguration, isProd, labelsStr, httpProxy, httpsProxy, noProxy string) error {
 	var telemetryPath string
 	log.V(5).Infof("IsProd: %s", isProd)
 	if buildinfo.IsOfficialBuild == "True" {
@@ -2328,8 +2328,8 @@ func (c *client) AddCEIPTelemetryJob(clusterName, providerName string, bomConfig
 	if err != nil {
 		return errors.Wrap(err, "failed to parse telemetry spec yaml")
 	}
-	log.V(5).Infof(string(telemetryConfigYaml), clusterName, imageRepository, telemetryPath, labels, httpProxy, httpsProxy, noProxy)
-	err = c.kubectlApply(fmt.Sprintf(string(telemetryConfigYaml), clusterName, imageRepository, telemetryPath, labels, httpProxy, httpsProxy, noProxy))
+	log.V(5).Infof(string(telemetryConfigYaml), clusterName, imageRepository, telemetryPath, labelsStr, httpProxy, httpsProxy, noProxy)
+	err = c.kubectlApply(fmt.Sprintf(string(telemetryConfigYaml), clusterName, imageRepository, telemetryPath, labelsStr, httpProxy, httpsProxy, noProxy))
 	if err != nil {
 		return errors.Wrap(err, "failed to apply telemetry spec")
 	}
@@ -2419,13 +2419,13 @@ func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error
 
 	imageRepoMap := make(map[string]string)
 
-	for _, cm := range cmList.Items {
+	for _, cm := range cmList.Items { //nolint:gocritic
 		mapString, ok := cm.Data["imageRepoMap"]
 		if !ok {
 			continue
 		}
 		irm := make(map[string]string)
-		err = yaml.Unmarshal([]byte(mapString), &irm)
+		err = yaml.Unmarshal([]byte(mapString), &irm) //nolint:ineffassign,staticcheck
 		for k, v := range irm {
 			if _, exists := imageRepoMap[k]; exists {
 				return nil, errors.Errorf("multiple references of image repository %q found while doing image repository override", k)
@@ -2474,14 +2474,14 @@ func (c *client) RemoveMatchingLabelsFromResources(gvk schema.GroupVersionKind, 
 	}
 
 	for _, item := range resource.Items {
-		obj := &item
-		labels := obj.GetLabels()
+		obj := item
+		labelsMap := obj.GetLabels()
 		for _, key := range labelsToBeDeleted {
-			delete(labels, key)
+			delete(labelsMap, key)
 		}
 
-		obj.SetLabels(labels)
-		err = c.UpdateResource(obj, obj.GetName(), obj.GetNamespace())
+		obj.SetLabels(labelsMap)
+		err = c.UpdateResource(&obj, obj.GetName(), obj.GetNamespace())
 		if err != nil {
 			return errors.Wrap(err, "error while updating labels")
 		}
