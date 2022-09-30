@@ -14,6 +14,11 @@ import (
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 )
 
+const (
+	defaultDataValueNameSpace          = "tkg-system"
+	defaultDataValueDeploymentReplicas = 3
+)
+
 // getOwnerCluster verifies that the AwsEbsCSIConfig has a cluster as its owner reference,
 // and returns the cluster. It tries to read the cluster name from the AwsEbsCSIConfig's owner reference objects.
 // If not there, we assume the owner cluster and AwsEbsCSIConfig always has the same name.
@@ -49,13 +54,28 @@ func (r *AwsEbsCSIConfigReconciler) mapAwsEbsCSIConfigToDataValues(ctx context.C
 	awsEbsCSIConfig *csiv1alpha1.AwsEbsCSIConfig,
 	cluster *clusterapiv1beta1.Cluster) (*DataValues, error) {
 
-	dvs := &DataValues{}
-	dvs.AwsEbsCSI = &DataValuesAwsEbsCSI{}
-	dvs.AwsEbsCSI.Namespace = awsEbsCSIConfig.Spec.AwsEbsCSI.Namespace
+	dvs := &DataValues{
+		AwsEbsCSI: &DataValuesAwsEbsCSI{
+			Namespace:          defaultDataValueNameSpace,
+			DeploymentReplicas: defaultDataValueDeploymentReplicas,
+			HTTPProxy:          "",
+			HTTPSProxy:         "",
+			NoProxy:            "",
+		},
+	}
+
+	// TODO do we need to check namespace's existense here ? leave it not checked, in case user may create namespacd asyncly
+	if awsEbsCSIConfig.Spec.AwsEbsCSI.Namespace != "" {
+		dvs.AwsEbsCSI.Namespace = awsEbsCSIConfig.Spec.AwsEbsCSI.Namespace
+	}
+
 	dvs.AwsEbsCSI.HTTPProxy = awsEbsCSIConfig.Spec.AwsEbsCSI.HTTPProxy
 	dvs.AwsEbsCSI.HTTPSProxy = awsEbsCSIConfig.Spec.AwsEbsCSI.HTTPSProxy
 	dvs.AwsEbsCSI.NoProxy = awsEbsCSIConfig.Spec.AwsEbsCSI.NoProxy
-	dvs.AwsEbsCSI.DeploymentReplicas = *awsEbsCSIConfig.Spec.AwsEbsCSI.DeploymentReplicas
+
+	if awsEbsCSIConfig.Spec.AwsEbsCSI.DeploymentReplicas != nil {
+		dvs.AwsEbsCSI.DeploymentReplicas = *awsEbsCSIConfig.Spec.AwsEbsCSI.DeploymentReplicas
+	}
 
 	return dvs, nil
 }

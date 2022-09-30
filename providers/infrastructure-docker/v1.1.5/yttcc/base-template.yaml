@@ -4,10 +4,7 @@ metadata:
   name: ${CLUSTER_NAME}
   labels:
     tkg.tanzu.vmware.com/cluster-name: '${ CLUSTER_NAME }'
-<<<<<<< HEAD
     run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.2-zshippable
-=======
->>>>>>> 8d81d42a (update t-f pipeline to use 0.27.0/1.7.0 for cluster class)
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
 spec:

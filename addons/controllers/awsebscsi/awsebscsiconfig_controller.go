@@ -42,11 +42,8 @@ type AwsEbsCSIConfigReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *AwsEbsCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.Log = r.Log.WithValues("AwsEbsCSIConfig", req.NamespacedName)
-	ctx = logr.NewContext(ctx, r.Log)
-	logger := log.FromContext(ctx)
-	_ = context.Background()
-	_ = r.Log.WithValues("AwsEbsCSIConfig", req.NamespacedName)
+	logger := r.Log.WithValues("AwsEbsCSIConfig", req.NamespacedName)
+	r.Log.Info("Start AwsEbsCSIConfig reconciliation")
 
 	awsebsCSIConfig := &csiv1alpha1.AwsEbsCSIConfig{}
 	if err := r.Get(ctx, req.NamespacedName, awsebsCSIConfig); err != nil {
