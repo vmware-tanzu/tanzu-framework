@@ -18,12 +18,13 @@ import (
 )
 
 var descriptor = cliapi.PluginDescriptor{
-	Name:        "cluster",
-	Description: "Kubernetes cluster operations",
-	Group:       cliapi.RunCmdGroup,
-	Aliases:     []string{"cl", "clusters"},
-	Version:     buildinfo.Version,
-	BuildSHA:    buildinfo.SHA,
+	Name:                "cluster",
+	Description:         "Kubernetes cluster operations",
+	Group:               cliapi.RunCmdGroup,
+	Aliases:             []string{"cl", "clusters"},
+	Version:             buildinfo.Version,
+	BuildSHA:            buildinfo.SHA,
+	DefaultFeatureFlags: DefaultFeatureFlagsForClusterPlugin,
 }
 
 var logLevel int32

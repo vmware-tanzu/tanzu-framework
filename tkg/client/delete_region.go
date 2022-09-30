@@ -138,7 +138,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		}
 
 		// If clusterclass feature flag is enabled then deploy kapp-controller
-		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 			if err = c.InstallOrUpgradeKappController(cleanupClusterKubeconfigPath, "", constants.OperationTypeInstall); err != nil {
 				return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
 			}
@@ -151,7 +151,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		}
 
 		// If clusterclass feature flag is enabled then deploy management components
-		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 			// Read config variable from management cluster and set it into cleanup cluster
 			configValues, err := c.getUserConfigVariableValueMapFromSecret(regionContext.SourceFilePath, regionContext.ContextName)
 			if err != nil {

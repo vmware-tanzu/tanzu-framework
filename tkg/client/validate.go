@@ -116,7 +116,7 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 	}
 
 	namespace := constants.TkrNamespace
-	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		//TODO: After CLI fully support package based LCM, "constants.TkrNamespace" should be updated to "tkg-system"
 		namespace = "tkg-system"
 	}
@@ -2071,10 +2071,10 @@ func (c *TkgClient) validateNameservers(nameserverConfigVariable, clusterRole st
 		return nil
 	}
 
-	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(config.FeatureFlagManagementClusterCustomNameservers) {
-		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, config.FeatureFlagManagementClusterCustomNameservers)
-	} else if clusterRole == TkgLabelClusterRoleWorkload && !c.IsFeatureActivated(config.FeatureFlagClusterCustomNameservers) {
-		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, config.FeatureFlagClusterCustomNameservers)
+	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(constants.FeatureFlagManagementClusterCustomNameservers) {
+		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, constants.FeatureFlagManagementClusterCustomNameservers)
+	} else if clusterRole == TkgLabelClusterRoleWorkload && !c.IsFeatureActivated(constants.FeatureFlagClusterCustomNameservers) {
+		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, constants.FeatureFlagClusterCustomNameservers)
 	}
 
 	invalidNameservers := []string{}
@@ -2096,22 +2096,22 @@ func (c *TkgClient) validateNameservers(nameserverConfigVariable, clusterRole st
 
 func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) error {
 	if clusterRole == TkgLabelClusterRoleManagement {
-		dualIPv4PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagManagementClusterDualStackIPv4Primary)
+		dualIPv4PrimaryEnabled := c.IsFeatureActivated(constants.FeatureFlagManagementClusterDualStackIPv4Primary)
 		if !dualIPv4PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv4Family {
-			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagManagementClusterDualStackIPv4Primary)
+			return dualStackFeatureFlagError(ipFamily, constants.FeatureFlagManagementClusterDualStackIPv4Primary)
 		}
-		dualIPv6PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagManagementClusterDualStackIPv6Primary)
+		dualIPv6PrimaryEnabled := c.IsFeatureActivated(constants.FeatureFlagManagementClusterDualStackIPv6Primary)
 		if !dualIPv6PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv6Family {
-			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagManagementClusterDualStackIPv6Primary)
+			return dualStackFeatureFlagError(ipFamily, constants.FeatureFlagManagementClusterDualStackIPv6Primary)
 		}
 	} else {
-		dualIPv4PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagClusterDualStackIPv4Primary)
+		dualIPv4PrimaryEnabled := c.IsFeatureActivated(constants.FeatureFlagClusterDualStackIPv4Primary)
 		if !dualIPv4PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv4Family {
-			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagClusterDualStackIPv4Primary)
+			return dualStackFeatureFlagError(ipFamily, constants.FeatureFlagClusterDualStackIPv4Primary)
 		}
-		dualIPv6PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagClusterDualStackIPv6Primary)
+		dualIPv6PrimaryEnabled := c.IsFeatureActivated(constants.FeatureFlagClusterDualStackIPv6Primary)
 		if !dualIPv6PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv6Family {
-			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagClusterDualStackIPv6Primary)
+			return dualStackFeatureFlagError(ipFamily, constants.FeatureFlagClusterDualStackIPv6Primary)
 		}
 	}
 
