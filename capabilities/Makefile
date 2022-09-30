@@ -20,7 +20,7 @@ CRD_OPTIONS ?= "crd"
 all: manager
 
 # Run tests
-test: fmt vet manifests
+test: fmt vet
 	cd client && go test ./... -coverprofile cover.out
 	cd controller && go test ./... -coverprofile cover.out
 
