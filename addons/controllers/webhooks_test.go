@@ -10,7 +10,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	cert2 "k8s.io/client-go/util/cert"
-	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/webhooks"
@@ -21,8 +20,6 @@ const (
 	oneWeek  = time.Hour * 24 * 7
 	zeroTime = time.Second * 0
 )
-
-var setupLog = ctrl.Log.WithName("controllers").WithName("Addon")
 
 var _ = Describe("when webhook TLS is being continuously managed", func() {
 

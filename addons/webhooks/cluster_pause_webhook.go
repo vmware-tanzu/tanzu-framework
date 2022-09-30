@@ -16,7 +16,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -42,7 +41,7 @@ var (
 )
 
 // Default satisfies the defaulting webhook interface.
-func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
+func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error { //nolint
 	var tkrVersion, currentTkrVersion string
 	var tkrLabelFound, ok bool
 
@@ -55,7 +54,7 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 		return nil
 	}
 
-	if tkrVersion, tkrLabelFound = cluster.Labels[v1alpha3.LabelTKR]; !tkrLabelFound {
+	if tkrVersion, tkrLabelFound = cluster.Labels[runtanzuv1alpha3.LabelTKR]; !tkrLabelFound {
 		return nil
 	}
 
@@ -70,7 +69,7 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 	}
 
 	if currentCluster.Labels != nil {
-		currentTkrVersion, tkrLabelFound = currentCluster.Labels[v1alpha3.LabelTKR]
+		currentTkrVersion, tkrLabelFound = currentCluster.Labels[runtanzuv1alpha3.LabelTKR]
 	}
 
 	// want to verify the current TKR object (before upgrade) is not a legacy one

@@ -365,7 +365,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			By("create aggregated cluster role")
 			clusterRole := &rbacv1.ClusterRole{}
 			Eventually(func() bool {
-				key := client.ObjectKey{
+				key = client.ObjectKey{
 					Name: constants.VsphereCPIProviderServiceAccountAggregatedClusterRole,
 				}
 				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {

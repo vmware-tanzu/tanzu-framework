@@ -28,7 +28,6 @@ import (
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
 
@@ -51,7 +50,6 @@ func (r *VSphereCPIConfigReconciler) ClusterToVSphereCPIConfig(o client.Object) 
 	for i := 0; i < len(cs.Items); i++ {
 		config := &cs.Items[i]
 		if config.Namespace == cluster.Namespace {
-
 			// avoid enqueuing reconcile requests for template vSphereCPIConfig CRs in event handler of Cluster CR
 			if _, ok := config.Annotations[constants.TKGAnnotationTemplateConfig]; ok && config.Namespace == r.Config.SystemNamespace {
 				continue
@@ -435,11 +433,6 @@ func getUsernameAndPasswordFromSecret(s *v1.Secret) (string, string, error) {
 	return string(username), string(password), nil
 }
 
-// controlPlaneName returns the control plane name for a cluster name
-func controlPlaneName(clusterName string) string {
-	return fmt.Sprintf("%s-control-plane", clusterName)
-}
-
 // getCCMName returns the name of cloud control manager for a cluster
 func getCCMName(cluster *capvvmwarev1beta1.VSphereCluster) string {
 	return fmt.Sprintf("%s-%s", cluster.Name, "ccm")
@@ -451,24 +444,4 @@ func tryParseString(src string, sub *string) string {
 		return *sub
 	}
 	return src
-}
-
-// tryParseClusterVariableBool tries to parse a boolean cluster variable,
-// info any error that occurs
-func (r *VSphereCPIConfigReconciler) tryParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName string) bool {
-	res, err := util.ParseClusterVariableBool(cluster, variableName)
-	if err != nil {
-		r.Log.Info(fmt.Sprintf("Cannot parse cluster variable with key %s", variableName))
-	}
-	return res
-}
-
-// tryParseClusterVariableString tries to parse a string cluster variable,
-// info any error that occurs
-func (r *VSphereCPIConfigReconciler) tryParseClusterVariableString(cluster *clusterapiv1beta1.Cluster, variableName string) string {
-	res, err := util.ParseClusterVariableString(cluster, variableName)
-	if err != nil {
-		r.Log.Info(fmt.Sprintf("cannot parse cluster variable with key %s", variableName))
-	}
-	return res
 }

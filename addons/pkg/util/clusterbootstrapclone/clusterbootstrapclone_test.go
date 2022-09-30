@@ -444,7 +444,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			// The ClusterBootstrapPackage not set in fakeClusterBootstrapTemplate. They should not be copied
 			Expect(updatedClusterBootstrap.Spec.Kapp).To(BeNil())
 			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
-			for idx, _ := range updatedClusterBootstrap.Spec.AdditionalPackages {
+			for idx := range updatedClusterBootstrap.Spec.AdditionalPackages {
 				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
 				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].ValuesFrom))
 			}
@@ -482,7 +482,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			assertTwoMapsShouldEqual(updatedClusterBootstrap.Spec.CSI.ValuesFrom.Inline, fakeClusterBootstrapTemplate.Spec.CSI.ValuesFrom.Inline)
 
 			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
-			for idx, _ := range updatedClusterBootstrap.Spec.AdditionalPackages {
+			for idx := range updatedClusterBootstrap.Spec.AdditionalPackages {
 				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
 				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].ValuesFrom))
 			}
@@ -536,7 +536,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(updatedClusterBootstrap.Spec.CPI.RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.CPI.RefName))
 
 			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
-			for idx, _ := range updatedClusterBootstrap.Spec.AdditionalPackages {
+			for idx := range updatedClusterBootstrap.Spec.AdditionalPackages {
 				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
 				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(BeNil())
 			}

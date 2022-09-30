@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package util_test
 
 import (
@@ -18,6 +21,12 @@ import (
 	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+)
+
+const (
+	antreaconfigs     = "antreaconfigs"
+	cniTanzuVmwareCom = "cni.tanzu.vmware.com"
+	v1AlphaString     = "v1alpha1"
 )
 
 var _ = Describe("GVRHelper", func() {
@@ -50,7 +59,7 @@ var _ = Describe("GVRHelper", func() {
 				{
 					GroupVersion: antreaconfigv1alpha1.GroupVersion.String(),
 					APIResources: []metav1.APIResource{
-						{Name: "antreaconfigs", Namespaced: true, Kind: "AntreaConfig"},
+						{Name: antreaconfigs, Namespaced: true, Kind: "AntreaConfig"},
 					},
 				},
 				{
@@ -67,12 +76,12 @@ var _ = Describe("GVRHelper", func() {
 						Versions: []metav1.GroupVersionForDiscovery{
 							{
 								GroupVersion: "cni.tanzu.vmware.com/v1alpha1",
-								Version:      "v1alpha1",
+								Version:      v1AlphaString,
 							},
 						},
 						PreferredVersion: metav1.GroupVersionForDiscovery{
 							GroupVersion: "cni.tanzu.vmware.com/v1alpha1",
-							Version:      "v1alpha1",
+							Version:      v1AlphaString,
 						},
 					},
 				},
@@ -85,21 +94,21 @@ var _ = Describe("GVRHelper", func() {
 	Context("when an existing API server resource is looked up", func() {
 
 		It("should return a result with correct group version resource", func() {
-			group := "cni.tanzu.vmware.com"
-			version := "v1alpha1"
-			resource := "antreaconfigs"
+			group := cniTanzuVmwareCom
+			version := v1AlphaString
+			resource := antreaconfigs
 			antreaGVR := schema.GroupVersionResource{Group: group, Version: version, Resource: resource}
 
-			found, err := gvrHelper.GetGVR(schema.GroupKind{Group: "cni.tanzu.vmware.com", Kind: "AntreaConfig"})
+			found, err := gvrHelper.GetGVR(schema.GroupKind{Group: cniTanzuVmwareCom, Kind: "AntreaConfig"})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(*found).To(Equal(antreaGVR))
 
 		})
 
 		It("should not crash in concurrent use", func() {
-			group := "cni.tanzu.vmware.com"
-			version := "v1alpha1"
-			resource := "antreaconfigs"
+			group := cniTanzuVmwareCom
+			version := v1AlphaString
+			resource := antreaconfigs
 			antreaGVR := schema.GroupVersionResource{Group: group, Version: version, Resource: resource}
 
 			var found0, found1 *schema.GroupVersionResource
@@ -107,11 +116,11 @@ var _ = Describe("GVRHelper", func() {
 			wg := sync.WaitGroup{}
 			wg.Add(2)
 			go func() {
-				found0, err0 = gvrHelper.GetGVR(schema.GroupKind{Group: "cni.tanzu.vmware.com", Kind: "AntreaConfig"})
+				found0, err0 = gvrHelper.GetGVR(schema.GroupKind{Group: cniTanzuVmwareCom, Kind: "AntreaConfig"})
 				wg.Done()
 			}()
 			go func() {
-				found1, err1 = gvrHelper.GetGVR(schema.GroupKind{Group: "cni.tanzu.vmware.com", Kind: "AntreaConfig"})
+				found1, err1 = gvrHelper.GetGVR(schema.GroupKind{Group: cniTanzuVmwareCom, Kind: "AntreaConfig"})
 				wg.Done()
 			}()
 			wg.Wait()
