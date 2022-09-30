@@ -8,6 +8,6 @@ import (
 )
 
 func postInstallHook() error {
-	// Configure default feature-flags for management-cluster plugin
+	// Configure default feature-flags for cluster plugin
 	return config.ConfigureDefaultFeatureFlagsIfMissing(DefaultFeatureFlagsForClusterPlugin)
 }

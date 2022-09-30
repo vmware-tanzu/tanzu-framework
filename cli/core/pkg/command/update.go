@@ -14,6 +14,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
+	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -33,7 +34,7 @@ var updateCmd = &cobra.Command{
 		"group": string(cliapi.SystemCmdGroup),
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			return errors.New("CLI self-update is currently not supported. For updating plugins please use the `tanzu plugin sync` command")
 		}
 

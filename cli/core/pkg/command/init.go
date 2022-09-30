@@ -13,6 +13,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
+	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
@@ -36,7 +37,7 @@ var initCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			err = initPluginsWithContextAwareCLI()
 			if err != nil {
 				return err

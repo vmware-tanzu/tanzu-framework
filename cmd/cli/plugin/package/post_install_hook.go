@@ -8,6 +8,6 @@ import (
 )
 
 func postInstallHook() error {
-	// Configure default feature-flags for tkr plugin
+	// Configure default feature-flags for package plugin
 	return config.ConfigureDefaultFeatureFlagsIfMissing(DefaultFeatureFlagsForPackagePlugin)
 }
