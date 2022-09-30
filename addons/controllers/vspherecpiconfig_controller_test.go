@@ -21,6 +21,7 @@ import (
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	controllers "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
@@ -199,6 +200,127 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// the data values secret should be generated
+			secret := &v1.Secret{}
+			Eventually(func() bool {
+				secretKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName),
+				}
+				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+					return false
+				}
+				secretData := string(secret.Data["values.yaml"])
+				Expect(len(secretData)).ShouldNot(BeZero())
+				Expect(strings.Contains(secretData, "vsphereCPI:")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "mode: vsphereCPI")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "datacenter: dc0")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "region: test-region")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "zone: test-zone")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "insecureFlag: true")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "ipFamily: ipv6")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "vmInternalNetwork: internal-net")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "vmExternalNetwork: external-net")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "vmExcludeInternalNetworkSubnetCidr: 192.168.3.0/24")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "vmExcludeExternalNetworkSubnetCidr: 22.22.3.0/24")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "tlsThumbprint: test-thumbprint")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "server: vsphere-server.local")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "username: foo")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "password: bar")).Should(BeTrue())
+
+				Expect(strings.Contains(secretData, "http_proxy: foo.com")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "https_proxy: bar.com")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "no_proxy: foobar.com")).Should(BeTrue())
+
+				//assert that there are no paravirt datavalue keys
+				Expect(strings.Contains(secretData, "clusterAPIVersion:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "clusterKind:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "clusterName:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "supervisorMasterEndpointIP:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "supervisorMasterPort:")).Should(BeFalse())
+
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// eventually the secret ref to the data values should be updated
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, key, config); err != nil {
+					return false
+				}
+				Expect(config.Status.SecretRef).To(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName)))
+				return true
+			})
+		})
+	})
+
+	Context("reconcile VSphereCPIConfig manifests in non-paravirtual mode, when clusterbootstrapController doesn't add ownerRef to VSphereCPIConfig", func() {
+
+		BeforeEach(func() {
+			clusterName = "test-cluster-cpi-enqueue-cluster-event"
+			clusterResourceFilePath = "testdata/test-vsphere-cpi-non-paravirtual-enqueue-cluster-event-cluster-spec.yaml"
+		})
+
+		It("should not create data values secret until VSphereCPIConfig has an OwnerRef to correct cluster", func() {
+			cluster := &clusterapiv1beta1.Cluster{}
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, key, cluster); err != nil {
+					return false
+				}
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// the vsphere cluster and vsphere machine template should be provided
+			vsphereCluster := &capvv1beta1.VSphereCluster{}
+			cpMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, key, vsphereCluster); err != nil {
+					return false
+				}
+				if err := k8sClient.Get(ctx, client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      clusterName + "-control-plane-template",
+				}, cpMachineTemplate); err != nil {
+					return false
+				}
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			By("patching cpi with ownerRef")
+			config := &cpiv1alpha1.VSphereCPIConfig{}
+			cpiConfigKey := client.ObjectKey{
+				Namespace: clusterNamespace,
+				Name:      "test-cluster-cpi-enqueue-cluster-event-random",
+			}
+			Consistently(func() bool {
+				if err := k8sClient.Get(ctx, cpiConfigKey, config); err != nil {
+					return false
+				}
+				Expect(*config.Spec.VSphereCPI.Mode).Should(Equal("vsphereCPI"))
+				Expect(*config.Spec.VSphereCPI.Region).Should(Equal("test-region"))
+				Expect(*config.Spec.VSphereCPI.Zone).Should(Equal("test-zone"))
+
+				if len(config.OwnerReferences) > 0 {
+					return false
+				}
+				Expect(len(config.OwnerReferences)).Should(Equal(0))
+
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			By("patching cpi with ownerRef as ClusterBootstrapController would do")
+			// patch the VSphereCPIConfig with ownerRef
+			patchedVSphereCPIConfig := config.DeepCopy()
+			ownerRef := metav1.OwnerReference{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			}
+
+			ownerRef.Kind = "Cluster"
+			patchedVSphereCPIConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedVSphereCPIConfig.OwnerReferences, ownerRef)
+			Expect(k8sClient.Patch(ctx, patchedVSphereCPIConfig, client.MergeFrom(config))).ShouldNot(HaveOccurred())
 
 			// the data values secret should be generated
 			secret := &v1.Secret{}
