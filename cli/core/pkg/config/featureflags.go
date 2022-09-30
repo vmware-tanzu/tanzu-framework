@@ -37,13 +37,13 @@ const (
 // no conflict with previous installs (that have a false value for the entry "features.cluster.foo-bar-beta").
 var (
 	DefaultCliFeatureFlags = map[string]bool{
-		FeatureContextAwareCLIForPlugins: ContextAwareDiscoveryEnabled(),
+		FeatureContextAwareCLIForPlugins: contextAwareDiscoveryEnabled(),
 		FeatureContextCommand:            false,
 	}
 )
 
-// ContextAwareDiscoveryEnabled returns true if the IsContextAwareDiscoveryEnabled
+// contextAwareDiscoveryEnabled returns true if the IsContextAwareDiscoveryEnabled
 // is set to true during build time
-func ContextAwareDiscoveryEnabled() bool {
+func contextAwareDiscoveryEnabled() bool {
 	return strings.EqualFold(IsContextAwareDiscoveryEnabled, "true")
 }

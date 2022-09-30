@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -173,7 +174,7 @@ func Test_ContextCatalog_With_Context(t *testing.T) {
 // the featuregate is configured to true by default
 func Test_CatalogCacheFileName(t *testing.T) {
 	assert := assert.New(t)
-	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 		assert.Equal(catalogCacheFileName, "catalog.yaml")
 	}
 }
