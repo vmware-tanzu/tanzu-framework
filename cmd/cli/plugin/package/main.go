@@ -21,11 +21,12 @@ import (
 )
 
 var descriptor = cliapi.PluginDescriptor{
-	Name:        "package",
-	Description: "Tanzu package management",
-	Group:       cliapi.RunCmdGroup,
-	Version:     buildinfo.Version,
-	BuildSHA:    buildinfo.SHA,
+	Name:            "package",
+	Description:     "Tanzu package management",
+	Group:           cliapi.RunCmdGroup,
+	Version:         buildinfo.Version,
+	BuildSHA:        buildinfo.SHA,
+	PostInstallHook: postInstallHook,
 }
 
 var logLevel int32
@@ -38,7 +39,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if config.IsFeatureActivated(config.FeatureFlagPackagePluginKctrlCommandTree) {
+	if config.IsFeatureActivated(FeatureFlagPackagePluginKctrlCommandTree) {
 		if err := kctrl.Invoke(p); err != nil {
 			os.Exit(1)
 		}

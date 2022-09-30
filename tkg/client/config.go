@@ -105,7 +105,7 @@ func (c *TkgClient) getClusterConfiguration(options *ClusterConfigOptions, isMan
 	// Set CLUSTER_PLAN to viper configuration
 	c.SetPlan(options.ProviderRepositorySource.Flavor)
 
-	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		c.TKGConfigReaderWriter().Set(constants.ConfigVariableFeatureFlagPackageBasedLCM, "true")
 	}
 

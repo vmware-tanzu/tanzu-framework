@@ -313,7 +313,7 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		return false, err
 	}
 
-	featureFlagPackageBasedLCMEnabled := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM)
+	featureFlagPackageBasedLCMEnabled := config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM)
 
 	// If `package-based-lcm` featureflag is enabled and deploying management cluster
 	// Always use ClusterClass based Cluster deployment
@@ -324,8 +324,8 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		return true, nil
 	}
 
-	deployClusterClassBasedCluster := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) &&
-		(config.IsFeatureActivated(config.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayPresent)
+	deployClusterClassBasedCluster := config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) &&
+		(config.IsFeatureActivated(constants.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayPresent)
 
 	return deployClusterClassBasedCluster, nil
 }

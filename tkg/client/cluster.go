@@ -147,7 +147,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 			clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
 			if err != nil {
 				return false, err
@@ -162,7 +162,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 
 			// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
 			// log command to use to create cluster using ClusterClass based config file and return
-			if !config.IsFeatureActivated(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
+			if !config.IsFeatureActivated(constants.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
 				log.Warningf("\nTo create a cluster with it, use")
 				log.Warningf("    tanzu cluster create --file %v", configFilePath)
 				return false, nil
