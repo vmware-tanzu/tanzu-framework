@@ -50,6 +50,7 @@ func main() {
 		getClustersCmd,
 		availableUpgradesCmd,
 		clusterNodePoolCmd,
+		osImageCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

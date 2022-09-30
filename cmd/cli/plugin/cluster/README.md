@@ -196,3 +196,13 @@ Flags:
   -h, --help                 help for get
   -n, --namespace string     The namespace where the workload cluster was created. Assumes 'default' if not specified.
 ```
+
+Run `tanzu cluster osimage` to import your own Kubernetes node image to specific cloud infrastructure, and patched TKR
+to consume the imported image. For example,
+
+```shell
+tanzu cluster osimage oracle populate \
+  --image https://objectstorage.us-sanjose-1.oraclecloud.com/n/axxxxxxxxxx8/b/exported-node-images/o/ubuntu-2004 \
+  --tkr-path gcr.io/my-project-1527816345739/tkg/tkr/tkr-oci:latest \
+  --compartment ocid1.compartment.oc1..aaaaaaaawgxbth6afwfzkxxxxxxxxxxxxxxmrf2ouxqa6ifrfa
+```
