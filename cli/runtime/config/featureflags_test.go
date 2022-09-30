@@ -22,10 +22,7 @@ func TestConfigFeatures(t *testing.T) {
 	cliFeatureMap[pluginName] = cliFeatureFlags
 	cfg := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
-			CLI: &configapi.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-			},
+			CLI:      &configapi.CLIOptions{},
 			Features: cliFeatureMap,
 		},
 	}
@@ -37,10 +34,7 @@ func TestConfigFeatures(t *testing.T) {
 func TestConfigFeaturesDefault(t *testing.T) {
 	cfg := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
-			CLI: &configapi.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-			},
+			CLI: &configapi.CLIOptions{},
 		},
 	}
 	const featureFoo = "features.management-cluster.foo"
@@ -71,10 +65,7 @@ func TestConfigFeaturesDefaultInvalid(t *testing.T) {
 	}
 	cfg := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
-			CLI: &configapi.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-			},
+			CLI: &configapi.CLIOptions{},
 		},
 	}
 	err := populateDefaultCliFeatureValues(cfg, cliFeatureFlags)
@@ -85,10 +76,7 @@ func TestConfigFeaturesInvalidName(t *testing.T) {
 	const featureFoo = "invalid.foo"
 	cfg := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
-			CLI: &configapi.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-			},
+			CLI: &configapi.CLIOptions{},
 		},
 	}
 	result, err := cfg.IsConfigFeatureActivated(featureFoo)
@@ -105,10 +93,7 @@ func TestConfigFeaturesInvalidValue(t *testing.T) {
 	cliFeatureMap["management-cluster"] = cliFeatureFlags
 	cfg := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
-			CLI: &configapi.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-			},
+			CLI:      &configapi.CLIOptions{},
 			Features: cliFeatureMap,
 		},
 	}
@@ -121,10 +106,7 @@ func TestConfigFeaturesSplitName(t *testing.T) {
 	const featureValid = "features.valid-plugin.foo"
 	cfg := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
-			CLI: &configapi.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-			},
+			CLI: &configapi.CLIOptions{},
 		},
 	}
 	pluginName, featureName, err := cfg.SplitFeaturePath(featureValid)
@@ -137,10 +119,7 @@ func TestConfigFeaturesSplitNameInvalid(t *testing.T) {
 	const featureInvalid = "invalid.foo"
 	cfg := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
-			CLI: &configapi.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-			},
+			CLI: &configapi.CLIOptions{},
 		},
 	}
 	_, _, err := cfg.SplitFeaturePath(featureInvalid)
@@ -163,20 +142,17 @@ func TestConfigFeaturesDefaultsAdded(t *testing.T) {
 	cliFeatureMap["existing"] = cliFeatureFlags
 	cfg := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
-			CLI: &configapi.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-			},
+			CLI:      &configapi.CLIOptions{},
 			Features: cliFeatureMap,
 		},
 	}
 
-	added := addDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
-	require.True(t, added, "addDefaultFeatureFlagsIfMissing should have added missing default values")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
-	require.Equal(t, cfg.ClientOptions.Features["global"]["truthy"], "true", "addDefaultFeatureFlagsIfMissing should have added global TRUE value for truthy")
-	require.Equal(t, cfg.ClientOptions.Features["global"]["falsey"], "false", "addDefaultFeatureFlagsIfMissing should have added global FALSE value for falsey")
+	added := UpdateDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
+	require.True(t, added, "UpdateDefaultFeatureFlagsIfMissing should have added missing default values")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "UpdateDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "UpdateDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
+	require.Equal(t, cfg.ClientOptions.Features["global"]["truthy"], "true", "UpdateDefaultFeatureFlagsIfMissing should have added global TRUE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["global"]["falsey"], "false", "UpdateDefaultFeatureFlagsIfMissing should have added global FALSE value for falsey")
 }
 
 func TestConfigFeaturesDefaultsNoneAdded(t *testing.T) {
@@ -193,16 +169,24 @@ func TestConfigFeaturesDefaultsNoneAdded(t *testing.T) {
 	cliFeatureMap["existing"] = cliFeatureFlags
 	cfg := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
-			CLI: &configapi.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-			},
+			CLI:      &configapi.CLIOptions{},
 			Features: cliFeatureMap,
 		},
 	}
 
-	added := addDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
-	require.False(t, added, "addDefaultFeatureFlagsIfMissing should NOT have added any default values")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
+	added := UpdateDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
+	require.False(t, added, "UpdateDefaultFeatureFlagsIfMissing should NOT have added any default values")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "UpdateDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "UpdateDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
+}
+
+func populateDefaultCliFeatureValues(c *configapi.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
+	for featureName, flagValue := range defaultCliFeatureFlags {
+		plugin, flag, err := c.SplitFeaturePath(featureName)
+		if err != nil {
+			return err
+		}
+		addFeatureFlag(c, plugin, flag, flagValue)
+	}
+	return nil
 }

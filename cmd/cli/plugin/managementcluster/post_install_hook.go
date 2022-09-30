@@ -4,8 +4,9 @@
 package main
 
 import (
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
+
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 func postInstallHook() error {

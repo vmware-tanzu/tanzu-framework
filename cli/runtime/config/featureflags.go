@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pkg/errors"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -52,24 +53,38 @@ func ContextAwareDiscoveryEnabled() bool {
 }
 
 func ConfigureDefaultFeatureFlagsIfMissing(defaultFeatureFlags map[string]bool) error {
-	c, err := GetClientConfig()
+	// Acquire tanzu config lock
+	AcquireTanzuConfigLock()
+	defer ReleaseTanzuConfigLock()
+
+	c, err := GetClientConfigNoLock()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error while getting client config")
 	}
 
-	for featurePath, activated := range defaultFeatureFlags {
-		plugin, feature, err := c.SplitFeaturePath(featurePath)
-		if err == nil && !containsFeatureFlag(c, plugin, feature) {
-			addFeatureFlag(c, plugin, feature, activated)
-		}
+	configUpdated := UpdateDefaultFeatureFlagsIfMissing(c, defaultFeatureFlags)
+	if !configUpdated {
+		return nil
 	}
 
 	err = StoreClientConfig(c)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error while storing client config")
 	}
-
 	return nil
+}
+
+// UpdateDefaultFeatureFlagsIfMissing updates clientConfig if the featureflags are missing
+func UpdateDefaultFeatureFlagsIfMissing(c *configapi.ClientConfig, defaultFeatureFlags map[string]bool) bool {
+	added := false
+	for featurePath, activated := range defaultFeatureFlags {
+		plugin, feature, err := c.SplitFeaturePath(featurePath)
+		if err == nil && !containsFeatureFlag(c, plugin, feature) {
+			addFeatureFlag(c, plugin, feature, activated)
+			added = true
+		}
+	}
+	return added
 }
 
 // containsFeatureFlag returns true if the features section in the configuration object contains any value for the plugin.feature combination
