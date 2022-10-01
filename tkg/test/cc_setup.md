@@ -16,8 +16,6 @@ export _MANAGEMENT_PACKAGE_VERSION=0.21.0
 tanzu config set features.global.package-based-lcm-beta true
 ```
 
-- Currently, the AWS cluster creation works only using the existing VPC approach because of [a bug in CAPA providers](https://github.com/kubernetes-sigs/cluster-api-provider-aws/issues/3399).
-
 - Create aws management-cluster using existing VPC.
 
 ```bash

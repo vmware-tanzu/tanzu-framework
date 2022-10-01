@@ -11,7 +11,7 @@
 
 #@overlay/match by=overlay.subset({"kind":"AWSCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -47,7 +47,7 @@ spec:
 #@ if data.values.CLUSTER_PLAN == "prod":
 #@overlay/match by=overlay.subset({"kind":"AWSCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSCluster
 spec:
   network:
@@ -98,7 +98,7 @@ spec:
           kind: KubeadmConfigTemplate
       infrastructureRef:
         name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
       failureDomain: #@ default_az_1
 ---
@@ -125,11 +125,11 @@ spec:
           kind: KubeadmConfigTemplate
       infrastructureRef:
         name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
       failureDomain: #@ default_az_2
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSMachineTemplate
 metadata:
   name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
@@ -148,7 +148,7 @@ spec:
       rootVolume:
         size: #@ int(data.values.AWS_NODE_OS_DISK_SIZE_GIB) or 80
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSMachineTemplate
 metadata:
   name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)

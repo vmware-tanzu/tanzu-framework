@@ -45,7 +45,7 @@ spec:
 
 #@overlay/match by=overlay.subset({"kind":"AWSCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -93,7 +93,7 @@ spec:
   machineTemplate:
     infrastructureRef:
       kind: AWSMachineTemplate
-      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
       name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   kubeadmConfigSpec:
     initConfiguration:
@@ -136,7 +136,7 @@ spec:
 #@overlay/match by=overlay.subset({"kind": "AWSMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-control-plane"}})
 ---
 kind: AWSMachineTemplate
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
 spec:
@@ -151,7 +151,7 @@ spec:
         size: #@ int(data.values.AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB) or 80
 #@overlay/match by=overlay.subset({"kind": "AWSMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSMachineTemplate
 metadata:
   name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
@@ -207,6 +207,6 @@ spec:
           kind: KubeadmConfigTemplate
       infrastructureRef:
         name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
       failureDomain: #@ default_az_0
