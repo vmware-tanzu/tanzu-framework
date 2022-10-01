@@ -2180,8 +2180,8 @@ sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.9/go.mod h1:dzAXnQb
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30/go.mod h1:fEO7lRTdivWO2qYVCVG7dEADOMo/MLDCVr8So2g88Uw=
 sigs.k8s.io/cluster-api v1.2.4 h1:wxfm/p8y+Q3qWVkkIPAIVqabA5lJVvqoRA02Nhup3uk=
 sigs.k8s.io/cluster-api v1.2.4/go.mod h1:YaLJOC9mSsIOpdbh7BpthGmC8uxIJADzrMMIGpgahfM=
-sigs.k8s.io/cluster-api-provider-aws v1.5.0 h1:QHXlZ6pJduny8SMWbrwrE/MQQ5M7dVhz2836oQF+6o8=
-sigs.k8s.io/cluster-api-provider-aws v1.5.0/go.mod h1:67wutYFBvXPdpBOs0JJpmLUMbf+1ay5IZ5m+Hdey3cA=
+sigs.k8s.io/cluster-api-provider-aws v1.4.1-0.20220928212229-13c0c2e7324b h1:Xiq4u0neNgXvtnCncWGxxB+luizt83JfbTPNHjXMwCg=
+sigs.k8s.io/cluster-api-provider-aws v1.4.1-0.20220928212229-13c0c2e7324b/go.mod h1:m5b/V57owH3BzHvItsJQHKckoOGdRpjclWdYYvgM618=
 sigs.k8s.io/cluster-api-provider-azure v1.5.3 h1:3EbHeCoPu+fnARBiH2jmUIINAz/q8kgCO9mp6MnoHPE=
 sigs.k8s.io/cluster-api-provider-azure v1.5.3/go.mod h1:O8d2my0OrM9690Emh71Xpbg4p7WXwN8TTAACdMCqJFI=
 sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 h1:HAOP2TTjBw7yxtQXTyAQLIq9rX/KQoHLhoptK+wh9PU=

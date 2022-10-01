@@ -73,7 +73,7 @@ require (
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7 // indirect
-	github.com/aws/amazon-vpc-cni-k8s v1.11.2 // indirect
+	github.com/aws/amazon-vpc-cni-k8s v1.11.4 // indirect
 	github.com/aws/aws-sdk-go v1.43.29 // indirect
 	github.com/awslabs/goformation/v4 v4.19.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -239,7 +239,7 @@ require (
 	k8s.io/kubectl v0.24.0 // indirect
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5 // indirect
 	sigs.k8s.io/cluster-api v1.2.4 // indirect
-	sigs.k8s.io/cluster-api-provider-aws v1.5.0 // indirect
+	sigs.k8s.io/cluster-api-provider-aws v1.4.1-0.20220928212229-13c0c2e7324b // indirect
 	sigs.k8s.io/cluster-api-provider-azure v1.5.3 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 // indirect
 	sigs.k8s.io/cluster-api/test v1.2.4 // indirect
