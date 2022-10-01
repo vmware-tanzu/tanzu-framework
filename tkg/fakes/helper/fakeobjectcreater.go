@@ -19,7 +19,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
+	capav1beta2 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta2"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
@@ -197,12 +197,12 @@ func NewInfrastructureComponents(options TestAllClusterComponentOptions) []runti
 }
 
 func NewAWSCluster(awsClusterOptions TestAWSClusterOptions) runtime.Object {
-	awsCluster := capav1beta1.AWSCluster{
+	awsCluster := capav1beta2.AWSCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      awsClusterOptions.Name,
 			Namespace: awsClusterOptions.Namespace,
 		},
-		Spec: capav1beta1.AWSClusterSpec{
+		Spec: capav1beta2.AWSClusterSpec{
 			Region: awsClusterOptions.Region,
 		},
 	}
@@ -289,7 +289,7 @@ func NewVSphereMachineTemplate(templateOptions TestObject) runtime.Object {
 
 // NewAWSMachineTemplate returns new AWSMachineTemplate
 func NewAWSMachineTemplate(templateOptions TestObject) runtime.Object {
-	template := capav1beta1.AWSMachineTemplate{
+	template := capav1beta2.AWSMachineTemplate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      templateOptions.Name,
 			Namespace: templateOptions.Namespace,
