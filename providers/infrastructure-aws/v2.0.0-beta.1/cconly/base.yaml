@@ -18,7 +18,7 @@ spec:
       name: tkg-aws-kcp
     machineInfrastructure:
       ref:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
         name: tkg-aws-controlplane-template
   workers:
@@ -32,12 +32,12 @@ spec:
             name: tkg-aws-bootstrap-template
         infrastructure:
           ref:
-            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
             kind: AWSMachineTemplate
             name: tkg-aws-worker-template
   infrastructure:
     ref:
-      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
       kind: AWSClusterTemplate
       name: aws-cluster-template
   variables:
@@ -260,7 +260,7 @@ spec:
   - name: AWSCT_main
     definitions:
     - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSClusterTemplate
         matchResources:
           infrastructureCluster: true
@@ -302,7 +302,7 @@ spec:
     enabledIf: '{{ .cni | eq "calico" }}'
     definitions:
     - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSClusterTemplate
         matchResources:
           infrastructureCluster: true
@@ -325,7 +325,7 @@ spec:
     enabledIf: '{{ .cni | eq "antrea" }}'
     definitions:
     - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSClusterTemplate
         matchResources:
           infrastructureCluster: true
@@ -349,7 +349,7 @@ spec:
     enabledIf: '{{ not (empty .network.vpc.existingID) }}'
     definitions:
     - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSClusterTemplate
         matchResources:
           infrastructureCluster: true
@@ -363,7 +363,7 @@ spec:
     enabledIf: '{{ not (empty .identityRef.name) }}'
     definitions:
     - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSClusterTemplate
         matchResources:
           infrastructureCluster: true
@@ -379,7 +379,7 @@ spec:
     enabledIf: '{{ .loadBalancerSchemeInternal }}'
     definitions:
     - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSClusterTemplate
         matchResources:
           infrastructureCluster: true
@@ -394,7 +394,7 @@ spec:
     enabledIf: '{{ any .network.securityGroupOverrides.bastion .network.securityGroupOverrides.controlPlane .network.securityGroupOverrides.apiServerLB .network.securityGroupOverrides.node .network.securityGroupOverrides.lb }}'
     definitions:
     - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSClusterTemplate
         matchResources:
           infrastructureCluster: true
@@ -441,7 +441,7 @@ spec:
   - name: AWS_MT_controlplane
     definitions:
     - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
         matchResources:
           controlPlane: true
@@ -465,7 +465,7 @@ spec:
   - name: AWS_MT_worker
     definitions:
     - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
         matchResources:
           machineDeploymentClass:
@@ -1009,7 +1009,7 @@ spec:
                 omitStages:
                   - "RequestReceived"
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSClusterTemplate
 metadata:
   name: aws-cluster-template
@@ -1094,7 +1094,7 @@ spec:
               tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
 ---
 kind: AWSMachineTemplate
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 metadata:
   name: tkg-aws-controlplane-template
   namespace: #@ data.values.NAMESPACE
@@ -1109,7 +1109,7 @@ spec:
       rootVolume:
         size: 80
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSMachineTemplate
 metadata:
   name: tkg-aws-worker-template
