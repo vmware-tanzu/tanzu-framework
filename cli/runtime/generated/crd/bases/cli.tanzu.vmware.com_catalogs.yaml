@@ -1,0 +1,244 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
+  name: catalogs.cli.tanzu.vmware.com
+spec:
+  group: cli.tanzu.vmware.com
+  names:
+    kind: Catalog
+    listKind: CatalogList
+    plural: catalogs
+    singular: catalog
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Catalog is the Schema for the catalogs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          indexByName:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            description: IndeByName of all plugin installation paths by name.
+            type: object
+          indexByPath:
+            additionalProperties:
+              description: PluginDescriptor describes a plugin binary.
+              properties:
+                aliases:
+                  description: Aliases are other text strings used to call this command
+                  items:
+                    type: string
+                  type: array
+                buildSHA:
+                  description: BuildSHA is the git commit hash the plugin was built
+                    with.
+                  type: string
+                completionArgs:
+                  description: CompletionArgs contains the valid command line completion
+                    values if `CompletionType` is set to `StaticPluginCompletion`.
+                  items:
+                    type: string
+                  type: array
+                completionCmd:
+                  description: CompletionCommand is the command to call from the plugin
+                    to retrieve a list of valid completion nouns when `CompletionType`
+                    is set to `DynamicPluginCompletion`.
+                  type: string
+                completionType:
+                  description: CompletionType determines how command line completion
+                    will be determined.
+                  type: integer
+                description:
+                  description: Description is the plugin's description.
+                  type: string
+                digest:
+                  description: Digest is the SHA256 hash of the plugin binary.
+                  type: string
+                discoveredRecommendedVersion:
+                  description: DiscoveredRecommendedVersion specifies the recommended
+                    version of the plugin that was discovered
+                  type: string
+                discovery:
+                  description: Discovery is the name of the discovery from where this
+                    plugin is discovered.
+                  type: string
+                docURL:
+                  description: DocURL for the plugin.
+                  type: string
+                group:
+                  description: Command group for the plugin.
+                  type: string
+                hidden:
+                  description: Hidden tells whether the plugin should be hidden from
+                    the help command.
+                  type: boolean
+                installationPath:
+                  description: InstallationPath is a relative installation path for
+                    a plugin binary. E.g., cluster/v0.3.2@sha256:...
+                  type: string
+                name:
+                  description: Name is the name of the plugin.
+                  type: string
+                scope:
+                  description: Scope is the scope of the plugin. Stand-Alone or Context
+                  type: string
+                status:
+                  description: Status is the current plugin installation status
+                  type: string
+                version:
+                  description: Version of the plugin. Must be a valid semantic version
+                    https://semver.org/
+                  type: string
+              required:
+              - buildSHA
+              - completionType
+              - description
+              - digest
+              - discoveredRecommendedVersion
+              - discovery
+              - docURL
+              - group
+              - installationPath
+              - name
+              - scope
+              - status
+              - version
+              type: object
+            description: IndexByPath of PluginDescriptors for all installed plugins
+              by installation path.
+            type: object
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          pluginDescriptors:
+            description: PluginDescriptors is a list of PluginDescriptor
+            items:
+              description: PluginDescriptor describes a plugin binary.
+              properties:
+                aliases:
+                  description: Aliases are other text strings used to call this command
+                  items:
+                    type: string
+                  type: array
+                buildSHA:
+                  description: BuildSHA is the git commit hash the plugin was built
+                    with.
+                  type: string
+                completionArgs:
+                  description: CompletionArgs contains the valid command line completion
+                    values if `CompletionType` is set to `StaticPluginCompletion`.
+                  items:
+                    type: string
+                  type: array
+                completionCmd:
+                  description: CompletionCommand is the command to call from the plugin
+                    to retrieve a list of valid completion nouns when `CompletionType`
+                    is set to `DynamicPluginCompletion`.
+                  type: string
+                completionType:
+                  description: CompletionType determines how command line completion
+                    will be determined.
+                  type: integer
+                description:
+                  description: Description is the plugin's description.
+                  type: string
+                digest:
+                  description: Digest is the SHA256 hash of the plugin binary.
+                  type: string
+                discoveredRecommendedVersion:
+                  description: DiscoveredRecommendedVersion specifies the recommended
+                    version of the plugin that was discovered
+                  type: string
+                discovery:
+                  description: Discovery is the name of the discovery from where this
+                    plugin is discovered.
+                  type: string
+                docURL:
+                  description: DocURL for the plugin.
+                  type: string
+                group:
+                  description: Command group for the plugin.
+                  type: string
+                hidden:
+                  description: Hidden tells whether the plugin should be hidden from
+                    the help command.
+                  type: boolean
+                installationPath:
+                  description: InstallationPath is a relative installation path for
+                    a plugin binary. E.g., cluster/v0.3.2@sha256:...
+                  type: string
+                name:
+                  description: Name is the name of the plugin.
+                  type: string
+                scope:
+                  description: Scope is the scope of the plugin. Stand-Alone or Context
+                  type: string
+                status:
+                  description: Status is the current plugin installation status
+                  type: string
+                version:
+                  description: Version of the plugin. Must be a valid semantic version
+                    https://semver.org/
+                  type: string
+              required:
+              - buildSHA
+              - completionType
+              - description
+              - digest
+              - discoveredRecommendedVersion
+              - discovery
+              - docURL
+              - group
+              - installationPath
+              - name
+              - scope
+              - status
+              - version
+              type: object
+            type: array
+          serverPlugins:
+            additionalProperties:
+              additionalProperties:
+                type: string
+              description: PluginAssociation is a set of plugin names and their associated
+                installation paths.
+              type: object
+            description: ServerPlugins links a server and a set of associated plugin
+              installations.
+            type: object
+          standAlonePlugins:
+            additionalProperties:
+              type: string
+            description: 'StandAlonePlugins is a set of stand-alone plugin installations
+              aggregated across all context types. Note: Shall be reduced to only
+              those stand-alone plugins that are common to all context types.'
+            type: object
+          standAlonePluginsByContextType:
+            additionalProperties:
+              additionalProperties:
+                type: string
+              description: PluginAssociation is a set of plugin names and their associated
+                installation paths.
+              type: object
+            description: StandAlonePluginsByContextType is a set of stand-alone plugin
+              installations grouped by the context type.
+            type: object
+        type: object
+    served: true
+    storage: true
