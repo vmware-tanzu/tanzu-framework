@@ -31,8 +31,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
-//nolint: gocritic
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context' command.
+// nolint: gocritic
 var descriptor = cliapi.PluginDescriptor{
 	Name:        "login",
 	Description: "Login to the platform",
