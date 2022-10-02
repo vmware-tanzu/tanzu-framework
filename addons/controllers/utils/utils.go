@@ -32,10 +32,12 @@ func VSphereClusterParavirtualForCAPICluster(ctx context.Context, clt client.Cli
 	if vSphereClusterRef.Kind != constants.InfrastructureRefVSphere || vSphereClusterRef.APIVersion != capvvmwarev1beta1.GroupVersion.String() {
 		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not a paravirt vSphereCluster: %v", cluster.Name, vSphereClusterRef)
 	}
+	log.FromContext(ctx).Info(fmt.Sprintf("==1== cluster: %s, ref: %s", cluster.Name, vSphereClusterRef.Name))
 	vsphereCluster := &capvvmwarev1beta1.VSphereCluster{}
 	if err := clt.Get(ctx, types.NamespacedName{Namespace: vSphereClusterRef.Namespace, Name: vSphereClusterRef.Name}, vsphereCluster); err != nil {
 		return nil, err
 	}
+	log.FromContext(ctx).Info(fmt.Sprintf("==2== cluster: %s, ref: %s, vCluster: %s", cluster.Name, vSphereClusterRef.Name, vsphereCluster.Name))
 	return vsphereCluster, nil
 }
 
@@ -45,6 +47,7 @@ func VSphereClusterNonParavirtualForCluster(ctx context.Context, clt client.Clie
 	if vSphereClusterRef == nil {
 		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not set yet", cluster.Name)
 	}
+	log.FromContext(ctx).Info(fmt.Sprintf("==1== cluster: %s, ref: %s", cluster.Name, vSphereClusterRef.Name))
 	vsphereCluster := &capvv1beta1.VSphereCluster{}
 	if vSphereClusterRef.Kind != constants.InfrastructureRefVSphere || vSphereClusterRef.APIVersion != capvv1beta1.GroupVersion.String() {
 		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not a non-paravirt vSphereCluster: %v", cluster.Name, vSphereClusterRef)
@@ -52,6 +55,7 @@ func VSphereClusterNonParavirtualForCluster(ctx context.Context, clt client.Clie
 	if err := clt.Get(ctx, types.NamespacedName{Namespace: vSphereClusterRef.Namespace, Name: vSphereClusterRef.Name}, vsphereCluster); err != nil {
 		return nil, err
 	}
+	log.FromContext(ctx).Info(fmt.Sprintf("==2== cluster: %s, ref: %s, vCluster: %s", cluster.Name, vSphereClusterRef.Name, vsphereCluster.Name))
 	return vsphereCluster, nil
 }
 
