@@ -59,7 +59,8 @@ func NewGetAWSNodeTypesOK() *GetAWSNodeTypesOK {
 	return &GetAWSNodeTypesOK{}
 }
 
-/*GetAWSNodeTypesOK handles this case with default header values.
+/*
+GetAWSNodeTypesOK handles this case with default header values.
 
 Successful retrieval of AWS node types
 */
@@ -90,7 +91,8 @@ func NewGetAWSNodeTypesBadRequest() *GetAWSNodeTypesBadRequest {
 	return &GetAWSNodeTypesBadRequest{}
 }
 
-/*GetAWSNodeTypesBadRequest handles this case with default header values.
+/*
+GetAWSNodeTypesBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAWSNodeTypesUnauthorized() *GetAWSNodeTypesUnauthorized {
 	return &GetAWSNodeTypesUnauthorized{}
 }
 
-/*GetAWSNodeTypesUnauthorized handles this case with default header values.
+/*
+GetAWSNodeTypesUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAWSNodeTypesInternalServerError() *GetAWSNodeTypesInternalServerError
 	return &GetAWSNodeTypesInternalServerError{}
 }
 
-/*GetAWSNodeTypesInternalServerError handles this case with default header values.
+/*
+GetAWSNodeTypesInternalServerError handles this case with default header values.
 
 Internal server error
 */

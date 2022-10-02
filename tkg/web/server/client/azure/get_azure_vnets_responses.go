@@ -59,7 +59,8 @@ func NewGetAzureVnetsOK() *GetAzureVnetsOK {
 	return &GetAzureVnetsOK{}
 }
 
-/*GetAzureVnetsOK handles this case with default header values.
+/*
+GetAzureVnetsOK handles this case with default header values.
 
 Successful retrieval of Azure virtual networks
 */
@@ -90,7 +91,8 @@ func NewGetAzureVnetsBadRequest() *GetAzureVnetsBadRequest {
 	return &GetAzureVnetsBadRequest{}
 }
 
-/*GetAzureVnetsBadRequest handles this case with default header values.
+/*
+GetAzureVnetsBadRequest handles this case with default header values.
 
 Bad Request
 */
@@ -123,7 +125,8 @@ func NewGetAzureVnetsUnauthorized() *GetAzureVnetsUnauthorized {
 	return &GetAzureVnetsUnauthorized{}
 }
 
-/*GetAzureVnetsUnauthorized handles this case with default header values.
+/*
+GetAzureVnetsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAzureVnetsInternalServerError() *GetAzureVnetsInternalServerError {
 	return &GetAzureVnetsInternalServerError{}
 }
 
-/*GetAzureVnetsInternalServerError handles this case with default header values.
+/*
+GetAzureVnetsInternalServerError handles this case with default header values.
 
 Internal server error
 */

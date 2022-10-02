@@ -16,7 +16,8 @@ import (
 // GetVSphereOSImagesOKCode is the HTTP code returned for type GetVSphereOSImagesOK
 const GetVSphereOSImagesOKCode int = 200
 
-/*GetVSphereOSImagesOK Successful retrieval of node images supported by vSphere
+/*
+GetVSphereOSImagesOK Successful retrieval of node images supported by vSphere
 
 swagger:response getVSphereOSImagesOK
 */
@@ -63,7 +64,8 @@ func (o *GetVSphereOSImagesOK) WriteResponse(rw http.ResponseWriter, producer ru
 // GetVSphereOSImagesBadRequestCode is the HTTP code returned for type GetVSphereOSImagesBadRequest
 const GetVSphereOSImagesBadRequestCode int = 400
 
-/*GetVSphereOSImagesBadRequest Bad request
+/*
+GetVSphereOSImagesBadRequest Bad request
 
 swagger:response getVSphereOSImagesBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetVSphereOSImagesBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // GetVSphereOSImagesUnauthorizedCode is the HTTP code returned for type GetVSphereOSImagesUnauthorized
 const GetVSphereOSImagesUnauthorizedCode int = 401
 
-/*GetVSphereOSImagesUnauthorized Incorrect credentials
+/*
+GetVSphereOSImagesUnauthorized Incorrect credentials
 
 swagger:response getVSphereOSImagesUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetVSphereOSImagesUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // GetVSphereOSImagesInternalServerErrorCode is the HTTP code returned for type GetVSphereOSImagesInternalServerError
 const GetVSphereOSImagesInternalServerErrorCode int = 500
 
-/*GetVSphereOSImagesInternalServerError Internal server error
+/*
+GetVSphereOSImagesInternalServerError Internal server error
 
 swagger:response getVSphereOSImagesInternalServerError
 */

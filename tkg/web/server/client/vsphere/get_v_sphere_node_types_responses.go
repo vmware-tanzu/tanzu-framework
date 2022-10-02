@@ -59,7 +59,8 @@ func NewGetVSphereNodeTypesOK() *GetVSphereNodeTypesOK {
 	return &GetVSphereNodeTypesOK{}
 }
 
-/*GetVSphereNodeTypesOK handles this case with default header values.
+/*
+GetVSphereNodeTypesOK handles this case with default header values.
 
 Successful retrieval of node types supported by vSphere
 */
@@ -90,7 +91,8 @@ func NewGetVSphereNodeTypesBadRequest() *GetVSphereNodeTypesBadRequest {
 	return &GetVSphereNodeTypesBadRequest{}
 }
 
-/*GetVSphereNodeTypesBadRequest handles this case with default header values.
+/*
+GetVSphereNodeTypesBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetVSphereNodeTypesUnauthorized() *GetVSphereNodeTypesUnauthorized {
 	return &GetVSphereNodeTypesUnauthorized{}
 }
 
-/*GetVSphereNodeTypesUnauthorized handles this case with default header values.
+/*
+GetVSphereNodeTypesUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetVSphereNodeTypesInternalServerError() *GetVSphereNodeTypesInternalSer
 	return &GetVSphereNodeTypesInternalServerError{}
 }
 
-/*GetVSphereNodeTypesInternalServerError handles this case with default header values.
+/*
+GetVSphereNodeTypesInternalServerError handles this case with default header values.
 
 Internal server error
 */

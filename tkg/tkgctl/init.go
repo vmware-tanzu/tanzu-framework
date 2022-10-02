@@ -52,8 +52,9 @@ const (
 	TCEBuildEdition = "tce"
 )
 
-//nolint:gocritic,gocyclo,funlen
 // Init initializes tkg management cluster
+//
+//nolint:gocritic,gocyclo,funlen
 func (t *tkgctl) Init(options InitRegionOptions) error {
 	var err error
 	options.ClusterConfigFile, err = t.ensureClusterConfigFile(options.ClusterConfigFile)

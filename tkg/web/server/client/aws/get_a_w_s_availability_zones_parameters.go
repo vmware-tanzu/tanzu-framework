@@ -56,7 +56,8 @@ func NewGetAWSAvailabilityZonesParamsWithHTTPClient(client *http.Client) *GetAWS
 	}
 }
 
-/*GetAWSAvailabilityZonesParams contains all the parameters to send to the API endpoint
+/*
+GetAWSAvailabilityZonesParams contains all the parameters to send to the API endpoint
 for the get a w s availability zones operation typically these are written to a http.Request
 */
 type GetAWSAvailabilityZonesParams struct {

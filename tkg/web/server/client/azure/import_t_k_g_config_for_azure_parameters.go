@@ -58,7 +58,8 @@ func NewImportTKGConfigForAzureParamsWithHTTPClient(client *http.Client) *Import
 	}
 }
 
-/*ImportTKGConfigForAzureParams contains all the parameters to send to the API endpoint
+/*
+ImportTKGConfigForAzureParams contains all the parameters to send to the API endpoint
 for the import t k g config for azure operation typically these are written to a http.Request
 */
 type ImportTKGConfigForAzureParams struct {

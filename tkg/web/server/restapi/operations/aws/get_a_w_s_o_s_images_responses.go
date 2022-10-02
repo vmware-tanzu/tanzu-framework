@@ -16,7 +16,8 @@ import (
 // GetAWSOSImagesOKCode is the HTTP code returned for type GetAWSOSImagesOK
 const GetAWSOSImagesOKCode int = 200
 
-/*GetAWSOSImagesOK Successful retrieval of AWS supported os images
+/*
+GetAWSOSImagesOK Successful retrieval of AWS supported os images
 
 swagger:response getAWSOSImagesOK
 */
@@ -63,7 +64,8 @@ func (o *GetAWSOSImagesOK) WriteResponse(rw http.ResponseWriter, producer runtim
 // GetAWSOSImagesBadRequestCode is the HTTP code returned for type GetAWSOSImagesBadRequest
 const GetAWSOSImagesBadRequestCode int = 400
 
-/*GetAWSOSImagesBadRequest Bad request
+/*
+GetAWSOSImagesBadRequest Bad request
 
 swagger:response getAWSOSImagesBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAWSOSImagesBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // GetAWSOSImagesUnauthorizedCode is the HTTP code returned for type GetAWSOSImagesUnauthorized
 const GetAWSOSImagesUnauthorizedCode int = 401
 
-/*GetAWSOSImagesUnauthorized Incorrect credentials
+/*
+GetAWSOSImagesUnauthorized Incorrect credentials
 
 swagger:response getAWSOSImagesUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAWSOSImagesUnauthorized) WriteResponse(rw http.ResponseWriter, produ
 // GetAWSOSImagesInternalServerErrorCode is the HTTP code returned for type GetAWSOSImagesInternalServerError
 const GetAWSOSImagesInternalServerErrorCode int = 500
 
-/*GetAWSOSImagesInternalServerError Internal server error
+/*
+GetAWSOSImagesInternalServerError Internal server error
 
 swagger:response getAWSOSImagesInternalServerError
 */

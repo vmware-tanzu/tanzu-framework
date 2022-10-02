@@ -59,7 +59,8 @@ func NewGetAzureRegionsOK() *GetAzureRegionsOK {
 	return &GetAzureRegionsOK{}
 }
 
-/*GetAzureRegionsOK handles this case with default header values.
+/*
+GetAzureRegionsOK handles this case with default header values.
 
 Successful retrieval of Azure regions
 */
@@ -90,7 +91,8 @@ func NewGetAzureRegionsBadRequest() *GetAzureRegionsBadRequest {
 	return &GetAzureRegionsBadRequest{}
 }
 
-/*GetAzureRegionsBadRequest handles this case with default header values.
+/*
+GetAzureRegionsBadRequest handles this case with default header values.
 
 Bad Request
 */
@@ -123,7 +125,8 @@ func NewGetAzureRegionsUnauthorized() *GetAzureRegionsUnauthorized {
 	return &GetAzureRegionsUnauthorized{}
 }
 
-/*GetAzureRegionsUnauthorized handles this case with default header values.
+/*
+GetAzureRegionsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAzureRegionsInternalServerError() *GetAzureRegionsInternalServerError
 	return &GetAzureRegionsInternalServerError{}
 }
 
-/*GetAzureRegionsInternalServerError handles this case with default header values.
+/*
+GetAzureRegionsInternalServerError handles this case with default header values.
 
 Internal server error
 */

@@ -59,7 +59,8 @@ func NewCreateAzureRegionalClusterOK() *CreateAzureRegionalClusterOK {
 	return &CreateAzureRegionalClusterOK{}
 }
 
-/*CreateAzureRegionalClusterOK handles this case with default header values.
+/*
+CreateAzureRegionalClusterOK handles this case with default header values.
 
 Creating regional cluster started successfully
 */
@@ -90,7 +91,8 @@ func NewCreateAzureRegionalClusterBadRequest() *CreateAzureRegionalClusterBadReq
 	return &CreateAzureRegionalClusterBadRequest{}
 }
 
-/*CreateAzureRegionalClusterBadRequest handles this case with default header values.
+/*
+CreateAzureRegionalClusterBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewCreateAzureRegionalClusterUnauthorized() *CreateAzureRegionalClusterUnau
 	return &CreateAzureRegionalClusterUnauthorized{}
 }
 
-/*CreateAzureRegionalClusterUnauthorized handles this case with default header values.
+/*
+CreateAzureRegionalClusterUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewCreateAzureRegionalClusterInternalServerError() *CreateAzureRegionalClus
 	return &CreateAzureRegionalClusterInternalServerError{}
 }
 
-/*CreateAzureRegionalClusterInternalServerError handles this case with default header values.
+/*
+CreateAzureRegionalClusterInternalServerError handles this case with default header values.
 
 Internal server error
 */

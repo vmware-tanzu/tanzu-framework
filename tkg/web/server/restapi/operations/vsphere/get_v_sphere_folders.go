@@ -29,10 +29,10 @@ func NewGetVSphereFolders(ctx *middleware.Context, handler GetVSphereFoldersHand
 	return &GetVSphereFolders{Context: ctx, Handler: handler}
 }
 
-/*GetVSphereFolders swagger:route GET /api/providers/vsphere/folders vsphere getVSphereFolders
+/*
+GetVSphereFolders swagger:route GET /api/providers/vsphere/folders vsphere getVSphereFolders
 
 Retrieve vSphere folders
-
 */
 type GetVSphereFolders struct {
 	Context *middleware.Context

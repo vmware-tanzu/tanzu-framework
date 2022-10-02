@@ -4,19 +4,18 @@
 Package restapi Tanzu Kubernetes Grid Setup API
 Tanzu Kubernetes Grid Setup API.
 
+	Schemes:
+	  http
+	  https
+	Host: localhost
+	BasePath: /
+	Version: 0.0.0
 
-    Schemes:
-      http
-      https
-    Host: localhost
-    BasePath: /
-    Version: 0.0.0
+	Consumes:
+	- application/json
 
-    Consumes:
-    - application/json
-
-    Produces:
-    - application/json
+	Produces:
+	- application/json
 
 swagger:meta
 */

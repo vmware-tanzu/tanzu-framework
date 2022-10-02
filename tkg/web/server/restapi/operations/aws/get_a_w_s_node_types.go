@@ -29,10 +29,10 @@ func NewGetAWSNodeTypes(ctx *middleware.Context, handler GetAWSNodeTypesHandler)
 	return &GetAWSNodeTypes{Context: ctx, Handler: handler}
 }
 
-/*GetAWSNodeTypes swagger:route GET /api/providers/aws/nodetypes aws getAWSNodeTypes
+/*
+GetAWSNodeTypes swagger:route GET /api/providers/aws/nodetypes aws getAWSNodeTypes
 
 Retrieve AWS supported node types
-
 */
 type GetAWSNodeTypes struct {
 	Context *middleware.Context

@@ -16,7 +16,8 @@ import (
 // ApplyTKGConfigForDockerOKCode is the HTTP code returned for type ApplyTKGConfigForDockerOK
 const ApplyTKGConfigForDockerOKCode int = 200
 
-/*ApplyTKGConfigForDockerOK Apply change to TKG configuration successfully
+/*
+ApplyTKGConfigForDockerOK Apply change to TKG configuration successfully
 
 swagger:response applyTKGConfigForDockerOK
 */
@@ -60,7 +61,8 @@ func (o *ApplyTKGConfigForDockerOK) WriteResponse(rw http.ResponseWriter, produc
 // ApplyTKGConfigForDockerBadRequestCode is the HTTP code returned for type ApplyTKGConfigForDockerBadRequest
 const ApplyTKGConfigForDockerBadRequestCode int = 400
 
-/*ApplyTKGConfigForDockerBadRequest Bad request
+/*
+ApplyTKGConfigForDockerBadRequest Bad request
 
 swagger:response applyTKGConfigForDockerBadRequest
 */
@@ -104,7 +106,8 @@ func (o *ApplyTKGConfigForDockerBadRequest) WriteResponse(rw http.ResponseWriter
 // ApplyTKGConfigForDockerInternalServerErrorCode is the HTTP code returned for type ApplyTKGConfigForDockerInternalServerError
 const ApplyTKGConfigForDockerInternalServerErrorCode int = 500
 
-/*ApplyTKGConfigForDockerInternalServerError Internal server error
+/*
+ApplyTKGConfigForDockerInternalServerError Internal server error
 
 swagger:response applyTKGConfigForDockerInternalServerError
 */

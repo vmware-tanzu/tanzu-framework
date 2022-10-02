@@ -56,7 +56,8 @@ func NewGetVSphereOSImagesParamsWithHTTPClient(client *http.Client) *GetVSphereO
 	}
 }
 
-/*GetVSphereOSImagesParams contains all the parameters to send to the API endpoint
+/*
+GetVSphereOSImagesParams contains all the parameters to send to the API endpoint
 for the get v sphere o s images operation typically these are written to a http.Request
 */
 type GetVSphereOSImagesParams struct {

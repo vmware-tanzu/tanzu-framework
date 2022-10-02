@@ -16,7 +16,8 @@ import (
 // ApplyTKGConfigForAWSOKCode is the HTTP code returned for type ApplyTKGConfigForAWSOK
 const ApplyTKGConfigForAWSOKCode int = 200
 
-/*ApplyTKGConfigForAWSOK Apply change to TKG configuration successfully
+/*
+ApplyTKGConfigForAWSOK Apply change to TKG configuration successfully
 
 swagger:response applyTKGConfigForAWSOK
 */
@@ -60,7 +61,8 @@ func (o *ApplyTKGConfigForAWSOK) WriteResponse(rw http.ResponseWriter, producer 
 // ApplyTKGConfigForAWSBadRequestCode is the HTTP code returned for type ApplyTKGConfigForAWSBadRequest
 const ApplyTKGConfigForAWSBadRequestCode int = 400
 
-/*ApplyTKGConfigForAWSBadRequest Bad request
+/*
+ApplyTKGConfigForAWSBadRequest Bad request
 
 swagger:response applyTKGConfigForAWSBadRequest
 */
@@ -104,7 +106,8 @@ func (o *ApplyTKGConfigForAWSBadRequest) WriteResponse(rw http.ResponseWriter, p
 // ApplyTKGConfigForAWSUnauthorizedCode is the HTTP code returned for type ApplyTKGConfigForAWSUnauthorized
 const ApplyTKGConfigForAWSUnauthorizedCode int = 401
 
-/*ApplyTKGConfigForAWSUnauthorized Incorrect credentials
+/*
+ApplyTKGConfigForAWSUnauthorized Incorrect credentials
 
 swagger:response applyTKGConfigForAWSUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *ApplyTKGConfigForAWSUnauthorized) WriteResponse(rw http.ResponseWriter,
 // ApplyTKGConfigForAWSInternalServerErrorCode is the HTTP code returned for type ApplyTKGConfigForAWSInternalServerError
 const ApplyTKGConfigForAWSInternalServerErrorCode int = 500
 
-/*ApplyTKGConfigForAWSInternalServerError Internal server error
+/*
+ApplyTKGConfigForAWSInternalServerError Internal server error
 
 swagger:response applyTKGConfigForAWSInternalServerError
 */

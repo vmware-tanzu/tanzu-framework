@@ -16,7 +16,8 @@ import (
 // CreateAWSRegionalClusterOKCode is the HTTP code returned for type CreateAWSRegionalClusterOK
 const CreateAWSRegionalClusterOKCode int = 200
 
-/*CreateAWSRegionalClusterOK Creating regional cluster started successfully
+/*
+CreateAWSRegionalClusterOK Creating regional cluster started successfully
 
 swagger:response createAWSRegionalClusterOK
 */
@@ -58,7 +59,8 @@ func (o *CreateAWSRegionalClusterOK) WriteResponse(rw http.ResponseWriter, produ
 // CreateAWSRegionalClusterBadRequestCode is the HTTP code returned for type CreateAWSRegionalClusterBadRequest
 const CreateAWSRegionalClusterBadRequestCode int = 400
 
-/*CreateAWSRegionalClusterBadRequest Bad request
+/*
+CreateAWSRegionalClusterBadRequest Bad request
 
 swagger:response createAWSRegionalClusterBadRequest
 */
@@ -102,7 +104,8 @@ func (o *CreateAWSRegionalClusterBadRequest) WriteResponse(rw http.ResponseWrite
 // CreateAWSRegionalClusterUnauthorizedCode is the HTTP code returned for type CreateAWSRegionalClusterUnauthorized
 const CreateAWSRegionalClusterUnauthorizedCode int = 401
 
-/*CreateAWSRegionalClusterUnauthorized Incorrect credentials
+/*
+CreateAWSRegionalClusterUnauthorized Incorrect credentials
 
 swagger:response createAWSRegionalClusterUnauthorized
 */
@@ -146,7 +149,8 @@ func (o *CreateAWSRegionalClusterUnauthorized) WriteResponse(rw http.ResponseWri
 // CreateAWSRegionalClusterInternalServerErrorCode is the HTTP code returned for type CreateAWSRegionalClusterInternalServerError
 const CreateAWSRegionalClusterInternalServerErrorCode int = 500
 
-/*CreateAWSRegionalClusterInternalServerError Internal server error
+/*
+CreateAWSRegionalClusterInternalServerError Internal server error
 
 swagger:response createAWSRegionalClusterInternalServerError
 */

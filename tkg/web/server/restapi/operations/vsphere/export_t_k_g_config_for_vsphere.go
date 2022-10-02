@@ -29,10 +29,10 @@ func NewExportTKGConfigForVsphere(ctx *middleware.Context, handler ExportTKGConf
 	return &ExportTKGConfigForVsphere{Context: ctx, Handler: handler}
 }
 
-/*ExportTKGConfigForVsphere swagger:route POST /api/providers/vsphere/config/export vsphere exportTKGConfigForVsphere
+/*
+ExportTKGConfigForVsphere swagger:route POST /api/providers/vsphere/config/export vsphere exportTKGConfigForVsphere
 
 Generate TKG configuration file for vSphere
-
 */
 type ExportTKGConfigForVsphere struct {
 	Context *middleware.Context

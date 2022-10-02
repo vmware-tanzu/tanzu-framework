@@ -59,7 +59,8 @@ func NewVerifyLdapConnectOK() *VerifyLdapConnectOK {
 	return &VerifyLdapConnectOK{}
 }
 
-/*VerifyLdapConnectOK handles this case with default header values.
+/*
+VerifyLdapConnectOK handles this case with default header values.
 
 Verified LDAP credentials successfully
 */
@@ -92,7 +93,8 @@ func NewVerifyLdapConnectBadRequest() *VerifyLdapConnectBadRequest {
 	return &VerifyLdapConnectBadRequest{}
 }
 
-/*VerifyLdapConnectBadRequest handles this case with default header values.
+/*
+VerifyLdapConnectBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewVerifyLdapConnectUnauthorized() *VerifyLdapConnectUnauthorized {
 	return &VerifyLdapConnectUnauthorized{}
 }
 
-/*VerifyLdapConnectUnauthorized handles this case with default header values.
+/*
+VerifyLdapConnectUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewVerifyLdapConnectInternalServerError() *VerifyLdapConnectInternalServerE
 	return &VerifyLdapConnectInternalServerError{}
 }
 
-/*VerifyLdapConnectInternalServerError handles this case with default header values.
+/*
+VerifyLdapConnectInternalServerError handles this case with default header values.
 
 Internal server error
 */

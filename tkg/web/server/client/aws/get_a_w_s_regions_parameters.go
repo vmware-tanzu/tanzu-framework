@@ -56,7 +56,8 @@ func NewGetAWSRegionsParamsWithHTTPClient(client *http.Client) *GetAWSRegionsPar
 	}
 }
 
-/*GetAWSRegionsParams contains all the parameters to send to the API endpoint
+/*
+GetAWSRegionsParams contains all the parameters to send to the API endpoint
 for the get a w s regions operation typically these are written to a http.Request
 */
 type GetAWSRegionsParams struct {

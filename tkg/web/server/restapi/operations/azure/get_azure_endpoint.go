@@ -29,10 +29,10 @@ func NewGetAzureEndpoint(ctx *middleware.Context, handler GetAzureEndpointHandle
 	return &GetAzureEndpoint{Context: ctx, Handler: handler}
 }
 
-/*GetAzureEndpoint swagger:route GET /api/providers/azure azure getAzureEndpoint
+/*
+GetAzureEndpoint swagger:route GET /api/providers/azure azure getAzureEndpoint
 
 Retrieve azure account params from environment variables
-
 */
 type GetAzureEndpoint struct {
 	Context *middleware.Context

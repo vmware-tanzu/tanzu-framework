@@ -91,8 +91,8 @@ func unzip(srcfilepath, destdir string) error {
 }
 
 /*
-	GetProvidersChecksum returns the checksum of all file contents of type '.yaml' and '.star' in the tkg providers directory.
-	Addition or modification or deletion of files of type '.yaml' and '.star' in the tkg providers directory would result in a checksum change.
+GetProvidersChecksum returns the checksum of all file contents of type '.yaml' and '.star' in the tkg providers directory.
+Addition or modification or deletion of files of type '.yaml' and '.star' in the tkg providers directory would result in a checksum change.
 */
 func (c *client) GetProvidersChecksum() (string, error) {
 	var err error

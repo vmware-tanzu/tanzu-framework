@@ -17,6 +17,7 @@ import (
 //go:generate counterfeiter -o ../fakes -generate
 
 // PackageClient is the TKG package client interface
+//
 //counterfeiter:generate -o ../fakes/packageclient.go --fake-name PackageClient . PackageClient
 type PackageClient interface {
 	AddRegistrySecret(o *packagedatamodel.RegistrySecretOptions) error
@@ -47,6 +48,7 @@ type PackageClient interface {
 }
 
 // CrtClient clientset interface
+//
 //counterfeiter:generate -o ../fakes/crtclient.go --fake-name CrtClient . CrtClient
 type CrtClient interface {
 	crtclient.Client

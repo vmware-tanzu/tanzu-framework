@@ -59,7 +59,8 @@ func NewGetAWSSubnetsOK() *GetAWSSubnetsOK {
 	return &GetAWSSubnetsOK{}
 }
 
-/*GetAWSSubnetsOK handles this case with default header values.
+/*
+GetAWSSubnetsOK handles this case with default header values.
 
 Successful retrieval of AWS subnets
 */
@@ -90,7 +91,8 @@ func NewGetAWSSubnetsBadRequest() *GetAWSSubnetsBadRequest {
 	return &GetAWSSubnetsBadRequest{}
 }
 
-/*GetAWSSubnetsBadRequest handles this case with default header values.
+/*
+GetAWSSubnetsBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAWSSubnetsUnauthorized() *GetAWSSubnetsUnauthorized {
 	return &GetAWSSubnetsUnauthorized{}
 }
 
-/*GetAWSSubnetsUnauthorized handles this case with default header values.
+/*
+GetAWSSubnetsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAWSSubnetsInternalServerError() *GetAWSSubnetsInternalServerError {
 	return &GetAWSSubnetsInternalServerError{}
 }
 
-/*GetAWSSubnetsInternalServerError handles this case with default header values.
+/*
+GetAWSSubnetsInternalServerError handles this case with default header values.
 
 Internal server error
 */

@@ -59,7 +59,8 @@ func NewGetVSphereDatastoresOK() *GetVSphereDatastoresOK {
 	return &GetVSphereDatastoresOK{}
 }
 
-/*GetVSphereDatastoresOK handles this case with default header values.
+/*
+GetVSphereDatastoresOK handles this case with default header values.
 
 Successful retrieval of vSphere datastores
 */
@@ -90,7 +91,8 @@ func NewGetVSphereDatastoresBadRequest() *GetVSphereDatastoresBadRequest {
 	return &GetVSphereDatastoresBadRequest{}
 }
 
-/*GetVSphereDatastoresBadRequest handles this case with default header values.
+/*
+GetVSphereDatastoresBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetVSphereDatastoresUnauthorized() *GetVSphereDatastoresUnauthorized {
 	return &GetVSphereDatastoresUnauthorized{}
 }
 
-/*GetVSphereDatastoresUnauthorized handles this case with default header values.
+/*
+GetVSphereDatastoresUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetVSphereDatastoresInternalServerError() *GetVSphereDatastoresInternalS
 	return &GetVSphereDatastoresInternalServerError{}
 }
 
-/*GetVSphereDatastoresInternalServerError handles this case with default header values.
+/*
+GetVSphereDatastoresInternalServerError handles this case with default header values.
 
 Internal server error
 */

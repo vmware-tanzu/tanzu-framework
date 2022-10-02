@@ -12,6 +12,7 @@ import (
 )
 
 // GetTestObjects returns objects to initialize the fake client
+//
 //nolint:funlen
 func GetTestObjects() ([]runtime.Object, map[string]*configv1alpha1.Feature, map[string]*configv1alpha1.FeatureGate) {
 	cloudEventListener := &configv1alpha1.Feature{

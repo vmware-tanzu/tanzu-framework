@@ -308,11 +308,11 @@ func removeFields(m, keysToRemove map[string]interface{}) error {
 }
 
 // HandleExistingClusterBootstrap does the following:
-// 1. Check the annotation from the existing ClusterBootstrap CR. Add missing fields to the ClusterBootstrap CR if needed
-// 2. Clone the referenced object of ClusterBootstrapPackage.ValuesFrom into the cluster namespace. If the referenced
-//    object has embedded TypedLocalObjectReference(e.g., CPI has VSphereCPIConfig as valuesFrom, VSphereCPIConfig has
-//    a Secret reference under its Spec), this function clones the embedded object into the cluster namespace as well.
-// 3. Add OwnerReferences and Labels to the cloned objects.
+//  1. Check the annotation from the existing ClusterBootstrap CR. Add missing fields to the ClusterBootstrap CR if needed
+//  2. Clone the referenced object of ClusterBootstrapPackage.ValuesFrom into the cluster namespace. If the referenced
+//     object has embedded TypedLocalObjectReference(e.g., CPI has VSphereCPIConfig as valuesFrom, VSphereCPIConfig has
+//     a Secret reference under its Spec), this function clones the embedded object into the cluster namespace as well.
+//  3. Add OwnerReferences and Labels to the cloned objects.
 func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, cluster *clusterapiv1beta1.Cluster, tkrName, systemNamespace string) (*runtanzuv1alpha3.ClusterBootstrap, error) {
 	packages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
 		clusterBootstrap.Spec.CNI,
@@ -416,11 +416,11 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 }
 
 // CreateClusterBootstrapFromTemplate does the following:
-// 1. Create a new ClusterBootstrap CR under the cluster namespace
-// 2. Clone the referenced object of ClusterBootstrapPackage.ValuesFrom into the cluster namespace. If the referenced
-//    object has embedded TypedLocalObjectReference(e.g., CPI has VSphereCPIConfig as valuesFrom, VSphereCPIConfig has
-//    a Secret reference under its Spec), this function clones the embedded object into the cluster namespace as well.
-// 3. Add OwnerReferences and Labels to the cloned objects.
+//  1. Create a new ClusterBootstrap CR under the cluster namespace
+//  2. Clone the referenced object of ClusterBootstrapPackage.ValuesFrom into the cluster namespace. If the referenced
+//     object has embedded TypedLocalObjectReference(e.g., CPI has VSphereCPIConfig as valuesFrom, VSphereCPIConfig has
+//     a Secret reference under its Spec), this function clones the embedded object into the cluster namespace as well.
+//  3. Add OwnerReferences and Labels to the cloned objects.
 func (h *Helper) CreateClusterBootstrapFromTemplate(
 	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
 	cluster *clusterapiv1beta1.Cluster,

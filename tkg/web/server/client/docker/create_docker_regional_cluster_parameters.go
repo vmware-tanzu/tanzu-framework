@@ -58,7 +58,8 @@ func NewCreateDockerRegionalClusterParamsWithHTTPClient(client *http.Client) *Cr
 	}
 }
 
-/*CreateDockerRegionalClusterParams contains all the parameters to send to the API endpoint
+/*
+CreateDockerRegionalClusterParams contains all the parameters to send to the API endpoint
 for the create docker regional cluster operation typically these are written to a http.Request
 */
 type CreateDockerRegionalClusterParams struct {

@@ -58,7 +58,8 @@ func NewVerifyLdapConnectParamsWithHTTPClient(client *http.Client) *VerifyLdapCo
 	}
 }
 
-/*VerifyLdapConnectParams contains all the parameters to send to the API endpoint
+/*
+VerifyLdapConnectParams contains all the parameters to send to the API endpoint
 for the verify ldap connect operation typically these are written to a http.Request
 */
 type VerifyLdapConnectParams struct {

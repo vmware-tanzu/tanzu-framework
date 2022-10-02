@@ -29,10 +29,10 @@ func NewExportTKGConfigForAzure(ctx *middleware.Context, handler ExportTKGConfig
 	return &ExportTKGConfigForAzure{Context: ctx, Handler: handler}
 }
 
-/*ExportTKGConfigForAzure swagger:route POST /api/providers/azure/config/export azure exportTKGConfigForAzure
+/*
+ExportTKGConfigForAzure swagger:route POST /api/providers/azure/config/export azure exportTKGConfigForAzure
 
 Generate TKG configuration file for Azure"
-
 */
 type ExportTKGConfigForAzure struct {
 	Context *middleware.Context

@@ -16,7 +16,8 @@ import (
 // GetTanzuEditionOKCode is the HTTP code returned for type GetTanzuEditionOK
 const GetTanzuEditionOKCode int = 200
 
-/*GetTanzuEditionOK Successful retrieval of tanzu edition
+/*
+GetTanzuEditionOK Successful retrieval of tanzu edition
 
 swagger:response getTanzuEditionOK
 */
@@ -58,7 +59,8 @@ func (o *GetTanzuEditionOK) WriteResponse(rw http.ResponseWriter, producer runti
 // GetTanzuEditionBadRequestCode is the HTTP code returned for type GetTanzuEditionBadRequest
 const GetTanzuEditionBadRequestCode int = 400
 
-/*GetTanzuEditionBadRequest Bad Request
+/*
+GetTanzuEditionBadRequest Bad Request
 
 swagger:response getTanzuEditionBadRequest
 */
@@ -102,7 +104,8 @@ func (o *GetTanzuEditionBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // GetTanzuEditionUnauthorizedCode is the HTTP code returned for type GetTanzuEditionUnauthorized
 const GetTanzuEditionUnauthorizedCode int = 401
 
-/*GetTanzuEditionUnauthorized Incorrect credentials
+/*
+GetTanzuEditionUnauthorized Incorrect credentials
 
 swagger:response getTanzuEditionUnauthorized
 */
@@ -146,7 +149,8 @@ func (o *GetTanzuEditionUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // GetTanzuEditionInternalServerErrorCode is the HTTP code returned for type GetTanzuEditionInternalServerError
 const GetTanzuEditionInternalServerErrorCode int = 500
 
-/*GetTanzuEditionInternalServerError Internal server error
+/*
+GetTanzuEditionInternalServerError Internal server error
 
 swagger:response getTanzuEditionInternalServerError
 */

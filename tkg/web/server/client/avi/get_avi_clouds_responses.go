@@ -59,7 +59,8 @@ func NewGetAviCloudsOK() *GetAviCloudsOK {
 	return &GetAviCloudsOK{}
 }
 
-/*GetAviCloudsOK handles this case with default header values.
+/*
+GetAviCloudsOK handles this case with default header values.
 
 Successful retrieval of Avi load balancer clouds
 */
@@ -90,7 +91,8 @@ func NewGetAviCloudsBadRequest() *GetAviCloudsBadRequest {
 	return &GetAviCloudsBadRequest{}
 }
 
-/*GetAviCloudsBadRequest handles this case with default header values.
+/*
+GetAviCloudsBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAviCloudsUnauthorized() *GetAviCloudsUnauthorized {
 	return &GetAviCloudsUnauthorized{}
 }
 
-/*GetAviCloudsUnauthorized handles this case with default header values.
+/*
+GetAviCloudsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAviCloudsInternalServerError() *GetAviCloudsInternalServerError {
 	return &GetAviCloudsInternalServerError{}
 }
 
-/*GetAviCloudsInternalServerError handles this case with default header values.
+/*
+GetAviCloudsInternalServerError handles this case with default header values.
 
 Internal server error
 */

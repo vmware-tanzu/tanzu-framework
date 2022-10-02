@@ -16,7 +16,8 @@ import (
 // ExportTKGConfigForVsphereOKCode is the HTTP code returned for type ExportTKGConfigForVsphereOK
 const ExportTKGConfigForVsphereOKCode int = 200
 
-/*ExportTKGConfigForVsphereOK Generated TKG configuration successfully
+/*
+ExportTKGConfigForVsphereOK Generated TKG configuration successfully
 
 swagger:response exportTKGConfigForVsphereOK
 */
@@ -58,7 +59,8 @@ func (o *ExportTKGConfigForVsphereOK) WriteResponse(rw http.ResponseWriter, prod
 // ExportTKGConfigForVsphereBadRequestCode is the HTTP code returned for type ExportTKGConfigForVsphereBadRequest
 const ExportTKGConfigForVsphereBadRequestCode int = 400
 
-/*ExportTKGConfigForVsphereBadRequest Bad request
+/*
+ExportTKGConfigForVsphereBadRequest Bad request
 
 swagger:response exportTKGConfigForVsphereBadRequest
 */
@@ -102,7 +104,8 @@ func (o *ExportTKGConfigForVsphereBadRequest) WriteResponse(rw http.ResponseWrit
 // ExportTKGConfigForVsphereUnauthorizedCode is the HTTP code returned for type ExportTKGConfigForVsphereUnauthorized
 const ExportTKGConfigForVsphereUnauthorizedCode int = 401
 
-/*ExportTKGConfigForVsphereUnauthorized Incorrect credentials
+/*
+ExportTKGConfigForVsphereUnauthorized Incorrect credentials
 
 swagger:response exportTKGConfigForVsphereUnauthorized
 */
@@ -146,7 +149,8 @@ func (o *ExportTKGConfigForVsphereUnauthorized) WriteResponse(rw http.ResponseWr
 // ExportTKGConfigForVsphereInternalServerErrorCode is the HTTP code returned for type ExportTKGConfigForVsphereInternalServerError
 const ExportTKGConfigForVsphereInternalServerErrorCode int = 500
 
-/*ExportTKGConfigForVsphereInternalServerError Internal server error
+/*
+ExportTKGConfigForVsphereInternalServerError Internal server error
 
 swagger:response exportTKGConfigForVsphereInternalServerError
 */

@@ -29,10 +29,10 @@ func NewGetAviClouds(ctx *middleware.Context, handler GetAviCloudsHandler) *GetA
 	return &GetAviClouds{Context: ctx, Handler: handler}
 }
 
-/*GetAviClouds swagger:route GET /api/avi/clouds avi getAviClouds
+/*
+GetAviClouds swagger:route GET /api/avi/clouds avi getAviClouds
 
 Retrieve Avi load balancer clouds
-
 */
 type GetAviClouds struct {
 	Context *middleware.Context

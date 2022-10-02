@@ -16,7 +16,8 @@ import (
 // GetAviServiceEngineGroupsOKCode is the HTTP code returned for type GetAviServiceEngineGroupsOK
 const GetAviServiceEngineGroupsOKCode int = 200
 
-/*GetAviServiceEngineGroupsOK Successful retrieval of Avi load balancer service engine groups
+/*
+GetAviServiceEngineGroupsOK Successful retrieval of Avi load balancer service engine groups
 
 swagger:response getAviServiceEngineGroupsOK
 */
@@ -63,7 +64,8 @@ func (o *GetAviServiceEngineGroupsOK) WriteResponse(rw http.ResponseWriter, prod
 // GetAviServiceEngineGroupsBadRequestCode is the HTTP code returned for type GetAviServiceEngineGroupsBadRequest
 const GetAviServiceEngineGroupsBadRequestCode int = 400
 
-/*GetAviServiceEngineGroupsBadRequest Bad request
+/*
+GetAviServiceEngineGroupsBadRequest Bad request
 
 swagger:response getAviServiceEngineGroupsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAviServiceEngineGroupsBadRequest) WriteResponse(rw http.ResponseWrit
 // GetAviServiceEngineGroupsUnauthorizedCode is the HTTP code returned for type GetAviServiceEngineGroupsUnauthorized
 const GetAviServiceEngineGroupsUnauthorizedCode int = 401
 
-/*GetAviServiceEngineGroupsUnauthorized Incorrect credentials
+/*
+GetAviServiceEngineGroupsUnauthorized Incorrect credentials
 
 swagger:response getAviServiceEngineGroupsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAviServiceEngineGroupsUnauthorized) WriteResponse(rw http.ResponseWr
 // GetAviServiceEngineGroupsInternalServerErrorCode is the HTTP code returned for type GetAviServiceEngineGroupsInternalServerError
 const GetAviServiceEngineGroupsInternalServerErrorCode int = 500
 
-/*GetAviServiceEngineGroupsInternalServerError Internal server error
+/*
+GetAviServiceEngineGroupsInternalServerError Internal server error
 
 swagger:response getAviServiceEngineGroupsInternalServerError
 */

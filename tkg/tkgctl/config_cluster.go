@@ -12,8 +12,9 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 )
 
-//nolint:gocritic
 // ConfigCluster prints cluster template to stdout
+//
+//nolint:gocritic
 func (t *tkgctl) ConfigCluster(configClusterOption CreateClusterOptions) error {
 	var err error
 

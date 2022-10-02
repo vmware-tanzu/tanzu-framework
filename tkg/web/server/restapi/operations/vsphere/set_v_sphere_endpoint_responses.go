@@ -16,7 +16,8 @@ import (
 // SetVSphereEndpointCreatedCode is the HTTP code returned for type SetVSphereEndpointCreated
 const SetVSphereEndpointCreatedCode int = 201
 
-/*SetVSphereEndpointCreated Connection successful
+/*
+SetVSphereEndpointCreated Connection successful
 
 swagger:response setVSphereEndpointCreated
 */
@@ -60,7 +61,8 @@ func (o *SetVSphereEndpointCreated) WriteResponse(rw http.ResponseWriter, produc
 // SetVSphereEndpointBadRequestCode is the HTTP code returned for type SetVSphereEndpointBadRequest
 const SetVSphereEndpointBadRequestCode int = 400
 
-/*SetVSphereEndpointBadRequest Bad request
+/*
+SetVSphereEndpointBadRequest Bad request
 
 swagger:response setVSphereEndpointBadRequest
 */
@@ -104,7 +106,8 @@ func (o *SetVSphereEndpointBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // SetVSphereEndpointUnauthorizedCode is the HTTP code returned for type SetVSphereEndpointUnauthorized
 const SetVSphereEndpointUnauthorizedCode int = 401
 
-/*SetVSphereEndpointUnauthorized Incorrect credentials
+/*
+SetVSphereEndpointUnauthorized Incorrect credentials
 
 swagger:response setVSphereEndpointUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *SetVSphereEndpointUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // SetVSphereEndpointInternalServerErrorCode is the HTTP code returned for type SetVSphereEndpointInternalServerError
 const SetVSphereEndpointInternalServerErrorCode int = 500
 
-/*SetVSphereEndpointInternalServerError Internal server error
+/*
+SetVSphereEndpointInternalServerError Internal server error
 
 swagger:response setVSphereEndpointInternalServerError
 */

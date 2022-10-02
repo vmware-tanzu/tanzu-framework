@@ -59,7 +59,8 @@ func NewGetAWSCredentialProfilesOK() *GetAWSCredentialProfilesOK {
 	return &GetAWSCredentialProfilesOK{}
 }
 
-/*GetAWSCredentialProfilesOK handles this case with default header values.
+/*
+GetAWSCredentialProfilesOK handles this case with default header values.
 
 Successful retrieval of AWS credentials profiles
 */
@@ -90,7 +91,8 @@ func NewGetAWSCredentialProfilesBadRequest() *GetAWSCredentialProfilesBadRequest
 	return &GetAWSCredentialProfilesBadRequest{}
 }
 
-/*GetAWSCredentialProfilesBadRequest handles this case with default header values.
+/*
+GetAWSCredentialProfilesBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAWSCredentialProfilesUnauthorized() *GetAWSCredentialProfilesUnauthor
 	return &GetAWSCredentialProfilesUnauthorized{}
 }
 
-/*GetAWSCredentialProfilesUnauthorized handles this case with default header values.
+/*
+GetAWSCredentialProfilesUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAWSCredentialProfilesInternalServerError() *GetAWSCredentialProfilesI
 	return &GetAWSCredentialProfilesInternalServerError{}
 }
 
-/*GetAWSCredentialProfilesInternalServerError handles this case with default header values.
+/*
+GetAWSCredentialProfilesInternalServerError handles this case with default header values.
 
 Internal server error
 */

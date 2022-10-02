@@ -58,7 +58,8 @@ func NewCreateAzureResourceGroupParamsWithHTTPClient(client *http.Client) *Creat
 	}
 }
 
-/*CreateAzureResourceGroupParams contains all the parameters to send to the API endpoint
+/*
+CreateAzureResourceGroupParams contains all the parameters to send to the API endpoint
 for the create azure resource group operation typically these are written to a http.Request
 */
 type CreateAzureResourceGroupParams struct {

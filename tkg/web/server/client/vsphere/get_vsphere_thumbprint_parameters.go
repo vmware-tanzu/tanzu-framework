@@ -56,7 +56,8 @@ func NewGetVsphereThumbprintParamsWithHTTPClient(client *http.Client) *GetVspher
 	}
 }
 
-/*GetVsphereThumbprintParams contains all the parameters to send to the API endpoint
+/*
+GetVsphereThumbprintParams contains all the parameters to send to the API endpoint
 for the get vsphere thumbprint operation typically these are written to a http.Request
 */
 type GetVsphereThumbprintParams struct {

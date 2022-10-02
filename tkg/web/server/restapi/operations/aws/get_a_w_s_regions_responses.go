@@ -16,7 +16,8 @@ import (
 // GetAWSRegionsOKCode is the HTTP code returned for type GetAWSRegionsOK
 const GetAWSRegionsOKCode int = 200
 
-/*GetAWSRegionsOK Successful retrieval of AWS regions
+/*
+GetAWSRegionsOK Successful retrieval of AWS regions
 
 swagger:response getAWSRegionsOK
 */
@@ -63,7 +64,8 @@ func (o *GetAWSRegionsOK) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetAWSRegionsBadRequestCode is the HTTP code returned for type GetAWSRegionsBadRequest
 const GetAWSRegionsBadRequestCode int = 400
 
-/*GetAWSRegionsBadRequest Bad request
+/*
+GetAWSRegionsBadRequest Bad request
 
 swagger:response getAWSRegionsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAWSRegionsBadRequest) WriteResponse(rw http.ResponseWriter, producer
 // GetAWSRegionsUnauthorizedCode is the HTTP code returned for type GetAWSRegionsUnauthorized
 const GetAWSRegionsUnauthorizedCode int = 401
 
-/*GetAWSRegionsUnauthorized Incorrect credentials
+/*
+GetAWSRegionsUnauthorized Incorrect credentials
 
 swagger:response getAWSRegionsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAWSRegionsUnauthorized) WriteResponse(rw http.ResponseWriter, produc
 // GetAWSRegionsInternalServerErrorCode is the HTTP code returned for type GetAWSRegionsInternalServerError
 const GetAWSRegionsInternalServerErrorCode int = 500
 
-/*GetAWSRegionsInternalServerError Internal server error
+/*
+GetAWSRegionsInternalServerError Internal server error
 
 swagger:response getAWSRegionsInternalServerError
 */

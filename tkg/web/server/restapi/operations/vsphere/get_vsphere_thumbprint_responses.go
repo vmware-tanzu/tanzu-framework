@@ -16,7 +16,8 @@ import (
 // GetVsphereThumbprintOKCode is the HTTP code returned for type GetVsphereThumbprintOK
 const GetVsphereThumbprintOKCode int = 200
 
-/*GetVsphereThumbprintOK Successful retrieval of vSphere thumbprint
+/*
+GetVsphereThumbprintOK Successful retrieval of vSphere thumbprint
 
 swagger:response getVsphereThumbprintOK
 */
@@ -60,7 +61,8 @@ func (o *GetVsphereThumbprintOK) WriteResponse(rw http.ResponseWriter, producer 
 // GetVsphereThumbprintBadRequestCode is the HTTP code returned for type GetVsphereThumbprintBadRequest
 const GetVsphereThumbprintBadRequestCode int = 400
 
-/*GetVsphereThumbprintBadRequest Bad request
+/*
+GetVsphereThumbprintBadRequest Bad request
 
 swagger:response getVsphereThumbprintBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetVsphereThumbprintBadRequest) WriteResponse(rw http.ResponseWriter, p
 // GetVsphereThumbprintUnauthorizedCode is the HTTP code returned for type GetVsphereThumbprintUnauthorized
 const GetVsphereThumbprintUnauthorizedCode int = 401
 
-/*GetVsphereThumbprintUnauthorized Incorrect credentials
+/*
+GetVsphereThumbprintUnauthorized Incorrect credentials
 
 swagger:response getVsphereThumbprintUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *GetVsphereThumbprintUnauthorized) WriteResponse(rw http.ResponseWriter,
 // GetVsphereThumbprintInternalServerErrorCode is the HTTP code returned for type GetVsphereThumbprintInternalServerError
 const GetVsphereThumbprintInternalServerErrorCode int = 500
 
-/*GetVsphereThumbprintInternalServerError Internal server error
+/*
+GetVsphereThumbprintInternalServerError Internal server error
 
 swagger:response getVsphereThumbprintInternalServerError
 */

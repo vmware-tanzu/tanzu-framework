@@ -179,7 +179,7 @@ func GetTempClusterConfigFile(clusterConfigFile string, options *CreateClusterOp
 	return configFilePath, nil
 }
 
-//SetCliConfigFlag sets cli flag
+// SetCliConfigFlag sets cli flag
 func SetCliConfigFlag(flagName string, value string) error {
 	// Acquire tanzu config lock
 	config.AcquireTanzuConfigLock()
@@ -197,7 +197,7 @@ func SetCliConfigFlag(flagName string, value string) error {
 	return config.StoreClientConfig(cfg)
 }
 
-//SetFeatures sets flags in given ClientConfig
+// SetFeatures sets flags in given ClientConfig
 func SetFeatures(cfg *configapi.ClientConfig, paramArray []string, value string) error {
 	if len(paramArray) != 3 {
 		return errors.New("unable to parse config path parameter into three parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'features.<plugin>.<feature>'")

@@ -20,8 +20,9 @@ type SetMachineHealthCheckOptions struct {
 	NodeStartupTimeout     string
 }
 
-//nolint:gocritic
 // SetMachineHealthCheck apply machine health check to the cluster
+//
+//nolint:gocritic
 func (t *tkgctl) SetMachineHealthCheck(options SetMachineHealthCheckOptions) error {
 	optionsSMHC := client.SetMachineHealthCheckOptions{
 		ClusterName:            options.ClusterName,

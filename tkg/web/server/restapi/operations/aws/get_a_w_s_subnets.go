@@ -29,10 +29,10 @@ func NewGetAWSSubnets(ctx *middleware.Context, handler GetAWSSubnetsHandler) *Ge
 	return &GetAWSSubnets{Context: ctx, Handler: handler}
 }
 
-/*GetAWSSubnets swagger:route GET /api/providers/aws/subnets aws getAWSSubnets
+/*
+GetAWSSubnets swagger:route GET /api/providers/aws/subnets aws getAWSSubnets
 
 Retrieve AWS Subnets info under a VPC
-
 */
 type GetAWSSubnets struct {
 	Context *middleware.Context

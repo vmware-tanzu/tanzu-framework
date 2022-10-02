@@ -16,7 +16,8 @@ import (
 // GetAviVipNetworksOKCode is the HTTP code returned for type GetAviVipNetworksOK
 const GetAviVipNetworksOKCode int = 200
 
-/*GetAviVipNetworksOK Successful retrieval of Avi load balancer service engine groups
+/*
+GetAviVipNetworksOK Successful retrieval of Avi load balancer service engine groups
 
 swagger:response getAviVipNetworksOK
 */
@@ -63,7 +64,8 @@ func (o *GetAviVipNetworksOK) WriteResponse(rw http.ResponseWriter, producer run
 // GetAviVipNetworksBadRequestCode is the HTTP code returned for type GetAviVipNetworksBadRequest
 const GetAviVipNetworksBadRequestCode int = 400
 
-/*GetAviVipNetworksBadRequest Bad request
+/*
+GetAviVipNetworksBadRequest Bad request
 
 swagger:response getAviVipNetworksBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAviVipNetworksBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // GetAviVipNetworksUnauthorizedCode is the HTTP code returned for type GetAviVipNetworksUnauthorized
 const GetAviVipNetworksUnauthorizedCode int = 401
 
-/*GetAviVipNetworksUnauthorized Incorrect credentials
+/*
+GetAviVipNetworksUnauthorized Incorrect credentials
 
 swagger:response getAviVipNetworksUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAviVipNetworksUnauthorized) WriteResponse(rw http.ResponseWriter, pr
 // GetAviVipNetworksInternalServerErrorCode is the HTTP code returned for type GetAviVipNetworksInternalServerError
 const GetAviVipNetworksInternalServerErrorCode int = 500
 
-/*GetAviVipNetworksInternalServerError Internal server error
+/*
+GetAviVipNetworksInternalServerError Internal server error
 
 swagger:response getAviVipNetworksInternalServerError
 */

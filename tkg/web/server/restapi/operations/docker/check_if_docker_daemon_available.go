@@ -29,10 +29,10 @@ func NewCheckIfDockerDaemonAvailable(ctx *middleware.Context, handler CheckIfDoc
 	return &CheckIfDockerDaemonAvailable{Context: ctx, Handler: handler}
 }
 
-/*CheckIfDockerDaemonAvailable swagger:route GET /api/providers/docker/daemon docker checkIfDockerDaemonAvailable
+/*
+CheckIfDockerDaemonAvailable swagger:route GET /api/providers/docker/daemon docker checkIfDockerDaemonAvailable
 
 Check if docker deamon is available
-
 */
 type CheckIfDockerDaemonAvailable struct {
 	Context *middleware.Context

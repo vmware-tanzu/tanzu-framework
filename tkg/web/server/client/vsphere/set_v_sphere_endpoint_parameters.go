@@ -58,7 +58,8 @@ func NewSetVSphereEndpointParamsWithHTTPClient(client *http.Client) *SetVSphereE
 	}
 }
 
-/*SetVSphereEndpointParams contains all the parameters to send to the API endpoint
+/*
+SetVSphereEndpointParams contains all the parameters to send to the API endpoint
 for the set v sphere endpoint operation typically these are written to a http.Request
 */
 type SetVSphereEndpointParams struct {

@@ -29,10 +29,10 @@ func NewCreateAzureResourceGroup(ctx *middleware.Context, handler CreateAzureRes
 	return &CreateAzureResourceGroup{Context: ctx, Handler: handler}
 }
 
-/*CreateAzureResourceGroup swagger:route POST /api/providers/azure/resourcegroups azure createAzureResourceGroup
+/*
+CreateAzureResourceGroup swagger:route POST /api/providers/azure/resourcegroups azure createAzureResourceGroup
 
 Create a new Azure resource group
-
 */
 type CreateAzureResourceGroup struct {
 	Context *middleware.Context

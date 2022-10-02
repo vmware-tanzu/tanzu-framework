@@ -56,7 +56,8 @@ func NewGetAWSSubnetsParamsWithHTTPClient(client *http.Client) *GetAWSSubnetsPar
 	}
 }
 
-/*GetAWSSubnetsParams contains all the parameters to send to the API endpoint
+/*
+GetAWSSubnetsParams contains all the parameters to send to the API endpoint
 for the get a w s subnets operation typically these are written to a http.Request
 */
 type GetAWSSubnetsParams struct {

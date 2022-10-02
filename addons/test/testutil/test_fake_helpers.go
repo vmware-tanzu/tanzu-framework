@@ -58,6 +58,7 @@ func (c FakeDiscovery) ServerResourcesForGroupVersion(groupVersion string) (*met
 
 // Having nolint below to get rid of the complaining on the deprecation of ServerResources. We have to have the following
 // function to customize the DiscoveryInterface
+//
 //nolint:staticcheck
 func (c FakeDiscovery) ServerResources() ([]*metav1.APIResourceList, error) {
 	return c.FakeDiscovery.ServerResources()

@@ -29,10 +29,10 @@ func NewImportTKGConfigForAWS(ctx *middleware.Context, handler ImportTKGConfigFo
 	return &ImportTKGConfigForAWS{Context: ctx, Handler: handler}
 }
 
-/*ImportTKGConfigForAWS swagger:route POST /api/providers/aws/config/import aws importTKGConfigForAWS
+/*
+ImportTKGConfigForAWS swagger:route POST /api/providers/aws/config/import aws importTKGConfigForAWS
 
 Generate TKG configuration object for AWS
-
 */
 type ImportTKGConfigForAWS struct {
 	Context *middleware.Context

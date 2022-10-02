@@ -56,7 +56,8 @@ func NewGetVSphereFoldersParamsWithHTTPClient(client *http.Client) *GetVSphereFo
 	}
 }
 
-/*GetVSphereFoldersParams contains all the parameters to send to the API endpoint
+/*
+GetVSphereFoldersParams contains all the parameters to send to the API endpoint
 for the get v sphere folders operation typically these are written to a http.Request
 */
 type GetVSphereFoldersParams struct {

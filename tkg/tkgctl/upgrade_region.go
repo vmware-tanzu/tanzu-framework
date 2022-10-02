@@ -31,8 +31,9 @@ type UpgradeRegionOptions struct {
 	Edition string
 }
 
-//nolint:gocritic
 // UpgradeRegion upgrades management cluster
+//
+//nolint:gocritic
 func (t *tkgctl) UpgradeRegion(options UpgradeRegionOptions) error {
 	var err error
 

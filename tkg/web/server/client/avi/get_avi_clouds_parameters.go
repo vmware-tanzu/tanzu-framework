@@ -56,7 +56,8 @@ func NewGetAviCloudsParamsWithHTTPClient(client *http.Client) *GetAviCloudsParam
 	}
 }
 
-/*GetAviCloudsParams contains all the parameters to send to the API endpoint
+/*
+GetAviCloudsParams contains all the parameters to send to the API endpoint
 for the get avi clouds operation typically these are written to a http.Request
 */
 type GetAviCloudsParams struct {

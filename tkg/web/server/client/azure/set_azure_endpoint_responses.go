@@ -59,7 +59,8 @@ func NewSetAzureEndpointCreated() *SetAzureEndpointCreated {
 	return &SetAzureEndpointCreated{}
 }
 
-/*SetAzureEndpointCreated handles this case with default header values.
+/*
+SetAzureEndpointCreated handles this case with default header values.
 
 Connection successful
 */
@@ -80,7 +81,8 @@ func NewSetAzureEndpointBadRequest() *SetAzureEndpointBadRequest {
 	return &SetAzureEndpointBadRequest{}
 }
 
-/*SetAzureEndpointBadRequest handles this case with default header values.
+/*
+SetAzureEndpointBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -113,7 +115,8 @@ func NewSetAzureEndpointUnauthorized() *SetAzureEndpointUnauthorized {
 	return &SetAzureEndpointUnauthorized{}
 }
 
-/*SetAzureEndpointUnauthorized handles this case with default header values.
+/*
+SetAzureEndpointUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -146,7 +149,8 @@ func NewSetAzureEndpointInternalServerError() *SetAzureEndpointInternalServerErr
 	return &SetAzureEndpointInternalServerError{}
 }
 
-/*SetAzureEndpointInternalServerError handles this case with default header values.
+/*
+SetAzureEndpointInternalServerError handles this case with default header values.
 
 Internal server error
 */

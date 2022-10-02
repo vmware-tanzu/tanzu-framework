@@ -58,7 +58,8 @@ func NewCreateAWSRegionalClusterParamsWithHTTPClient(client *http.Client) *Creat
 	}
 }
 
-/*CreateAWSRegionalClusterParams contains all the parameters to send to the API endpoint
+/*
+CreateAWSRegionalClusterParams contains all the parameters to send to the API endpoint
 for the create a w s regional cluster operation typically these are written to a http.Request
 */
 type CreateAWSRegionalClusterParams struct {

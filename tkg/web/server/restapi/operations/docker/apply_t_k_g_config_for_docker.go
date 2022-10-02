@@ -29,10 +29,10 @@ func NewApplyTKGConfigForDocker(ctx *middleware.Context, handler ApplyTKGConfigF
 	return &ApplyTKGConfigForDocker{Context: ctx, Handler: handler}
 }
 
-/*ApplyTKGConfigForDocker swagger:route POST /api/providers/docker/tkgconfig docker applyTKGConfigForDocker
+/*
+ApplyTKGConfigForDocker swagger:route POST /api/providers/docker/tkgconfig docker applyTKGConfigForDocker
 
 Apply the changes to TKG configuration file for docker"
-
 */
 type ApplyTKGConfigForDocker struct {
 	Context *middleware.Context

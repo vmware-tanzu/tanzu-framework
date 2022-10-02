@@ -16,7 +16,8 @@ import (
 // GetAWSAvailabilityZonesOKCode is the HTTP code returned for type GetAWSAvailabilityZonesOK
 const GetAWSAvailabilityZonesOKCode int = 200
 
-/*GetAWSAvailabilityZonesOK Successful retrieval of AWS availability zones
+/*
+GetAWSAvailabilityZonesOK Successful retrieval of AWS availability zones
 
 swagger:response getAWSAvailabilityZonesOK
 */
@@ -63,7 +64,8 @@ func (o *GetAWSAvailabilityZonesOK) WriteResponse(rw http.ResponseWriter, produc
 // GetAWSAvailabilityZonesBadRequestCode is the HTTP code returned for type GetAWSAvailabilityZonesBadRequest
 const GetAWSAvailabilityZonesBadRequestCode int = 400
 
-/*GetAWSAvailabilityZonesBadRequest Bad request
+/*
+GetAWSAvailabilityZonesBadRequest Bad request
 
 swagger:response getAWSAvailabilityZonesBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAWSAvailabilityZonesBadRequest) WriteResponse(rw http.ResponseWriter
 // GetAWSAvailabilityZonesUnauthorizedCode is the HTTP code returned for type GetAWSAvailabilityZonesUnauthorized
 const GetAWSAvailabilityZonesUnauthorizedCode int = 401
 
-/*GetAWSAvailabilityZonesUnauthorized Incorrect credentials
+/*
+GetAWSAvailabilityZonesUnauthorized Incorrect credentials
 
 swagger:response getAWSAvailabilityZonesUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAWSAvailabilityZonesUnauthorized) WriteResponse(rw http.ResponseWrit
 // GetAWSAvailabilityZonesInternalServerErrorCode is the HTTP code returned for type GetAWSAvailabilityZonesInternalServerError
 const GetAWSAvailabilityZonesInternalServerErrorCode int = 500
 
-/*GetAWSAvailabilityZonesInternalServerError Internal server error
+/*
+GetAWSAvailabilityZonesInternalServerError Internal server error
 
 swagger:response getAWSAvailabilityZonesInternalServerError
 */

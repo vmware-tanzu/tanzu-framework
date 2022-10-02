@@ -16,7 +16,8 @@ import (
 // GetVPCsOKCode is the HTTP code returned for type GetVPCsOK
 const GetVPCsOKCode int = 200
 
-/*GetVPCsOK Successful retrieval of AWS VPCs
+/*
+GetVPCsOK Successful retrieval of AWS VPCs
 
 swagger:response getVPCsOK
 */
@@ -63,7 +64,8 @@ func (o *GetVPCsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 // GetVPCsBadRequestCode is the HTTP code returned for type GetVPCsBadRequest
 const GetVPCsBadRequestCode int = 400
 
-/*GetVPCsBadRequest Bad request
+/*
+GetVPCsBadRequest Bad request
 
 swagger:response getVPCsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetVPCsBadRequest) WriteResponse(rw http.ResponseWriter, producer runti
 // GetVPCsUnauthorizedCode is the HTTP code returned for type GetVPCsUnauthorized
 const GetVPCsUnauthorizedCode int = 401
 
-/*GetVPCsUnauthorized Incorrect credentials
+/*
+GetVPCsUnauthorized Incorrect credentials
 
 swagger:response getVPCsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetVPCsUnauthorized) WriteResponse(rw http.ResponseWriter, producer run
 // GetVPCsInternalServerErrorCode is the HTTP code returned for type GetVPCsInternalServerError
 const GetVPCsInternalServerErrorCode int = 500
 
-/*GetVPCsInternalServerError Internal server error
+/*
+GetVPCsInternalServerError Internal server error
 
 swagger:response getVPCsInternalServerError
 */

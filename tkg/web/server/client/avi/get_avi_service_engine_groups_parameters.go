@@ -56,7 +56,8 @@ func NewGetAviServiceEngineGroupsParamsWithHTTPClient(client *http.Client) *GetA
 	}
 }
 
-/*GetAviServiceEngineGroupsParams contains all the parameters to send to the API endpoint
+/*
+GetAviServiceEngineGroupsParams contains all the parameters to send to the API endpoint
 for the get avi service engine groups operation typically these are written to a http.Request
 */
 type GetAviServiceEngineGroupsParams struct {

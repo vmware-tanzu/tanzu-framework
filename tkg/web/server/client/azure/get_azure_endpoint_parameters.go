@@ -56,7 +56,8 @@ func NewGetAzureEndpointParamsWithHTTPClient(client *http.Client) *GetAzureEndpo
 	}
 }
 
-/*GetAzureEndpointParams contains all the parameters to send to the API endpoint
+/*
+GetAzureEndpointParams contains all the parameters to send to the API endpoint
 for the get azure endpoint operation typically these are written to a http.Request
 */
 type GetAzureEndpointParams struct {

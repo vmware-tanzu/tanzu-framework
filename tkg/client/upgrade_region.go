@@ -78,13 +78,13 @@ type providersUpgradeInfo struct {
 
 // UpgradeManagementCluster upgrades management clusters providers and k8s version
 // Steps:
-// 1. Upgrade providers
-// 	a) Get the Upgrade configuration by reading BOM file to get the providers versions
-// 	b) Get the providers information from the management cluster
-//  c) Prepare the providers upgrade information
-// 	d) Call the clusterctl ApplyUpgrade() to upgrade providers
-//  e) Wait for providers to be up and running
-// 2. call the UpgradeCluster() for upgrading the k8s version of the Management cluster
+//  1. Upgrade providers
+//     a) Get the Upgrade configuration by reading BOM file to get the providers versions
+//     b) Get the providers information from the management cluster
+//     c) Prepare the providers upgrade information
+//     d) Call the clusterctl ApplyUpgrade() to upgrade providers
+//     e) Wait for providers to be up and running
+//  2. call the UpgradeCluster() for upgrading the k8s version of the Management cluster
 //nolint:gocyclo
 func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) error {
 	contexts, err := c.GetRegionContexts(options.ClusterName)

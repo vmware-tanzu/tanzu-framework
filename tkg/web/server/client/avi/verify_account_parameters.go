@@ -58,7 +58,8 @@ func NewVerifyAccountParamsWithHTTPClient(client *http.Client) *VerifyAccountPar
 	}
 }
 
-/*VerifyAccountParams contains all the parameters to send to the API endpoint
+/*
+VerifyAccountParams contains all the parameters to send to the API endpoint
 for the verify account operation typically these are written to a http.Request
 */
 type VerifyAccountParams struct {

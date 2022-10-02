@@ -56,7 +56,8 @@ func NewVerifyLdapBindParamsWithHTTPClient(client *http.Client) *VerifyLdapBindP
 	}
 }
 
-/*VerifyLdapBindParams contains all the parameters to send to the API endpoint
+/*
+VerifyLdapBindParams contains all the parameters to send to the API endpoint
 for the verify ldap bind operation typically these are written to a http.Request
 */
 type VerifyLdapBindParams struct {

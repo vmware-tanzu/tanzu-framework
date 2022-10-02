@@ -29,10 +29,10 @@ func NewApplyTKGConfigForVsphere(ctx *middleware.Context, handler ApplyTKGConfig
 	return &ApplyTKGConfigForVsphere{Context: ctx, Handler: handler}
 }
 
-/*ApplyTKGConfigForVsphere swagger:route POST /api/providers/vsphere/tkgconfig vsphere applyTKGConfigForVsphere
+/*
+ApplyTKGConfigForVsphere swagger:route POST /api/providers/vsphere/tkgconfig vsphere applyTKGConfigForVsphere
 
 Apply changes to TKG configuration file for vSphere
-
 */
 type ApplyTKGConfigForVsphere struct {
 	Context *middleware.Context

@@ -59,7 +59,8 @@ func NewExportTKGConfigForVsphereOK() *ExportTKGConfigForVsphereOK {
 	return &ExportTKGConfigForVsphereOK{}
 }
 
-/*ExportTKGConfigForVsphereOK handles this case with default header values.
+/*
+ExportTKGConfigForVsphereOK handles this case with default header values.
 
 Generated TKG configuration successfully
 */
@@ -90,7 +91,8 @@ func NewExportTKGConfigForVsphereBadRequest() *ExportTKGConfigForVsphereBadReque
 	return &ExportTKGConfigForVsphereBadRequest{}
 }
 
-/*ExportTKGConfigForVsphereBadRequest handles this case with default header values.
+/*
+ExportTKGConfigForVsphereBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewExportTKGConfigForVsphereUnauthorized() *ExportTKGConfigForVsphereUnauth
 	return &ExportTKGConfigForVsphereUnauthorized{}
 }
 
-/*ExportTKGConfigForVsphereUnauthorized handles this case with default header values.
+/*
+ExportTKGConfigForVsphereUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewExportTKGConfigForVsphereInternalServerError() *ExportTKGConfigForVspher
 	return &ExportTKGConfigForVsphereInternalServerError{}
 }
 
-/*ExportTKGConfigForVsphereInternalServerError handles this case with default header values.
+/*
+ExportTKGConfigForVsphereInternalServerError handles this case with default header values.
 
 Internal server error
 */

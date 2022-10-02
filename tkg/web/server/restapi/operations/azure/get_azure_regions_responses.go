@@ -16,7 +16,8 @@ import (
 // GetAzureRegionsOKCode is the HTTP code returned for type GetAzureRegionsOK
 const GetAzureRegionsOKCode int = 200
 
-/*GetAzureRegionsOK Successful retrieval of Azure regions
+/*
+GetAzureRegionsOK Successful retrieval of Azure regions
 
 swagger:response getAzureRegionsOK
 */
@@ -63,7 +64,8 @@ func (o *GetAzureRegionsOK) WriteResponse(rw http.ResponseWriter, producer runti
 // GetAzureRegionsBadRequestCode is the HTTP code returned for type GetAzureRegionsBadRequest
 const GetAzureRegionsBadRequestCode int = 400
 
-/*GetAzureRegionsBadRequest Bad Request
+/*
+GetAzureRegionsBadRequest Bad Request
 
 swagger:response getAzureRegionsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAzureRegionsBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // GetAzureRegionsUnauthorizedCode is the HTTP code returned for type GetAzureRegionsUnauthorized
 const GetAzureRegionsUnauthorizedCode int = 401
 
-/*GetAzureRegionsUnauthorized Incorrect credentials
+/*
+GetAzureRegionsUnauthorized Incorrect credentials
 
 swagger:response getAzureRegionsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAzureRegionsUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // GetAzureRegionsInternalServerErrorCode is the HTTP code returned for type GetAzureRegionsInternalServerError
 const GetAzureRegionsInternalServerErrorCode int = 500
 
-/*GetAzureRegionsInternalServerError Internal server error
+/*
+GetAzureRegionsInternalServerError Internal server error
 
 swagger:response getAzureRegionsInternalServerError
 */

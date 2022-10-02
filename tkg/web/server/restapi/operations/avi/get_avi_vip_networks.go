@@ -29,10 +29,10 @@ func NewGetAviVipNetworks(ctx *middleware.Context, handler GetAviVipNetworksHand
 	return &GetAviVipNetworks{Context: ctx, Handler: handler}
 }
 
-/*GetAviVipNetworks swagger:route GET /api/avi/vipnetworks avi getAviVipNetworks
+/*
+GetAviVipNetworks swagger:route GET /api/avi/vipnetworks avi getAviVipNetworks
 
 Retrieve all Avi networks
-
 */
 type GetAviVipNetworks struct {
 	Context *middleware.Context

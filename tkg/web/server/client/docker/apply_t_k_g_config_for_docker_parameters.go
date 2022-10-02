@@ -58,7 +58,8 @@ func NewApplyTKGConfigForDockerParamsWithHTTPClient(client *http.Client) *ApplyT
 	}
 }
 
-/*ApplyTKGConfigForDockerParams contains all the parameters to send to the API endpoint
+/*
+ApplyTKGConfigForDockerParams contains all the parameters to send to the API endpoint
 for the apply t k g config for docker operation typically these are written to a http.Request
 */
 type ApplyTKGConfigForDockerParams struct {

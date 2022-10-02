@@ -29,10 +29,10 @@ func NewSetVSphereEndpoint(ctx *middleware.Context, handler SetVSphereEndpointHa
 	return &SetVSphereEndpoint{Context: ctx, Handler: handler}
 }
 
-/*SetVSphereEndpoint swagger:route POST /api/providers/vsphere vsphere setVSphereEndpoint
+/*
+SetVSphereEndpoint swagger:route POST /api/providers/vsphere vsphere setVSphereEndpoint
 
 Validate and set vSphere credentials
-
 */
 type SetVSphereEndpoint struct {
 	Context *middleware.Context

@@ -16,7 +16,8 @@ import (
 // GetProviderOKCode is the HTTP code returned for type GetProviderOK
 const GetProviderOKCode int = 200
 
-/*GetProviderOK Successful operation
+/*
+GetProviderOK Successful operation
 
 swagger:response getProviderOK
 */
@@ -60,7 +61,8 @@ func (o *GetProviderOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 // GetProviderBadRequestCode is the HTTP code returned for type GetProviderBadRequest
 const GetProviderBadRequestCode int = 400
 
-/*GetProviderBadRequest Bad request
+/*
+GetProviderBadRequest Bad request
 
 swagger:response getProviderBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetProviderBadRequest) WriteResponse(rw http.ResponseWriter, producer r
 // GetProviderInternalServerErrorCode is the HTTP code returned for type GetProviderInternalServerError
 const GetProviderInternalServerErrorCode int = 500
 
-/*GetProviderInternalServerError Internal server error
+/*
+GetProviderInternalServerError Internal server error
 
 swagger:response getProviderInternalServerError
 */

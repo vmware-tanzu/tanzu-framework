@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package command creates and initializes the tanzu CLI.
+//
 //nolint:staticcheck
 package command
 

@@ -53,7 +53,8 @@ func NewCheckIfDockerDaemonAvailableOK() *CheckIfDockerDaemonAvailableOK {
 	return &CheckIfDockerDaemonAvailableOK{}
 }
 
-/*CheckIfDockerDaemonAvailableOK handles this case with default header values.
+/*
+CheckIfDockerDaemonAvailableOK handles this case with default header values.
 
 Checked the docker daemon status successfully.
 */
@@ -86,7 +87,8 @@ func NewCheckIfDockerDaemonAvailableBadRequest() *CheckIfDockerDaemonAvailableBa
 	return &CheckIfDockerDaemonAvailableBadRequest{}
 }
 
-/*CheckIfDockerDaemonAvailableBadRequest handles this case with default header values.
+/*
+CheckIfDockerDaemonAvailableBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -119,7 +121,8 @@ func NewCheckIfDockerDaemonAvailableInternalServerError() *CheckIfDockerDaemonAv
 	return &CheckIfDockerDaemonAvailableInternalServerError{}
 }
 
-/*CheckIfDockerDaemonAvailableInternalServerError handles this case with default header values.
+/*
+CheckIfDockerDaemonAvailableInternalServerError handles this case with default header values.
 
 Internal server error
 */

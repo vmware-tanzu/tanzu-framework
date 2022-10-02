@@ -16,7 +16,8 @@ import (
 // GetAWSCredentialProfilesOKCode is the HTTP code returned for type GetAWSCredentialProfilesOK
 const GetAWSCredentialProfilesOKCode int = 200
 
-/*GetAWSCredentialProfilesOK Successful retrieval of AWS credentials profiles
+/*
+GetAWSCredentialProfilesOK Successful retrieval of AWS credentials profiles
 
 swagger:response getAWSCredentialProfilesOK
 */
@@ -63,7 +64,8 @@ func (o *GetAWSCredentialProfilesOK) WriteResponse(rw http.ResponseWriter, produ
 // GetAWSCredentialProfilesBadRequestCode is the HTTP code returned for type GetAWSCredentialProfilesBadRequest
 const GetAWSCredentialProfilesBadRequestCode int = 400
 
-/*GetAWSCredentialProfilesBadRequest Bad request
+/*
+GetAWSCredentialProfilesBadRequest Bad request
 
 swagger:response getAWSCredentialProfilesBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAWSCredentialProfilesBadRequest) WriteResponse(rw http.ResponseWrite
 // GetAWSCredentialProfilesUnauthorizedCode is the HTTP code returned for type GetAWSCredentialProfilesUnauthorized
 const GetAWSCredentialProfilesUnauthorizedCode int = 401
 
-/*GetAWSCredentialProfilesUnauthorized Incorrect credentials
+/*
+GetAWSCredentialProfilesUnauthorized Incorrect credentials
 
 swagger:response getAWSCredentialProfilesUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAWSCredentialProfilesUnauthorized) WriteResponse(rw http.ResponseWri
 // GetAWSCredentialProfilesInternalServerErrorCode is the HTTP code returned for type GetAWSCredentialProfilesInternalServerError
 const GetAWSCredentialProfilesInternalServerErrorCode int = 500
 
-/*GetAWSCredentialProfilesInternalServerError Internal server error
+/*
+GetAWSCredentialProfilesInternalServerError Internal server error
 
 swagger:response getAWSCredentialProfilesInternalServerError
 */

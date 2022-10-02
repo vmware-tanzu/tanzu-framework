@@ -97,6 +97,7 @@ var (
 )
 
 // Client provides various aspects of interaction with a Kubernetes cluster provisioned by TKG
+//
 //go:generate counterfeiter -o ../fakes/clusterclient.go --fake-name ClusterClient . Client
 type Client interface {
 	// MergeAndUseConfig takes a kubeconfig as a string, merges it into the client's kubeconfig

@@ -1,8 +1,9 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:gocritic
 // Package pluginmanager is resposible for plugin discovery and installation
+//
+//nolint:gocritic
 package pluginmanager
 
 import (

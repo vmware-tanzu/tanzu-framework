@@ -29,10 +29,10 @@ func NewExportTKGConfigForAWS(ctx *middleware.Context, handler ExportTKGConfigFo
 	return &ExportTKGConfigForAWS{Context: ctx, Handler: handler}
 }
 
-/*ExportTKGConfigForAWS swagger:route POST /api/providers/aws/config/export aws exportTKGConfigForAWS
+/*
+ExportTKGConfigForAWS swagger:route POST /api/providers/aws/config/export aws exportTKGConfigForAWS
 
 Generate TKG configuration file for AWS"
-
 */
 type ExportTKGConfigForAWS struct {
 	Context *middleware.Context

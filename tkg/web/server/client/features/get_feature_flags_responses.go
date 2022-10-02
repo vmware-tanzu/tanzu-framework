@@ -59,7 +59,8 @@ func NewGetFeatureFlagsOK() *GetFeatureFlagsOK {
 	return &GetFeatureFlagsOK{}
 }
 
-/*GetFeatureFlagsOK handles this case with default header values.
+/*
+GetFeatureFlagsOK handles this case with default header values.
 
 Successful retrieval of feature flags
 */
@@ -90,7 +91,8 @@ func NewGetFeatureFlagsBadRequest() *GetFeatureFlagsBadRequest {
 	return &GetFeatureFlagsBadRequest{}
 }
 
-/*GetFeatureFlagsBadRequest handles this case with default header values.
+/*
+GetFeatureFlagsBadRequest handles this case with default header values.
 
 Bad Request
 */
@@ -123,7 +125,8 @@ func NewGetFeatureFlagsUnauthorized() *GetFeatureFlagsUnauthorized {
 	return &GetFeatureFlagsUnauthorized{}
 }
 
-/*GetFeatureFlagsUnauthorized handles this case with default header values.
+/*
+GetFeatureFlagsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetFeatureFlagsInternalServerError() *GetFeatureFlagsInternalServerError
 	return &GetFeatureFlagsInternalServerError{}
 }
 
-/*GetFeatureFlagsInternalServerError handles this case with default header values.
+/*
+GetFeatureFlagsInternalServerError handles this case with default header values.
 
 Internal server error
 */

@@ -47,6 +47,7 @@ func SchemaDefault(schema []byte) ([]byte, error) {
 // This is adopted from k8s.io/apiextensions-apiserver/pkg/apiserver/schema/defaulting with 2 changes
 // 1. Prevent deep copy of int as it panics
 // 2. For type object depth first search to see if there is any property with default
+//
 //gocyclo:ignore
 func schemaDefault(x interface{}, s *structuralschema.Structural) {
 	if s == nil {

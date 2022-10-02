@@ -59,7 +59,8 @@ func NewApplyTKGConfigForAzureOK() *ApplyTKGConfigForAzureOK {
 	return &ApplyTKGConfigForAzureOK{}
 }
 
-/*ApplyTKGConfigForAzureOK handles this case with default header values.
+/*
+ApplyTKGConfigForAzureOK handles this case with default header values.
 
 Apply change to TKG configuration successfully
 */
@@ -92,7 +93,8 @@ func NewApplyTKGConfigForAzureBadRequest() *ApplyTKGConfigForAzureBadRequest {
 	return &ApplyTKGConfigForAzureBadRequest{}
 }
 
-/*ApplyTKGConfigForAzureBadRequest handles this case with default header values.
+/*
+ApplyTKGConfigForAzureBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewApplyTKGConfigForAzureUnauthorized() *ApplyTKGConfigForAzureUnauthorized
 	return &ApplyTKGConfigForAzureUnauthorized{}
 }
 
-/*ApplyTKGConfigForAzureUnauthorized handles this case with default header values.
+/*
+ApplyTKGConfigForAzureUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewApplyTKGConfigForAzureInternalServerError() *ApplyTKGConfigForAzureInter
 	return &ApplyTKGConfigForAzureInternalServerError{}
 }
 
-/*ApplyTKGConfigForAzureInternalServerError handles this case with default header values.
+/*
+ApplyTKGConfigForAzureInternalServerError handles this case with default header values.
 
 Internal server error
 */

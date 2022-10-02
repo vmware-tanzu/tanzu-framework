@@ -33,8 +33,9 @@ type UpgradeClusterOptions struct {
 	Edition string
 }
 
-//nolint:gocritic
 // UpgradeCluster upgrade tkg workload cluster
+//
+//nolint:gocritic
 func (t *tkgctl) UpgradeCluster(options UpgradeClusterOptions) error {
 	var err error
 	var k8sVersion string

@@ -56,7 +56,8 @@ func NewGetAzureRegionsParamsWithHTTPClient(client *http.Client) *GetAzureRegion
 	}
 }
 
-/*GetAzureRegionsParams contains all the parameters to send to the API endpoint
+/*
+GetAzureRegionsParams contains all the parameters to send to the API endpoint
 for the get azure regions operation typically these are written to a http.Request
 */
 type GetAzureRegionsParams struct {

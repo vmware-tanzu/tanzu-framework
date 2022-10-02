@@ -7,5 +7,6 @@ package plugintemplates
 import _ "embed" // Import files for plugin templates
 
 // CoreREADME contains the cobra cli docs readme template
+//
 //go:embed README.md.tmpl
 var CoreREADME string

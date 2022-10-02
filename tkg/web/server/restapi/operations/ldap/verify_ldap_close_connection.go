@@ -29,10 +29,10 @@ func NewVerifyLdapCloseConnection(ctx *middleware.Context, handler VerifyLdapClo
 	return &VerifyLdapCloseConnection{Context: ctx, Handler: handler}
 }
 
-/*VerifyLdapCloseConnection swagger:route POST /api/ldap/disconnect ldap verifyLdapCloseConnection
+/*
+VerifyLdapCloseConnection swagger:route POST /api/ldap/disconnect ldap verifyLdapCloseConnection
 
 Validate if the LDAP connection can be closed
-
 */
 type VerifyLdapCloseConnection struct {
 	Context *middleware.Context

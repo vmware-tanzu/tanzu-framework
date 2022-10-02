@@ -59,7 +59,8 @@ func NewGetAzureOSImagesOK() *GetAzureOSImagesOK {
 	return &GetAzureOSImagesOK{}
 }
 
-/*GetAzureOSImagesOK handles this case with default header values.
+/*
+GetAzureOSImagesOK handles this case with default header values.
 
 Successful retrieval of Azure supported os images
 */
@@ -90,7 +91,8 @@ func NewGetAzureOSImagesBadRequest() *GetAzureOSImagesBadRequest {
 	return &GetAzureOSImagesBadRequest{}
 }
 
-/*GetAzureOSImagesBadRequest handles this case with default header values.
+/*
+GetAzureOSImagesBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAzureOSImagesUnauthorized() *GetAzureOSImagesUnauthorized {
 	return &GetAzureOSImagesUnauthorized{}
 }
 
-/*GetAzureOSImagesUnauthorized handles this case with default header values.
+/*
+GetAzureOSImagesUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAzureOSImagesInternalServerError() *GetAzureOSImagesInternalServerErr
 	return &GetAzureOSImagesInternalServerError{}
 }
 
-/*GetAzureOSImagesInternalServerError handles this case with default header values.
+/*
+GetAzureOSImagesInternalServerError handles this case with default header values.
 
 Internal server error
 */
