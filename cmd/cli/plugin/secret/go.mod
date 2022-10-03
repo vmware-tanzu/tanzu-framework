@@ -1,4 +1,4 @@
-module github.com/vwmare-tanzu/tanzu-framework/cmd/cli/plugin/secret
+module github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret
 
 go 1.17
 
