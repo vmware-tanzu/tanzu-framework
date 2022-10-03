@@ -37,7 +37,7 @@ func init() {
 	repoBundlePushCmd.MarkFlagRequired("version")    //nolint: errcheck
 }
 
-func runRepoBundlePush(cmd *cobra.Command, args []string) error {
+func runRepoBundlePush(cmd *cobra.Command, args []string) error { //nolint:funlen
 	fmt.Printf("Pushing package repo bundle %q...\n", packageRepository)
 	if err := validateRepoBundlePushFlags(); err != nil {
 		return err
