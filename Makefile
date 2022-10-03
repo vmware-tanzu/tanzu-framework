@@ -517,6 +517,15 @@ test: generate manifests build-cli-mocks ## Run tests
 	# Test capabilities
 	$(MAKE) test -C capabilities
 
+	# Test builder plugin
+	cd cmd/cli/plugin-admin/builder && $(GO) test ./... -coverprofile cover.out
+
+	# Test codegen plugin
+	cd cmd/cli/plugin-admin/codegen && $(GO) test ./... -coverprofile cover.out
+
+	# Test test plugin
+	cd cmd/cli/plugin-admin/test && $(GO) test ./... -coverprofile cover.out
+	
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
 	$(GO) test  ./pkg/v1/auth/... ./pkg/v1/builder/...  ./pkg/v1/encoding/... ./pkg/v1/grpc/...
