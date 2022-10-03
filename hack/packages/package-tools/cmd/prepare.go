@@ -97,8 +97,7 @@ func downloadCarvelBinaries() error {
 		}
 
 		httpClient := &http.Client{}
-		//nolint:gocritic
-		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url.String(), nil)
+		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url.String(), http.NoBody)
 		if err != nil {
 			return fmt.Errorf("couldn't download %s binary: %w", tool.Name, err)
 		}
