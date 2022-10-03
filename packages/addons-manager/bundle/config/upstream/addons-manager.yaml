@@ -1,4 +1,16 @@
 #@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def is_toleration_specified(toleration):
+#@   return toleration in yaml.decode(yaml.encode(data.values.tanzuAddonsManager.deployment.tolerations))
+#@ end
+
+#@ default_tolerations = []
+#@ is_master_specified = is_toleration_specified({"effect":"NoSchedule", "key":"node-role.kubernetes.io/master"})
+#@ is_control_specified = is_toleration_specified({"effect":"NoSchedule", "key":"node-role.kubernetes.io/control-plane"})
+#@ if is_master_specified and not is_control_specified:
+#@   default_tolerations += [{"effect":"NoSchedule", "key":"node-role.kubernetes.io/control-plane"}]
+#@ end
 
 #@ if data.values.tanzuAddonsManager.createNamespace:
 ---
@@ -401,4 +413,4 @@ spec:
       #@ if/end data.values.tanzuAddonsManager.deployment.priorityClassName:
       priorityClassName: #@ data.values.tanzuAddonsManager.deployment.priorityClassName
       #@ if/end hasattr(data.values.tanzuAddonsManager.deployment, 'tolerations') and data.values.tanzuAddonsManager.deployment.tolerations:
-      tolerations: #@ data.values.tanzuAddonsManager.deployment.tolerations
+      tolerations: #@ default_tolerations + data.values.tanzuAddonsManager.deployment.tolerations
