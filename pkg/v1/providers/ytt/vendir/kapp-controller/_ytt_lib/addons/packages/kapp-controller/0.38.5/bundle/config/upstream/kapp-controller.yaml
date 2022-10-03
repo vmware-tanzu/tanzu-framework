@@ -1903,7 +1903,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kapp-controller.carvel.dev/version: v0.38.4
+    kapp-controller.carvel.dev/version: v0.38.5
     kbld.k14s.io/images: |
       - origins:
         - local:
@@ -1911,10 +1911,10 @@ metadata:
         - git:
             dirty: false
             remoteURL: https://github.com/vmware-tanzu/carvel-kapp-controller
-            sha: cf8fc08cafd1893f5a9006cfdfbd3d1c42878941
+            sha: e5422467d906a8f887fc0451f143849bcef5cbe1
             tags:
-            - v0.38.4
-        url: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
+            - v0.38.5
+        url: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:6021a434b75d30cd2d5f18c1c6b526c82a27d9f6aafaf50dafcb030a76591091
   name: kapp-controller
   namespace: kapp-controller
 spec:
@@ -1932,6 +1932,7 @@ spec:
       - args:
         - -packaging-global-namespace=kapp-controller-packaging-global
         - -enable-api-priority-and-fairness=True
+        - -tls-cipher-suites=
         env:
         - name: KAPPCTRL_MEM_TMP_DIR
           value: /etc/kappctrl-mem-tmp
@@ -1943,7 +1944,7 @@ spec:
               fieldPath: metadata.namespace
         - name: KAPPCTRL_API_PORT
           value: "10350"
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:6021a434b75d30cd2d5f18c1c6b526c82a27d9f6aafaf50dafcb030a76591091
         name: kapp-controller
         ports:
         - containerPort: 10350
@@ -1970,7 +1971,7 @@ spec:
         env:
         - name: KAPPCTRL_SIDECAREXEC_SOCK
           value: /etc/kappctrl-mem-tmp/sidecarexec.sock
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:6021a434b75d30cd2d5f18c1c6b526c82a27d9f6aafaf50dafcb030a76591091
         name: kapp-controller-sidecarexec
         resources:
           requests:
