@@ -1,5 +1,5 @@
 # Details on BoM usage in the TKG library
-BoM stands for Bill of Materials. It's basically a file with collection of dependent components required for life cycle management of Tanzu clusters.
+BoM stands for Bill of Materials. It's basically a file with a collection of dependent components required for the lifecycle management of Tanzu clusters.
 
 ## Introduction
 
@@ -10,7 +10,7 @@ Tanzu has 2 types of BoM files:
 
 ### TKG BoM file
 
-* This file contains information about TKG related components which would be mainly required during management cluster creation.
+* This file contains information about TKG related components which would are mainly required during the creation of management clusters.
   * It specifies the TKG version under the `release.version` key and the default TKR version under the `default.k8sVersion` key.
   * It also specifies cluster-api provider components, pinniped components, image repo information, and many more.
 
@@ -20,14 +20,14 @@ Tanzu has 2 types of BoM files:
 
 * These files contain information related to:
   * the specific k8s version,
-  * node images to use with the kubernetes provider(vsphere, aws, azure) for the matching k8s version,
+  * node images to use with the kubernetes provider (vsphere, aws, azure) for the matching k8s version,
   * add-ons specific components.
 
 [A sample TKR BoM file is available here.](example-boms/tkr-bom.yaml)
 
 ## Bundling BoM files into the TKG library
 
-* The TKG BoM file (and TKR BoM files) are decoupled from the Tanzu CLI and the TKG library(tkgctl).
+* The TKG BoM file (and TKR BoM files) are decoupled from the Tanzu CLI and the TKG library (`tkgctl`).
 * Instead, the Tanzu CLI is compiled with a TKG Compatibility Image path (which is a build-time constant). At runtime, the CLI downloads this compatibility file and uses it to determine the location of the appropriate TKG/TKR BoM files (choosing the version that matches the version of the management-cluster plugin currently installed).  The CLI then downloads the correct BoM files to the user's machine. [Reference.](../../../tkg/tkgconfigupdater/ensure.go)
 
 ### Why do we need a TKG Compatibility Image?
@@ -67,7 +67,7 @@ managementClusterPluginVersions:
 
 Notes:
 
-* Once a management cluster is created, it runs the TKR controller which reconciles all the supported TKR BoM images and TKR compatibility image from Image registry and later creates configmaps and TKR resources in management cluster using these images.
+* Once a management cluster is created, it runs the TKR controller which reconciles all the supported TKR BoM images and the TKR compatibility image from the Image registry and later creates configmaps and TKR resources in the management cluster using these images.
 * For workload cluster creation, the CLI can download the necessary TKR BoM files to the user's local machine directly from the management cluster (using an existing ConfigMap on the management cluster).
 
 ### Why do we need to download the TKR BoM files locally?
@@ -91,7 +91,7 @@ If maintainers would like to permanently change the TKG Compatibility Image path
 * When the `tkgctl` client gets created, as part of ensuring prerequisites, the tkg-compatibility file and BoM files are extracted to the BoM file location. For the tanzu CLI this location will be, `$HOME/.config/tanzu/tkg/compatibility` and `$HOME/.config/tanzu/tkg/bom` respectively. If there is a compatibility file already present in the user's local file system, the new compatibility file will not be downloaded. Users can choose to delete the existing compatibility file so that the tanzu CLI will download the latest compatibility file (alternatively, users can run `tanzu config init` or `tanzu management-cluster create --force-config-update -f <filename>`).
 * The TKG Library implements the [tkgconfigbom](../../../tkg/tkgconfigbom/client.go) package which provides functions to read TKG and TKR BoM files.
 * The CLI reads in these BoM files from the user's local filesystem and uses their content for various purposes, of which a few are listed below:
-  * Uses the TKG BoM file to determine which image repository to use for provider installation and updates the images section under the TKG settings file $HOME/.config/tanzu/tkg/config.yaml
+  * Uses the TKG BoM file to determine which image repository to use for provider installation and updates the images section under the TKG settings file `$HOME/.config/tanzu/tkg/config.yaml`
   * Reads the TKR BoM file to select the correct AMI or Azure image to use. Uses the same information for the purpose of vSphere VM template verification
   * Uses information in the TKR BoM to set configuration variables like `KUBERNETES_VERSION`, `AMI_ID`, `AZURE_IMAGE_*`, etc.
 * Another use of BoM files is for cluster template generation.  In that case, the ytt library is used to directly read the BoM files as text files.  This is described in next section.
