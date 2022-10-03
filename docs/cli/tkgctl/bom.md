@@ -1,4 +1,5 @@
 # Details on BoM usage in the TKG library
+
 BoM stands for Bill of Materials. It's basically a file with a collection of dependent components required for the lifecycle management of Tanzu clusters.
 
 ## Introduction
@@ -10,7 +11,7 @@ Tanzu has 2 types of BoM files:
 
 ### TKG BoM file
 
-* This file contains information about TKG related components which would are mainly required during the creation of management clusters.
+* This file contains information about TKG related components which are mainly required during the creation of management clusters.
   * It specifies the TKG version under the `release.version` key and the default TKR version under the `default.k8sVersion` key.
   * It also specifies cluster-api provider components, pinniped components, image repo information, and many more.
 
@@ -77,11 +78,12 @@ Notes:
 * This allows users to read and understand the content of the TKR BoM files for debugging purpose
 
 ## Updating the TKG Compatibility Image Path into the TKG library
+
 If maintainers would like to permanently change the TKG Compatibility Image path, please follow the instructions below:
+
 1. Update the `TKG_DEFAULT_IMAGE_REPOSITORY` and `TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH` variables inside [Makefile](../../../Makefile)
 2. Run `make configure-bom` which will update the build-time constants for downloading the TKG compatibility file.
 3. Commit the `Makefile` changes alongside the changes generated to the constants file.
-
 
 ## How are the BoM files getting used in the CLI and the cluster template creation with ytt
 
