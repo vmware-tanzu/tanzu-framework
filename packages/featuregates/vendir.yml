@@ -20,5 +20,7 @@ directories:
         manual: {}
       - path: webhook.yaml
         manual: {}
+      - path: default-featuregate-cr.yaml
+        manual: {}
       - path: helpers.star
         manual: {}
