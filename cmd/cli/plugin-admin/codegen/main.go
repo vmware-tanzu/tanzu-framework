@@ -7,7 +7,7 @@ import (
 	"github.com/aunum/log"
 
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
+	pluginrtbuildinfo "github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
@@ -15,8 +15,11 @@ var descriptor = cliapi.PluginDescriptor{
 	Name:        "codegen",
 	Description: "Tanzu code generation tool",
 	Group:       cliapi.AdminCmdGroup,
-	Version:     buildinfo.Version,
-	BuildSHA:    buildinfo.SHA,
+	// TODO: When plugins have their own buildInfo, we need to update "Version" and "BuildSHA"
+	// 		to plugin own versions instead of plugin runtime version
+	Version:              pluginrtbuildinfo.Version,
+	BuildSHA:             pluginrtbuildinfo.SHA,
+	PluginRuntimeVersion: pluginrtbuildinfo.Version,
 }
 
 func main() {

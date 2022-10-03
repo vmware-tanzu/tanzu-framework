@@ -11,7 +11,7 @@ import (
 
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
+	pluginrtbuildinfo "github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
@@ -24,8 +24,11 @@ var descriptor = cliapi.PluginDescriptor{
 	Name:        "package",
 	Description: "Tanzu package management",
 	Group:       cliapi.RunCmdGroup,
-	Version:     buildinfo.Version,
-	BuildSHA:    buildinfo.SHA,
+	// TODO: When plugins have their own buildInfo, we need to update "Version" and "BuildSHA"
+	// 		to plugin own versions instead of plugin runtime version
+	Version:              pluginrtbuildinfo.Version,
+	BuildSHA:             pluginrtbuildinfo.SHA,
+	PluginRuntimeVersion: pluginrtbuildinfo.Version,
 }
 
 var logLevel int32

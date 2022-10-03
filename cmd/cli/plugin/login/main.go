@@ -25,7 +25,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
+	pluginrtbuildinfo "github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
@@ -38,8 +38,11 @@ var descriptor = cliapi.PluginDescriptor{
 	Description: "Login to the platform",
 	Group:       cliapi.SystemCmdGroup,
 	Aliases:     []string{"lo", "logins"},
-	Version:     buildinfo.Version,
-	BuildSHA:    buildinfo.SHA,
+	// TODO: When plugins have their own buildInfo, we need to update "Version" and "BuildSHA"
+	// 		to plugin own versions instead of plugin runtime version
+	Version:              pluginrtbuildinfo.Version,
+	BuildSHA:             pluginrtbuildinfo.SHA,
+	PluginRuntimeVersion: pluginrtbuildinfo.Version,
 }
 
 var (

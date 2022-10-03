@@ -9,18 +9,20 @@ import (
 	"github.com/aunum/log"
 
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	pluginrtbuildinfo "github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 var descriptor = cliapi.PluginDescriptor{
-	Name:            "management-cluster",
-	Description:     "Kubernetes management cluster operations",
-	Version:         buildinfo.Version,
-	BuildSHA:        buildinfo.SHA,
-	Group:           cliapi.RunCmdGroup,
-	Aliases:         []string{"mc", "management-clusters"},
-	PostInstallHook: postInstallHook,
+	Name:                 "management-cluster",
+	Description:          "Kubernetes management cluster operations",
+	Version:              buildinfo.Version,
+	BuildSHA:             buildinfo.SHA,
+	Group:                cliapi.RunCmdGroup,
+	Aliases:              []string{"mc", "management-clusters"},
+	PostInstallHook:      postInstallHook,
+	PluginRuntimeVersion: pluginrtbuildinfo.Version,
 }
 
 var (

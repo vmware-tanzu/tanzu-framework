@@ -12,7 +12,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
+	pluginrtbuildinfo "github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
@@ -20,8 +20,11 @@ var descriptor = cliapi.PluginDescriptor{
 	Name:        "test",
 	Description: "Test the CLI",
 	Group:       cliapi.AdminCmdGroup,
-	Version:     buildinfo.Version,
-	BuildSHA:    buildinfo.SHA,
+	// TODO: When plugins have their own buildInfo, we need to update "Version" and "BuildSHA"
+	// 		to plugin own versions instead of plugin runtime version
+	Version:              pluginrtbuildinfo.Version,
+	BuildSHA:             pluginrtbuildinfo.SHA,
+	PluginRuntimeVersion: pluginrtbuildinfo.Version,
 }
 
 var local string
