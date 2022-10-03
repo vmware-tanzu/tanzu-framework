@@ -1,0 +1,10 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: FeatureGate
+metadata:
+  name: tkg-system
+spec:
+  namespaceSelector: {}
+#@ end
