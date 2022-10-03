@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   integ-tests-docker:
-    name: TKG Integration Tests CAPD
+    name: TKG Integration Tests CAP-D
     runs-on: tkg
     steps:
     - name: Free disk space and clean up installed plugins on runner

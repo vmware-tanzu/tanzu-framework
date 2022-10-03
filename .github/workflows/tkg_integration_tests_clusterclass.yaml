@@ -39,7 +39,7 @@ concurrency:
 
 jobs:
   build-and-publish-packages:
-    name: Build and Publish Carvel Packages
+    name: Build and Publish Carvel Package(s)
     runs-on: tkg
     env:
       gcp_bucket_sa: ${{ secrets.GCP_BUCKET_SA }}

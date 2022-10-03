@@ -10,7 +10,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - name: Set up Go 1.x
+    - name: Set up Go 1.xx
       uses: actions/setup-go@v3
       with:
         go-version: '1.17'
