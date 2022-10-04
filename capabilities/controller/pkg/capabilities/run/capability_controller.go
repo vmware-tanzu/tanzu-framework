@@ -51,11 +51,11 @@ func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		serviceAccountName = constants.ServiceAccountWithDefaultPermissions
 		namespaceName = constants.CapabilitiesControllerNamespace
 	}
-	config, err := config.GetConfigForServiceAccount(ctx, r.Client, namespaceName, serviceAccountName, r.Host)
+	cfg, err := config.GetConfigForServiceAccount(ctx, r.Client, namespaceName, serviceAccountName, r.Host)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("unable to get config for ClusterQueryClient creation: %w", err)
 	}
-	clusterQueryClient, err := discovery.NewClusterQueryClientForConfig(config)
+	clusterQueryClient, err := discovery.NewClusterQueryClientForConfig(cfg)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("unable to create ClusterQueryClient: %w", err)
 	}
