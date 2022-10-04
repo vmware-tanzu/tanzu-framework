@@ -100,6 +100,7 @@ var (
 	addonConfigCRDBasesPath = filepath.Join("..", "..", "apis", "addonconfigs", "config", "crd", "bases")
 	runCRDPath              = filepath.Join("..", "..", "apis", "run", "config", "crd", "bases")
 	localCRDPath            = filepath.Join("testdata", "internal-crds")
+	setupLog                = ctrl.Log.WithName("controllers").WithName("Addon")
 )
 
 func TestAddonController(t *testing.T) {
@@ -245,8 +246,6 @@ var _ = BeforeSuite(func(done Done) {
 
 	clientSet, err = kubernetes.NewForConfig(cfg)
 	Expect(err).ToNot(HaveOccurred())
-
-	setupLog := ctrl.Log.WithName("controllers").WithName("Addon")
 
 	ctx, cancel = context.WithCancel(ctx)
 	crdwaiter := crdwait.CRDWaiter{

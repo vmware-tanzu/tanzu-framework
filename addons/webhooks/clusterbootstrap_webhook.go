@@ -350,7 +350,7 @@ func (wh *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj r
 		return apierrors.NewBadRequest(fmt.Sprintf("expected a ClusterBootstrap but got a %T", oldObj))
 	}
 
-	//don't validate object if being deleted
+	// don't validate object if being deleted
 	if !oldClusterBootstrap.GetDeletionTimestamp().IsZero() {
 		clusterbootstraplog.Info("object being deleted, ignore validation", "name", oldClusterBootstrap.Name)
 		return nil

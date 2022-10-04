@@ -539,7 +539,6 @@ func pauseKappControllerPackage(clusterName, clusterNamespace, mgmtClusterKubeco
 }
 
 func testHelper() {
-
 	By("trying to update package repository with a private URL")
 	repoOptions.RepositoryURL = config.RepositoryURLPrivate
 	repoOptions.CreateRepository = true

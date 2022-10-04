@@ -310,7 +310,6 @@ func getCluster(object runtime.Object) *clusterv1.Cluster {
 }
 
 func getStub(ctx context.Context, key apitypes.NamespacedName, object client.Object) error {
-
 	var resourceName string
 	switch v := object.(type) {
 	case *clusterv1.Cluster:

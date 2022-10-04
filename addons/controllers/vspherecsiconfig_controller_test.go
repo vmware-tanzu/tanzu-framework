@@ -393,7 +393,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 		It("Should reconcile aggregated cluster role", func() {
 			clusterRole := &rbacv1.ClusterRole{}
 			Eventually(func() error {
-				key := client.ObjectKey{
+				key = client.ObjectKey{
 					Name: constants.VsphereCSIProviderServiceAccountAggregatedClusterRole,
 				}
 				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {

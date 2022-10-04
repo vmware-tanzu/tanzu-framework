@@ -14,7 +14,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
-	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capictrlpkubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
@@ -82,7 +81,7 @@ func (r *VSphereCSIConfigReconciler) ClusterToVSphereCSIConfig(o client.Object) 
 // mapVSphereCSIConfigToDataValues maps VSphereCSIConfig CR to data values
 func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValues(ctx context.Context,
 	vcsiConfig *csiv1alpha1.VSphereCSIConfig,
-	cluster *clusterapiv1beta1.Cluster) (*DataValues, error) {
+	cluster *clusterv1beta1.Cluster) (*DataValues, error) {
 
 	switch vcsiConfig.Spec.VSphereCSI.Mode {
 	case VSphereCSINonParavirtualMode:
@@ -98,7 +97,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValues(ctx context
 }
 
 func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(ctx context.Context,
-	cluster *clusterapiv1beta1.Cluster) (*DataValues, error) {
+	cluster *clusterv1beta1.Cluster) (*DataValues, error) {
 
 	dvs := &DataValues{}
 	dvs.VSpherePVCSI = &DataValuesVSpherePVCSI{}
@@ -136,7 +135,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(
 
 func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtual(ctx context.Context,
 	vcsiConfig *csiv1alpha1.VSphereCSIConfig,
-	cluster *clusterapiv1beta1.Cluster) (*DataValues, error) {
+	cluster *clusterv1beta1.Cluster) (*DataValues, error) {
 
 	dvs := &DataValues{}
 
@@ -206,10 +205,10 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 // and returns the cluster. It tries to read the cluster name from the VSphereCSIConfig's owner reference objects.
 // If not there, we assume the owner cluster and VSphereCSIConfig always has the same name.
 func (r *VSphereCSIConfigReconciler) getOwnerCluster(ctx context.Context,
-	vcsiConfig *csiv1alpha1.VSphereCSIConfig) (*clusterapiv1beta1.Cluster, error) {
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) (*clusterv1beta1.Cluster, error) {
 
 	logger := log.FromContext(ctx)
-	cluster := &clusterapiv1beta1.Cluster{}
+	cluster := &clusterv1beta1.Cluster{}
 	clusterName := vcsiConfig.Name // usually the corresponding 'cluster' shares the same name
 
 	// retrieve the owner cluster for the VSphereCSIConfig object
@@ -387,7 +386,7 @@ func (r *VSphereCSIConfigReconciler) constrainNumberOfDeploymentReplicas(ctx con
 }
 
 func (r *VSphereCSIConfigReconciler) computeRecommendedNumberOfDeploymentReplicas(ctx context.Context,
-	cluster *clusterapiv1beta1.Cluster) (int32, error) {
+	cluster *clusterv1beta1.Cluster) (int32, error) {
 
 	cpNodeCount, err := r.getNumberOfControlPlaneNodes(ctx, cluster)
 
@@ -399,7 +398,7 @@ func (r *VSphereCSIConfigReconciler) computeRecommendedNumberOfDeploymentReplica
 }
 
 func (r *VSphereCSIConfigReconciler) getNumberOfControlPlaneNodes(ctx context.Context,
-	cluster *clusterapiv1beta1.Cluster) (int32, error) {
+	cluster *clusterv1beta1.Cluster) (int32, error) {
 
 	name := cluster.Spec.ControlPlaneRef.Name
 	namespace := cluster.Spec.ControlPlaneRef.Namespace
