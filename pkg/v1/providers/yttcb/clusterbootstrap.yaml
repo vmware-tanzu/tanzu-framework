@@ -181,7 +181,7 @@ metadata:
   annotations:
     tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
 spec:
-  #@ if data.values.CNI == "antrea":
+  #@ if data.values.CNI == "antrea" and antrea_configs_exist():
   cni:
     refName: antrea*
     valuesFrom:
