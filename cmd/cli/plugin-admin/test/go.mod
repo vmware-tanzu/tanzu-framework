@@ -1,4 +1,4 @@
-module github.com/vwmare-tanzu/tanzu-framework/plugin/test
+module github.com/vmware-tanzu/tanzu-framework/plugin/test
 
 go 1.17
 
