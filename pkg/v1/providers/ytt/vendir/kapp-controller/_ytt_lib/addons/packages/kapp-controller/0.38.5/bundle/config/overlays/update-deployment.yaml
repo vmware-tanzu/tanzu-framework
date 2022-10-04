@@ -17,6 +17,8 @@ spec:
       - args:
         #@overlay/match by=overlay.subset("-packaging-global-namespace=kapp-controller-packaging-global")
         - #@ "-packaging-global-namespace={}".format(values.kappController.globalNamespace)
+        #@overlay/match by=overlay.subset("-tls-cipher-suites=")
+        - #@ "-tls-cipher-suites={}".format(values.kappController.deployment.tlsCipherSuites)
         #@overlay/append
         - #@ "-concurrency={}".format(values.kappController.deployment.concurrency)
         #@overlay/append
@@ -48,7 +50,7 @@ spec:
         - /bin/sh
         #! Beware, update this image with each version bump!!!!!!!
         #! This image needs to be the same as the image used in basefile
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:6021a434b75d30cd2d5f18c1c6b526c82a27d9f6aafaf50dafcb030a76591091
         name: init-kapp-controller
         securityContext:
           allowPrivilegeEscalation: false
