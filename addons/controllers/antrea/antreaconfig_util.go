@@ -125,7 +125,7 @@ func (r *AntreaConfigReconciler) ClusterToAntreaConfig(o client.Object) []ctrl.R
 				UID:        cluster.UID,
 			}
 
-			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == fmt.Sprintf("%s-%s-package", cluster.Name, constants.AntreaAddonName) {
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) {
 				r.Log.V(4).Info("Adding AntreaConfig for reconciliation",
 					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
 

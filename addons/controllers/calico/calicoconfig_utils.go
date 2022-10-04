@@ -75,7 +75,7 @@ func (r *CalicoConfigReconciler) ClusterToCalicoConfig(o client.Object) []ctrl.R
 				UID:        cluster.UID,
 			}
 
-			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == fmt.Sprintf("%s-%s-package", cluster.Name, constants.CalicoAddonName) {
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) {
 				r.Log.V(4).Info("Adding CalicoConfig for reconciliation",
 					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
 

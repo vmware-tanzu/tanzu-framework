@@ -62,7 +62,7 @@ func (r *VSphereCPIConfigReconciler) ClusterToVSphereCPIConfig(o client.Object) 
 				Name:       cluster.Name,
 				UID:        cluster.UID,
 			}
-			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == fmt.Sprintf("%s-%s-package", cluster.Name, constants.CPIAddonName) {
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) {
 				r.Log.V(4).Info("Adding VSphereCPIConfig for reconciliation",
 					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
 
