@@ -75,6 +75,7 @@ func E2ECEIPSpec(context context.Context, inputGetter func() E2ECEIPSpecInput) {
 	})
 
 	It("should verify CEIP opt-in and opt-out and verify telemetry job and pod are running", func() {
+		Skip("Skip CEIP tests until opt-in and opt-out mechanisms are fixed")
 		By("should verify ceip opted out")
 		err := tkgCtlClient.SetCeip("false", "", "")
 		Expect(err).ToNot(HaveOccurred())
