@@ -13,7 +13,7 @@ function place_rendered_files() {
 
 	local version=$(cat ../../packages/${source_package_name}/vendir.yml | grep tag | sed 's/^.*tag: //')
 
-	cp -r "${rendered_dir}/upstream/." "../../pkg/v1/providers/${provider_name}/${version}/"
+	cp -r "${rendered_dir}/upstream/." "../../providers/${provider_name}/${version}/"
 }
 
 place_rendered_files "cluster-api" "cluster-api"
