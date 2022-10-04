@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/logrusorgru/aurora"
@@ -24,9 +23,4 @@ func TestGenerateDescriptor(t *testing.T) {
 
 	err := f(c)
 	require.NoError(t, err)
-}
-
-func TestRPad(t *testing.T) {
-	s := rpad("my string", 15)
-	fmt.Println(s + "this")
 }
