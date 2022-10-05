@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/object-propagation
 
-go 1.17
+go 1.18
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
