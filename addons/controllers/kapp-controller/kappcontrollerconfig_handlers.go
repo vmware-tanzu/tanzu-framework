@@ -56,7 +56,7 @@ func (r *KappControllerConfigReconciler) ClusterToKappControllerConfig(o client.
 				UID:        cluster.UID,
 			}
 
-			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == fmt.Sprintf("%s-%s-package", cluster.Name, constants.KappControllerAddonName) {
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) {
 				log.V(4).Info("Adding KappControllerConfig for reconciliation",
 					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
 

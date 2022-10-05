@@ -28,22 +28,29 @@ func GetFilesMapFromImage(imageWithTag string) (map[string][]byte, error) {
 	return reg.GetFiles(imageWithTag)
 }
 
+// DownloadImageBundleAndSaveFilesToDir reads OCI image and saves file to the specified directory
+func DownloadImageBundleAndSaveFilesToDir(imageWithTag string, dir string) error {
+	reg, err := newRegistry()
+	if err != nil {
+		return errors.Wrapf(err, "unable to initialize registry")
+	}
+	err = reg.DownloadBundle(imageWithTag, dir)
+	if err != nil {
+		return errors.Wrap(err, "error downloading bundle")
+	}
+	return nil
+}
+
 // DownloadImageBundleAndSaveFilesToTempDir reads OCI image and saves file to temp dir
 // returns temp configuration dir with downloaded imgpkg bundle
 func DownloadImageBundleAndSaveFilesToTempDir(imageWithTag string) (string, error) {
-	reg, err := newRegistry()
-	if err != nil {
-		return "", errors.Wrapf(err, "unable to initialize registry")
-	}
 	tmpDir, err := os.MkdirTemp("", "oci_image")
 	if err != nil {
 		return "", errors.Wrap(err, "error creating temporary directory")
 	}
-	err = reg.DownloadBundle(imageWithTag, tmpDir)
-	if err != nil {
-		return "", errors.Wrap(err, "error downloading bundle")
+	if err = DownloadImageBundleAndSaveFilesToDir(imageWithTag, tmpDir); err != nil {
+		return "", err
 	}
-
 	return tmpDir, nil
 }
 

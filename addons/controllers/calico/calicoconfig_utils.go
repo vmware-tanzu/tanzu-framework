@@ -12,7 +12,6 @@ import (
 
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -76,7 +75,7 @@ func (r *CalicoConfigReconciler) ClusterToCalicoConfig(o client.Object) []ctrl.R
 				UID:        cluster.UID,
 			}
 
-			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == fmt.Sprintf("%s-%s-package", cluster.Name, constants.CalicoAddonName) {
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) {
 				r.Log.V(4).Info("Adding CalicoConfig for reconciliation",
 					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
 
@@ -90,7 +89,7 @@ func (r *CalicoConfigReconciler) ClusterToCalicoConfig(o client.Object) []ctrl.R
 	return requests
 }
 
-func mapCalicoConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1.CalicoConfig) (*calicoConfigSpec, error) {
+func mapCalicoConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.CalicoConfig) (*calicoConfigSpec, error) {
 	var err error
 
 	configSpec := &calicoConfigSpec{}
@@ -112,7 +111,7 @@ func mapCalicoConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 	return configSpec, nil
 }
 
-func getCalicoNetworkSettings(cluster *clusterapiv1beta1.Cluster) (string, string, error) {
+func getCalicoNetworkSettings(cluster *clusterv1beta1.Cluster) (string, string, error) {
 	clusterNetwork := cluster.Spec.ClusterNetwork
 	if clusterNetwork == nil {
 		return "", "", fmt.Errorf("cluster.Spec.ClusterNetwork is not set for cluster '%s'", cluster.Name)

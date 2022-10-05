@@ -54,6 +54,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		foobar1CarvelPackageName    = "foobar1.example.com.1.17.2"
 		foobar2CarvelPackageRefName = "foobar2.example.com"
 		foobar                      = "foobar"
+		foobarUpdated               = "foobar-updated"
+		foobar1Updated              = "foobar1-updated"
 	)
 
 	JustBeforeEach(func() {
@@ -318,14 +320,14 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					s := &corev1.Secret{}
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", cluster.Name)}, s)).To(Succeed())
 					s.StringData = make(map[string]string)
-					s.StringData["values.yaml"] = "foobar1-updated"
+					s.StringData["values.yaml"] = foobar1Updated
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
 					Eventually(func() bool {
 						s := &corev1.Secret{}
 						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar1CarvelPackageRefName)}, s); err != nil {
 							return false
 						}
-						if string(s.Data["values.yaml"]) != "foobar1-updated" {
+						if string(s.Data["values.yaml"]) != foobar1Updated {
 							return false
 						}
 						// TKGS data value should not exist because no VirtualMachine is related to cluster1
@@ -500,7 +502,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						},
 					}
 					s.StringData = make(map[string]string)
-					s.StringData["values.yaml"] = "foobar-updated"
+					s.StringData["values.yaml"] = foobarUpdated
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
 
 					Eventually(func() bool {
@@ -508,7 +510,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)}, s); err != nil {
 							return false
 						}
-						if string(s.Data["values.yaml"]) != "foobar-updated" {
+						if string(s.Data["values.yaml"]) != foobarUpdated {
 							return false
 						}
 
