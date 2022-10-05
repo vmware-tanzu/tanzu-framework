@@ -1,7 +1,6 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:gocritic
 package v1alpha1
 
 import (
@@ -37,19 +36,19 @@ type EditionSelector string
 type VersionSelectorLevel string
 
 // IsGlobal tells if the server is global.
-// Note: Shall be deprecated in a future version. Use Context.Type instead.
+// Deprecation targeted for a future version. Use Context.Type instead.
 func (s *Server) IsGlobal() bool {
 	return s.Type == GlobalServerType
 }
 
 // IsManagementCluster tells if the server is a management cluster.
-// Note: Shall be deprecated in a future version. Use Context.Type instead.
+// Deprecation targeted for a future version. Use Context.Type instead.
 func (s *Server) IsManagementCluster() bool {
 	return s.Type == ManagementClusterServerType
 }
 
 // GetCurrentServer returns the current server.
-// Note: Shall be deprecated in a future version. Use GetCurrentContext() instead.
+// Deprecation targeted for a a future version. Use GetCurrentContext() instead.
 func (c *ClientConfig) GetCurrentServer() (*Server, error) {
 	for _, server := range c.KnownServers {
 		if server.Name == c.CurrentServer {

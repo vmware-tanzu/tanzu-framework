@@ -118,9 +118,7 @@ type PromptOptions struct {
 type PromptOpt func(*PromptOptions) error
 
 func translatePromptOpts(options *PromptOptions) (surveyOpts []survey.AskOpt) {
-	//nolint:gocritic
-	surveyOpts = append(surveyOpts, survey.WithStdio(options.Stdio.In, options.Stdio.Out, options.Stdio.Err))
-	surveyOpts = append(surveyOpts, survey.WithIcons(func(icons *survey.IconSet) {
+	surveyOpts = append(surveyOpts, survey.WithStdio(options.Stdio.In, options.Stdio.Out, options.Stdio.Err), survey.WithIcons(func(icons *survey.IconSet) {
 		icons.Error = options.Icons.Error
 		icons.Question = options.Icons.Question
 		icons.Help = options.Icons.Help
@@ -128,6 +126,7 @@ func translatePromptOpts(options *PromptOptions) (surveyOpts []survey.AskOpt) {
 		icons.UnmarkedOption = options.Icons.UnmarkedOption
 		icons.SelectFocus = options.Icons.SelectFocus
 	}))
+
 	return
 }
 

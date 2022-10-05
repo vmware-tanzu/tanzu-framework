@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package component
 
 import (
@@ -30,5 +33,4 @@ func TestIsTTYEnabled(t *testing.T) {
 			}
 		})
 	}
-
 }

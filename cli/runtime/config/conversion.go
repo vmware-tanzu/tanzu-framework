@@ -4,6 +4,8 @@
 package config
 
 import (
+	"github.com/aunum/log"
+
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -32,8 +34,10 @@ func PopulateContexts(cfg *configapi.ClientConfig) bool {
 		cfg.KnownContexts = append(cfg.KnownContexts, c)
 
 		if s.Name == cfg.CurrentServer {
-			// nolint:errcheck
-			cfg.SetCurrentContext(c.Type, c.Name)
+			err := cfg.SetCurrentContext(c.Type, c.Name)
+			if err != nil {
+				log.Warningf(err.Error())
+			}
 		}
 	}
 
