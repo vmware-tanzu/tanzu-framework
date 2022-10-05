@@ -517,6 +517,15 @@ test: generate manifests build-cli-mocks ## Run tests
 	# Test capabilities
 	$(MAKE) test -C capabilities
 
+	# Test other modules.
+	# TODO: This should be a call to a "test" target in that module's Makefile
+	cd apis/config && $(GO) test ./... -coverprofile cover.out
+	cd apis/run && $(GO) test ./... -coverprofile cover.out
+	cd packageclients && $(GO) test ./... -coverprofile cover.out
+	cd apis/addonconfigs && $(GO) test ./... -coverprofile cover.out
+	cd apis/cli && $(GO) test ./... -coverprofile cover.out
+	cd apis/core && $(GO) test ./... -coverprofile cover.out
+
 	# Test builder plugin
 	cd cmd/cli/plugin-admin/builder && $(GO) test ./... -coverprofile cover.out
 
