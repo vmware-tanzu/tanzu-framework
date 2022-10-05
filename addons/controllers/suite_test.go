@@ -49,6 +49,7 @@ import (
 	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	csi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
 	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
+	lb "github.com/vmware-tanzu/tanzu-framework/addons/controllers/lb"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
@@ -58,6 +59,7 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
+	lbv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/lb/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	vmoperatorv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
@@ -222,6 +224,9 @@ var _ = BeforeSuite(func(done Done) {
 	err = topologyv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = lbv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
 	Expect(err).ToNot(HaveOccurred())
 	Expect(k8sClient).ToNot(BeNil())
@@ -358,6 +363,14 @@ var _ = BeforeSuite(func(done Done) {
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(context.Background(), mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&lb.KubevipCPConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("KubevipCPConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.KubevipCPConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: constants.TKGSystemNS}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
 	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
