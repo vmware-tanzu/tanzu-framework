@@ -2,21 +2,13 @@ module github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/telemetry
 
 go 1.17
 
-replace (
-	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../../../apis/cli
-	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../../../apis/config
-	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../../../apis/run
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../../../cli/runtime
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
-	sigs.k8s.io/kind => sigs.k8s.io/kind v0.11.1
-)
+replace github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../../../cli/runtime
 
 require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
-	github.com/vmware-tanzu/tanzu-framework v0.26.0
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20221004170004-3e3fb1428a64
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.23.5
