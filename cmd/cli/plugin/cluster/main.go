@@ -10,9 +10,9 @@ import (
 	"github.com/aunum/log"
 
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
