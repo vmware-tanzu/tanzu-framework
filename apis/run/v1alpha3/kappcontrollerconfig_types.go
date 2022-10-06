@@ -57,7 +57,7 @@ type KappDeployment struct {
 
 	// kapp-controller deployment tolerations
 	//+kubebuilder:validation:Optional
-	//+kubebuilder:default:={{key: CriticalAddonsOnly, operator: Exists}, {effect: NoSchedule, key: node-role.kubernetes.io/master}, {effect: NoSchedule, key: node.kubernetes.io/not-ready}, {effect: NoSchedule, key: node.cloudprovider.kubernetes.io/uninitialized, value: "true"}}
+	//+kubebuilder:default:={{key: CriticalAddonsOnly, operator: Exists}, {effect: NoSchedule, key: node-role.kubernetes.io/control-plane}, {effect: NoSchedule, key: node-role.kubernetes.io/master}, {effect: NoSchedule, key: node.kubernetes.io/not-ready}, {effect: NoSchedule, key: node.cloudprovider.kubernetes.io/uninitialized, value: "true"}}
 	Tolerations []map[string]string `json:"tolerations,omitempty"`
 
 	// Bind port for kapp-controller API
