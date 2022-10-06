@@ -278,6 +278,7 @@ spec:
         - resourcePool
         - server
   - name: VSPHERE_WINDOWS_TEMPLATE
+    required: false
     schema:
       openAPIV3Schema:
         type: string
