@@ -7,7 +7,7 @@
 ---
 namespace: tkg-system
 nodeSelector:
-  node-role.kubernetes.io/master: ""
+  node-role.kubernetes.io/control-plane: ""
 deployment:
   updateStrategy: null
   rollingUpdate:
@@ -29,6 +29,8 @@ kappController:
     tolerations:
     - key: CriticalAddonsOnly
       operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
     - effect: NoSchedule
       key: node-role.kubernetes.io/master
     - effect: NoSchedule
