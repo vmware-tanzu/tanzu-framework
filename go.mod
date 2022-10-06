@@ -27,7 +27,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.8
 	github.com/google/go-containerregistry v0.7.0
-	github.com/imdario/mergo v0.3.12
+	github.com/imdario/mergo v0.3.13
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/k14s/imgpkg v0.17.0
 	github.com/onsi/ginkgo v1.16.5
