@@ -44,6 +44,7 @@ metadata:
   labels:
     tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
     clusterctl.cluster.x-k8s.io/move: ""
+    tkg.tanzu.vmware.com/testnoncc: 1
 type: addons.cluster.x-k8s.io/resource-set
 stringData:
   value: #@ yaml.encode(getConfigKeyValues())
