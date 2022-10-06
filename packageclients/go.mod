@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/packageclients
 
-go 1.18
+go 1.17
 
 require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
