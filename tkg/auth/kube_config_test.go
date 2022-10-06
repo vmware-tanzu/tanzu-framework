@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgauth_test
+package auth_test
 
 import (
 	"crypto/x509"
@@ -21,7 +21,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
-	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
+	tkgauth "github.com/vmware-tanzu/tanzu-framework/tkg/auth"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 )
 
