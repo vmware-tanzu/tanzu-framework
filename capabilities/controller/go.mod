@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/capabilities/controller
 
-go 1.17
+go 1.18
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../apis/core

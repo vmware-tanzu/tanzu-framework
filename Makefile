@@ -517,15 +517,29 @@ test: generate manifests build-cli-mocks ## Run tests
 	# Test capabilities
 	$(MAKE) test -C capabilities
 
-	# Test builder plugin
+	# Test other modules.
+	# TODO: This should be a call to a "test" target in that module's Makefile
+	cd apis/config && $(GO) test ./... -coverprofile cover.out
+	cd apis/run && $(GO) test ./... -coverprofile cover.out
+	cd packageclients && $(GO) test ./... -coverprofile cover.out
+	cd apis/addonconfigs && $(GO) test ./... -coverprofile cover.out
+	cd apis/cli && $(GO) test ./... -coverprofile cover.out
+	cd apis/core && $(GO) test ./... -coverprofile cover.out
+
+	# Test admin plugins
 	cd cmd/cli/plugin-admin/builder && $(GO) test ./... -coverprofile cover.out
-
-	# Test codegen plugin
 	cd cmd/cli/plugin-admin/codegen && $(GO) test ./... -coverprofile cover.out
-
-	# Test test plugin
 	cd cmd/cli/plugin-admin/test && $(GO) test ./... -coverprofile cover.out
-	
+
+	# Test plugins
+	cd cmd/cli/plugin/feature && $(GO) test ./... -coverprofile cover.out
+	cd cmd/cli/plugin/login && $(GO) test ./... -coverprofile cover.out
+	cd cmd/cli/plugin/pinniped-auth && $(GO) test ./... -coverprofile cover.out
+	cd cmd/cli/plugin/secret && $(GO) test ./... -coverprofile cover.out
+
+	# Test package plugin but skip package/test which are e2e tests run separately in CI
+	cd cmd/cli/plugin/package && $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/test`
+
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
 	$(GO) test  ./pkg/v1/auth/... ./pkg/v1/builder/...  ./pkg/v1/encoding/... ./pkg/v1/grpc/...

@@ -11,7 +11,6 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/briandowns/spinner"
-	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
@@ -19,6 +18,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -32,7 +32,6 @@ var RootCmd = &cobra.Command{
 
 var (
 	noInit      bool
-	color       = true
 	forceNoInit = "true" // a string variable so as to be overridable via linker flag
 )
 
@@ -47,15 +46,11 @@ func NewRootCmd() (*cobra.Command, error) {
 	if ni != "" || strings.EqualFold(forceNoInit, "true") {
 		noInit = true
 	}
-	if os.Getenv("TANZU_CLI_NO_COLOR") != "" {
-		color = false
-	}
 
 	// configure defined environment variables under tanzu config file
 	cliconfig.ConfigureEnvVariables()
 
-	au := aurora.NewAurora(color)
-	RootCmd.Short = au.Bold(`Tanzu CLI`).String()
+	RootCmd.Short = component.Bold(`Tanzu CLI`)
 
 	// TODO (pbarker): silencing usage for now as we are getting double usage from plugins on errors
 	RootCmd.SilenceUsage = true

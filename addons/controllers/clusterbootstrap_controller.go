@@ -332,10 +332,9 @@ func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *cl
 	return nil
 }
 
-func (r *ClusterBootstrapReconciler) addFinalizer(o client.Object, deepCopy client.Object) error {
+func (r *ClusterBootstrapReconciler) addFinalizer(o, deepCopy client.Object) error {
 	controllerutil.AddFinalizer(deepCopy, addontypes.AddonFinalizer)
 	return r.Client.Patch(r.context, deepCopy, client.MergeFrom(o))
-
 }
 
 // handleClusterUnpause unpauses the cluster if the cluster pause annotation is set by cluster pause webhook (cluster has "tkg.tanzu.vmware.com/paused" annotation)
@@ -1143,7 +1142,7 @@ func (r *ClusterBootstrapReconciler) watchProvider(providerRef *corev1.TypedLoca
 // Returns:
 // - string: The secret name which references to the Secret CR on mgmt cluster under a particular cluster namespace.
 // - error: whether there is error when getting the secret name.
-func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, cluster *clusterapiv1beta1.Cluster) (string, error) {
+func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, cluster *clusterapiv1beta1.Cluster) (string, error) { //nolint
 	var (
 		packageRefName string
 		err            error
@@ -1446,13 +1445,12 @@ func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.
 	return ctrl.Result{}, nil
 }
 
-func (r *ClusterBootstrapReconciler) removeFinalizer(o client.Object, deepCopy client.Object) error {
+func (r *ClusterBootstrapReconciler) removeFinalizer(o, deepCopy client.Object) error {
 	if controllerutil.ContainsFinalizer(deepCopy, addontypes.AddonFinalizer) {
 		controllerutil.RemoveFinalizer(deepCopy, addontypes.AddonFinalizer)
 		return r.Client.Patch(r.context, deepCopy, client.MergeFrom(o))
 	}
 	return nil
-
 }
 
 func hasPackageInstalls(ctx context.Context, remoteClient client.Client,

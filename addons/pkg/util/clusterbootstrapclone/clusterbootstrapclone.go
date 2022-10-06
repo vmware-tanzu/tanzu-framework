@@ -140,7 +140,7 @@ func (h *Helper) AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate *runt
 	return nil
 }
 
-func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) error {
+func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) error { //nolint
 	for keyInFrom, valueInFrom := range copyFrom {
 		if keysToSkip != nil {
 			// There might be some keys we do not want to add to destination.
@@ -287,7 +287,7 @@ func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) 
 
 // removeFields deletes the map entries by comparing the keys with keysToRemove
 func removeFields(m, keysToRemove map[string]interface{}) error {
-	if keysToRemove == nil || len(keysToRemove) == 0 {
+	if len(keysToRemove) == 0 {
 		return nil
 	}
 	for key, value := range m {
@@ -313,7 +313,7 @@ func removeFields(m, keysToRemove map[string]interface{}) error {
 //    object has embedded TypedLocalObjectReference(e.g., CPI has VSphereCPIConfig as valuesFrom, VSphereCPIConfig has
 //    a Secret reference under its Spec), this function clones the embedded object into the cluster namespace as well.
 // 3. Add OwnerReferences and Labels to the cloned objects.
-func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, cluster *clusterapiv1beta1.Cluster, tkrName, systemNamespace string) (*runtanzuv1alpha3.ClusterBootstrap, error) {
+func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, cluster *clusterapiv1beta1.Cluster, tkrName, systemNamespace string) (*runtanzuv1alpha3.ClusterBootstrap, error) { //nolint
 	packages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
 		clusterBootstrap.Spec.CNI,
 		clusterBootstrap.Spec.CPI,

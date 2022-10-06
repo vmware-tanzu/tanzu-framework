@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/hack/tools
 
-go 1.17
+go 1.18
 
 require (
 	github.com/golangci/golangci-lint v1.43.0

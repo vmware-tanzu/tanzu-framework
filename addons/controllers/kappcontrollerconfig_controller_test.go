@@ -20,6 +20,10 @@ import (
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
+const (
+	testKappController1 = "test-kapp-controller-1"
+)
+
 var _ = Describe("KappControllerConfig Reconciler", func() {
 	var (
 		kappConfigCRName        string
@@ -47,7 +51,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 	Context("reconcile KappControllerConfig for management cluster", func() {
 
 		BeforeEach(func() {
-			kappConfigCRName = "test-kapp-controller-1"
+			kappConfigCRName = testKappController1
 			clusterResourceFilePath = "testdata/test-kapp-controller-1.yaml"
 		})
 
@@ -150,7 +154,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 	Context("Reconcile KappControllerConfig used as template", func() {
 
 		BeforeEach(func() {
-			kappConfigCRName = "test-kapp-controller-1"
+			kappConfigCRName = testKappController1
 			clusterResourceFilePath = "testdata/test-kapp-controller-template-config-1.yaml"
 		})
 

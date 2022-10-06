@@ -125,7 +125,7 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(clusterBootstrap.Spec.AdditionalPackages).NotTo(BeNil())
 			// One additional package from original clusterBootstrap, another one will be added from clusterBootstrapTemplate
 			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(2))
-			for idx, _ := range clusterBootstrap.Spec.AdditionalPackages {
+			for idx := range clusterBootstrap.Spec.AdditionalPackages {
 				Expect(clusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(clusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
 				// IMPORTANT: With the new contract, valuesFrom fields will be removed by webhook. ClusterBootstrap Controller
 				// will be adding it back after the corresponding ClusterBootstrap Packages are cloned.
