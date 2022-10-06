@@ -24,5 +24,4 @@ jobs:
       - name: Test Release Artifacts on MacOS and Linux OS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./hack/test-release-artifacts.sh ${{ github.event.inputs.release_version }}
+        run: ./hack/test-release-artifacts.sh ${{ github.event.inputs.release_version }}

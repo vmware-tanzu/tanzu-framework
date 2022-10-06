@@ -14,63 +14,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-    - name: Free some disk space on runner
-      run: |
-        df -h
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
-        sudo rm -rf /usr/local/share/boost
-        sudo rm -rf /usr/lib/jvm
-        sudo rm -rf /usr/lib/firefox
-        sudo rm -rf /opt/microsoft/powershell
-        sudo rm -rf /opt/hostedtoolcache
-        echo "free space after cleanup:"
-        df -h
-
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
-      id: go
-
-    - name: Use Node 16.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16.x
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v1
-
-    - name: go cache
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
-    - name: Get npm cache directory
-      id: npm-cache-dir
-      run: |
-        echo "::set-output name=dir::$(npm config get cache)"
-    - name: npm cache
-      uses: actions/cache@v3
-      id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
-      with:
-        path: ${{ steps.npm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
+    - uses: ./github/actions/workflow-setup
 
     - name: Build
       run: make all

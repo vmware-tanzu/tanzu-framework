@@ -1,0 +1,139 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/github-action.json
+
+name: 'Configure Tanzu Framework for workflow'
+description: 'Includes common setup tasks'
+inputs:
+  go-version:
+    description: Version of Go to use
+    required: false
+    default: "1.17"
+  node-version:
+    description: Version of node to use
+    required: false
+    default: 16.x
+  use-go:
+    description: Setup with Go
+    required: false
+    default: "true"
+  use-node:
+    description: Setup with node
+    required: false
+    default: "true"
+  full-clean:
+    description: Performs a more thorough clean
+    required: false
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+  - name: Free disk space and clean up installed plugins on runner
+    run: |
+      sudo rm -rf /usr/share/dotnet
+      sudo rm -rf /home/tanzu/.cache
+      sudo rm -rf /home/tanzu/.kube
+      sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
+      sudo sh -c 'find /tmp -type d -name "go-build*" -mtime +3 | xargs rm -rf'
+      mkdir -p /home/tanzu/.local/share/tanzu-cli/test
+
+  - name: Full clean
+    if: ${{ inputs.full-clean == "true" }}
+    run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
+
+  - name: Set up Go 1.x
+    uses: actions/setup-go@v3
+    if: ${{ inputs.use-go == "true" }}
+    with:
+      go-version: "1.17"
+    id: go
+
+  - name: Use Node 16.x
+    uses: actions/setup-node@v3
+    if: ${{ inputs.use-node == "true" }}
+    with:
+      node-version: 16.x
+
+  - name: Check out code into the Go module directory
+    uses: actions/checkout@v3
+
+  - name: go cache
+    uses: actions/cache@v3
+    if: ${{ inputs.use-go == "true" }}
+    with:
+      path: |
+        ~/.cache/go-build
+        ~/go/pkg/mod
+      key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+      restore-keys: |
+        ${{ runner.os }}-go-
+
+  - name: Get dependencies
+    if: ${{ inputs.use-go == "true" }}
+    run: go mod download
+
+  - name: Get npm cache directory
+    id: npm-cache-dir
+    if: ${{ inputs.use-node == "true" }}
+    run: echo "::set-output name=dir::$(npm config get cache)"
+
+  - name: npm cache
+    uses: actions/cache@v3
+    id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
+    with:
+      path: ${{ steps.npm-cache-dir.outputs.dir }}
+      key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      restore-keys: |
+        ${{ runner.os }}-node-
+
+  - name: Get npm cache directory
+    id: npm-cache-dir
+    run: echo "::set-output name=dir::$(npm config get cache)"
+
+  - name: npm cache
+    uses: actions/cache@v3
+    if: ${{ inputs.use-node == "true" }}
+    id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
+    with:
+      path: ${{ steps.npm-cache-dir.outputs.dir }}
+      key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      restore-keys: |
+        ${{ runner.os }}-node-
+
+  - name: Extract PR Number
+    uses: Dovyski/payload-info-action@master
+    id: get_pr_num
+    with:
+      # when event is a pull request, obtaining the PR number is obvious
+      filter_pull_request: '.number'
+      # when event is a push (merge of PR), since we require linear history,
+      # we are not even generating a merge commit that can help identify the
+      # PR number, so don't even try. Instead we just hard-code to a dummy
+      # value.
+      filter_push: 1009
+
+  - name: Find Comment
+    if: ${{ inputs.use-go == "true" }}
+    uses: peter-evans/find-comment@v1
+    id: findcomment
+    with:
+      issue-number: ${{ steps.get_pr_num.outputs.value }}
+      body-includes: //usebom
+      direction: last
+
+  - name: Extract Alternate BOM
+    if: ${{ inputs.use-go == "true" }}
+    shell: bash
+    run: |
+      export BOMCOMMENT=$(echo -e "${{ steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
+      echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
+    id: extract_bom
+
+  - name: Configure TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH
+    if: ${{ inputs.use-go == "true" }}
+    run: |
+      if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
+        echo TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }} >> $GITHUB_ENV
+      fi
+
+  - name: Configure BOM
+    if: ${{ inputs.use-go == "true" }}
+    run: make configure-bom
