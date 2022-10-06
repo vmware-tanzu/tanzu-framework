@@ -8,7 +8,7 @@ on:
     branches: [ main, release-* ]
     paths:
     - 'tkg/**'
-    - 'pkg/v1/providers/**'
+    - 'providers/**'
     - '.github/workflows/providers.yaml'
 
 jobs:
@@ -22,8 +22,8 @@ jobs:
     - name: yaml-lint
       uses: ibiqlik/action-yamllint@v3
       with:
-        file_or_dir: pkg/v1/providers
-        config_file: pkg/v1/providers/.yamllint
+        file_or_dir: providers
+        config_file: providers/.yamllint
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v3
@@ -68,11 +68,11 @@ jobs:
         echo PRNUM==${{ steps.extract_pr.outputs.prnum }}
         echo BASEBRANCH=${{ steps.extract_pr.outputs.basebranch }}
         env BASEBRANCH=${{ steps.extract_pr.outputs.basebranch }}
-        status=$(test -s ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt; echo $?)
+        status=$(test -s ./providers/tests/clustergen/testdata/clustergen.diff.txt; echo $?)
         CLUSTERCTL=clusterctl CLI_REPO=$PWD ./hack/clustergen/ci-validate-clustergen.sh ${{ steps.extract_pr.outputs.branch }} ${{ steps.extract_pr.outputs.basebranch }}
         echo "##[set-output name=diffstatus;]$status"
-        echo $status > ./pkg/v1/providers/tests/clustergen/testdata/clustergen.status
-        echo ${{ steps.extract_pr.outputs.prnum }} > ./pkg/v1/providers/tests/clustergen/testdata/prnum
+        echo $status > ./providers/tests/clustergen/testdata/clustergen.status
+        echo ${{ steps.extract_pr.outputs.prnum }} > ./providers/tests/clustergen/testdata/prnum
       id: clustergen
 
     - id: publish-clustergen-results-as-artifacts
@@ -80,9 +80,9 @@ jobs:
       with:
         name: clustergen-output
         path: |
-           ./pkg/v1/providers/tests/clustergen/testdata/prnum
-           ./pkg/v1/providers/tests/clustergen/testdata/clustergen.status
-           ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt
-           ./pkg/v1/providers/tests/clustergen/testdata/clustergen_cc.diff.txt
-           ./pkg/v1/providers/tests/clustergen/testdata/clustergen_noncc_vs_cc.diff.txt
-           ./pkg/v1/providers/tests/clustergen/testdata/clustergen.html
+           ./providers/tests/clustergen/testdata/prnum
+           ./providers/tests/clustergen/testdata/clustergen.status
+           ./providers/tests/clustergen/testdata/clustergen.diff.txt
+           ./providers/tests/clustergen/testdata/clustergen_cc.diff.txt
+           ./providers/tests/clustergen/testdata/clustergen_noncc_vs_cc.diff.txt
+           ./providers/tests/clustergen/testdata/clustergen.html
