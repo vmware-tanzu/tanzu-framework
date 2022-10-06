@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/addons
 
-go 1.18
+go 1.17
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs => ../apis/addonconfigs

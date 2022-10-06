@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/packages/cluster-api-provider-azure/test
 
-go 1.18
+go 1.17
 
 require (
 	github.com/onsi/ginkgo v1.16.5

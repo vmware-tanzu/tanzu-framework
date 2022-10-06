@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret
 
-go 1.18
+go 1.17
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../../../apis/cli
