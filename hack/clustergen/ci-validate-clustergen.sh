@@ -25,17 +25,18 @@ git log --pretty=oneline -5
 make generate-bindata
 make CLUSTERGEN_CC_OUTPUT_DIR=newcc CLUSTERGEN_OUTPUT_DIR=new GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 git checkout .
-
+echo "vandana 1 $PWD"
 echo git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git log --pretty=oneline -5
-pushd pkg/v1/providers
+pushd ../pkg/v1/providers
+echo "vandana 2 $PWD"
 make generate-bindata
 make CLUSTERGEN_CC_OUTPUT_DIR=oldcc CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 git checkout .
 git checkout -
 popd
-
+echo "vandana 3 $PWD"
 pushd tests/clustergen/testdata
 echo "vandana"
 git status 
