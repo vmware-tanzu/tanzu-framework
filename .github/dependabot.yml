@@ -52,3 +52,54 @@ updates: []
 #    directory: "tkg/web/"
 #    schedule:
 #      interval: "daily"
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "addons/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "pinniped-components/post-deploy/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "hack/packages/kbld-image-replace/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "hack/tools/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "providers/tests/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "npm"
+    directory: "tkg/web/e2e/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "npm"
+    directory: "tkg/web/node-server/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "npm"
+    directory: "tkg/web/"
+    schedule:
+      interval: "daily"
+>>>>>>> provider_re_testing
