@@ -11,7 +11,13 @@ tanzuAddonsManager:
     hostNetwork: true
     priorityClassName: null
     nodeSelector: null
-    tolerations: []
+    tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
     webhookServerPort: 9865
     healthzPort: 18316
     clusterDeleteTimeout: "10m"

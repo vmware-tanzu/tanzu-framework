@@ -115,11 +115,12 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "hostNetwork: true")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "coreDNSIP: 100.64.0.10")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "- key: CriticalAddonsOnly")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "key: node-role.kubernetes.io/master")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "node-role.kubernetes.io/control-plane: \"\"")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "key: node.kubernetes.io/not-ready")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "key: node.cloudprovider.kubernetes.io/uninitialized")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "apiPort: 10100")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "metricsBindAddress: \"0\"")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "key: node-role.kubernetes.io/control-plane")).Should(BeTrue())
 
 				if !strings.Contains(secretData, "caCerts: dummyCertificate") ||
 					!strings.Contains(secretData, "httpsProxy: bar.com") ||

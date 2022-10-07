@@ -4,6 +4,7 @@
 package controllers
 
 import (
+	"reflect"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -23,7 +24,7 @@ type kappControllerConfigSpec struct {
 
 // NodeSelector contains the nodeSelector information
 type NodeSelector struct {
-	NodeRoleMaster string `yaml:"node-role.kubernetes.io/master"`
+	NodeRoleControlPlane string `yaml:"node-role.kubernetes.io/control-plane"`
 }
 
 type kappController struct {
@@ -93,6 +94,18 @@ func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *run
 	configSpec.KappController.Deployment.PriorityClassName = config.Spec.KappController.Deployment.PriorityClassName
 	configSpec.KappController.Deployment.Concurrency = config.Spec.KappController.Deployment.Concurrency
 	configSpec.KappController.Deployment.Tolerations = config.Spec.KappController.Deployment.Tolerations
+	cpToleration := map[string]string{"effect": "NoSchedule", "key": "node-role.kubernetes.io/control-plane"}
+	var cpTolerationExists bool
+	for _, toleration := range configSpec.KappController.Deployment.Tolerations {
+		if reflect.DeepEqual(toleration, cpToleration) {
+			cpTolerationExists = true
+			break
+		}
+	}
+	if !cpTolerationExists {
+		configSpec.KappController.Deployment.Tolerations = append(configSpec.KappController.Deployment.Tolerations, cpToleration)
+	}
+
 	configSpec.KappController.Deployment.APIPort = config.Spec.KappController.Deployment.APIPort
 	configSpec.KappController.Deployment.MetricsBindAddress = config.Spec.KappController.Deployment.MetricsBindAddress
 
@@ -122,7 +135,7 @@ func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *run
 		configSpec.KappController.Config.DangerousSkipTLSVerify = config.Spec.KappController.Config.DangerousSkipTLSVerify
 	}
 
-	configSpec.NodeSelector = NodeSelector{NodeRoleMaster: ""}
+	configSpec.NodeSelector = NodeSelector{NodeRoleControlPlane: ""}
 
 	return configSpec, nil
 }

@@ -118,7 +118,7 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 		}
 
 		By("Scaling up workload cluster")
-		framework.WaitForNodes(framework.NewClusterProxy(clusterName, "", contextName), 3)
+		framework.WaitForNodesDuringScaleUp(framework.NewClusterProxy(clusterName, "", contextName), 3)
 
 		By("Deleting workload which should trigger a scale down")
 		kubectlCmd = exec.NewCommand(

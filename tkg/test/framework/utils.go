@@ -64,6 +64,24 @@ func WaitForNodes(proxy *ClusterProxy, desiredCount int) {
 	Fail(fmt.Sprintf("Timed out waiting for nodes count to reach %q", desiredCount))
 }
 
+// WaitForNodesDuringScaleUp waits for desiredCount number of nodes to be ready
+func WaitForNodesDuringScaleUp(proxy *ClusterProxy, desiredCount int) {
+	const timeout = 10 * time.Minute
+
+	start := time.Now()
+	for time.Since(start) < timeout {
+		count := len(proxy.GetClusterNodes())
+		_, _ = GinkgoWriter.Write([]byte(fmt.Sprintf("Node count for cluster %q: %d\n", proxy.name, count)))
+		if count >= desiredCount {
+			return
+		}
+
+		time.Sleep(30 * time.Second) // nolint:gomnd
+	}
+
+	Fail(fmt.Sprintf("Timed out waiting for nodes count to reach %q", desiredCount))
+}
+
 // GetClusterClass returns ClusterClass used by the Cluster
 func GetClusterClass(proxy *ClusterProxy, clusterName string, namespace string) (string, error) {
 	var err error

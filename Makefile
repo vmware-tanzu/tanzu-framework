@@ -540,6 +540,12 @@ test: generate manifests build-cli-mocks ## Run tests
 	# Test package plugin but skip package/test which are e2e tests run separately in CI
 	cd cmd/cli/plugin/package && $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/test`
 
+	# Cluster plugin tests
+	$(MAKE) test -C cmd/cli/plugin/cluster
+
+	# Cluster plugin tests
+	$(MAKE) test -C cmd/cli/plugin/managementcluster
+
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
 	$(GO) test  ./pkg/v1/auth/... ./pkg/v1/builder/...  ./pkg/v1/encoding/... ./pkg/v1/grpc/...
