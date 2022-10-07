@@ -48,8 +48,7 @@ jobs:
           ${{ runner.os }}-node-
 
     - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
+      run: go mod download
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
