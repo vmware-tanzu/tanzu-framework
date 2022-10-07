@@ -8,11 +8,11 @@ import AppServices from 'src/app/shared/service/appServices';
 import { AzureField, AzureForm, VnetOptionType } from '../azure-wizard.constants';
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
-import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
+import { AzureVirtualNetwork } from '../../../../swagger/models/azure-virtual-network.model';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
-import { ValidationService } from './../../wizard/shared/validation/validation.service';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 @Component({
     selector: 'app-vnet-step',

@@ -27,8 +27,8 @@ import (
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkr/controller/tkr-source/compatibility"
-	tkrconstants "github.com/vmware-tanzu/tanzu-framework/tkg/tkr/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkr/controller/tkr-source/compatibility"
+	tkrconstants "github.com/vmware-tanzu/tanzu-framework/tkr/controller/tkr-source/constants"
 )
 
 type TKRCompatibilityValidationSpecInput struct {

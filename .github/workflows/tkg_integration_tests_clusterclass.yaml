@@ -6,10 +6,10 @@ on:
     paths:
       - 'tkg/**'
       - 'pkg/v1/tkr/**'
-      - 'pkg/v2/tkr/**'
+      - 'tkr/**'
       - 'featuregates/**'
       - 'capabilities/**'
-      - 'pkg/v2/object-propagation/**'
+      - 'object-propagation/**'
       - 'addons/**'
       - 'packages/**'
       - '!packageclients/**'
@@ -22,10 +22,10 @@ on:
     paths:
     - 'tkg/**'
     - 'pkg/v1/tkr/**'
-    - 'pkg/v2/tkr/**'
+    - 'tkr/**'
     - 'featuregates/**'
     - 'capabilities/**'
-    - 'pkg/v2/object-propagation/**'
+    - 'object-propagation/**'
     - 'addons/**'
     - 'packages/**'
     - '!packageclients/**'
@@ -153,7 +153,7 @@ jobs:
       env:
         NUM: ${{ github.run_id }}
         OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregates addons pkg/v2/tkr/webhook/infra-machine capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
+        COMPONENTS: "tkr/controller/tkr-source tkr/controller/tkr-status featuregates addons capabilities tkr/webhook/tkr-conversion tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager object-propagation"
         BUILD_VERSION: "v0.21.0"
         IMG_VERSION_OVERRIDE: latest
       run: |
@@ -164,7 +164,7 @@ jobs:
       env:
         NUM: ${{ github.run_number }}
         OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregates addons pkg/v2/tkr/webhook/infra-machine capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
+        COMPONENTS: "tkr/controller/tkr-source tkr/controller/tkr-status featuregates addons capabilities tkr/webhook/tkr-conversion tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager object-propagation"
         BUILD_VERSION: "v0.21.0"
         IMG_VERSION_OVERRIDE: latest
       run: |

@@ -22,17 +22,18 @@ import (
 	"sigs.k8s.io/cluster-api/util/conditions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/clusters"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkr/resolver"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkr/resolver/data"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkr/util/resolution"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkr/util/topology"
-	clusterdata "github.com/vmware-tanzu/tanzu-framework/tkg/tkr/webhook/cluster/tkr-resolver/cluster"
+	"github.com/vmware-tanzu/tanzu-framework/tkr/resolver"
+	"github.com/vmware-tanzu/tanzu-framework/tkr/resolver/data"
+	"github.com/vmware-tanzu/tanzu-framework/tkr/util/resolution"
+	clusterdata "github.com/vmware-tanzu/tanzu-framework/tkr/webhook/cluster/tkr-resolver/cluster"
+	"github.com/vmware-tanzu/tanzu-framework/util/topology"
 )
 
 type E2ETKRResolverValidationForClusterCRUDSpecInput struct {
@@ -267,7 +268,7 @@ func validateUpdatesAvailableCondition(ctx context.Context, mcProxy *framework.C
 	Expect(cluster).ToNot(BeNil(), fmt.Sprintf("failed to get cluster '%s' in namespace: '%s'", clusterName, namespace))
 	Expect(conditions.IsTrue(cluster, runv1.ConditionUpdatesAvailable)).To(BeTrue())
 
-	updatesSet := topology.AvailableUpgrades(cluster)
+	updatesSet := clusters.AvailableUpgrades(cluster)
 	Expect(len(updatesSet)).ToNot(BeZero(), "Cluster 'updatesAvailable condition should list at least one TKR version ")
 
 	updates := updatesSet.Slice()

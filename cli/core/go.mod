@@ -3,10 +3,10 @@ module github.com/vmware-tanzu/tanzu-framework/cli/core
 go 1.17
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework/apis/cli => ./../../apis/cli
-	github.com/vmware-tanzu/tanzu-framework/apis/run => ./../../apis/run
+	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../apis/cli
+	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ../../capabilities/client
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ./../runtime
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../runtime
 )
 
 require (
