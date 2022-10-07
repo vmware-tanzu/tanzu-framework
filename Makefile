@@ -598,6 +598,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 .PHONY: verify
 verify: modules ## Run all verification scripts
 verify: ## Run all verification scripts
+	$(MAKE) smoke-build
 	./packages/tkg-clusterclass/hack/sync-cc.sh
 	./hack/verify-dirty.sh
 
@@ -865,3 +866,13 @@ trivy-scan: ## Trivy scan images used in packages
 
 .PHONY: package-push-bundles-repo ## Performs build and publishes packages and repo bundles
 package-push-bundles-repo: package-bundles push-all-package-bundles package-repo-bundle push-package-repo-bundle
+
+.PHONY: smoke-build
+smoke-build: ## Do a quick test that all directories can be built
+	@for i in $(GO_MODULES); do \
+		echo "-- Building $$i --"; \
+		pushd $${i}; \
+		$(GO) build ./... || exit 1; \
+		$(GO) clean -i ./... || exit 1; \
+		popd; \
+	done
