@@ -37,7 +37,8 @@ git checkout -
 popd
 
 pushd tests/clustergen/testdata
-
+echo "vandana"
+git status 
 diff -r -U15 ../../../pkg/v1/providers/tests/clustergen/testdata/old new > clustergen.diff.txt
 cat clustergen.diff.txt
 echo "<html><body>no diff</body></html>" > clustergen.html
