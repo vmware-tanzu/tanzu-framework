@@ -37,8 +37,6 @@ echo "vandana status"
 
 git status
 
-git checkout .
-git checkout -
 popd
 echo "vandana 3 $PWD"
 pushd tests/clustergen/testdata
