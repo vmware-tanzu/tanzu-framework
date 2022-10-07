@@ -26,6 +26,7 @@ make generate-bindata
 make CLUSTERGEN_CC_OUTPUT_DIR=newcc CLUSTERGEN_OUTPUT_DIR=new GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 git checkout .
 
+cd pkg/v1/providers
 echo git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git log --pretty=oneline -5
