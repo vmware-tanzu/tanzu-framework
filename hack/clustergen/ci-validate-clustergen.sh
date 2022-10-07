@@ -14,7 +14,7 @@ CLI_REPO=${CLI_REPO:-${PWD}/../..}
 GIT_BRANCH_PROVIDERS=$1
 GIT_BRANCH_PROVIDERS_BASE=$2
 
-cd pkg/v1/providers
+cd providers
 
 # TODO: As we are using providers as library, clustergen should not rely on building binary
 # each time with new providers, instead we should write some go testing tool  which runs
@@ -26,6 +26,7 @@ make generate-bindata
 make CLUSTERGEN_CC_OUTPUT_DIR=newcc CLUSTERGEN_OUTPUT_DIR=new GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 git checkout .
 
+cd pkg/v1/providers
 echo git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git log --pretty=oneline -5

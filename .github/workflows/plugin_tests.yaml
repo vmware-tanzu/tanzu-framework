@@ -7,7 +7,7 @@ on:
       - "cmd/cli/plugin/cluster/**"
       - "cmd/cli/plugin/managementcluster/**"
       - 'tkg/**'
-      - 'pkg/v1/providers/**'
+      - 'providers/**'
       - '.github/workflows/plugin_tests.yaml'
 
 concurrency:

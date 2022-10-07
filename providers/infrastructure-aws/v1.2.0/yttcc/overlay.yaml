@@ -55,6 +55,7 @@ spec:
         annotations:
           #! VVV TODO(vui) os-name handling
           run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name=ubuntu".format(data.values.AWS_REGION)
+          tkg.tanzu.vmware.com/test-annotation: "1"
     workers:
       machineDeployments:
       #@overlay/match by=overlay.index(0)
