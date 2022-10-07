@@ -25,7 +25,7 @@ ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := tkg/web
-GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
+GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped/" | xargs -I _ dirname _)
 PROVIDER_BUNDLE_ZIP = pkg/v1/providers/client/manifest/providers.zip
 TKG_PROVIDER_BUNDLE_ZIP = tkg/tkgctl/client/manifest/providers.zip
 
