@@ -33,13 +33,15 @@ pushd ../pkg/v1/providers
 echo "vandana 2 $PWD"
 make generate-bindata
 make CLUSTERGEN_CC_OUTPUT_DIR=oldcc CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
+echo "vandana status"
+
+git status
+
 git checkout .
 git checkout -
 popd
 echo "vandana 3 $PWD"
 pushd tests/clustergen/testdata
-echo "vandana"
-git status 
 diff -r -U15 ../../../pkg/v1/providers/tests/clustergen/testdata/old new > clustergen.diff.txt
 cat clustergen.diff.txt
 echo "<html><body>no diff</body></html>" > clustergen.html
