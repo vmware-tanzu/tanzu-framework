@@ -14,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/selection"
+	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
@@ -37,7 +38,7 @@ func init() {
 }
 
 // Client provides various aspects of interaction with a Kubernetes cluster provisioned by TKG
-//go:generate counterfeiter -o ../fakes/clusterclient.go --fake-name ClusterClient . Client
+//go:generate counterfeiter -o ../fakes/clusterclient_fake.go --fake-name ClusterClient . Client
 type Client interface {
 	// ListCLIPluginResources lists CLIPlugin resources across all namespaces
 	ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error)
@@ -45,14 +46,30 @@ type Client interface {
 	VerifyCLIPluginCRD() (bool, error)
 	// GetCLIPluginImageRepositoryOverride returns map of image repository override
 	GetCLIPluginImageRepositoryOverride() (map[string]string, error)
+
+	// BuildClusterQuery builds ClusterQuery with Dynamic client and Discovery client
+	BuildClusterQuery() (*capdiscovery.ClusterQuery, error)
 }
 
-//go:generate counterfeiter -o ../fakes/crtclusterclient.go --fake-name CRTClusterClient . CrtClient
-//go:generate counterfeiter -o ../fakes/discoveryclusterclient.go --fake-name DiscoveryClient . DiscoveryClient
+//go:generate counterfeiter -o ../fakes/CrtClient_fake.go --fake-name CrtClientFake . CrtClient
+//go:generate counterfeiter -o ../fakes/discoveryclusterclient_fake.go --fake-name DiscoveryClient . DiscoveryClient
 
 // CrtClient clientset interface
 type CrtClient interface {
-	crtclient.Client
+	NewClient(config *rest.Config, options crtclient.Options) (crtclient.Client, error)
+	ListObjects(ctx context.Context, cliPlugins crtclient.ObjectList, listOptions *crtclient.ListOptions) error
+}
+type CrtClientImpl struct {
+	crtClient crtclient.Client
+}
+
+func (c *CrtClientImpl) NewClient(config *rest.Config, options crtclient.Options) (crtclient.Client, error) {
+	crtClient, err := crtclient.New(config, options)
+	c.crtClient = crtClient
+	return crtClient, err
+}
+func (c *CrtClientImpl) ListObjects(ctx context.Context, cliPlugins crtclient.ObjectList, listOptions *crtclient.ListOptions) error {
+	return c.crtClient.List(ctx, cliPlugins, listOptions)
 }
 
 // DiscoveryClient discovery client interface
@@ -83,51 +100,61 @@ func NewClient(kubeConfigPath string, context string, options Options) (Client, 
 		rules = clientcmd.NewDefaultClientConfigLoadingRules()
 		kubeConfigPath = rules.GetDefaultFilename()
 	}
-
-	if options.crtClientFactory == nil {
-		options.crtClientFactory = &crtClientFactory{}
-	}
-	if options.discoveryClientFactory == nil {
-		options.discoveryClientFactory = &discoveryClientFactory{}
-	}
-
-	if options.dynamicClientFactory == nil {
-		options.dynamicClientFactory = &dynamicClientFactory{}
-	}
-
+	InitializeOptions(&options)
 	client := &client{
 		kubeConfigPath: kubeConfigPath,
 		currentContext: context,
 	}
 
-	err = client.getK8sClients(options.crtClientFactory, options.discoveryClientFactory, options.dynamicClientFactory)
+	err = client.getK8sClients(options.CrtClient, options.DiscoveryClientFactory, options.DynamicClientFactory)
 	if err != nil {
 		return nil, err
 	}
 	return client, nil
 }
 
+// InitializeOptions initializes the options
+func InitializeOptions(options *Options) {
+	if options.CrtClient == nil {
+		options.CrtClient = &CrtClientImpl{}
+	}
+	if options.DiscoveryClientFactory == nil {
+		options.DiscoveryClientFactory = &discoveryClientFactory{}
+	}
+
+	if options.DynamicClientFactory == nil {
+		options.DynamicClientFactory = &dynamicClientFactory{}
+	}
+}
+
 // VerifyCLIPluginCRD returns true if CRD exists else return false
 func (c *client) VerifyCLIPluginCRD() (bool, error) {
 	// Since we're looking up API types via discovery, we don't need the dynamic client.
-	clusterQueryClient, err := capdiscovery.NewClusterQueryClient(c.DynamicClient, c.DiscoveryClient)
+	cqc, err := c.BuildClusterQuery()
 	if err != nil {
 		return false, err
 	}
-
-	var queryObject = capdiscovery.Group("cliPlugins", cliv1alpha1.GroupVersionKindCLIPlugin.Group).WithResource("cliplugins")
-
-	// Build query client.
-	cqc := clusterQueryClient.Query(queryObject)
 
 	// Execute returns combined result of all queries.
 	return cqc.Execute() // return (found, err) response
 }
 
+func (c *client) BuildClusterQuery() (*capdiscovery.ClusterQuery, error) {
+	clusterQueryClient, err := capdiscovery.NewClusterQueryClient(c.DynamicClient, c.DiscoveryClient)
+	if err != nil {
+		return nil, err
+	}
+
+	var queryObject = capdiscovery.Group("cliPlugins", cliv1alpha1.GroupVersionKindCLIPlugin.Group).WithResource("cliplugins")
+
+	// Build query client.
+	return clusterQueryClient.Query(queryObject), nil
+}
+
 // ListCLIPluginResources lists CLIPlugin resources across all namespaces
 func (c *client) ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error) {
 	var cliPlugins cliv1alpha1.CLIPluginList
-	err := c.CrtClient.List(context.TODO(), &cliPlugins, &crtclient.ListOptions{Namespace: ""})
+	err := c.CrtClient.ListObjects(context.TODO(), &cliPlugins, &crtclient.ListOptions{Namespace: ""})
 	if err != nil {
 		return nil, err
 	}
@@ -142,11 +169,14 @@ func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error
 	labelSelector := labels.NewSelector()
 	labelSelector = labelSelector.Add(*labelMatch)
 
-	err := c.CrtClient.List(context.TODO(), cmList, &crtclient.ListOptions{Namespace: constants.TanzuCLISystemNamespace, LabelSelector: labelSelector})
+	err := c.CrtClient.ListObjects(context.TODO(), cmList, &crtclient.ListOptions{Namespace: constants.TanzuCLISystemNamespace, LabelSelector: labelSelector})
 	if err != nil {
 		return nil, err
 	}
+	return ConsolidateImageRepoMaps(cmList)
+}
 
+func ConsolidateImageRepoMaps(cmList *corev1.ConfigMapList) (map[string]string, error) {
 	imageRepoMap := make(map[string]string)
 
 	//nolint:gocritic
@@ -168,8 +198,7 @@ func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error
 	return imageRepoMap, nil
 }
 
-func (c *client) getK8sClients(crtClientFactory CrtClientFactory, discoveryClientFactory DiscoveryClientFactory, dynamicClientFactory DynamicClientFactory) error {
-	var crtClient crtclient.Client
+func (c *client) getK8sClients(CrtClient CrtClient, discoveryClientFactory DiscoveryClientFactory, dynamicClientFactory DynamicClientFactory) error {
 	var discoveryClient discovery.DiscoveryInterface
 	config, err := clientcmd.LoadFromFile(c.kubeConfigPath)
 	if err != nil {
@@ -193,7 +222,7 @@ func (c *client) getK8sClients(crtClientFactory CrtClientFactory, discoveryClien
 		return errors.Errorf("Unable to set up rest mapper due to : %v", err)
 	}
 
-	crtClient, err = crtClientFactory.NewClient(restConfig, crtclient.Options{Scheme: scheme, Mapper: mapper})
+	_, err = CrtClient.NewClient(restConfig, crtclient.Options{Scheme: scheme, Mapper: mapper})
 	if err != nil {
 		// TODO catch real errors that doesn't warrant retrying and abort
 		return errors.Errorf("Error getting controller client due to : %v", err)
@@ -204,7 +233,7 @@ func (c *client) getK8sClients(crtClientFactory CrtClientFactory, discoveryClien
 		return errors.Errorf("Error getting discovery client due to : %v", err)
 	}
 
-	if _, err := discoveryClient.ServerVersion(); err != nil {
+	if _, err := discoveryClientFactory.ServerVersion(discoveryClient); err != nil {
 		return errors.Errorf("Failed to invoke API on cluster : %v", err)
 	}
 
@@ -212,44 +241,38 @@ func (c *client) getK8sClients(crtClientFactory CrtClientFactory, discoveryClien
 	if err != nil {
 		return errors.Errorf("Error getting dynamic client due to : %v", err)
 	}
-
-	c.CrtClient = crtClient
+	c.CrtClient = CrtClient
 	c.DiscoveryClient = discoveryClient
 	c.DynamicClient = dynamicClient
 
 	return nil
 }
 
-// The below factory interfaces are to provide fake methods to enable unit tests
-//go:generate counterfeiter -o ../fakes/crtclientfactory.go --fake-name CrtClientFactory . CrtClientFactory
-
-// CrtClientFactory is a interface to create controller runtime client
-type CrtClientFactory interface {
-	NewClient(config *rest.Config, options crtclient.Options) (crtclient.Client, error)
-}
-
-type crtClientFactory struct{}
-
-// NewClient creates new clusterClient factory
-func (c *crtClientFactory) NewClient(config *rest.Config, options crtclient.Options) (crtclient.Client, error) {
-	return crtclient.New(config, options)
-}
-
-//go:generate counterfeiter -o ../fakes/discoveryclientfactory.go --fake-name DiscoveryClientFactory . DiscoveryClientFactory
+//go:generate counterfeiter -o ../fakes/discoveryclientfactory_fake.go --fake-name DiscoveryClientFactory . DiscoveryClientFactory
 
 // DiscoveryClientFactory is a interface to create discovery client
 type DiscoveryClientFactory interface {
 	NewDiscoveryClientForConfig(config *rest.Config) (discovery.DiscoveryInterface, error)
+	ServerVersion(discoveryClient discovery.DiscoveryInterface) (*version.Info, error)
 }
 
-type discoveryClientFactory struct{}
+type discoveryClientFactory struct {
+}
+
+func NewDiscoveryClientFactory() DiscoveryClientFactory {
+	return &discoveryClientFactory{}
+}
 
 // NewDiscoveryClientForConfig creates new discovery client factory
-func (c *discoveryClientFactory) NewDiscoveryClientForConfig(restConfig *rest.Config) (discovery.DiscoveryInterface, error) {
-	return discovery.NewDiscoveryClientForConfig(restConfig)
+func (c *discoveryClientFactory) NewDiscoveryClientForConfig(config *rest.Config) (discovery.DiscoveryInterface, error) {
+	return discovery.NewDiscoveryClientForConfig(config)
 }
 
-//go:generate counterfeiter -o ../fakes/dynamicclientfactory.go --fake-name DynamicClientFactory . DynamicClientFactory
+func (c *discoveryClientFactory) ServerVersion(discoveryClient discovery.DiscoveryInterface) (*version.Info, error) {
+	return discoveryClient.ServerVersion()
+}
+
+//go:generate counterfeiter -o ../fakes/dynamicclientfactory_fake.go --fake-name DynamicClientFactory . DynamicClientFactory
 
 // DynamicClientFactory is a interface to create adynamic client
 type DynamicClientFactory interface {
@@ -265,20 +288,21 @@ func (c *dynamicClientFactory) NewDynamicClientForConfig(restConfig *rest.Config
 
 // Options provides way to customize creation of clusterClient
 type Options struct {
-	crtClientFactory       CrtClientFactory
-	discoveryClientFactory DiscoveryClientFactory
-	dynamicClientFactory   DynamicClientFactory
+	CrtClient              CrtClient
+	DiscoveryClientFactory DiscoveryClientFactory
+	DynamicClientFactory   DynamicClientFactory
 }
 
 // NewOptions returns new options
-func NewOptions(crtClientFactory CrtClientFactory, discoveryClientFactory DiscoveryClientFactory) Options {
+func NewOptions(CrtClient CrtClient, discoveryClientFactory DiscoveryClientFactory, dynamicClientFactory DynamicClientFactory) Options {
 	return Options{
-		crtClientFactory:       crtClientFactory,
-		discoveryClientFactory: discoveryClientFactory,
+		CrtClient:              CrtClient,
+		DiscoveryClientFactory: discoveryClientFactory,
+		DynamicClientFactory:   dynamicClientFactory,
 	}
 }
 
-//go:generate counterfeiter -o ../fakes/clusterclientfactory.go --fake-name ClusterClientFactory . ClusterClientFactory
+//go:generate counterfeiter -o ../fakes/clusterclientfactory_fake.go --fake-name ClusterClientFactory . ClusterClientFactory
 
 // ClusterClientFactory a factory for creating cluster clients
 type ClusterClientFactory interface {

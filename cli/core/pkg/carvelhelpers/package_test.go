@@ -15,7 +15,7 @@ import (
 
 func TestClient(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "CarvelHelper Suite")
+	RunSpecs(t, "cli/core/pkg/carvelhelpers Suite")
 }
 
 var _ = Describe("Unit tests for CarvelPackageProcessor", func() {
@@ -59,3 +59,27 @@ func readFile(path string) string {
 	Expect(err).NotTo(HaveOccurred())
 	return string(data)
 }
+
+var _ = Describe("Unit tests for CarvelPackageProcessor", func() {
+	var (
+		configBytes []byte
+		err         error
+		image       string
+	)
+
+	JustBeforeEach(func() {
+		configBytes, err = ProcessCarvelPackage(image, "")
+	})
+
+	Context("When in-correct image passed", func() {
+		BeforeEach(func() {
+			image = "image"
+		})
+		It("should not return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failed to get resource files from discovery"))
+			Expect(configBytes).To(BeNil())
+		})
+	})
+
+})

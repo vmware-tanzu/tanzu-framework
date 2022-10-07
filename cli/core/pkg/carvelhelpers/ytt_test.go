@@ -72,6 +72,10 @@ func Test_ProcessYTTPackage_When_Error(t *testing.T) {
 	_, err := ProcessYTTPackage(testDir)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "struct has no .FAKE_NAME field or method ")
+
+	_, err = ProcessYTTPackage("")
+	assert.NotNil(err)
+	assert.Contains(err.Error(), "no such file or directory")
 }
 
 func setupTestDir(datavalues, overlay, template string) string {
