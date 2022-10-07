@@ -87,6 +87,11 @@
     "typescript": "4.3.5"
   },
   "overrides": {
-    "minimist": "1.2.6"
+    "glob-parent": "5.1.2",
+    "meow": "10.1.5",
+    "minimist": "1.2.6",
+    "node-forge": "1.3.0",
+    "terser": "5.14.2",
+    "trim-newlines": "3.0.1"
   }
 }
