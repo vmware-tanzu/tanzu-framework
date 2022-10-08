@@ -72,19 +72,10 @@ func getFileContentFromImage(image regv1.Image, filename string) ([]byte, error)
 	}
 
 	for _, imgLayer := range layers {
-		layerStream, err := imgLayer.Uncompressed()
+		files, err := getFilesFromLayer(imgLayer)
 		if err != nil {
 			return nil, err
 		}
-
-		defer layerStream.Close()
-
-		files := make(map[string][]byte)
-		err = getFileFromLayer(layerStream, files)
-		if err != nil {
-			return nil, err
-		}
-
 		for k, v := range files {
 			if filename == "" || k == filename {
 				return v, nil
@@ -94,27 +85,32 @@ func getFileContentFromImage(image regv1.Image, filename string) ([]byte, error)
 	return nil, errors.New("cannot find file from the image")
 }
 
-func getFileFromLayer(stream io.Reader, files map[string][]byte) error {
-	tarReader := tar.NewReader(stream)
+func getFilesFromLayer(imgLayer regv1.Layer) (map[string][]byte, error) {
+	layerStream, err := imgLayer.Uncompressed()
+	if err != nil {
+		return nil, err
+	}
+	defer layerStream.Close()
 
+	files := make(map[string][]byte)
+	tarReader := tar.NewReader(layerStream)
 	for {
 		hdr, err := tarReader.Next()
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
-			return err
+			return files, err
 		}
-
 		if hdr.Typeflag == tar.TypeReg || hdr.Typeflag == tar.TypeRegA {
 			buf, err := io.ReadAll(tarReader)
 			if err != nil {
-				return err
+				return files, err
 			}
 			files[hdr.Name] = buf
 		}
 	}
-	return nil
+	return files, nil
 }
 
 // GetFiles get all the files content bundled in the given image:tag.
@@ -142,26 +138,16 @@ func getAllFilesContentFromImage(image regv1.Image) (map[string][]byte, error) {
 		return nil, err
 	}
 
-	files := make(map[string][]byte)
-
+	var files map[string][]byte
 	for _, imgLayer := range layers {
-		layerStream, err := imgLayer.Uncompressed()
-		if err != nil {
-			return nil, err
-		}
-
-		defer layerStream.Close()
-
-		err = getFileFromLayer(layerStream, files)
+		files, err = getFilesFromLayer(imgLayer)
 		if err != nil {
 			return nil, err
 		}
 	}
-
 	if len(files) != 0 {
 		return files, nil
 	}
-
 	return nil, errors.New("cannot find file from the image")
 }
 

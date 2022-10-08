@@ -37,11 +37,13 @@ var _ = Describe("Unit tests for kubeconfig use cases", func() {
 		It("should merge with existing kubeconf file", func() {
 			copyFile(kubeconfiFilePath2, kubeconfiFilePath3)
 			kubeconfFileContent, _ := os.ReadFile(kubeconfiFilePath)
-			MergeKubeConfigWithoutSwitchContext(kubeconfFileContent, kubeconfiFilePath3)
+			err := MergeKubeConfigWithoutSwitchContext(kubeconfFileContent, kubeconfiFilePath3)
+			Expect(err).To(BeNil())
 		})
 		It("should merge with existing empty kubeconf file", func() {
 			kubeconfFileContent, _ := os.ReadFile(kubeconfiFilePath)
-			MergeKubeConfigWithoutSwitchContext(kubeconfFileContent, kubeconfiFilePath3)
+			err := MergeKubeConfigWithoutSwitchContext(kubeconfFileContent, kubeconfiFilePath3)
+			Expect(err).To(BeNil())
 		})
 		It("should return value for default kubeconfig file", func() {
 			defKubeConf := getDefaultKubeConfigFile()

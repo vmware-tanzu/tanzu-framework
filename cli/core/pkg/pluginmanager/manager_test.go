@@ -484,7 +484,7 @@ func Test_setAvailablePluginsStatus(t *testing.T) {
 	assert.Equal(common.PluginStatusUpdateAvailable, availablePlugins[0].Status)
 }
 
-func mockInstallPlugin(assert *assert.Assertions, server, name, version string) { //nolint:unparam
+func mockInstallPlugin(assert *assert.Assertions, server, name, version string) {
 	execCommand = fakeExecCommand
 	defer func() { execCommand = exec.Command }()
 

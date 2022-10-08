@@ -1,7 +1,6 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:gocritic
 package command
 
 import (
@@ -16,6 +15,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
+
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
@@ -237,7 +237,6 @@ var initConfigCmd = &cobra.Command{
 			return err
 		}
 		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		//nolint:staticcheck
 		descriptors, err := cli.ListPlugins()
 		if err != nil {
 			return err

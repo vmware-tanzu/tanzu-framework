@@ -186,8 +186,7 @@ func saveCatalogCache(catalog *cliapi.Catalog) error {
 }
 
 // ListPlugins returns the available plugins.
-//
-// Deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
+// This code will be removed as part of TKG-13912, and replaced with pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
 func ListPlugins(exclude ...string) (list []*cliapi.PluginDescriptor, err error) {
 	pluginDescriptors, err := getPluginsFromCatalogCache()
 	if err != nil {

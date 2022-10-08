@@ -94,7 +94,7 @@ type client struct {
 // if kubeconfig path is empty it gets default path
 // if options.poller is nil it creates default poller. You should only pass custom poller for unit testing
 // if options.crtClientFactory is nil it creates default CrtClientFactory
-func NewClient(kubeConfigPath string, context string, options Options) (Client, error) { //nolint:gocritic
+func NewClient(kubeConfigPath, contextStr string, options Options) (Client, error) {
 	var err error
 	var rules *clientcmd.ClientConfigLoadingRules
 	if kubeConfigPath == "" {
@@ -104,7 +104,7 @@ func NewClient(kubeConfigPath string, context string, options Options) (Client, 
 	InitializeOptions(&options)
 	client := &client{
 		kubeConfigPath: kubeConfigPath,
-		currentContext: context,
+		currentContext: contextStr,
 	}
 
 	err = client.getK8sClients(options.CrtClient, options.DiscoveryClientFactory, options.DynamicClientFactory)
@@ -180,9 +180,8 @@ func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error
 func ConsolidateImageRepoMaps(cmList *corev1.ConfigMapList) (map[string]string, error) {
 	imageRepoMap := make(map[string]string)
 
-	//nolint:gocritic
-	for _, cm := range cmList.Items {
-		mapString, ok := cm.Data["imageRepoMap"]
+	for i := range cmList.Items {
+		mapString, ok := cmList.Items[i].Data["imageRepoMap"]
 		if !ok {
 			continue
 		}
@@ -199,7 +198,7 @@ func ConsolidateImageRepoMaps(cmList *corev1.ConfigMapList) (map[string]string, 
 	return imageRepoMap, nil
 }
 
-func (c *client) getK8sClients(CrtClient CrtClient, discoveryClientFactory DiscoveryClientFactory, dynamicClientFactory DynamicClientFactory) error {
+func (c *client) getK8sClients(crtClient CrtClient, discoveryClientFactory DiscoveryClientFactory, dynamicClientFactory DynamicClientFactory) error {
 	var discoveryClient discovery.DiscoveryInterface
 	config, err := clientcmd.LoadFromFile(c.kubeConfigPath)
 	if err != nil {
@@ -223,7 +222,7 @@ func (c *client) getK8sClients(CrtClient CrtClient, discoveryClientFactory Disco
 		return errors.Errorf("Unable to set up rest mapper due to : %v", err)
 	}
 
-	_, err = CrtClient.NewClient(restConfig, crtclient.Options{Scheme: scheme, Mapper: mapper})
+	_, err = crtClient.NewClient(restConfig, crtclient.Options{Scheme: scheme, Mapper: mapper})
 	if err != nil {
 		// TODO catch real errors that doesn't warrant retrying and abort
 		return errors.Errorf("Error getting controller client due to : %v", err)
@@ -242,7 +241,7 @@ func (c *client) getK8sClients(CrtClient CrtClient, discoveryClientFactory Disco
 	if err != nil {
 		return errors.Errorf("Error getting dynamic client due to : %v", err)
 	}
-	c.CrtClient = CrtClient
+	c.CrtClient = crtClient
 	c.DiscoveryClient = discoveryClient
 	c.DynamicClient = dynamicClient
 
@@ -295,9 +294,9 @@ type Options struct {
 }
 
 // NewOptions returns new options
-func NewOptions(CrtClient CrtClient, discoveryClientFactory DiscoveryClientFactory, dynamicClientFactory DynamicClientFactory) Options {
+func NewOptions(crtClient CrtClient, discoveryClientFactory DiscoveryClientFactory, dynamicClientFactory DynamicClientFactory) Options {
 	return Options{
-		CrtClient:              CrtClient,
+		CrtClient:              crtClient,
 		DiscoveryClientFactory: discoveryClientFactory,
 		DynamicClientFactory:   dynamicClientFactory,
 	}
@@ -313,8 +312,8 @@ type ClusterClientFactory interface {
 type clusterClientFactory struct{}
 
 // NewClient creates new clusterclient
-func (c *clusterClientFactory) NewClient(kubeConfigPath, context string, options Options) (Client, error) { //nolint:gocritic
-	return NewClient(kubeConfigPath, context, options)
+func (c *clusterClientFactory) NewClient(kubeConfigPath, contextStr string, options Options) (Client, error) {
+	return NewClient(kubeConfigPath, contextStr, options)
 }
 
 // NewClusterClientFactory creates new clusterclient factory

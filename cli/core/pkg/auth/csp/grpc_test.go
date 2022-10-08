@@ -18,6 +18,13 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
+var (
+	fakeHTTPClient *fakes.FakeHTTPClient
+)
+
+const accessTokenDummy = "AccessToken_dummy"
+const idTokenDummy = "IDToken_dummy"
+
 func Test(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "cli/core/pkg/auth/csp Suite")
@@ -31,8 +38,8 @@ var _ = Describe("Unit tests for grpc", func() {
 	)
 	Context("when token is not expired", func() {
 		BeforeEach(func() {
-			accessToken = "AccessToken_dummy"
-			idToken = "IDToken_dummy"
+			accessToken = accessTokenDummy
+			idToken = idTokenDummy
 			expiration := time.Now().Local().Add(time.Second * time.Duration(1000))
 			gsa := configapi.GlobalServerAuth{
 				Expiration:  metav1.NewTime(expiration),
@@ -51,8 +58,8 @@ var _ = Describe("Unit tests for grpc", func() {
 	})
 	Context("when token is expired", func() {
 		BeforeEach(func() {
-			accessToken = "AccessToken_dummy"
-			idToken = "IDToken_dummy"
+			accessToken = accessTokenDummy
+			idToken = idTokenDummy
 			expiration := time.Now().Local().Add(time.Second * time.Duration(-1000))
 			gsa := configapi.GlobalServerAuth{
 				Expiration:  metav1.NewTime(expiration),
@@ -60,8 +67,8 @@ var _ = Describe("Unit tests for grpc", func() {
 				IDToken:     idToken,
 			}
 			confSource = initializeConfigSource(gsa)
-			fakeHttpClient := &fakes.FakeHTTPClient{}
-			httpRestClient = fakeHttpClient
+			fakeHTTPClient = &fakes.FakeHTTPClient{}
+			httpRestClient = fakeHTTPClient
 			// successful case
 			responseBody := io.NopCloser(bytes.NewReader([]byte(`{
 				"id_token": "abc",
@@ -71,7 +78,7 @@ var _ = Describe("Unit tests for grpc", func() {
 				"access_token": "LetMeIn",
 				"refresh_token": "LetMeInAgain"}`)))
 
-			fakeHttpClient.DoReturns(&http.Response{
+			fakeHTTPClient.DoReturns(&http.Response{
 				StatusCode: 200,
 				Body:       responseBody,
 			}, nil)

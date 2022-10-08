@@ -1,3 +1,7 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// Package cluster_test provides unit test cases for cluster package
 package cluster_test
 
 import (

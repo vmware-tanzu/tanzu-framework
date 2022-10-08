@@ -24,13 +24,13 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-const issuerUrl = "https://auth0.com/"
+const issuerURL = "https://auth0.com/"
 
 var JWTHeader = `{"alg":"HS256","typ":"JWT"}`
 
 func TestGetAccessTokenFromAPIToken(t *testing.T) {
 	assert := assert.New(t)
-	fakeHttpClient := &fakes.FakeHTTPClient{}
+	fakeHTTPClient = &fakes.FakeHTTPClient{}
 	responseBody := io.NopCloser(bytes.NewReader([]byte(`{
 		"id_token": "abc",
 		"token_type": "Test",
@@ -38,12 +38,12 @@ func TestGetAccessTokenFromAPIToken(t *testing.T) {
 		"scope": "Test",
 		"access_token": "LetMeIn",
 		"refresh_token": "LetMeInAgain"}`)))
-	fakeHttpClient.DoReturns(&http.Response{
+	fakeHTTPClient.DoReturns(&http.Response{
 		StatusCode: 200,
 		Body:       responseBody,
 	}, nil)
-	httpRestClient = fakeHttpClient
-	token, err := GetAccessTokenFromAPIToken("asdas", issuerUrl)
+	httpRestClient = fakeHTTPClient
+	token, err := GetAccessTokenFromAPIToken("asdas", issuerURL)
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println("Error...................................")
@@ -61,14 +61,14 @@ func TestGetAccessTokenFromAPIToken_Err(t *testing.T) {
 }
 func TestGetAccessTokenFromAPIToken_FailStatus(t *testing.T) {
 	assert := assert.New(t)
-	fakeHttpClient := &fakes.FakeHTTPClient{}
+	fakeHTTPClient := &fakes.FakeHTTPClient{}
 	responseBody := io.NopCloser(bytes.NewReader([]byte(``)))
-	fakeHttpClient.DoReturns(&http.Response{
+	fakeHTTPClient.DoReturns(&http.Response{
 		StatusCode: 403,
 		Body:       responseBody,
 	}, nil)
-	httpRestClient = fakeHttpClient
-	token, err := GetAccessTokenFromAPIToken("asdas", issuerUrl)
+	httpRestClient = fakeHTTPClient
+	token, err := GetAccessTokenFromAPIToken("asdas", issuerURL)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "obtain access token")
 	assert.Nil(token)
@@ -76,7 +76,7 @@ func TestGetAccessTokenFromAPIToken_FailStatus(t *testing.T) {
 
 func TestGetAccessTokenFromAPIToken_InvalidResponse(t *testing.T) {
 	assert := assert.New(t)
-	fakeHttpClient := &fakes.FakeHTTPClient{}
+	fakeHTTPClient := &fakes.FakeHTTPClient{}
 	responseBody := io.NopCloser(bytes.NewReader([]byte(`[{
 		"id_token": "abc",
 		"token_type": "Test",
@@ -84,13 +84,13 @@ func TestGetAccessTokenFromAPIToken_InvalidResponse(t *testing.T) {
 		"scope": "Test",
 		"access_token": "LetMeIn",
 		"refresh_token": "LetMeInAgain"}]`)))
-	fakeHttpClient.DoReturns(&http.Response{
+	fakeHTTPClient.DoReturns(&http.Response{
 		StatusCode: 200,
 		Body:       responseBody,
 	}, nil)
-	httpRestClient = fakeHttpClient
+	httpRestClient = fakeHTTPClient
 
-	token, err := GetAccessTokenFromAPIToken("asdas", issuerUrl)
+	token, err := GetAccessTokenFromAPIToken("asdas", issuerURL)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "could not unmarshal")
 	assert.Nil(token)
@@ -258,7 +258,7 @@ func TestGetToken_Expired(t *testing.T) {
 		Type:         "client",
 	}
 
-	fakeHttpClient := &fakes.FakeHTTPClient{}
+	fakeHTTPClient := &fakes.FakeHTTPClient{}
 	responseBody := io.NopCloser(bytes.NewReader([]byte(`{
 		"id_token": "abc",
 		"token_type": "Test",
@@ -266,11 +266,11 @@ func TestGetToken_Expired(t *testing.T) {
 		"scope": "Test",
 		"access_token": "LetMeIn",
 		"refresh_token": "LetMeInAgain"}`)))
-	fakeHttpClient.DoReturns(&http.Response{
+	fakeHTTPClient.DoReturns(&http.Response{
 		StatusCode: 200,
 		Body:       responseBody,
 	}, nil)
-	httpRestClient = fakeHttpClient
+	httpRestClient = fakeHTTPClient
 
 	tok, err := GetToken(&serverAuth)
 	assert.Nil(err)

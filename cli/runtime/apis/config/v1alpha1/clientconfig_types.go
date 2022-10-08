@@ -1,7 +1,6 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:gocritic
 package v1alpha1
 
 import (

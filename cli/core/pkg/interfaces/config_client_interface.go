@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package interfaces is collection of generic interfaces
 package interfaces
 
 import (

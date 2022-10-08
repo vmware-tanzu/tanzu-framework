@@ -17,17 +17,17 @@ import (
 
 var (
 	httpArtifact   *HTTPArtifact
-	fakeHttpClient *fakes.FakeHTTPClient
+	fakeHTTPClient *fakes.FakeHTTPClient
 	responseBody   io.ReadCloser
 )
 
-const dummyUrl = "http://dummy.com"
+const dummyURL = "http://dummy.com"
 
 func initialize(url string) {
-	fakeHttpClient = &fakes.FakeHTTPClient{}
+	fakeHTTPClient = &fakes.FakeHTTPClient{}
 	httpArtifact = &HTTPArtifact{
 		URL:        url,
-		HttpClient: fakeHttpClient,
+		HTTPClient: fakeHTTPClient,
 	}
 	responseBody = io.NopCloser(bytes.NewReader([]byte(`{"name":"dummy name"}`)))
 }
@@ -36,12 +36,12 @@ func TestHttpArtifact_successful(t *testing.T) {
 	assert := assert.New(t)
 
 	// test NewHTTPArtifact()
-	artifactObj := NewHTTPArtifact(dummyUrl)
+	artifactObj := NewHTTPArtifact(dummyURL)
 	assert.NotNil(artifactObj)
 
-	initialize(dummyUrl)
+	initialize(dummyURL)
 	// successful case
-	fakeHttpClient.DoReturns(&http.Response{
+	fakeHTTPClient.DoReturns(&http.Response{
 		StatusCode: 200,
 		Body:       responseBody,
 	}, nil)
@@ -53,23 +53,23 @@ func TestHttpArtifact_successful(t *testing.T) {
 
 func TestHttpArtifact_statusCode500(t *testing.T) {
 	assert := assert.New(t)
-	initialize(dummyUrl)
+	initialize(dummyURL)
 	// return 500 status code
-	fakeHttpClient.DoReturns(&http.Response{
+	fakeHTTPClient.DoReturns(&http.Response{
 		StatusCode: 500,
 		Body:       responseBody,
 	}, nil)
-	errorMsg := fmt.Sprintf(ErrorMsgHTTPArtifactDownload, dummyUrl, 500)
+	errorMsg := fmt.Sprintf(ErrorMsgHTTPArtifactDownload, dummyURL, 500)
 	_, err1 := httpArtifact.Fetch()
 	assert.Contains(err1.Error(), errorMsg)
 }
 
 func TestHttpArtifact_errorResponse(t *testing.T) {
 	assert := assert.New(t)
-	initialize(dummyUrl)
+	initialize(dummyURL)
 	// returns error for the rest call
 	errorMsg := "internal server error"
-	fakeHttpClient.DoReturns(&http.Response{
+	fakeHTTPClient.DoReturns(&http.Response{
 		StatusCode: 500,
 		Body:       responseBody,
 	}, fmt.Errorf(errorMsg))
