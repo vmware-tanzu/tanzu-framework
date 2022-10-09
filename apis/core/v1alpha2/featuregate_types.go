@@ -1,7 +1,7 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package v1alpha1
+package v1alpha2
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,13 +14,13 @@ type FeatureReference struct {
 	Name string `json:"name"`
 	// Activate indicates the activation intent for the feature.
 	Activate bool `json:"activate,omitempty"`
+	// SkipStabilityValidation lets you skip the validation performed when activating an unstable feature.
+	// Once set to true, cannot be set back to false
+	SkipStabilityValidation bool `json:"skipStabilityValidation,omitempty"`
 }
 
 // FeatureGateSpec defines the desired state of FeatureGate
 type FeatureGateSpec struct {
-	// NamespaceSelector is a selector to specify namespaces for which this feature gate applies.
-	// Use an empty LabelSelector to match all namespaces.
-	NamespaceSelector metav1.LabelSelector `json:"namespaceSelector"`
 	// Features is a slice of FeatureReference to gate features.
 	// The Feature resource specified may or may not be present in the system. If the Feature is present, the
 	// FeatureGate controller and webhook sets the specified activation state only if the Feature is discoverable and
@@ -33,26 +33,33 @@ type FeatureGateSpec struct {
 
 // FeatureGateStatus defines the observed state of FeatureGate
 type FeatureGateStatus struct {
-	// Namespaces lists the existing namespaces for which this feature gate applies. This is obtained from listing all
-	// namespaces and applying the NamespaceSelector specified in spec.
-	Namespaces []string `json:"namespaces,omitempty"`
-	// ActivatedFeatures lists the discovered features that are activated for the namespaces specified in the spec.
-	// This can include features that are not explicitly gated in the spec, but are already available in the system as
-	// Feature resources.
-	ActivatedFeatures []string `json:"activatedFeatures,omitempty"`
-	// DeactivatedFeatures lists the discovered features that are deactivated for the namespaces specified in the spec.
-	// This can include features that are not explicitly gated in the spec, but are already available in the system as
-	// Feature resources.
-	DeactivatedFeatures []string `json:"deactivatedFeatures,omitempty"`
-	// UnavailableFeatures lists the features that are gated in the spec, but are not available in the system as
-	// Feature resources.
-	UnavailableFeatures []string `json:"unavailableFeatures,omitempty"`
+	// Results represents the results of all the features specified in the FeatureGate spec.
+	// +listType=map
+	// +listMapKey=name
+	Results []Result `json:"results"`
+}
+
+// Result represents the result of Feature.
+type Result struct {
+	// Name is the name of the feature.
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength:=1
+	Name string `json:"name"`
+	// Status represents the outcome of the feature operation specified in the spec
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Enum=applied;no-op;invalid
+	// - applied: represents feature toggle has been successfully applied.
+	// - no-op: represent no operation has been done, feature is already in the intended state.
+	// - invalid: represents that the intended state of the feature is invalid.
+	Status string `json:"status"`
+	// Message represents the reason for invalid status
+	// +optional
+	Message string `json:"message,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
-//+kubebuilder:deprecatedversion:warning="FeatureGate API in config.tanzu.vmware.com is deprecated. Use FeatureGate API from core.tanzu.vmware.com instead"
 
 // FeatureGate is the Schema for the featuregates API
 type FeatureGate struct {

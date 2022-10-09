@@ -1,7 +1,7 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package v1alpha1
+package v1alpha2
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,24 +14,22 @@ type FeatureSpec struct {
 	// Immutable indicates this feature cannot be toggled once set
 	// If set at creation time, this state will persist for the life of the cluster
 	Immutable bool `json:"immutable"`
-	// Discoverable indicates if clients should include consider the Feature available for their use
-	// Allowing clients to control discoverability is one of the ways the API allows gradual rollout of functionality
-	Discoverable bool `json:"discoverable"`
-	// Activated defines the default state of the features activation
-	Activated bool `json:"activated"`
-	// Maturity indicates maturity level of this feature.
-	// Maturity levels are Dev, Alpha, Beta, GA and Deprecated.
-	// +kubebuilder:validation:Enum=dev;alpha;beta;ga;deprecated
-	// - dev: the default for new resources, represents local dev. intended to be hidden and deactivated
-	// - alpha: the first milestone meant for limited wider consumption, discoverable and defaults to deactivated
-	// - beta: greater visibility for proven designs, discoverable and defaults to activated
-	// - ga: intended to be part of the mainline codebase, non-optional
-	// - deprecated: destined for future removal
-	Maturity string `json:"maturity"`
+	// Stability indicates stability level of this feature.
+	// Stability levels are Work In Progress, Experimental, Technical Preview, Stable and Deprecated.
+	// +kubebuilder:validation:Enum=Work In Progress;Experimental;Technical Preview;Stable;Deprecated
+	// - Work In Progress: the default for new resources, represents local dev. intended to be hidden and deactivated
+	// - Experimental: the first milestone meant for limited wider consumption, discoverable and defaults to deactivated
+	// - Technical Preview: greater visibility for proven designs, discoverable and defaults to activated
+	// - Stable: intended to be part of the mainline codebase, non-optional
+	// - Deprecated: destined for future removal
+	Stability string `json:"stability"`
 }
 
 // FeatureStatus defines the observed state of Feature
-type FeatureStatus struct{}
+type FeatureStatus struct {
+	// Activated is a boolean which indicates whether a feature is activated or not.
+	Activated bool `json:"activated,omitempty"`
+}
 
 // Feature is the Schema for the features API
 // +kubebuilder:object:root=true
@@ -39,8 +37,7 @@ type FeatureStatus struct{}
 // +kubebuilder:printcolumn:name="Activated",type=boolean,JSONPath=.spec.activated
 // +kubebuilder:printcolumn:name="Description",type=string,JSONPath=.spec.description
 // +kubebuilder:printcolumn:name="Immutable",type=boolean,JSONPath=.spec.immutable
-// +kubebuilder:printcolumn:name="Maturity",type=string,JSONPath=.spec.maturity
-// +kubebuilder:deprecatedversion:warning="Feature API in config.tanzu.vmware.com is deprecated. Use Feature API from core.tanzu.vmware.com instead"
+// +kubebuilder:printcolumn:name="Stability",type=string,JSONPath=.spec.maturity
 type Feature struct {
 	Status            FeatureStatus `json:"status,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

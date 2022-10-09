@@ -29,6 +29,9 @@ spec:
     - jsonPath: .spec.maturity
       name: Maturity
       type: string
+    deprecated: true
+    deprecationWarning: Feature API in config.tanzu.vmware.com is deprecated. Use
+      Feature API from core.tanzu.vmware.com instead
     name: v1alpha1
     schema:
       openAPIV3Schema:

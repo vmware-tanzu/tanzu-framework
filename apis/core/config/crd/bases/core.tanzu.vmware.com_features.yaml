@@ -5,9 +5,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
-  name: features.config.tanzu.vmware.com
+  name: features.core.tanzu.vmware.com
 spec:
-  group: config.tanzu.vmware.com
+  group: core.tanzu.vmware.com
   names:
     kind: Feature
     listKind: FeatureList
@@ -26,12 +26,9 @@ spec:
       name: Immutable
       type: boolean
     - jsonPath: .spec.maturity
-      name: Maturity
+      name: Stability
       type: string
-    deprecated: true
-    deprecationWarning: Feature API in config.tanzu.vmware.com is deprecated. Use
-      Feature API from core.tanzu.vmware.com instead
-    name: v1alpha1
+    name: v1alpha2
     schema:
       openAPIV3Schema:
         description: Feature is the Schema for the features API
@@ -51,47 +48,42 @@ spec:
           spec:
             description: FeatureSpec defines the desired state of Feature
             properties:
-              activated:
-                description: Activated defines the default state of the features activation
-                type: boolean
               description:
                 description: Description of the feature.
                 type: string
-              discoverable:
-                description: Discoverable indicates if clients should include consider
-                  the Feature available for their use Allowing clients to control
-                  discoverability is one of the ways the API allows gradual rollout
-                  of functionality
-                type: boolean
               immutable:
                 description: Immutable indicates this feature cannot be toggled once
                   set If set at creation time, this state will persist for the life
                   of the cluster
                 type: boolean
-              maturity:
-                description: 'Maturity indicates maturity level of this feature. Maturity
-                  levels are Dev, Alpha, Beta, GA and Deprecated. - dev: the default
-                  for new resources, represents local dev. intended to be hidden and
-                  deactivated - alpha: the first milestone meant for limited wider
-                  consumption, discoverable and defaults to deactivated - beta: greater
-                  visibility for proven designs, discoverable and defaults to activated
-                  - ga: intended to be part of the mainline codebase, non-optional
-                  - deprecated: destined for future removal'
+              stability:
+                description: 'Stability indicates stability level of this feature.
+                  Stability levels are Work In Progress, Experimental, Technical Preview,
+                  Stable and Deprecated. - Work In Progress: the default for new resources,
+                  represents local dev. intended to be hidden and deactivated - Experimental:
+                  the first milestone meant for limited wider consumption, discoverable
+                  and defaults to deactivated - Technical Preview: greater visibility
+                  for proven designs, discoverable and defaults to activated - Stable:
+                  intended to be part of the mainline codebase, non-optional - Deprecated:
+                  destined for future removal'
                 enum:
-                - dev
-                - alpha
-                - beta
-                - ga
-                - deprecated
+                - Work In Progress
+                - Experimental
+                - Technical Preview
+                - Stable
+                - Deprecated
                 type: string
             required:
-            - activated
-            - discoverable
             - immutable
-            - maturity
+            - stability
             type: object
           status:
             description: FeatureStatus defines the observed state of Feature
+            properties:
+              activated:
+                description: Activated is a boolean which indicates whether a feature
+                  is activated or not.
+                type: boolean
             type: object
         type: object
     served: true
