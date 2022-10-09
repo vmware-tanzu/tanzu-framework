@@ -15,7 +15,10 @@ spec:
     singular: featuregate
   scope: Cluster
   versions:
-  - name: v1alpha1
+  - deprecated: true
+    deprecationWarning: FeatureGate API in config.tanzu.vmware.com is deprecated.
+      Use FeatureGate API from core.tanzu.vmware.com instead
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: FeatureGate is the Schema for the featuregates API
