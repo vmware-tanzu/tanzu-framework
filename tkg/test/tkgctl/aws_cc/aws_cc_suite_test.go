@@ -160,7 +160,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	)
 }, func(data []byte) {
 	// Before each parallel node
-
 	parts := strings.Split(string(data), ",")
 	Expect(parts).To(HaveLen(2))
 

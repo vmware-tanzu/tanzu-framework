@@ -152,6 +152,7 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 
 		// verify addon resources are deleted successfully
 		By(fmt.Sprintf("Verify workload cluster %q resources have been deleted", clusterName))
+
 		Eventually(func() bool {
 			return clusterResourcesDeleted(ctx, mngClient, clusterResources)
 		}, resourceDeletionWaitTimeout, pollingInterval).Should(BeTrue())

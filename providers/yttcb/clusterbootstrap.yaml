@@ -167,6 +167,7 @@ kind: VSphereCSIConfig
 metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
+  annotations:
 spec:
   vsphereCSI:
     mode: vsphereCSI
