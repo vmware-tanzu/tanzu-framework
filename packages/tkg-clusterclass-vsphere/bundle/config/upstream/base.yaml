@@ -1410,6 +1410,8 @@ spec:
             names:
             - tkg-worker-windows
       jsonPatches:
+      - op: remove
+        path: /spec/template/spec/useExperimentalRetryJoin
       - op: add
         path: /spec/template/spec/joinConfiguration/nodeRegistration/criSocket
         value: npipe:////./pipe/containerd-containerd
