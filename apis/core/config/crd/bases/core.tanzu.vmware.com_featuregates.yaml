@@ -37,13 +37,8 @@ spec:
             properties:
               features:
                 description: Features is a slice of FeatureReference to gate features.
-                  The Feature resource specified may or may not be present in the
-                  system. If the Feature is present, the FeatureGate controller and
-                  webhook sets the specified activation state only if the Feature
-                  is discoverable and its immutability constraint is satisfied. If
-                  the Feature is not present, the activation intent is applied when
-                  the Feature resource appears in the system. The actual activation
-                  state of the Feature is reported in the status.
+                  Feature controller sets the specified activation state only if the
+                  Feature policy is satisfied.
                 items:
                   description: FeatureReference refers to a Feature resource and specifies
                     its intended activation state.
@@ -56,9 +51,9 @@ spec:
                       description: Name is the name of the Feature resource, which
                         represents a feature the system offers.
                       type: string
-                    skipStabilityValidation:
-                      description: SkipStabilityValidation lets you skip the validation
-                        performed when activating an unstable feature. Once set to
+                    permanentlyVoidAllSupportGuarantees:
+                      description: PermanentlyVoidAllSupportGuarantees when set to
+                        true permanently voids all support guarantees. Once set to
                         true, cannot be set back to false
                       type: boolean
                   required:
@@ -73,30 +68,27 @@ spec:
             description: Status reports activation state and availability of features
               in the system.
             properties:
-              results:
-                description: Results represents the results of all the features specified
-                  in the FeatureGate spec.
+              featureReferenceResults:
+                description: FeatureReferenceResult represents the results of all
+                  the features specified in the FeatureGate spec.
                 items:
-                  description: Result represents the result of Feature.
+                  description: FeatureReferenceResult represents the result of FeatureReference.
                   properties:
                     message:
-                      description: Message represents the reason for invalid status
+                      description: Message represents the reason for status
                       type: string
                     name:
                       description: Name is the name of the feature.
                       minLength: 1
                       type: string
                     status:
-                      description: 'Status represents the outcome of the feature operation
-                        specified in the spec - applied: represents feature toggle
-                        has been successfully applied. - no-op: represent no operation
-                        has been done, feature is already in the intended state. -
-                        invalid: represents that the intended state of the feature
-                        is invalid.'
+                      description: 'Status represents the outcome of the feature reference
+                        operation specified in the FeatureGate spec - Applied: represents
+                        feature toggle has been successfully applied. - Invalid: represents
+                        that the intended state of the feature is invalid.'
                       enum:
-                      - applied
-                      - no-op
-                      - invalid
+                      - Applied
+                      - Invalid
                       type: string
                   required:
                   - name
@@ -107,7 +99,7 @@ spec:
                 - name
                 x-kubernetes-list-type: map
             required:
-            - results
+            - featureReferenceResults
             type: object
         type: object
     served: true

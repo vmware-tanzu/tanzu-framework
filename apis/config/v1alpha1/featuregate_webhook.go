@@ -23,7 +23,7 @@ import (
 )
 
 // log is for logging in this package.
-var featuregatelog = logf.Log.WithName("featuregate-resource")
+var featuregatelog = logf.Log.WithName("featuregate-resource").WithValues("apigroup", "config")
 
 var cl client.Client
 
@@ -38,7 +38,7 @@ func getScheme() (*runtime.Scheme, error) {
 	return s, nil
 }
 
-// Get a cached client.
+// Get a cached client if it has been initiated.
 func (r *FeatureGate) getClient() (client.Client, error) {
 	if cl != nil && !reflect.ValueOf(cl).IsNil() {
 		return cl, nil

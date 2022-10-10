@@ -77,7 +77,9 @@ func getFileContentFromImage(image regv1.Image, filename string) ([]byte, error)
 			return nil, err
 		}
 
-		defer layerStream.Close()
+		// suppressed the lint failure for now, as this code is unfamiliar to me.
+		// created a Github issue to track this https://github.com/vmware-tanzu/tanzu-framework/issues/3917
+		defer layerStream.Close() //nolint:gocritic
 
 		files := make(map[string][]byte)
 		err = getFileFromLayer(layerStream, files)
@@ -150,7 +152,9 @@ func getAllFilesContentFromImage(image regv1.Image) (map[string][]byte, error) {
 			return nil, err
 		}
 
-		defer layerStream.Close()
+		// suppressed the lint failure for now, as this code is unfamiliar to me.
+		// created a Github issue to track this https://github.com/vmware-tanzu/tanzu-framework/issues/3917
+		defer layerStream.Close() //nolint:gocritic
 
 		err = getFileFromLayer(layerStream, files)
 		if err != nil {

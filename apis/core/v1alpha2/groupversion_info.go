@@ -1,4 +1,4 @@
-// Copyright YEAR VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 // Package v1alpha2 contains API Schema definitions for the core v1alpha2 API group

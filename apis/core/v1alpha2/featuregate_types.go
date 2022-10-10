@@ -14,18 +14,15 @@ type FeatureReference struct {
 	Name string `json:"name"`
 	// Activate indicates the activation intent for the feature.
 	Activate bool `json:"activate,omitempty"`
-	// SkipStabilityValidation lets you skip the validation performed when activating an unstable feature.
+	// PermanentlyVoidAllSupportGuarantees when set to true permanently voids all support guarantees.
 	// Once set to true, cannot be set back to false
-	SkipStabilityValidation bool `json:"skipStabilityValidation,omitempty"`
+	PermanentlyVoidAllSupportGuarantees bool `json:"permanentlyVoidAllSupportGuarantees,omitempty"`
 }
 
 // FeatureGateSpec defines the desired state of FeatureGate
 type FeatureGateSpec struct {
 	// Features is a slice of FeatureReference to gate features.
-	// The Feature resource specified may or may not be present in the system. If the Feature is present, the
-	// FeatureGate controller and webhook sets the specified activation state only if the Feature is discoverable and
-	// its immutability constraint is satisfied. If the Feature is not present, the activation intent is applied when
-	// the Feature resource appears in the system. The actual activation state of the Feature is reported in the status.
+	// Feature controller sets the specified activation state only if the Feature policy is satisfied.
 	// +listType=map
 	// +listMapKey=name
 	Features []FeatureReference `json:"features,omitempty"`
@@ -33,33 +30,41 @@ type FeatureGateSpec struct {
 
 // FeatureGateStatus defines the observed state of FeatureGate
 type FeatureGateStatus struct {
-	// Results represents the results of all the features specified in the FeatureGate spec.
+	// FeatureReferenceResult represents the results of all the features specified in the FeatureGate spec.
 	// +listType=map
 	// +listMapKey=name
-	Results []Result `json:"results"`
+	FeatureReferenceResults []FeatureReferenceResult `json:"featureReferenceResults"`
 }
 
-// Result represents the result of Feature.
-type Result struct {
+// FeatureReferenceStatus represents the status of the feature reference in the FeatureGate spec
+type FeatureReferenceStatus string
+
+const (
+	AppliedReferenceStatus FeatureReferenceStatus = "Applied"
+	InvalidReferenceStatus FeatureReferenceStatus = "Invalid"
+)
+
+// FeatureReferenceResult represents the result of FeatureReference.
+type FeatureReferenceResult struct {
 	// Name is the name of the feature.
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:MinLength:=1
 	Name string `json:"name"`
-	// Status represents the outcome of the feature operation specified in the spec
+	// Status represents the outcome of the feature reference operation specified in the FeatureGate spec
 	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Enum=applied;no-op;invalid
-	// - applied: represents feature toggle has been successfully applied.
-	// - no-op: represent no operation has been done, feature is already in the intended state.
-	// - invalid: represents that the intended state of the feature is invalid.
-	Status string `json:"status"`
-	// Message represents the reason for invalid status
+	// +kubebuilder:validation:Enum=Applied;Invalid
+	// - Applied: represents feature toggle has been successfully applied.
+	// - Invalid: represents that the intended state of the feature is invalid.
+	Status FeatureReferenceStatus `json:"status"`
+	// Message represents the reason for status
 	// +optional
 	Message string `json:"message,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:resource:scope=Cluster
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:resource:scope=Cluster
+// +kubebuilder:storageversion
 
 // FeatureGate is the Schema for the featuregates API
 type FeatureGate struct {
@@ -72,7 +77,7 @@ type FeatureGate struct {
 	Status FeatureGateStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // FeatureGateList contains a list of FeatureGate
 type FeatureGateList struct {

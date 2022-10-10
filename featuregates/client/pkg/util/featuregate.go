@@ -5,12 +5,15 @@ package util
 
 import (
 	"context"
+	"fmt"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 )
 
 const (
@@ -25,8 +28,10 @@ var TKGNamespaceSelector = metav1.LabelSelector{
 	},
 }
 
-// ComputeFeatureStates takes a FeatureGate spec and computes the actual state (activated, deactivated or unavailable)
-// of the features in the gate by referring to a list of Feature resources.
+// ComputeFeatureStates takes a configv1alpha1 FeatureGate spec and computes the actual state
+// (activated, deactivated or unavailable) of the features in the gate by referring to a list of Feature resources.
+// Deprecated: Use IsFeatureActivated function instead to check if a feature is activated. IsFeatureActivated function
+// checks for feature belonging to core.tanzu.vmware.com is activated or not.
 func ComputeFeatureStates(featureGateSpec configv1alpha1.FeatureGateSpec, features []configv1alpha1.Feature) (activated, deactivated, unavailable []string) {
 	// Collect features to be activated/deactivated in the spec.
 	toActivate := sets.String{}
@@ -83,6 +88,8 @@ func ComputeFeatureStates(featureGateSpec configv1alpha1.FeatureGateSpec, featur
 }
 
 // FeatureActivatedInNamespace returns true only if all of the features specified are activated in the namespace.
+// Deprecated: Use IsFeatureActivated function instead to check if a feature is activated. IsFeatureActivated function
+// checks for feature belonging to core.tanzu.vmware.com is activated or not.
 func FeatureActivatedInNamespace(ctx context.Context, c client.Client, namespace, feature string) (bool, error) {
 	selector := metav1.LabelSelector{
 		MatchExpressions: []metav1.LabelSelectorRequirement{
@@ -93,6 +100,8 @@ func FeatureActivatedInNamespace(ctx context.Context, c client.Client, namespace
 }
 
 // FeaturesActivatedInNamespacesMatchingSelector returns true only if all the features specified are activated in every namespace matched by the selector.
+// Deprecated: Use IsFeatureActivated function instead to check if a feature is activated. IsFeatureActivated function
+// checks for feature belonging to core.tanzu.vmware.com is activated or not.
 func FeaturesActivatedInNamespacesMatchingSelector(ctx context.Context, c client.Client, namespaceSelector metav1.LabelSelector, features []string) (bool, error) {
 	namespaces, err := NamespacesMatchingSelector(ctx, c, &namespaceSelector)
 	if err != nil {
@@ -130,4 +139,60 @@ func FeaturesActivatedInNamespacesMatchingSelector(ctx context.Context, c client
 		}
 	}
 	return true, nil
+}
+
+// IsFeatureActivated returns true only if the feature is activated.
+func IsFeatureActivated(ctx context.Context, c client.Client, featureName string) (bool, error) {
+	feature := &corev1alpha2.Feature{}
+	if err := c.Get(ctx, types.NamespacedName{
+		Name: featureName,
+	}, feature); err != nil {
+		return false, fmt.Errorf("could not retrieve feature %s :%w", featureName, err)
+	}
+
+	return feature.Status.Activated, nil
+}
+
+// GetFeatureGateForFeature returns FeatureGate resource that is gating the feature
+func GetFeatureGateForFeature(ctx context.Context, c client.Client, featureName string) (*corev1alpha2.FeatureGate, bool, error) {
+	featureGateList := &corev1alpha2.FeatureGateList{}
+	if err := c.List(ctx, featureGateList); err != nil {
+		return nil, false, fmt.Errorf("could not list FeatureGate resources: %w", err)
+	}
+
+	for i, fg := range featureGateList.Items { //nolint:gocritic
+		for _, f := range featureGateList.Items[i].Spec.Features {
+			if f.Name == featureName {
+				return &fg, true, nil
+			}
+		}
+	}
+	return nil, false, nil
+}
+
+// GetFeatureGateWithFeatureInStatus returns FeatureGate resource with feature in its status
+func GetFeatureGateWithFeatureInStatus(ctx context.Context, c client.Client, featureName string) (*corev1alpha2.FeatureGate, bool, error) {
+	featureGateList := &corev1alpha2.FeatureGateList{}
+	if err := c.List(ctx, featureGateList); err != nil {
+		return nil, false, fmt.Errorf("could not list FeatureGate resources: %w", err)
+	}
+
+	for i, fg := range featureGateList.Items { //nolint:gocritic
+		for _, result := range featureGateList.Items[i].Status.FeatureReferenceResults {
+			if result.Name == featureName {
+				return &fg, true, nil
+			}
+		}
+	}
+	return nil, false, nil
+}
+
+// GetFeatureReferenceFromFeatureGate returns feature reference from FeatureGate spec
+func GetFeatureReferenceFromFeatureGate(featureGate *corev1alpha2.FeatureGate, feature string) (corev1alpha2.FeatureReference, bool) {
+	for _, f := range featureGate.Spec.Features {
+		if f.Name == feature {
+			return f, true
+		}
+	}
+	return corev1alpha2.FeatureReference{}, false
 }

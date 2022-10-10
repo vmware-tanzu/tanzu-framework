@@ -16,17 +16,14 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.activated
-      name: Activated
-      type: boolean
     - jsonPath: .spec.description
       name: Description
       type: string
-    - jsonPath: .spec.immutable
-      name: Immutable
-      type: boolean
-    - jsonPath: .spec.maturity
+    - jsonPath: .spec.stability
       name: Stability
+      type: string
+    - jsonPath: .status.activated
+      name: Activated?
       type: string
     name: v1alpha2
     schema:
@@ -51,21 +48,28 @@ spec:
               description:
                 description: Description of the feature.
                 type: string
-              immutable:
-                description: Immutable indicates this feature cannot be toggled once
-                  set If set at creation time, this state will persist for the life
-                  of the cluster
-                type: boolean
               stability:
-                description: 'Stability indicates stability level of this feature.
+                description: 'Stability indicates stability level of the feature.
                   Stability levels are Work In Progress, Experimental, Technical Preview,
-                  Stable and Deprecated. - Work In Progress: the default for new resources,
-                  represents local dev. intended to be hidden and deactivated - Experimental:
-                  the first milestone meant for limited wider consumption, discoverable
-                  and defaults to deactivated - Technical Preview: greater visibility
-                  for proven designs, discoverable and defaults to activated - Stable:
-                  intended to be part of the mainline codebase, non-optional - Deprecated:
-                  destined for future removal'
+                  Stable and Deprecated. - Work In Progress: Feature is still under
+                  development. It is not ready to be used, except by the team working
+                  on it. Activating this feature is not recommended under any circumstances.
+                  - Experimental: Feature is not ready, but may be used in pre-production
+                  environments. However, if an experimental feature has ever been
+                  used in an environment, that environment will not be supported.
+                  Activating an experimental feature requires you to permanently,
+                  irrevocably void all support guarantees for this environment by
+                  setting permanentlyVoidAllSupportGuarantees in feature reference
+                  in featuregate spec to true. You will need to recreate the environment
+                  to return to a supported state. - Technical Preview: Feature is
+                  not ready, but is not believed to be dangerous. The feature itself
+                  is unsupported, but activating a technical preview feature does
+                  not affect the support status of the environment. - Stable: Feature
+                  is ready and fully supported - Deprecated: Feature is destined for
+                  removal, usage is discouraged. Deactivate this feature prior to
+                  upgrading to a release which has removed it to validate that you
+                  are not still using it and to prevent users from introducing new
+                  usage of it.'
                 enum:
                 - Work In Progress
                 - Experimental
@@ -74,7 +78,7 @@ spec:
                 - Deprecated
                 type: string
             required:
-            - immutable
+            - description
             - stability
             type: object
           status:
@@ -84,6 +88,8 @@ spec:
                 description: Activated is a boolean which indicates whether a feature
                   is activated or not.
                 type: boolean
+            required:
+            - activated
             type: object
         type: object
     served: true

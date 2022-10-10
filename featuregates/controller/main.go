@@ -21,8 +21,10 @@ import (
 	// +kubebuilder:scaffold:imports
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/featuregate"
+	coreFeatureController "github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/feature"
+	configFeatureGateController "github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/featuregate"
 )
 
 var (
@@ -33,6 +35,7 @@ var (
 func init() {
 	utilruntime.Must(k8sscheme.AddToScheme(scheme))
 	utilruntime.Must(configv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(corev1alpha2.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -81,17 +84,31 @@ func main() {
 		}
 		mgr.GetWebhookServer().TLSOpts = append(mgr.GetWebhookServer().TLSOpts, cipherSuitesSetFunc)
 	}
-	if err = (&featuregate.FeatureGateReconciler{
+	if err = (&configFeatureGateController.FeatureGateReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("FeatureGate"),
+		Log:    ctrl.Log.WithName("controllers").WithName("FeatureGate").WithValues("apigroup", "config"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "FeatureGate")
+		setupLog.Error(err, "unable to create controller", "controller", "FeatureGate", "apigroup", "config")
+		os.Exit(1)
+	}
+
+	if err = (&coreFeatureController.FeatureReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("Feature").WithValues("apigroup", "core"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Feature", "apigroup", "core")
 		os.Exit(1)
 	}
 
 	if err = (&configv1alpha1.FeatureGate{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "FeatureGate")
+		setupLog.Error(err, "unable to create webhook", "webhook", "FeatureGate", "apigroup", "config")
+		os.Exit(1)
+	}
+
+	if err = (&corev1alpha2.FeatureGate{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "FeatureGate", "apigroup", "core")
 		os.Exit(1)
 	}
 

@@ -7,6 +7,7 @@ import (
 	"context"
 	"strings"
 	"testing"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,7 +16,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	stringcmp "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cmp/strings"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
+	stringcmp "github.com/vmware-tanzu/tanzu-framework/util/cmp/strings"
 )
 
 func TestComputeFeatureStates(t *testing.T) {
@@ -301,6 +303,297 @@ func TestFeaturesActivatedInNamespacesMatchingSelector(t *testing.T) {
 			}
 			if got != tc.want {
 				t.Errorf("feature activation: got %t, want %t", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestIsFeatureActivated(t *testing.T) {
+	scheme, err := corev1alpha2.SchemeBuilder.Build()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	features := []runtime.Object{
+		&corev1alpha2.Feature{
+			ObjectMeta: metav1.ObjectMeta{Name: "foo"},
+			Spec:       corev1alpha2.FeatureSpec{Description: "foo", Stability: "Stable"},
+			Status:     corev1alpha2.FeatureStatus{Activated: true},
+		},
+		&corev1alpha2.Feature{
+			ObjectMeta: metav1.ObjectMeta{Name: "bar"},
+			Spec:       corev1alpha2.FeatureSpec{Description: "bar", Stability: "Technical Preview"},
+			Status:     corev1alpha2.FeatureStatus{Activated: false},
+		},
+	}
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(features...).Build()
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	testCases := []struct {
+		description string
+		featureName string
+		want        bool
+		returnErr   bool
+	}{
+		{
+			description: "should return true for activated feature",
+			featureName: "foo",
+			want:        true,
+			returnErr:   false,
+		},
+		{
+			description: "should return false for deactivated feature",
+			featureName: "bar",
+			want:        false,
+			returnErr:   false,
+		},
+		{
+			description: "should return error when feature doesn't exist",
+			featureName: "baz",
+			want:        false,
+			returnErr:   true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			activated, err := IsFeatureActivated(ctx, fakeClient, tc.featureName)
+			if err != nil {
+				if !tc.returnErr {
+					t.Errorf("error not expected, but got error: %v", err)
+				}
+			} else if tc.returnErr {
+				if err == nil {
+					t.Errorf("error expected, but got nothing")
+				}
+			} else {
+				if activated != tc.want {
+					t.Errorf("returned activated state is not expected")
+				}
+			}
+		})
+	}
+}
+
+func TestGetFeatureGateForFeature(t *testing.T) {
+	scheme, err := corev1alpha2.SchemeBuilder.Build()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	features := []runtime.Object{
+		&corev1alpha2.Feature{
+			ObjectMeta: metav1.ObjectMeta{Name: "foo"},
+			Spec:       corev1alpha2.FeatureSpec{Description: "foo", Stability: "Stable"},
+		},
+		&corev1alpha2.Feature{
+			ObjectMeta: metav1.ObjectMeta{Name: "bar"},
+			Spec:       corev1alpha2.FeatureSpec{Description: "bar", Stability: "Technical Preview"},
+		},
+		&corev1alpha2.Feature{
+			ObjectMeta: metav1.ObjectMeta{Name: "baz"},
+			Spec:       corev1alpha2.FeatureSpec{Description: "baz", Stability: "Technical Preview"},
+		},
+	}
+	featureGates := []runtime.Object{
+		&corev1alpha2.FeatureGate{
+			ObjectMeta: metav1.ObjectMeta{Name: "my-featuregate"},
+			Spec: corev1alpha2.FeatureGateSpec{
+				Features: []corev1alpha2.FeatureReference{
+					{Name: "foo", Activate: true},
+					{Name: "bar", Activate: false},
+				},
+			},
+		},
+	}
+	var objs []runtime.Object
+	objs = append(objs, featureGates...)
+	objs = append(objs, features...)
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objs...).Build()
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	testCases := []struct {
+		description           string
+		featureName           string
+		want                  bool
+		wantedFeatureGateName string
+		returnErr             bool
+	}{
+		{
+			description:           "should return true when feature is found in any featuregate",
+			featureName:           "foo",
+			want:                  true,
+			wantedFeatureGateName: "my-featuregate",
+			returnErr:             false,
+		},
+		{
+			description:           "should return false when feature is not found in any featuregate",
+			featureName:           "bax",
+			want:                  false,
+			wantedFeatureGateName: "",
+			returnErr:             false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			fg, found, err := GetFeatureGateForFeature(ctx, fakeClient, tc.featureName)
+			if err != nil {
+				if !tc.returnErr {
+					t.Errorf("error not expected, but got error: %v", err)
+				}
+			} else if tc.returnErr {
+				if err == nil {
+					t.Errorf("error expected, but got nothing")
+				}
+			} else {
+				if found != tc.want {
+					t.Errorf("unexpected result")
+				}
+				if fg != nil && fg.Name != tc.wantedFeatureGateName {
+					t.Errorf("featuregate returned is not expected ")
+				}
+			}
+		})
+	}
+}
+
+func TestGetFeatureGateWithFeatureInStatus(t *testing.T) {
+	scheme, err := corev1alpha2.SchemeBuilder.Build()
+	if err != nil {
+		t.Fatal(err)
+	}
+	features := []runtime.Object{
+		&corev1alpha2.Feature{
+			ObjectMeta: metav1.ObjectMeta{Name: "foo"},
+			Spec:       corev1alpha2.FeatureSpec{Description: "foo", Stability: "Stable"},
+		},
+		&corev1alpha2.Feature{
+			ObjectMeta: metav1.ObjectMeta{Name: "bar"},
+			Spec:       corev1alpha2.FeatureSpec{Description: "bar", Stability: "Technical Preview"},
+		},
+		&corev1alpha2.Feature{
+			ObjectMeta: metav1.ObjectMeta{Name: "baz"},
+			Spec:       corev1alpha2.FeatureSpec{Description: "baz", Stability: "Experimental"},
+		},
+	}
+	featureGates := []runtime.Object{
+		&corev1alpha2.FeatureGate{
+			ObjectMeta: metav1.ObjectMeta{Name: "my-featuregate"},
+			Spec: corev1alpha2.FeatureGateSpec{
+				Features: []corev1alpha2.FeatureReference{
+					{Name: "foo", Activate: true},
+					{Name: "bar", Activate: false},
+				},
+			},
+			Status: corev1alpha2.FeatureGateStatus{FeatureReferenceResults: []corev1alpha2.FeatureReferenceResult{
+				{
+					Name:    "foo",
+					Status:  "Applied",
+					Message: "Feature has been toggled",
+				},
+				{
+					Name:    "bar",
+					Status:  "Invalid",
+					Message: "Toggling this feature voids the warranty",
+				},
+			}},
+		},
+	}
+	var objs []runtime.Object
+	objs = append(objs, featureGates...)
+	objs = append(objs, features...)
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objs...).Build()
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	testCases := []struct {
+		description           string
+		featureName           string
+		want                  bool
+		wantedFeatureGateName string
+		returnErr             bool
+	}{
+		{
+			description:           "should return true when feature is found in any featuregate status",
+			featureName:           "foo",
+			want:                  true,
+			wantedFeatureGateName: "my-featuregate",
+			returnErr:             false,
+		},
+		{
+			description:           "should return false when feature is not found in any featuregate status",
+			featureName:           "baz",
+			want:                  false,
+			wantedFeatureGateName: "",
+			returnErr:             false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			fg, found, err := GetFeatureGateWithFeatureInStatus(ctx, fakeClient, tc.featureName)
+			if err != nil {
+				if !tc.returnErr {
+					t.Errorf("error not expected, but got error: %v", err)
+				}
+			} else if tc.returnErr {
+				if err == nil {
+					t.Errorf("error expected, but got nothing")
+				}
+			} else {
+				if found != tc.want {
+					t.Errorf("unexpected result")
+				}
+				if fg != nil && fg.Name != tc.wantedFeatureGateName {
+					t.Errorf("featuregate returned is not expected ")
+				}
+			}
+		})
+	}
+}
+
+func TestGetFeatureReferenceFromFeatureGate(t *testing.T) {
+	featureGate := &corev1alpha2.FeatureGate{
+		ObjectMeta: metav1.ObjectMeta{Name: "my-featuregate"},
+		Spec: corev1alpha2.FeatureGateSpec{
+			Features: []corev1alpha2.FeatureReference{
+				{Name: "foo", Activate: true},
+				{Name: "bar", Activate: false},
+			},
+		},
+	}
+
+	testCases := []struct {
+		description string
+		featureName string
+		want        bool
+	}{
+		{
+			description: "should return true when feature reference is found for feature in a particular featuregate spec",
+			featureName: "foo",
+			want:        true,
+		},
+		{
+			description: "should return false when feature reference is not found for feature in a particular featuregate spec",
+			featureName: "baz",
+			want:        false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			featRef, found := GetFeatureReferenceFromFeatureGate(featureGate, tc.featureName)
+			if found {
+				if found != tc.want {
+					t.Errorf("feature ref not expected but found")
+				}
+				if featRef.Name != tc.featureName {
+					t.Errorf("expected feature ref is not returned")
+				}
 			}
 		})
 	}

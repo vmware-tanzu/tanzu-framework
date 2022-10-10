@@ -5,18 +5,20 @@ go 1.18
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../apis/config
-	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
+	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../apis/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/featuregates/client => ../client
+	github.com/vmware-tanzu/tanzu-framework/util => ../../util
 )
 
 require (
 	github.com/go-logr/logr v1.2.3
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.19.0
+	github.com/onsi/gomega v1.20.2
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220824221239-af5a644ffef7
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20220903051053-2c30a8bcc794
-	github.com/vmware-tanzu/tanzu-framework/featuregates/client v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/featuregates/client v0.0.0-20221024130358-59eae49d96aa
 	k8s.io/api v0.24.4
 	k8s.io/apimachinery v0.24.4
 	k8s.io/client-go v0.24.4
