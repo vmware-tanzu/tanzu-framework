@@ -15,6 +15,7 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+	rtversion "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/version"
 )
 
 // NewTestFor creates a plugin descriptor for a test plugin.
@@ -169,6 +170,7 @@ func ApplyDefaultConfig(p *cliv1alpha1.PluginDescriptor) {
 	if p.Version == "" {
 		p.Version = BuildVersion
 	}
+	p.PluginRuntimeVersion = rtversion.Version
 	if p.PostInstallHook == nil {
 		p.PostInstallHook = func() error {
 			return nil
