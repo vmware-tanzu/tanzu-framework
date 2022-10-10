@@ -32,7 +32,7 @@ const inputFileVsphere = "../fakes/config/cluster_vsphere.yaml"
 const inputFileTKGSClusterClass = "../fakes/config/cluster_tkgs.yaml"
 const inputFileTKGSTKC = "../fakes/config/cluster_tkgs_tkc.yaml"
 const inputFileLegacy = "../fakes/config/cluster1_config.yaml"
-const errFeatureStatus = "error while checking feature status in featuregate" //nolint:goimports
+const errFeatureStatus = "error while checking feature status in featuregate"
 
 var testingDir string
 

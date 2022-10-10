@@ -230,7 +230,6 @@ func createTemplateQueryFromTKRData(tkrDataValue *resolver_cluster.TKRDataValue)
 		OVAVersion: ovaVersion,
 		OSInfo:     osInfo,
 	}, nil
-
 }
 
 func (cw *Webhook) processAndSetResult(result templateresolver.Result, cluster *clusterv1.Cluster, cpData *mdDataValue, mdDatas []*mdDataValue) error {

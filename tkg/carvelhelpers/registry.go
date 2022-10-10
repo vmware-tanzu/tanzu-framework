@@ -29,7 +29,7 @@ func GetFilesMapFromImage(imageWithTag string) (map[string][]byte, error) {
 }
 
 // DownloadImageBundleAndSaveFilesToDir reads OCI image and saves file to the specified directory
-func DownloadImageBundleAndSaveFilesToDir(imageWithTag string, dir string) error {
+func DownloadImageBundleAndSaveFilesToDir(imageWithTag, dir string) error {
 	reg, err := newRegistry()
 	if err != nil {
 		return errors.Wrapf(err, "unable to initialize registry")
@@ -48,7 +48,7 @@ func DownloadImageBundleAndSaveFilesToTempDir(imageWithTag string) (string, erro
 	if err != nil {
 		return "", errors.Wrap(err, "error creating temporary directory")
 	}
-	if err = DownloadImageBundleAndSaveFilesToDir(imageWithTag, tmpDir); err != nil {
+	if err := DownloadImageBundleAndSaveFilesToDir(imageWithTag, tmpDir); err != nil {
 		return "", err
 	}
 	return tmpDir, nil

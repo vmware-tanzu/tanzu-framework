@@ -25,7 +25,7 @@ func NewResolver(log logr.Logger) *Resolver {
 	return &Resolver{Log: log}
 }
 
-// getVSphereEndpoint gets vsphere client based on credentials set in config variables
+// GetVSphereEndpoint gets vsphere client based on credentials set in config variables
 func (r *Resolver) GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, error) {
 	host := strings.TrimSpace(svrContext.Server)
 	if !strings.HasPrefix(host, "http") {

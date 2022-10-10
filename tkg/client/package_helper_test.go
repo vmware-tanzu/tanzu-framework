@@ -27,7 +27,6 @@ const (
 	packageNotFound = "package not found"
 )
 
-//nolint:goimports
 var (
 	fakeMgtClusterClient *fakes.ClusterClient
 	fakeWcClusterClient  *fakes.ClusterClient
