@@ -11,26 +11,3 @@
 
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 
-#@ if data.values.CLUSTER_PLAN == "prodcc" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
-#@overlay/match by=overlay.subset({"kind": "Cluster"})
----
-apiVersion: cluster.x-k8s.io/v1beta1
-kind: Cluster
-spec:
-  topology:
-    workers:
-      machineDeployments:
-      #@overlay/match by=overlay.index(0)
-      - replicas: #@ data.values.WORKER_MACHINE_COUNT_0
-        #@overlay/match missing_ok=True
-        failureDomain: #@ data.values.VSPHERE_AZ_0
-      #@overlay/append
-      - class: tkg-worker
-        name: tkg-md-1
-        replicas: #@ data.values.WORKER_MACHINE_COUNT_1
-        failureDomain: #@ data.values.VSPHERE_AZ_1
-      - class: tkg-worker
-        name: tkg-md-2
-        replicas: #@ data.values.WORKER_MACHINE_COUNT_2
-        failureDomain: #@ data.values.VSPHERE_AZ_2
-#@ end
