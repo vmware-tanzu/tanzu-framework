@@ -29,7 +29,7 @@ YTT_VERSION=v0.40.0
 KBLD_VERSION=v0.31.0
 KAPP_VERSION=v0.42.0
 VENDIR_VERSION=v0.23.0
-VALE_VERSION=2.17.0
+VALE_VERSION=2.20.1
 K8S_VERSION=1.23.5
 
 # Host information.
@@ -104,8 +104,10 @@ $(GOBINDATA): go.mod go.sum # Build go-bindata
 vale: $(VALE)
 $(VALE):
 	mkdir -p $(BIN_DIR)
-	# vale uses macOS for darwin, Linux for linux and 64 for amd64, so manually map them
-	curl -sfL https://github.com/errata-ai/vale/releases/download/v$(VALE_VERSION)/vale_$(VALE_VERSION)_$(shell echo $(HOST_OS) | sed 's,darwin,macOS,g'| sed 's,linux,Linux,g')_$(shell echo $(HOST_ARCH) | sed 's,amd,,g')-bit.tar.gz | tar -xz -C /tmp/
+	# vale uses 'macOS' for darwin, 'Linux' for linux, '64-bit' for amd64 (yet arm64 remains unchanged)
+	# for its release asset naming, so manually map them
+	curl -sfL https://github.com/errata-ai/vale/releases/download/v$(VALE_VERSION)/vale_$(VALE_VERSION)_$(shell echo $(HOST_OS) | \
+		sed 's,darwin,macOS,g'| sed 's,linux,Linux,g')_$(shell echo $(HOST_ARCH) | sed 's,amd64,64-bit,g').tar.gz | tar -xz -C /tmp/
 	mv /tmp/vale $(@)
 	chmod a+x $(@)
 
