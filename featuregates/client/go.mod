@@ -3,24 +3,18 @@ module github.com/vmware-tanzu/tanzu-framework/featuregates/client
 go 1.18
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework => ../../
-	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../apis/cli
+	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../apis/config
-	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
-	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ../../capabilities/client
-	github.com/vmware-tanzu/tanzu-framework/cli/core => ../../cli/core
+	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../apis/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../cli/runtime
-	github.com/vmware-tanzu/tanzu-framework/packageclients => ../../packageclients
-	github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr => ../../pkg/v1/tkr
-	github.com/vmware-tanzu/tanzu-framework/tkg => ../../tkg
-	github.com/vmware-tanzu/tanzu-framework/tkr => ../../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../../util
 )
 
 require (
-	github.com/vmware-tanzu/tanzu-framework v0.26.0-dev.0.20220824221239-af5a644ffef7
-	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220824221239-af5a644ffef7
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20220901171806-254f018f3ce4
+	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000
 	k8s.io/api v0.24.4
 	k8s.io/apimachinery v0.24.4
 	k8s.io/client-go v0.24.4
@@ -60,14 +54,18 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/onsi/ginkgo/v2 v2.1.6 // indirect
+	github.com/onsi/gomega v1.20.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/term v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect

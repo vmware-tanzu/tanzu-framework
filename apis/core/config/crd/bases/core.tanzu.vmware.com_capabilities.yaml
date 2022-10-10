@@ -516,30 +516,122 @@ spec:
                 description: Results represents the results of all the queries specified
                   in the spec.
                 items:
-                  description: Result represents the result of Feature.
+                  description: Result represents the results of queries in Query.
                   properties:
-                    message:
-                      description: Message represents the reason for invalid status
-                      type: string
+                    groupVersionResources:
+                      description: GroupVersionResources represents results of GVR
+                        queries in spec.
+                      items:
+                        description: QueryResult represents the result of a single
+                          query.
+                        properties:
+                          error:
+                            description: Error indicates if an error occurred while
+                              processing the query.
+                            type: boolean
+                          errorDetail:
+                            description: ErrorDetail represents the error detail,
+                              if an error occurred.
+                            type: string
+                          found:
+                            description: Found is a boolean which indicates if the
+                              query condition succeeded.
+                            type: boolean
+                          name:
+                            description: Name is the name of the query in spec whose
+                              result this struct represents.
+                            minLength: 1
+                            type: string
+                          notFoundReason:
+                            description: NotFoundReason provides the reason if the
+                              query condition fails. This is non-empty when Found
+                              is false.
+                            type: string
+                        required:
+                        - name
+                        type: object
+                      type: array
+                      x-kubernetes-list-map-keys:
+                      - name
+                      x-kubernetes-list-type: map
                     name:
-                      description: Name is the name of the feature.
+                      description: Name is the unique name of the query.
                       minLength: 1
                       type: string
-                    status:
-                      description: 'Status represents the outcome of the feature operation
-                        specified in the spec - applied: represents feature toggle
-                        has been successfully applied. - no-op: represent no operation
-                        has been done, feature is already in the intended state. -
-                        invalid: represents that the intended state of the feature
-                        is invalid.'
-                      enum:
-                      - applied
-                      - no-op
-                      - invalid
-                      type: string
+                    objects:
+                      description: Objects represents results of Object queries in
+                        spec.
+                      items:
+                        description: QueryResult represents the result of a single
+                          query.
+                        properties:
+                          error:
+                            description: Error indicates if an error occurred while
+                              processing the query.
+                            type: boolean
+                          errorDetail:
+                            description: ErrorDetail represents the error detail,
+                              if an error occurred.
+                            type: string
+                          found:
+                            description: Found is a boolean which indicates if the
+                              query condition succeeded.
+                            type: boolean
+                          name:
+                            description: Name is the name of the query in spec whose
+                              result this struct represents.
+                            minLength: 1
+                            type: string
+                          notFoundReason:
+                            description: NotFoundReason provides the reason if the
+                              query condition fails. This is non-empty when Found
+                              is false.
+                            type: string
+                        required:
+                        - name
+                        type: object
+                      type: array
+                      x-kubernetes-list-map-keys:
+                      - name
+                      x-kubernetes-list-type: map
+                    partialSchemas:
+                      description: PartialSchemas represents results of PartialSchema
+                        queries in spec.
+                      items:
+                        description: QueryResult represents the result of a single
+                          query.
+                        properties:
+                          error:
+                            description: Error indicates if an error occurred while
+                              processing the query.
+                            type: boolean
+                          errorDetail:
+                            description: ErrorDetail represents the error detail,
+                              if an error occurred.
+                            type: string
+                          found:
+                            description: Found is a boolean which indicates if the
+                              query condition succeeded.
+                            type: boolean
+                          name:
+                            description: Name is the name of the query in spec whose
+                              result this struct represents.
+                            minLength: 1
+                            type: string
+                          notFoundReason:
+                            description: NotFoundReason provides the reason if the
+                              query condition fails. This is non-empty when Found
+                              is false.
+                            type: string
+                        required:
+                        - name
+                        type: object
+                      type: array
+                      x-kubernetes-list-map-keys:
+                      - name
+                      x-kubernetes-list-type: map
                   required:
                   - name
-                  - status
                   type: object
                 type: array
                 x-kubernetes-list-map-keys:

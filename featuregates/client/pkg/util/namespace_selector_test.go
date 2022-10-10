@@ -14,7 +14,7 @@ import (
 	k8sscheme "k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	stringcmp "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cmp/strings"
+	stringcmp "github.com/vmware-tanzu/tanzu-framework/util/cmp/strings"
 )
 
 func TestNamespacesMatchingSelector(t *testing.T) {
