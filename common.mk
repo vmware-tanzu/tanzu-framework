@@ -98,7 +98,8 @@ GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
 VALE               := $(TOOLS_BIN_DIR)/vale
 YQ                 := $(TOOLS_BIN_DIR)/yq
 CONVERSION_GEN     := $(TOOLS_BIN_DIR)/conversion-gen
-TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN)
+COUNTERFEITER      := $(TOOLS_BIN_DIR)/counterfeiter
+TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN) $(COUNTERFEITER)
 
 ## --------------------------------------
 ##@ API/controller building and generation

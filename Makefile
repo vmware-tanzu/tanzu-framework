@@ -167,6 +167,7 @@ generate-go: $(COUNTERFEITER) ## Generate code via go generate.
 		echo "-- Running go generate ./... $$i --"; \
 		pushd $${i}; \
 		PATH=$(abspath hack/tools/bin):"$(PATH)" go generate ./...; \
+		$(MAKE) fmt; \
 		popd; \
 	done
 
@@ -609,7 +610,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 .PHONY: verify
 verify: modules ## Run all verification scripts
 verify: ## Run all verification scripts
-	$(MAKE) smoke-build
+	$(MAKE) smoke-build generate-go generate
 	./packages/tkg-clusterclass/hack/sync-cc.sh
 	./hack/verify-dirty.sh
 
