@@ -58,7 +58,7 @@ all: test ## Tests the library
 .PHONY: configure-version
 configure-version: ## Configure plugin runtime version
 	# Update plugin runtime version variable in version pkg
-	sed "s+TANZU_PLUGIN_RUNTIME_VERSION+${BUILD_VERSION}+g"  hack/update-bundled-plugin-runtime-version/update-bundled-plugin-runtime-version.txt  > version/zz_bundled_plugin_runtime_version.go
+	sed "s+TANZU_PLUGIN_RUNTIME_VERSION+${BUILD_VERSION}+g"  hack/update-bundled-plugin-runtime-version/update-bundled-plugin-runtime-version.txt  > version/zz_generated_plugin_runtime_version.go
 
 ## --------------------------------------
 ## Testing
