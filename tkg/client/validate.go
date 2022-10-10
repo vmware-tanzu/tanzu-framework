@@ -1966,7 +1966,7 @@ func (c *TkgClient) ValidateAviServiceEngineGroup(aviClient avi.Client) error {
 	if err != nil {
 		return err
 	}
-	if _, err = aviClient.GetServiceEngineGroupByName(aviServiceEngineGroup); err != nil {
+	if _, err = aviClient.GetServiceEngineGroupByName(aviServiceEngineGroup); err != nil && !isAviResourceDuplicatedNameError(err) {
 		return err
 	}
 	return nil
@@ -1977,7 +1977,7 @@ func (c *TkgClient) ValidateAviManagementClusterServiceEngineGroup(aviClient avi
 	aviManagementClusterSEG, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterServiceEngineGroup)
 	// this field is optional, only validates if it has value
 	if aviManagementClusterSEG != "" {
-		if _, err := aviClient.GetServiceEngineGroupByName(aviManagementClusterSEG); err != nil {
+		if _, err := aviClient.GetServiceEngineGroupByName(aviManagementClusterSEG); err != nil && !isAviResourceDuplicatedNameError(err) {
 			return err
 		}
 	}
@@ -2042,7 +2042,7 @@ func (c *TkgClient) ValidateAviManagementClusterControlPlaneNetwork(aviClient av
 // ValidateAviNetwork validates if the network can be found in AVI controller or not and the subnet CIDR format is correct or not
 func (c *TkgClient) ValidateAviNetwork(networkName, networkCIDR string, aviClient avi.Client) error {
 	_, err := aviClient.GetVipNetworkByName(networkName)
-	if err != nil {
+	if err != nil && !isAviResourceDuplicatedNameError(err) {
 		return err
 	}
 	_, _, err = net.ParseCIDR(networkCIDR)
@@ -2120,6 +2120,10 @@ func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) erro
 	}
 
 	return nil
+}
+
+func isAviResourceDuplicatedNameError(err error) bool {
+	return strings.Contains(err.Error(), "More than one object of type ")
 }
 
 func dualStackFeatureFlagError(ipFamily, featureFlag string) error {
