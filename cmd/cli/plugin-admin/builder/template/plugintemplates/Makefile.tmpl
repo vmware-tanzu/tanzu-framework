@@ -18,6 +18,7 @@ LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo.Ve
 TOOLS_DIR := tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 GOLANGCI_LINT := $(TOOLS_BIN_DIR)/golangci-lint
+GOLANGCI_LINT_VERSION := 1.49.0
 
 GO_SRCS := $(call rwildcard,.,*.go)
 
@@ -87,5 +88,6 @@ test: $(GO_SRCS) go.sum
 $(TOOLS_BIN_DIR):
 	-mkdir -p $@
 
-$(GOLANGCI_LINT): $(TOOLS_BIN_DIR)
-	go build -tags=tools -o $@ github.com/golangci/golangci-lint/cmd/golangci-lint
+$(GOLANGCI_LINT): $(TOOLS_BIN_DIR) ## Install golangci-lint
+	curl -L https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(GOHOSTOS)-$(GOHOSTARCH).tar.gz | tar -xz -C /tmp/
+	mv /tmp/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(GOHOSTOS)-$(GOHOSTARCH)/golangci-lint $(@)
