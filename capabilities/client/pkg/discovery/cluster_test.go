@@ -39,6 +39,9 @@ var testGVR = Group("carpResource", testapigroup.SchemeGroupVersion.Group).
 	WithVersions(testapigroup.SchemeGroupVersion.Version).
 	WithResource("carps")
 
+var testPartialSchemaNotFound = Schema("partialSchemaQuery", "partial schema")
+var testPartialSchemaFound = Schema("partialSchemaQuery", "example schema for test")
+
 var testObjects = []runtime.Object{
 	&testapigroup.Carp{
 		ObjectMeta: metav1.ObjectMeta{
@@ -75,6 +78,11 @@ func queryClientWithNoResources() (*ClusterQueryClient, error) {
 func queryClientWithResourcesAndNoObjects() (*ClusterQueryClient, error) {
 	scheme, _ := apitest.TestScheme()
 	return NewFakeClusterQueryClient(apiResources, scheme, []runtime.Object{})
+}
+
+func queryClientWithSchema() (*ClusterQueryClient, error) {
+	scheme, _ := apitest.TestScheme()
+	return NewFakeClusterQueryClientWithSchema(nil, scheme, nil)
 }
 
 func TestClusterQueries(t *testing.T) {
@@ -118,6 +126,20 @@ func TestClusterQueries(t *testing.T) {
 			queryTargets:      []QueryTarget{testGVR, testObject, Object("carpObj", &carp)},
 			want:              false,
 			err:               "query target names must be unique",
+		},
+		{
+			description:       "partial schema query not found",
+			discoveryClientFn: queryClientWithSchema,
+			queryTargets:      []QueryTarget{testPartialSchemaNotFound},
+			want:              false,
+			err:               "",
+		},
+		{
+			description:       "partial schema query found",
+			discoveryClientFn: queryClientWithSchema,
+			queryTargets:      []QueryTarget{testPartialSchemaFound},
+			want:              true,
+			err:               "",
 		},
 	}
 
