@@ -5,7 +5,6 @@ package plugin
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"testing"
 
@@ -43,10 +42,6 @@ func TestInfo(t *testing.T) {
 		DocURL:      "https://docs.example.com",
 		Hidden:      false,
 	}
-	expected, err := json.Marshal(descriptor)
-	if err != nil {
-		t.Error(err)
-	}
 
 	infoCmd := newInfoCmd(&descriptor)
 	err = infoCmd.Execute()
@@ -54,5 +49,22 @@ func TestInfo(t *testing.T) {
 	assert.Nil(err)
 
 	got := <-c
-	assert.Equal(fmt.Sprintf("%s\n", expected), string(got))
+
+	expectedInfo := pluginInfo{
+		PluginDescriptor: descriptor,
+	}
+
+	gotInfo := &pluginInfo{}
+	err = json.Unmarshal(got, gotInfo)
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(expectedInfo.Name, gotInfo.Name)
+	assert.Equal(expectedInfo.Description, gotInfo.Description)
+	assert.Equal(expectedInfo.Version, gotInfo.Version)
+	assert.Equal(expectedInfo.BuildSHA, gotInfo.BuildSHA)
+	assert.Equal(expectedInfo.DocURL, gotInfo.DocURL)
+	assert.Equal(expectedInfo.Hidden, gotInfo.Hidden)
+	assert.NotEmpty(gotInfo.PluginRuntimeVersion)
 }

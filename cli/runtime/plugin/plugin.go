@@ -14,7 +14,6 @@ import (
 	"golang.org/x/mod/semver"
 
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	rtversion "github.com/vmware-tanzu/tanzu-framework/cli/runtime/version"
 )
 
 // Plugin is a Tanzu CLI plugin.
@@ -77,7 +76,6 @@ func parsePluginDescriptor(path string) (desc cliapi.PluginDescriptor, err error
 
 // ApplyDefaultConfig applies default configurations to plugin descriptor.
 func ApplyDefaultConfig(p *cliapi.PluginDescriptor) {
-	p.PluginRuntimeVersion = rtversion.Version
 	if p.PostInstallHook == nil {
 		p.PostInstallHook = func() error {
 			return nil

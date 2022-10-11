@@ -156,9 +156,6 @@ type PluginDescriptor struct {
 
 	// PostInstallHook is function to be run post install of a plugin.
 	PostInstallHook Hook `json:"-" yaml:"-"`
-
-	// PluginRuntimeVersion of the plugin. Must be a valid semantic version https://semver.org/
-	PluginRuntimeVersion string `json:"pluginRuntimeVersion" yaml:"pluginRuntimeVersion"`
 }
 
 // +kubebuilder:object:root=true
