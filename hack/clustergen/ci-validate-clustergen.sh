@@ -44,7 +44,7 @@ cat clustergen.diff.txt
 echo "<html><body>no diff</body></html>" > clustergen.html
 docker run -i --rm -v $PWD:$PWD -w $PWD gcr.io/eminent-nation-87317/diff2html diff2html -i file -F clustergen.html -- clustergen.diff.txt
 
-diff -r -U10 oldcc/cclass  newcc/cclass > clustergen_cc.diff.txt
+diff -r -U10 /home/pathakv/code/tanzu-framework/pkg/v1/providers/tests/clustergen/testdata/oldcc/cclass  newcc/cclass > clustergen_cc.diff.txt
 
 pushd newcc
 diff -r -U10 legacy cclass > ../clustergen_noncc_vs_cc.diff.txt
