@@ -33,7 +33,7 @@
     "@cds/core": "^5.6.0",
     "@clr/angular": "^12.0.7",
     "@clr/icons": "^12.0.7",
-    "@clr/ui": "^12.0.7",
+    "@clr/ui": "^13.0.2",
     "@ctrl/ngx-codemirror": "2.2.1",
     "@rxweb/reactive-form-validators": "^2.1.6",
     "@types/lodash": "^4.14.170",
