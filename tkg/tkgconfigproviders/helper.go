@@ -8,7 +8,8 @@ import "strings"
 // mapToConfigString returns a string with key:value pairs separated by ,
 // For example: "key1:value1,key2:value2"
 // An empty map returns an empty string
-// An empty key is ignoredfunc mapToConfigString(data map[string]string) string {
+// An empty key is ignored
+func mapToConfigString(data map[string]string) string {
 	result := ""
 	for key, value := range data {
 		if len(key) > 0 {
