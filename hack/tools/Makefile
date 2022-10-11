@@ -30,6 +30,7 @@ KBLD_VERSION=v0.31.0
 KAPP_VERSION=v0.42.0
 VENDIR_VERSION=v0.23.0
 VALE_VERSION=2.20.1
+GOLANGCI_LINT_VERSION=1.46.0
 K8S_VERSION=1.23.5
 
 # Host information.
@@ -79,9 +80,11 @@ counterfeiter: $(COUNTERFEITER) ## Build counterfeiter
 $(COUNTERFEITER): $(BIN_DIR) go.mod go.sum
 	go build -tags=tools -o $@ github.com/maxbrunsfeld/counterfeiter/v6
 
-golangci-lint: $(GOLANGCI_LINT) $(SRCS) ## Build golangci-lint
-$(GOLANGCI_LINT): go.mod go.sum
-	go build -tags=tools -o $@ github.com/golangci/golangci-lint/cmd/golangci-lint
+golangci-lint: $(GOLANGCI_LINT) ## Install golangci-lint
+$(GOLANGCI_LINT):
+	mkdir -p $(BIN_DIR)
+	curl -L https://github.com/golangci/golangci-lint/releases/download/v$(GOLANGCI_LINT_VERSION)/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(HOST_OS)-$(HOST_ARCH).tar.gz | tar -xz -C /tmp/
+	mv /tmp/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(HOST_OS)-$(HOST_ARCH)/golangci-lint $(@)
 
 goimports: $(GOIMPORTS) $(SRCS) ## Build goimports
 $(GOIMPORTS): go.mod go.sum
