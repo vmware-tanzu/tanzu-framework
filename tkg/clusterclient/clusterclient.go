@@ -257,6 +257,8 @@ type Client interface {
 	PatchCalicoKubeControllerDeploymentWithNewNodeSelector(selectorKey, selectorValue string) error
 	// PatchImageRepositoryInKubeProxyDaemonSet updates kubeproxy daemonset with new/custom image repository
 	PatchImageRepositoryInKubeProxyDaemonSet(newImageRepository string) error
+	// PatchKappControllerLastAppliedAnnotation ensures the kapp-controller deployment on the cluster has last-applied annotation
+	PatchKappControllerLastAppliedAnnotation(namespace string) error
 	// PatchClusterAPIAWSControllersToUseEC2Credentials ensures that the Cluster API Provider AWS
 	// controller is pinned to control plane nodes and is running without static credentials such
 	// that Cluster API AWS runs using the EC2 instance profile attached to the control plane node.
@@ -1304,6 +1306,27 @@ func (c *client) kubectlApply(yamlStr string) error {
 	return c.kubectlApplyFile(f.Name())
 }
 
+func (c *client) kubectlApplySetLastApplied(url string) error {
+	args := []string{"apply", "set-last-applied", "--create-annotation=true"}
+	args = append(args, "-f", url)
+
+	if c.kubeConfigPath != "" {
+		args = append(args, "--kubeconfig", c.kubeConfigPath)
+	}
+
+	if c.currentContext != "" {
+		args = append(args, "--context", c.currentContext)
+	}
+
+	cmd := exec.Command("kubectl", args...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return errors.Wrapf(err, "kubectl apply set-last-applied failed, output: %s", string(out))
+	}
+
+	return nil
+}
+
 func (c *client) kubectlExplainResource(resource string) ([]byte, error) {
 	args := []string{"explain"}
 	if c.kubeConfigPath != "" {
@@ -2051,6 +2074,33 @@ func (c *client) PatchImageRepositoryInKubeProxyDaemonSet(newImageRepository str
 		if err != nil {
 			return errors.Wrap(err, "unable to update the kube-proxy daemonset")
 		}
+	}
+	return nil
+}
+
+// PatchKappControllerLastAppliedAnnotation ensures the kapp-controller deployment on the cluster has last-applied annotation
+func (c *client) PatchKappControllerLastAppliedAnnotation(namespace string) error {
+	result, err := c.poller.PollImmediateWithGetter(kubectlApplyRetryInterval, kubectlApplyRetryTimeout, func() (interface{}, error) {
+		return c.kubectlGetResource("deployment", "kapp-controller", "-n", namespace, "-o", "yaml")
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to get kapp-controller deployment from cluster")
+	}
+	kappYaml := result.([]byte)
+
+	f, err := os.CreateTemp("", "kubeapply-")
+	if err != nil {
+		return errors.Wrap(err, "unable to create temp file")
+	}
+	defer removeAppliedFile(f)
+	if err := os.WriteFile(f.Name(), kappYaml, constants.ConfigFilePermissions); err != nil {
+		return errors.Wrap(err, "unable to write temp file")
+	}
+
+	if _, err := c.poller.PollImmediateWithGetter(kubectlApplyRetryInterval, kubectlApplyRetryTimeout, func() (interface{}, error) {
+		return nil, c.kubectlApplySetLastApplied(f.Name())
+	}); err != nil {
+		return errors.Wrap(err, "failed to add last-applied annotation on kapp-controller deployment")
 	}
 	return nil
 }

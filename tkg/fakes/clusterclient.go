@@ -886,6 +886,17 @@ type ClusterClient struct {
 	patchK8SVersionToPacificClusterReturnsOnCall map[int]struct {
 		result1 error
 	}
+	PatchKappControllerLastAppliedAnnotationStub        func(string) error
+	patchKappControllerLastAppliedAnnotationMutex       sync.RWMutex
+	patchKappControllerLastAppliedAnnotationArgsForCall []struct {
+		arg1 string
+	}
+	patchKappControllerLastAppliedAnnotationReturns struct {
+		result1 error
+	}
+	patchKappControllerLastAppliedAnnotationReturnsOnCall map[int]struct {
+		result1 error
+	}
 	PatchResourceStub        func(interface{}, string, string, string, types.PatchType, *clusterclient.PollOptions) error
 	patchResourceMutex       sync.RWMutex
 	patchResourceArgsForCall []struct {
@@ -5359,6 +5370,67 @@ func (fake *ClusterClient) PatchK8SVersionToPacificClusterReturnsOnCall(i int, r
 	}{result1}
 }
 
+func (fake *ClusterClient) PatchKappControllerLastAppliedAnnotation(arg1 string) error {
+	fake.patchKappControllerLastAppliedAnnotationMutex.Lock()
+	ret, specificReturn := fake.patchKappControllerLastAppliedAnnotationReturnsOnCall[len(fake.patchKappControllerLastAppliedAnnotationArgsForCall)]
+	fake.patchKappControllerLastAppliedAnnotationArgsForCall = append(fake.patchKappControllerLastAppliedAnnotationArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.PatchKappControllerLastAppliedAnnotationStub
+	fakeReturns := fake.patchKappControllerLastAppliedAnnotationReturns
+	fake.recordInvocation("PatchKappControllerLastAppliedAnnotation", []interface{}{arg1})
+	fake.patchKappControllerLastAppliedAnnotationMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) PatchKappControllerLastAppliedAnnotationCallCount() int {
+	fake.patchKappControllerLastAppliedAnnotationMutex.RLock()
+	defer fake.patchKappControllerLastAppliedAnnotationMutex.RUnlock()
+	return len(fake.patchKappControllerLastAppliedAnnotationArgsForCall)
+}
+
+func (fake *ClusterClient) PatchKappControllerLastAppliedAnnotationCalls(stub func(string) error) {
+	fake.patchKappControllerLastAppliedAnnotationMutex.Lock()
+	defer fake.patchKappControllerLastAppliedAnnotationMutex.Unlock()
+	fake.PatchKappControllerLastAppliedAnnotationStub = stub
+}
+
+func (fake *ClusterClient) PatchKappControllerLastAppliedAnnotationArgsForCall(i int) string {
+	fake.patchKappControllerLastAppliedAnnotationMutex.RLock()
+	defer fake.patchKappControllerLastAppliedAnnotationMutex.RUnlock()
+	argsForCall := fake.patchKappControllerLastAppliedAnnotationArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *ClusterClient) PatchKappControllerLastAppliedAnnotationReturns(result1 error) {
+	fake.patchKappControllerLastAppliedAnnotationMutex.Lock()
+	defer fake.patchKappControllerLastAppliedAnnotationMutex.Unlock()
+	fake.PatchKappControllerLastAppliedAnnotationStub = nil
+	fake.patchKappControllerLastAppliedAnnotationReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) PatchKappControllerLastAppliedAnnotationReturnsOnCall(i int, result1 error) {
+	fake.patchKappControllerLastAppliedAnnotationMutex.Lock()
+	defer fake.patchKappControllerLastAppliedAnnotationMutex.Unlock()
+	fake.PatchKappControllerLastAppliedAnnotationStub = nil
+	if fake.patchKappControllerLastAppliedAnnotationReturnsOnCall == nil {
+		fake.patchKappControllerLastAppliedAnnotationReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.patchKappControllerLastAppliedAnnotationReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) PatchResource(arg1 interface{}, arg2 string, arg3 string, arg4 string, arg5 types.PatchType, arg6 *clusterclient.PollOptions) error {
 	fake.patchResourceMutex.Lock()
 	ret, specificReturn := fake.patchResourceReturnsOnCall[len(fake.patchResourceArgsForCall)]
@@ -7197,6 +7269,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.patchImageRepositoryInKubeProxyDaemonSetMutex.RUnlock()
 	fake.patchK8SVersionToPacificClusterMutex.RLock()
 	defer fake.patchK8SVersionToPacificClusterMutex.RUnlock()
+	fake.patchKappControllerLastAppliedAnnotationMutex.RLock()
+	defer fake.patchKappControllerLastAppliedAnnotationMutex.RUnlock()
 	fake.patchResourceMutex.RLock()
 	defer fake.patchResourceMutex.RUnlock()
 	fake.removeCEIPTelemetryJobMutex.RLock()
