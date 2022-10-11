@@ -378,9 +378,9 @@ func (c *TkgClient) getDefaultMachineCountForMC(plan string) (int, int) {
 	workerMachineCount = constants.DefaultDevWorkerMachineCount
 
 	switch plan {
-	case constants.PlanDev:
+	case constants.PlanDev, constants.PlanDevCC:
 		// use the defaults already set above
-	case constants.PlanProd:
+	case constants.PlanProd, constants.PlanProdCC:
 		// update controlplane count for prod plan
 		controlPlaneMachineCount = constants.DefaultProdControlPlaneMachineCount
 		workerMachineCount = constants.DefaultProdWorkerMachineCount
