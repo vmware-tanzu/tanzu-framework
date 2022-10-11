@@ -53,6 +53,7 @@ YQ                 := $(BIN_DIR)/yq
 TRIVY              := $(BIN_DIR)/trivy
 KAPP               := $(BIN_DIR)/kapp
 CONVERSION_GEN     := $(BIN_DIR)/conversion-gen
+COUNTERFEITER      := $(BIN_DIR)/counterfeiter
 
 ## --------------------------------------
 ## Help
@@ -65,16 +66,16 @@ help: ## Display this help
 ## Binaries
 ## --------------------------------------
 
-controller-gen: $(CONTROLLER_GEN)
+controller-gen: $(CONTROLLER_GEN) ## Build controller-gen
 $(CONTROLLER_GEN): go.mod go.sum
 	go build -tags=tools -o $@ sigs.k8s.io/controller-tools/cmd/controller-gen
 
-ginkgo: $(GINKGO)
+ginkgo: $(GINKGO) ## Build ginkgo
 $(GINKGO): go.mod
 	mkdir -p $(BIN_DIR)
 	go build -tags=tools -o $(BIN_DIR)/ginkgo github.com/onsi/ginkgo/ginkgo
 
-COUNTERFEITER := $(BIN_DIR)/counterfeiter
+counterfeiter: $(COUNTERFEITER) ## Build counterfeiter
 $(COUNTERFEITER): $(BIN_DIR) go.mod go.sum
 	go build -tags=tools -o $@ github.com/maxbrunsfeld/counterfeiter/v6
 

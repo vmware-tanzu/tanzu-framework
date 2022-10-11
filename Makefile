@@ -154,19 +154,31 @@ deploy: manifests tools ## Deploy controller in the configured Kubernetes cluste
 	kustomize build config/default | kubectl apply -f -
 
 manifests: ## Generate manifests e.g. CRD, RBAC etc.
-	$(MAKE) generate-manifests CONTROLLER_GEN_SRC=./apis/...
-	$(MAKE) -C apis/cli generate-manifests CONTROLLER_GEN_SRC=./...
-	$(MAKE) -C apis/config generate-manifests CONTROLLER_GEN_SRC=./...
+	$(MAKE) generate-manifests
+	$(MAKE) -C apis/addonconfigs generate-manifests
+	$(MAKE) -C apis/cli generate-manifests
+	$(MAKE) -C apis/config generate-manifests
+	$(MAKE) -C apis/core generate-manifests
+	$(MAKE) -C apis/run generate-manifests
 	$(MAKE) -C cli/runtime generate-manifests
 
 generate-go: $(COUNTERFEITER) ## Generate code via go generate.
-	PATH=$(abspath hack/tools/bin):"$(PATH)" go generate ./...
+	@for i in $(GO_MODULES); do \
+		echo "-- Running go generate ./... $$i --"; \
+		pushd $${i}; \
+		PATH=$(abspath hack/tools/bin):"$(PATH)" go generate ./...; \
+		$(MAKE) fmt; \
+		popd; \
+	done
 
 generate: tools ## Generate code (legacy)
 	$(MAKE) generate-controller-code
-	$(MAKE) -C apis/cli generate-controller-code
-	$(MAKE) -C apis/config generate-controller-code
-	$(MAKE) -C cli/runtime generate-controller-code
+	@for i in $(GO_MODULES); do \
+		echo "-- Running $(MAKE) -C $$i generate-controller-code --"; \
+		pushd $${i}; \
+		$(MAKE) -C $${i} generate-controller-code; \
+		popd; \
+	done
 
 ## --------------------------------------
 ##@ Version
@@ -598,7 +610,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 .PHONY: verify
 verify: modules ## Run all verification scripts
 verify: ## Run all verification scripts
-	$(MAKE) smoke-build
+	$(MAKE) smoke-build generate-go generate
 	./packages/tkg-clusterclass/hack/sync-cc.sh
 	./hack/verify-dirty.sh
 
