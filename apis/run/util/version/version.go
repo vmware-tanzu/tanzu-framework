@@ -111,7 +111,7 @@ func (bm BuildMetadata) LessThan(other BuildMetadata) bool {
 		}
 	}
 
-	return strings.Compare(bm[0], other[0]) < 0
+	return bm[0] < other[0]
 }
 
 // Prefixes returns the set of all possible version prefixes for a version string, including itself.

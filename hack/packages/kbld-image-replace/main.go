@@ -6,7 +6,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -48,7 +47,7 @@ func main() {
 	}
 
 	if !found {
-		log.Fatal(fmt.Sprintf("image %q not found in kbld config", image))
+		log.Fatalf("image %q not found in kbld config", image)
 	}
 
 	data, err = yaml.Marshal(config)
