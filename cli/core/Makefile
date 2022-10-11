@@ -159,6 +159,18 @@ release-%: ## Create release for a platform
 	$(MAKE) build-tanzu-core-cli-oci-$(OS)-$(ARCH)
 
 ## --------------------------------------
+## OS Packages
+## --------------------------------------
+.PHONY: rpm-package
+rpm-package: build-tanzu-core-cli-oci-linux-amd64
+	@if [ "$$(command -v docker)" == "" ]; then \
+		echo "Docker required to build rpm package" ;\
+		exit 1 ;\
+	fi
+
+	docker run --rm -e VERSION=$(BUILD_VERSION) -v $(ROOT_DIR):$(ROOT_DIR) fedora $(MODULE_ROOT_DIR)/hack/rpm/build_package.sh
+
+## --------------------------------------
 ## Testing
 ## --------------------------------------
 
