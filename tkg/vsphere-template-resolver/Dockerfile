@@ -13,13 +13,14 @@ WORKDIR /workspace
 # Copy the Go Modules manifests
 COPY apis/cli/ apis/cli/
 COPY apis/config/ apis/config/
-COPY apis/run/ apis/run/
 COPY capabilities/client/ capabilities/client/
 COPY cli/core/ cli/core/
 COPY cli/runtime/ cli/runtime/
 COPY packageclients/ packageclients/
-COPY tkr/ tkr/
+
+COPY apis/run/ apis/run/
 COPY util/ util/
+COPY tkr/ tkr/
 
 COPY tkg/go.mod tkg/go.mod
 COPY tkg/go.sum tkg/go.sum
