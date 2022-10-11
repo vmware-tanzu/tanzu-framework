@@ -33,12 +33,13 @@ pushd ../pkg/v1/providers
 make generate-bindata
 make CLUSTERGEN_CC_OUTPUT_DIR=oldcc CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 #git checkout .
-#git checkout -
 popd
+git checkout -
+
 pushd tests/clustergen/testdata
 
 
-diff -r -U15 old new > clustergen.diff.txt
+diff -r -U15 /home/pathakv/code/tanzu-framework/pkg/v1/providers/tests/clustergen/testdata/old new > clustergen.diff.txt
 cat clustergen.diff.txt
 echo "<html><body>no diff</body></html>" > clustergen.html
 docker run -i --rm -v $PWD:$PWD -w $PWD gcr.io/eminent-nation-87317/diff2html diff2html -i file -F clustergen.html -- clustergen.diff.txt
