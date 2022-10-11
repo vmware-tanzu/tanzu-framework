@@ -439,80 +439,103 @@ func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error
 func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string, installTestPlugin bool) error {
 	log.Infof("Installing plugin '%v:%v'", p.Name, version)
 
+	binary, err := fetchAndVerifyPlugin(p, version)
+	if err != nil {
+		return err
+	}
+
+	descriptor, err := installAndDescribePlugin(p, version, err, binary)
+	if err != nil {
+		return err
+	}
+
+	if installTestPlugin {
+		if err := doInstallTestPlugin(p, version); err != nil {
+			return err
+		}
+	}
+
+	return updateDescriptorAndInitializePlugin(serverName, p, descriptor)
+}
+
+func fetchAndVerifyPlugin(p *plugin.Discovered, version string) ([]byte, error) {
 	// verify plugin before download
 	err := verifyPluginPreDownload(p)
 	if err != nil {
-		return errors.Wrapf(err, "%q plugin pre-download verification failed", p.Name)
+		return nil, errors.Wrapf(err, "%q plugin pre-download verification failed", p.Name)
 	}
 
 	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// verify plugin after download but before installation
 	d, err := p.Distribution.GetDigest(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = verifyPluginPostDownload(p, d, b)
 	if err != nil {
-		return errors.Wrapf(err, "%q plugin post-download verification failed", p.Name)
+		return nil, errors.Wrapf(err, "%q plugin post-download verification failed", p.Name)
 	}
+	return b, nil
+}
 
-	pluginName := p.Name
-	pluginPath := filepath.Join(common.DefaultPluginRoot, pluginName, version)
+func installAndDescribePlugin(p *plugin.Discovered, version string, err error, binary []byte) (*cliapi.PluginDescriptor, error) {
+	pluginPath := filepath.Join(common.DefaultPluginRoot, p.Name, version)
 
-	err = os.MkdirAll(filepath.Dir(pluginPath), os.ModePerm)
-	if err != nil {
-		return err
+	if err := os.MkdirAll(filepath.Dir(pluginPath), os.ModePerm); err != nil {
+		return nil, err
 	}
 
 	if common.BuildArch().IsWindows() {
 		pluginPath += exe
 	}
 
-	err = os.WriteFile(pluginPath, b, 0755)
-	if err != nil {
-		return errors.Wrap(err, "could not write file")
+	if err := os.WriteFile(pluginPath, binary, 0755); err != nil {
+		return nil, errors.Wrap(err, "could not write file")
 	}
 
-	b, err = execCommand(pluginPath, "info").Output()
+	bytesInfo, err := execCommand(pluginPath, "info").Output()
 	if err != nil {
-		return errors.Wrapf(err, "could not describe plugin %q", pluginName)
+		return nil, errors.Wrapf(err, "could not describe plugin %q", p.Name)
 	}
+
 	var descriptor cliapi.PluginDescriptor
-	err = json.Unmarshal(b, &descriptor)
-	if err != nil {
-		return errors.Wrapf(err, "could not unmarshal plugin %q description", pluginName)
+	if err = json.Unmarshal(bytesInfo, &descriptor); err != nil {
+		return nil, errors.Wrapf(err, "could not unmarshal plugin %q description", p.Name)
 	}
 	descriptor.InstallationPath = pluginPath
 	descriptor.Discovery = p.Source
 	descriptor.DiscoveredRecommendedVersion = p.RecommendedVersion
 
-	if installTestPlugin {
-		log.Infof("Installing test plugin for '%v:%v'", p.Name, version)
-		b, err = p.Distribution.FetchTest(version, runtime.GOOS, runtime.GOARCH)
-		if err != nil {
-			return errors.Wrapf(err, "unable to install test plugin for '%v:%v'", p.Name, version)
-		}
-		testpluginPath := filepath.Join(common.DefaultPluginRoot, pluginName, fmt.Sprintf("test-%s", version))
-		err = os.WriteFile(testpluginPath, b, 0755)
-		if err != nil {
-			return errors.Wrap(err, "error while saving test plugin binary")
-		}
-	}
+	return &descriptor, nil
+}
 
+func doInstallTestPlugin(p *plugin.Discovered, version string) error {
+	log.Infof("Installing test plugin for '%v:%v'", p.Name, version)
+	binary, err := p.Distribution.FetchTest(version, runtime.GOOS, runtime.GOARCH)
+	if err != nil {
+		return errors.Wrapf(err, "unable to install test plugin for '%v:%v'", p.Name, version)
+	}
+	testpluginPath := filepath.Join(common.DefaultPluginRoot, p.Name, fmt.Sprintf("test-%s", version))
+	err = os.WriteFile(testpluginPath, binary, 0755)
+	if err != nil {
+		return errors.Wrap(err, "error while saving test plugin binary")
+	}
+	return nil
+}
+
+func updateDescriptorAndInitializePlugin(serverName string, p *plugin.Discovered, descriptor *cliapi.PluginDescriptor) error {
 	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
 		return err
 	}
-	err = c.Upsert(&descriptor)
-	if err != nil {
+	if err := c.Upsert(descriptor); err != nil {
 		log.Info("Plugin descriptor could not be updated in cache")
 	}
-	err = InitializePlugin(serverName, pluginName)
-	if err != nil {
+	if err := InitializePlugin(serverName, p.Name); err != nil {
 		log.Infof("could not initialize plugin after installing: %v", err.Error())
 	}
 	return nil

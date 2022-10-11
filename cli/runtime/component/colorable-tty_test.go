@@ -33,5 +33,4 @@ func TestIsTTYEnabled(t *testing.T) {
 			}
 		})
 	}
-
 }

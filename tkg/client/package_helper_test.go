@@ -65,7 +65,7 @@ func init() {
 	timeout = time.Duration(1)
 	bs, _ := os.ReadFile(bootstrapObject)
 	clusterBootstrap = &runtanzuv1alpha3.ClusterBootstrap{}
-	//Expect(yaml.Unmarshal(bs, clusterBootstrap)).To(Succeed(), "Failed to convert the cluster bootstrap input file to yaml")
+	// Expect(yaml.Unmarshal(bs, clusterBootstrap)).To(Succeed(), "Failed to convert the cluster bootstrap input file to yaml")
 	yaml.Unmarshal(bs, clusterBootstrap) //nolint:errcheck
 	pkgKapp = &kapppkgv1alpha1.Package{}
 	yaml.Unmarshal([]byte(pkgKappObjStr), pkgKapp) //nolint:errcheck

@@ -16,8 +16,8 @@ import (
 // TemplateResolver resolves vSphere templates
 type TemplateResolver interface {
 	// Resolve returns VM template path and MOIDs satisfying query constraints.
-	Resolve(ctx context.Context, svrContext VSphereContext, query Query, vcClient vc.Client) Result
-	GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, error)
+	Resolve(ctx context.Context, svrContext *VSphereContext, query Query, vcClient vc.Client) Result
+	GetVSphereEndpoint(svrContext *VSphereContext) (vc.Client, error)
 }
 
 // New returns a newly created instance of the vSphere template resolver implementation.

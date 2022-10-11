@@ -1,6 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package clusters aims to provide helper functions to be used with Cluster objects.
 package clusters
 
 import (

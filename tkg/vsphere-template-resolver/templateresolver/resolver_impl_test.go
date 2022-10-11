@@ -28,7 +28,7 @@ var _ = Describe("Resolver", func() {
 	var (
 		resolver       TemplateResolver
 		ctx            context.Context
-		vSphereContext VSphereContext
+		vSphereContext *VSphereContext
 		vcClient       *fakes.VCClient
 		dcMOIDMock     string
 		dcInContext    string
@@ -112,7 +112,7 @@ var _ = Describe("Resolver", func() {
 
 			query = Query{}
 			dcInContext = "vc-datacenter"
-			vSphereContext = VSphereContext{
+			vSphereContext = &VSphereContext{
 				DataCenter: dcInContext,
 			}
 		})
@@ -358,7 +358,7 @@ var _ = Describe("Resolver", func() {
 	Context("GetVsphereEndpoint()", func() {
 		When("Host parsing fails", func() {
 			BeforeEach(func() {
-				vSphereContext = VSphereContext{
+				vSphereContext = &VSphereContext{
 					Server: "%",
 				}
 			})
@@ -392,7 +392,7 @@ var _ = Describe("Resolver", func() {
 			})
 			When("NewClient() call returns an error", func() {
 				BeforeEach(func() {
-					vSphereContext = VSphereContext{
+					vSphereContext = &VSphereContext{
 						Server: "foo",
 					}
 				})
@@ -405,7 +405,7 @@ var _ = Describe("Resolver", func() {
 			})
 			When("login fails", func() {
 				BeforeEach(func() {
-					vSphereContext = VSphereContext{
+					vSphereContext = &VSphereContext{
 						Server:             server.URL.String(),
 						Username:           "foo",
 						Password:           "bar",
