@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package tkg
 
 // ClusterMetadata is currently needed by one of the pre-defined queries in capabilities SDK

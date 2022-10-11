@@ -16,7 +16,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
-//nolint:goimports
 const (
 	md0Name      = "md-0"
 	md1Name      = "md-1"

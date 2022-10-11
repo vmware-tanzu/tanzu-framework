@@ -5,9 +5,10 @@
 package internal
 
 import (
-	"strings"
 	"sync"
 
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -182,7 +183,7 @@ func setReadyCondition(tkr *runv1.TanzuKubernetesRelease) {
 	unwantedLabels := []string{runv1.LabelIncompatible, runv1.LabelDeactivated, runv1.LabelInvalid}
 	for _, label := range unwantedLabels {
 		if labels.Set(tkr.Labels).Has(label) {
-			conditions.MarkFalse(tkr, runv1.ConditionReady, strings.Title(label), clusterv1.ConditionSeverityWarning, label)
+			conditions.MarkFalse(tkr, runv1.ConditionReady, cases.Title(language.English).String(label), clusterv1.ConditionSeverityWarning, label)
 			return
 		}
 	}

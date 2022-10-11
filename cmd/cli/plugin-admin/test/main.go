@@ -47,13 +47,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for _, d := range standalonePlugins {
+	for i := range standalonePlugins {
 		// Check if test plugin binary installed. If available add a plugin command
-		_, err := os.Stat(cli.TestPluginPathFromPluginPath(d.InstallationPath))
+		_, err := os.Stat(cli.TestPluginPathFromPluginPath(standalonePlugins[i].InstallationPath))
 		if err != nil {
 			continue
 		}
-		pluginsCmd.AddCommand(cli.TestCmd(d.DeepCopy()))
+		pluginsCmd.AddCommand(cli.TestCmd(standalonePlugins[i].DeepCopy()))
 	}
 
 	if err := p.Execute(); err != nil {
