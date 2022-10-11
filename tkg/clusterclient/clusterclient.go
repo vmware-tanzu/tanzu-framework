@@ -2343,9 +2343,6 @@ func (c *client) HasCEIPTelemetryJob(clusterName string) (bool, error) {
 	if err != nil {
 		return false, errors.Wrap(err, "failed to find telemetry cronjob")
 	}
-	if cronJobs == nil {
-		return false, nil
-	}
 	return len(cronJobs.Items) > 0, nil
 }
 
