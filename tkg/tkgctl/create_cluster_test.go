@@ -551,7 +551,7 @@ var _ = Describe("Unit tests for - (Azure) - cluster_azure.yaml as input file fo
 			// checking manually for some variables mapping values
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
 			Expect("namespace-test1").To(Equal(fmt.Sprintf("%v", mappedVal)))
-			//Check that cluster options also updated
+			// Check that cluster options also updated
 			Expect("namespace-test1").To(Equal(options.Namespace))
 			Expect("azure").To(Equal(options.InfrastructureProvider))
 
@@ -617,7 +617,7 @@ var _ = Describe("TKGS Cluster - cluster_tkgs.yaml as input file for 'tanzu clus
 			// checking manually for some variables mapping values
 			mappedVal, _ = tkgctlClient.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
 			Expect("ns01").To(Equal(fmt.Sprintf("%v", mappedVal)))
-			//Check that cluster options also updated
+			// Check that cluster options also updated
 			Expect("ns01").To(Equal(options.Namespace))
 			Expect("cc01").To(Equal(options.ClusterName))
 		})

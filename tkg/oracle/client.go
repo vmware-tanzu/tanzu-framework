@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package oracle
 
 import (
@@ -22,7 +25,7 @@ type client struct {
 }
 
 // WaitForWorkRequest waits for an OPC work request specified by its OCID
-func (c client) WaitForWorkRequest(ctx context.Context, id *string, interval time.Duration) error {
+func (c *client) WaitForWorkRequest(ctx context.Context, id *string, interval time.Duration) error {
 	for {
 		response, err := c.workRequestClient.GetWorkRequest(ctx, oracleworkrequests.GetWorkRequestRequest{
 			WorkRequestId: id,
@@ -45,7 +48,7 @@ func (c client) WaitForWorkRequest(ctx context.Context, id *string, interval tim
 }
 
 // ImportImageSync initiates the image import from public endpoint and waits for it finishes synchronously
-func (c client) ImportImageSync(ctx context.Context, displayName, compartment, image string) (*oraclecore.Image, error) {
+func (c *client) ImportImageSync(ctx context.Context, displayName, compartment, image string) (*oraclecore.Image, error) {
 	request := oraclecore.CreateImageRequest{
 		CreateImageDetails: oraclecore.CreateImageDetails{
 			CompartmentId: &compartment,
@@ -59,14 +62,14 @@ func (c client) ImportImageSync(ctx context.Context, displayName, compartment, i
 	if err != nil {
 		return nil, err
 	}
-	if err = c.WaitForWorkRequest(ctx, response.OpcWorkRequestId, 10*time.Second); err != nil {
+	if err := c.WaitForWorkRequest(ctx, response.OpcWorkRequestId, 10*time.Second); err != nil {
 		return nil, err
 	}
 	return &response.Image, nil
 }
 
 // EnsureCompartmentExists ensures the specified compartment exists on the OCI
-func (c client) EnsureCompartmentExists(ctx context.Context, compartment string) (*oracleidentity.Compartment, error) {
+func (c *client) EnsureCompartmentExists(ctx context.Context, compartment string) (*oracleidentity.Compartment, error) {
 	response, err := c.identityClient.GetCompartment(ctx, oracleidentity.GetCompartmentRequest{
 		CompartmentId: &compartment,
 	})
@@ -78,7 +81,7 @@ func (c client) EnsureCompartmentExists(ctx context.Context, compartment string)
 }
 
 // Region returns the region that the Oracle Client operates on
-func (c client) Region() (string, error) {
+func (c *client) Region() (string, error) {
 	return c.configProvider.Region()
 }
 

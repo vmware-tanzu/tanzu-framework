@@ -26,7 +26,7 @@ func NewResolver(log logr.Logger) *Resolver {
 }
 
 // GetVSphereEndpoint gets vsphere client based on credentials set in config variables
-func (r *Resolver) GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, error) {
+func (r *Resolver) GetVSphereEndpoint(svrContext *VSphereContext) (vc.Client, error) {
 	host := strings.TrimSpace(svrContext.Server)
 	if !strings.HasPrefix(host, "http") {
 		host = "https://" + host
@@ -52,7 +52,7 @@ func (r *Resolver) GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, err
 }
 
 // Resolve queries VC using the vcClient for template resolution of the OVAs from the input query.
-func (r *Resolver) Resolve(ctx context.Context, svrContext VSphereContext, query Query, vcClient vc.Client) Result {
+func (r *Resolver) Resolve(ctx context.Context, svrContext *VSphereContext, query Query, vcClient vc.Client) Result {
 	if len(query.OVATemplateQueries) == 0 {
 		return Result{}
 	}

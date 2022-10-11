@@ -13,7 +13,7 @@ import (
 	capiv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capiconditions "sigs.k8s.io/cluster-api/util/conditions"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/clusters"
+	utilclusters "github.com/vmware-tanzu/tanzu-framework/apis/run/util/clusters"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
@@ -160,7 +160,7 @@ func getClusterTKRName(server *configapi.Server, clusterName, namespace string) 
 }
 
 func availableUpgradesFromCluster(cluster *capiv1.Cluster, tkrs []runv1alpha1.TanzuKubernetesRelease, cmdOut io.Writer) error {
-	updates := clusters.AvailableUpgrades(cluster)
+	updates := utilclusters.AvailableUpgrades(cluster)
 	if len(updates) == 0 {
 		fmt.Printf("no available upgrades for cluster '%s', namespace '%s'", cluster.Name, cluster.Namespace)
 		return nil

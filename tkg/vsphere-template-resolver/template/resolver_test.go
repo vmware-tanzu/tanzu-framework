@@ -48,8 +48,8 @@ func TestResolve(t *testing.T) {
 var _ = Describe("Webhook", func() {
 
 	const (
-		tkr_v1_22_3 = "v1.22.3---vmware.1-rest-does-not-matter"
-		tkr_v1_21_8 = "v1.21.8---vmware.1-rest-does-not-matter"
+		tkrV1_22_3 = "v1.22.3---vmware.1-rest-does-not-matter"
+		tkrV1_21_8 = "v1.21.8---vmware.1-rest-does-not-matter"
 	)
 	Context("Handle()", func() {
 		var (
@@ -131,7 +131,7 @@ var _ = Describe("Webhook", func() {
 					"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
 						OSImageRef: map[string]interface{}{osImageRefVersion: "foo"},
 						Labels: labels.Set{
-							runv1.LabelTKR: tkr_v1_22_3,
+							runv1.LabelTKR: tkrV1_22_3,
 							"os-name":      "fooOSName",
 							"os-version":   "fooOSVersion",
 							"os-arch":      "fooOSArch",
@@ -140,7 +140,7 @@ var _ = Describe("Webhook", func() {
 					"v1.21.8+vmware.1": &resolver_cluster.TKRDataValue{
 						OSImageRef: map[string]interface{}{osImageRefVersion: "bar"},
 						Labels: labels.Set{
-							runv1.LabelTKR: tkr_v1_21_8,
+							runv1.LabelTKR: tkrV1_21_8,
 							"os-name":      "barOSName",
 							"os-version":   "barOSVersion",
 							"os-arch":      "barOSArch",
@@ -172,7 +172,7 @@ var _ = Describe("Webhook", func() {
 						},
 						"metadata": map[string]interface{}{
 							"labels": map[string]interface{}{
-								runv1.LabelTKR: tkr_v1_22_3,
+								runv1.LabelTKR: tkrV1_22_3,
 							},
 						},
 					},
@@ -185,7 +185,7 @@ var _ = Describe("Webhook", func() {
 				username = defaultUserName
 				password = defaultPassword
 
-				getSecretFunc = func(object crtclient.Object) error {
+				getSecretFunc = func(object crtclient.Object) error { // nolint:unparam // result is always nil: this is intentional
 					data := map[string][]byte{
 						"username": []byte(username),
 						"password": []byte(password),
@@ -197,9 +197,8 @@ var _ = Describe("Webhook", func() {
 				fakeClient.GetCalls(func(ctx context.Context, name types.NamespacedName, object crtclient.Object) error {
 					if _, ok := object.(*corev1.Secret); ok {
 						return getSecretFunc(object)
-					} else {
-						return errors.New("Get() failed")
 					}
+					return errors.New("Get() failed")
 				})
 
 				fakeVCClient = &fakes.VCClient{}
@@ -299,7 +298,7 @@ var _ = Describe("Webhook", func() {
 					Name:      "cluster",
 					Namespace: "clusterNamespace",
 					Labels: map[string]string{
-						runv1.LabelTKR: tkr_v1_22_3,
+						runv1.LabelTKR: tkrV1_22_3,
 					},
 				},
 			}
@@ -316,7 +315,7 @@ var _ = Describe("Webhook", func() {
 				"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
 					OSImageRef: map[string]interface{}{osImageRefVersion: "foo"},
 					Labels: labels.Set{
-						runv1.LabelTKR: tkr_v1_22_3,
+						runv1.LabelTKR: tkrV1_22_3,
 						"os-name":      "fooOSName",
 						"os-version":   "fooOSVersion",
 						"os-arch":      "fooOSArch",
@@ -325,7 +324,7 @@ var _ = Describe("Webhook", func() {
 				"v1.21.8+vmware.1": &resolver_cluster.TKRDataValue{
 					OSImageRef: map[string]interface{}{osImageRefVersion: "bar"},
 					Labels: labels.Set{
-						runv1.LabelTKR: tkr_v1_21_8,
+						runv1.LabelTKR: tkrV1_21_8,
 						"os-name":      "barOSName",
 						"os-version":   "barOSVersion",
 						"os-arch":      "barOSArch",
@@ -345,7 +344,7 @@ var _ = Describe("Webhook", func() {
 				"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
 					OSImageRef: map[string]interface{}{osImageRefVersion: "baz"},
 					Labels: labels.Set{
-						runv1.LabelTKR: tkr_v1_22_3,
+						runv1.LabelTKR: tkrV1_22_3,
 						"os-name":      "bazOSName",
 						"os-version":   "bazOSVersion",
 						"os-arch":      "bazOSArch",
@@ -354,7 +353,7 @@ var _ = Describe("Webhook", func() {
 				"v1.21.8+vmware.1": &resolver_cluster.TKRDataValue{
 					OSImageRef: map[string]interface{}{osImageRefVersion: "bar"},
 					Labels: labels.Set{
-						runv1.LabelTKR: tkr_v1_21_8,
+						runv1.LabelTKR: tkrV1_21_8,
 						"os-name":      "barOSName",
 						"os-version":   "barOSVersion",
 						"os-arch":      "barOSArch",
@@ -374,7 +373,7 @@ var _ = Describe("Webhook", func() {
 				"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
 					OSImageRef: map[string]interface{}{osImageRefVersion: "qux"},
 					Labels: labels.Set{
-						runv1.LabelTKR: tkr_v1_22_3,
+						runv1.LabelTKR: tkrV1_22_3,
 						"os-name":      "quxOSName",
 						"os-version":   "quxOSVersion",
 						"os-arch":      "quxOSArch",
@@ -407,7 +406,7 @@ var _ = Describe("Webhook", func() {
 			username = defaultUserName
 			password = defaultPassword
 
-			getSecretFunc = func(object crtclient.Object) error {
+			getSecretFunc = func(object crtclient.Object) error { // nolint:unparam // result is always nil: this is intentional
 				data := map[string][]byte{
 					"username": []byte(username),
 					"password": []byte(password),
@@ -424,9 +423,8 @@ var _ = Describe("Webhook", func() {
 			fakeClient.GetCalls(func(ctx context.Context, name types.NamespacedName, object crtclient.Object) error {
 				if _, ok := object.(*corev1.Secret); ok {
 					return getSecretFunc(object)
-				} else {
-					return errors.New("Get() failed")
 				}
+				return errors.New("Get() failed")
 			})
 
 			originalResolver = cw.Resolver
@@ -781,7 +779,7 @@ var _ = Describe("Webhook", func() {
 					Name:      "cluster",
 					Namespace: "clusterNamespace",
 					Labels: map[string]string{
-						runv1.LabelTKR: tkr_v1_22_3,
+						runv1.LabelTKR: tkrV1_22_3,
 					},
 				},
 			}
@@ -796,7 +794,7 @@ var _ = Describe("Webhook", func() {
 			username = defaultUserName
 			password = defaultPassword
 
-			getSecretFunc = func(object crtclient.Object) error {
+			getSecretFunc = func(object crtclient.Object) error { // nolint:unparam // result is always nil: this is intentional
 				data := map[string][]byte{
 					"username": []byte(username),
 					"password": []byte(password),
@@ -808,9 +806,8 @@ var _ = Describe("Webhook", func() {
 			fakeClient.GetCalls(func(ctx context.Context, name types.NamespacedName, object crtclient.Object) error {
 				if _, ok := object.(*corev1.Secret); ok {
 					return getSecretFunc(object)
-				} else {
-					return errors.New("Get() failed")
 				}
+				return errors.New("Get() failed")
 			})
 		})
 		When("TLSThumbprint is not empty", func() {
@@ -842,7 +839,7 @@ var _ = Describe("Webhook", func() {
 				vsphereContext, err := cw.getVSphereContext(context.TODO(), cluster)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("error parsing vcenter cluster variable"))
-				Expect(vsphereContext).To(Equal(templateresolver.VSphereContext{}))
+				Expect(vsphereContext).To(BeNil())
 			})
 		})
 	})
@@ -867,7 +864,7 @@ var _ = Describe("Webhook", func() {
 					Name:      "cluster",
 					Namespace: "clusterNamespace",
 					Labels: map[string]string{
-						runv1.LabelTKR: tkr_v1_22_3,
+						runv1.LabelTKR: tkrV1_22_3,
 					},
 				},
 			}

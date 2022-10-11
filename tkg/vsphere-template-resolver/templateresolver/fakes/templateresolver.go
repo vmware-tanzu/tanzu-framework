@@ -10,10 +10,10 @@ import (
 )
 
 type TemplateResolver struct {
-	GetVSphereEndpointStub        func(templateresolver.VSphereContext) (vc.Client, error)
+	GetVSphereEndpointStub        func(*templateresolver.VSphereContext) (vc.Client, error)
 	getVSphereEndpointMutex       sync.RWMutex
 	getVSphereEndpointArgsForCall []struct {
-		arg1 templateresolver.VSphereContext
+		arg1 *templateresolver.VSphereContext
 	}
 	getVSphereEndpointReturns struct {
 		result1 vc.Client
@@ -23,11 +23,11 @@ type TemplateResolver struct {
 		result1 vc.Client
 		result2 error
 	}
-	ResolveStub        func(context.Context, templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result
+	ResolveStub        func(context.Context, *templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result
 	resolveMutex       sync.RWMutex
 	resolveArgsForCall []struct {
 		arg1 context.Context
-		arg2 templateresolver.VSphereContext
+		arg2 *templateresolver.VSphereContext
 		arg3 templateresolver.Query
 		arg4 vc.Client
 	}
@@ -41,11 +41,11 @@ type TemplateResolver struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *TemplateResolver) GetVSphereEndpoint(arg1 templateresolver.VSphereContext) (vc.Client, error) {
+func (fake *TemplateResolver) GetVSphereEndpoint(arg1 *templateresolver.VSphereContext) (vc.Client, error) {
 	fake.getVSphereEndpointMutex.Lock()
 	ret, specificReturn := fake.getVSphereEndpointReturnsOnCall[len(fake.getVSphereEndpointArgsForCall)]
 	fake.getVSphereEndpointArgsForCall = append(fake.getVSphereEndpointArgsForCall, struct {
-		arg1 templateresolver.VSphereContext
+		arg1 *templateresolver.VSphereContext
 	}{arg1})
 	stub := fake.GetVSphereEndpointStub
 	fakeReturns := fake.getVSphereEndpointReturns
@@ -66,13 +66,13 @@ func (fake *TemplateResolver) GetVSphereEndpointCallCount() int {
 	return len(fake.getVSphereEndpointArgsForCall)
 }
 
-func (fake *TemplateResolver) GetVSphereEndpointCalls(stub func(templateresolver.VSphereContext) (vc.Client, error)) {
+func (fake *TemplateResolver) GetVSphereEndpointCalls(stub func(*templateresolver.VSphereContext) (vc.Client, error)) {
 	fake.getVSphereEndpointMutex.Lock()
 	defer fake.getVSphereEndpointMutex.Unlock()
 	fake.GetVSphereEndpointStub = stub
 }
 
-func (fake *TemplateResolver) GetVSphereEndpointArgsForCall(i int) templateresolver.VSphereContext {
+func (fake *TemplateResolver) GetVSphereEndpointArgsForCall(i int) *templateresolver.VSphereContext {
 	fake.getVSphereEndpointMutex.RLock()
 	defer fake.getVSphereEndpointMutex.RUnlock()
 	argsForCall := fake.getVSphereEndpointArgsForCall[i]
@@ -105,12 +105,12 @@ func (fake *TemplateResolver) GetVSphereEndpointReturnsOnCall(i int, result1 vc.
 	}{result1, result2}
 }
 
-func (fake *TemplateResolver) Resolve(arg1 context.Context, arg2 templateresolver.VSphereContext, arg3 templateresolver.Query, arg4 vc.Client) templateresolver.Result {
+func (fake *TemplateResolver) Resolve(arg1 context.Context, arg2 *templateresolver.VSphereContext, arg3 templateresolver.Query, arg4 vc.Client) templateresolver.Result {
 	fake.resolveMutex.Lock()
 	ret, specificReturn := fake.resolveReturnsOnCall[len(fake.resolveArgsForCall)]
 	fake.resolveArgsForCall = append(fake.resolveArgsForCall, struct {
 		arg1 context.Context
-		arg2 templateresolver.VSphereContext
+		arg2 *templateresolver.VSphereContext
 		arg3 templateresolver.Query
 		arg4 vc.Client
 	}{arg1, arg2, arg3, arg4})
@@ -133,13 +133,13 @@ func (fake *TemplateResolver) ResolveCallCount() int {
 	return len(fake.resolveArgsForCall)
 }
 
-func (fake *TemplateResolver) ResolveCalls(stub func(context.Context, templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result) {
+func (fake *TemplateResolver) ResolveCalls(stub func(context.Context, *templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result) {
 	fake.resolveMutex.Lock()
 	defer fake.resolveMutex.Unlock()
 	fake.ResolveStub = stub
 }
 
-func (fake *TemplateResolver) ResolveArgsForCall(i int) (context.Context, templateresolver.VSphereContext, templateresolver.Query, vc.Client) {
+func (fake *TemplateResolver) ResolveArgsForCall(i int) (context.Context, *templateresolver.VSphereContext, templateresolver.Query, vc.Client) {
 	fake.resolveMutex.RLock()
 	defer fake.resolveMutex.RUnlock()
 	argsForCall := fake.resolveArgsForCall[i]

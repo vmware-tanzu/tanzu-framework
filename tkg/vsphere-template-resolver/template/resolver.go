@@ -305,7 +305,7 @@ func populateTKRDataFromResult(tkrDataValue *resolver_cluster.TKRDataValue, temp
 	tkrDataValue.OSImageRef[osImageRefMOID] = templateResult.TemplateMOID
 }
 
-func (cw *Webhook) getVSphereContext(ctx context.Context, cluster *clusterv1.Cluster) (templateresolver.VSphereContext, error) {
+func (cw *Webhook) getVSphereContext(ctx context.Context, cluster *clusterv1.Cluster) (*templateresolver.VSphereContext, error) {
 	c := cw.Client
 	// Get Secret (cluster name in cluster namespace)
 	clusterName, clusterNamespace := cluster.Name, cluster.Namespace
@@ -315,14 +315,14 @@ func (cw *Webhook) getVSphereContext(ctx context.Context, cluster *clusterv1.Clu
 	cw.Log.Info("Getting secret for VC Client", "key", objKey)
 	err := c.Get(ctx, objKey, secret)
 	if err != nil {
-		return templateresolver.VSphereContext{}, errors.Wrap(err, fmt.Sprintf("could not get secret for key: %v", objKey))
+		return nil, errors.Wrap(err, fmt.Sprintf("could not get secret for key: %v", objKey))
 	}
 	username, password := secret.Data["username"], secret.Data["password"]
 
 	var vcClusterVar VCenterClusterVar
 	err = util_topology.GetVariable(cluster, varVCenter, &vcClusterVar)
 	if err != nil {
-		return templateresolver.VSphereContext{}, errors.Wrapf(err, "error parsing vcenter cluster variable")
+		return nil, errors.Wrapf(err, "error parsing vcenter cluster variable")
 	}
 
 	insecure := true
@@ -331,7 +331,7 @@ func (cw *Webhook) getVSphereContext(ctx context.Context, cluster *clusterv1.Clu
 	}
 
 	cw.Log.Info("Successfully retrieved vSphere context", "Server", vcClusterVar.Server, "datacenter", vcClusterVar.DataCenter, "tlsthumbprint", vcClusterVar.TLSThumbprint)
-	return templateresolver.VSphereContext{
+	return &templateresolver.VSphereContext{
 		Username:           string(username),
 		Password:           string(password),
 		Server:             vcClusterVar.Server,
