@@ -29,11 +29,12 @@ git checkout .
 echo git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git log --pretty=oneline -5
+pushd ../pkg/v1/providers
 make generate-bindata
 make CLUSTERGEN_CC_OUTPUT_DIR=oldcc CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 git checkout .
 git checkout -
-
+popd
 pushd tests/clustergen/testdata
 
 diff -r -U15 old new > clustergen.diff.txt
