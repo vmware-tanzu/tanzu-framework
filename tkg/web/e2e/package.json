@@ -27,7 +27,7 @@
         "@types/jasmine": "^4.0.3",
         "@types/jasminewd2": "^2.0.10",
         "@types/lodash": "^4.14.182",
-        "@types/node": "^8.10.66",
+        "@types/node": "^18.8.4",
         "api-client-generator": "^4.7.1",
         "codelyzer": "^6.0.2",
         "dotenv": "^16.0.0",
