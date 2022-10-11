@@ -24,10 +24,10 @@ func TestMapToConfigString(t *testing.T) {
 	target := map[string]string{"key1": "value1", "key2": "value2"}
 	result := mapToConfigString(target)
 	shouldContain(t, result, "key1:value1")
-    shouldContain(t, result, "key2:value2")
-    if strings.LastIndex(result, ",") == len(result)-1 {
-        t.Fatalf("Test with two keys detected ending comma: \"%s\"", result)
-    }
+	shouldContain(t, result, "key2:value2")
+	if strings.LastIndex(result, ",") == len(result)-1 {
+		t.Fatalf("Test with two keys detected ending comma: \"%s\"", result)
+	}
 
 	result = mapToConfigString(nil)
 	shouldBeBlank(t, result, "sending nil")
@@ -100,9 +100,9 @@ func TestConfigStringToMap(t *testing.T) {
 	result = configStringToMap(target)
 	shouldHaveTwoEntries(t, target, result, "key1", "value1", "key2", "value2")
 
-    target = "key1:value1,key2:value2"
-    result = configStringToMap(target)
-    shouldHaveTwoEntries(t, target, result, "key1", "value1", "key2", "value2")
+	target = "key1:value1,key2:value2"
+	result = configStringToMap(target)
+	shouldHaveTwoEntries(t, target, result, "key1", "value1", "key2", "value2")
 }
 
 type testStruct struct {
