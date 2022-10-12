@@ -64,6 +64,10 @@ export interface Label {
     value: string
 }
 
+export interface KeyValueObject {
+    [key: string]: string
+}
+
 @Directive()
 export abstract class WizardBaseDirective extends BasicSubscriber implements WizardStepRegistrar, OnInit {
     APP_ROUTES: Routes = APP_ROUTES;
@@ -343,14 +347,23 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     /**
      * @param arrObj of type [ {key: 'a', value: '1}, {key : 'b, value:'2}]
-     * @param key To Identify the ObjectKey
-     * @param value To Identify the ObjectValue
-     * @return Object {'a': 1 , 'b': '1'}
+     * @param params.key<Function> To Identify the ObjectKey
+     * @param params.value<Function> To Identify the ObjectValue
+     * @return Object {'a': 1 , 'b': '1'} and drops values with empty string on key
      */
-    arrayOfObjectsToObject<T>(arrObj: T[], params: Params<T>): { [key: string]: string; } {
-        return arrObj && arrObj instanceof Array
-            ? arrObj.reduce((obj, item) => ((obj[params.key(item)] = params.value(item)), obj), {})
-            : {};
+     arrayOfObjectsToObject<T>(arrObj: T[], params: Params<T>): KeyValueObject {
+        if (!arrObj || !(arrObj instanceof Array)) {
+            return {};
+        }
+
+        return arrObj.reduce<KeyValueObject>(
+            (accum, item) => {
+                const itemKey = params.key(item);
+                if (itemKey) {
+                    accum[itemKey] = params.value(item);
+                }
+                return accum;
+            }, {});
     }
 
     /**
@@ -537,6 +550,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 'name': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME),
                 'cidr': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR)
             },
+            // thinking should cleanse formarray data in payload here, maybe an additional utility or add to arrayOfObjectsToObject
             'labels': this.arrayOfObjectsToObject<{ key: string, value: string }>(
                 loadBalancerLabels,
                 {
