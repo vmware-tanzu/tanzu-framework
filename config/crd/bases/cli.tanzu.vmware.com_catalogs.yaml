@@ -60,6 +60,12 @@ spec:
                   description: CompletionType determines how command line completion
                     will be determined.
                   type: integer
+                defaultFeatureFlags:
+                  additionalProperties:
+                    type: boolean
+                  description: DefaultFeatureFlags is default featureflags to be configured
+                    if missing when invoking plugin
+                  type: object
                 description:
                   description: Description is the plugin's description.
                   type: string
@@ -104,6 +110,7 @@ spec:
               required:
               - buildSHA
               - completionType
+              - defaultFeatureFlags
               - description
               - digest
               - discoveredRecommendedVersion
@@ -155,6 +162,12 @@ spec:
                   description: CompletionType determines how command line completion
                     will be determined.
                   type: integer
+                defaultFeatureFlags:
+                  additionalProperties:
+                    type: boolean
+                  description: DefaultFeatureFlags is default featureflags to be configured
+                    if missing when invoking plugin
+                  type: object
                 description:
                   description: Description is the plugin's description.
                   type: string
@@ -199,6 +212,7 @@ spec:
               required:
               - buildSHA
               - completionType
+              - defaultFeatureFlags
               - description
               - digest
               - discoveredRecommendedVersion

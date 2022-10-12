@@ -30,6 +30,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
+	nsxoperator "github.com/vmware-tanzu/nsx-operator/pkg/apis/v1alpha1"
+
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kappdatapkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
@@ -77,6 +79,7 @@ func init() {
 	_ = capvvmwarev1beta1.AddToScheme(scheme)
 	_ = vmoperatorv1alpha1.AddToScheme(scheme)
 	_ = topologyv1alpha1.AddToScheme(scheme)
+	_ = nsxoperator.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }

@@ -12,6 +12,8 @@ type AntreaProxyNodePortAddress []string
 // AntreaConfigSpec defines the desired state of AntreaConfig
 type AntreaConfigSpec struct {
 	Antrea Antrea `json:"antrea,omitempty"`
+	// AntreaNsx defines nsxt adapter related configurations
+	AntreaNsx AntreaNsx `json:"antreaNsx,omitempty"`
 }
 
 type Antrea struct {
@@ -193,9 +195,53 @@ type AntreaFeatureGates struct {
 
 // AntreaConfigStatus defines the observed state of AntreaConfig
 type AntreaConfigStatus struct {
+	// Message to indicate failure reason
+	// +kubebuilder:validation:Optional
+	Message string `json:"message,omitempty"`
 	// Reference to the data value secret created by controller
 	// +kubebuilder:validation:Optional
 	SecretRef string `json:"secretRef,omitempty"`
+}
+
+type AntreaNsx struct {
+	// enable indicates whether nsxt adapter shall be enabled in the cluster
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	Enable bool `json:"enable,omitempty"`
+	// bootstrapFrom either providerRef or inline configs
+	BootstrapFrom AntreaNsxBootstrapFrom `json:"bootstrapFrom,omitempty"`
+	// config is  configuration for nsxt adapter
+	AntreaNsxConfig AntreaNsxConfig `json:"config,omitempty"`
+}
+
+type AntreaNsxBootstrapFrom struct {
+	// providerRef is used with uTKG, which will be filled by uTKG Addon Controller
+	ProviderRef *AntreaNsxProvider `json:"providerRef,omitempty"`
+	// inline is used with TKGm, user need to fill in manually
+	Inline *AntreaNsxInline `json:"inline,omitempty"`
+}
+
+type AntreaNsxProvider struct {
+	// api version for nsxServiceAccount, its value is "nsx.vmware.com/v1alpha1" now
+	ApiGroup string `json:"apigroup,omitempty"`
+	// its value is NsxServiceAccount
+	Kind string `json:"kind,omitempty"`
+	// the name for NsxServiceAccount
+	Name string `json:"name,omitempty"`
+}
+
+type AntreaNsxInline struct {
+	// nsxManagers is the list for nsx managers, it can be either IP address or domain name
+	NsxManagers []string `json:"nsxManagers,omitempty"`
+	// clusterName is the name for the created cluster
+	ClusterName string `json:"clusterName,omitempty"`
+	// nsxCertName is cert files to access nsx manager
+	NsxCertName string `json:"nsxCertName,omitempty"`
+}
+
+type AntreaNsxConfig struct {
+	// infraType is the type for infrastructure, so far it is vSphere, VMC, AWS, Azure
+	InfraType string `json:"infraType,omitempty"`
 }
 
 // +kubebuilder:object:root=true

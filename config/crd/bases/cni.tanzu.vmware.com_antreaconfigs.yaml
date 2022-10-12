@@ -213,10 +213,66 @@ spec:
                         type: object
                     type: object
                 type: object
+              antreaNsx:
+                description: AntreaNsx defines nsxt adapter related configurations
+                properties:
+                  bootstrapFrom:
+                    description: bootstrapFrom either providerRef or inline configs
+                    properties:
+                      inline:
+                        description: inline is used with TKGm, user need to fill in
+                          manually
+                        properties:
+                          clusterName:
+                            description: clusterName is the name for the created cluster
+                            type: string
+                          nsxCertName:
+                            description: nsxCertName is cert files to access nsx manager
+                            type: string
+                          nsxManagers:
+                            description: nsxManagers is the list for nsx managers,
+                              it can be either IP address or domain name
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      providerRef:
+                        description: providerRef is used with uTKG, which will be
+                          filled by uTKG Addon Controller
+                        properties:
+                          apigroup:
+                            description: api version for nsxServiceAccount, its value
+                              is "nsx.vmware.com/v1alpha1" now
+                            type: string
+                          kind:
+                            description: its value is NsxServiceAccount
+                            type: string
+                          name:
+                            description: the name for NsxServiceAccount
+                            type: string
+                        type: object
+                    type: object
+                  config:
+                    description: config is  configuration for nsxt adapter
+                    properties:
+                      infraType:
+                        description: infraType is the type for infrastructure, so
+                          far it is vSphere, VMC, AWS, Azure
+                        type: string
+                    type: object
+                  enable:
+                    default: false
+                    description: enable indicates whether nsxt adapter shall be enabled
+                      in the cluster
+                    type: boolean
+                type: object
             type: object
           status:
             description: AntreaConfigStatus defines the observed state of AntreaConfig
             properties:
+              message:
+                description: Message to indicate failure reason
+                type: string
               secretRef:
                 description: Reference to the data value secret created by controller
                 type: string
