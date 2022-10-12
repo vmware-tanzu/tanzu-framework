@@ -24,7 +24,7 @@ require (
 	github.com/Jeffail/gabs v1.4.0
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/google/go-cmp v0.5.8
+	github.com/google/go-cmp v0.5.9
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
