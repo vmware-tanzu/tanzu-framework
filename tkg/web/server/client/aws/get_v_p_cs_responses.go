@@ -59,7 +59,8 @@ func NewGetVPCsOK() *GetVPCsOK {
 	return &GetVPCsOK{}
 }
 
-/*GetVPCsOK handles this case with default header values.
+/*
+GetVPCsOK handles this case with default header values.
 
 Successful retrieval of AWS VPCs
 */
@@ -90,7 +91,8 @@ func NewGetVPCsBadRequest() *GetVPCsBadRequest {
 	return &GetVPCsBadRequest{}
 }
 
-/*GetVPCsBadRequest handles this case with default header values.
+/*
+GetVPCsBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetVPCsUnauthorized() *GetVPCsUnauthorized {
 	return &GetVPCsUnauthorized{}
 }
 
-/*GetVPCsUnauthorized handles this case with default header values.
+/*
+GetVPCsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetVPCsInternalServerError() *GetVPCsInternalServerError {
 	return &GetVPCsInternalServerError{}
 }
 
-/*GetVPCsInternalServerError handles this case with default header values.
+/*
+GetVPCsInternalServerError handles this case with default header values.
 
 Internal server error
 */

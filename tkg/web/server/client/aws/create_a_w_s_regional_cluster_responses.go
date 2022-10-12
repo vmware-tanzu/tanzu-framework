@@ -59,7 +59,8 @@ func NewCreateAWSRegionalClusterOK() *CreateAWSRegionalClusterOK {
 	return &CreateAWSRegionalClusterOK{}
 }
 
-/*CreateAWSRegionalClusterOK handles this case with default header values.
+/*
+CreateAWSRegionalClusterOK handles this case with default header values.
 
 Creating regional cluster started successfully
 */
@@ -90,7 +91,8 @@ func NewCreateAWSRegionalClusterBadRequest() *CreateAWSRegionalClusterBadRequest
 	return &CreateAWSRegionalClusterBadRequest{}
 }
 
-/*CreateAWSRegionalClusterBadRequest handles this case with default header values.
+/*
+CreateAWSRegionalClusterBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewCreateAWSRegionalClusterUnauthorized() *CreateAWSRegionalClusterUnauthor
 	return &CreateAWSRegionalClusterUnauthorized{}
 }
 
-/*CreateAWSRegionalClusterUnauthorized handles this case with default header values.
+/*
+CreateAWSRegionalClusterUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewCreateAWSRegionalClusterInternalServerError() *CreateAWSRegionalClusterI
 	return &CreateAWSRegionalClusterInternalServerError{}
 }
 
-/*CreateAWSRegionalClusterInternalServerError handles this case with default header values.
+/*
+CreateAWSRegionalClusterInternalServerError handles this case with default header values.
 
 Internal server error
 */

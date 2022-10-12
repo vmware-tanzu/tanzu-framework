@@ -16,7 +16,8 @@ import (
 // GetVSphereComputeResourcesOKCode is the HTTP code returned for type GetVSphereComputeResourcesOK
 const GetVSphereComputeResourcesOKCode int = 200
 
-/*GetVSphereComputeResourcesOK Successful retrieval of vSphere folders
+/*
+GetVSphereComputeResourcesOK Successful retrieval of vSphere folders
 
 swagger:response getVSphereComputeResourcesOK
 */
@@ -63,7 +64,8 @@ func (o *GetVSphereComputeResourcesOK) WriteResponse(rw http.ResponseWriter, pro
 // GetVSphereComputeResourcesBadRequestCode is the HTTP code returned for type GetVSphereComputeResourcesBadRequest
 const GetVSphereComputeResourcesBadRequestCode int = 400
 
-/*GetVSphereComputeResourcesBadRequest Bad request
+/*
+GetVSphereComputeResourcesBadRequest Bad request
 
 swagger:response getVSphereComputeResourcesBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetVSphereComputeResourcesBadRequest) WriteResponse(rw http.ResponseWri
 // GetVSphereComputeResourcesUnauthorizedCode is the HTTP code returned for type GetVSphereComputeResourcesUnauthorized
 const GetVSphereComputeResourcesUnauthorizedCode int = 401
 
-/*GetVSphereComputeResourcesUnauthorized Incorrect credentials
+/*
+GetVSphereComputeResourcesUnauthorized Incorrect credentials
 
 swagger:response getVSphereComputeResourcesUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetVSphereComputeResourcesUnauthorized) WriteResponse(rw http.ResponseW
 // GetVSphereComputeResourcesInternalServerErrorCode is the HTTP code returned for type GetVSphereComputeResourcesInternalServerError
 const GetVSphereComputeResourcesInternalServerErrorCode int = 500
 
-/*GetVSphereComputeResourcesInternalServerError Internal server error
+/*
+GetVSphereComputeResourcesInternalServerError Internal server error
 
 swagger:response getVSphereComputeResourcesInternalServerError
 */

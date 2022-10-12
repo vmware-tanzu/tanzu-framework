@@ -16,7 +16,8 @@ import (
 // SetAWSEndpointCreatedCode is the HTTP code returned for type SetAWSEndpointCreated
 const SetAWSEndpointCreatedCode int = 201
 
-/*SetAWSEndpointCreated Connection successful
+/*
+SetAWSEndpointCreated Connection successful
 
 swagger:response setAWSEndpointCreated
 */
@@ -40,7 +41,8 @@ func (o *SetAWSEndpointCreated) WriteResponse(rw http.ResponseWriter, producer r
 // SetAWSEndpointBadRequestCode is the HTTP code returned for type SetAWSEndpointBadRequest
 const SetAWSEndpointBadRequestCode int = 400
 
-/*SetAWSEndpointBadRequest Bad request
+/*
+SetAWSEndpointBadRequest Bad request
 
 swagger:response setAWSEndpointBadRequest
 */
@@ -84,7 +86,8 @@ func (o *SetAWSEndpointBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // SetAWSEndpointUnauthorizedCode is the HTTP code returned for type SetAWSEndpointUnauthorized
 const SetAWSEndpointUnauthorizedCode int = 401
 
-/*SetAWSEndpointUnauthorized Incorrect credentials
+/*
+SetAWSEndpointUnauthorized Incorrect credentials
 
 swagger:response setAWSEndpointUnauthorized
 */
@@ -128,7 +131,8 @@ func (o *SetAWSEndpointUnauthorized) WriteResponse(rw http.ResponseWriter, produ
 // SetAWSEndpointInternalServerErrorCode is the HTTP code returned for type SetAWSEndpointInternalServerError
 const SetAWSEndpointInternalServerErrorCode int = 500
 
-/*SetAWSEndpointInternalServerError Internal server error
+/*
+SetAWSEndpointInternalServerError Internal server error
 
 swagger:response setAWSEndpointInternalServerError
 */

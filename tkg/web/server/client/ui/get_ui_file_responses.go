@@ -56,7 +56,8 @@ func NewGetUIFileOK(writer io.Writer) *GetUIFileOK {
 	}
 }
 
-/*GetUIFileOK handles this case with default header values.
+/*
+GetUIFileOK handles this case with default header values.
 
 Successful operation
 */
@@ -87,7 +88,8 @@ func NewGetUIFileBadRequest() *GetUIFileBadRequest {
 	return &GetUIFileBadRequest{}
 }
 
-/*GetUIFileBadRequest handles this case with default header values.
+/*
+GetUIFileBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -120,7 +122,8 @@ func NewGetUIFileInternalServerError() *GetUIFileInternalServerError {
 	return &GetUIFileInternalServerError{}
 }
 
-/*GetUIFileInternalServerError handles this case with default header values.
+/*
+GetUIFileInternalServerError handles this case with default header values.
 
 Internal server error
 */

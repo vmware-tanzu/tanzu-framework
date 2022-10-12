@@ -58,7 +58,8 @@ func NewExportTKGConfigForDockerParamsWithHTTPClient(client *http.Client) *Expor
 	}
 }
 
-/*ExportTKGConfigForDockerParams contains all the parameters to send to the API endpoint
+/*
+ExportTKGConfigForDockerParams contains all the parameters to send to the API endpoint
 for the export t k g config for docker operation typically these are written to a http.Request
 */
 type ExportTKGConfigForDockerParams struct {

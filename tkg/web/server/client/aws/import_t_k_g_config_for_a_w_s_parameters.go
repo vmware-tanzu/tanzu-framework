@@ -58,7 +58,8 @@ func NewImportTKGConfigForAWSParamsWithHTTPClient(client *http.Client) *ImportTK
 	}
 }
 
-/*ImportTKGConfigForAWSParams contains all the parameters to send to the API endpoint
+/*
+ImportTKGConfigForAWSParams contains all the parameters to send to the API endpoint
 for the import t k g config for a w s operation typically these are written to a http.Request
 */
 type ImportTKGConfigForAWSParams struct {

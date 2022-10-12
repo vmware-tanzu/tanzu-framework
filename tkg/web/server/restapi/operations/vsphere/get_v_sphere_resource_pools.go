@@ -29,10 +29,10 @@ func NewGetVSphereResourcePools(ctx *middleware.Context, handler GetVSphereResou
 	return &GetVSphereResourcePools{Context: ctx, Handler: handler}
 }
 
-/*GetVSphereResourcePools swagger:route GET /api/providers/vsphere/resourcepools vsphere getVSphereResourcePools
+/*
+GetVSphereResourcePools swagger:route GET /api/providers/vsphere/resourcepools vsphere getVSphereResourcePools
 
 Retrieve vSphere resource pools
-
 */
 type GetVSphereResourcePools struct {
 	Context *middleware.Context

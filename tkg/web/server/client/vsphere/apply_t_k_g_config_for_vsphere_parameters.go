@@ -58,7 +58,8 @@ func NewApplyTKGConfigForVsphereParamsWithHTTPClient(client *http.Client) *Apply
 	}
 }
 
-/*ApplyTKGConfigForVsphereParams contains all the parameters to send to the API endpoint
+/*
+ApplyTKGConfigForVsphereParams contains all the parameters to send to the API endpoint
 for the apply t k g config for vsphere operation typically these are written to a http.Request
 */
 type ApplyTKGConfigForVsphereParams struct {

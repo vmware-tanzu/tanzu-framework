@@ -29,10 +29,10 @@ func NewCreateAzureRegionalCluster(ctx *middleware.Context, handler CreateAzureR
 	return &CreateAzureRegionalCluster{Context: ctx, Handler: handler}
 }
 
-/*CreateAzureRegionalCluster swagger:route POST /api/providers/azure/create azure createAzureRegionalCluster
+/*
+CreateAzureRegionalCluster swagger:route POST /api/providers/azure/create azure createAzureRegionalCluster
 
 Create Azure regional cluster
-
 */
 type CreateAzureRegionalCluster struct {
 	Context *middleware.Context

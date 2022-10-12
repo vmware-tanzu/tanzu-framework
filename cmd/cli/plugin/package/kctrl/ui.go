@@ -43,6 +43,7 @@ func (adapterUI *AdapterUI) SetOutputFormat(outputFormat string) {
 
 // PrintTable overrides go-cli-ui/ui.PrintTable
 // It accepts a table and renders it based on the output format
+//
 //nolint:gocritic // Cannot change the function signature as it is defined in go-cli-ui
 func (adapterUI *AdapterUI) PrintTable(table uitable.Table) {
 	outputFormat := adapterUI.outputFormat // copy outputFormat so that it doesn't get overwritten in next steps in cases of multiple tables

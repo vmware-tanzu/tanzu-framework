@@ -29,10 +29,10 @@ func NewSetAWSEndpoint(ctx *middleware.Context, handler SetAWSEndpointHandler) *
 	return &SetAWSEndpoint{Context: ctx, Handler: handler}
 }
 
-/*SetAWSEndpoint swagger:route POST /api/providers/aws aws setAWSEndpoint
+/*
+SetAWSEndpoint swagger:route POST /api/providers/aws aws setAWSEndpoint
 
 Validate and set aws credentials
-
 */
 type SetAWSEndpoint struct {
 	Context *middleware.Context

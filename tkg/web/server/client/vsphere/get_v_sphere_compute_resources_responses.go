@@ -59,7 +59,8 @@ func NewGetVSphereComputeResourcesOK() *GetVSphereComputeResourcesOK {
 	return &GetVSphereComputeResourcesOK{}
 }
 
-/*GetVSphereComputeResourcesOK handles this case with default header values.
+/*
+GetVSphereComputeResourcesOK handles this case with default header values.
 
 Successful retrieval of vSphere folders
 */
@@ -90,7 +91,8 @@ func NewGetVSphereComputeResourcesBadRequest() *GetVSphereComputeResourcesBadReq
 	return &GetVSphereComputeResourcesBadRequest{}
 }
 
-/*GetVSphereComputeResourcesBadRequest handles this case with default header values.
+/*
+GetVSphereComputeResourcesBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetVSphereComputeResourcesUnauthorized() *GetVSphereComputeResourcesUnau
 	return &GetVSphereComputeResourcesUnauthorized{}
 }
 
-/*GetVSphereComputeResourcesUnauthorized handles this case with default header values.
+/*
+GetVSphereComputeResourcesUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetVSphereComputeResourcesInternalServerError() *GetVSphereComputeResour
 	return &GetVSphereComputeResourcesInternalServerError{}
 }
 
-/*GetVSphereComputeResourcesInternalServerError handles this case with default header values.
+/*
+GetVSphereComputeResourcesInternalServerError handles this case with default header values.
 
 Internal server error
 */

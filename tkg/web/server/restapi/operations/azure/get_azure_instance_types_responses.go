@@ -16,7 +16,8 @@ import (
 // GetAzureInstanceTypesOKCode is the HTTP code returned for type GetAzureInstanceTypesOK
 const GetAzureInstanceTypesOKCode int = 200
 
-/*GetAzureInstanceTypesOK Successful retrieval of Azure instance Types
+/*
+GetAzureInstanceTypesOK Successful retrieval of Azure instance Types
 
 swagger:response getAzureInstanceTypesOK
 */
@@ -63,7 +64,8 @@ func (o *GetAzureInstanceTypesOK) WriteResponse(rw http.ResponseWriter, producer
 // GetAzureInstanceTypesBadRequestCode is the HTTP code returned for type GetAzureInstanceTypesBadRequest
 const GetAzureInstanceTypesBadRequestCode int = 400
 
-/*GetAzureInstanceTypesBadRequest Bad Request
+/*
+GetAzureInstanceTypesBadRequest Bad Request
 
 swagger:response getAzureInstanceTypesBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAzureInstanceTypesBadRequest) WriteResponse(rw http.ResponseWriter, 
 // GetAzureInstanceTypesUnauthorizedCode is the HTTP code returned for type GetAzureInstanceTypesUnauthorized
 const GetAzureInstanceTypesUnauthorizedCode int = 401
 
-/*GetAzureInstanceTypesUnauthorized Incorrect credentials
+/*
+GetAzureInstanceTypesUnauthorized Incorrect credentials
 
 swagger:response getAzureInstanceTypesUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAzureInstanceTypesUnauthorized) WriteResponse(rw http.ResponseWriter
 // GetAzureInstanceTypesInternalServerErrorCode is the HTTP code returned for type GetAzureInstanceTypesInternalServerError
 const GetAzureInstanceTypesInternalServerErrorCode int = 500
 
-/*GetAzureInstanceTypesInternalServerError Internal server error
+/*
+GetAzureInstanceTypesInternalServerError Internal server error
 
 swagger:response getAzureInstanceTypesInternalServerError
 */

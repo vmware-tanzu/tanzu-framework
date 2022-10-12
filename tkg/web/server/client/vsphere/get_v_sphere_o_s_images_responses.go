@@ -59,7 +59,8 @@ func NewGetVSphereOSImagesOK() *GetVSphereOSImagesOK {
 	return &GetVSphereOSImagesOK{}
 }
 
-/*GetVSphereOSImagesOK handles this case with default header values.
+/*
+GetVSphereOSImagesOK handles this case with default header values.
 
 Successful retrieval of node images supported by vSphere
 */
@@ -90,7 +91,8 @@ func NewGetVSphereOSImagesBadRequest() *GetVSphereOSImagesBadRequest {
 	return &GetVSphereOSImagesBadRequest{}
 }
 
-/*GetVSphereOSImagesBadRequest handles this case with default header values.
+/*
+GetVSphereOSImagesBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetVSphereOSImagesUnauthorized() *GetVSphereOSImagesUnauthorized {
 	return &GetVSphereOSImagesUnauthorized{}
 }
 
-/*GetVSphereOSImagesUnauthorized handles this case with default header values.
+/*
+GetVSphereOSImagesUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetVSphereOSImagesInternalServerError() *GetVSphereOSImagesInternalServe
 	return &GetVSphereOSImagesInternalServerError{}
 }
 
-/*GetVSphereOSImagesInternalServerError handles this case with default header values.
+/*
+GetVSphereOSImagesInternalServerError handles this case with default header values.
 
 Internal server error
 */

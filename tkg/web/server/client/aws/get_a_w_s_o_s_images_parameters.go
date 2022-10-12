@@ -56,7 +56,8 @@ func NewGetAWSOSImagesParamsWithHTTPClient(client *http.Client) *GetAWSOSImagesP
 	}
 }
 
-/*GetAWSOSImagesParams contains all the parameters to send to the API endpoint
+/*
+GetAWSOSImagesParams contains all the parameters to send to the API endpoint
 for the get a w s o s images operation typically these are written to a http.Request
 */
 type GetAWSOSImagesParams struct {

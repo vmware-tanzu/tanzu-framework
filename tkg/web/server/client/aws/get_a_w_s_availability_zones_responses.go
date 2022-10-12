@@ -59,7 +59,8 @@ func NewGetAWSAvailabilityZonesOK() *GetAWSAvailabilityZonesOK {
 	return &GetAWSAvailabilityZonesOK{}
 }
 
-/*GetAWSAvailabilityZonesOK handles this case with default header values.
+/*
+GetAWSAvailabilityZonesOK handles this case with default header values.
 
 Successful retrieval of AWS availability zones
 */
@@ -90,7 +91,8 @@ func NewGetAWSAvailabilityZonesBadRequest() *GetAWSAvailabilityZonesBadRequest {
 	return &GetAWSAvailabilityZonesBadRequest{}
 }
 
-/*GetAWSAvailabilityZonesBadRequest handles this case with default header values.
+/*
+GetAWSAvailabilityZonesBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAWSAvailabilityZonesUnauthorized() *GetAWSAvailabilityZonesUnauthoriz
 	return &GetAWSAvailabilityZonesUnauthorized{}
 }
 
-/*GetAWSAvailabilityZonesUnauthorized handles this case with default header values.
+/*
+GetAWSAvailabilityZonesUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAWSAvailabilityZonesInternalServerError() *GetAWSAvailabilityZonesInt
 	return &GetAWSAvailabilityZonesInternalServerError{}
 }
 
-/*GetAWSAvailabilityZonesInternalServerError handles this case with default header values.
+/*
+GetAWSAvailabilityZonesInternalServerError handles this case with default header values.
 
 Internal server error
 */

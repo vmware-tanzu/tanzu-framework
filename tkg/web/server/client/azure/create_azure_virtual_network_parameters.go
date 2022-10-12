@@ -58,7 +58,8 @@ func NewCreateAzureVirtualNetworkParamsWithHTTPClient(client *http.Client) *Crea
 	}
 }
 
-/*CreateAzureVirtualNetworkParams contains all the parameters to send to the API endpoint
+/*
+CreateAzureVirtualNetworkParams contains all the parameters to send to the API endpoint
 for the create azure virtual network operation typically these are written to a http.Request
 */
 type CreateAzureVirtualNetworkParams struct {

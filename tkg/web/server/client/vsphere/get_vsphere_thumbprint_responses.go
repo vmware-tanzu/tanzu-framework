@@ -59,7 +59,8 @@ func NewGetVsphereThumbprintOK() *GetVsphereThumbprintOK {
 	return &GetVsphereThumbprintOK{}
 }
 
-/*GetVsphereThumbprintOK handles this case with default header values.
+/*
+GetVsphereThumbprintOK handles this case with default header values.
 
 Successful retrieval of vSphere thumbprint
 */
@@ -92,7 +93,8 @@ func NewGetVsphereThumbprintBadRequest() *GetVsphereThumbprintBadRequest {
 	return &GetVsphereThumbprintBadRequest{}
 }
 
-/*GetVsphereThumbprintBadRequest handles this case with default header values.
+/*
+GetVsphereThumbprintBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewGetVsphereThumbprintUnauthorized() *GetVsphereThumbprintUnauthorized {
 	return &GetVsphereThumbprintUnauthorized{}
 }
 
-/*GetVsphereThumbprintUnauthorized handles this case with default header values.
+/*
+GetVsphereThumbprintUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewGetVsphereThumbprintInternalServerError() *GetVsphereThumbprintInternalS
 	return &GetVsphereThumbprintInternalServerError{}
 }
 
-/*GetVsphereThumbprintInternalServerError handles this case with default header values.
+/*
+GetVsphereThumbprintInternalServerError handles this case with default header values.
 
 Internal server error
 */

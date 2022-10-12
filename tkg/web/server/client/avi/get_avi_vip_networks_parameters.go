@@ -56,7 +56,8 @@ func NewGetAviVipNetworksParamsWithHTTPClient(client *http.Client) *GetAviVipNet
 	}
 }
 
-/*GetAviVipNetworksParams contains all the parameters to send to the API endpoint
+/*
+GetAviVipNetworksParams contains all the parameters to send to the API endpoint
 for the get avi vip networks operation typically these are written to a http.Request
 */
 type GetAviVipNetworksParams struct {

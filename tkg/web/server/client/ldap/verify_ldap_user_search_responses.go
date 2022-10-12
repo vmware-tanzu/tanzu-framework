@@ -59,7 +59,8 @@ func NewVerifyLdapUserSearchOK() *VerifyLdapUserSearchOK {
 	return &VerifyLdapUserSearchOK{}
 }
 
-/*VerifyLdapUserSearchOK handles this case with default header values.
+/*
+VerifyLdapUserSearchOK handles this case with default header values.
 
 Verified LDAP credentials successfully
 */
@@ -92,7 +93,8 @@ func NewVerifyLdapUserSearchBadRequest() *VerifyLdapUserSearchBadRequest {
 	return &VerifyLdapUserSearchBadRequest{}
 }
 
-/*VerifyLdapUserSearchBadRequest handles this case with default header values.
+/*
+VerifyLdapUserSearchBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewVerifyLdapUserSearchUnauthorized() *VerifyLdapUserSearchUnauthorized {
 	return &VerifyLdapUserSearchUnauthorized{}
 }
 
-/*VerifyLdapUserSearchUnauthorized handles this case with default header values.
+/*
+VerifyLdapUserSearchUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewVerifyLdapUserSearchInternalServerError() *VerifyLdapUserSearchInternalS
 	return &VerifyLdapUserSearchInternalServerError{}
 }
 
-/*VerifyLdapUserSearchInternalServerError handles this case with default header values.
+/*
+VerifyLdapUserSearchInternalServerError handles this case with default header values.
 
 Internal server error
 */

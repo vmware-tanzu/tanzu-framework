@@ -56,7 +56,8 @@ func NewGetUIParamsWithHTTPClient(client *http.Client) *GetUIParams {
 	}
 }
 
-/*GetUIParams contains all the parameters to send to the API endpoint
+/*
+GetUIParams contains all the parameters to send to the API endpoint
 for the get UI operation typically these are written to a http.Request
 */
 type GetUIParams struct {

@@ -29,10 +29,10 @@ func NewGetVSphereComputeResources(ctx *middleware.Context, handler GetVSphereCo
 	return &GetVSphereComputeResources{Context: ctx, Handler: handler}
 }
 
-/*GetVSphereComputeResources swagger:route GET /api/providers/vsphere/compute vsphere getVSphereComputeResources
+/*
+GetVSphereComputeResources swagger:route GET /api/providers/vsphere/compute vsphere getVSphereComputeResources
 
 Retrieve vSphere compute resources
-
 */
 type GetVSphereComputeResources struct {
 	Context *middleware.Context

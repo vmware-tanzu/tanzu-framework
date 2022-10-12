@@ -58,7 +58,8 @@ func NewExportTKGConfigForAzureParamsWithHTTPClient(client *http.Client) *Export
 	}
 }
 
-/*ExportTKGConfigForAzureParams contains all the parameters to send to the API endpoint
+/*
+ExportTKGConfigForAzureParams contains all the parameters to send to the API endpoint
 for the export t k g config for azure operation typically these are written to a http.Request
 */
 type ExportTKGConfigForAzureParams struct {

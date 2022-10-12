@@ -29,10 +29,10 @@ func NewCreateDockerRegionalCluster(ctx *middleware.Context, handler CreateDocke
 	return &CreateDockerRegionalCluster{Context: ctx, Handler: handler}
 }
 
-/*CreateDockerRegionalCluster swagger:route POST /api/providers/docker/create docker createDockerRegionalCluster
+/*
+CreateDockerRegionalCluster swagger:route POST /api/providers/docker/create docker createDockerRegionalCluster
 
 Create Docker regional cluster
-
 */
 type CreateDockerRegionalCluster struct {
 	Context *middleware.Context

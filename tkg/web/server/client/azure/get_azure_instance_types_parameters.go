@@ -56,7 +56,8 @@ func NewGetAzureInstanceTypesParamsWithHTTPClient(client *http.Client) *GetAzure
 	}
 }
 
-/*GetAzureInstanceTypesParams contains all the parameters to send to the API endpoint
+/*
+GetAzureInstanceTypesParams contains all the parameters to send to the API endpoint
 for the get azure instance types operation typically these are written to a http.Request
 */
 type GetAzureInstanceTypesParams struct {

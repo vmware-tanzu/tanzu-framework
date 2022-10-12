@@ -58,7 +58,8 @@ func NewApplyTKGConfigForAzureParamsWithHTTPClient(client *http.Client) *ApplyTK
 	}
 }
 
-/*ApplyTKGConfigForAzureParams contains all the parameters to send to the API endpoint
+/*
+ApplyTKGConfigForAzureParams contains all the parameters to send to the API endpoint
 for the apply t k g config for azure operation typically these are written to a http.Request
 */
 type ApplyTKGConfigForAzureParams struct {

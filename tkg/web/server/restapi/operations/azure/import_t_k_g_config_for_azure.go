@@ -29,10 +29,10 @@ func NewImportTKGConfigForAzure(ctx *middleware.Context, handler ImportTKGConfig
 	return &ImportTKGConfigForAzure{Context: ctx, Handler: handler}
 }
 
-/*ImportTKGConfigForAzure swagger:route POST /api/providers/azure/config/import azure importTKGConfigForAzure
+/*
+ImportTKGConfigForAzure swagger:route POST /api/providers/azure/config/import azure importTKGConfigForAzure
 
 Generate TKG configuration object for azure
-
 */
 type ImportTKGConfigForAzure struct {
 	Context *middleware.Context

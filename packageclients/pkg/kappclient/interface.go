@@ -18,6 +18,7 @@ import (
 //go:generate counterfeiter -o ../fakes -generate
 
 // Client is the kapp client interface
+//
 //counterfeiter:generate -o ../fakes/kappclient.go --fake-name KappClient . Client
 type Client interface {
 	CreatePackageInstall(packageInstall *kappipkg.PackageInstall, pkgPluginResourceCreationStatus *packagedatamodel.PkgPluginResourceCreationStatus) error

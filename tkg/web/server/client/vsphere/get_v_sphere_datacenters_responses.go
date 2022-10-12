@@ -59,7 +59,8 @@ func NewGetVSphereDatacentersOK() *GetVSphereDatacentersOK {
 	return &GetVSphereDatacentersOK{}
 }
 
-/*GetVSphereDatacentersOK handles this case with default header values.
+/*
+GetVSphereDatacentersOK handles this case with default header values.
 
 Successful retrieval of vSphere datacenters
 */
@@ -90,7 +91,8 @@ func NewGetVSphereDatacentersBadRequest() *GetVSphereDatacentersBadRequest {
 	return &GetVSphereDatacentersBadRequest{}
 }
 
-/*GetVSphereDatacentersBadRequest handles this case with default header values.
+/*
+GetVSphereDatacentersBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetVSphereDatacentersUnauthorized() *GetVSphereDatacentersUnauthorized {
 	return &GetVSphereDatacentersUnauthorized{}
 }
 
-/*GetVSphereDatacentersUnauthorized handles this case with default header values.
+/*
+GetVSphereDatacentersUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetVSphereDatacentersInternalServerError() *GetVSphereDatacentersInterna
 	return &GetVSphereDatacentersInternalServerError{}
 }
 
-/*GetVSphereDatacentersInternalServerError handles this case with default header values.
+/*
+GetVSphereDatacentersInternalServerError handles this case with default header values.
 
 Internal server error
 */

@@ -29,10 +29,10 @@ func NewVerifyLdapBind(ctx *middleware.Context, handler VerifyLdapBindHandler) *
 	return &VerifyLdapBind{Context: ctx, Handler: handler}
 }
 
-/*VerifyLdapBind swagger:route POST /api/ldap/bind ldap verifyLdapBind
+/*
+VerifyLdapBind swagger:route POST /api/ldap/bind ldap verifyLdapBind
 
 Validate LDAP bind or authentication
-
 */
 type VerifyLdapBind struct {
 	Context *middleware.Context

@@ -58,7 +58,8 @@ func NewApplyTKGConfigForAWSParamsWithHTTPClient(client *http.Client) *ApplyTKGC
 	}
 }
 
-/*ApplyTKGConfigForAWSParams contains all the parameters to send to the API endpoint
+/*
+ApplyTKGConfigForAWSParams contains all the parameters to send to the API endpoint
 for the apply t k g config for a w s operation typically these are written to a http.Request
 */
 type ApplyTKGConfigForAWSParams struct {

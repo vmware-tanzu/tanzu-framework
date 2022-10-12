@@ -56,7 +56,8 @@ func NewVerifyLdapGroupSearchParamsWithHTTPClient(client *http.Client) *VerifyLd
 	}
 }
 
-/*VerifyLdapGroupSearchParams contains all the parameters to send to the API endpoint
+/*
+VerifyLdapGroupSearchParams contains all the parameters to send to the API endpoint
 for the verify ldap group search operation typically these are written to a http.Request
 */
 type VerifyLdapGroupSearchParams struct {

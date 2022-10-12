@@ -29,10 +29,10 @@ func NewCreateVSphereRegionalCluster(ctx *middleware.Context, handler CreateVSph
 	return &CreateVSphereRegionalCluster{Context: ctx, Handler: handler}
 }
 
-/*CreateVSphereRegionalCluster swagger:route POST /api/providers/vsphere/create vsphere createVSphereRegionalCluster
+/*
+CreateVSphereRegionalCluster swagger:route POST /api/providers/vsphere/create vsphere createVSphereRegionalCluster
 
 Create vSphere regional cluster
-
 */
 type CreateVSphereRegionalCluster struct {
 	Context *middleware.Context

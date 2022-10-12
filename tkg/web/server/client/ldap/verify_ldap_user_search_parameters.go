@@ -56,7 +56,8 @@ func NewVerifyLdapUserSearchParamsWithHTTPClient(client *http.Client) *VerifyLda
 	}
 }
 
-/*VerifyLdapUserSearchParams contains all the parameters to send to the API endpoint
+/*
+VerifyLdapUserSearchParams contains all the parameters to send to the API endpoint
 for the verify ldap user search operation typically these are written to a http.Request
 */
 type VerifyLdapUserSearchParams struct {

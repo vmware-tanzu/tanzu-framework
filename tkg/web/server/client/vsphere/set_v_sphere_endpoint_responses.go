@@ -59,7 +59,8 @@ func NewSetVSphereEndpointCreated() *SetVSphereEndpointCreated {
 	return &SetVSphereEndpointCreated{}
 }
 
-/*SetVSphereEndpointCreated handles this case with default header values.
+/*
+SetVSphereEndpointCreated handles this case with default header values.
 
 Connection successful
 */
@@ -92,7 +93,8 @@ func NewSetVSphereEndpointBadRequest() *SetVSphereEndpointBadRequest {
 	return &SetVSphereEndpointBadRequest{}
 }
 
-/*SetVSphereEndpointBadRequest handles this case with default header values.
+/*
+SetVSphereEndpointBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewSetVSphereEndpointUnauthorized() *SetVSphereEndpointUnauthorized {
 	return &SetVSphereEndpointUnauthorized{}
 }
 
-/*SetVSphereEndpointUnauthorized handles this case with default header values.
+/*
+SetVSphereEndpointUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewSetVSphereEndpointInternalServerError() *SetVSphereEndpointInternalServe
 	return &SetVSphereEndpointInternalServerError{}
 }
 
-/*SetVSphereEndpointInternalServerError handles this case with default header values.
+/*
+SetVSphereEndpointInternalServerError handles this case with default header values.
 
 Internal server error
 */

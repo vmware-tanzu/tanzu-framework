@@ -53,7 +53,8 @@ func NewGetProviderOK() *GetProviderOK {
 	return &GetProviderOK{}
 }
 
-/*GetProviderOK handles this case with default header values.
+/*
+GetProviderOK handles this case with default header values.
 
 Successful operation
 */
@@ -86,7 +87,8 @@ func NewGetProviderBadRequest() *GetProviderBadRequest {
 	return &GetProviderBadRequest{}
 }
 
-/*GetProviderBadRequest handles this case with default header values.
+/*
+GetProviderBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -119,7 +121,8 @@ func NewGetProviderInternalServerError() *GetProviderInternalServerError {
 	return &GetProviderInternalServerError{}
 }
 
-/*GetProviderInternalServerError handles this case with default header values.
+/*
+GetProviderInternalServerError handles this case with default header values.
 
 Internal server error
 */

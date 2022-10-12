@@ -58,7 +58,8 @@ func NewImportTKGConfigForVsphereParamsWithHTTPClient(client *http.Client) *Impo
 	}
 }
 
-/*ImportTKGConfigForVsphereParams contains all the parameters to send to the API endpoint
+/*
+ImportTKGConfigForVsphereParams contains all the parameters to send to the API endpoint
 for the import t k g config for vsphere operation typically these are written to a http.Request
 */
 type ImportTKGConfigForVsphereParams struct {

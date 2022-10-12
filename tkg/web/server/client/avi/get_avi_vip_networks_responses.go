@@ -59,7 +59,8 @@ func NewGetAviVipNetworksOK() *GetAviVipNetworksOK {
 	return &GetAviVipNetworksOK{}
 }
 
-/*GetAviVipNetworksOK handles this case with default header values.
+/*
+GetAviVipNetworksOK handles this case with default header values.
 
 Successful retrieval of Avi load balancer service engine groups
 */
@@ -90,7 +91,8 @@ func NewGetAviVipNetworksBadRequest() *GetAviVipNetworksBadRequest {
 	return &GetAviVipNetworksBadRequest{}
 }
 
-/*GetAviVipNetworksBadRequest handles this case with default header values.
+/*
+GetAviVipNetworksBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAviVipNetworksUnauthorized() *GetAviVipNetworksUnauthorized {
 	return &GetAviVipNetworksUnauthorized{}
 }
 
-/*GetAviVipNetworksUnauthorized handles this case with default header values.
+/*
+GetAviVipNetworksUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAviVipNetworksInternalServerError() *GetAviVipNetworksInternalServerE
 	return &GetAviVipNetworksInternalServerError{}
 }
 
-/*GetAviVipNetworksInternalServerError handles this case with default header values.
+/*
+GetAviVipNetworksInternalServerError handles this case with default header values.
 
 Internal server error
 */

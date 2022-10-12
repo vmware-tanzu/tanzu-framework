@@ -56,7 +56,8 @@ func NewVerifyLdapCloseConnectionParamsWithHTTPClient(client *http.Client) *Veri
 	}
 }
 
-/*VerifyLdapCloseConnectionParams contains all the parameters to send to the API endpoint
+/*
+VerifyLdapCloseConnectionParams contains all the parameters to send to the API endpoint
 for the verify ldap close connection operation typically these are written to a http.Request
 */
 type VerifyLdapCloseConnectionParams struct {

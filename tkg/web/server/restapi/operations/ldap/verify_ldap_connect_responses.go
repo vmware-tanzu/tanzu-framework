@@ -16,7 +16,8 @@ import (
 // VerifyLdapConnectOKCode is the HTTP code returned for type VerifyLdapConnectOK
 const VerifyLdapConnectOKCode int = 200
 
-/*VerifyLdapConnectOK Verified LDAP credentials successfully
+/*
+VerifyLdapConnectOK Verified LDAP credentials successfully
 
 swagger:response verifyLdapConnectOK
 */
@@ -60,7 +61,8 @@ func (o *VerifyLdapConnectOK) WriteResponse(rw http.ResponseWriter, producer run
 // VerifyLdapConnectBadRequestCode is the HTTP code returned for type VerifyLdapConnectBadRequest
 const VerifyLdapConnectBadRequestCode int = 400
 
-/*VerifyLdapConnectBadRequest Bad request
+/*
+VerifyLdapConnectBadRequest Bad request
 
 swagger:response verifyLdapConnectBadRequest
 */
@@ -104,7 +106,8 @@ func (o *VerifyLdapConnectBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // VerifyLdapConnectUnauthorizedCode is the HTTP code returned for type VerifyLdapConnectUnauthorized
 const VerifyLdapConnectUnauthorizedCode int = 401
 
-/*VerifyLdapConnectUnauthorized Incorrect credentials
+/*
+VerifyLdapConnectUnauthorized Incorrect credentials
 
 swagger:response verifyLdapConnectUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *VerifyLdapConnectUnauthorized) WriteResponse(rw http.ResponseWriter, pr
 // VerifyLdapConnectInternalServerErrorCode is the HTTP code returned for type VerifyLdapConnectInternalServerError
 const VerifyLdapConnectInternalServerErrorCode int = 500
 
-/*VerifyLdapConnectInternalServerError Internal server error
+/*
+VerifyLdapConnectInternalServerError Internal server error
 
 swagger:response verifyLdapConnectInternalServerError
 */

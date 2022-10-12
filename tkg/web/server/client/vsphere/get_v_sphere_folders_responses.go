@@ -59,7 +59,8 @@ func NewGetVSphereFoldersOK() *GetVSphereFoldersOK {
 	return &GetVSphereFoldersOK{}
 }
 
-/*GetVSphereFoldersOK handles this case with default header values.
+/*
+GetVSphereFoldersOK handles this case with default header values.
 
 Successful retrieval of vSphere folders
 */
@@ -90,7 +91,8 @@ func NewGetVSphereFoldersBadRequest() *GetVSphereFoldersBadRequest {
 	return &GetVSphereFoldersBadRequest{}
 }
 
-/*GetVSphereFoldersBadRequest handles this case with default header values.
+/*
+GetVSphereFoldersBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetVSphereFoldersUnauthorized() *GetVSphereFoldersUnauthorized {
 	return &GetVSphereFoldersUnauthorized{}
 }
 
-/*GetVSphereFoldersUnauthorized handles this case with default header values.
+/*
+GetVSphereFoldersUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetVSphereFoldersInternalServerError() *GetVSphereFoldersInternalServerE
 	return &GetVSphereFoldersInternalServerError{}
 }
 
-/*GetVSphereFoldersInternalServerError handles this case with default header values.
+/*
+GetVSphereFoldersInternalServerError handles this case with default header values.
 
 Internal server error
 */

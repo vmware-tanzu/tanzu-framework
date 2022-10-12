@@ -59,7 +59,8 @@ func NewCreateAzureVirtualNetworkCreated() *CreateAzureVirtualNetworkCreated {
 	return &CreateAzureVirtualNetworkCreated{}
 }
 
-/*CreateAzureVirtualNetworkCreated handles this case with default header values.
+/*
+CreateAzureVirtualNetworkCreated handles this case with default header values.
 
 Successfully created Azure Virtual network
 */
@@ -90,7 +91,8 @@ func NewCreateAzureVirtualNetworkBadRequest() *CreateAzureVirtualNetworkBadReque
 	return &CreateAzureVirtualNetworkBadRequest{}
 }
 
-/*CreateAzureVirtualNetworkBadRequest handles this case with default header values.
+/*
+CreateAzureVirtualNetworkBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewCreateAzureVirtualNetworkUnauthorized() *CreateAzureVirtualNetworkUnauth
 	return &CreateAzureVirtualNetworkUnauthorized{}
 }
 
-/*CreateAzureVirtualNetworkUnauthorized handles this case with default header values.
+/*
+CreateAzureVirtualNetworkUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewCreateAzureVirtualNetworkInternalServerError() *CreateAzureVirtualNetwor
 	return &CreateAzureVirtualNetworkInternalServerError{}
 }
 
-/*CreateAzureVirtualNetworkInternalServerError handles this case with default header values.
+/*
+CreateAzureVirtualNetworkInternalServerError handles this case with default header values.
 
 Internal server error
 */

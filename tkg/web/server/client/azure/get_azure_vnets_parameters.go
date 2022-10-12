@@ -56,7 +56,8 @@ func NewGetAzureVnetsParamsWithHTTPClient(client *http.Client) *GetAzureVnetsPar
 	}
 }
 
-/*GetAzureVnetsParams contains all the parameters to send to the API endpoint
+/*
+GetAzureVnetsParams contains all the parameters to send to the API endpoint
 for the get azure vnets operation typically these are written to a http.Request
 */
 type GetAzureVnetsParams struct {

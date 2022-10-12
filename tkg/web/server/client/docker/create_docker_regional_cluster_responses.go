@@ -53,7 +53,8 @@ func NewCreateDockerRegionalClusterOK() *CreateDockerRegionalClusterOK {
 	return &CreateDockerRegionalClusterOK{}
 }
 
-/*CreateDockerRegionalClusterOK handles this case with default header values.
+/*
+CreateDockerRegionalClusterOK handles this case with default header values.
 
 Creating regional cluster started successfully
 */
@@ -84,7 +85,8 @@ func NewCreateDockerRegionalClusterBadRequest() *CreateDockerRegionalClusterBadR
 	return &CreateDockerRegionalClusterBadRequest{}
 }
 
-/*CreateDockerRegionalClusterBadRequest handles this case with default header values.
+/*
+CreateDockerRegionalClusterBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -117,7 +119,8 @@ func NewCreateDockerRegionalClusterInternalServerError() *CreateDockerRegionalCl
 	return &CreateDockerRegionalClusterInternalServerError{}
 }
 
-/*CreateDockerRegionalClusterInternalServerError handles this case with default header values.
+/*
+CreateDockerRegionalClusterInternalServerError handles this case with default header values.
 
 Internal server error
 */

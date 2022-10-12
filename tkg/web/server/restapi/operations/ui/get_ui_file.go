@@ -29,10 +29,10 @@ func NewGetUIFile(ctx *middleware.Context, handler GetUIFileHandler) *GetUIFile 
 	return &GetUIFile{Context: ctx, Handler: handler}
 }
 
-/*GetUIFile swagger:route GET /{filename} ui getUiFile
+/*
+GetUIFile swagger:route GET /{filename} ui getUiFile
 
 Get the kickstart UI static resource file
-
 */
 type GetUIFile struct {
 	Context *middleware.Context

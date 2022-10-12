@@ -29,10 +29,10 @@ func NewVerifyLdapConnect(ctx *middleware.Context, handler VerifyLdapConnectHand
 	return &VerifyLdapConnect{Context: ctx, Handler: handler}
 }
 
-/*VerifyLdapConnect swagger:route POST /api/ldap/connect ldap verifyLdapConnect
+/*
+VerifyLdapConnect swagger:route POST /api/ldap/connect ldap verifyLdapConnect
 
 Validate LDAP connection
-
 */
 type VerifyLdapConnect struct {
 	Context *middleware.Context

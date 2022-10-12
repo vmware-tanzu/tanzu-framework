@@ -59,7 +59,8 @@ func NewGetVSphereResourcePoolsOK() *GetVSphereResourcePoolsOK {
 	return &GetVSphereResourcePoolsOK{}
 }
 
-/*GetVSphereResourcePoolsOK handles this case with default header values.
+/*
+GetVSphereResourcePoolsOK handles this case with default header values.
 
 Successful retrieval of vSphere resourcePools
 */
@@ -90,7 +91,8 @@ func NewGetVSphereResourcePoolsBadRequest() *GetVSphereResourcePoolsBadRequest {
 	return &GetVSphereResourcePoolsBadRequest{}
 }
 
-/*GetVSphereResourcePoolsBadRequest handles this case with default header values.
+/*
+GetVSphereResourcePoolsBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetVSphereResourcePoolsUnauthorized() *GetVSphereResourcePoolsUnauthoriz
 	return &GetVSphereResourcePoolsUnauthorized{}
 }
 
-/*GetVSphereResourcePoolsUnauthorized handles this case with default header values.
+/*
+GetVSphereResourcePoolsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetVSphereResourcePoolsInternalServerError() *GetVSphereResourcePoolsInt
 	return &GetVSphereResourcePoolsInternalServerError{}
 }
 
-/*GetVSphereResourcePoolsInternalServerError handles this case with default header values.
+/*
+GetVSphereResourcePoolsInternalServerError handles this case with default header values.
 
 Internal server error
 */

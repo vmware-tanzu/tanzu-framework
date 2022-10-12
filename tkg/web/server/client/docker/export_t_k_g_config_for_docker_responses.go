@@ -53,7 +53,8 @@ func NewExportTKGConfigForDockerOK() *ExportTKGConfigForDockerOK {
 	return &ExportTKGConfigForDockerOK{}
 }
 
-/*ExportTKGConfigForDockerOK handles this case with default header values.
+/*
+ExportTKGConfigForDockerOK handles this case with default header values.
 
 Generated TKG configuration successfully
 */
@@ -84,7 +85,8 @@ func NewExportTKGConfigForDockerBadRequest() *ExportTKGConfigForDockerBadRequest
 	return &ExportTKGConfigForDockerBadRequest{}
 }
 
-/*ExportTKGConfigForDockerBadRequest handles this case with default header values.
+/*
+ExportTKGConfigForDockerBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -117,7 +119,8 @@ func NewExportTKGConfigForDockerInternalServerError() *ExportTKGConfigForDockerI
 	return &ExportTKGConfigForDockerInternalServerError{}
 }
 
-/*ExportTKGConfigForDockerInternalServerError handles this case with default header values.
+/*
+ExportTKGConfigForDockerInternalServerError handles this case with default header values.
 
 Internal server error
 */

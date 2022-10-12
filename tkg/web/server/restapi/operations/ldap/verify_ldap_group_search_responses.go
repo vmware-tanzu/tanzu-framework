@@ -16,7 +16,8 @@ import (
 // VerifyLdapGroupSearchOKCode is the HTTP code returned for type VerifyLdapGroupSearchOK
 const VerifyLdapGroupSearchOKCode int = 200
 
-/*VerifyLdapGroupSearchOK Verified LDAP credentials successfully
+/*
+VerifyLdapGroupSearchOK Verified LDAP credentials successfully
 
 swagger:response verifyLdapGroupSearchOK
 */
@@ -60,7 +61,8 @@ func (o *VerifyLdapGroupSearchOK) WriteResponse(rw http.ResponseWriter, producer
 // VerifyLdapGroupSearchBadRequestCode is the HTTP code returned for type VerifyLdapGroupSearchBadRequest
 const VerifyLdapGroupSearchBadRequestCode int = 400
 
-/*VerifyLdapGroupSearchBadRequest Bad request
+/*
+VerifyLdapGroupSearchBadRequest Bad request
 
 swagger:response verifyLdapGroupSearchBadRequest
 */
@@ -104,7 +106,8 @@ func (o *VerifyLdapGroupSearchBadRequest) WriteResponse(rw http.ResponseWriter, 
 // VerifyLdapGroupSearchUnauthorizedCode is the HTTP code returned for type VerifyLdapGroupSearchUnauthorized
 const VerifyLdapGroupSearchUnauthorizedCode int = 401
 
-/*VerifyLdapGroupSearchUnauthorized Incorrect credentials
+/*
+VerifyLdapGroupSearchUnauthorized Incorrect credentials
 
 swagger:response verifyLdapGroupSearchUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *VerifyLdapGroupSearchUnauthorized) WriteResponse(rw http.ResponseWriter
 // VerifyLdapGroupSearchInternalServerErrorCode is the HTTP code returned for type VerifyLdapGroupSearchInternalServerError
 const VerifyLdapGroupSearchInternalServerErrorCode int = 500
 
-/*VerifyLdapGroupSearchInternalServerError Internal server error
+/*
+VerifyLdapGroupSearchInternalServerError Internal server error
 
 swagger:response verifyLdapGroupSearchInternalServerError
 */

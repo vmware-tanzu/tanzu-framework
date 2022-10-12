@@ -16,7 +16,8 @@ import (
 // GetAzureResourceGroupsOKCode is the HTTP code returned for type GetAzureResourceGroupsOK
 const GetAzureResourceGroupsOKCode int = 200
 
-/*GetAzureResourceGroupsOK Successful retrieval of Azure resource groups
+/*
+GetAzureResourceGroupsOK Successful retrieval of Azure resource groups
 
 swagger:response getAzureResourceGroupsOK
 */
@@ -63,7 +64,8 @@ func (o *GetAzureResourceGroupsOK) WriteResponse(rw http.ResponseWriter, produce
 // GetAzureResourceGroupsBadRequestCode is the HTTP code returned for type GetAzureResourceGroupsBadRequest
 const GetAzureResourceGroupsBadRequestCode int = 400
 
-/*GetAzureResourceGroupsBadRequest Bad Request
+/*
+GetAzureResourceGroupsBadRequest Bad Request
 
 swagger:response getAzureResourceGroupsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAzureResourceGroupsBadRequest) WriteResponse(rw http.ResponseWriter,
 // GetAzureResourceGroupsUnauthorizedCode is the HTTP code returned for type GetAzureResourceGroupsUnauthorized
 const GetAzureResourceGroupsUnauthorizedCode int = 401
 
-/*GetAzureResourceGroupsUnauthorized Incorrect credentials
+/*
+GetAzureResourceGroupsUnauthorized Incorrect credentials
 
 swagger:response getAzureResourceGroupsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAzureResourceGroupsUnauthorized) WriteResponse(rw http.ResponseWrite
 // GetAzureResourceGroupsInternalServerErrorCode is the HTTP code returned for type GetAzureResourceGroupsInternalServerError
 const GetAzureResourceGroupsInternalServerErrorCode int = 500
 
-/*GetAzureResourceGroupsInternalServerError Internal server error
+/*
+GetAzureResourceGroupsInternalServerError Internal server error
 
 swagger:response getAzureResourceGroupsInternalServerError
 */

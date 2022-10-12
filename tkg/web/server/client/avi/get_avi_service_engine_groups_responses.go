@@ -59,7 +59,8 @@ func NewGetAviServiceEngineGroupsOK() *GetAviServiceEngineGroupsOK {
 	return &GetAviServiceEngineGroupsOK{}
 }
 
-/*GetAviServiceEngineGroupsOK handles this case with default header values.
+/*
+GetAviServiceEngineGroupsOK handles this case with default header values.
 
 Successful retrieval of Avi load balancer service engine groups
 */
@@ -90,7 +91,8 @@ func NewGetAviServiceEngineGroupsBadRequest() *GetAviServiceEngineGroupsBadReque
 	return &GetAviServiceEngineGroupsBadRequest{}
 }
 
-/*GetAviServiceEngineGroupsBadRequest handles this case with default header values.
+/*
+GetAviServiceEngineGroupsBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAviServiceEngineGroupsUnauthorized() *GetAviServiceEngineGroupsUnauth
 	return &GetAviServiceEngineGroupsUnauthorized{}
 }
 
-/*GetAviServiceEngineGroupsUnauthorized handles this case with default header values.
+/*
+GetAviServiceEngineGroupsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAviServiceEngineGroupsInternalServerError() *GetAviServiceEngineGroup
 	return &GetAviServiceEngineGroupsInternalServerError{}
 }
 
-/*GetAviServiceEngineGroupsInternalServerError handles this case with default header values.
+/*
+GetAviServiceEngineGroupsInternalServerError handles this case with default header values.
 
 Internal server error
 */

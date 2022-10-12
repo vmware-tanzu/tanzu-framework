@@ -16,7 +16,8 @@ import (
 // ExportTKGConfigForAzureOKCode is the HTTP code returned for type ExportTKGConfigForAzureOK
 const ExportTKGConfigForAzureOKCode int = 200
 
-/*ExportTKGConfigForAzureOK Generated TKG configuration successfully
+/*
+ExportTKGConfigForAzureOK Generated TKG configuration successfully
 
 swagger:response exportTKGConfigForAzureOK
 */
@@ -58,7 +59,8 @@ func (o *ExportTKGConfigForAzureOK) WriteResponse(rw http.ResponseWriter, produc
 // ExportTKGConfigForAzureBadRequestCode is the HTTP code returned for type ExportTKGConfigForAzureBadRequest
 const ExportTKGConfigForAzureBadRequestCode int = 400
 
-/*ExportTKGConfigForAzureBadRequest Bad request
+/*
+ExportTKGConfigForAzureBadRequest Bad request
 
 swagger:response exportTKGConfigForAzureBadRequest
 */
@@ -102,7 +104,8 @@ func (o *ExportTKGConfigForAzureBadRequest) WriteResponse(rw http.ResponseWriter
 // ExportTKGConfigForAzureUnauthorizedCode is the HTTP code returned for type ExportTKGConfigForAzureUnauthorized
 const ExportTKGConfigForAzureUnauthorizedCode int = 401
 
-/*ExportTKGConfigForAzureUnauthorized Incorrect credentials
+/*
+ExportTKGConfigForAzureUnauthorized Incorrect credentials
 
 swagger:response exportTKGConfigForAzureUnauthorized
 */
@@ -146,7 +149,8 @@ func (o *ExportTKGConfigForAzureUnauthorized) WriteResponse(rw http.ResponseWrit
 // ExportTKGConfigForAzureInternalServerErrorCode is the HTTP code returned for type ExportTKGConfigForAzureInternalServerError
 const ExportTKGConfigForAzureInternalServerErrorCode int = 500
 
-/*ExportTKGConfigForAzureInternalServerError Internal server error
+/*
+ExportTKGConfigForAzureInternalServerError Internal server error
 
 swagger:response exportTKGConfigForAzureInternalServerError
 */

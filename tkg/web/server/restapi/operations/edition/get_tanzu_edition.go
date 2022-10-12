@@ -29,10 +29,10 @@ func NewGetTanzuEdition(ctx *middleware.Context, handler GetTanzuEditionHandler)
 	return &GetTanzuEdition{Context: ctx, Handler: handler}
 }
 
-/*GetTanzuEdition swagger:route GET /api/edition edition getTanzuEdition
+/*
+GetTanzuEdition swagger:route GET /api/edition edition getTanzuEdition
 
 Retrieve Tanzu edition
-
 */
 type GetTanzuEdition struct {
 	Context *middleware.Context

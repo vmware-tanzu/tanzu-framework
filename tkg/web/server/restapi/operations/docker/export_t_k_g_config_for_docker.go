@@ -29,10 +29,10 @@ func NewExportTKGConfigForDocker(ctx *middleware.Context, handler ExportTKGConfi
 	return &ExportTKGConfigForDocker{Context: ctx, Handler: handler}
 }
 
-/*ExportTKGConfigForDocker swagger:route POST /api/providers/docker/config/export docker exportTKGConfigForDocker
+/*
+ExportTKGConfigForDocker swagger:route POST /api/providers/docker/config/export docker exportTKGConfigForDocker
 
 Generate TKG configuration file for Docker"
-
 */
 type ExportTKGConfigForDocker struct {
 	Context *middleware.Context

@@ -29,10 +29,10 @@ func NewCreateAWSRegionalCluster(ctx *middleware.Context, handler CreateAWSRegio
 	return &CreateAWSRegionalCluster{Context: ctx, Handler: handler}
 }
 
-/*CreateAWSRegionalCluster swagger:route POST /api/providers/aws/create aws createAWSRegionalCluster
+/*
+CreateAWSRegionalCluster swagger:route POST /api/providers/aws/create aws createAWSRegionalCluster
 
 Create AWS regional cluster
-
 */
 type CreateAWSRegionalCluster struct {
 	Context *middleware.Context

@@ -29,10 +29,10 @@ func NewGetProvider(ctx *middleware.Context, handler GetProviderHandler) *GetPro
 	return &GetProvider{Context: ctx, Handler: handler}
 }
 
-/*GetProvider swagger:route GET /api/providers provider getProvider
+/*
+GetProvider swagger:route GET /api/providers provider getProvider
 
 Get infrastructure provider given by the user via cli
-
 */
 type GetProvider struct {
 	Context *middleware.Context

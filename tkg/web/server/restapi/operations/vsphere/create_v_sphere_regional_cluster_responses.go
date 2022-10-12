@@ -16,7 +16,8 @@ import (
 // CreateVSphereRegionalClusterOKCode is the HTTP code returned for type CreateVSphereRegionalClusterOK
 const CreateVSphereRegionalClusterOKCode int = 200
 
-/*CreateVSphereRegionalClusterOK Creating regional cluster started successfully
+/*
+CreateVSphereRegionalClusterOK Creating regional cluster started successfully
 
 swagger:response createVSphereRegionalClusterOK
 */
@@ -58,7 +59,8 @@ func (o *CreateVSphereRegionalClusterOK) WriteResponse(rw http.ResponseWriter, p
 // CreateVSphereRegionalClusterBadRequestCode is the HTTP code returned for type CreateVSphereRegionalClusterBadRequest
 const CreateVSphereRegionalClusterBadRequestCode int = 400
 
-/*CreateVSphereRegionalClusterBadRequest Bad request
+/*
+CreateVSphereRegionalClusterBadRequest Bad request
 
 swagger:response createVSphereRegionalClusterBadRequest
 */
@@ -102,7 +104,8 @@ func (o *CreateVSphereRegionalClusterBadRequest) WriteResponse(rw http.ResponseW
 // CreateVSphereRegionalClusterUnauthorizedCode is the HTTP code returned for type CreateVSphereRegionalClusterUnauthorized
 const CreateVSphereRegionalClusterUnauthorizedCode int = 401
 
-/*CreateVSphereRegionalClusterUnauthorized Incorrect credentials
+/*
+CreateVSphereRegionalClusterUnauthorized Incorrect credentials
 
 swagger:response createVSphereRegionalClusterUnauthorized
 */
@@ -146,7 +149,8 @@ func (o *CreateVSphereRegionalClusterUnauthorized) WriteResponse(rw http.Respons
 // CreateVSphereRegionalClusterInternalServerErrorCode is the HTTP code returned for type CreateVSphereRegionalClusterInternalServerError
 const CreateVSphereRegionalClusterInternalServerErrorCode int = 500
 
-/*CreateVSphereRegionalClusterInternalServerError Internal server error
+/*
+CreateVSphereRegionalClusterInternalServerError Internal server error
 
 swagger:response createVSphereRegionalClusterInternalServerError
 */

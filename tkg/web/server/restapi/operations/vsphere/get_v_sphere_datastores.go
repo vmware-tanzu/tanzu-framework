@@ -29,10 +29,10 @@ func NewGetVSphereDatastores(ctx *middleware.Context, handler GetVSphereDatastor
 	return &GetVSphereDatastores{Context: ctx, Handler: handler}
 }
 
-/*GetVSphereDatastores swagger:route GET /api/providers/vsphere/datastores vsphere getVSphereDatastores
+/*
+GetVSphereDatastores swagger:route GET /api/providers/vsphere/datastores vsphere getVSphereDatastores
 
 Retrieve vSphere datastores
-
 */
 type GetVSphereDatastores struct {
 	Context *middleware.Context

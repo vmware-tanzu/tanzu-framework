@@ -29,10 +29,10 @@ func NewGetAWSCredentialProfiles(ctx *middleware.Context, handler GetAWSCredenti
 	return &GetAWSCredentialProfiles{Context: ctx, Handler: handler}
 }
 
-/*GetAWSCredentialProfiles swagger:route GET /api/providers/aws/profiles aws getAWSCredentialProfiles
+/*
+GetAWSCredentialProfiles swagger:route GET /api/providers/aws/profiles aws getAWSCredentialProfiles
 
 Retrieve AWS credential profiles
-
 */
 type GetAWSCredentialProfiles struct {
 	Context *middleware.Context

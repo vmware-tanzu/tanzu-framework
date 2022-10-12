@@ -29,10 +29,10 @@ func NewSetAzureEndpoint(ctx *middleware.Context, handler SetAzureEndpointHandle
 	return &SetAzureEndpoint{Context: ctx, Handler: handler}
 }
 
-/*SetAzureEndpoint swagger:route POST /api/providers/azure azure setAzureEndpoint
+/*
+SetAzureEndpoint swagger:route POST /api/providers/azure azure setAzureEndpoint
 
 Validate and set azure credentials
-
 */
 type SetAzureEndpoint struct {
 	Context *middleware.Context

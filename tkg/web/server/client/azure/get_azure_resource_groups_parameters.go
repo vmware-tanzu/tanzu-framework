@@ -56,7 +56,8 @@ func NewGetAzureResourceGroupsParamsWithHTTPClient(client *http.Client) *GetAzur
 	}
 }
 
-/*GetAzureResourceGroupsParams contains all the parameters to send to the API endpoint
+/*
+GetAzureResourceGroupsParams contains all the parameters to send to the API endpoint
 for the get azure resource groups operation typically these are written to a http.Request
 */
 type GetAzureResourceGroupsParams struct {

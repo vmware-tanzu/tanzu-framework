@@ -58,7 +58,8 @@ func NewSetAzureEndpointParamsWithHTTPClient(client *http.Client) *SetAzureEndpo
 	}
 }
 
-/*SetAzureEndpointParams contains all the parameters to send to the API endpoint
+/*
+SetAzureEndpointParams contains all the parameters to send to the API endpoint
 for the set azure endpoint operation typically these are written to a http.Request
 */
 type SetAzureEndpointParams struct {

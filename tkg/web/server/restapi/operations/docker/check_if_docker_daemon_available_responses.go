@@ -16,7 +16,8 @@ import (
 // CheckIfDockerDaemonAvailableOKCode is the HTTP code returned for type CheckIfDockerDaemonAvailableOK
 const CheckIfDockerDaemonAvailableOKCode int = 200
 
-/*CheckIfDockerDaemonAvailableOK Checked the docker daemon status successfully.
+/*
+CheckIfDockerDaemonAvailableOK Checked the docker daemon status successfully.
 
 swagger:response checkIfDockerDaemonAvailableOK
 */
@@ -60,7 +61,8 @@ func (o *CheckIfDockerDaemonAvailableOK) WriteResponse(rw http.ResponseWriter, p
 // CheckIfDockerDaemonAvailableBadRequestCode is the HTTP code returned for type CheckIfDockerDaemonAvailableBadRequest
 const CheckIfDockerDaemonAvailableBadRequestCode int = 400
 
-/*CheckIfDockerDaemonAvailableBadRequest Bad request
+/*
+CheckIfDockerDaemonAvailableBadRequest Bad request
 
 swagger:response checkIfDockerDaemonAvailableBadRequest
 */
@@ -104,7 +106,8 @@ func (o *CheckIfDockerDaemonAvailableBadRequest) WriteResponse(rw http.ResponseW
 // CheckIfDockerDaemonAvailableInternalServerErrorCode is the HTTP code returned for type CheckIfDockerDaemonAvailableInternalServerError
 const CheckIfDockerDaemonAvailableInternalServerErrorCode int = 500
 
-/*CheckIfDockerDaemonAvailableInternalServerError Internal server error
+/*
+CheckIfDockerDaemonAvailableInternalServerError Internal server error
 
 swagger:response checkIfDockerDaemonAvailableInternalServerError
 */

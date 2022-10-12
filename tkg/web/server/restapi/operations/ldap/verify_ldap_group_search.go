@@ -29,10 +29,10 @@ func NewVerifyLdapGroupSearch(ctx *middleware.Context, handler VerifyLdapGroupSe
 	return &VerifyLdapGroupSearch{Context: ctx, Handler: handler}
 }
 
-/*VerifyLdapGroupSearch swagger:route POST /api/ldap/groups/search ldap verifyLdapGroupSearch
+/*
+VerifyLdapGroupSearch swagger:route POST /api/ldap/groups/search ldap verifyLdapGroupSearch
 
 Validate LDAP Group Search configuration
-
 */
 type VerifyLdapGroupSearch struct {
 	Context *middleware.Context

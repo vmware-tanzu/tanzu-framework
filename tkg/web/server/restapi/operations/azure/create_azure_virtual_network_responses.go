@@ -16,7 +16,8 @@ import (
 // CreateAzureVirtualNetworkCreatedCode is the HTTP code returned for type CreateAzureVirtualNetworkCreated
 const CreateAzureVirtualNetworkCreatedCode int = 201
 
-/*CreateAzureVirtualNetworkCreated Successfully created Azure Virtual network
+/*
+CreateAzureVirtualNetworkCreated Successfully created Azure Virtual network
 
 swagger:response createAzureVirtualNetworkCreated
 */
@@ -58,7 +59,8 @@ func (o *CreateAzureVirtualNetworkCreated) WriteResponse(rw http.ResponseWriter,
 // CreateAzureVirtualNetworkBadRequestCode is the HTTP code returned for type CreateAzureVirtualNetworkBadRequest
 const CreateAzureVirtualNetworkBadRequestCode int = 400
 
-/*CreateAzureVirtualNetworkBadRequest Bad request
+/*
+CreateAzureVirtualNetworkBadRequest Bad request
 
 swagger:response createAzureVirtualNetworkBadRequest
 */
@@ -102,7 +104,8 @@ func (o *CreateAzureVirtualNetworkBadRequest) WriteResponse(rw http.ResponseWrit
 // CreateAzureVirtualNetworkUnauthorizedCode is the HTTP code returned for type CreateAzureVirtualNetworkUnauthorized
 const CreateAzureVirtualNetworkUnauthorizedCode int = 401
 
-/*CreateAzureVirtualNetworkUnauthorized Incorrect credentials
+/*
+CreateAzureVirtualNetworkUnauthorized Incorrect credentials
 
 swagger:response createAzureVirtualNetworkUnauthorized
 */
@@ -146,7 +149,8 @@ func (o *CreateAzureVirtualNetworkUnauthorized) WriteResponse(rw http.ResponseWr
 // CreateAzureVirtualNetworkInternalServerErrorCode is the HTTP code returned for type CreateAzureVirtualNetworkInternalServerError
 const CreateAzureVirtualNetworkInternalServerErrorCode int = 500
 
-/*CreateAzureVirtualNetworkInternalServerError Internal server error
+/*
+CreateAzureVirtualNetworkInternalServerError Internal server error
 
 swagger:response createAzureVirtualNetworkInternalServerError
 */

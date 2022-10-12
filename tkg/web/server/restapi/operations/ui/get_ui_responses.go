@@ -17,7 +17,8 @@ import (
 // GetUIOKCode is the HTTP code returned for type GetUIOK
 const GetUIOKCode int = 200
 
-/*GetUIOK Successful operation
+/*
+GetUIOK Successful operation
 
 swagger:response getUiOK
 */
@@ -59,7 +60,8 @@ func (o *GetUIOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produce
 // GetUIBadRequestCode is the HTTP code returned for type GetUIBadRequest
 const GetUIBadRequestCode int = 400
 
-/*GetUIBadRequest Bad request
+/*
+GetUIBadRequest Bad request
 
 swagger:response getUiBadRequest
 */
@@ -103,7 +105,8 @@ func (o *GetUIBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetUIInternalServerErrorCode is the HTTP code returned for type GetUIInternalServerError
 const GetUIInternalServerErrorCode int = 500
 
-/*GetUIInternalServerError Internal server error
+/*
+GetUIInternalServerError Internal server error
 
 swagger:response getUiInternalServerError
 */

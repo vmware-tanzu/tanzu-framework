@@ -56,7 +56,8 @@ func NewGetAzureOSImagesParamsWithHTTPClient(client *http.Client) *GetAzureOSIma
 	}
 }
 
-/*GetAzureOSImagesParams contains all the parameters to send to the API endpoint
+/*
+GetAzureOSImagesParams contains all the parameters to send to the API endpoint
 for the get azure o s images operation typically these are written to a http.Request
 */
 type GetAzureOSImagesParams struct {

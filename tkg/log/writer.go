@@ -152,7 +152,9 @@ func (w *writer) SendProgressUpdate(status, currentPhase string, totalPhases []s
 // this will ensure no other external library prints to stdout/stderr
 // and use actual stdout/stderr through tkg writer only
 // Note: Should not use this functions for normal cli commands like
-//   tkg get regions, tkg set regions
+//
+//	tkg get regions, tkg set regions
+//
 // As it will stop any libraries like table.pretty to print on stdout
 func UnsetStdoutStderr() {
 	originalStdout = os.Stdout

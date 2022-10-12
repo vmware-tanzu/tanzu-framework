@@ -58,7 +58,8 @@ func NewExportTKGConfigForAWSParamsWithHTTPClient(client *http.Client) *ExportTK
 	}
 }
 
-/*ExportTKGConfigForAWSParams contains all the parameters to send to the API endpoint
+/*
+ExportTKGConfigForAWSParams contains all the parameters to send to the API endpoint
 for the export t k g config for a w s operation typically these are written to a http.Request
 */
 type ExportTKGConfigForAWSParams struct {

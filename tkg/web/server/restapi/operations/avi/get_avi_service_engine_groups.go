@@ -29,10 +29,10 @@ func NewGetAviServiceEngineGroups(ctx *middleware.Context, handler GetAviService
 	return &GetAviServiceEngineGroups{Context: ctx, Handler: handler}
 }
 
-/*GetAviServiceEngineGroups swagger:route GET /api/avi/serviceenginegroups avi getAviServiceEngineGroups
+/*
+GetAviServiceEngineGroups swagger:route GET /api/avi/serviceenginegroups avi getAviServiceEngineGroups
 
 Retrieve Avi load balancer service engine groups
-
 */
 type GetAviServiceEngineGroups struct {
 	Context *middleware.Context

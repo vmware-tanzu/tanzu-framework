@@ -59,7 +59,8 @@ func NewVerifyAccountCreated() *VerifyAccountCreated {
 	return &VerifyAccountCreated{}
 }
 
-/*VerifyAccountCreated handles this case with default header values.
+/*
+VerifyAccountCreated handles this case with default header values.
 
 Verified AVI credentials successfully
 */
@@ -80,7 +81,8 @@ func NewVerifyAccountBadRequest() *VerifyAccountBadRequest {
 	return &VerifyAccountBadRequest{}
 }
 
-/*VerifyAccountBadRequest handles this case with default header values.
+/*
+VerifyAccountBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -113,7 +115,8 @@ func NewVerifyAccountUnauthorized() *VerifyAccountUnauthorized {
 	return &VerifyAccountUnauthorized{}
 }
 
-/*VerifyAccountUnauthorized handles this case with default header values.
+/*
+VerifyAccountUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -146,7 +149,8 @@ func NewVerifyAccountInternalServerError() *VerifyAccountInternalServerError {
 	return &VerifyAccountInternalServerError{}
 }
 
-/*VerifyAccountInternalServerError handles this case with default header values.
+/*
+VerifyAccountInternalServerError handles this case with default header values.
 
 Internal server error
 */
