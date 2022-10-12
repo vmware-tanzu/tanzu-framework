@@ -58,7 +58,8 @@ func NewExportTKGConfigForVsphereParamsWithHTTPClient(client *http.Client) *Expo
 	}
 }
 
-/*ExportTKGConfigForVsphereParams contains all the parameters to send to the API endpoint
+/*
+ExportTKGConfigForVsphereParams contains all the parameters to send to the API endpoint
 for the export t k g config for vsphere operation typically these are written to a http.Request
 */
 type ExportTKGConfigForVsphereParams struct {

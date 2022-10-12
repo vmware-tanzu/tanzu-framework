@@ -59,7 +59,8 @@ func NewGetTanzuEditionOK() *GetTanzuEditionOK {
 	return &GetTanzuEditionOK{}
 }
 
-/*GetTanzuEditionOK handles this case with default header values.
+/*
+GetTanzuEditionOK handles this case with default header values.
 
 Successful retrieval of tanzu edition
 */
@@ -90,7 +91,8 @@ func NewGetTanzuEditionBadRequest() *GetTanzuEditionBadRequest {
 	return &GetTanzuEditionBadRequest{}
 }
 
-/*GetTanzuEditionBadRequest handles this case with default header values.
+/*
+GetTanzuEditionBadRequest handles this case with default header values.
 
 Bad Request
 */
@@ -123,7 +125,8 @@ func NewGetTanzuEditionUnauthorized() *GetTanzuEditionUnauthorized {
 	return &GetTanzuEditionUnauthorized{}
 }
 
-/*GetTanzuEditionUnauthorized handles this case with default header values.
+/*
+GetTanzuEditionUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetTanzuEditionInternalServerError() *GetTanzuEditionInternalServerError
 	return &GetTanzuEditionInternalServerError{}
 }
 
-/*GetTanzuEditionInternalServerError handles this case with default header values.
+/*
+GetTanzuEditionInternalServerError handles this case with default header values.
 
 Internal server error
 */

@@ -16,7 +16,8 @@ import (
 // GetAWSSubnetsOKCode is the HTTP code returned for type GetAWSSubnetsOK
 const GetAWSSubnetsOKCode int = 200
 
-/*GetAWSSubnetsOK Successful retrieval of AWS subnets
+/*
+GetAWSSubnetsOK Successful retrieval of AWS subnets
 
 swagger:response getAWSSubnetsOK
 */
@@ -63,7 +64,8 @@ func (o *GetAWSSubnetsOK) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetAWSSubnetsBadRequestCode is the HTTP code returned for type GetAWSSubnetsBadRequest
 const GetAWSSubnetsBadRequestCode int = 400
 
-/*GetAWSSubnetsBadRequest Bad request
+/*
+GetAWSSubnetsBadRequest Bad request
 
 swagger:response getAWSSubnetsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAWSSubnetsBadRequest) WriteResponse(rw http.ResponseWriter, producer
 // GetAWSSubnetsUnauthorizedCode is the HTTP code returned for type GetAWSSubnetsUnauthorized
 const GetAWSSubnetsUnauthorizedCode int = 401
 
-/*GetAWSSubnetsUnauthorized Incorrect credentials
+/*
+GetAWSSubnetsUnauthorized Incorrect credentials
 
 swagger:response getAWSSubnetsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAWSSubnetsUnauthorized) WriteResponse(rw http.ResponseWriter, produc
 // GetAWSSubnetsInternalServerErrorCode is the HTTP code returned for type GetAWSSubnetsInternalServerError
 const GetAWSSubnetsInternalServerErrorCode int = 500
 
-/*GetAWSSubnetsInternalServerError Internal server error
+/*
+GetAWSSubnetsInternalServerError Internal server error
 
 swagger:response getAWSSubnetsInternalServerError
 */

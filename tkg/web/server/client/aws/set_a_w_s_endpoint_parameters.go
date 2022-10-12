@@ -58,7 +58,8 @@ func NewSetAWSEndpointParamsWithHTTPClient(client *http.Client) *SetAWSEndpointP
 	}
 }
 
-/*SetAWSEndpointParams contains all the parameters to send to the API endpoint
+/*
+SetAWSEndpointParams contains all the parameters to send to the API endpoint
 for the set a w s endpoint operation typically these are written to a http.Request
 */
 type SetAWSEndpointParams struct {

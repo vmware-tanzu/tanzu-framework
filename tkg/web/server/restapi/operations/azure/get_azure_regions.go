@@ -29,10 +29,10 @@ func NewGetAzureRegions(ctx *middleware.Context, handler GetAzureRegionsHandler)
 	return &GetAzureRegions{Context: ctx, Handler: handler}
 }
 
-/*GetAzureRegions swagger:route GET /api/providers/azure/regions azure getAzureRegions
+/*
+GetAzureRegions swagger:route GET /api/providers/azure/regions azure getAzureRegions
 
 Retrieve list of supported Azure regions
-
 */
 type GetAzureRegions struct {
 	Context *middleware.Context

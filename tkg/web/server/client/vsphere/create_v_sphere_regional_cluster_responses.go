@@ -59,7 +59,8 @@ func NewCreateVSphereRegionalClusterOK() *CreateVSphereRegionalClusterOK {
 	return &CreateVSphereRegionalClusterOK{}
 }
 
-/*CreateVSphereRegionalClusterOK handles this case with default header values.
+/*
+CreateVSphereRegionalClusterOK handles this case with default header values.
 
 Creating regional cluster started successfully
 */
@@ -90,7 +91,8 @@ func NewCreateVSphereRegionalClusterBadRequest() *CreateVSphereRegionalClusterBa
 	return &CreateVSphereRegionalClusterBadRequest{}
 }
 
-/*CreateVSphereRegionalClusterBadRequest handles this case with default header values.
+/*
+CreateVSphereRegionalClusterBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewCreateVSphereRegionalClusterUnauthorized() *CreateVSphereRegionalCluster
 	return &CreateVSphereRegionalClusterUnauthorized{}
 }
 
-/*CreateVSphereRegionalClusterUnauthorized handles this case with default header values.
+/*
+CreateVSphereRegionalClusterUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewCreateVSphereRegionalClusterInternalServerError() *CreateVSphereRegional
 	return &CreateVSphereRegionalClusterInternalServerError{}
 }
 
-/*CreateVSphereRegionalClusterInternalServerError handles this case with default header values.
+/*
+CreateVSphereRegionalClusterInternalServerError handles this case with default header values.
 
 Internal server error
 */

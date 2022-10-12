@@ -58,7 +58,8 @@ func NewCreateVSphereRegionalClusterParamsWithHTTPClient(client *http.Client) *C
 	}
 }
 
-/*CreateVSphereRegionalClusterParams contains all the parameters to send to the API endpoint
+/*
+CreateVSphereRegionalClusterParams contains all the parameters to send to the API endpoint
 for the create v sphere regional cluster operation typically these are written to a http.Request
 */
 type CreateVSphereRegionalClusterParams struct {

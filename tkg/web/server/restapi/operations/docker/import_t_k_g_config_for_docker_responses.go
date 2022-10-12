@@ -16,7 +16,8 @@ import (
 // ImportTKGConfigForDockerOKCode is the HTTP code returned for type ImportTKGConfigForDockerOK
 const ImportTKGConfigForDockerOKCode int = 200
 
-/*ImportTKGConfigForDockerOK Generated TKG configuration successfully
+/*
+ImportTKGConfigForDockerOK Generated TKG configuration successfully
 
 swagger:response importTKGConfigForDockerOK
 */
@@ -60,7 +61,8 @@ func (o *ImportTKGConfigForDockerOK) WriteResponse(rw http.ResponseWriter, produ
 // ImportTKGConfigForDockerBadRequestCode is the HTTP code returned for type ImportTKGConfigForDockerBadRequest
 const ImportTKGConfigForDockerBadRequestCode int = 400
 
-/*ImportTKGConfigForDockerBadRequest Bad request
+/*
+ImportTKGConfigForDockerBadRequest Bad request
 
 swagger:response importTKGConfigForDockerBadRequest
 */
@@ -104,7 +106,8 @@ func (o *ImportTKGConfigForDockerBadRequest) WriteResponse(rw http.ResponseWrite
 // ImportTKGConfigForDockerUnauthorizedCode is the HTTP code returned for type ImportTKGConfigForDockerUnauthorized
 const ImportTKGConfigForDockerUnauthorizedCode int = 401
 
-/*ImportTKGConfigForDockerUnauthorized Incorrect credentials
+/*
+ImportTKGConfigForDockerUnauthorized Incorrect credentials
 
 swagger:response importTKGConfigForDockerUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *ImportTKGConfigForDockerUnauthorized) WriteResponse(rw http.ResponseWri
 // ImportTKGConfigForDockerInternalServerErrorCode is the HTTP code returned for type ImportTKGConfigForDockerInternalServerError
 const ImportTKGConfigForDockerInternalServerErrorCode int = 500
 
-/*ImportTKGConfigForDockerInternalServerError Internal server error
+/*
+ImportTKGConfigForDockerInternalServerError Internal server error
 
 swagger:response importTKGConfigForDockerInternalServerError
 */

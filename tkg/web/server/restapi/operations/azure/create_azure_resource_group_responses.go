@@ -16,7 +16,8 @@ import (
 // CreateAzureResourceGroupCreatedCode is the HTTP code returned for type CreateAzureResourceGroupCreated
 const CreateAzureResourceGroupCreatedCode int = 201
 
-/*CreateAzureResourceGroupCreated Successfully created Azure resource group
+/*
+CreateAzureResourceGroupCreated Successfully created Azure resource group
 
 swagger:response createAzureResourceGroupCreated
 */
@@ -58,7 +59,8 @@ func (o *CreateAzureResourceGroupCreated) WriteResponse(rw http.ResponseWriter, 
 // CreateAzureResourceGroupBadRequestCode is the HTTP code returned for type CreateAzureResourceGroupBadRequest
 const CreateAzureResourceGroupBadRequestCode int = 400
 
-/*CreateAzureResourceGroupBadRequest Bad request
+/*
+CreateAzureResourceGroupBadRequest Bad request
 
 swagger:response createAzureResourceGroupBadRequest
 */
@@ -102,7 +104,8 @@ func (o *CreateAzureResourceGroupBadRequest) WriteResponse(rw http.ResponseWrite
 // CreateAzureResourceGroupUnauthorizedCode is the HTTP code returned for type CreateAzureResourceGroupUnauthorized
 const CreateAzureResourceGroupUnauthorizedCode int = 401
 
-/*CreateAzureResourceGroupUnauthorized Incorrect credentials
+/*
+CreateAzureResourceGroupUnauthorized Incorrect credentials
 
 swagger:response createAzureResourceGroupUnauthorized
 */
@@ -146,7 +149,8 @@ func (o *CreateAzureResourceGroupUnauthorized) WriteResponse(rw http.ResponseWri
 // CreateAzureResourceGroupInternalServerErrorCode is the HTTP code returned for type CreateAzureResourceGroupInternalServerError
 const CreateAzureResourceGroupInternalServerErrorCode int = 500
 
-/*CreateAzureResourceGroupInternalServerError Internal server error
+/*
+CreateAzureResourceGroupInternalServerError Internal server error
 
 swagger:response createAzureResourceGroupInternalServerError
 */

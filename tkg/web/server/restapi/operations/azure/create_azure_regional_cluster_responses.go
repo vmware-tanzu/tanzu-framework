@@ -16,7 +16,8 @@ import (
 // CreateAzureRegionalClusterOKCode is the HTTP code returned for type CreateAzureRegionalClusterOK
 const CreateAzureRegionalClusterOKCode int = 200
 
-/*CreateAzureRegionalClusterOK Creating regional cluster started successfully
+/*
+CreateAzureRegionalClusterOK Creating regional cluster started successfully
 
 swagger:response createAzureRegionalClusterOK
 */
@@ -58,7 +59,8 @@ func (o *CreateAzureRegionalClusterOK) WriteResponse(rw http.ResponseWriter, pro
 // CreateAzureRegionalClusterBadRequestCode is the HTTP code returned for type CreateAzureRegionalClusterBadRequest
 const CreateAzureRegionalClusterBadRequestCode int = 400
 
-/*CreateAzureRegionalClusterBadRequest Bad request
+/*
+CreateAzureRegionalClusterBadRequest Bad request
 
 swagger:response createAzureRegionalClusterBadRequest
 */
@@ -102,7 +104,8 @@ func (o *CreateAzureRegionalClusterBadRequest) WriteResponse(rw http.ResponseWri
 // CreateAzureRegionalClusterUnauthorizedCode is the HTTP code returned for type CreateAzureRegionalClusterUnauthorized
 const CreateAzureRegionalClusterUnauthorizedCode int = 401
 
-/*CreateAzureRegionalClusterUnauthorized Incorrect credentials
+/*
+CreateAzureRegionalClusterUnauthorized Incorrect credentials
 
 swagger:response createAzureRegionalClusterUnauthorized
 */
@@ -146,7 +149,8 @@ func (o *CreateAzureRegionalClusterUnauthorized) WriteResponse(rw http.ResponseW
 // CreateAzureRegionalClusterInternalServerErrorCode is the HTTP code returned for type CreateAzureRegionalClusterInternalServerError
 const CreateAzureRegionalClusterInternalServerErrorCode int = 500
 
-/*CreateAzureRegionalClusterInternalServerError Internal server error
+/*
+CreateAzureRegionalClusterInternalServerError Internal server error
 
 swagger:response createAzureRegionalClusterInternalServerError
 */

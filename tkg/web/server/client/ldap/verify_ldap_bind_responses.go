@@ -59,7 +59,8 @@ func NewVerifyLdapBindOK() *VerifyLdapBindOK {
 	return &VerifyLdapBindOK{}
 }
 
-/*VerifyLdapBindOK handles this case with default header values.
+/*
+VerifyLdapBindOK handles this case with default header values.
 
 Verified LDAP credentials successfully
 */
@@ -92,7 +93,8 @@ func NewVerifyLdapBindBadRequest() *VerifyLdapBindBadRequest {
 	return &VerifyLdapBindBadRequest{}
 }
 
-/*VerifyLdapBindBadRequest handles this case with default header values.
+/*
+VerifyLdapBindBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewVerifyLdapBindUnauthorized() *VerifyLdapBindUnauthorized {
 	return &VerifyLdapBindUnauthorized{}
 }
 
-/*VerifyLdapBindUnauthorized handles this case with default header values.
+/*
+VerifyLdapBindUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewVerifyLdapBindInternalServerError() *VerifyLdapBindInternalServerError {
 	return &VerifyLdapBindInternalServerError{}
 }
 
-/*VerifyLdapBindInternalServerError handles this case with default header values.
+/*
+VerifyLdapBindInternalServerError handles this case with default header values.
 
 Internal server error
 */

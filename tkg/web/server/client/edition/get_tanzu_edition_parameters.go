@@ -56,7 +56,8 @@ func NewGetTanzuEditionParamsWithHTTPClient(client *http.Client) *GetTanzuEditio
 	}
 }
 
-/*GetTanzuEditionParams contains all the parameters to send to the API endpoint
+/*
+GetTanzuEditionParams contains all the parameters to send to the API endpoint
 for the get tanzu edition operation typically these are written to a http.Request
 */
 type GetTanzuEditionParams struct {

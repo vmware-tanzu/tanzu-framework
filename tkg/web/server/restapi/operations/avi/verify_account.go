@@ -29,10 +29,10 @@ func NewVerifyAccount(ctx *middleware.Context, handler VerifyAccountHandler) *Ve
 	return &VerifyAccount{Context: ctx, Handler: handler}
 }
 
-/*VerifyAccount swagger:route POST /api/avi avi verifyAccount
+/*
+VerifyAccount swagger:route POST /api/avi avi verifyAccount
 
 Validate Avi controller credentials
-
 */
 type VerifyAccount struct {
 	Context *middleware.Context

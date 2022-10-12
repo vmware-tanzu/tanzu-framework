@@ -16,7 +16,8 @@ import (
 // GetAviCloudsOKCode is the HTTP code returned for type GetAviCloudsOK
 const GetAviCloudsOKCode int = 200
 
-/*GetAviCloudsOK Successful retrieval of Avi load balancer clouds
+/*
+GetAviCloudsOK Successful retrieval of Avi load balancer clouds
 
 swagger:response getAviCloudsOK
 */
@@ -63,7 +64,8 @@ func (o *GetAviCloudsOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 // GetAviCloudsBadRequestCode is the HTTP code returned for type GetAviCloudsBadRequest
 const GetAviCloudsBadRequestCode int = 400
 
-/*GetAviCloudsBadRequest Bad request
+/*
+GetAviCloudsBadRequest Bad request
 
 swagger:response getAviCloudsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAviCloudsBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // GetAviCloudsUnauthorizedCode is the HTTP code returned for type GetAviCloudsUnauthorized
 const GetAviCloudsUnauthorizedCode int = 401
 
-/*GetAviCloudsUnauthorized Incorrect credentials
+/*
+GetAviCloudsUnauthorized Incorrect credentials
 
 swagger:response getAviCloudsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAviCloudsUnauthorized) WriteResponse(rw http.ResponseWriter, produce
 // GetAviCloudsInternalServerErrorCode is the HTTP code returned for type GetAviCloudsInternalServerError
 const GetAviCloudsInternalServerErrorCode int = 500
 
-/*GetAviCloudsInternalServerError Internal server error
+/*
+GetAviCloudsInternalServerError Internal server error
 
 swagger:response getAviCloudsInternalServerError
 */

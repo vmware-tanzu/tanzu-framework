@@ -56,7 +56,8 @@ func NewGetVSphereResourcePoolsParamsWithHTTPClient(client *http.Client) *GetVSp
 	}
 }
 
-/*GetVSphereResourcePoolsParams contains all the parameters to send to the API endpoint
+/*
+GetVSphereResourcePoolsParams contains all the parameters to send to the API endpoint
 for the get v sphere resource pools operation typically these are written to a http.Request
 */
 type GetVSphereResourcePoolsParams struct {

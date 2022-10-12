@@ -29,10 +29,10 @@ func NewGetAWSAvailabilityZones(ctx *middleware.Context, handler GetAWSAvailabil
 	return &GetAWSAvailabilityZones{Context: ctx, Handler: handler}
 }
 
-/*GetAWSAvailabilityZones swagger:route GET /api/providers/aws/AvailabilityZones aws getAWSAvailabilityZones
+/*
+GetAWSAvailabilityZones swagger:route GET /api/providers/aws/AvailabilityZones aws getAWSAvailabilityZones
 
 Retrieve AWS availability zones of current region
-
 */
 type GetAWSAvailabilityZones struct {
 	Context *middleware.Context

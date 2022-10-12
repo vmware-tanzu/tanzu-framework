@@ -29,10 +29,10 @@ func NewGetVsphereThumbprint(ctx *middleware.Context, handler GetVsphereThumbpri
 	return &GetVsphereThumbprint{Context: ctx, Handler: handler}
 }
 
-/*GetVsphereThumbprint swagger:route GET /api/providers/vsphere/thumbprint vsphere getVsphereThumbprint
+/*
+GetVsphereThumbprint swagger:route GET /api/providers/vsphere/thumbprint vsphere getVsphereThumbprint
 
 Get vSphere thumbprint
-
 */
 type GetVsphereThumbprint struct {
 	Context *middleware.Context

@@ -29,10 +29,10 @@ func NewGetVSphereNodeTypes(ctx *middleware.Context, handler GetVSphereNodeTypes
 	return &GetVSphereNodeTypes{Context: ctx, Handler: handler}
 }
 
-/*GetVSphereNodeTypes swagger:route GET /api/providers/vsphere/nodetypes vsphere getVSphereNodeTypes
+/*
+GetVSphereNodeTypes swagger:route GET /api/providers/vsphere/nodetypes vsphere getVSphereNodeTypes
 
 Retrieve vSphere supported kubernetes control plane node types
-
 */
 type GetVSphereNodeTypes struct {
 	Context *middleware.Context

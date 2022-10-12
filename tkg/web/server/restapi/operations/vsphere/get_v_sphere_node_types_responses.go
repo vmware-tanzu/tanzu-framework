@@ -16,7 +16,8 @@ import (
 // GetVSphereNodeTypesOKCode is the HTTP code returned for type GetVSphereNodeTypesOK
 const GetVSphereNodeTypesOKCode int = 200
 
-/*GetVSphereNodeTypesOK Successful retrieval of node types supported by vSphere
+/*
+GetVSphereNodeTypesOK Successful retrieval of node types supported by vSphere
 
 swagger:response getVSphereNodeTypesOK
 */
@@ -63,7 +64,8 @@ func (o *GetVSphereNodeTypesOK) WriteResponse(rw http.ResponseWriter, producer r
 // GetVSphereNodeTypesBadRequestCode is the HTTP code returned for type GetVSphereNodeTypesBadRequest
 const GetVSphereNodeTypesBadRequestCode int = 400
 
-/*GetVSphereNodeTypesBadRequest Bad request
+/*
+GetVSphereNodeTypesBadRequest Bad request
 
 swagger:response getVSphereNodeTypesBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetVSphereNodeTypesBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // GetVSphereNodeTypesUnauthorizedCode is the HTTP code returned for type GetVSphereNodeTypesUnauthorized
 const GetVSphereNodeTypesUnauthorizedCode int = 401
 
-/*GetVSphereNodeTypesUnauthorized Incorrect credentials
+/*
+GetVSphereNodeTypesUnauthorized Incorrect credentials
 
 swagger:response getVSphereNodeTypesUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetVSphereNodeTypesUnauthorized) WriteResponse(rw http.ResponseWriter, 
 // GetVSphereNodeTypesInternalServerErrorCode is the HTTP code returned for type GetVSphereNodeTypesInternalServerError
 const GetVSphereNodeTypesInternalServerErrorCode int = 500
 
-/*GetVSphereNodeTypesInternalServerError Internal server error
+/*
+GetVSphereNodeTypesInternalServerError Internal server error
 
 swagger:response getVSphereNodeTypesInternalServerError
 */

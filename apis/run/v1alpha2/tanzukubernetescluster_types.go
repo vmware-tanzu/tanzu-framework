@@ -48,6 +48,7 @@ const (
 
 // TanzuKubernetesClusterSpec defines the desired state of TanzuKubernetesCluster: its nodes, the software installed on those nodes and
 // the way that software should be configured.
+//
 //nolint:gocritic
 type TanzuKubernetesClusterSpec struct {
 	// Topology specifies the topology for the Tanzu Kubernetes cluster: the number, purpose, and organization of the nodes which
@@ -158,6 +159,7 @@ type TopologySettings struct {
 
 // Distribution specifies the version of software which should be installed on the control plane and worker nodes. This
 // version information encompasses Kubernetes and its dependencies, the base OS of the node, and add-ons.
+//
 //nolint:gocritic
 type Distribution struct {
 	// Version specifies the fully-qualified desired Kubernetes distribution version of the Tanzu Kubernetes cluster. If the
@@ -317,6 +319,7 @@ type Storage struct {
 }
 
 // TanzuKubernetesClusterStatus defines the observed state of TanzuKubernetesCluster.
+//
 //nolint:gocritic
 type TanzuKubernetesClusterStatus struct {
 	// APIEndpoints represents the endpoints to communicate with the control plane.
@@ -440,6 +443,7 @@ func (as *AddonStatus) SetStatus(addonName, version string) {
 // +kubebuilder:printcolumn:name="Updates Available",type=string,JSONPath=.status.conditions[?(@.type=='UpdatesAvailable')].message
 
 // TanzuKubernetesCluster is the schema for the Tanzu Kubernetes Grid service for vSphere API.
+//
 //nolint:gocritic
 type TanzuKubernetesCluster struct {
 	metav1.TypeMeta   `json:",inline"`

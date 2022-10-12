@@ -59,7 +59,8 @@ func NewExportTKGConfigForAWSOK() *ExportTKGConfigForAWSOK {
 	return &ExportTKGConfigForAWSOK{}
 }
 
-/*ExportTKGConfigForAWSOK handles this case with default header values.
+/*
+ExportTKGConfigForAWSOK handles this case with default header values.
 
 Generated TKG configuration successfully
 */
@@ -90,7 +91,8 @@ func NewExportTKGConfigForAWSBadRequest() *ExportTKGConfigForAWSBadRequest {
 	return &ExportTKGConfigForAWSBadRequest{}
 }
 
-/*ExportTKGConfigForAWSBadRequest handles this case with default header values.
+/*
+ExportTKGConfigForAWSBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewExportTKGConfigForAWSUnauthorized() *ExportTKGConfigForAWSUnauthorized {
 	return &ExportTKGConfigForAWSUnauthorized{}
 }
 
-/*ExportTKGConfigForAWSUnauthorized handles this case with default header values.
+/*
+ExportTKGConfigForAWSUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewExportTKGConfigForAWSInternalServerError() *ExportTKGConfigForAWSInterna
 	return &ExportTKGConfigForAWSInternalServerError{}
 }
 
-/*ExportTKGConfigForAWSInternalServerError handles this case with default header values.
+/*
+ExportTKGConfigForAWSInternalServerError handles this case with default header values.
 
 Internal server error
 */

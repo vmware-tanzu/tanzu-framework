@@ -29,10 +29,10 @@ func NewGetAzureResourceGroups(ctx *middleware.Context, handler GetAzureResource
 	return &GetAzureResourceGroups{Context: ctx, Handler: handler}
 }
 
-/*GetAzureResourceGroups swagger:route GET /api/providers/azure/resourcegroups azure getAzureResourceGroups
+/*
+GetAzureResourceGroups swagger:route GET /api/providers/azure/resourcegroups azure getAzureResourceGroups
 
 Retrieve list of Azure resource groups for a subscription
-
 */
 type GetAzureResourceGroups struct {
 	Context *middleware.Context

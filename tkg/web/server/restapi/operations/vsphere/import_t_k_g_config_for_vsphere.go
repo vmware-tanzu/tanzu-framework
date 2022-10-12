@@ -29,10 +29,10 @@ func NewImportTKGConfigForVsphere(ctx *middleware.Context, handler ImportTKGConf
 	return &ImportTKGConfigForVsphere{Context: ctx, Handler: handler}
 }
 
-/*ImportTKGConfigForVsphere swagger:route POST /api/providers/vsphere/config/import vsphere importTKGConfigForVsphere
+/*
+ImportTKGConfigForVsphere swagger:route POST /api/providers/vsphere/config/import vsphere importTKGConfigForVsphere
 
 Generate TKG configuration object for vSphere
-
 */
 type ImportTKGConfigForVsphere struct {
 	Context *middleware.Context

@@ -29,10 +29,10 @@ func NewGetUI(ctx *middleware.Context, handler GetUIHandler) *GetUI {
 	return &GetUI{Context: ctx, Handler: handler}
 }
 
-/*GetUI swagger:route GET / ui getUi
+/*
+GetUI swagger:route GET / ui getUi
 
 Get the kickstart UI
-
 */
 type GetUI struct {
 	Context *middleware.Context

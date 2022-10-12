@@ -16,7 +16,8 @@ import (
 // ApplyTKGConfigForAzureOKCode is the HTTP code returned for type ApplyTKGConfigForAzureOK
 const ApplyTKGConfigForAzureOKCode int = 200
 
-/*ApplyTKGConfigForAzureOK Apply change to TKG configuration successfully
+/*
+ApplyTKGConfigForAzureOK Apply change to TKG configuration successfully
 
 swagger:response applyTKGConfigForAzureOK
 */
@@ -60,7 +61,8 @@ func (o *ApplyTKGConfigForAzureOK) WriteResponse(rw http.ResponseWriter, produce
 // ApplyTKGConfigForAzureBadRequestCode is the HTTP code returned for type ApplyTKGConfigForAzureBadRequest
 const ApplyTKGConfigForAzureBadRequestCode int = 400
 
-/*ApplyTKGConfigForAzureBadRequest Bad request
+/*
+ApplyTKGConfigForAzureBadRequest Bad request
 
 swagger:response applyTKGConfigForAzureBadRequest
 */
@@ -104,7 +106,8 @@ func (o *ApplyTKGConfigForAzureBadRequest) WriteResponse(rw http.ResponseWriter,
 // ApplyTKGConfigForAzureUnauthorizedCode is the HTTP code returned for type ApplyTKGConfigForAzureUnauthorized
 const ApplyTKGConfigForAzureUnauthorizedCode int = 401
 
-/*ApplyTKGConfigForAzureUnauthorized Incorrect credentials
+/*
+ApplyTKGConfigForAzureUnauthorized Incorrect credentials
 
 swagger:response applyTKGConfigForAzureUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *ApplyTKGConfigForAzureUnauthorized) WriteResponse(rw http.ResponseWrite
 // ApplyTKGConfigForAzureInternalServerErrorCode is the HTTP code returned for type ApplyTKGConfigForAzureInternalServerError
 const ApplyTKGConfigForAzureInternalServerErrorCode int = 500
 
-/*ApplyTKGConfigForAzureInternalServerError Internal server error
+/*
+ApplyTKGConfigForAzureInternalServerError Internal server error
 
 swagger:response applyTKGConfigForAzureInternalServerError
 */

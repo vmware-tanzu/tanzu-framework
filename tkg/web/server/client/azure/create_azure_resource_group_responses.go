@@ -59,7 +59,8 @@ func NewCreateAzureResourceGroupCreated() *CreateAzureResourceGroupCreated {
 	return &CreateAzureResourceGroupCreated{}
 }
 
-/*CreateAzureResourceGroupCreated handles this case with default header values.
+/*
+CreateAzureResourceGroupCreated handles this case with default header values.
 
 Successfully created Azure resource group
 */
@@ -90,7 +91,8 @@ func NewCreateAzureResourceGroupBadRequest() *CreateAzureResourceGroupBadRequest
 	return &CreateAzureResourceGroupBadRequest{}
 }
 
-/*CreateAzureResourceGroupBadRequest handles this case with default header values.
+/*
+CreateAzureResourceGroupBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewCreateAzureResourceGroupUnauthorized() *CreateAzureResourceGroupUnauthor
 	return &CreateAzureResourceGroupUnauthorized{}
 }
 
-/*CreateAzureResourceGroupUnauthorized handles this case with default header values.
+/*
+CreateAzureResourceGroupUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewCreateAzureResourceGroupInternalServerError() *CreateAzureResourceGroupI
 	return &CreateAzureResourceGroupInternalServerError{}
 }
 
-/*CreateAzureResourceGroupInternalServerError handles this case with default header values.
+/*
+CreateAzureResourceGroupInternalServerError handles this case with default header values.
 
 Internal server error
 */

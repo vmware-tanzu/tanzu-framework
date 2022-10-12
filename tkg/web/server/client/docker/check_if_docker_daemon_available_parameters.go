@@ -56,7 +56,8 @@ func NewCheckIfDockerDaemonAvailableParamsWithHTTPClient(client *http.Client) *C
 	}
 }
 
-/*CheckIfDockerDaemonAvailableParams contains all the parameters to send to the API endpoint
+/*
+CheckIfDockerDaemonAvailableParams contains all the parameters to send to the API endpoint
 for the check if docker daemon available operation typically these are written to a http.Request
 */
 type CheckIfDockerDaemonAvailableParams struct {

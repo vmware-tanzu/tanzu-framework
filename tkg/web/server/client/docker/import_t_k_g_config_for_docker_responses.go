@@ -59,7 +59,8 @@ func NewImportTKGConfigForDockerOK() *ImportTKGConfigForDockerOK {
 	return &ImportTKGConfigForDockerOK{}
 }
 
-/*ImportTKGConfigForDockerOK handles this case with default header values.
+/*
+ImportTKGConfigForDockerOK handles this case with default header values.
 
 Generated TKG configuration successfully
 */
@@ -92,7 +93,8 @@ func NewImportTKGConfigForDockerBadRequest() *ImportTKGConfigForDockerBadRequest
 	return &ImportTKGConfigForDockerBadRequest{}
 }
 
-/*ImportTKGConfigForDockerBadRequest handles this case with default header values.
+/*
+ImportTKGConfigForDockerBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewImportTKGConfigForDockerUnauthorized() *ImportTKGConfigForDockerUnauthor
 	return &ImportTKGConfigForDockerUnauthorized{}
 }
 
-/*ImportTKGConfigForDockerUnauthorized handles this case with default header values.
+/*
+ImportTKGConfigForDockerUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewImportTKGConfigForDockerInternalServerError() *ImportTKGConfigForDockerI
 	return &ImportTKGConfigForDockerInternalServerError{}
 }
 
-/*ImportTKGConfigForDockerInternalServerError handles this case with default header values.
+/*
+ImportTKGConfigForDockerInternalServerError handles this case with default header values.
 
 Internal server error
 */

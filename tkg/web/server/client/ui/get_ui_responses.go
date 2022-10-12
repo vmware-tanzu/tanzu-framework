@@ -56,7 +56,8 @@ func NewGetUIOK(writer io.Writer) *GetUIOK {
 	}
 }
 
-/*GetUIOK handles this case with default header values.
+/*
+GetUIOK handles this case with default header values.
 
 Successful operation
 */
@@ -87,7 +88,8 @@ func NewGetUIBadRequest() *GetUIBadRequest {
 	return &GetUIBadRequest{}
 }
 
-/*GetUIBadRequest handles this case with default header values.
+/*
+GetUIBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -120,7 +122,8 @@ func NewGetUIInternalServerError() *GetUIInternalServerError {
 	return &GetUIInternalServerError{}
 }
 
-/*GetUIInternalServerError handles this case with default header values.
+/*
+GetUIInternalServerError handles this case with default header values.
 
 Internal server error
 */

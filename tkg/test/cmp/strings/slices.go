@@ -15,9 +15,9 @@ import (
 // This function is intended to be used in tests for comparing expected and actual values, and printing the diff for
 // users to debug:
 //
-//   if diff := SliceDiffIgnoreOrder(got, want); diff != "" {
-//       t.Errorf("got: %v, want: %v, diff: %s", got, want, diff)
-//   }
+//	if diff := SliceDiffIgnoreOrder(got, want); diff != "" {
+//	    t.Errorf("got: %v, want: %v, diff: %s", got, want, diff)
+//	}
 func SliceDiffIgnoreOrder(a, b []string) string {
 	return cmp.Diff(a, b, cmpopts.EquateEmpty(), cmpopts.SortSlices(func(x, y string) bool { return x < y }))
 }

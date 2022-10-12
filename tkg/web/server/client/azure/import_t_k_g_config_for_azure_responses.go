@@ -59,7 +59,8 @@ func NewImportTKGConfigForAzureOK() *ImportTKGConfigForAzureOK {
 	return &ImportTKGConfigForAzureOK{}
 }
 
-/*ImportTKGConfigForAzureOK handles this case with default header values.
+/*
+ImportTKGConfigForAzureOK handles this case with default header values.
 
 Generated TKG configuration successfully
 */
@@ -92,7 +93,8 @@ func NewImportTKGConfigForAzureBadRequest() *ImportTKGConfigForAzureBadRequest {
 	return &ImportTKGConfigForAzureBadRequest{}
 }
 
-/*ImportTKGConfigForAzureBadRequest handles this case with default header values.
+/*
+ImportTKGConfigForAzureBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewImportTKGConfigForAzureUnauthorized() *ImportTKGConfigForAzureUnauthoriz
 	return &ImportTKGConfigForAzureUnauthorized{}
 }
 
-/*ImportTKGConfigForAzureUnauthorized handles this case with default header values.
+/*
+ImportTKGConfigForAzureUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewImportTKGConfigForAzureInternalServerError() *ImportTKGConfigForAzureInt
 	return &ImportTKGConfigForAzureInternalServerError{}
 }
 
-/*ImportTKGConfigForAzureInternalServerError handles this case with default header values.
+/*
+ImportTKGConfigForAzureInternalServerError handles this case with default header values.
 
 Internal server error
 */

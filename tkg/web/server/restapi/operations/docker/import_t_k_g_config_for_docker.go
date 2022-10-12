@@ -29,10 +29,10 @@ func NewImportTKGConfigForDocker(ctx *middleware.Context, handler ImportTKGConfi
 	return &ImportTKGConfigForDocker{Context: ctx, Handler: handler}
 }
 
-/*ImportTKGConfigForDocker swagger:route POST /api/providers/docker/config/import docker importTKGConfigForDocker
+/*
+ImportTKGConfigForDocker swagger:route POST /api/providers/docker/config/import docker importTKGConfigForDocker
 
 Generate TKG configuration object for docker
-
 */
 type ImportTKGConfigForDocker struct {
 	Context *middleware.Context

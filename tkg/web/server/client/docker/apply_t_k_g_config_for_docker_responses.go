@@ -53,7 +53,8 @@ func NewApplyTKGConfigForDockerOK() *ApplyTKGConfigForDockerOK {
 	return &ApplyTKGConfigForDockerOK{}
 }
 
-/*ApplyTKGConfigForDockerOK handles this case with default header values.
+/*
+ApplyTKGConfigForDockerOK handles this case with default header values.
 
 Apply change to TKG configuration successfully
 */
@@ -86,7 +87,8 @@ func NewApplyTKGConfigForDockerBadRequest() *ApplyTKGConfigForDockerBadRequest {
 	return &ApplyTKGConfigForDockerBadRequest{}
 }
 
-/*ApplyTKGConfigForDockerBadRequest handles this case with default header values.
+/*
+ApplyTKGConfigForDockerBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -119,7 +121,8 @@ func NewApplyTKGConfigForDockerInternalServerError() *ApplyTKGConfigForDockerInt
 	return &ApplyTKGConfigForDockerInternalServerError{}
 }
 
-/*ApplyTKGConfigForDockerInternalServerError handles this case with default header values.
+/*
+ApplyTKGConfigForDockerInternalServerError handles this case with default header values.
 
 Internal server error
 */

@@ -59,7 +59,8 @@ func NewVerifyLdapCloseConnectionCreated() *VerifyLdapCloseConnectionCreated {
 	return &VerifyLdapCloseConnectionCreated{}
 }
 
-/*VerifyLdapCloseConnectionCreated handles this case with default header values.
+/*
+VerifyLdapCloseConnectionCreated handles this case with default header values.
 
 Verified LDAP credentials successfully
 */
@@ -80,7 +81,8 @@ func NewVerifyLdapCloseConnectionBadRequest() *VerifyLdapCloseConnectionBadReque
 	return &VerifyLdapCloseConnectionBadRequest{}
 }
 
-/*VerifyLdapCloseConnectionBadRequest handles this case with default header values.
+/*
+VerifyLdapCloseConnectionBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -113,7 +115,8 @@ func NewVerifyLdapCloseConnectionUnauthorized() *VerifyLdapCloseConnectionUnauth
 	return &VerifyLdapCloseConnectionUnauthorized{}
 }
 
-/*VerifyLdapCloseConnectionUnauthorized handles this case with default header values.
+/*
+VerifyLdapCloseConnectionUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -146,7 +149,8 @@ func NewVerifyLdapCloseConnectionInternalServerError() *VerifyLdapCloseConnectio
 	return &VerifyLdapCloseConnectionInternalServerError{}
 }
 
-/*VerifyLdapCloseConnectionInternalServerError handles this case with default header values.
+/*
+VerifyLdapCloseConnectionInternalServerError handles this case with default header values.
 
 Internal server error
 */

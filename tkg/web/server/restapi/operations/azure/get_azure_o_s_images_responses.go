@@ -16,7 +16,8 @@ import (
 // GetAzureOSImagesOKCode is the HTTP code returned for type GetAzureOSImagesOK
 const GetAzureOSImagesOKCode int = 200
 
-/*GetAzureOSImagesOK Successful retrieval of Azure supported os images
+/*
+GetAzureOSImagesOK Successful retrieval of Azure supported os images
 
 swagger:response getAzureOSImagesOK
 */
@@ -63,7 +64,8 @@ func (o *GetAzureOSImagesOK) WriteResponse(rw http.ResponseWriter, producer runt
 // GetAzureOSImagesBadRequestCode is the HTTP code returned for type GetAzureOSImagesBadRequest
 const GetAzureOSImagesBadRequestCode int = 400
 
-/*GetAzureOSImagesBadRequest Bad request
+/*
+GetAzureOSImagesBadRequest Bad request
 
 swagger:response getAzureOSImagesBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAzureOSImagesBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // GetAzureOSImagesUnauthorizedCode is the HTTP code returned for type GetAzureOSImagesUnauthorized
 const GetAzureOSImagesUnauthorizedCode int = 401
 
-/*GetAzureOSImagesUnauthorized Incorrect credentials
+/*
+GetAzureOSImagesUnauthorized Incorrect credentials
 
 swagger:response getAzureOSImagesUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAzureOSImagesUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // GetAzureOSImagesInternalServerErrorCode is the HTTP code returned for type GetAzureOSImagesInternalServerError
 const GetAzureOSImagesInternalServerErrorCode int = 500
 
-/*GetAzureOSImagesInternalServerError Internal server error
+/*
+GetAzureOSImagesInternalServerError Internal server error
 
 swagger:response getAzureOSImagesInternalServerError
 */

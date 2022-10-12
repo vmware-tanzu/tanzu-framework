@@ -111,14 +111,14 @@ type ClusterUpgradeInfo struct {
 
 // UpgradeCluster upgrades workload and management clusters k8s version
 // Steps:
-// 1. Verify k8s version
-// 2. Get the Upgrade configuration by reading BOM file to get the ImageTag and ImageRepository information for CoreDNS and Etcd,
-//    Read AWS_AMI_ID map from BOM for AWS upgrade scenario. Also use command line argument options to fill the upgrade configuration
-// 3. Create InfrastructureMachineTemplates(VSphereMachineTemplate, AWSMachineTemplate, AzureMachineTemplate) required for upgrade
-// 4. Patch KCP object to upgrade control-plane nodes
-// 5. Wait for k8s version to be updated for the cluster
-// 6. Patch MachineDeployment object to upgrade worker nodes
-// 7. Wait for k8s version to be updated for all worker nodes
+//  1. Verify k8s version
+//  2. Get the Upgrade configuration by reading BOM file to get the ImageTag and ImageRepository information for CoreDNS and Etcd,
+//     Read AWS_AMI_ID map from BOM for AWS upgrade scenario. Also use command line argument options to fill the upgrade configuration
+//  3. Create InfrastructureMachineTemplates(VSphereMachineTemplate, AWSMachineTemplate, AzureMachineTemplate) required for upgrade
+//  4. Patch KCP object to upgrade control-plane nodes
+//  5. Wait for k8s version to be updated for the cluster
+//  6. Patch MachineDeployment object to upgrade worker nodes
+//  7. Wait for k8s version to be updated for all worker nodes
 func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 	if options == nil {
 		return errors.New("invalid upgrade cluster options nil")

@@ -59,7 +59,8 @@ func NewGetAWSRegionsOK() *GetAWSRegionsOK {
 	return &GetAWSRegionsOK{}
 }
 
-/*GetAWSRegionsOK handles this case with default header values.
+/*
+GetAWSRegionsOK handles this case with default header values.
 
 Successful retrieval of AWS regions
 */
@@ -90,7 +91,8 @@ func NewGetAWSRegionsBadRequest() *GetAWSRegionsBadRequest {
 	return &GetAWSRegionsBadRequest{}
 }
 
-/*GetAWSRegionsBadRequest handles this case with default header values.
+/*
+GetAWSRegionsBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAWSRegionsUnauthorized() *GetAWSRegionsUnauthorized {
 	return &GetAWSRegionsUnauthorized{}
 }
 
-/*GetAWSRegionsUnauthorized handles this case with default header values.
+/*
+GetAWSRegionsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAWSRegionsInternalServerError() *GetAWSRegionsInternalServerError {
 	return &GetAWSRegionsInternalServerError{}
 }
 
-/*GetAWSRegionsInternalServerError handles this case with default header values.
+/*
+GetAWSRegionsInternalServerError handles this case with default header values.
 
 Internal server error
 */

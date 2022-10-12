@@ -29,10 +29,10 @@ func NewApplyTKGConfigForAWS(ctx *middleware.Context, handler ApplyTKGConfigForA
 	return &ApplyTKGConfigForAWS{Context: ctx, Handler: handler}
 }
 
-/*ApplyTKGConfigForAWS swagger:route POST /api/providers/aws/tkgconfig aws applyTKGConfigForAWS
+/*
+ApplyTKGConfigForAWS swagger:route POST /api/providers/aws/tkgconfig aws applyTKGConfigForAWS
 
 Apply the changes to TKG configuration file for AWS"
-
 */
 type ApplyTKGConfigForAWS struct {
 	Context *middleware.Context

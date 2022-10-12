@@ -17,6 +17,7 @@ const (
 )
 
 // SetCompatibilityFileBasedOnEdition changes the compatibility file for the edition.
+//
 //nolint:staticcheck
 func SetCompatibilityFileBasedOnEdition() error {
 	// Acquire tanzu config lock

@@ -59,7 +59,8 @@ func NewGetAzureInstanceTypesOK() *GetAzureInstanceTypesOK {
 	return &GetAzureInstanceTypesOK{}
 }
 
-/*GetAzureInstanceTypesOK handles this case with default header values.
+/*
+GetAzureInstanceTypesOK handles this case with default header values.
 
 Successful retrieval of Azure instance Types
 */
@@ -90,7 +91,8 @@ func NewGetAzureInstanceTypesBadRequest() *GetAzureInstanceTypesBadRequest {
 	return &GetAzureInstanceTypesBadRequest{}
 }
 
-/*GetAzureInstanceTypesBadRequest handles this case with default header values.
+/*
+GetAzureInstanceTypesBadRequest handles this case with default header values.
 
 Bad Request
 */
@@ -123,7 +125,8 @@ func NewGetAzureInstanceTypesUnauthorized() *GetAzureInstanceTypesUnauthorized {
 	return &GetAzureInstanceTypesUnauthorized{}
 }
 
-/*GetAzureInstanceTypesUnauthorized handles this case with default header values.
+/*
+GetAzureInstanceTypesUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAzureInstanceTypesInternalServerError() *GetAzureInstanceTypesInterna
 	return &GetAzureInstanceTypesInternalServerError{}
 }
 
-/*GetAzureInstanceTypesInternalServerError handles this case with default header values.
+/*
+GetAzureInstanceTypesInternalServerError handles this case with default header values.
 
 Internal server error
 */

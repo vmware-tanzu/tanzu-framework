@@ -16,7 +16,8 @@ import (
 // GetAzureVnetsOKCode is the HTTP code returned for type GetAzureVnetsOK
 const GetAzureVnetsOKCode int = 200
 
-/*GetAzureVnetsOK Successful retrieval of Azure virtual networks
+/*
+GetAzureVnetsOK Successful retrieval of Azure virtual networks
 
 swagger:response getAzureVnetsOK
 */
@@ -63,7 +64,8 @@ func (o *GetAzureVnetsOK) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetAzureVnetsBadRequestCode is the HTTP code returned for type GetAzureVnetsBadRequest
 const GetAzureVnetsBadRequestCode int = 400
 
-/*GetAzureVnetsBadRequest Bad Request
+/*
+GetAzureVnetsBadRequest Bad Request
 
 swagger:response getAzureVnetsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAzureVnetsBadRequest) WriteResponse(rw http.ResponseWriter, producer
 // GetAzureVnetsUnauthorizedCode is the HTTP code returned for type GetAzureVnetsUnauthorized
 const GetAzureVnetsUnauthorizedCode int = 401
 
-/*GetAzureVnetsUnauthorized Incorrect credentials
+/*
+GetAzureVnetsUnauthorized Incorrect credentials
 
 swagger:response getAzureVnetsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAzureVnetsUnauthorized) WriteResponse(rw http.ResponseWriter, produc
 // GetAzureVnetsInternalServerErrorCode is the HTTP code returned for type GetAzureVnetsInternalServerError
 const GetAzureVnetsInternalServerErrorCode int = 500
 
-/*GetAzureVnetsInternalServerError Internal server error
+/*
+GetAzureVnetsInternalServerError Internal server error
 
 swagger:response getAzureVnetsInternalServerError
 */

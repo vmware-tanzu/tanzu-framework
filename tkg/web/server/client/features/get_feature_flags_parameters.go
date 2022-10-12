@@ -56,7 +56,8 @@ func NewGetFeatureFlagsParamsWithHTTPClient(client *http.Client) *GetFeatureFlag
 	}
 }
 
-/*GetFeatureFlagsParams contains all the parameters to send to the API endpoint
+/*
+GetFeatureFlagsParams contains all the parameters to send to the API endpoint
 for the get feature flags operation typically these are written to a http.Request
 */
 type GetFeatureFlagsParams struct {

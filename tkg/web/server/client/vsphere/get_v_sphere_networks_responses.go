@@ -59,7 +59,8 @@ func NewGetVSphereNetworksOK() *GetVSphereNetworksOK {
 	return &GetVSphereNetworksOK{}
 }
 
-/*GetVSphereNetworksOK handles this case with default header values.
+/*
+GetVSphereNetworksOK handles this case with default header values.
 
 Successful retrieval of vSphere networks
 */
@@ -90,7 +91,8 @@ func NewGetVSphereNetworksBadRequest() *GetVSphereNetworksBadRequest {
 	return &GetVSphereNetworksBadRequest{}
 }
 
-/*GetVSphereNetworksBadRequest handles this case with default header values.
+/*
+GetVSphereNetworksBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetVSphereNetworksUnauthorized() *GetVSphereNetworksUnauthorized {
 	return &GetVSphereNetworksUnauthorized{}
 }
 
-/*GetVSphereNetworksUnauthorized handles this case with default header values.
+/*
+GetVSphereNetworksUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetVSphereNetworksInternalServerError() *GetVSphereNetworksInternalServe
 	return &GetVSphereNetworksInternalServerError{}
 }
 
-/*GetVSphereNetworksInternalServerError handles this case with default header values.
+/*
+GetVSphereNetworksInternalServerError handles this case with default header values.
 
 Internal server error
 */

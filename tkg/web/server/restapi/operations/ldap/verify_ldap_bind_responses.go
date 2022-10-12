@@ -16,7 +16,8 @@ import (
 // VerifyLdapBindOKCode is the HTTP code returned for type VerifyLdapBindOK
 const VerifyLdapBindOKCode int = 200
 
-/*VerifyLdapBindOK Verified LDAP credentials successfully
+/*
+VerifyLdapBindOK Verified LDAP credentials successfully
 
 swagger:response verifyLdapBindOK
 */
@@ -60,7 +61,8 @@ func (o *VerifyLdapBindOK) WriteResponse(rw http.ResponseWriter, producer runtim
 // VerifyLdapBindBadRequestCode is the HTTP code returned for type VerifyLdapBindBadRequest
 const VerifyLdapBindBadRequestCode int = 400
 
-/*VerifyLdapBindBadRequest Bad request
+/*
+VerifyLdapBindBadRequest Bad request
 
 swagger:response verifyLdapBindBadRequest
 */
@@ -104,7 +106,8 @@ func (o *VerifyLdapBindBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // VerifyLdapBindUnauthorizedCode is the HTTP code returned for type VerifyLdapBindUnauthorized
 const VerifyLdapBindUnauthorizedCode int = 401
 
-/*VerifyLdapBindUnauthorized Incorrect credentials
+/*
+VerifyLdapBindUnauthorized Incorrect credentials
 
 swagger:response verifyLdapBindUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *VerifyLdapBindUnauthorized) WriteResponse(rw http.ResponseWriter, produ
 // VerifyLdapBindInternalServerErrorCode is the HTTP code returned for type VerifyLdapBindInternalServerError
 const VerifyLdapBindInternalServerErrorCode int = 500
 
-/*VerifyLdapBindInternalServerError Internal server error
+/*
+VerifyLdapBindInternalServerError Internal server error
 
 swagger:response verifyLdapBindInternalServerError
 */

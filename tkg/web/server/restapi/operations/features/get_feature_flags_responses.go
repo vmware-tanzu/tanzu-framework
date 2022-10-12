@@ -16,7 +16,8 @@ import (
 // GetFeatureFlagsOKCode is the HTTP code returned for type GetFeatureFlagsOK
 const GetFeatureFlagsOKCode int = 200
 
-/*GetFeatureFlagsOK Successful retrieval of feature flags
+/*
+GetFeatureFlagsOK Successful retrieval of feature flags
 
 swagger:response getFeatureFlagsOK
 */
@@ -63,7 +64,8 @@ func (o *GetFeatureFlagsOK) WriteResponse(rw http.ResponseWriter, producer runti
 // GetFeatureFlagsBadRequestCode is the HTTP code returned for type GetFeatureFlagsBadRequest
 const GetFeatureFlagsBadRequestCode int = 400
 
-/*GetFeatureFlagsBadRequest Bad Request
+/*
+GetFeatureFlagsBadRequest Bad Request
 
 swagger:response getFeatureFlagsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetFeatureFlagsBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // GetFeatureFlagsUnauthorizedCode is the HTTP code returned for type GetFeatureFlagsUnauthorized
 const GetFeatureFlagsUnauthorizedCode int = 401
 
-/*GetFeatureFlagsUnauthorized Incorrect credentials
+/*
+GetFeatureFlagsUnauthorized Incorrect credentials
 
 swagger:response getFeatureFlagsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetFeatureFlagsUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // GetFeatureFlagsInternalServerErrorCode is the HTTP code returned for type GetFeatureFlagsInternalServerError
 const GetFeatureFlagsInternalServerErrorCode int = 500
 
-/*GetFeatureFlagsInternalServerError Internal server error
+/*
+GetFeatureFlagsInternalServerError Internal server error
 
 swagger:response getFeatureFlagsInternalServerError
 */

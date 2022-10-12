@@ -16,7 +16,8 @@ import (
 // GetAzureEndpointOKCode is the HTTP code returned for type GetAzureEndpointOK
 const GetAzureEndpointOKCode int = 200
 
-/*GetAzureEndpointOK Successful retrieval of Azure account parameters
+/*
+GetAzureEndpointOK Successful retrieval of Azure account parameters
 
 swagger:response getAzureEndpointOK
 */
@@ -60,7 +61,8 @@ func (o *GetAzureEndpointOK) WriteResponse(rw http.ResponseWriter, producer runt
 // GetAzureEndpointBadRequestCode is the HTTP code returned for type GetAzureEndpointBadRequest
 const GetAzureEndpointBadRequestCode int = 400
 
-/*GetAzureEndpointBadRequest Bad Request
+/*
+GetAzureEndpointBadRequest Bad Request
 
 swagger:response getAzureEndpointBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetAzureEndpointBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // GetAzureEndpointUnauthorizedCode is the HTTP code returned for type GetAzureEndpointUnauthorized
 const GetAzureEndpointUnauthorizedCode int = 401
 
-/*GetAzureEndpointUnauthorized Incorrect credentials
+/*
+GetAzureEndpointUnauthorized Incorrect credentials
 
 swagger:response getAzureEndpointUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *GetAzureEndpointUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // GetAzureEndpointInternalServerErrorCode is the HTTP code returned for type GetAzureEndpointInternalServerError
 const GetAzureEndpointInternalServerErrorCode int = 500
 
-/*GetAzureEndpointInternalServerError Internal server error
+/*
+GetAzureEndpointInternalServerError Internal server error
 
 swagger:response getAzureEndpointInternalServerError
 */

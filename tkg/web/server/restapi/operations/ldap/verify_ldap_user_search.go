@@ -29,10 +29,10 @@ func NewVerifyLdapUserSearch(ctx *middleware.Context, handler VerifyLdapUserSear
 	return &VerifyLdapUserSearch{Context: ctx, Handler: handler}
 }
 
-/*VerifyLdapUserSearch swagger:route POST /api/ldap/users/search ldap verifyLdapUserSearch
+/*
+VerifyLdapUserSearch swagger:route POST /api/ldap/users/search ldap verifyLdapUserSearch
 
 Validate LDAP User Search configuration
-
 */
 type VerifyLdapUserSearch struct {
 	Context *middleware.Context

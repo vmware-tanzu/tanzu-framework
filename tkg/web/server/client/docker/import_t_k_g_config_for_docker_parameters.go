@@ -58,7 +58,8 @@ func NewImportTKGConfigForDockerParamsWithHTTPClient(client *http.Client) *Impor
 	}
 }
 
-/*ImportTKGConfigForDockerParams contains all the parameters to send to the API endpoint
+/*
+ImportTKGConfigForDockerParams contains all the parameters to send to the API endpoint
 for the import t k g config for docker operation typically these are written to a http.Request
 */
 type ImportTKGConfigForDockerParams struct {

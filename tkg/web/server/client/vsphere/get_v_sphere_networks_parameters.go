@@ -56,7 +56,8 @@ func NewGetVSphereNetworksParamsWithHTTPClient(client *http.Client) *GetVSphereN
 	}
 }
 
-/*GetVSphereNetworksParams contains all the parameters to send to the API endpoint
+/*
+GetVSphereNetworksParams contains all the parameters to send to the API endpoint
 for the get v sphere networks operation typically these are written to a http.Request
 */
 type GetVSphereNetworksParams struct {

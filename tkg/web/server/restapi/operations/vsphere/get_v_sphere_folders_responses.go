@@ -16,7 +16,8 @@ import (
 // GetVSphereFoldersOKCode is the HTTP code returned for type GetVSphereFoldersOK
 const GetVSphereFoldersOKCode int = 200
 
-/*GetVSphereFoldersOK Successful retrieval of vSphere folders
+/*
+GetVSphereFoldersOK Successful retrieval of vSphere folders
 
 swagger:response getVSphereFoldersOK
 */
@@ -63,7 +64,8 @@ func (o *GetVSphereFoldersOK) WriteResponse(rw http.ResponseWriter, producer run
 // GetVSphereFoldersBadRequestCode is the HTTP code returned for type GetVSphereFoldersBadRequest
 const GetVSphereFoldersBadRequestCode int = 400
 
-/*GetVSphereFoldersBadRequest Bad request
+/*
+GetVSphereFoldersBadRequest Bad request
 
 swagger:response getVSphereFoldersBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetVSphereFoldersBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // GetVSphereFoldersUnauthorizedCode is the HTTP code returned for type GetVSphereFoldersUnauthorized
 const GetVSphereFoldersUnauthorizedCode int = 401
 
-/*GetVSphereFoldersUnauthorized Incorrect credentials
+/*
+GetVSphereFoldersUnauthorized Incorrect credentials
 
 swagger:response getVSphereFoldersUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetVSphereFoldersUnauthorized) WriteResponse(rw http.ResponseWriter, pr
 // GetVSphereFoldersInternalServerErrorCode is the HTTP code returned for type GetVSphereFoldersInternalServerError
 const GetVSphereFoldersInternalServerErrorCode int = 500
 
-/*GetVSphereFoldersInternalServerError Internal server error
+/*
+GetVSphereFoldersInternalServerError Internal server error
 
 swagger:response getVSphereFoldersInternalServerError
 */

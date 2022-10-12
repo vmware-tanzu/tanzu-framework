@@ -14,7 +14,7 @@ import (
 
 var realClient Client
 
-//TestClient tests the methods of a Client object
+// TestClient tests the methods of a Client object
 func TestRealClient(t *testing.T) {
 	RegisterFailHandler(Fail)
 	realClient = New()

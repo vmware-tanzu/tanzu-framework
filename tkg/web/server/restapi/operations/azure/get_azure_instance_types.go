@@ -29,10 +29,10 @@ func NewGetAzureInstanceTypes(ctx *middleware.Context, handler GetAzureInstanceT
 	return &GetAzureInstanceTypes{Context: ctx, Handler: handler}
 }
 
-/*GetAzureInstanceTypes swagger:route GET /api/providers/azure/regions/{location}/instanceTypes azure getAzureInstanceTypes
+/*
+GetAzureInstanceTypes swagger:route GET /api/providers/azure/regions/{location}/instanceTypes azure getAzureInstanceTypes
 
 Retrieve list of supported Azure instance types for a region
-
 */
 type GetAzureInstanceTypes struct {
 	Context *middleware.Context

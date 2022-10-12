@@ -56,7 +56,8 @@ func NewGetVPCsParamsWithHTTPClient(client *http.Client) *GetVPCsParams {
 	}
 }
 
-/*GetVPCsParams contains all the parameters to send to the API endpoint
+/*
+GetVPCsParams contains all the parameters to send to the API endpoint
 for the get v p cs operation typically these are written to a http.Request
 */
 type GetVPCsParams struct {

@@ -59,7 +59,8 @@ func NewGetAWSOSImagesOK() *GetAWSOSImagesOK {
 	return &GetAWSOSImagesOK{}
 }
 
-/*GetAWSOSImagesOK handles this case with default header values.
+/*
+GetAWSOSImagesOK handles this case with default header values.
 
 Successful retrieval of AWS supported os images
 */
@@ -90,7 +91,8 @@ func NewGetAWSOSImagesBadRequest() *GetAWSOSImagesBadRequest {
 	return &GetAWSOSImagesBadRequest{}
 }
 
-/*GetAWSOSImagesBadRequest handles this case with default header values.
+/*
+GetAWSOSImagesBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -123,7 +125,8 @@ func NewGetAWSOSImagesUnauthorized() *GetAWSOSImagesUnauthorized {
 	return &GetAWSOSImagesUnauthorized{}
 }
 
-/*GetAWSOSImagesUnauthorized handles this case with default header values.
+/*
+GetAWSOSImagesUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAWSOSImagesInternalServerError() *GetAWSOSImagesInternalServerError {
 	return &GetAWSOSImagesInternalServerError{}
 }
 
-/*GetAWSOSImagesInternalServerError handles this case with default header values.
+/*
+GetAWSOSImagesInternalServerError handles this case with default header values.
 
 Internal server error
 */

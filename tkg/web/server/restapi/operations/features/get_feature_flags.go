@@ -29,10 +29,10 @@ func NewGetFeatureFlags(ctx *middleware.Context, handler GetFeatureFlagsHandler)
 	return &GetFeatureFlags{Context: ctx, Handler: handler}
 }
 
-/*GetFeatureFlags swagger:route GET /api/features features getFeatureFlags
+/*
+GetFeatureFlags swagger:route GET /api/features features getFeatureFlags
 
 Retrieve list of features
-
 */
 type GetFeatureFlags struct {
 	Context *middleware.Context

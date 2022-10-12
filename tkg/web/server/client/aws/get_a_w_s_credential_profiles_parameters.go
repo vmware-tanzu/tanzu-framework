@@ -56,7 +56,8 @@ func NewGetAWSCredentialProfilesParamsWithHTTPClient(client *http.Client) *GetAW
 	}
 }
 
-/*GetAWSCredentialProfilesParams contains all the parameters to send to the API endpoint
+/*
+GetAWSCredentialProfilesParams contains all the parameters to send to the API endpoint
 for the get a w s credential profiles operation typically these are written to a http.Request
 */
 type GetAWSCredentialProfilesParams struct {

@@ -10,6 +10,7 @@ import (
 
 // Client provides interface which is a proxy for clusterctl client's interface ApplyUpgrade method, created to help unit tests
 // TODO: This can be extended as a proxy for all operations of clusterctl client
+//
 //go:generate counterfeiter -o ../fakes/providersupgradeclient.go --fake-name ProvidersUpgradeClient . Client
 type Client interface {
 	ApplyUpgrade(*clusterctl.ApplyUpgradeOptions) error

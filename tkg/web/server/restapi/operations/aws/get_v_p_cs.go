@@ -29,10 +29,10 @@ func NewGetVPCs(ctx *middleware.Context, handler GetVPCsHandler) *GetVPCs {
 	return &GetVPCs{Context: ctx, Handler: handler}
 }
 
-/*GetVPCs swagger:route GET /api/providers/aws/vpc aws getVPCs
+/*
+GetVPCs swagger:route GET /api/providers/aws/vpc aws getVPCs
 
 Retrieve AWS VPCs
-
 */
 type GetVPCs struct {
 	Context *middleware.Context

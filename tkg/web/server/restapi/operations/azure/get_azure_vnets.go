@@ -29,10 +29,10 @@ func NewGetAzureVnets(ctx *middleware.Context, handler GetAzureVnetsHandler) *Ge
 	return &GetAzureVnets{Context: ctx, Handler: handler}
 }
 
-/*GetAzureVnets swagger:route GET /api/providers/azure/resourcegroups/{resourceGroupName}/vnets azure getAzureVnets
+/*
+GetAzureVnets swagger:route GET /api/providers/azure/resourcegroups/{resourceGroupName}/vnets azure getAzureVnets
 
 Retrieve list of Azure virtual networks in a resource group
-
 */
 type GetAzureVnets struct {
 	Context *middleware.Context

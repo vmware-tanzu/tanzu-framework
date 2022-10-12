@@ -29,10 +29,10 @@ func NewApplyTKGConfigForAzure(ctx *middleware.Context, handler ApplyTKGConfigFo
 	return &ApplyTKGConfigForAzure{Context: ctx, Handler: handler}
 }
 
-/*ApplyTKGConfigForAzure swagger:route POST /api/providers/azure/tkgconfig azure applyTKGConfigForAzure
+/*
+ApplyTKGConfigForAzure swagger:route POST /api/providers/azure/tkgconfig azure applyTKGConfigForAzure
 
 Apply the changes to TKG configuration file for Azure"
-
 */
 type ApplyTKGConfigForAzure struct {
 	Context *middleware.Context

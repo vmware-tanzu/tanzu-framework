@@ -59,7 +59,8 @@ func NewSetAWSEndpointCreated() *SetAWSEndpointCreated {
 	return &SetAWSEndpointCreated{}
 }
 
-/*SetAWSEndpointCreated handles this case with default header values.
+/*
+SetAWSEndpointCreated handles this case with default header values.
 
 Connection successful
 */
@@ -80,7 +81,8 @@ func NewSetAWSEndpointBadRequest() *SetAWSEndpointBadRequest {
 	return &SetAWSEndpointBadRequest{}
 }
 
-/*SetAWSEndpointBadRequest handles this case with default header values.
+/*
+SetAWSEndpointBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -113,7 +115,8 @@ func NewSetAWSEndpointUnauthorized() *SetAWSEndpointUnauthorized {
 	return &SetAWSEndpointUnauthorized{}
 }
 
-/*SetAWSEndpointUnauthorized handles this case with default header values.
+/*
+SetAWSEndpointUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -146,7 +149,8 @@ func NewSetAWSEndpointInternalServerError() *SetAWSEndpointInternalServerError {
 	return &SetAWSEndpointInternalServerError{}
 }
 
-/*SetAWSEndpointInternalServerError handles this case with default header values.
+/*
+SetAWSEndpointInternalServerError handles this case with default header values.
 
 Internal server error
 */

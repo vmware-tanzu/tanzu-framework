@@ -19,7 +19,6 @@ const (
 	defaultInfrastructureProvider = "docker"
 )
 
-//
 type testConfig struct {
 	InfrastructureName    string `json:"infrastructure_name,omitempty"`
 	UseExistingCluster    bool   `json:"use_existing_cluster,omitempty"`

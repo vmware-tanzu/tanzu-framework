@@ -56,7 +56,8 @@ func NewGetVSphereDatastoresParamsWithHTTPClient(client *http.Client) *GetVSpher
 	}
 }
 
-/*GetVSphereDatastoresParams contains all the parameters to send to the API endpoint
+/*
+GetVSphereDatastoresParams contains all the parameters to send to the API endpoint
 for the get v sphere datastores operation typically these are written to a http.Request
 */
 type GetVSphereDatastoresParams struct {

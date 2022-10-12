@@ -59,7 +59,8 @@ func NewGetAzureEndpointOK() *GetAzureEndpointOK {
 	return &GetAzureEndpointOK{}
 }
 
-/*GetAzureEndpointOK handles this case with default header values.
+/*
+GetAzureEndpointOK handles this case with default header values.
 
 Successful retrieval of Azure account parameters
 */
@@ -92,7 +93,8 @@ func NewGetAzureEndpointBadRequest() *GetAzureEndpointBadRequest {
 	return &GetAzureEndpointBadRequest{}
 }
 
-/*GetAzureEndpointBadRequest handles this case with default header values.
+/*
+GetAzureEndpointBadRequest handles this case with default header values.
 
 Bad Request
 */
@@ -125,7 +127,8 @@ func NewGetAzureEndpointUnauthorized() *GetAzureEndpointUnauthorized {
 	return &GetAzureEndpointUnauthorized{}
 }
 
-/*GetAzureEndpointUnauthorized handles this case with default header values.
+/*
+GetAzureEndpointUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewGetAzureEndpointInternalServerError() *GetAzureEndpointInternalServerErr
 	return &GetAzureEndpointInternalServerError{}
 }
 
-/*GetAzureEndpointInternalServerError handles this case with default header values.
+/*
+GetAzureEndpointInternalServerError handles this case with default header values.
 
 Internal server error
 */

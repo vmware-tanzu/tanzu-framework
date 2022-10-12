@@ -29,10 +29,10 @@ func NewGetAzureOSImages(ctx *middleware.Context, handler GetAzureOSImagesHandle
 	return &GetAzureOSImages{Context: ctx, Handler: handler}
 }
 
-/*GetAzureOSImages swagger:route GET /api/providers/azure/osimages azure getAzureOSImages
+/*
+GetAzureOSImages swagger:route GET /api/providers/azure/osimages azure getAzureOSImages
 
 Retrieve Azure supported os images
-
 */
 type GetAzureOSImages struct {
 	Context *middleware.Context

@@ -59,7 +59,8 @@ func NewGetAzureResourceGroupsOK() *GetAzureResourceGroupsOK {
 	return &GetAzureResourceGroupsOK{}
 }
 
-/*GetAzureResourceGroupsOK handles this case with default header values.
+/*
+GetAzureResourceGroupsOK handles this case with default header values.
 
 Successful retrieval of Azure resource groups
 */
@@ -90,7 +91,8 @@ func NewGetAzureResourceGroupsBadRequest() *GetAzureResourceGroupsBadRequest {
 	return &GetAzureResourceGroupsBadRequest{}
 }
 
-/*GetAzureResourceGroupsBadRequest handles this case with default header values.
+/*
+GetAzureResourceGroupsBadRequest handles this case with default header values.
 
 Bad Request
 */
@@ -123,7 +125,8 @@ func NewGetAzureResourceGroupsUnauthorized() *GetAzureResourceGroupsUnauthorized
 	return &GetAzureResourceGroupsUnauthorized{}
 }
 
-/*GetAzureResourceGroupsUnauthorized handles this case with default header values.
+/*
+GetAzureResourceGroupsUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -156,7 +159,8 @@ func NewGetAzureResourceGroupsInternalServerError() *GetAzureResourceGroupsInter
 	return &GetAzureResourceGroupsInternalServerError{}
 }
 
-/*GetAzureResourceGroupsInternalServerError handles this case with default header values.
+/*
+GetAzureResourceGroupsInternalServerError handles this case with default header values.
 
 Internal server error
 */

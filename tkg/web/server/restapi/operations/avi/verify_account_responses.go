@@ -16,7 +16,8 @@ import (
 // VerifyAccountCreatedCode is the HTTP code returned for type VerifyAccountCreated
 const VerifyAccountCreatedCode int = 201
 
-/*VerifyAccountCreated Verified AVI credentials successfully
+/*
+VerifyAccountCreated Verified AVI credentials successfully
 
 swagger:response verifyAccountCreated
 */
@@ -40,7 +41,8 @@ func (o *VerifyAccountCreated) WriteResponse(rw http.ResponseWriter, producer ru
 // VerifyAccountBadRequestCode is the HTTP code returned for type VerifyAccountBadRequest
 const VerifyAccountBadRequestCode int = 400
 
-/*VerifyAccountBadRequest Bad request
+/*
+VerifyAccountBadRequest Bad request
 
 swagger:response verifyAccountBadRequest
 */
@@ -84,7 +86,8 @@ func (o *VerifyAccountBadRequest) WriteResponse(rw http.ResponseWriter, producer
 // VerifyAccountUnauthorizedCode is the HTTP code returned for type VerifyAccountUnauthorized
 const VerifyAccountUnauthorizedCode int = 401
 
-/*VerifyAccountUnauthorized Incorrect credentials
+/*
+VerifyAccountUnauthorized Incorrect credentials
 
 swagger:response verifyAccountUnauthorized
 */
@@ -128,7 +131,8 @@ func (o *VerifyAccountUnauthorized) WriteResponse(rw http.ResponseWriter, produc
 // VerifyAccountInternalServerErrorCode is the HTTP code returned for type VerifyAccountInternalServerError
 const VerifyAccountInternalServerErrorCode int = 500
 
-/*VerifyAccountInternalServerError Internal server error
+/*
+VerifyAccountInternalServerError Internal server error
 
 swagger:response verifyAccountInternalServerError
 */

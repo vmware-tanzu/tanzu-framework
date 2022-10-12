@@ -29,10 +29,10 @@ func NewGetAWSOSImages(ctx *middleware.Context, handler GetAWSOSImagesHandler) *
 	return &GetAWSOSImages{Context: ctx, Handler: handler}
 }
 
-/*GetAWSOSImages swagger:route GET /api/providers/aws/osimages aws getAWSOSImages
+/*
+GetAWSOSImages swagger:route GET /api/providers/aws/osimages aws getAWSOSImages
 
 Retrieve AWS supported os images
-
 */
 type GetAWSOSImages struct {
 	Context *middleware.Context

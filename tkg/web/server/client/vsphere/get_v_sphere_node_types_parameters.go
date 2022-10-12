@@ -56,7 +56,8 @@ func NewGetVSphereNodeTypesParamsWithHTTPClient(client *http.Client) *GetVSphere
 	}
 }
 
-/*GetVSphereNodeTypesParams contains all the parameters to send to the API endpoint
+/*
+GetVSphereNodeTypesParams contains all the parameters to send to the API endpoint
 for the get v sphere node types operation typically these are written to a http.Request
 */
 type GetVSphereNodeTypesParams struct {

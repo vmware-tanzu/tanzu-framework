@@ -59,7 +59,8 @@ func NewApplyTKGConfigForAWSOK() *ApplyTKGConfigForAWSOK {
 	return &ApplyTKGConfigForAWSOK{}
 }
 
-/*ApplyTKGConfigForAWSOK handles this case with default header values.
+/*
+ApplyTKGConfigForAWSOK handles this case with default header values.
 
 Apply change to TKG configuration successfully
 */
@@ -92,7 +93,8 @@ func NewApplyTKGConfigForAWSBadRequest() *ApplyTKGConfigForAWSBadRequest {
 	return &ApplyTKGConfigForAWSBadRequest{}
 }
 
-/*ApplyTKGConfigForAWSBadRequest handles this case with default header values.
+/*
+ApplyTKGConfigForAWSBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewApplyTKGConfigForAWSUnauthorized() *ApplyTKGConfigForAWSUnauthorized {
 	return &ApplyTKGConfigForAWSUnauthorized{}
 }
 
-/*ApplyTKGConfigForAWSUnauthorized handles this case with default header values.
+/*
+ApplyTKGConfigForAWSUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewApplyTKGConfigForAWSInternalServerError() *ApplyTKGConfigForAWSInternalS
 	return &ApplyTKGConfigForAWSInternalServerError{}
 }
 
-/*ApplyTKGConfigForAWSInternalServerError handles this case with default header values.
+/*
+ApplyTKGConfigForAWSInternalServerError handles this case with default header values.
 
 Internal server error
 */

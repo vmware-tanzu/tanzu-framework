@@ -38,6 +38,7 @@ func init() {
 }
 
 // Client provides various aspects of interaction with a Kubernetes cluster provisioned by TKG
+//
 //go:generate counterfeiter -o ../fakes/clusterclient_fake.go --fake-name ClusterClient . Client
 type Client interface {
 	// ListCLIPluginResources lists CLIPlugin resources across all namespaces

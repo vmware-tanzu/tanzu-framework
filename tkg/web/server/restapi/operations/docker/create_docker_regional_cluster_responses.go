@@ -16,7 +16,8 @@ import (
 // CreateDockerRegionalClusterOKCode is the HTTP code returned for type CreateDockerRegionalClusterOK
 const CreateDockerRegionalClusterOKCode int = 200
 
-/*CreateDockerRegionalClusterOK Creating regional cluster started successfully
+/*
+CreateDockerRegionalClusterOK Creating regional cluster started successfully
 
 swagger:response createDockerRegionalClusterOK
 */
@@ -58,7 +59,8 @@ func (o *CreateDockerRegionalClusterOK) WriteResponse(rw http.ResponseWriter, pr
 // CreateDockerRegionalClusterBadRequestCode is the HTTP code returned for type CreateDockerRegionalClusterBadRequest
 const CreateDockerRegionalClusterBadRequestCode int = 400
 
-/*CreateDockerRegionalClusterBadRequest Bad request
+/*
+CreateDockerRegionalClusterBadRequest Bad request
 
 swagger:response createDockerRegionalClusterBadRequest
 */
@@ -102,7 +104,8 @@ func (o *CreateDockerRegionalClusterBadRequest) WriteResponse(rw http.ResponseWr
 // CreateDockerRegionalClusterInternalServerErrorCode is the HTTP code returned for type CreateDockerRegionalClusterInternalServerError
 const CreateDockerRegionalClusterInternalServerErrorCode int = 500
 
-/*CreateDockerRegionalClusterInternalServerError Internal server error
+/*
+CreateDockerRegionalClusterInternalServerError Internal server error
 
 swagger:response createDockerRegionalClusterInternalServerError
 */

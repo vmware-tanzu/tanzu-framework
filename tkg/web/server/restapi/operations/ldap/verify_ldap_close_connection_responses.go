@@ -16,7 +16,8 @@ import (
 // VerifyLdapCloseConnectionCreatedCode is the HTTP code returned for type VerifyLdapCloseConnectionCreated
 const VerifyLdapCloseConnectionCreatedCode int = 201
 
-/*VerifyLdapCloseConnectionCreated Verified LDAP credentials successfully
+/*
+VerifyLdapCloseConnectionCreated Verified LDAP credentials successfully
 
 swagger:response verifyLdapCloseConnectionCreated
 */
@@ -40,7 +41,8 @@ func (o *VerifyLdapCloseConnectionCreated) WriteResponse(rw http.ResponseWriter,
 // VerifyLdapCloseConnectionBadRequestCode is the HTTP code returned for type VerifyLdapCloseConnectionBadRequest
 const VerifyLdapCloseConnectionBadRequestCode int = 400
 
-/*VerifyLdapCloseConnectionBadRequest Bad request
+/*
+VerifyLdapCloseConnectionBadRequest Bad request
 
 swagger:response verifyLdapCloseConnectionBadRequest
 */
@@ -84,7 +86,8 @@ func (o *VerifyLdapCloseConnectionBadRequest) WriteResponse(rw http.ResponseWrit
 // VerifyLdapCloseConnectionUnauthorizedCode is the HTTP code returned for type VerifyLdapCloseConnectionUnauthorized
 const VerifyLdapCloseConnectionUnauthorizedCode int = 401
 
-/*VerifyLdapCloseConnectionUnauthorized Incorrect credentials
+/*
+VerifyLdapCloseConnectionUnauthorized Incorrect credentials
 
 swagger:response verifyLdapCloseConnectionUnauthorized
 */
@@ -128,7 +131,8 @@ func (o *VerifyLdapCloseConnectionUnauthorized) WriteResponse(rw http.ResponseWr
 // VerifyLdapCloseConnectionInternalServerErrorCode is the HTTP code returned for type VerifyLdapCloseConnectionInternalServerError
 const VerifyLdapCloseConnectionInternalServerErrorCode int = 500
 
-/*VerifyLdapCloseConnectionInternalServerError Internal server error
+/*
+VerifyLdapCloseConnectionInternalServerError Internal server error
 
 swagger:response verifyLdapCloseConnectionInternalServerError
 */

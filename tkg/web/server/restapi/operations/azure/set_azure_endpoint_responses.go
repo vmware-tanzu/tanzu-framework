@@ -16,7 +16,8 @@ import (
 // SetAzureEndpointCreatedCode is the HTTP code returned for type SetAzureEndpointCreated
 const SetAzureEndpointCreatedCode int = 201
 
-/*SetAzureEndpointCreated Connection successful
+/*
+SetAzureEndpointCreated Connection successful
 
 swagger:response setAzureEndpointCreated
 */
@@ -40,7 +41,8 @@ func (o *SetAzureEndpointCreated) WriteResponse(rw http.ResponseWriter, producer
 // SetAzureEndpointBadRequestCode is the HTTP code returned for type SetAzureEndpointBadRequest
 const SetAzureEndpointBadRequestCode int = 400
 
-/*SetAzureEndpointBadRequest Bad request
+/*
+SetAzureEndpointBadRequest Bad request
 
 swagger:response setAzureEndpointBadRequest
 */
@@ -84,7 +86,8 @@ func (o *SetAzureEndpointBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // SetAzureEndpointUnauthorizedCode is the HTTP code returned for type SetAzureEndpointUnauthorized
 const SetAzureEndpointUnauthorizedCode int = 401
 
-/*SetAzureEndpointUnauthorized Incorrect credentials
+/*
+SetAzureEndpointUnauthorized Incorrect credentials
 
 swagger:response setAzureEndpointUnauthorized
 */
@@ -128,7 +131,8 @@ func (o *SetAzureEndpointUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // SetAzureEndpointInternalServerErrorCode is the HTTP code returned for type SetAzureEndpointInternalServerError
 const SetAzureEndpointInternalServerErrorCode int = 500
 
-/*SetAzureEndpointInternalServerError Internal server error
+/*
+SetAzureEndpointInternalServerError Internal server error
 
 swagger:response setAzureEndpointInternalServerError
 */

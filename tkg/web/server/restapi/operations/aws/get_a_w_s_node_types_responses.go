@@ -16,7 +16,8 @@ import (
 // GetAWSNodeTypesOKCode is the HTTP code returned for type GetAWSNodeTypesOK
 const GetAWSNodeTypesOKCode int = 200
 
-/*GetAWSNodeTypesOK Successful retrieval of AWS node types
+/*
+GetAWSNodeTypesOK Successful retrieval of AWS node types
 
 swagger:response getAWSNodeTypesOK
 */
@@ -63,7 +64,8 @@ func (o *GetAWSNodeTypesOK) WriteResponse(rw http.ResponseWriter, producer runti
 // GetAWSNodeTypesBadRequestCode is the HTTP code returned for type GetAWSNodeTypesBadRequest
 const GetAWSNodeTypesBadRequestCode int = 400
 
-/*GetAWSNodeTypesBadRequest Bad request
+/*
+GetAWSNodeTypesBadRequest Bad request
 
 swagger:response getAWSNodeTypesBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetAWSNodeTypesBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // GetAWSNodeTypesUnauthorizedCode is the HTTP code returned for type GetAWSNodeTypesUnauthorized
 const GetAWSNodeTypesUnauthorizedCode int = 401
 
-/*GetAWSNodeTypesUnauthorized Incorrect credentials
+/*
+GetAWSNodeTypesUnauthorized Incorrect credentials
 
 swagger:response getAWSNodeTypesUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetAWSNodeTypesUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // GetAWSNodeTypesInternalServerErrorCode is the HTTP code returned for type GetAWSNodeTypesInternalServerError
 const GetAWSNodeTypesInternalServerErrorCode int = 500
 
-/*GetAWSNodeTypesInternalServerError Internal server error
+/*
+GetAWSNodeTypesInternalServerError Internal server error
 
 swagger:response getAWSNodeTypesInternalServerError
 */

@@ -59,7 +59,8 @@ func NewApplyTKGConfigForVsphereOK() *ApplyTKGConfigForVsphereOK {
 	return &ApplyTKGConfigForVsphereOK{}
 }
 
-/*ApplyTKGConfigForVsphereOK handles this case with default header values.
+/*
+ApplyTKGConfigForVsphereOK handles this case with default header values.
 
 apply changes to TKG configuration file successfully
 */
@@ -92,7 +93,8 @@ func NewApplyTKGConfigForVsphereBadRequest() *ApplyTKGConfigForVsphereBadRequest
 	return &ApplyTKGConfigForVsphereBadRequest{}
 }
 
-/*ApplyTKGConfigForVsphereBadRequest handles this case with default header values.
+/*
+ApplyTKGConfigForVsphereBadRequest handles this case with default header values.
 
 Bad request
 */
@@ -125,7 +127,8 @@ func NewApplyTKGConfigForVsphereUnauthorized() *ApplyTKGConfigForVsphereUnauthor
 	return &ApplyTKGConfigForVsphereUnauthorized{}
 }
 
-/*ApplyTKGConfigForVsphereUnauthorized handles this case with default header values.
+/*
+ApplyTKGConfigForVsphereUnauthorized handles this case with default header values.
 
 Incorrect credentials
 */
@@ -158,7 +161,8 @@ func NewApplyTKGConfigForVsphereInternalServerError() *ApplyTKGConfigForVsphereI
 	return &ApplyTKGConfigForVsphereInternalServerError{}
 }
 
-/*ApplyTKGConfigForVsphereInternalServerError handles this case with default header values.
+/*
+ApplyTKGConfigForVsphereInternalServerError handles this case with default header values.
 
 Internal server error
 */

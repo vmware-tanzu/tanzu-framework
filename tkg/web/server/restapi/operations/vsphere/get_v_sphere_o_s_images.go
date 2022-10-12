@@ -29,10 +29,10 @@ func NewGetVSphereOSImages(ctx *middleware.Context, handler GetVSphereOSImagesHa
 	return &GetVSphereOSImages{Context: ctx, Handler: handler}
 }
 
-/*GetVSphereOSImages swagger:route GET /api/providers/vsphere/osimages vsphere getVSphereOSImages
+/*
+GetVSphereOSImages swagger:route GET /api/providers/vsphere/osimages vsphere getVSphereOSImages
 
 Retrieve vSphere supported node os images
-
 */
 type GetVSphereOSImages struct {
 	Context *middleware.Context

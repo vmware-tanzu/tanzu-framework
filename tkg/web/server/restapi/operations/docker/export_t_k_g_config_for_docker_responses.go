@@ -16,7 +16,8 @@ import (
 // ExportTKGConfigForDockerOKCode is the HTTP code returned for type ExportTKGConfigForDockerOK
 const ExportTKGConfigForDockerOKCode int = 200
 
-/*ExportTKGConfigForDockerOK Generated TKG configuration successfully
+/*
+ExportTKGConfigForDockerOK Generated TKG configuration successfully
 
 swagger:response exportTKGConfigForDockerOK
 */
@@ -58,7 +59,8 @@ func (o *ExportTKGConfigForDockerOK) WriteResponse(rw http.ResponseWriter, produ
 // ExportTKGConfigForDockerBadRequestCode is the HTTP code returned for type ExportTKGConfigForDockerBadRequest
 const ExportTKGConfigForDockerBadRequestCode int = 400
 
-/*ExportTKGConfigForDockerBadRequest Bad request
+/*
+ExportTKGConfigForDockerBadRequest Bad request
 
 swagger:response exportTKGConfigForDockerBadRequest
 */
@@ -102,7 +104,8 @@ func (o *ExportTKGConfigForDockerBadRequest) WriteResponse(rw http.ResponseWrite
 // ExportTKGConfigForDockerInternalServerErrorCode is the HTTP code returned for type ExportTKGConfigForDockerInternalServerError
 const ExportTKGConfigForDockerInternalServerErrorCode int = 500
 
-/*ExportTKGConfigForDockerInternalServerError Internal server error
+/*
+ExportTKGConfigForDockerInternalServerError Internal server error
 
 swagger:response exportTKGConfigForDockerInternalServerError
 */

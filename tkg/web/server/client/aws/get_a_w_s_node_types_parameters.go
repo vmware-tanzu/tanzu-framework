@@ -56,7 +56,8 @@ func NewGetAWSNodeTypesParamsWithHTTPClient(client *http.Client) *GetAWSNodeType
 	}
 }
 
-/*GetAWSNodeTypesParams contains all the parameters to send to the API endpoint
+/*
+GetAWSNodeTypesParams contains all the parameters to send to the API endpoint
 for the get a w s node types operation typically these are written to a http.Request
 */
 type GetAWSNodeTypesParams struct {

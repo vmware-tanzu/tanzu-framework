@@ -29,10 +29,10 @@ func NewCreateAzureVirtualNetwork(ctx *middleware.Context, handler CreateAzureVi
 	return &CreateAzureVirtualNetwork{Context: ctx, Handler: handler}
 }
 
-/*CreateAzureVirtualNetwork swagger:route POST /api/providers/azure/resourcegroups/{resourceGroupName}/vnets azure createAzureVirtualNetwork
+/*
+CreateAzureVirtualNetwork swagger:route POST /api/providers/azure/resourcegroups/{resourceGroupName}/vnets azure createAzureVirtualNetwork
 
 Create a new Azure Virtual Network
-
 */
 type CreateAzureVirtualNetwork struct {
 	Context *middleware.Context
