@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/pinniped-components/tanzu-auth-controller-manager
 
-go 1.17
+go 1.18
 
 // TODO: are these the right dependencies?
 replace sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
