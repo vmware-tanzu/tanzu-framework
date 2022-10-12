@@ -1,0 +1,10 @@
+# Workaround for change in behaviour introduced by https://github.com/kubernetes-sigs/controller-tools/pull/663
+
+_.yaml
+cli.*.yaml
+cni.*.yaml
+config.*.yaml
+cpi.*.yaml
+csi.*.yaml
+run.*.yaml
+core.*.yaml
