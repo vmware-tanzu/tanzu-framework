@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   name: clusterbootstraptemplates.run.tanzu.vmware.com
 spec:
@@ -94,6 +94,7 @@ spec:
                           - kind
                           - name
                           type: object
+                          x-kubernetes-map-type: atomic
                         secretRef:
                           type: string
                       type: object
@@ -133,6 +134,7 @@ spec:
                         - kind
                         - name
                         type: object
+                        x-kubernetes-map-type: atomic
                       secretRef:
                         type: string
                     type: object
@@ -171,6 +173,7 @@ spec:
                         - kind
                         - name
                         type: object
+                        x-kubernetes-map-type: atomic
                       secretRef:
                         type: string
                     type: object
@@ -209,6 +212,7 @@ spec:
                         - kind
                         - name
                         type: object
+                        x-kubernetes-map-type: atomic
                       secretRef:
                         type: string
                     type: object
@@ -247,6 +251,7 @@ spec:
                         - kind
                         - name
                         type: object
+                        x-kubernetes-map-type: atomic
                       secretRef:
                         type: string
                     type: object
@@ -265,9 +270,3 @@ spec:
     served: true
     storage: true
     subresources: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
