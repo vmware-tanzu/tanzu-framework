@@ -4,9 +4,10 @@ package fakes
 import (
 	"sync"
 
-	openapi_v2 "github.com/googleapis/gnostic/openapiv2"
+	openapi_v2 "github.com/google/gnostic/openapiv2"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/version"
+	"k8s.io/client-go/openapi"
 	"k8s.io/client-go/rest"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cluster"
@@ -24,6 +25,16 @@ type DiscoveryClient struct {
 	openAPISchemaReturnsOnCall map[int]struct {
 		result1 *openapi_v2.Document
 		result2 error
+	}
+	OpenAPIV3Stub        func() openapi.Client
+	openAPIV3Mutex       sync.RWMutex
+	openAPIV3ArgsForCall []struct {
+	}
+	openAPIV3Returns struct {
+		result1 openapi.Client
+	}
+	openAPIV3ReturnsOnCall map[int]struct {
+		result1 openapi.Client
 	}
 	RESTClientStub        func() rest.Interface
 	rESTClientMutex       sync.RWMutex
@@ -82,18 +93,6 @@ type DiscoveryClient struct {
 		result2 error
 	}
 	serverPreferredResourcesReturnsOnCall map[int]struct {
-		result1 []*v1.APIResourceList
-		result2 error
-	}
-	ServerResourcesStub        func() ([]*v1.APIResourceList, error)
-	serverResourcesMutex       sync.RWMutex
-	serverResourcesArgsForCall []struct {
-	}
-	serverResourcesReturns struct {
-		result1 []*v1.APIResourceList
-		result2 error
-	}
-	serverResourcesReturnsOnCall map[int]struct {
 		result1 []*v1.APIResourceList
 		result2 error
 	}
@@ -180,6 +179,59 @@ func (fake *DiscoveryClient) OpenAPISchemaReturnsOnCall(i int, result1 *openapi_
 		result1 *openapi_v2.Document
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *DiscoveryClient) OpenAPIV3() openapi.Client {
+	fake.openAPIV3Mutex.Lock()
+	ret, specificReturn := fake.openAPIV3ReturnsOnCall[len(fake.openAPIV3ArgsForCall)]
+	fake.openAPIV3ArgsForCall = append(fake.openAPIV3ArgsForCall, struct {
+	}{})
+	stub := fake.OpenAPIV3Stub
+	fakeReturns := fake.openAPIV3Returns
+	fake.recordInvocation("OpenAPIV3", []interface{}{})
+	fake.openAPIV3Mutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *DiscoveryClient) OpenAPIV3CallCount() int {
+	fake.openAPIV3Mutex.RLock()
+	defer fake.openAPIV3Mutex.RUnlock()
+	return len(fake.openAPIV3ArgsForCall)
+}
+
+func (fake *DiscoveryClient) OpenAPIV3Calls(stub func() openapi.Client) {
+	fake.openAPIV3Mutex.Lock()
+	defer fake.openAPIV3Mutex.Unlock()
+	fake.OpenAPIV3Stub = stub
+}
+
+func (fake *DiscoveryClient) OpenAPIV3Returns(result1 openapi.Client) {
+	fake.openAPIV3Mutex.Lock()
+	defer fake.openAPIV3Mutex.Unlock()
+	fake.OpenAPIV3Stub = nil
+	fake.openAPIV3Returns = struct {
+		result1 openapi.Client
+	}{result1}
+}
+
+func (fake *DiscoveryClient) OpenAPIV3ReturnsOnCall(i int, result1 openapi.Client) {
+	fake.openAPIV3Mutex.Lock()
+	defer fake.openAPIV3Mutex.Unlock()
+	fake.OpenAPIV3Stub = nil
+	if fake.openAPIV3ReturnsOnCall == nil {
+		fake.openAPIV3ReturnsOnCall = make(map[int]struct {
+			result1 openapi.Client
+		})
+	}
+	fake.openAPIV3ReturnsOnCall[i] = struct {
+		result1 openapi.Client
+	}{result1}
 }
 
 func (fake *DiscoveryClient) RESTClient() rest.Interface {
@@ -462,62 +514,6 @@ func (fake *DiscoveryClient) ServerPreferredResourcesReturnsOnCall(i int, result
 	}{result1, result2}
 }
 
-func (fake *DiscoveryClient) ServerResources() ([]*v1.APIResourceList, error) {
-	fake.serverResourcesMutex.Lock()
-	ret, specificReturn := fake.serverResourcesReturnsOnCall[len(fake.serverResourcesArgsForCall)]
-	fake.serverResourcesArgsForCall = append(fake.serverResourcesArgsForCall, struct {
-	}{})
-	stub := fake.ServerResourcesStub
-	fakeReturns := fake.serverResourcesReturns
-	fake.recordInvocation("ServerResources", []interface{}{})
-	fake.serverResourcesMutex.Unlock()
-	if stub != nil {
-		return stub()
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *DiscoveryClient) ServerResourcesCallCount() int {
-	fake.serverResourcesMutex.RLock()
-	defer fake.serverResourcesMutex.RUnlock()
-	return len(fake.serverResourcesArgsForCall)
-}
-
-func (fake *DiscoveryClient) ServerResourcesCalls(stub func() ([]*v1.APIResourceList, error)) {
-	fake.serverResourcesMutex.Lock()
-	defer fake.serverResourcesMutex.Unlock()
-	fake.ServerResourcesStub = stub
-}
-
-func (fake *DiscoveryClient) ServerResourcesReturns(result1 []*v1.APIResourceList, result2 error) {
-	fake.serverResourcesMutex.Lock()
-	defer fake.serverResourcesMutex.Unlock()
-	fake.ServerResourcesStub = nil
-	fake.serverResourcesReturns = struct {
-		result1 []*v1.APIResourceList
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *DiscoveryClient) ServerResourcesReturnsOnCall(i int, result1 []*v1.APIResourceList, result2 error) {
-	fake.serverResourcesMutex.Lock()
-	defer fake.serverResourcesMutex.Unlock()
-	fake.ServerResourcesStub = nil
-	if fake.serverResourcesReturnsOnCall == nil {
-		fake.serverResourcesReturnsOnCall = make(map[int]struct {
-			result1 []*v1.APIResourceList
-			result2 error
-		})
-	}
-	fake.serverResourcesReturnsOnCall[i] = struct {
-		result1 []*v1.APIResourceList
-		result2 error
-	}{result1, result2}
-}
-
 func (fake *DiscoveryClient) ServerResourcesForGroupVersion(arg1 string) (*v1.APIResourceList, error) {
 	fake.serverResourcesForGroupVersionMutex.Lock()
 	ret, specificReturn := fake.serverResourcesForGroupVersionReturnsOnCall[len(fake.serverResourcesForGroupVersionArgsForCall)]
@@ -643,6 +639,8 @@ func (fake *DiscoveryClient) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.openAPISchemaMutex.RLock()
 	defer fake.openAPISchemaMutex.RUnlock()
+	fake.openAPIV3Mutex.RLock()
+	defer fake.openAPIV3Mutex.RUnlock()
 	fake.rESTClientMutex.RLock()
 	defer fake.rESTClientMutex.RUnlock()
 	fake.serverGroupsMutex.RLock()
@@ -653,8 +651,6 @@ func (fake *DiscoveryClient) Invocations() map[string][][]interface{} {
 	defer fake.serverPreferredNamespacedResourcesMutex.RUnlock()
 	fake.serverPreferredResourcesMutex.RLock()
 	defer fake.serverPreferredResourcesMutex.RUnlock()
-	fake.serverResourcesMutex.RLock()
-	defer fake.serverResourcesMutex.RUnlock()
 	fake.serverResourcesForGroupVersionMutex.RLock()
 	defer fake.serverResourcesForGroupVersionMutex.RUnlock()
 	fake.serverVersionMutex.RLock()

@@ -6,11 +6,12 @@ package testutil
 import (
 	"fmt"
 
-	openapiv2 "github.com/googleapis/gnostic/openapiv2"
+	openapiv2 "github.com/google/gnostic/openapiv2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/openapi"
 	"k8s.io/client-go/rest"
 )
 
@@ -46,6 +47,10 @@ func (c FakeDiscovery) OpenAPISchema() (*openapiv2.Document, error) {
 	return c.FakeDiscovery.OpenAPISchema()
 }
 
+func (c FakeDiscovery) OpenAPIV3() openapi.Client {
+	return c.FakeDiscovery.OpenAPIV3()
+}
+
 func (c FakeDiscovery) getFakeServerPreferredResources() []*metav1.APIResourceList {
 	return c.Resources
 }
@@ -57,13 +62,6 @@ func (c FakeDiscovery) ServerResourcesForGroupVersion(groupVersion string) (*met
 		}
 	}
 	return nil, fmt.Errorf("no matching resources")
-}
-
-// Having nolint below to get rid of the complaining on the deprecation of ServerResources. We have to have the following
-// function to customize the DiscoveryInterface
-//nolint:staticcheck
-func (c FakeDiscovery) ServerResources() ([]*metav1.APIResourceList, error) {
-	return c.FakeDiscovery.ServerResources()
 }
 
 func (c FakeDiscovery) ServerPreferredResources() ([]*metav1.APIResourceList, error) {

@@ -122,5 +122,5 @@ func testBootstrapTemplate(name string, template *bootstrap.Template) {
 	dmp := diffmatchpatch.New()
 	diffs := dmp.DiffMain(string(tData), string(data), false)
 	out := dmp.DiffPrettyText(diffs)
-	Expect(string(tData)).To(Equal(string(data)), fmt.Sprintf("Differing output (%s):\n%s", name, out))
+	Expect(string(tData)).To(Equal(string(data)), fmt.Sprintf("Differing output (%s):\n%s\nfixture:\n%s\ngenerated:\n%s", name, out, data, tData))
 }
