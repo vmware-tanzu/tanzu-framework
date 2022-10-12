@@ -21,6 +21,6 @@ docker run --rm -v "$(pwd)":/build \
   -i tkg/web/node_modules \
   -i docs/cli/commands \
   -i test/cli/mock \
-  -i pkg/v1/providers/ytt/vendir \
-  -i pkg/v1/providers/provider-bundle/providers/ytt/vendir \
+  -i providers/ytt/vendir \
+  -i providers/provider-bundle/providers/ytt/vendir \
   -i pinniped .
