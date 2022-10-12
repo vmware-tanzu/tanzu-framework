@@ -3210,7 +3210,7 @@ func getDummyPacificCluster() tkgsv1alpha2.TanzuKubernetesCluster {
 	}
 
 	tkc := tkgsv1alpha2.TanzuKubernetesCluster{}
-	tkc.ClusterName = "DummyTKC"
+	tkc.Name = "DummyTKC"
 	tkc.Spec.Topology.ControlPlane = controlPlane
 	tkc.Spec.Topology.NodePools = nodepools
 	return tkc

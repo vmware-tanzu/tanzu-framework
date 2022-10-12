@@ -871,7 +871,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonRBACOnRemote(cluster *clu
 	}); err != nil {
 		if !apierrors.IsAlreadyExists(err) {
 			r.Log.Error(err, fmt.Sprintf("unable to create or patch ClusterRoleBinding %s/%s on cluster %s/%s",
-				addonRoleBinding.Namespace, addonRoleBinding.Name, cluster.Namespace, cluster.ClusterName))
+				addonRoleBinding.Namespace, addonRoleBinding.Name, cluster.Namespace, cluster.Name))
 			return err
 		}
 		r.Log.Info(fmt.Sprintf("ClusterRoleBinding %s/%s already exists on cluster %s/%s. Nothing to create or patch.",

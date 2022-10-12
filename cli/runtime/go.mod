@@ -18,18 +18,18 @@ require (
 	github.com/mattn/go-isatty v0.0.16
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.17.0
+	github.com/onsi/gomega v1.18.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
 	github.com/tj/assert v0.0.3
 	go.uber.org/multierr v1.6.0
-	golang.org/x/mod v0.4.2
+	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/apimachinery v0.23.5
-	sigs.k8s.io/controller-runtime v0.11.2
+	k8s.io/apimachinery v0.24.2
+	sigs.k8s.io/controller-runtime v0.12.3
 )
 
 require (

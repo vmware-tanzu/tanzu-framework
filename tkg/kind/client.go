@@ -189,7 +189,11 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster,
 		return "", nil, errors.New("unable to read kind configuration")
 	}
 
-	kindConfigData := []byte(strings.Join(bomConfiguration.KindKubeadmConfigSpec, "\n"))
+	kindKubeadmConfigSpec := strings.Join(bomConfiguration.KindKubeadmConfigSpec, "\n")
+
+	// TODO @randomvariable: Once the BOM includes coredns and etcd, switch over to generating the patch programatically
+	kindConfigData := []byte(strings.ReplaceAll(kindKubeadmConfigSpec, "v1beta2", "v1beta3"))
+
 	kindConfig := &kindv1.Cluster{}
 	err = yaml.Unmarshal(kindConfigData, kindConfig)
 	if err != nil {

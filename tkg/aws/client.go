@@ -265,7 +265,7 @@ func (c *client) CreateCloudFormationStack() error {
 
 func (c *client) CreateCloudFormationStackWithTemplate(template *bootstrap.Template) error {
 	cfnSvc := cloudformation.NewService(cfn.New(c.session))
-	if err := cfnSvc.ReconcileBootstrapStack(template.Spec.StackName, *template.RenderCloudFormation()); err != nil {
+	if err := cfnSvc.ReconcileBootstrapStack(template.Spec.StackName, *template.RenderCloudFormation(), nil); err != nil {
 		return err
 	}
 	return cfnSvc.ShowStackResources(template.Spec.StackName)

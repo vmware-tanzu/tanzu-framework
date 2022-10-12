@@ -53,6 +53,7 @@ var (
 
 var _ = Describe("Kind Client", func() {
 	BeforeSuite(func() {
+		os.Unsetenv(constants.ConfigVariableCustomImageRepository)
 		testingDir = fakehelper.CreateTempTestingDirectory()
 	})
 

@@ -335,7 +335,7 @@ func DoDeleteMachineDeploymentCC(clusterClient clusterclient.Client, cluster *ca
 
 	cluster.Spec.Topology.Workers.MachineDeployments = mds
 
-	if err := clusterClient.UpdateResource(cluster, cluster.ClusterName, cluster.Namespace); err != nil {
+	if err := clusterClient.UpdateResource(cluster, cluster.Name, cluster.Namespace); err != nil {
 		return fmt.Errorf("unable to delete node pools on cluster %s", options.ClusterName)
 	}
 
