@@ -27,7 +27,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/pinniped-components/tanzu-auth-controller-manager v0.0.0-00010101000000-000000000000
 	go.pinniped.dev/generated/1.20/apis v0.0.0-00010101000000-000000000000
 	go.pinniped.dev/generated/1.20/client v0.0.0-20220209183828-4d6a2af89419 // Commit SHA 4d6a2af89419 is tag v0.12.1.
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.23.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.24.2
 	k8s.io/apimachinery v0.24.2
