@@ -19,6 +19,7 @@ type TemplateDefinitionSpec struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:storageversion
 
 // TemplateDefinition is a schema for template definition file
 type TemplateDefinition struct {
