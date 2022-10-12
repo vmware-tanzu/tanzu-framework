@@ -201,7 +201,7 @@ ensure-pinniped-repo: ## Clone Pinniped
 .PHONY: prep-build-cli
 prep-build-cli: ensure-pinniped-repo  ## Prepare for building the CLI
 	$(GO) mod download
-	$(GO) mod tidy -compat=${GOVERSION}
+	$(GO) mod tidy
 	EMBED_PROVIDERS_TAG=embedproviders
 ifeq "${BUILD_TAGS}" "${EMBED_PROVIDERS_TAG}"
 	make -C pkg/v1/providers -f Makefile generate-provider-bundle-zip
@@ -603,7 +603,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 	@for i in $(GO_MODULES); do \
 		echo "-- Tidying $$i --"; \
 		pushd $${i}; \
-		$(GO) mod tidy -compat=${GOVERSION} || exit 1; \
+		$(GO) mod tidy || exit 1; \
 		popd; \
 	done
 
@@ -822,7 +822,7 @@ create-package: ## Stub out new package directories and manifests. Usage: make c
 
 .PHONY: prep-package-tools
 prep-package-tools:
-	cd hack/packages/package-tools && $(GO) mod tidy -compat=${GOVERSION}
+	cd hack/packages/package-tools && $(GO) mod tidy
 
 .PHONY: package-bundle
 package-bundle: tools prep-package-tools ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
