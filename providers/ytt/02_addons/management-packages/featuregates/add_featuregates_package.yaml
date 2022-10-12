@@ -1,20 +1,23 @@
 #@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:template", "template")
 
+#@ def featuregates_package_install_definition():
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: tanzu-featuregates-package-sa
-  namespace: #@ data.values.namespaceForPackageInstallation
+  namespace: tkg-system
   annotations:
-    kapp.k14s.io/change-group: "featuregates-packageinstall/serviceaccount-0"
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: tanzu-featuregates-package-cluster-role
   annotations:
-    kapp.k14s.io/change-group: "featuregates-packageinstall/serviceaccount-0"
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
 rules:
   - apiGroups:
       - ""
@@ -92,7 +95,6 @@ rules:
       - patch
       - update
       - watch
-      - delete
   - apiGroups:
       - config.tanzu.vmware.com
     resources:
@@ -117,6 +119,14 @@ rules:
       - get
       - patch
       - update
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - core.tanzu.vmware.com
     resources:
@@ -155,23 +165,13 @@ rules:
       - get
       - patch
       - update
-  - apiGroups:
-      - ""
-    resources:
-      - namespaces
-    verbs:
-      - get
-      - list
-      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: tanzu-featuregates-package-cluster-rolebinding
   annotations:
-    kapp.k14s.io/change-group: "featuregates-packageinstall/serviceaccount"
-    kapp.k14s.io/change-rule.0: "upsert after upserting featuregates-packageinstall/serviceaccount-0"
-    kapp.k14s.io/change-rule.1: "delete before deleting featuregates-packageinstall/serviceaccount-0"
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -179,4 +179,68 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: tanzu-featuregates-package-sa
-    namespace: #@ data.values.namespaceForPackageInstallation
+    namespace: tkg-system
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tanzu-featuregates
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+spec:
+  serviceAccountName: tanzu-featuregates-package-sa
+  packageRef:
+    refName: featuregates.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  values:
+    - secretRef:
+        name: tanzu-featuregates-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tanzu-featuregates-values
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+type: Opaque
+stringData:
+  values.yaml: |
+    namespace: tkg-system
+#@ end
+
+#@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere" :
+#@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "packages/management-package" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
+--- #@ template.replace(featuregates_package_install_definition())
+#@ else:
+---
+apiVersion: addons.cluster.x-k8s.io/v1beta1
+kind: ClusterResourceSet
+metadata:
+  name: #@ "{}-featuregates-package".format(data.values.CLUSTER_NAME)
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+    - name: #@ "{}-featuregates-package-crs".format(data.values.CLUSTER_NAME)
+      kind: Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-featuregates-package-crs".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(featuregates_package_install_definition())
+#@ end
+#@ end

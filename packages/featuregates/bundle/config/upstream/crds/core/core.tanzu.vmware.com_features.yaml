@@ -1,0 +1,97 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
+  name: features.core.tanzu.vmware.com
+spec:
+  group: core.tanzu.vmware.com
+  names:
+    kind: Feature
+    listKind: FeatureList
+    plural: features
+    singular: feature
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.description
+      name: Description
+      type: string
+    - jsonPath: .spec.stability
+      name: Stability
+      type: string
+    - jsonPath: .status.activated
+      name: Activated?
+      type: string
+    name: v1alpha2
+    schema:
+      openAPIV3Schema:
+        description: Feature is the Schema for the features API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: FeatureSpec defines the desired state of Feature
+            properties:
+              description:
+                description: Description of the feature.
+                type: string
+              stability:
+                description: 'Stability indicates stability level of the feature.
+                  Stability levels are Work In Progress, Experimental, Technical Preview,
+                  Stable and Deprecated. - Work In Progress: Feature is still under
+                  development. It is not ready to be used, except by the team working
+                  on it. Activating this feature is not recommended under any circumstances.
+                  - Experimental: Feature is not ready, but may be used in pre-production
+                  environments. However, if an experimental feature has ever been
+                  used in an environment, that environment will not be supported.
+                  Activating an experimental feature requires you to permanently,
+                  irrevocably void all support guarantees for this environment by
+                  setting permanentlyVoidAllSupportGuarantees in feature reference
+                  in featuregate spec to true. You will need to recreate the environment
+                  to return to a supported state. - Technical Preview: Feature is
+                  not ready, but is not believed to be dangerous. The feature itself
+                  is unsupported, but activating a technical preview feature does
+                  not affect the support status of the environment. - Stable: Feature
+                  is ready and fully supported - Deprecated: Feature is destined for
+                  removal, usage is discouraged. Deactivate this feature prior to
+                  upgrading to a release which has removed it to validate that you
+                  are not still using it and to prevent users from introducing new
+                  usage of it.'
+                enum:
+                - Work In Progress
+                - Experimental
+                - Technical Preview
+                - Stable
+                - Deprecated
+                type: string
+            required:
+            - description
+            - stability
+            type: object
+          status:
+            description: FeatureStatus defines the observed state of Feature
+            properties:
+              activated:
+                description: Activated is a boolean which indicates whether a feature
+                  is activated or not.
+                type: boolean
+            required:
+            - activated
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources: {}

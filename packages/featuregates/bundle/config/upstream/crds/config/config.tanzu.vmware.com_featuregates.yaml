@@ -1,0 +1,160 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+    kapp.k14s.io/change-group: "featuregates.config.tanzu.vmware.com/crd"
+  creationTimestamp: null
+  name: featuregates.config.tanzu.vmware.com
+spec:
+  group: config.tanzu.vmware.com
+  names:
+    kind: FeatureGate
+    listKind: FeatureGateList
+    plural: featuregates
+    singular: featuregate
+  scope: Cluster
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: FeatureGate is the Schema for the featuregates API
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: Spec is the specification for gating features.
+              properties:
+                features:
+                  description: Features is a slice of FeatureReference to gate features.
+                    The Feature resource specified may or may not be present in the
+                    system. If the Feature is present, the FeatureGate controller and
+                    webhook sets the specified activation state only if the Feature
+                    is discoverable and its immutability constraint is satisfied. If
+                    the Feature is not present, the activation intent is applied when
+                    the Feature resource appears in the system. The actual activation
+                    state of the Feature is reported in the status.
+                  items:
+                    description: FeatureReference refers to a Feature resource and specifies
+                      its intended activation state.
+                    properties:
+                      activate:
+                        description: Activate indicates the activation intent for the
+                          feature.
+                        type: boolean
+                      name:
+                        description: Name is the name of the Feature resource, which
+                          represents a feature the system offers.
+                        type: string
+                    required:
+                      - name
+                    type: object
+                  type: array
+                  x-kubernetes-list-map-keys:
+                    - name
+                  x-kubernetes-list-type: map
+                namespaceSelector:
+                  description: NamespaceSelector is a selector to specify namespaces
+                    for which this feature gate applies. Use an empty LabelSelector
+                    to match all namespaces.
+                  properties:
+                    matchExpressions:
+                      description: matchExpressions is a list of label selector requirements.
+                        The requirements are ANDed.
+                      items:
+                        description: A label selector requirement is a selector that
+                          contains values, a key, and an operator that relates the key
+                          and values.
+                        properties:
+                          key:
+                            description: key is the label key that the selector applies
+                              to.
+                            type: string
+                          operator:
+                            description: operator represents a key's relationship to
+                              a set of values. Valid operators are In, NotIn, Exists
+                              and DoesNotExist.
+                            type: string
+                          values:
+                            description: values is an array of string values. If the
+                              operator is In or NotIn, the values array must be non-empty.
+                              If the operator is Exists or DoesNotExist, the values
+                              array must be empty. This array is replaced during a strategic
+                              merge patch.
+                            items:
+                              type: string
+                            type: array
+                        required:
+                          - key
+                          - operator
+                        type: object
+                      type: array
+                    matchLabels:
+                      additionalProperties:
+                        type: string
+                      description: matchLabels is a map of {key,value} pairs. A single
+                        {key,value} in the matchLabels map is equivalent to an element
+                        of matchExpressions, whose key field is "key", the operator
+                        is "In", and the values array contains only "value". The requirements
+                        are ANDed.
+                      type: object
+                  type: object
+              required:
+                - namespaceSelector
+              type: object
+            status:
+              description: Status reports activation state and availability of features
+                in the system.
+              properties:
+                activatedFeatures:
+                  description: ActivatedFeatures lists the discovered features that
+                    are activated for the namespaces specified in the spec. This can
+                    include features that are not explicitly gated in the spec, but
+                    are already available in the system as Feature resources.
+                  items:
+                    type: string
+                  type: array
+                deactivatedFeatures:
+                  description: DeactivatedFeatures lists the discovered features that
+                    are deactivated for the namespaces specified in the spec. This can
+                    include features that are not explicitly gated in the spec, but
+                    are already available in the system as Feature resources.
+                  items:
+                    type: string
+                  type: array
+                namespaces:
+                  description: Namespaces lists the existing namespaces for which this
+                    feature gate applies. This is obtained from listing all namespaces
+                    and applying the NamespaceSelector specified in spec.
+                  items:
+                    type: string
+                  type: array
+                unavailableFeatures:
+                  description: UnavailableFeatures lists the features that are gated
+                    in the spec, but are not available in the system as Feature resources.
+                  items:
+                    type: string
+                  type: array
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
