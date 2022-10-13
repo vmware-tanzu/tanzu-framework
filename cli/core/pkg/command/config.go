@@ -217,12 +217,18 @@ var initConfigCmd = &cobra.Command{
 			cfg.ClientOptions.CLI = &configapi.CLIOptions{}
 		}
 
-		descriptors, err := pluginmanager.InstalledPluginsDescriptors()
+		serverName := ""
+		server, err := cfg.GetCurrentServer()
+		if err == nil && server != nil {
+			serverName = server.Name
+		}
+
+		serverPluginDescriptors, standalonePluginDescriptors, err := pluginmanager.InstalledPlugins(serverName)
 		if err != nil {
 			return err
 		}
 
-		for _, desc := range descriptors {
+		for _, desc := range append(serverPluginDescriptors, standalonePluginDescriptors...) {
 			config.AddDefaultFeatureFlagsIfMissing(cfg, desc.DefaultFeatureFlags)
 		}
 
@@ -231,6 +237,7 @@ var initConfigCmd = &cobra.Command{
 			return err
 		}
 
+		log.Success("successfully initialized the config")
 		return nil
 	},
 }
