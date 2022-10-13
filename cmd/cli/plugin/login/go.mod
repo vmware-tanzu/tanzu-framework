@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/plugin/login
 
-go 1.18
+go 1.19
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../../../apis/cli

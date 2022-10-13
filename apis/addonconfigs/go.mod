@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs
 
-go 1.18
+go 1.19
 
 require (
 	k8s.io/api v0.24.2

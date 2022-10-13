@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/test/pkg
 
-go 1.18
+go 1.19
 
 require (
 	github.com/onsi/ginkgo v1.16.5

@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/hack/packages
 
-go 1.18
+go 1.19
 
 require (
 	github.com/k14s/kbld v0.32.0

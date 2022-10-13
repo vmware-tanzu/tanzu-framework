@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/hack/tools
 
-go 1.18
+go 1.19
 
 require (
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0

@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr
 
-go 1.18
+go 1.19
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../../apis/run
