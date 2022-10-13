@@ -53,8 +53,6 @@ const (
 	// to use the new context-aware Plugin API based plugin discovery mechanism
 	// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
 	FeatureContextAwareCLIForPlugins = "features.global.context-aware-cli-for-plugins"
-	// FeatureContextCommand determines whether to surface the context command. This is disabled by default.
-	FeatureContextCommand = "features.global.context-target"
 	// DualStack feature flags determine whether it is permitted to create
 	// clusters with a dualstack TKG_IP_FAMILY.  There are separate flags for
 	// each primary, "ipv4,ipv6" vs "ipv6,ipv4", and flags for management vs
@@ -107,7 +105,6 @@ const (
 var (
 	DefaultCliFeatureFlags = map[string]bool{
 		FeatureContextAwareCLIForPlugins:                      common.ContextAwareDiscoveryEnabled(),
-		FeatureContextCommand:                                 false,
 		"features.management-cluster.import":                  false,
 		"features.management-cluster.export-from-confirm":     true,
 		"features.management-cluster.standalone-cluster-mode": false,
