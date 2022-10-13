@@ -4743,9 +4743,9 @@ metadata:
     app.kubernetes.io/component: "webhook"
     app.kubernetes.io/version: "v1.9.1"
 rules:
-- apiGroups: ["authorization.k8s.io"]
-  resources: ["subjectaccessreviews"]
-  verbs: ["create"]
+  - apiGroups: ["authorization.k8s.io"]
+    resources: ["subjectaccessreviews"]
+    verbs: ["create"]
 ---
 # Source: cert-manager/templates/cainjector-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -4943,10 +4943,10 @@ roleRef:
   kind: ClusterRole
   name: cert-manager-webhook:subjectaccessreviews
 subjects:
-- apiGroup: ""
-  kind: ServiceAccount
-  name: cert-manager-webhook
-  namespace: cert-manager
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: cert-manager-webhook
+    namespace: cert-manager
 ---
 # Source: cert-manager/templates/cainjector-rbac.yaml
 # leader election rules
@@ -5009,15 +5009,15 @@ metadata:
     app.kubernetes.io/component: "webhook"
     app.kubernetes.io/version: "v1.9.1"
 rules:
-- apiGroups: [""]
-  resources: ["secrets"]
-  resourceNames:
-  - 'cert-manager-webhook-ca'
-  verbs: ["get", "list", "watch", "update"]
-# It's not possible to grant CREATE permission on a single resourceName.
-- apiGroups: [""]
-  resources: ["secrets"]
-  verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames:
+      - 'cert-manager-webhook-ca'
+    verbs: ["get", "list", "watch", "update"]
+  # It's not possible to grant CREATE permission on a single resourceName.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
 ---
 # Source: cert-manager/templates/cainjector-rbac.yaml
 # grant cert-manager permission to manage the leaderelection configmap in the
@@ -5083,10 +5083,10 @@ roleRef:
   kind: Role
   name: cert-manager-webhook:dynamic-serving
 subjects:
-- apiGroup: ""
-  kind: ServiceAccount
-  name: cert-manager-webhook
-  namespace: cert-manager
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: cert-manager-webhook
+    namespace: cert-manager
 ---
 # Source: cert-manager/templates/service.yaml
 apiVersion: v1
@@ -5103,10 +5103,10 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - protocol: TCP
-    port: 9402
-    name: tcp-prometheus-servicemonitor
-    targetPort: 9402
+    - protocol: TCP
+      port: 9402
+      name: tcp-prometheus-servicemonitor
+      targetPort: 9402
   selector:
     app.kubernetes.io/name: cert-manager
     app.kubernetes.io/instance: cert-manager
@@ -5127,10 +5127,10 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - name: https
-    port: 443
-    protocol: TCP
-    targetPort: "https"
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: "https"
   selector:
     app.kubernetes.io/name: webhook
     app.kubernetes.io/instance: cert-manager
@@ -5172,13 +5172,13 @@ spec:
           image: "quay.io/jetstack/cert-manager-cainjector:v1.9.1"
           imagePullPolicy: IfNotPresent
           args:
-          - --v=2
-          - --leader-election-namespace=kube-system
+            - --v=2
+            - --leader-election-namespace=kube-system
           env:
-          - name: POD_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           securityContext:
             allowPrivilegeEscalation: false
       nodeSelector:
@@ -5224,20 +5224,20 @@ spec:
           image: "quay.io/jetstack/cert-manager-controller:v1.9.1"
           imagePullPolicy: IfNotPresent
           args:
-          - --v=2
-          - --cluster-resource-namespace=$(POD_NAMESPACE)
-          - --leader-election-namespace=kube-system
+            - --v=2
+            - --cluster-resource-namespace=$(POD_NAMESPACE)
+            - --leader-election-namespace=kube-system
           ports:
-          - containerPort: 9402
-            name: http-metrics
-            protocol: TCP
+            - containerPort: 9402
+              name: http-metrics
+              protocol: TCP
           securityContext:
             allowPrivilegeEscalation: false
           env:
-          - name: POD_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
       nodeSelector:
         kubernetes.io/os: linux
 ---
@@ -5277,15 +5277,15 @@ spec:
           image: "quay.io/jetstack/cert-manager-webhook:v1.9.1"
           imagePullPolicy: IfNotPresent
           args:
-          - --v=2
-          - --secure-port=10250
-          - --dynamic-serving-ca-secret-namespace=$(POD_NAMESPACE)
-          - --dynamic-serving-ca-secret-name=cert-manager-webhook-ca
-          - --dynamic-serving-dns-names=cert-manager-webhook,cert-manager-webhook.cert-manager,cert-manager-webhook.cert-manager.svc
+            - --v=2
+            - --secure-port=10250
+            - --dynamic-serving-ca-secret-namespace=$(POD_NAMESPACE)
+            - --dynamic-serving-ca-secret-name=cert-manager-webhook-ca
+            - --dynamic-serving-dns-names=cert-manager-webhook,cert-manager-webhook.cert-manager,cert-manager-webhook.cert-manager.svc
           ports:
-          - name: https
-            protocol: TCP
-            containerPort: 10250
+            - name: https
+              protocol: TCP
+              containerPort: 10250
           livenessProbe:
             httpGet:
               path: /livez
@@ -5309,10 +5309,10 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
           env:
-          - name: POD_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
       nodeSelector:
         kubernetes.io/os: linux
 ---
@@ -5374,14 +5374,14 @@ webhooks:
   - name: webhook.cert-manager.io
     namespaceSelector:
       matchExpressions:
-      - key: "cert-manager.io/disable-validation"
-        operator: "NotIn"
-        values:
-        - "true"
-      - key: "name"
-        operator: "NotIn"
-        values:
-        - cert-manager
+        - key: "cert-manager.io/disable-validation"
+          operator: "NotIn"
+          values:
+            - "true"
+        - key: "name"
+          operator: "NotIn"
+          values:
+            - cert-manager
     rules:
       - apiGroups:
           - "cert-manager.io"
