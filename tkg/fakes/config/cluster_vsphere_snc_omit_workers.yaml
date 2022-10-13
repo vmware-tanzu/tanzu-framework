@@ -1,0 +1,28 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: ",,"
+  labels:
+    cluster-role.tkg.tanzu.vmware.com/management: ""
+    tanzuKubernetesRelease: v1.23.5---vmware.1-tkg.1-zshippable
+    tkg.tanzu.vmware.com/cluster-name: c1
+  name: vsphere-workload-cluster1 # CLUSTER_NAME
+  namespace: namespace-test1
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks: # CLUSTER_CIDR
+        - 10.10.10.10/18
+    services:
+      cidrBlocks: # SERVICE_CIDR
+        - 100.64.0.0/18
+  topology:
+    class: tkg-vsphere-default # CLUSTER_CLASS
+    controlPlane:
+      replicas: 1 # CONTROL_PLANE_MACHINE_COUNT
+    variables:
+      - name: controlPlaneTaint
+        value: true
+
+    version: v1.21.2

@@ -576,12 +576,13 @@ type ClusterClient struct {
 		result1 []v1alpha1a.TanzuKubernetesRelease
 		result2 error
 	}
-	GetVCClientAndDataCenterStub        func(string, string, string) (vc.Client, string, error)
+	GetVCClientAndDataCenterStub        func(string, string, string, vc.VcClientFactory) (vc.Client, string, error)
 	getVCClientAndDataCenterMutex       sync.RWMutex
 	getVCClientAndDataCenterArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
+		arg4 vc.VcClientFactory
 	}
 	getVCClientAndDataCenterReturns struct {
 		result1 vc.Client
@@ -3942,20 +3943,21 @@ func (fake *ClusterClient) GetTanzuKubernetesReleasesReturnsOnCall(i int, result
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) GetVCClientAndDataCenter(arg1 string, arg2 string, arg3 string) (vc.Client, string, error) {
+func (fake *ClusterClient) GetVCClientAndDataCenter(arg1 string, arg2 string, arg3 string, arg4 vc.VcClientFactory) (vc.Client, string, error) {
 	fake.getVCClientAndDataCenterMutex.Lock()
 	ret, specificReturn := fake.getVCClientAndDataCenterReturnsOnCall[len(fake.getVCClientAndDataCenterArgsForCall)]
 	fake.getVCClientAndDataCenterArgsForCall = append(fake.getVCClientAndDataCenterArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
-	}{arg1, arg2, arg3})
+		arg4 vc.VcClientFactory
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.GetVCClientAndDataCenterStub
 	fakeReturns := fake.getVCClientAndDataCenterReturns
-	fake.recordInvocation("GetVCClientAndDataCenter", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("GetVCClientAndDataCenter", []interface{}{arg1, arg2, arg3, arg4})
 	fake.getVCClientAndDataCenterMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
@@ -3969,17 +3971,17 @@ func (fake *ClusterClient) GetVCClientAndDataCenterCallCount() int {
 	return len(fake.getVCClientAndDataCenterArgsForCall)
 }
 
-func (fake *ClusterClient) GetVCClientAndDataCenterCalls(stub func(string, string, string) (vc.Client, string, error)) {
+func (fake *ClusterClient) GetVCClientAndDataCenterCalls(stub func(string, string, string, vc.VcClientFactory) (vc.Client, string, error)) {
 	fake.getVCClientAndDataCenterMutex.Lock()
 	defer fake.getVCClientAndDataCenterMutex.Unlock()
 	fake.GetVCClientAndDataCenterStub = stub
 }
 
-func (fake *ClusterClient) GetVCClientAndDataCenterArgsForCall(i int) (string, string, string) {
+func (fake *ClusterClient) GetVCClientAndDataCenterArgsForCall(i int) (string, string, string, vc.VcClientFactory) {
 	fake.getVCClientAndDataCenterMutex.RLock()
 	defer fake.getVCClientAndDataCenterMutex.RUnlock()
 	argsForCall := fake.getVCClientAndDataCenterArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *ClusterClient) GetVCClientAndDataCenterReturns(result1 vc.Client, result2 string, result3 error) {

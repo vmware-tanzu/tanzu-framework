@@ -149,4 +149,48 @@ var _ = Describe("Cluster variable getters and setters", func() {
 			})
 		})
 	})
+
+	Describe("IsSingleNodeCluster()", func() {
+		It("should return result", func() {
+			cluster.Spec.Topology = &clusterv1.Topology{
+				ControlPlane: clusterv1.ControlPlaneTopology{
+					Replicas: pointer.Int32(1),
+				},
+				Workers: &clusterv1.WorkersTopology{
+					MachineDeployments: []clusterv1.MachineDeploymentTopology{
+						{
+							Replicas: pointer.Int32(1),
+						},
+					},
+				},
+			}
+			Expect(IsSingleNodeCluster(cluster)).To(BeFalse())
+			cluster.Spec.Topology = &clusterv1.Topology{
+				ControlPlane: clusterv1.ControlPlaneTopology{
+					Replicas: pointer.Int32(1),
+				},
+				Workers: nil,
+			}
+			Expect(IsSingleNodeCluster(cluster)).To(BeTrue())
+		})
+	})
+
+	Describe("HasWorkerNodes()", func() {
+		It("should return result", func() {
+			cluster.Spec.Topology = &clusterv1.Topology{
+				Workers: &clusterv1.WorkersTopology{
+					MachineDeployments: []clusterv1.MachineDeploymentTopology{
+						{
+							Replicas: pointer.Int32(1),
+						},
+					},
+				},
+			}
+			Expect(HasWorkerNodes(cluster)).To(BeFalse())
+			cluster.Spec.Topology = &clusterv1.Topology{
+				Workers: nil,
+			}
+			Expect(HasWorkerNodes(cluster)).To(BeTrue())
+		})
+	})
 })

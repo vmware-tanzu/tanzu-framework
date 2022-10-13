@@ -481,3 +481,9 @@ func (t *tkgctl) getAndDownloadTkrIfNeeded(tkrVersion string) (string, string, e
 
 	return tkrVersion, k8sVersion, nil
 }
+
+// # val 1 - cannot create single node cluster without feature toggle
+//  - if feature toggle true -> allow cp to be 1 and wokrer 0
+//  - if feature toggle false -> worker cannot be 0 - fail saying min worker count is 1
+// # val 2 - control plane taint must be removed for single node cluster
+// - if feature toggle true

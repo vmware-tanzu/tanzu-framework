@@ -26,10 +26,6 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 	var update *capi.MachineDeploymentTopology
 	var base *capi.MachineDeploymentTopology
 
-	if cluster.Spec.Topology.Workers == nil || len(cluster.Spec.Topology.Workers.MachineDeployments) < 1 {
-		return errors.New("cluster topology workers are not set. please repair your cluster before trying again")
-	}
-
 	mdIndex := -1
 	for i := range cluster.Spec.Topology.Workers.MachineDeployments {
 		if cluster.Spec.Topology.Workers.MachineDeployments[i].Name == options.Name {

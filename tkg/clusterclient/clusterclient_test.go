@@ -130,6 +130,7 @@ var _ = Describe("Cluster Client", func() {
 		currentNamespace       string
 		clientset              *fakes.CRTClusterClient
 		discoveryClient        *fakes.DiscoveryClient
+		featureFlagClient      *fakes.FeatureFlagClient
 		err                    error
 		poller                 *fakes.Poller
 		kubeconfigbytes        []byte
@@ -161,6 +162,7 @@ var _ = Describe("Cluster Client", func() {
 		crtClientFactory.NewClientReturns(clientset, nil)
 		discoveryClientFactory = &fakes.DiscoveryClientFactory{}
 		discoveryClientFactory.NewDiscoveryClientForConfigReturns(discoveryClient, nil)
+		featureFlagClient = &fakes.FeatureFlagClient{}
 		poller.PollImmediateWithGetterCalls(func(interval, timeout time.Duration, getterFunc GetterFunc) (interface{}, error) {
 			return getterFunc()
 		})
@@ -527,6 +529,47 @@ var _ = Describe("Cluster Client", func() {
 					return nil
 				})
 				err = clstClient.WaitForClusterReady("fake-clusterName", "fake-namespace", true)
+			})
+			It("should not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+		Context("Waits for single node cluster initialization", func() {
+			JustBeforeEach(func() {
+				machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", true))
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					conditions := capi.Conditions{}
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.InfrastructureReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.ControlPlaneReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					cluster.(*capi.Cluster).Status.Conditions = conditions
+					cluster.(*capi.Cluster).Spec.Topology = &capi.Topology{
+						Workers: nil,
+						ControlPlane: capi.ControlPlaneTopology{
+							Replicas: pointer.Int32(1),
+						},
+					}
+					return nil
+				})
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *capi.MachineList:
+						o.Items = append(o.Items, machineObjects...)
+					case *capi.MachineDeploymentList:
+						o.Items = []capi.MachineDeployment{}
+					case *controlplanev1.KubeadmControlPlaneList:
+						o.Items = append(o.Items, getDummyKCP(kcpReplicas.SpecReplica, kcpReplicas.Replicas, kcpReplicas.ReadyReplicas, kcpReplicas.UpdatedReplicas))
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				err = clstClient.WaitForClusterInitialized("fake-clusterName", "fake-namespace")
 			})
 			It("should not return an error", func() {
 				Expect(err).NotTo(HaveOccurred())
@@ -1516,6 +1559,7 @@ var _ = Describe("Cluster Client", func() {
 		BeforeEach(func() {
 			reInitialize()
 			kubeConfigPath := getConfigFilePath("config1.yaml")
+
 			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -1611,6 +1655,33 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When all replicas are upgraded and all worker machines has new k8s version", func() {
 			It("should not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("When no replicas of worker machines exists", func() {
+			It("should not return an error", func() {
+				mdReplicas = Replicas{SpecReplica: 0, Replicas: 0, ReadyReplicas: 0, UpdatedReplicas: 0}
+				machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", true))
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *capi.MachineList:
+						o.Items = append(o.Items, machineObjects...)
+					case *capi.MachineDeploymentList:
+						o.Items = []capi.MachineDeployment{}
+					case *controlplanev1.KubeadmControlPlaneList:
+						o.Items = append(o.Items, getDummyKCP(kcpReplicas.SpecReplica, kcpReplicas.Replicas, kcpReplicas.ReadyReplicas, kcpReplicas.UpdatedReplicas))
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				featureFlagClient.IsConfigFeatureActivatedStub = func(featureFlagName string) (bool, error) {
+					if featureFlagName == constants.FeatureFlagSingleNodeClusters {
+						return true, nil
+					}
+					return true, nil
+				}
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})

@@ -236,6 +236,7 @@ type TkgClient struct {
 	tkgConfigPathsClient     tkgconfigpaths.Client
 	clusterKubeConfig        *types.ClusterKubeConfig
 	clusterClientFactory     clusterclient.ClusterClientFactory
+	vcClientFactory          vc.VcClientFactory
 	featureFlagClient        FeatureFlagClient
 }
 
@@ -253,6 +254,7 @@ type Options struct {
 	TKGPathsClient           tkgconfigpaths.Client
 	ClusterKubeConfig        *types.ClusterKubeConfig
 	ClusterClientFactory     clusterclient.ClusterClientFactory
+	VcClientFactory          vc.VcClientFactory
 	FeatureFlagClient        FeatureFlagClient
 }
 
@@ -283,6 +285,7 @@ func New(options Options) (*TkgClient, error) { // nolint:gocritic
 		tkgConfigPathsClient:     options.TKGPathsClient,
 		clusterKubeConfig:        options.ClusterKubeConfig,
 		clusterClientFactory:     options.ClusterClientFactory,
+		vcClientFactory:          options.VcClientFactory,
 		featureFlagClient:        options.FeatureFlagClient,
 	}, nil
 }

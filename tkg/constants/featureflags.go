@@ -35,4 +35,7 @@ const (
 	// based cluster even if user has done any customization to the provider templates
 	// Note: This is a hidden feature-flag that doesn't get persisted to config.yaml by default
 	FeatureFlagForceDeployClusterWithClusterClass = "features.cluster.force-deploy-cluster-with-clusterclass"
+	// FeatureFlagSingleNodeClusters is to enable Single Node Cluster deployment via tanzu CLI.
+	// Setting the feature flag to true will allow the creation of Single Node Clusters.
+	FeatureFlagSingleNodeClusters = "features.cluster.single-node-clusters"
 )

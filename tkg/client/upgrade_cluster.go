@@ -1021,7 +1021,8 @@ func (c *TkgClient) createVsphereInfrastructureTemplateForUpgrade(regionalCluste
 	vcClient, dcName, err := regionalClusterClient.GetVCClientAndDataCenter(
 		clusterUpgradeConfig.ClusterName,
 		clusterUpgradeConfig.ClusterNamespace,
-		kcp.Spec.MachineTemplate.InfrastructureRef.Name)
+		kcp.Spec.MachineTemplate.InfrastructureRef.Name,
+		c.vcClientFactory)
 	if err != nil {
 		return errors.Wrap(err, "unable to create vsphere client")
 	}

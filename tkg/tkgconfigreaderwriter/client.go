@@ -9,6 +9,8 @@ import (
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/config"
 )
 
+//go:generate counterfeiter -o ../fakes/tkgconfigreaderwriterclient.go --fake-name TKGConfigReaderWriterClient . Client
+
 // Client implements tkg config client interface
 type Client interface {
 	// ClusterConfigClient returns clusterctl config client

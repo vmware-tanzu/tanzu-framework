@@ -25,6 +25,7 @@ import (
 	providergetterclient "github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 )
 
 type tkgctl struct {
@@ -136,6 +137,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 		TKGPathsClient:           allClients.TKGConfigPathsClient,
 		ClusterKubeConfig:        clusterKubeConfig,
 		ClusterClientFactory:     clusterclient.NewClusterClientFactory(),
+		VcClientFactory:          vc.NewVcClientFactory(),
 		FeatureFlagClient:        allClients.FeatureFlagClient,
 	})
 	if err != nil {
