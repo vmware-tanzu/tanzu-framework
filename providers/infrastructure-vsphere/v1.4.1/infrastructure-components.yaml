@@ -6424,8 +6424,8 @@ spec:
         - --leader-elect
         - --logtostderr
         - --v=4
-        - --feature-gates=NodeAntiAffinity=${EXP_NODE_ANTI_AFFINITY:=false},NodeLabeling=${EXP_NODE_LABELING:=false}
-        image: gcr.io/cluster-api-provider-vsphere/release/manager:v1.4.1
+        - --feature-gates=NodeAntiAffinity=${EXP_NODE_ANTI_AFFINITY:=true},NodeLabeling=${EXP_NODE_LABELING:=true}
+        image: registry.tkg.vmware.run/cluster-api/cluster-api-vsphere-controller:${CAPV_CONTROLLER_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -6450,6 +6450,13 @@ spec:
         - mountPath: /etc/capv
           name: manager-bootstrap-credentials
           readOnly: true
+        env:
+        - name: HTTP_PROXY
+          value: ${TKG_HTTP_PROXY}
+        - name: HTTPS_PROXY
+          value: ${TKG_HTTPS_PROXY}
+        - name: NO_PROXY
+          value: ${TKG_NO_PROXY}
       terminationGracePeriodSeconds: 10
       tolerations:
       - effect: NoSchedule
