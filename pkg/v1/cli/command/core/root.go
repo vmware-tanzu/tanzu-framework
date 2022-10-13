@@ -66,19 +66,18 @@ func NewRootCmd() (*cobra.Command, error) {
 		genAllDocsCmd,
 	)
 
-	// If the context and target feature is enabled, add the corresponding commands under root.
-	if config.IsFeatureActivated(config.FeatureContextCommand) {
-		RootCmd.AddCommand(
-			contextCmd,
-			k8sCmd,
-			tmcCmd,
-		)
-		if err := addCtxPlugins(k8sCmd, configv1alpha1.CtxTypeK8s); err != nil {
-			return nil, err
-		}
-		if err := addCtxPlugins(tmcCmd, configv1alpha1.CtxTypeTMC); err != nil {
-			return nil, err
-		}
+	// Now that the context and target features are activated, add the
+	// corresponding commands under root unconditionally.
+	RootCmd.AddCommand(
+		contextCmd,
+		k8sCmd,
+		tmcCmd,
+	)
+	if err := addCtxPlugins(k8sCmd, configv1alpha1.CtxTypeK8s); err != nil {
+		return nil, err
+	}
+	if err := addCtxPlugins(tmcCmd, configv1alpha1.CtxTypeTMC); err != nil {
+		return nil, err
 	}
 
 	plugins, err := getAvailablePlugins()
