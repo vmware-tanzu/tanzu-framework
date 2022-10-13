@@ -10,6 +10,19 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+    - name: Free some disk space on runner
+      run: |
+        df -h
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /usr/local/share/boost
+        sudo rm -rf /usr/lib/jvm
+        sudo rm -rf /usr/lib/firefox
+        sudo rm -rf /opt/microsoft/powershell
+        sudo rm -rf /opt/hostedtoolcache
+        echo "free space after cleanup:"
+        df -h
+
     - name: Set up Go 1.x
       uses: actions/setup-go@v3
       with:
@@ -106,6 +119,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+
+    - name: Free some disk space on runner
+      run: |
+        df -h
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /usr/local/share/boost
+        sudo rm -rf /usr/lib/jvm
+        sudo rm -rf /usr/lib/firefox
+        sudo rm -rf /opt/microsoft/powershell
+        sudo rm -rf /opt/hostedtoolcache
+        echo "free space after cleanup:"
+        df -h
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v3
