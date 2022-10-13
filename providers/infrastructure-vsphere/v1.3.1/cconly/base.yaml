@@ -235,6 +235,12 @@ spec:
             name: tkg-vsphere-worker
             namespace: #@ data.values.NAMESPACE
   variables:
+  - name: controlPlaneTaint
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: true
   - name: vcenter
     required: true
     schema:
@@ -406,7 +412,7 @@ spec:
                   type: string
                 default: []
   - name: worker
-    required: true
+    required: false
     schema:
       openAPIV3Schema:
         type: object
@@ -1400,6 +1406,21 @@ spec:
               - level: Metadata
                 omitStages:
                   - "RequestReceived"
+  - name: controlPlaneTaint
+    enabledIf: '{{ not .controlPlaneTaint }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/nodeRegistration/taints
+        value: []
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/taints
+        value: []
   - name: windows
     definitions:
     - selector:

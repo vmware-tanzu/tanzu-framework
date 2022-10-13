@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"os"
 	"os/exec"
 	"reflect"
@@ -704,8 +705,11 @@ func verifyKubernetesUpgradeForWorkerNodes(clusterStatusInfo *ClusterStatusInfo,
 	if clusterStatusInfo.RetrievalError != nil {
 		return clusterStatusInfo.RetrievalError
 	}
-
+	
 	var desiredReplica int32 = 1
+	if config.IsFeatureActivated(config.FeatureFlagSingleNodeClusters) {
+		desiredReplica = 0
+	}
 	errList := []error{}
 
 	for i := range clusterStatusInfo.MDObjects {

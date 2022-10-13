@@ -8,7 +8,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
@@ -20,7 +22,13 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 	var update *capi.MachineDeploymentTopology
 	var base *capi.MachineDeploymentTopology
 
-	if cluster.Spec.Topology.Workers == nil || len(cluster.Spec.Topology.Workers.MachineDeployments) < 1 {
+	infra, err := clusterClient.GetClusterInfrastructure()
+	if err != nil {
+		return errors.New("failed to get current management cluster infrastructure")
+	}
+	if infra == constants.InfrastructureProviderVSphere && config.IsFeatureActivated(config.FeatureFlagSingleNodeClusters) {
+		// skip below validation
+	} else if cluster.Spec.Topology.Workers == nil || len(cluster.Spec.Topology.Workers.MachineDeployments) < 1 {
 		return errors.New("cluster topology workers are not set. please repair your cluster before trying again")
 	}
 
