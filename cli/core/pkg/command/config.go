@@ -11,10 +11,10 @@ import (
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
@@ -216,39 +216,22 @@ var initConfigCmd = &cobra.Command{
 		if cfg.ClientOptions.CLI == nil {
 			cfg.ClientOptions.CLI = &configapi.CLIOptions{}
 		}
-		repos := cfg.ClientOptions.CLI.Repositories
-		finalRepos := []configapi.PluginRepository{}
-		for _, repo := range config.DefaultRepositories {
-			var exists bool
-			for _, r := range repos {
-				if repo.GCPPluginRepository.Name == r.GCPPluginRepository.Name {
-					finalRepos = append(finalRepos, r)
-					exists = true
-				}
-			}
-			if !exists {
-				finalRepos = append(finalRepos, repo)
-			}
+
+		descriptors, err := pluginmanager.InstalledPluginsDescriptors()
+		if err != nil {
+			return err
 		}
-		cfg.ClientOptions.CLI.Repositories = finalRepos
+
+		for _, desc := range descriptors {
+			config.AddDefaultFeatureFlagsIfMissing(cfg, desc.DefaultFeatureFlags)
+		}
 
 		err = configlib.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
-		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		descriptors, err := cli.ListPlugins()
-		if err != nil {
-			return err
-		}
 
-		errList := []error{}
-		for _, desc := range descriptors {
-			if err := cli.InitializePlugin(desc.Name); err != nil {
-				errList = append(errList, err)
-			}
-		}
-		return kerrors.NewAggregate(errList)
+		return nil
 	},
 }
 
