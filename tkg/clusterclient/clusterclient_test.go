@@ -38,6 +38,7 @@ import (
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
+	capiexp "sigs.k8s.io/cluster-api/exp/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck,nolintlint
 	"sigs.k8s.io/yaml"
@@ -76,6 +77,7 @@ var imageRepository = "registry.tkg.vmware.new"
 func init() {
 	_ = capi.AddToScheme(scheme)
 	_ = capiv1alpha3.AddToScheme(scheme)
+	_ = capiexp.AddToScheme(scheme)
 	_ = capav1beta1.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
