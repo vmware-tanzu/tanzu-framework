@@ -21,11 +21,20 @@ jobs:
     steps:
     - name: Free disk space and clean up installed plugins on runner
       run: |
+          df -h
           sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/lib/jvm
+          sudo rm -rf /usr/lib/firefox
+          sudo rm -rf /opt/microsoft/powershell
+          sudo rm -rf /opt/hostedtoolcache
           sudo rm -rf /home/tanzu/.cache
           sudo rm -rf /home/tanzu/.kube
           sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
           sudo sh -c 'find /tmp -type d -name "go-build*" -mtime +3 | xargs rm -rf'
+          echo "free space after cleanup:"
+          df -h
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v3
@@ -106,10 +115,20 @@ jobs:
     steps:
     - name: Free disk space and clean up installed plugins on runner
       run: |
+          df -h
           sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/lib/jvm
+          sudo rm -rf /usr/lib/firefox
+          sudo rm -rf /opt/microsoft/powershell
+          sudo rm -rf /opt/hostedtoolcache
           sudo rm -rf /home/tanzu/.cache
           sudo rm -rf /home/tanzu/.kube
           sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
+          sudo sh -c 'find /tmp -type d -name "go-build*" -mtime +3 | xargs rm -rf'
+          echo "free space after cleanup:"
+          df -h
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v3
