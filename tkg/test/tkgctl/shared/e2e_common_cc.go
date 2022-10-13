@@ -163,6 +163,7 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 	})
 
 	It("Should verify basic cluster lifecycle operations", func() {
+
 		By(fmt.Sprintf("Generating workload cluster configuration for cluster %q", clusterName))
 
 		err = tkgCtlClient.ConfigCluster(tkgctl.CreateClusterOptions{
@@ -200,6 +201,16 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 
 		By(fmt.Sprintf("Waiting for workload cluster %q nodes to be up and running", clusterName))
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, wlcKubeConfigFile, ""), 2)
+
+		By(fmt.Sprintf("Describing workload cluster %q", clusterName))
+		// Output the Status
+		describeClusterOptions := tkgctl.DescribeTKGClustersOptions{
+			ClusterName:         clusterName,
+			Namespace:           namespace,
+		}
+
+		_, err := tkgCtlClient.DescribeCluster(describeClusterOptions)
+		Expect(err).NotTo(HaveOccurred())
 
 		By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
 		wlcClient, _, _, _, _, err = GetClients(ctx, wlcKubeConfigFile)
