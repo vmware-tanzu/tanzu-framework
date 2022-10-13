@@ -177,6 +177,19 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 			})
 		})
 
+		Context("When upgrading kapp-controller and it fails to add the last applied annotation", func() {
+			BeforeEach(func() {
+				addonsToBeUpgraded = []string{"addons-management/kapp-controller"}
+				clusterTemplateError = nil
+				regionalClusterClient.PatchKappControllerLastAppliedAnnotationReturns(errors.New("fake-error"))
+			})
+			It("should not returns an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("unable to add last-applied annotation on kapp-controller"))
+				Expect(err.Error()).To(ContainSubstring("fake-error"))
+			})
+		})
+
 		Context("When upgrading all addons", func() {
 			BeforeEach(func() {
 				addonsToBeUpgraded = []string{"metadata/tkg", "addons-management/kapp-controller", "addons-management/tanzu-addons-manager", "tkr/tkr-controller"}
