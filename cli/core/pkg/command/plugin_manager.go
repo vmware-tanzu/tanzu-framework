@@ -88,9 +88,9 @@ var listPluginCmd = &cobra.Command{
 			}
 
 			data := [][]string{}
-			for _, p := range availablePlugins {
-				data = append(data, []string{p.Name, p.Description, p.Scope,
-					p.Source, getInstalledElseAvailablePluginVersion(p), p.Status})
+			for index := range availablePlugins {
+				data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
+					availablePlugins[index].Source, getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
 			}
 
 			output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
@@ -106,7 +106,6 @@ var listPluginCmd = &cobra.Command{
 			return nil
 		}
 		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		//nolint:staticcheck
 		descriptors, err := cli.ListPlugins()
 		if err != nil {
 			return err
@@ -483,7 +482,7 @@ func getRepositories() *cli.MultiRepo {
 
 // getInstalledElseAvailablePluginVersion return installed plugin version if plugin is installed
 // if not installed it returns available recommanded plugin version
-func getInstalledElseAvailablePluginVersion(p plugin.Discovered) string { // nolint:gocritic
+func getInstalledElseAvailablePluginVersion(p *plugin.Discovered) string {
 	installedOrAvailableVersion := p.InstalledVersion
 	if installedOrAvailableVersion == "" {
 		installedOrAvailableVersion = p.RecommendedVersion

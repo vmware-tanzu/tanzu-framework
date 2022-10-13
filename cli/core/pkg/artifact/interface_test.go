@@ -18,7 +18,7 @@ func TestCliCorePkgArtifactSuite(t *testing.T) {
 var _ = Describe("Unit tests for local artifact", func() {
 	When("url is http/https", func() {
 		It("should not return error", func() {
-			uriArtifact, err := NewURIArtifact(dummyUrl)
+			uriArtifact, err := NewURIArtifact(dummyURL)
 			Expect(uriArtifact).NotTo(BeNil())
 			Expect(err).To(BeNil())
 		})

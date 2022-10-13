@@ -1,9 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// Package pluginmanager is resposible for plugin discovery and installation
-//
-//nolint:gocritic
+// Package pluginmanager is responsible for plugin discovery and installation
 package pluginmanager
 
 import (
@@ -316,10 +314,11 @@ func InstalledPluginsDescriptors() (pluginDescriptions []*cliapi.PluginDescripto
 		return nil, fmt.Errorf("error while getting installed plugin: %q", err)
 	}
 
-	availablePlugins := append(standalonePlugins, serverPlugins...)
+	availablePlugins := standalonePlugins
+	availablePlugins = append(availablePlugins, serverPlugins...)
 
-	for _, info := range availablePlugins {
-		descriptor, err := DescribePluginFromInstallationPath(info.Name, info.InstallationPath)
+	for i := range availablePlugins {
+		descriptor, err := DescribePluginFromInstallationPath(availablePlugins[i].Name, availablePlugins[i].InstallationPath)
 		if err != nil {
 			return nil, err
 		}
@@ -445,7 +444,7 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 		return err
 	}
 
-	descriptor, err := installAndDescribePlugin(p, version, err, binary)
+	descriptor, err := installAndDescribePlugin(p, version, binary)
 	if err != nil {
 		return err
 	}
@@ -483,7 +482,7 @@ func fetchAndVerifyPlugin(p *plugin.Discovered, version string) ([]byte, error) 
 	return b, nil
 }
 
-func installAndDescribePlugin(p *plugin.Discovered, version string, err error, binary []byte) (*cliapi.PluginDescriptor, error) {
+func installAndDescribePlugin(p *plugin.Discovered, version string, binary []byte) (*cliapi.PluginDescriptor, error) {
 	pluginPath := filepath.Join(common.DefaultPluginRoot, p.Name, version)
 
 	if err := os.MkdirAll(filepath.Dir(pluginPath), os.ModePerm); err != nil {
@@ -497,7 +496,6 @@ func installAndDescribePlugin(p *plugin.Discovered, version string, err error, b
 	if err := os.WriteFile(pluginPath, binary, 0755); err != nil {
 		return nil, errors.Wrap(err, "could not write file")
 	}
-
 	bytesInfo, err := execCommand(pluginPath, "info").Output()
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not describe plugin %q", p.Name)

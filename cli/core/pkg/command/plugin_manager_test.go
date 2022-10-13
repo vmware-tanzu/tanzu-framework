@@ -19,10 +19,10 @@ func Test_getInstalledElseAvailablePluginVersion(t *testing.T) {
 		RecommendedVersion: "v2.0.0",
 	}
 
-	version := getInstalledElseAvailablePluginVersion(p)
+	version := getInstalledElseAvailablePluginVersion(&p)
 	assert.Equal(version, p.InstalledVersion)
 
 	p.InstalledVersion = ""
-	version = getInstalledElseAvailablePluginVersion(p)
+	version = getInstalledElseAvailablePluginVersion(&p)
 	assert.Equal(version, p.RecommendedVersion)
 }

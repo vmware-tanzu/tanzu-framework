@@ -148,11 +148,11 @@ func getClusterTKRName(server *configapi.Server, clusterName, namespace string) 
 		Namespace:   namespace,
 		IncludeMC:   false,
 	}
-	clusters, err := tkgctlClient.GetClusters(ccOptions)
+	clustersInfo, err := tkgctlClient.GetClusters(ccOptions)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get clusters Information")
 	}
-	clusterTkrVersion, err := getClusterTKRNameFromClusterInfo(clusterName, clusters)
+	clusterTkrVersion, err := getClusterTKRNameFromClusterInfo(clusterName, clustersInfo)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get cluster TKr name from clusters Information")
 	}

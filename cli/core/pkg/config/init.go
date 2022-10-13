@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package config contains useful functionality for config updates
 package config
 
 import (
@@ -22,8 +23,8 @@ func init() {
 	addedDefaultDiscovery := populateDefaultStandaloneDiscovery(c)
 	addedFeatureFlags := addDefaultFeatureFlagsIfMissing(c, config.DefaultCliFeatureFlags)
 	addedEdition := addDefaultEditionIfMissing(c)
-	addedBomRepo := addBomRepoIfMissing(c)
-	addedCompatabilityFile := addCompatibilityFileIfMissing(c)
+	addedBomRepo := AddBomRepoIfMissing(c)
+	addedCompatabilityFile := AddCompatibilityFileIfMissing(c)
 	// contexts could be lost when older plugins edit the config, so populate them from servers
 	addedContexts := config.PopulateContexts(c)
 

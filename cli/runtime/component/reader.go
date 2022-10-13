@@ -40,7 +40,7 @@ func readFromFile(filePath string) ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
 	_, err = io.Copy(buf, inputFile)
 	if err != nil {
-		return nil, errors.WithMessage(err, fmt.Sprintf("Error reading from input file %s.", filePath))
+		return nil, errors.WithMessage(err, fmt.Sprintf("error reading from input file %s", filePath))
 	}
 	log.Debugf("read object --> \n---\n%s\n---\n", buf.String())
 	return buf.Bytes(), nil
@@ -50,7 +50,7 @@ func readFromFile(filePath string) ([]byte, error) {
 func readFromStdInput() ([]byte, error) {
 	inBytes, err := io.ReadAll(os.Stdin)
 	if err != nil {
-		return nil, errors.WithMessage(err, "Error reading from stdin.")
+		return nil, errors.WithMessage(err, "error reading from stdin")
 	}
 	return inBytes, nil
 }

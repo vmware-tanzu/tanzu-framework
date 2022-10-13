@@ -4,6 +4,7 @@
 //nolint:deadcode,unused
 package cli
 
+// TODO: This is legacy code tests and will be removed soon as part of TKG-13912
 import (
 	"os"
 	"path/filepath"

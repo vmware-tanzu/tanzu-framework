@@ -42,7 +42,6 @@ var updateCmd = &cobra.Command{
 			log.Debugf("Failed to clean the Plugin descriptors cache %v", err)
 		}
 		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		//nolint:staticcheck
 		plugins, err := cli.ListPlugins()
 		if err != nil {
 			return err

@@ -26,10 +26,10 @@ var _ = Describe("config bom test cases", func() {
 			configFile = configapi.ClientConfig{}
 		})
 		It("should initialize ClientOptions", func() {
-			addCompatabilityFile(&configFile, "tkg-compatibility")
+			addCompatibilityFile(&configFile, "tkg-compatibility")
 			Expect(configFile.ClientOptions).NotTo(BeNil())
 			Expect(configFile.ClientOptions.CLI).NotTo(BeNil())
-			isMissing := addCompatibilityFileIfMissing(&configFile)
+			isMissing := AddCompatibilityFileIfMissing(&configFile)
 			Expect(isMissing).To(BeFalse())
 		})
 		It("should initialize bom repo", func() {
@@ -37,7 +37,7 @@ var _ = Describe("config bom test cases", func() {
 			Expect(configFile.ClientOptions.CLI).NotTo(BeNil())
 		})
 		It("should return true", func() {
-			isMissing := addBomRepoIfMissing(&configFile)
+			isMissing := AddBomRepoIfMissing(&configFile)
 			Expect(isMissing).To(BeTrue())
 		})
 	})

@@ -26,14 +26,14 @@ const (
 // HTTPArtifact defines HTTP artifact location.
 type HTTPArtifact struct {
 	URL        string
-	HttpClient interfaces.HTTPClient
+	HTTPClient interfaces.HTTPClient
 }
 
 // NewHTTPArtifact creates HTTP Artifact object
 func NewHTTPArtifact(url string) Artifact {
 	return &HTTPArtifact{
 		URL:        url,
-		HttpClient: http.DefaultClient,
+		HTTPClient: http.DefaultClient,
 	}
 }
 
@@ -49,7 +49,7 @@ func (g *HTTPArtifact) Fetch() ([]byte, error) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Accept", "application/json; charset=utf-8")
 
-	res, err := g.HttpClient.Do(req)
+	res, err := g.HTTPClient.Do(req)
 
 	if err != nil {
 		return nil, err

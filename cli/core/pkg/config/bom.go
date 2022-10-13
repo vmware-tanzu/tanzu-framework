@@ -3,9 +3,7 @@
 
 package config
 
-import (
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
-)
+import configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 
 // Deprecated: This configuration variables are defined to support older plugins that are relying on
 // this configuration to be set in the tanzu configuration file.
@@ -16,7 +14,7 @@ const (
 	tkgDefaultCompatibilityImagePath = "tkg-compatibility"
 )
 
-func addCompatabilityFile(c *configapi.ClientConfig, compatibilityFilePath string) {
+func addCompatibilityFile(c *configapi.ClientConfig, compatibilityFilePath string) {
 	if c.ClientOptions == nil {
 		c.ClientOptions = &configapi.ClientOptions{}
 	}
@@ -24,8 +22,7 @@ func addCompatabilityFile(c *configapi.ClientConfig, compatibilityFilePath strin
 		c.ClientOptions.CLI = &configapi.CLIOptions{}
 	}
 	// CompatibilityFilePath has been deprecated and will be removed from future version
-	//nolint:staticcheck
-	c.ClientOptions.CLI.CompatibilityFilePath = compatibilityFilePath
+	c.ClientOptions.CLI.CompatibilityFilePath = compatibilityFilePath // nolint:staticcheck
 }
 
 func addBomRepo(c *configapi.ClientConfig, repo string) {
@@ -36,26 +33,23 @@ func addBomRepo(c *configapi.ClientConfig, repo string) {
 		c.ClientOptions.CLI = &configapi.CLIOptions{}
 	}
 	// BOMRepo has been deprecated and will be removed from future version
-	//nolint:staticcheck
-	c.ClientOptions.CLI.BOMRepo = repo
+	c.ClientOptions.CLI.BOMRepo = repo // nolint:staticcheck
 }
 
-// addCompatibilityFileIfMissing adds the compatibility file to the client configuration to ensure it can be downloaded
-func addCompatibilityFileIfMissing(config *configapi.ClientConfig) bool {
+// AddCompatibilityFileIfMissing adds the compatibility file to the client configuration to ensure it can be downloaded
+func AddCompatibilityFileIfMissing(config *configapi.ClientConfig) bool {
 	// CompatibilityFilePath has been deprecated and will be removed from future version
-	//nolint:staticcheck
-	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.CompatibilityFilePath == "" {
-		addCompatabilityFile(config, tkgDefaultCompatibilityImagePath)
+	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.CompatibilityFilePath == "" { // nolint:staticcheck
+		addCompatibilityFile(config, tkgDefaultCompatibilityImagePath)
 		return true
 	}
 	return false
 }
 
-// addBomRepoIfMissing adds the bomRepository to the client configuration if it is not already present
-func addBomRepoIfMissing(config *configapi.ClientConfig) bool {
+// AddBomRepoIfMissing adds the bomRepository to the client configuration if it is not already present
+func AddBomRepoIfMissing(config *configapi.ClientConfig) bool {
 	// BOMRepo has been deprecated and will be removed from future version
-	//nolint:staticcheck
-	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.BOMRepo == "" {
+	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.BOMRepo == "" { // nolint:staticcheck
 		addBomRepo(config, tkgDefaultImageRepo)
 		return true
 	}

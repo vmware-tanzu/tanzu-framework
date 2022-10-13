@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package command provides commands
 package command
 
 import (
@@ -173,14 +174,13 @@ func getAvailablePlugins() ([]*cliapi.PluginDescriptor, error) {
 			return nil, fmt.Errorf("find installed plugins: %w", err)
 		}
 
-		//nolint:gocritic
-		p := append(serverPlugin, standalonePlugins...)
-		for i := range p {
-			plugins = append(plugins, &p[i])
+		allPlugins := serverPlugin
+		allPlugins = append(allPlugins, standalonePlugins...)
+		for i := range allPlugins {
+			plugins = append(plugins, &allPlugins[i])
 		}
 	} else {
 		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		//nolint:staticcheck
 		plugins, err = cli.ListPlugins()
 		if err != nil {
 			return nil, fmt.Errorf("find available plugins: %w", err)
@@ -208,7 +208,6 @@ func checkAndInstallMissingPlugins(plugins []*cliapi.PluginDescriptor) ([]*cliap
 			return nil, err
 		}
 		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		//nolint:staticcheck
 		plugins, err = cli.ListPlugins()
 		if err != nil {
 			return nil, fmt.Errorf("find available plugins: %w", err)
