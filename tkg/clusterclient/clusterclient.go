@@ -84,8 +84,9 @@ import (
 )
 
 const (
-	kubectlApplyRetryTimeout  = 30 * time.Second
-	kubectlApplyRetryInterval = 5 * time.Second
+	kubectlApplyRetryTimeout          = 30 * time.Second
+	kubectlApplyRetryInterval         = 5 * time.Second
+	kubectlApplyLastAppliedAnnotation = "kubectl.kubernetes.io/last-applied-configuration"
 	// DefaultKappControllerHostPort is the default kapp-controller port for it's extension apiserver
 	DefaultKappControllerHostPort           = 10100
 	waitPeriodBeforePollingForUpgradeStatus = 60 * time.Second
@@ -2090,6 +2091,10 @@ func (c *client) PatchKappControllerLastAppliedAnnotation(namespace string) erro
 		return errors.Wrap(err, "failed to get kapp-controller deployment from cluster")
 	}
 	kappYaml := result.([]byte)
+	// Skip adding last-applied annotation if already has it
+	if strings.Contains(string(kappYaml), kubectlApplyLastAppliedAnnotation) {
+		return nil
+	}
 
 	f, err := os.CreateTemp("", "kubeapply-")
 	if err != nil {

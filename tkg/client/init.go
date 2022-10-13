@@ -206,6 +206,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	// If clusterclass feature flag is enabled then deploy kapp-controller
 	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		log.Info("Installing kapp-controller on bootstrap cluster...")
 		if err = c.InstallOrUpgradeKappController(bootstrapClusterKubeconfigPath, ""); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
 		}
@@ -295,6 +296,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	// If clusterclass feature flag is enabled then deploy kapp-controller
 	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		log.Info("Installing kapp-controller on management cluster...")
 		if err = c.InstallOrUpgradeKappController(regionalClusterKubeconfigPath, kubeContext); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
 		}

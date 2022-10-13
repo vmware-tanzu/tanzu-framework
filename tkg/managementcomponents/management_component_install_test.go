@@ -83,6 +83,9 @@ var _ = Describe("Test InstallKappController", func() {
 		clusterClient *fakes.ClusterClient
 		kcOptions     KappControllerOptions
 		err           error
+		notFoundError = apierrors.NewNotFound(
+			schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
+			"fakeGroupResource")
 	)
 
 	BeforeEach(func() {
@@ -94,30 +97,56 @@ var _ = Describe("Test InstallKappController", func() {
 		err = InstallKappController(clusterClient, kcOptions)
 	})
 
+	Context("when getting kapp-controller deployment throws error other than NotFound err", func() {
+		BeforeEach(func() {
+			clusterClient.GetResourceReturns(errors.New("fake error getting resource"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("fake error getting resource"))
+		})
+	})
+
+	Context("when adding last-applied annotation on kapp-controller throws error", func() {
+		BeforeEach(func() {
+			clusterClient.GetResourceReturns(nil)
+			clusterClient.PatchKappControllerLastAppliedAnnotationReturns(errors.New("fake error adding annotation"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("fake error adding annotation"))
+			Expect(err.Error()).To(ContainSubstring("error adding last-applied annotation on kapp-controller"))
+		})
+	})
+
 	Context("when applying kapp-controller config throws error", func() {
 		BeforeEach(func() {
+			clusterClient.GetResourceReturns(notFoundError)
 			clusterClient.ApplyFileReturns(errors.New("fake error applyfile"))
-			clusterClient.WaitForDeploymentReturns(nil)
 		})
 		It("should return error", func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("fake error applyfile"))
+			Expect(err.Error()).To(ContainSubstring("error installing %s", constants.KappControllerDeploymentName))
 		})
 	})
 
 	Context("when WaitForDeployment config throws error", func() {
 		BeforeEach(func() {
+			clusterClient.GetResourceReturns(notFoundError)
 			clusterClient.ApplyFileReturns(nil)
 			clusterClient.WaitForDeploymentReturns(errors.New("fake error waitfordeployment"))
 		})
 		It("should return error", func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("fake error waitfordeployment"))
+			Expect(err.Error()).To(ContainSubstring("error while waiting for deployment %s", constants.KappControllerDeploymentName))
 		})
 	})
 
 	Context("when kapp-controller is deployed successfully", func() {
 		BeforeEach(func() {
+			clusterClient.GetResourceReturns(notFoundError)
 			clusterClient.ApplyFileReturns(nil)
 			clusterClient.WaitForDeploymentReturns(nil)
 		})
