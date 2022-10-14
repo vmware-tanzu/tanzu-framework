@@ -2322,7 +2322,7 @@ spec:
       - args:
         - --leader-elect
         - --metrics-bind-addr=localhost:8080
-        - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterTopology=${CLUSTER_TOPOLOGY:=false}
+        - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterTopology=${CLUSTER_TOPOLOGY:=true}
         env:
         - name: POD_NAMESPACE
           valueFrom:
@@ -2336,7 +2336,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.uid
-        image: gcr.io/k8s-staging-cluster-api/capd-manager:v1.2.3
+        image: registry.tkg.vmware.run/cluster-api/capd-manager:${CAPD_CONTROLLER_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
