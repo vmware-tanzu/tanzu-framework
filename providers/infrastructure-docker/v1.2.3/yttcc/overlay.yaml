@@ -20,12 +20,12 @@ metadata:
   name: #@ data.values.CLUSTER_NAME
   labels:
     tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
-    run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.2-zshippable
+    run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.1-zshippable
 spec:
   topology:
     class: #@ data.values.CLUSTER_CLASS
     #! VVV TODO(vui) compute
-    version: #@ "{}-tkg.2-zshippable".format(data.values.KUBERNETES_VERSION)
+    version: #@ "{}-tkg.1-zshippable".format(data.values.KUBERNETES_VERSION)
     #@overlay/match missing_ok=True
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
@@ -62,4 +62,4 @@ spec:
             os-type: linux
             os-arch: amd64
             os-version: "2004"
-            run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.2-zshippable
+            run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.1-zshippable
