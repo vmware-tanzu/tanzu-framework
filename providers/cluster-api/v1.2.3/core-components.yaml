@@ -11341,7 +11341,7 @@ spec:
         - args:
             - --leader-elect
             - --metrics-bind-addr=localhost:8080
-            - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterResourceSet=${EXP_CLUSTER_RESOURCE_SET:=false},ClusterTopology=${CLUSTER_TOPOLOGY:=false},RuntimeSDK=${EXP_RUNTIME_SDK:=false}
+            - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterResourceSet=${EXP_CLUSTER_RESOURCE_SET:=true},ClusterTopology=${CLUSTER_TOPOLOGY:=true},RuntimeSDK=${EXP_RUNTIME_SDK:=false}
           command:
             - /manager
           env:
@@ -11357,7 +11357,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.uid
-          image: k8s.gcr.io/cluster-api/cluster-api-controller:v1.2.3
+          image: registry.tkg.vmware.run/cluster-api/cluster-api-controller:${CAPI_CONTROLLER_IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:

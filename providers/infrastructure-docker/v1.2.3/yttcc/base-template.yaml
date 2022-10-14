@@ -4,7 +4,7 @@ metadata:
   name: ${CLUSTER_NAME}
   labels:
     tkg.tanzu.vmware.com/cluster-name: '${ CLUSTER_NAME }'
-    run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.2-zshippable
+    run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.1-zshippable
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
 spec:
