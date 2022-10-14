@@ -13,8 +13,8 @@ func mapToConfigString(data map[string]string) string {
 	result := ""
 	for key, value := range data {
 		if len(key) > 0 {
-            result += key + ":" + value + ","
-        }
+			result += key + ":" + value + ","
+		}
 	}
 	result = strings.TrimSuffix(result, ",")
 	return result
