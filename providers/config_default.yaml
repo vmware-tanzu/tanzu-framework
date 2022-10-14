@@ -459,6 +459,9 @@ DISABLE_TMC_CLOUD_PERMISSIONS: false
 #! Node Nameservers (currently only supports the vSphere provider)
 CONTROL_PLANE_NODE_NAMESERVERS:
 WORKER_NODE_NAMESERVERS:
+#! Node SearchDomains
+CONTROL_PLANE_NODE_SEARCH_DOMAINS:
+WORKER_NODE_SEARCH_DOMAINS:
 
 #! Audit Logging settings
 ENABLE_AUDIT_LOGGING: false
@@ -487,6 +490,8 @@ OS_ARCH: ""
 
 USE_TOPOLOGY_CATEGORIES: false
 
+#! NTP server customization (Only support vSphere provider)
+NTP_SERVERS:
 
 
 #! ---------------------------------------------------------------------

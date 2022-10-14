@@ -791,7 +791,10 @@ def get_vsphere_vars():
 
     network = {}
     if data.values["CONTROL_PLANE_NODE_NAMESERVERS"] != None:
-        network["nameservers"] = data.values["CONTROL_PLANE_NODE_NAMESERVERS"]
+        network["nameservers"] = data.values["CONTROL_PLANE_NODE_NAMESERVERS"].replace(" ", "").split(",")
+    end
+    if data.values["CONTROL_PLANE_NODE_SEARCH_DOMAINS"] != None:
+        network["searchDomains"] = data.values["CONTROL_PLANE_NODE_SEARCH_DOMAINS"].replace(" ", "").split(",")
     end
     if network != {}:
         controlPlane["network"] = network
@@ -820,13 +823,20 @@ def get_vsphere_vars():
 
     network = {}
     if data.values["WORKER_NODE_NAMESERVERS"] != None:
-        network["nameservers"] = data.values["WORKER_NODE_NAMESERVERS"]
+        network["nameservers"] = data.values["WORKER_NODE_NAMESERVERS"].replace(" ", "").split(",")
+    end
+    if data.values["WORKER_NODE_SEARCH_DOMAINS"] != None:
+        network["searchDomains"] = data.values["WORKER_NODE_SEARCH_DOMAINS"].replace(" ", "").split(",")
     end
     if network != {}:
         worker["network"] = network
     end
     if worker != {}:
         vars["worker"] = worker
+    end
+
+    if data.values["NTP_SERVERS"] != None:
+        vars["ntpServers"] = data.values["NTP_SERVERS"].replace(" ", "").split(",")
     end
 
     return vars
