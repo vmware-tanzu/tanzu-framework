@@ -1,3 +1,0 @@
-#@ load("@ytt:library", "library")
-
-#@ vsphere_cpi_lib = library.get("addons/packages/vsphere-cpi/1.22.4/bundle/config")
