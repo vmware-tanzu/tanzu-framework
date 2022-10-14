@@ -1,7 +1,20 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:data", "data")
+#@ load("@ytt:regexp", "regexp")
 
+#@ def compare_semver_versions(a, b):
+#@   a_array = regexp.replace("v?(\d+\.\d+\.\d+).*", a, "$1").split(".")
+#@   b_array = regexp.replace("v?(\d+\.\d+\.\d+).*", b, "$1").split(".")
+#@   for i in range(len(a_array)):
+#@     if int(a_array[i]) > int(b_array[i]):
+#@       return 1
+#@     elif int(a_array[i]) < int(b_array[i]):
+#@       return -1
+#@     end
+#@   end
+#@   return 0
+#@ end
 
 #@ if data.values.metadata.infraProvider == "aws":
 ---
@@ -11,7 +24,11 @@ metadata:
   name: default
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
+#@ if data.values.metadata.tkrVersion != "" and compare_semver_versions(data.values.metadata.tkrVersion, "v1.23.0") >= 0:
+provisioner: ebs.csi.aws.com
+#@ else:
 provisioner: kubernetes.io/aws-ebs
+#@ end
 allowVolumeExpansion: true
 #@ end
 
@@ -25,12 +42,32 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "true"
   labels:
     kubernetes.io/cluster-service: "true"
+#@ if data.values.metadata.tkrVersion != "" and compare_semver_versions(data.values.metadata.tkrVersion, "v1.23.0") >= 0:
+provisioner: disk.csi.azure.com
+#@ else:
 provisioner: kubernetes.io/azure-disk
+#@ end
 allowVolumeExpansion: true
 parameters:
   kind: Managed
   storageaccounttype: Standard_LRS
   cachingmode: ReadOnly
+volumeBindingMode: WaitForFirstConsumer
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: azure-file
+  labels:
+    kubernetes.io/cluster-service: "true"
+#@ if data.values.metadata.tkrVersion != "" and compare_semver_versions(data.values.metadata.tkrVersion, "v1.24.0") >= 0:
+provisioner: file.csi.azure.com
+#@ else:
+provisioner: kubernetes.io/azure-file
+#@ end
+allowVolumeExpansion: true
+parameters:
+  skuName: Standard_LRS
 volumeBindingMode: WaitForFirstConsumer
 #@ end
 

@@ -26,7 +26,6 @@ import (
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework/exec"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
@@ -175,7 +174,11 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		tkrVersionsSet, oldTKR, defaultTKR = getAvailableTKRs(ctx, mngProxy, input.E2EConfig.TkgConfigDir)
 
 		if input.IsCustomCB {
-			err = exec.KubectlApplyWithArgs(ctx, mngKubeConfigFile, getCustomCBResourceFile(clusterName, namespace, defaultTKR.Name))
+			// in case of customCB, a new configuration should be generated
+			options.OtherConfigs = map[string]string{
+				"ANTREA_POLICY": "false",
+			}
+			clusterConfigFile, err = framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
 			Expect(err).To(BeNil())
 		}
 

@@ -39,8 +39,12 @@
 #@           data.values.USE_TOPOLOGY_CATEGORIES)
 #@ end
 
+#@ def storage_class_configs_exist():
+#@   return data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker"
+#@ end
+
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or storage_class_configs_exist()
 #@ end
 
 #@ if antrea_configs_exist():
@@ -171,6 +175,28 @@ spec:
       region: #@ data.values.VSPHERE_REGION
       useTopologyCategories: #@ data.values.USE_TOPOLOGY_CATEGORIES
 #@ end
+
+#@ def vsphere_storage_class():
+metadata:
+  infraProvider: vsphere
+  tkrVersion: #@ data.values.KUBERNETES_RELEASE
+#@ if data.values.VSPHERE_STORAGE_POLICY_ID != "":
+VSPHERE_STORAGE_POLICY_ID: #@ data.values.VSPHERE_STORAGE_POLICY_ID
+#@ end
+#@ end
+
+#@ def aws_storage_class():
+metadata:
+  infraProvider: aws
+  tkrVersion: #@ data.values.KUBERNETES_RELEASE
+#@ end
+
+#@ def azure_storage_class():
+metadata:
+  infraProvider: azure
+  tkrVersion: #@ data.values.KUBERNETES_RELEASE
+#@ end
+
 ---
 #@ if should_create_clusterbootstrap():
 apiVersion: run.tanzu.vmware.com/v1alpha3
@@ -222,5 +248,16 @@ spec:
     - refName: metrics-server*
     - refName: secretgen-controller*
     - refName: pinniped*
+    #@ if storage_class_configs_exist():
+    - refName: tkg-storageclass*
+      valuesFrom:
+        #@ if data.values.PROVIDER_TYPE == "vsphere":
+        inline: #@ vsphere_storage_class()
+        #@ elif data.values.PROVIDER_TYPE == "aws":
+        inline: #@  aws_storage_class()
+        #@ elif data.values.PROVIDER_TYPE == "azure":
+        inline: #@ azure_storage_class()
+        #@ end
+    #@ end
 #@ end
 

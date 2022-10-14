@@ -285,6 +285,15 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 		if !isManagementCluster && isCustomCB && strings.Contains(pkg.RefName, "antrea") {
 			pkg.ValuesFrom.ProviderRef.Name = clusterBootstrap.Name
 		}
+
+		// storageclass needs special handling
+		if strings.Contains(pkg.RefName, "tkg-storageclass") {
+			for _, bootstrapPkg := range clusterBootstrap.Spec.AdditionalPackages {
+				if strings.Contains(bootstrapPkg.RefName, "tkg-storageclass") {
+					pkg.ValuesFrom = bootstrapPkg.ValuesFrom
+				}
+			}
+		}
 	}
 
 	// Calico needs special handling
