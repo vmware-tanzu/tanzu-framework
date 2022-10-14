@@ -26,6 +26,7 @@ import (
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework/exec"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
@@ -175,10 +176,13 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 
 		if input.IsCustomCB {
 			// in case of customCB, a new configuration should be generated
+			// Due to current CB limitation. enable sc will generate a new CB which overwrite below kubectl applied one,
+			// need antrea config guru polish current e2e to support sc
 			options.OtherConfigs = map[string]string{
-				"ANTREA_POLICY": "false",
+				"ENABLE_DEFAULT_STORAGE_CLASS": "false",
 			}
 			clusterConfigFile, err = framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
+			err = exec.KubectlApplyWithArgs(ctx, mngKubeConfigFile, getCustomCBResourceFile(clusterName, namespace, defaultTKR.Name))
 			Expect(err).To(BeNil())
 		}
 
