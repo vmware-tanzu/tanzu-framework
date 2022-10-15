@@ -81,11 +81,7 @@ spec:
         required:
         - enabled
         default:
-        #@ if data.values.BASTION_HOST_ENABLED:
           enabled: #@ data.values.BASTION_HOST_ENABLED
-        #@ else:
-          enabled: true
-        #@ end
   - name: loadBalancerSchemeInternal
     required: false
     schema:
