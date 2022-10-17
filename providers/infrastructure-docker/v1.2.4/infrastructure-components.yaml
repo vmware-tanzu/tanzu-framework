@@ -4,6 +4,9 @@ metadata:
   labels:
     cluster.x-k8s.io/provider: infrastructure-docker
     control-plane: controller-manager
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/audit: privileged
   name: capd-system
 ---
 apiVersion: apiextensions.k8s.io/v1

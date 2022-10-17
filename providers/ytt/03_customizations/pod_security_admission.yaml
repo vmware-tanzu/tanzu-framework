@@ -1,0 +1,57 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:version", "version")
+#@ load("/lib/helpers.star", "activate_pod_security_standard")
+
+#@ def kube_apiserver_admission_pss():
+apiVersion: apiserver.config.k8s.io/v1
+kind: AdmissionConfiguration
+plugins:
+- name: PodSecurity
+  configuration:
+    apiVersion: pod-security.admission.config.k8s.io/v1beta1
+    kind: PodSecurityConfiguration
+    defaults:
+      enforce: #@ data.values.POD_SECURITY_STANDARD_ENFORCE
+      enforce-version: "v1.24"
+      audit: #@ data.values.POD_SECURITY_STANDARD_AUDIT
+      audit-version: "v1.24"
+      warn: #@ data.values.POD_SECURITY_STANDARD_WARN
+      warn-version: "v1.24"
+    exemptions:
+      usernames: []
+      runtimeClasses: []
+      namespaces: ["kube-system","tkg-system"]
+#@ end
+
+#@ if activate_pod_security_standard():
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+spec:
+  kubeadmConfigSpec:
+    clusterConfiguration:
+      apiServer:
+        #@overlay/match missing_ok=True
+        extraArgs:
+          #@overlay/match missing_ok=True
+          admission-control-config-file: "/etc/kubernetes/kube-apiserver-admission-pss.yaml"
+        #@overlay/match missing_ok=True
+        extraVolumes:
+        #@overlay/append
+        - name: admission-pss
+          hostPath: /etc/kubernetes/kube-apiserver-admission-pss.yaml
+          mountPath: /etc/kubernetes/kube-apiserver-admission-pss.yaml
+          readOnly: true
+          pathType: "File"
+    #@overlay/match missing_ok=True
+    files:
+    #@overlay/append
+    - path: "/etc/kubernetes/kube-apiserver-admission-pss.yaml"
+      content: #@ base64.encode("{}".format(yaml.encode(kube_apiserver_admission_pss())))
+      encoding: "base64"
+      permissions: "0444"
+#@ end

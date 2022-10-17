@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "Namespace", "metadata": {"name": "capd-system"}})
+---
+metadata:
+  labels:
+    #@overlay/match missing_ok=True
+    pod-security.kubernetes.io/enforce: privileged
+    #@overlay/match missing_ok=True
+    pod-security.kubernetes.io/warn: privileged
+    #@overlay/match missing_ok=True
+    pod-security.kubernetes.io/audit: privileged
