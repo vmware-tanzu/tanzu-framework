@@ -51,6 +51,7 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting tkg-infra-clusterclass-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete before deleting tkg-infra-clusterclass-packageinstall/serviceaccount"
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tkg-clusterclass-infra-overlays
   labels:
     tkg.tanzu.vmware.com/package-type: "management"
 spec:
@@ -78,3 +79,177 @@ metadata:
 type: Opaque
 stringData:
   values.yaml: #@ yaml.encode(data.values.clusterclassInfraPackageValues.configValues)
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tkg-clusterclass-infra-overlays
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkg-infra-clusterclass-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkg-infra-clusterclass-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  kcp-empty-array-overlay.yaml: |
+    #! This overlay is adds a patch as first element in the patches to create empty
+    #! arrays inside the KCP object. With this other patches are able to append to the
+    #! now empty array.
+    #! Otherwise the arrays would not exist and the patches would fail.
+    #! Empty arrays get dropped due to omitEmpty set at the CRD level.
+    #@ load("@ytt:overlay", "overlay")
+    #@ load("@ytt:data", "data")
+
+    #@overlay/match by=overlay.subset({"kind":"ClusterClass"})
+    ---
+    spec:
+      patches:
+      #@overlay/match by=overlay.index(0)
+      #@overlay/insert before=True
+      - definitions:
+        - jsonPatches:
+          - op: add
+            path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes
+            value: []
+          selector:
+            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+            kind: KubeadmControlPlaneTemplate
+            matchResources:
+              controlPlane: true
+        name: KCP_INIT_EMPTY_ARRAYS
+
+  pod-security-overlay.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    #@ load("@ytt:data", "data")
+
+    #@overlay/match by=overlay.subset({"kind":"ClusterClass"})
+    ---
+    apiVersion: cluster.x-k8s.io/v1beta1
+    kind: ClusterClass
+    spec:
+      #@overlay/match missing_ok=True
+      variables:
+      #@overlay/remove
+      #@overlay/match by=overlay.map_key("name"),missing_ok=True
+      - name: podSecurityStandard
+      #@overlay/append
+      - name: podSecurityStandard
+        required: false
+        schema:
+          openAPIV3Schema:
+            type: object
+            default: {}
+            properties:
+              deactivated:
+                type: boolean
+                description: "deactivated disables the patches for Pod Security Standard via AdmissionConfiguration."
+              enforce:
+                type: string
+                enum: ["", "privileged", "baseline", "restricted"]
+                description: "enforce sets the level for the enforce PodSecurityConfiguration mode. One of \"\", privileged, baseline, restricted."
+                nullable: true
+              enforceVersion:
+                type: string
+                #! Version defaults to v1.24 for now. When v1.25 is part of tanzu-framework, the defaulting should be done
+                #! by a defaulting webhook instead for extended logic.
+                default: "v1.24"
+                description: "enforceVersion sets the version for the enforce PodSecurityConfiguration mode."
+              audit:
+                type: string
+                enum: ["", "privileged", "baseline", "restricted"]
+                description: "audit sets the level for the audit PodSecurityConfiguration mode. One of \"\", privileged, baseline, restricted."
+                nullable: true
+              auditVersion:
+                type: string
+                #! Version defaults to v1.24 for now. When v1.25 is part of tanzu-framework, the defaulting should be done
+                #! by a defaulting webhook instead for extended logic.
+                default: "v1.24"
+                description: "auditVersion sets the version for the audit PodSecurityConfiguration mode."
+              warn:
+                type: string
+                enum: ["", "privileged", "baseline", "restricted"]
+                description: "warn sets the level for the warn PodSecurityConfiguration mode. One of \"\", privileged, baseline, restricted."
+                nullable: true
+              warnVersion:
+                type: string
+                #! Version defaults to v1.24 for now. When v1.25 is part of tanzu-framework, the defaulting should be done
+                #! by a defaulting webhook instead for extended logic.
+                default: "v1.24"
+                description: "warnVersion sets the version for the warn PodSecurityConfiguration mode."
+              exemptions:
+                type: object
+                description: "exemption configuration for the PodSecurityConfiguration."
+                properties:
+                  namespaces:
+                    type: array
+                    items:
+                      type: string
+                    description: "namespaces excluded to apply PodSecurityConfiguration Admission."
+      #@overlay/match missing_ok=True
+      patches:
+      #@overlay/remove
+      #@overlay/match by=overlay.map_key("name"),missing_ok=True
+      - name: podSecurityStandard
+      #@overlay/append
+      - name: podSecurityStandard
+        description: "Adds an admission configuration for PodSecurity to the kube-apiserver."
+        definitions:
+        - selector:
+            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+            kind: KubeadmControlPlaneTemplate
+            matchResources:
+              controlPlane: true
+          jsonPatches:
+          - op: add
+            path: "/spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/admission-control-config-file"
+            value: "/etc/kubernetes/kube-apiserver-admission-pss.yaml"
+          - op: add
+            path: "/spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-"
+            value:
+              name: admission-pss
+              hostPath: /etc/kubernetes/kube-apiserver-admission-pss.yaml
+              mountPath: /etc/kubernetes/kube-apiserver-admission-pss.yaml
+              readOnly: true
+              pathType: "File"
+          - op: add
+            path: "/spec/template/spec/kubeadmConfigSpec/files/-"
+            valueFrom:
+              template: |-
+                content: |-
+                  {{ $namespace_exemptions := printf "%q, %q" "kube-system" "tkg-system" -}}
+                  {{ $defaultWarnAudit := "baseline" }}
+                  {{- if .podSecurityStandard.exemptions.namespaces -}}
+                    {{ range $namespace := .podSecurityStandard.exemptions.namespaces -}}
+                      {{ $namespace_exemptions = printf "%s, %q" $namespace_exemptions $namespace -}}
+                    {{- end -}}
+                  {{- end -}}
+                  apiVersion: apiserver.config.k8s.io/v1
+                  kind: AdmissionConfiguration
+                  plugins:
+                  - name: PodSecurity
+                    configuration:
+                      apiVersion: pod-security.admission.config.k8s.io/v1beta1
+                      kind: PodSecurityConfiguration
+                      defaults:
+                        enforce: "{{ if .podSecurityStandard.enforce -}}
+                            {{ .podSecurityStandard.enforce }}
+                          {{- end }}"
+                        enforce-version: "{{ .podSecurityStandard.enforceVersion -}}"
+                        audit: "{{ if .podSecurityStandard.audit -}}
+                            {{ .podSecurityStandard.audit }}
+                          {{- else -}}
+                            {{ $defaultWarnAudit }}
+                          {{- end }}"
+                        audit-version: "{{ .podSecurityStandard.auditVersion -}}"
+                        warn: "{{ if .podSecurityStandard.warn -}}
+                            {{ .podSecurityStandard.warn }}
+                          {{- else -}}
+                            {{ $defaultWarnAudit }}
+                          {{- end }}"
+                        warn-version: "{{ .podSecurityStandard.warnVersion -}}"
+                      exemptions:
+                        usernames: []
+                        runtimeClasses: []
+                        namespaces: [{{ $namespace_exemptions }}]
+                path: /etc/kubernetes/kube-apiserver-admission-pss.yaml
+        enabledIf: '{{ and (not .podSecurityStandard.deactivated) (semverCompare ">= v1.24" .builtin.controlPlane.version) }}'
