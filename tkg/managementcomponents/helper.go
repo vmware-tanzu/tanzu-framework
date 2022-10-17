@@ -41,6 +41,9 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 	// The issue https://github.com/vmware-tanzu/tanzu-framework/issues/3215 has been filed to add TKR components for CAPD
 	case constants.InfrastructureProviderDocker:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.VSphereNonparavirt)
+	case constants.InfrastructureProviderOCI:
+		// @TODO(Fang Han): remove this hardcoded tkr-oci after its downstream version is available
+		tkrRepoImagePath = "gcr.io/tkg-on-oci/tkg/tkr/tkr-oci"
 	default:
 		return "", errors.Errorf("unknown provider type %q", providerType)
 	}
