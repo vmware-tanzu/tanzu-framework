@@ -328,26 +328,13 @@ var unsetConfigCmd = &cobra.Command{
 			return errors.Errorf("only path is allowed")
 		}
 
-		// Acquire tanzu config lock
-		configlib.AcquireTanzuConfigLock()
-		defer configlib.ReleaseTanzuConfigLock()
+		return unsetConfiguration(args[0])
 
-		cfg, err := configlib.GetClientConfigNoLock()
-		if err != nil {
-			return err
-		}
-
-		err = unsetConfiguration(cfg, args[0])
-		if err != nil {
-			return err
-		}
-
-		return configlib.StoreClientConfig(cfg)
 	},
 }
 
 // unsetConfiguration unsets the key-value pair for the given path and removes it
-func unsetConfiguration(cfg *configapi.ClientConfig, pathParam string) error {
+func unsetConfiguration(pathParam string) error {
 	// parse the param
 	paramArray := strings.Split(pathParam, ".")
 	if len(paramArray) < 2 {
@@ -358,39 +345,29 @@ func unsetConfiguration(cfg *configapi.ClientConfig, pathParam string) error {
 
 	switch configLiteral {
 	case ConfigLiteralFeatures:
-		return unsetFeatures(cfg, paramArray)
+		return unsetFeatures(paramArray)
 	case ConfigLiteralEnv:
-		return unsetEnvs(cfg, paramArray)
+		return unsetEnvs(paramArray)
 	default:
 		return errors.New("unsupported config path parameter [" + configLiteral + "] (was expecting 'features.<plugin>.<feature>' or 'env.<env_variable>')")
 	}
 }
 
-func unsetFeatures(cfg *configapi.ClientConfig, paramArray []string) error {
+func unsetFeatures(paramArray []string) error {
 	if len(paramArray) != 3 {
 		return errors.New("unable to parse config path parameter into three parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'features.<plugin>.<feature>'")
 	}
 	plugin := paramArray[1]
 	featureName := paramArray[2]
 
-	if cfg.ClientOptions == nil || cfg.ClientOptions.Features == nil ||
-		cfg.ClientOptions.Features[plugin] == nil {
-		return nil
-	}
-	delete(cfg.ClientOptions.Features[plugin], featureName)
-	return nil
+	return configlib.DeleteFeature(plugin, featureName)
 }
 
-func unsetEnvs(cfg *configapi.ClientConfig, paramArray []string) error {
+func unsetEnvs(paramArray []string) error {
 	if len(paramArray) != 2 {
 		return errors.New("unable to parse config path parameter into two parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'env.<env_variable>'")
 	}
 
 	envVariable := paramArray[1]
-	if cfg.ClientOptions == nil || cfg.ClientOptions.Env == nil {
-		return nil
-	}
-	delete(cfg.ClientOptions.Env, envVariable)
-
-	return nil
+	return configlib.DeleteEnv(envVariable)
 }
