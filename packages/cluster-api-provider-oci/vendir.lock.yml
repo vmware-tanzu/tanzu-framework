@@ -1,0 +1,8 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+  - contents:
+      - githubRelease:
+          url: https://api.github.com/repos/oracle/cluster-api-provider-oci/releases/55060239
+        path: .
+    path: bundle/config/upstream
+kind: LockConfig
