@@ -89,6 +89,27 @@
     detectAndReplaceSourceNSRef: true
 #@ end
 
+
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "oci":
+#! Oracle Cloud infra specific resources
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: OCIClusterTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: OCIMachineTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+#@ end
+
 #@ if data.values.clusterclassInfraPackageValues.infraProvider == "vsphere":
 #! vSphere infra specific resources
 - source:

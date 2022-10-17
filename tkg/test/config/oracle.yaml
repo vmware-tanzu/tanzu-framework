@@ -1,0 +1,8 @@
+---
+infrastructure_name: oci
+management_cluster_name: tkg-mc
+tkg_config_variables:
+  ENABLE_CEIP_PARTICIPATION: "false"
+  PROVIDER_TYPE: oci
+management_cluster_options:
+  plan: dev

@@ -695,6 +695,32 @@ FEATURE_FLAG_PACKAGE_BASED_LCM:
 TKR_DATA:
 
 #! ---------------------------------------------------------------------
+#! Settings for OCI infrastructure provider
+#! ---------------------------------------------------------------------
+OCI_CONTROL_PLANE_MACHINE_TYPE: "VM.Standard.E4.Flex"
+OCI_CONTROL_PLANE_MACHINE_TYPE_OCPUS: "1"
+OCI_CONTROL_PLANE_PV_TRANSIT_ENCRYPTION: true
+OCI_NODE_MACHINE_TYPE: "VM.Standard.E4.Flex"
+OCI_NODE_MACHINE_TYPE_OCPUS: "1"
+OCI_NODE_PV_TRANSIT_ENCRYPTION: true
+OCI_IMAGE_ID:
+OCI_REGION: "us-phoenix-1"
+OCI_COMPARTMENT_ID:
+OCI_SSH_KEY:
+
+#! Settings to provide Oracle CPI subnet information
+OCI_PRIVATE_SERVICE_SUBNET_ID:
+
+#! Settings to use externally managed network infrastructure
+OCI_EXTERNAL_VCN_ID:
+OCI_EXTERNAL_CONTROL_PLANE_EP_NSG_ID:
+OCI_EXTERNAL_CONTROL_PLANE_NSG_ID:
+OCI_EXTERNAL_WORKER_NSG_ID:
+OCI_EXTERNAL_CONTROL_PLANE_EP_SUBNET_ID:
+OCI_EXTERNAL_CONTROL_PLANE_SUBNET_ID:
+OCI_EXTERNAL_WORKER_SUBNET_ID:
+
+#! ---------------------------------------------------------------------
 #! BoM file processing, internal use only
 #! ---------------------------------------------------------------------
 
