@@ -306,6 +306,16 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")
 		os.Exit(1)
 	}
+	if err := (&cpicontroller.OracleCPIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("OracleCPIConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.OracleCPIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create CPIConfigController", "controller", "oraclecpi")
+		os.Exit(1)
+	}
 
 	if err := (&csicontroller.VSphereCSIConfigReconciler{
 		Client: mgr.GetClient(),
