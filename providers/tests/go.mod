@@ -7,7 +7,7 @@ require (
 	github.com/onsi/gomega v1.19.0
 	github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-00010101000000-000000000000
 	gopkg.in/yaml.v3 v3.0.0
-	sigs.k8s.io/cluster-api v1.2.3
+	sigs.k8s.io/cluster-api v1.2.4
 )
 
 require (
