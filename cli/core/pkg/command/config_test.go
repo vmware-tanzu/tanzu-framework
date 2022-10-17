@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 // Test_config_MalformedPathArg validates functionality when an invalid argument is provided.
@@ -109,28 +110,27 @@ func TestConfigFeature(t *testing.T) {
 
 // TestConfigSetUnsetEnv validates set and unset functionality when env config path argument is provided.
 func TestConfigSetUnsetEnv(t *testing.T) {
-	assert := assert.New(t)
-
 	cfg := &configapi.ClientConfig{}
 	value := "baar"
 	err := setConfiguration(cfg, "env.foo", value)
-	assert.Nil(err)
-	assert.Equal(value, cfg.ClientOptions.Env["foo"])
+	assert.Nil(t, err)
+	assert.Equal(t, value, cfg.ClientOptions.Env["foo"])
 
-	err = unsetConfiguration(cfg, "env.foo")
-	assert.Nil(err)
-	assert.Equal(cfg.ClientOptions.Env["foo"], "")
+	err = unsetConfiguration("env.foo")
+	assert.Nil(t, err)
+
+	cfg, err = config.GetClientConfigNoLock()
+	assert.NoError(t, err)
+	assert.Equal(t, cfg.ClientOptions.Env["foo"], "")
 }
 
 // TestConfigIncorrectConfigLiteral validates incorrect config literal
 func TestConfigIncorrectConfigLiteral(t *testing.T) {
-	assert := assert.New(t)
-
 	cfg := &configapi.ClientConfig{}
 	value := "b"
 	err := setConfiguration(cfg, "fake.any-plugin.foo", value)
-	assert.NotNil(err)
-	assert.Contains(err.Error(), "unsupported config path parameter [fake] (was expecting 'features.<plugin>.<feature>' or 'env.<env_variable>')")
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "unsupported config path parameter [fake] (was expecting 'features.<plugin>.<feature>' or 'env.<env_variable>')")
 }
 
 // TestConfigEnv validates functionality when normal env path argument is provided.
@@ -141,7 +141,6 @@ func TestConfigEnv(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error returned for any-plugin env path argument: %s", err.Error())
 	}
-
 	if cfg.ClientOptions.Env["any-plugin"] != value {
 		t.Error("cfg.ClientOptions.Features[\"any-plugin\"][\"foo\"] was not assigned the value \"" + value + "\"")
 	}

@@ -10,6 +10,7 @@ on:
       - 'providers/**'
       - '.github/workflows/plugin_tests.yaml'
       - Makefile
+      - 'cli/**'
 
 concurrency:
   group: ${{ format('plugin-tests-{0}', github.head_ref) }}
