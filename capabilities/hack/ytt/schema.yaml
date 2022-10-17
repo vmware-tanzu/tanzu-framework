@@ -8,13 +8,7 @@ deployment:
   nodeSelector: {}
   tolerations:
     - effect: NoSchedule
-      key: node-role.kubernetes.io/master
-      value: ""
-      operator: ""
-      #@schema/nullable
-      tolerationSeconds: 0
-    - effect: NoSchedule
-      key: node-role.kubernetes.io/control-plane
+      key: ""
       value: ""
       operator: ""
       #@schema/nullable
