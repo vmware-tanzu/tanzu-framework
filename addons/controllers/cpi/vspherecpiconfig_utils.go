@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
+
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
@@ -23,13 +24,63 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
+
+type CPIConfigAction func(client.Object)
+
+// forClusterMappedByCPIConfig performs the specified action for the cluster owns the CPIConfig
+// For a CPIConfig to be owned by a Cluster, it should
+// 	1. in the same namespace as the cluster
+//  2. not a template CPIConfig, a.k.a. has annotation tkg.tanzu.vmware.com/template-config
+//  3. has the Cluster as its OwnerReference
+func forClusterMappedByCPIConfig(cpiConfig client.Object, cluster *clusterapiv1beta1.Cluster,
+	controllerConfig config.ConfigControllerConfig, action CPIConfigAction) {
+
+	namespace := cpiConfig.GetNamespace()
+	annotations := cpiConfig.GetAnnotations()
+	ownerReferences := cpiConfig.GetOwnerReferences()
+
+	if namespace == cluster.Namespace {
+		// avoid enqueuing reconcile requests for template CPIConfig CRs in event handler of Cluster CR
+		if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok && cpiConfig.GetNamespace() == controllerConfig.SystemNamespace {
+			return
+		}
+	}
+
+	// corresponding CPIConfig should have following ownerRef
+	ownerReference := metav1.OwnerReference{
+		APIVersion: clusterapiv1beta1.GroupVersion.String(),
+		Kind:       cluster.Kind,
+		Name:       cluster.Name,
+		UID:        cluster.UID,
+	}
+
+	if clusterapiutil.HasOwnerRef(ownerReferences, ownerReference) {
+		action(cpiConfig)
+	}
+}
+
+// forClusterMappedByCPIConfigEnqueueRequest enqueues the request for the cluster that owns this CPIConfig
+func forClusterMappedByCPIConfigEnqueueRequest(cpiConfig client.Object, cluster *clusterapiv1beta1.Cluster,
+	controllerConfig config.ConfigControllerConfig, logger logr.Logger, requests []ctrl.Request) []ctrl.Request {
+
+	forClusterMappedByCPIConfig(cpiConfig, cluster, controllerConfig, func(cpiConfig client.Object) {
+		logger.V(4).Info("Adding "+cpiConfig.GetObjectKind().GroupVersionKind().Kind+" for reconciliation",
+			constants.NamespaceLogKey, cpiConfig.GetNamespace(), constants.NameLogKey, cpiConfig.GetName())
+
+		requests = append(requests, ctrl.Request{
+			NamespacedName: clusterapiutil.ObjectKey(cpiConfig),
+		})
+	})
+
+	return requests
+}
 
 // ClusterToVSphereCPIConfig returns a list of Requests with VSphereCPIConfig ObjectKey based on Cluster events
 func (r *VSphereCPIConfigReconciler) ClusterToVSphereCPIConfig(o client.Object) []ctrl.Request {
@@ -45,32 +96,10 @@ func (r *VSphereCPIConfigReconciler) ClusterToVSphereCPIConfig(o client.Object) 
 
 	cs := &cpiv1alpha1.VSphereCPIConfigList{}
 	_ = r.List(context.Background(), cs)
+	var requests []ctrl.Request
 
-	requests := []ctrl.Request{}
-	for i := 0; i < len(cs.Items); i++ {
-		config := &cs.Items[i]
-		if config.Namespace == cluster.Namespace {
-			// avoid enqueuing reconcile requests for template vSphereCPIConfig CRs in event handler of Cluster CR
-			if _, ok := config.Annotations[constants.TKGAnnotationTemplateConfig]; ok && config.Namespace == r.Config.SystemNamespace {
-				continue
-			}
-
-			// corresponding vsphereCPIConfig should have following ownerRef
-			ownerReference := metav1.OwnerReference{
-				APIVersion: clusterapiv1beta1.GroupVersion.String(),
-				Kind:       cluster.Kind,
-				Name:       cluster.Name,
-				UID:        cluster.UID,
-			}
-			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) {
-				r.Log.V(4).Info("Adding VSphereCPIConfig for reconciliation",
-					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
-
-				requests = append(requests, ctrl.Request{
-					NamespacedName: clusterapiutil.ObjectKey(config),
-				})
-			}
-		}
+	for _, cpiConfig := range cs.Items {
+		requests = forClusterMappedByCPIConfigEnqueueRequest(&cpiConfig, cluster, r.Config.ConfigControllerConfig, r.Log, requests)
 	}
 
 	return requests
@@ -380,33 +409,6 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(vs
 		TargetNamespace:  ProviderServiceAccountSecretNamespace,
 		TargetSecretName: ProviderServiceAccountSecretName,
 	}
-}
-
-//nolint:unused
-// getOwnerCluster verifies that the VSphereCPIConfig has a cluster as its owner reference,
-// and returns the cluster. It tries to read the cluster name from the VSphereCPIConfig's owner reference objects.
-// If not there, we assume the owner cluster and VSphereCPIConfig always has the same name.
-func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig) (*clusterapiv1beta1.Cluster, error) {
-	cluster := &clusterapiv1beta1.Cluster{}
-	clusterName := cpiConfig.Name
-
-	// retrieve the owner cluster for the VSphereCPIConfig object
-	for _, ownerRef := range cpiConfig.GetOwnerReferences() {
-		if strings.EqualFold(ownerRef.Kind, constants.ClusterKind) {
-			clusterName = ownerRef.Name
-			break
-		}
-	}
-	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: cpiConfig.Namespace, Name: clusterName}, cluster); err != nil {
-		if apierrors.IsNotFound(err) {
-			r.Log.Error(err, fmt.Sprintf("Cluster resource '%s/%s' not found", cpiConfig.Namespace, clusterName))
-			return nil, err
-		}
-		r.Log.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", cpiConfig.Namespace, clusterName))
-		return nil, err
-	}
-	r.Log.Info(fmt.Sprintf("Cluster resource '%s/%s' is successfully found", cpiConfig.Namespace, clusterName))
-	return cluster, nil
 }
 
 // getSecret gets the secret object given its name and namespace
