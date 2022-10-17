@@ -493,6 +493,12 @@ USE_TOPOLOGY_CATEGORIES: false
 #! NTP server customization (Only support vSphere provider)
 NTP_SERVERS:
 
+#! Disables pod security standards in kube-apiserver.
+POD_SECURITY_STANDARD_DEACTIVATED: false
+
+POD_SECURITY_STANDARD_AUDIT: "baseline"
+POD_SECURITY_STANDARD_WARN: "baseline"
+POD_SECURITY_STANDARD_ENFORCE: ""
 
 #! ---------------------------------------------------------------------
 #! Autoscaler related configuration

@@ -104,6 +104,13 @@ TKG_IP_FAMILY: "NA", "", "ipv4", "ipv6"
 ENABLE_AUDIT_LOGGING: "true", "false"
 OS_NAME: "photon", "ubuntu", "amazon"
 
+# pod security standards
+POD_SECURITY_STANDARD_DEACTIVATED: "true", "false"
+
+POD_SECURITY_STANDARD_AUDIT: "", "baseline", "restricted", "enforce"
+POD_SECURITY_STANDARD_WARN: "", "baseline", "restricted", "enforce"
+POD_SECURITY_STANDARD_ENFORCE: "", "baseline", "restricted", "enforce"
+
 # autoscaler
 AUTOSCALER_MIN_SIZE_0: "NA", "2"
 AUTOSCALER_MAX_SIZE_0: "NA", "5"

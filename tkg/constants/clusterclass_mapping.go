@@ -35,6 +35,11 @@ var ClusterAttributesToLegacyVariablesMapCommon = map[string]string{
 	"spec.topology.variables.trust.imageRepository": ConfigVariableCustomImageRepositoryCaCertificate, // TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
 
 	"spec.topology.variables.apiServerPort": ConfigVariableClusterAPIServerPort, // CLUSTER_API_SERVER_PORT
+
+	"spec.topology.variables.podSecurityStandard.deactivated": PodSecurityStandardDeactivated, // POD_SECURITY_STANDARD_DEACTIVATED
+	"spec.topology.variables.podSecurityStandard.audit":       PodSecurityStandardAudit,       // POD_SECURITY_STANDARD_AUDIT
+	"spec.topology.variables.podSecurityStandard.warn":        PodSecurityStandardWarn,        // POD_SECURITY_STANDARD_WARN
+	"spec.topology.variables.podSecurityStandard.enforce":     PodSecurityStandardEnforce,     // POD_SECURITY_STANDARD_ENFORCE
 }
 
 // ClusterAttributesHigherPrecedenceToLowerMap has cluster class input attributes which
