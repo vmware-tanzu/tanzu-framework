@@ -373,7 +373,7 @@ func GetTKRBOMImageTagNameFromTKRVersion(tkrVersion string) string {
 }
 
 var errorDownloadingDefaultBOMFiles = `failed to download the BOM file from image name '%s':%v
-If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s 
+If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s
 `
 
 // DownloadDefaultBOMFilesFromRegistry retrieves the bill of materials (BOM)
@@ -450,7 +450,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRepo string, bomRegistry
 }
 
 var errorDownloadingTKGCompatibilityFile = `failed to download the TKG Compatibility file from image name '%s':%v
-If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s 
+If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s
 `
 
 // DownloadTKGCompatibilityFileFromRegistry resolves the compatibility file
@@ -471,12 +471,17 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(repo, resource string,
 
 	// begin download of compatibility file
 	tkgCompatibilityImagePath := fmt.Sprintf("%s/%s", repo, resource)
-	log.Infof("Downloading TKG compatibility file from '%s'", tkgCompatibilityImagePath)
+	log.Infof("Listing TKG compatibility tags from '%s'", tkgCompatibilityImagePath)
 	tags, err := bomClient.ListImageTags(tkgCompatibilityImagePath)
-	if err != nil || len(tags) == 0 {
+	if err != nil {
 		return errors.Wrap(err, "failed to list TKG compatibility image tags")
 	}
+	if len(tags) == 0 {
+		return errors.New("no TKG compatibility image tags found")
+	}
+	log.V(9).Infof("Found TKG compatibility tags: %v", strings.Join(tags, ", "))
 
+	// All tags are numeric. e.g. v1, v2, etc... These are sorted and the higest number is used.
 	tagNum := []int{}
 	for _, tag := range tags {
 		ver, err := strconv.Atoi(tag[1:])
@@ -487,7 +492,7 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(repo, resource string,
 
 	sort.Ints(tagNum)
 	if len(tagNum) == 0 {
-		return errors.New("failed to get valid image tags for TKG compatibility image")
+		return errors.Errorf("failed to get valid numeric image tags for TKG compatibility image (expected tag format v[int]). Found: %s", strings.Join(tags, ", "))
 	}
 
 	// get the latest tag version
@@ -497,6 +502,7 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(repo, resource string,
 		return err
 	}
 
+	log.Infof("Downloading the TKG Compatibility file from '%s:%s'", tkgCompatibilityImagePath, tagName)
 	tkgCompatibilityContent, err := bomClient.GetFile(fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingTKGCompatibilityFile, fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), err, tkgconfigpath)
