@@ -295,6 +295,12 @@ type ClientConfig struct {
 	ClientOptions *ClientOptions `json:"clientOptions,omitempty" yaml:"clientOptions,omitempty" mapstructure:"clientOptions,omitempty"`
 }
 
+type ConfigOptions struct {
+	CfgPath string
+}
+
+type ConfigOpts func(config *ConfigOptions)
+
 // +kubebuilder:object:root=true
 
 // ClientConfigList contains a list of ClientConfig

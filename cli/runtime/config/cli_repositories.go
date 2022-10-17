@@ -4,6 +4,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
@@ -42,7 +44,7 @@ func SetCLIRepository(repository configapi.PluginRepository) (err error) {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -62,7 +64,7 @@ func DeleteCLIRepository(name string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 func getCLIRepositories(node *yaml.Node) ([]configapi.PluginRepository, error) {
@@ -104,6 +106,14 @@ func setCLIRepositories(node *yaml.Node, repos []configapi.PluginRepository) (er
 }
 
 func setCLIRepository(node *yaml.Node, repository configapi.PluginRepository) (persist bool, err error) {
+	patchStrategies, err := GetConfigMetadataPatchStrategy()
+	if err != nil {
+		patchStrategies = make(map[string]string)
+	}
+	patchStrategyOptions := &nodeutils.PatchStrategyOptions{
+		Key:             fmt.Sprintf("%v.%v.%v", KeyClientOptions, KeyCLI, KeyRepositories),
+		PatchStrategies: patchStrategies,
+	}
 	configOptions := func(c *nodeutils.Config) {
 		c.ForceCreate = true
 		c.Keys = []nodeutils.Key{
@@ -116,7 +126,8 @@ func setCLIRepository(node *yaml.Node, repository configapi.PluginRepository) (p
 	if repositoriesNode == nil {
 		return persist, err
 	}
-	return setRepository(repositoriesNode, repository)
+
+	return setRepository(repositoriesNode, repository, patchStrategyOptions)
 }
 
 //nolint: dupl
@@ -152,7 +163,7 @@ func deleteCLIRepository(node *yaml.Node, name string) error {
 	return nil
 }
 
-func setRepository(repositoriesNode *yaml.Node, repository configapi.PluginRepository) (persist bool, err error) {
+func setRepository(repositoriesNode *yaml.Node, repository configapi.PluginRepository, patchStrategyOptions *nodeutils.PatchStrategyOptions) (persist bool, err error) {
 	newNode, err := nodeutils.ConvertToNode[configapi.PluginRepository](&repository)
 	if err != nil {
 		return persist, err
@@ -170,6 +181,7 @@ func setRepository(repositoriesNode *yaml.Node, repository configapi.PluginRepos
 				exists = true
 				persist, err = nodeutils.NotEqual(newNode.Content[0], repositoryNode)
 				if persist {
+					_ = nodeutils.ReplaceNodes(newNode.Content[0], repositoryNode, patchStrategyOptions)
 					err = nodeutils.MergeNodes(newNode.Content[0], repositoryNode)
 					if err != nil {
 						return persist, err

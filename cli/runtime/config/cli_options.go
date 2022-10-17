@@ -30,7 +30,7 @@ func SetEdition(val string) (err error) {
 	}
 	persist := setEdition(node, val)
 	if persist {
-		return persistNode(node)
+		return persistConfig(node)
 	}
 	return err
 }

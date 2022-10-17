@@ -40,7 +40,7 @@ func SetContext(c *configapi.Context, setCurrent bool) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -52,7 +52,7 @@ func SetContext(c *configapi.Context, setCurrent bool) error {
 		}
 
 		if persist {
-			err = persistNode(node)
+			err = persistConfig(node)
 			if err != nil {
 				return err
 			}
@@ -64,7 +64,7 @@ func SetContext(c *configapi.Context, setCurrent bool) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func SetContext(c *configapi.Context, setCurrent bool) error {
 		}
 
 		if persist {
-			err = persistNode(node)
+			err = persistConfig(node)
 			if err != nil {
 				return err
 			}
@@ -118,7 +118,7 @@ func RemoveContext(name string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 // ContextExists checks if context by name already exists
@@ -153,7 +153,7 @@ func SetCurrentContext(name string) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -163,7 +163,7 @@ func SetCurrentContext(name string) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -192,7 +192,7 @@ func RemoveCurrentContext(ctxType configapi.ContextType) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 // EndpointFromContext retrieved the endpoint from the specified context
@@ -238,8 +238,8 @@ func setContexts(node *yaml.Node, contexts []*configapi.Context) (err error) {
 	return err
 }
 
-//nolint:dupl
 func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err error) {
+	patchStrategyOptions, patchStrategyOptionsForDiscoverySources := getPatchStrategies()
 	var persistDiscoverySources bool
 	// convert context to node
 	newContextNode, err := nodeutils.ConvertToNode[configapi.Context](ctx)
@@ -272,12 +272,16 @@ func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err erro
 			}
 			// merge the nodes only if the nodes are not equal
 			if persist {
+				err = nodeutils.ReplaceNodes(newContextNode.Content[0], contextNode, patchStrategyOptions)
+				if err != nil {
+					return persist, err
+				}
 				err = nodeutils.MergeNodes(newContextNode.Content[0], contextNode)
 				if err != nil {
 					return persist, err
 				}
 			}
-			persistDiscoverySources, err = setDiscoverySources(contextNode, ctx.DiscoverySources)
+			persistDiscoverySources, err = setDiscoverySources(contextNode, ctx.DiscoverySources, patchStrategyOptionsForDiscoverySources)
 			if err != nil {
 				return persistDiscoverySources, err
 			}
@@ -299,6 +303,22 @@ func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err erro
 	}
 	contextsNode.Content = result
 	return persistDiscoverySources || persist, err
+}
+
+func getPatchStrategies() (*nodeutils.PatchStrategyOptions, *nodeutils.PatchStrategyOptions) {
+	patchStrategies, err := GetConfigMetadataPatchStrategy()
+	if err != nil {
+		patchStrategies = make(map[string]string)
+	}
+	patchStrategyOptions := &nodeutils.PatchStrategyOptions{
+		Key:             KeyContexts,
+		PatchStrategies: patchStrategies,
+	}
+	patchStrategyOptionsForDiscoverySources := &nodeutils.PatchStrategyOptions{
+		Key:             fmt.Sprintf("%v.%v", KeyContexts, KeyDiscoverySources),
+		PatchStrategies: patchStrategies,
+	}
+	return patchStrategyOptions, patchStrategyOptionsForDiscoverySources
 }
 
 func setCurrentContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err error) {

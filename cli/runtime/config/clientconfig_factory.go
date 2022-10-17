@@ -59,12 +59,12 @@ func newClientConfigNode() (*yaml.Node, error) {
 }
 
 // persistNode stores/writes the yaml node to config.yaml
-func persistNode(node *yaml.Node) error {
-	cfgPath, err := ClientConfigPath()
-	if err != nil {
-		return errors.Wrap(err, "could not find config path")
+func persistNode(node *yaml.Node, opts ...configapi.ConfigOpts) error {
+	configurations := &configapi.ConfigOptions{}
+	for _, opt := range opts {
+		opt(configurations)
 	}
-	cfgPathExists, err := fileExists(cfgPath)
+	cfgPathExists, err := fileExists(configurations.CfgPath)
 	if err != nil {
 		return errors.Wrap(err, "failed to check config path existence")
 	}
@@ -81,10 +81,32 @@ func persistNode(node *yaml.Node) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal nodeutils")
 	}
-	err = os.WriteFile(cfgPath, data, 0644)
+	err = os.WriteFile(configurations.CfgPath, data, 0644)
 	if err != nil {
 		return errors.Wrap(err, "failed to write the config to file")
 	}
 	storeConfigToLegacyDir(data)
 	return nil
+}
+
+func persistConfigMetadata(node *yaml.Node) error {
+	path, err := MetadataFilePath()
+	if err != nil {
+		return errors.Wrap(err, "could not find config metadata path")
+	}
+	options := func(c *configapi.ConfigOptions) {
+		c.CfgPath = path
+	}
+	return persistNode(node, options)
+}
+
+func persistConfig(node *yaml.Node) error {
+	path, err := ClientConfigPath()
+	if err != nil {
+		return errors.Wrap(err, "could not find config path")
+	}
+	options := func(c *configapi.ConfigOptions) {
+		c.CfgPath = path
+	}
+	return persistNode(node, options)
 }

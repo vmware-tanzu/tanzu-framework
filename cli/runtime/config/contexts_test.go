@@ -491,7 +491,7 @@ func TestSetContext(t *testing.T) {
 				},
 			},
 		}
-		err := persistNode(node)
+		err := persistConfig(node)
 		assert.NoError(t, err)
 	}()
 	defer func() {

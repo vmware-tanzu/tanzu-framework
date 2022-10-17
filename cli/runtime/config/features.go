@@ -57,7 +57,7 @@ func DeleteFeature(plugin, key string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 func deleteFeature(node *yaml.Node, plugin, key string) error {
@@ -98,7 +98,7 @@ func SetFeature(plugin, key, value string) (err error) {
 		return err
 	}
 	if persist {
-		return persistNode(node)
+		return persistConfig(node)
 	}
 	return err
 }

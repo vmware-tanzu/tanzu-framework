@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/aunum/log"
-
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
 
@@ -56,7 +55,7 @@ func SetCurrentServer(name string) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -68,7 +67,7 @@ func SetCurrentServer(name string) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -101,7 +100,7 @@ func RemoveCurrentServer(name string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 // PutServer add or update server and currentServer
@@ -128,7 +127,7 @@ func SetServer(s *configapi.Server, setCurrent bool) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -139,7 +138,7 @@ func SetServer(s *configapi.Server, setCurrent bool) error {
 			return err
 		}
 		if persist {
-			err = persistNode(node)
+			err = persistConfig(node)
 			if err != nil {
 				return err
 			}
@@ -162,7 +161,7 @@ func frontFillContexts(s *configapi.Server, setCurrent bool, node *yaml.Node) er
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -173,7 +172,7 @@ func frontFillContexts(s *configapi.Server, setCurrent bool, node *yaml.Node) er
 			return err
 		}
 		if persist {
-			err = persistNode(node)
+			err = persistConfig(node)
 			if err != nil {
 				return err
 			}
@@ -220,7 +219,7 @@ func RemoveServer(name string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 // GetDiscoverySources returns all discovery sources
@@ -362,8 +361,19 @@ func setServers(node *yaml.Node, servers []*configapi.Server) error {
 	return nil
 }
 
-//nolint:dupl
 func setServer(node *yaml.Node, s *configapi.Server) (persist bool, err error) {
+	patchStrategies, err := GetConfigMetadataPatchStrategy()
+	if err != nil {
+		patchStrategies = make(map[string]string)
+	}
+	patchStrategyOptions := &nodeutils.PatchStrategyOptions{
+		Key:             KeyServers,
+		PatchStrategies: patchStrategies,
+	}
+	patchStrategyOptionsForDiscoverySources := &nodeutils.PatchStrategyOptions{
+		Key:             fmt.Sprintf("%v.%v", KeyServers, KeyDiscoverySources),
+		PatchStrategies: patchStrategies,
+	}
 	var persistDiscoverySources bool
 	// convert server to node
 	newServerNode, err := nodeutils.ConvertToNode[configapi.Server](s)
@@ -394,13 +404,14 @@ func setServer(node *yaml.Node, s *configapi.Server) (persist bool, err error) {
 				return persist, err
 			}
 			if persist {
+				_ = nodeutils.ReplaceNodes(newServerNode.Content[0], serverNode, patchStrategyOptions)
 				err = nodeutils.MergeNodes(newServerNode.Content[0], serverNode)
 				if err != nil {
 					return false, err
 				}
 			}
 			// add or update discovery sources of server
-			persistDiscoverySources, err = setDiscoverySources(serverNode, s.DiscoverySources)
+			persistDiscoverySources, err = setDiscoverySources(serverNode, s.DiscoverySources, patchStrategyOptionsForDiscoverySources)
 			if err != nil {
 				return persistDiscoverySources, err
 			}

@@ -67,7 +67,7 @@ func DeleteEnv(key string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 func deleteEnv(node *yaml.Node, key string) (err error) {
@@ -115,7 +115,7 @@ func SetEnv(key, value string) (err error) {
 		return err
 	}
 	if persist {
-		return persistNode(node)
+		return persistConfig(node)
 	}
 	return err
 }

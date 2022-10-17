@@ -22,7 +22,7 @@ const (
 )
 
 // setDiscoverySources adds or updates the node discoverySources
-func setDiscoverySources(node *yaml.Node, discoverySources []configapi.PluginDiscovery) (persist bool, err error) {
+func setDiscoverySources(node *yaml.Node, discoverySources []configapi.PluginDiscovery, patchStrategyOptions *nodeutils.PatchStrategyOptions) (persist bool, err error) {
 	var anyPersists []bool
 	isTrue := func(item bool) bool { return item }
 	opts := func(c *nodeutils.Config) {
@@ -36,7 +36,7 @@ func setDiscoverySources(node *yaml.Node, discoverySources []configapi.PluginDis
 		return persist, err
 	}
 	for _, discoverySource := range discoverySources {
-		persist, err = setDiscoverySource(discoverySourcesNode, discoverySource)
+		persist, err = setDiscoverySource(discoverySourcesNode, discoverySource, patchStrategyOptions)
 		anyPersists = append(anyPersists, persist)
 		if err != nil {
 			return persist, err
@@ -46,7 +46,7 @@ func setDiscoverySources(node *yaml.Node, discoverySources []configapi.PluginDis
 	return persist, err
 }
 
-func setDiscoverySource(discoverySourcesNode *yaml.Node, discoverySource configapi.PluginDiscovery) (persist bool, err error) {
+func setDiscoverySource(discoverySourcesNode *yaml.Node, discoverySource configapi.PluginDiscovery, patchStrategyOptions *nodeutils.PatchStrategyOptions) (persist bool, err error) {
 	// convert the discoverySource change obj to yaml node
 	newNode, err := nodeutils.ConvertToNode[configapi.PluginDiscovery](&discoverySource)
 	if err != nil {
@@ -72,6 +72,10 @@ func setDiscoverySource(discoverySourcesNode *yaml.Node, discoverySource configa
 					return persist, err
 				}
 				if persist {
+					err = nodeutils.ReplaceNodes(newNode.Content[0], discoverySourceNode, patchStrategyOptions)
+					if err != nil {
+						return persist, err
+					}
 					err = nodeutils.MergeNodes(newNode.Content[0], discoverySourceNode)
 					if err != nil {
 						return persist, err

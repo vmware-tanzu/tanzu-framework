@@ -14,6 +14,9 @@ const (
 	// EnvConfigKey is the environment variable that points to a tanzu config.
 	EnvConfigKey = "TANZU_CONFIG"
 
+	// EnvConfigMetadataKey is the environment variable that points to a tanzu config.
+	EnvConfigMetadataKey = "TANZU_CONFIG_METADATA"
+
 	// EnvEndpointKey is the environment variable that overrides the tanzu endpoint.
 	EnvEndpointKey = "TANZU_ENDPOINT"
 
@@ -23,6 +26,9 @@ const (
 
 	// ConfigName is the name of the config
 	ConfigName = "config.yaml"
+
+	// ConfigMetadataName is the name of the config metadata
+	ConfigMetadataName = "config-metadata.yaml"
 )
 
 var (
@@ -78,4 +84,23 @@ func configPath(localDirGetter func() (string, error)) (path string, err error) 
 		return
 	}
 	return
+}
+
+// configPath constructs the full config path, checking for environment overrides.
+func configMetadataPath(localDirGetter func() (string, error)) (path string, err error) {
+	localDir, err := localDirGetter()
+	if err != nil {
+		return path, err
+	}
+	var ok bool
+	path, ok = os.LookupEnv(EnvConfigMetadataKey)
+	if !ok {
+		path = filepath.Join(localDir, ConfigMetadataName)
+		return
+	}
+	return
+}
+
+func MetadataFilePath() (path string, err error) {
+	return configMetadataPath(LocalDir)
 }

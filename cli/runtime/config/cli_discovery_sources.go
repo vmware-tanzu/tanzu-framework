@@ -4,6 +4,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
@@ -42,7 +44,7 @@ func SetCLIDiscoverySource(discoverySource configapi.PluginDiscovery) (err error
 		return err
 	}
 	if persist {
-		return persistNode(node)
+		return persistConfig(node)
 	}
 	return err
 }
@@ -59,7 +61,7 @@ func DeleteCLIDiscoverySource(name string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 func getCLIDiscoverySources(node *yaml.Node) ([]configapi.PluginDiscovery, error) {
@@ -102,6 +104,14 @@ func setCLIDiscoverySources(node *yaml.Node, discoverySources []configapi.Plugin
 }
 
 func setCLIDiscoverySource(node *yaml.Node, discoverySource configapi.PluginDiscovery) (persist bool, err error) {
+	patchStrategies, err := GetConfigMetadataPatchStrategy()
+	if err != nil {
+		patchStrategies = make(map[string]string)
+	}
+	patchStrategyOptions := &nodeutils.PatchStrategyOptions{
+		Key:             fmt.Sprintf("%v.%v.%v", KeyClientOptions, KeyCLI, KeyDiscoverySources),
+		PatchStrategies: patchStrategies,
+	}
 	configOptions := func(c *nodeutils.Config) {
 		c.ForceCreate = true
 		c.Keys = []nodeutils.Key{
@@ -114,7 +124,7 @@ func setCLIDiscoverySource(node *yaml.Node, discoverySource configapi.PluginDisc
 	if discoverySourcesNode == nil {
 		return persist, nodeutils.ErrNodeNotFound
 	}
-	persist, err = setDiscoverySource(discoverySourcesNode, discoverySource)
+	persist, err = setDiscoverySource(discoverySourcesNode, discoverySource, patchStrategyOptions)
 	if err != nil {
 		return persist, err
 	}

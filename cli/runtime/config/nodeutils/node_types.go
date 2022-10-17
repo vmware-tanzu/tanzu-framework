@@ -26,3 +26,12 @@ type Options func(config *Config)
 var (
 	ErrNodeNotFound = errors.New("node not found")
 )
+
+type PatchStrategyOptions struct {
+	Key             string
+	PatchStrategies map[string]string
+}
+
+const (
+	NodeTagStr = "!!str"
+)
