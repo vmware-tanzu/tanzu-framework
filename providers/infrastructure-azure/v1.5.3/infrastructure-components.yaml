@@ -10,7 +10,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -72,6 +72,7 @@ spec:
                     description: namespace defines the space within which the secret name must be unique.
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               resourceID:
                 description: User assigned MSI resource id.
                 type: string
@@ -183,6 +184,7 @@ spec:
                         description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
                         type: object
                     type: object
+                    x-kubernetes-map-type: atomic
                 type: object
               clientID:
                 description: Both User Assigned MSI and SP can use this field.
@@ -197,6 +199,7 @@ spec:
                     description: namespace defines the space within which the secret name must be unique.
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               resourceID:
                 description: User assigned MSI resource id.
                 type: string
@@ -308,6 +311,7 @@ spec:
                         description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
                         type: object
                     type: object
+                    x-kubernetes-map-type: atomic
                 type: object
               clientID:
                 description: ClientID is the service principal client ID. Both User Assigned MSI and SP can use this field.
@@ -322,6 +326,7 @@ spec:
                     description: namespace defines the space within which the secret name must be unique.
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               resourceID:
                 description: ResourceID is the Azure resource ID for the User Assigned MSI resource. Only applicable when type is UserAssignedMSI.
                 type: string
@@ -380,19 +385,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -505,6 +504,7 @@ spec:
                     description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               location:
                 type: string
               networkSpec:
@@ -1018,6 +1018,7 @@ spec:
                     description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               location:
                 type: string
               networkSpec:
@@ -1599,6 +1600,9 @@ spec:
                                   - protocol
                                   type: object
                                 type: array
+                                x-kubernetes-list-map-keys:
+                                - name
+                                x-kubernetes-list-type: map
                               tags:
                                 additionalProperties:
                                   type: string
@@ -1727,6 +1731,7 @@ spec:
                     description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               location:
                 type: string
               networkSpec:
@@ -2044,6 +2049,9 @@ spec:
                                 - protocol
                                 type: object
                               type: array
+                              x-kubernetes-list-map-keys:
+                              - name
+                              x-kubernetes-list-type: map
                             tags:
                               additionalProperties:
                                 type: string
@@ -2057,6 +2065,9 @@ spec:
                       - role
                       type: object
                     type: array
+                    x-kubernetes-list-map-keys:
+                    - name
+                    x-kubernetes-list-type: map
                   vnet:
                     description: Vnet is the configuration for the Azure virtual network.
                     properties:
@@ -2189,19 +2200,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -2273,6 +2278,9 @@ spec:
                                     items:
                                       type: string
                                     type: array
+                                  name:
+                                    description: Name defines a name for the subnet resource.
+                                    type: string
                                   natGateway:
                                     description: NatGateway associated with this subnet.
                                     properties:
@@ -2339,6 +2347,9 @@ spec:
                                           - protocol
                                           type: object
                                         type: array
+                                        x-kubernetes-list-map-keys:
+                                        - name
+                                        x-kubernetes-list-type: map
                                       tags:
                                         additionalProperties:
                                           type: string
@@ -2346,6 +2357,7 @@ spec:
                                         type: object
                                     type: object
                                 required:
+                                - name
                                 - role
                                 type: object
                             type: object
@@ -2450,6 +2462,7 @@ spec:
                             description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                             type: string
                         type: object
+                        x-kubernetes-map-type: atomic
                       location:
                         type: string
                       networkSpec:
@@ -2510,6 +2523,9 @@ spec:
                                   items:
                                     type: string
                                   type: array
+                                name:
+                                  description: Name defines a name for the subnet resource.
+                                  type: string
                                 natGateway:
                                   description: NatGateway associated with this subnet.
                                   properties:
@@ -2576,6 +2592,9 @@ spec:
                                         - protocol
                                         type: object
                                       type: array
+                                      x-kubernetes-list-map-keys:
+                                      - name
+                                      x-kubernetes-list-type: map
                                     tags:
                                       additionalProperties:
                                         type: string
@@ -2583,9 +2602,13 @@ spec:
                                       type: object
                                   type: object
                               required:
+                              - name
                               - role
                               type: object
                             type: array
+                            x-kubernetes-list-map-keys:
+                            - name
+                            x-kubernetes-list-type: map
                           vnet:
                             description: Vnet is the configuration for the Azure virtual network.
                             properties:
@@ -2601,6 +2624,9 @@ spec:
                                   properties:
                                     remoteVnetName:
                                       description: RemoteVnetName defines name of the remote virtual network.
+                                      type: string
+                                    resourceGroup:
+                                      description: ResourceGroup is the resource group name of the remote virtual network.
                                       type: string
                                   required:
                                   - remoteVnetName
@@ -2627,12 +2653,6 @@ spec:
         type: object
     served: true
     storage: true
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2795,7 +2815,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -3149,19 +3169,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -4706,19 +4720,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -5888,19 +5896,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -6784,18 +6786,12 @@ spec:
         type: object
     served: true
     storage: true
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
@@ -6943,18 +6939,12 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
@@ -7645,18 +7635,12 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
@@ -7989,12 +7973,6 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
