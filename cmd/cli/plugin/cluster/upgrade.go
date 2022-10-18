@@ -110,11 +110,6 @@ func upgrade(cmd *cobra.Command, args []string) error {
 }
 
 func upgradeCluster(server *configapi.Server, clusterName string) error {
-	err := tkgctl.SetCompatibilityFileBasedOnEdition()
-	if err != nil {
-		log.V(3).Infof("%v", err.Error())
-	}
-
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
 		return err

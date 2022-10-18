@@ -145,11 +145,6 @@ func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 }
 
 func runInit() error {
-	err := tkgctl.SetCompatibilityFileBasedOnEdition()
-	if err != nil {
-		log.V(3).Infof("%v", err.Error())
-	}
-
 	forceUpdateTKGCompatibilityImage := iro.forceConfigUpdate
 	tkgClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
