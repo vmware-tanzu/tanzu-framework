@@ -1,0 +1,90 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
+  name: features.core.tanzu.vmware.com
+spec:
+  group: core.tanzu.vmware.com
+  names:
+    kind: Feature
+    listKind: FeatureList
+    plural: features
+    singular: feature
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.description
+      name: Description
+      type: string
+    - jsonPath: .spec.immutable
+      name: Immutable
+      type: boolean
+    - jsonPath: .spec.stability
+      name: Stability
+      type: string
+    name: v1alpha2
+    schema:
+      openAPIV3Schema:
+        description: Feature is the Schema for the features API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: FeatureSpec defines the desired state of Feature
+            properties:
+              description:
+                description: Description of the feature.
+                type: string
+              immutable:
+                description: Immutable indicates this feature cannot be toggled once
+                  set If set at creation time, this state will persist for the life
+                  of the cluster
+                type: boolean
+              stability:
+                description: 'Stability indicates stability level of this feature.
+                  Stability levels are Work In Progress, Experimental, Technical Preview,
+                  Stable and Deprecated. - Work In Progress: the default for new resources,
+                  represents local dev. intended to be hidden and deactivated - Experimental:
+                  the first milestone meant for limited wider consumption, discoverable
+                  and defaults to deactivated - Technical Preview: greater visibility
+                  for proven designs, discoverable and defaults to activated - Stable:
+                  intended to be part of the mainline codebase, non-optional - Deprecated:
+                  destined for future removal'
+                enum:
+                - Work In Progress
+                - Experimental
+                - Technical Preview
+                - Stable
+                - Deprecated
+                type: string
+            required:
+            - immutable
+            - stability
+            type: object
+          status:
+            description: FeatureStatus defines the observed state of Feature
+            properties:
+              activated:
+                description: Activated is a boolean which indicates whether a feature
+                  is activated or not.
+                type: boolean
+            required:
+            - activated
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources: {}
