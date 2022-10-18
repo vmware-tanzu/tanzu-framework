@@ -30,7 +30,6 @@ require (
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.5.0
-	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
@@ -40,10 +39,8 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
-	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.24.2
 	k8s.io/apimachinery v0.24.2
-	k8s.io/client-go v0.24.2
 	sigs.k8s.io/cluster-api v1.2.3
 	sigs.k8s.io/controller-runtime v0.12.3
 )
@@ -198,6 +195,7 @@ require (
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/subosito/gotenv v1.3.0 // indirect
@@ -236,9 +234,11 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.24.2 // indirect
 	k8s.io/apiserver v0.24.2 // indirect
+	k8s.io/client-go v0.24.2 // indirect
 	k8s.io/cluster-bootstrap v0.24.0 // indirect
 	k8s.io/component-base v0.24.2 // indirect
 	k8s.io/klog/v2 v2.70.1 // indirect
