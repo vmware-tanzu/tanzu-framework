@@ -23,14 +23,22 @@ func shouldBeBlank(t *testing.T, result, description string) {
 func TestMapToConfigString(t *testing.T) {
 	target := map[string]string{"key1": "value1", "key2": "value2"}
 	result := mapToConfigString(target)
-	shouldContain(t, result, "key1:value1,")
-	shouldContain(t, result, "key2:value2,")
+	shouldContain(t, result, "key1:value1")
+	shouldContain(t, result, "key2:value2")
+	if strings.LastIndex(result, ",") == len(result)-1 {
+		t.Fatalf("Test with two keys detected ending comma: \"%s\"", result)
+	}
 
 	result = mapToConfigString(nil)
 	shouldBeBlank(t, result, "sending nil")
 
 	result = mapToConfigString(map[string]string{})
 	shouldBeBlank(t, result, "sending empty map")
+
+	result = mapToConfigString(map[string]string{"": "blank", "foo": "bar"})
+	if result != "foo:bar" {
+		t.Fatalf("Test with blank key expected to be ignored, but got \"%s\"", result)
+	}
 }
 
 func shouldBeEmpty(t *testing.T, target string, result map[string]string) {
@@ -89,6 +97,10 @@ func TestConfigStringToMap(t *testing.T) {
 	shouldHaveOneEntry(t, target, result, "key1", "value1")
 
 	target = "key1:value1,key2:value2,"
+	result = configStringToMap(target)
+	shouldHaveTwoEntries(t, target, result, "key1", "value1", "key2", "value2")
+
+	target = "key1:value1,key2:value2"
 	result = configStringToMap(target)
 	shouldHaveTwoEntries(t, target, result, "key1", "value1", "key2", "value2")
 }
