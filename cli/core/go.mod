@@ -30,7 +30,7 @@ require (
 	github.com/onsi/gomega v1.19.0
 	github.com/otiai10/copy v1.4.2
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.0
 	github.com/tj/assert v0.0.3
 	github.com/vmware-tanzu/carvel-ytt v0.40.0
@@ -89,7 +89,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b // indirect

@@ -20,7 +20,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/gosuri/uitable v0.0.4
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/vmware-tanzu/tanzu-framework/cli/core v0.0.0-20220914003300-5b2ed024556a
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000

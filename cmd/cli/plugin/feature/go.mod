@@ -12,7 +12,7 @@ replace (
 
 require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.1
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220824221239-af5a644ffef7
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20220901171806-254f018f3ce4
 	github.com/vmware-tanzu/tanzu-framework/featuregates/client v0.0.0-00010101000000-000000000000
@@ -45,7 +45,7 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b // indirect

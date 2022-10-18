@@ -3,6 +3,7 @@ module github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package
 go 1.18
 
 replace (
+	github.com/spf13/cobra => github.com/spf13/cobra v1.5.0
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../../../apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../../../apis/run
@@ -25,7 +26,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.0
 	github.com/vmware-tanzu/carvel-kapp-controller v0.39.0
 	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20221026213745-c834810997d4
