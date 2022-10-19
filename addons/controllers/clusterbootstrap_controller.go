@@ -14,6 +14,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -251,6 +252,11 @@ func (r *ClusterBootstrapReconciler) createOrPatchResourcesForCorePackages(clust
 			// packages, we return error and let the reconciler retry again.
 			log.Error(err, fmt.Sprintf("unable to create or patch all the required resources for %s on cluster: %s/%s",
 				corePackage.RefName, cluster.Namespace, cluster.Name))
+			if meta.IsNoMatchError(err) {
+				// If the remote cluster does not have the required CRDs, we will requeue the request to try again in 10s.
+				log.Error(err, "reconciler error - required CRDs are not yet installed, requeing request in 10s")
+				return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, nil
+			}
 			return ctrl.Result{}, err
 		}
 		// set watches on provider objects in core packages if not already set
