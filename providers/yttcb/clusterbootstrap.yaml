@@ -43,8 +43,14 @@
 #@   return data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker"
 #@ end
 
+#@ def awsebscsi_configs_exist():
+#@   return data.values.PROVIDER_TYPE == "aws" and (data.values.TKG_HTTP_PROXY != "" or
+#@                                                  data.values.TKG_HTTPS_PROXY != "" or
+#@                                                  data.values.TKG_NO_PROXY != "")
+#@ end
+
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or storage_class_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_configs_exist()
 #@ end
 
 #@ if antrea_configs_exist():
@@ -198,6 +204,25 @@ metadata:
 #@ end
 
 ---
+#@ if awsebscsi_configs_exist():
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: AwsEbsCSIConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+spec:
+  awsEBSCSIDriver:
+    namespace: kube-system
+    #@ if data.values.CLUSTER_PLAN == "prod" or data.values.CLUSTER_PLAN == "prodcc":
+    deploymentReplicas: 3
+    #@ else:
+    deploymentReplicas: 1
+    #@ end
+    httpProxy: #@ data.values.TKG_HTTP_PROXY
+    httpsProxy: #@ data.values.TKG_HTTPS_PROXY
+    noProxy: #@ data.values.TKG_NO_PROXY
+#@ end
+---
 #@ if should_create_clusterbootstrap():
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrap
@@ -242,6 +267,15 @@ spec:
         kind: VSphereCSIConfig
         name: #@ data.values.CLUSTER_NAME
   #@ end
+  #@ if awsebscsi_configs_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+  csi:
+    refName: aws-ebs-csi*
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: AwsEbsCSIConfig
+        name: #@ data.values.CLUSTER_NAME
+  #@ end
   kapp:
     refName: kapp-controller*
   additionalPackages:
@@ -260,4 +294,3 @@ spec:
         #@ end
     #@ end
 #@ end
-

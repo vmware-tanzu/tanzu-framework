@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: AwsEbsCSIConfig
+metadata:
+  name: #@ data.values.TKR_VERSION
+  namespace: #@ data.values.GLOBAL_NAMESPACE
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
+spec:
+  awsEBSCSIDriver:
+    namespace: tkg-system
+    deploymentReplicas: 1

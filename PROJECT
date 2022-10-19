@@ -43,5 +43,7 @@ resources:
   version: v1alpha1
 - group: core
   kind: Capabilities
+- group: csi
+  kind: AwsEbsCSIConfig
   version: v1alpha1
 version: "2"

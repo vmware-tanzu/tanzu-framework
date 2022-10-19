@@ -73,3 +73,8 @@ type VSphereCPIConfigControllerConfig struct {
 type VSphereCSIConfigControllerConfig struct {
 	ConfigControllerConfig
 }
+
+// AwsEbsCSIConfigControllerConfig contains configuration information of VSphereCSIConfig controller
+type AwsEbsCSIConfigControllerConfig struct {
+	ConfigControllerConfig
+}

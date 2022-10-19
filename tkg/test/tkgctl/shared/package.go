@@ -282,7 +282,7 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 		// custom CB needs to have package names the same as the cluster name, so this will not match the expected providerRef name
 		// any package specified in the custom CB manifest will have to be special-cased
 		// so, handling this currently for antrea for the custom CB test case
-		if !isManagementCluster && isCustomCB && strings.Contains(pkg.RefName, "antrea") {
+		if !isManagementCluster && isCustomCB && (strings.Contains(pkg.RefName, "antrea") || strings.Contains(pkg.RefName, "aws-ebs-csi-driver")) {
 			pkg.ValuesFrom.ProviderRef.Name = clusterBootstrap.Name
 		}
 

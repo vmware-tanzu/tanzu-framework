@@ -1,0 +1,11 @@
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: AwsEbsCSIConfig
+metadata:
+  name: v1.23.3---vmware.1-tkg.1
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
+spec:
+  awsEBSCSIDriver:
+    namespace: tkg-system
+    deploymentReplicas: 1

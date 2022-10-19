@@ -19,6 +19,7 @@ directories:
           - cni.tanzu.vmware.com_calicoconfigs.yaml
           - cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
           - csi.tanzu.vmware.com_vspherecsiconfigs.yaml
+          - csi.tanzu.vmware.com_awsebscsiconfigs.yaml
       - path: addons-manager.yaml
         manual: {}
       - path: webhook-manifests.lib.yaml
