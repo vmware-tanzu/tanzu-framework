@@ -26,12 +26,13 @@ import (
 
 	controllers "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
 
 const (
-	clusterNamespace            = "default"
+	defaultString               = "default"
 	testSupervisorAPIServerVIP  = "10.0.0.100"
 	testSupervisorAPIServerPort = 6883
 )
@@ -106,7 +107,7 @@ func tryCreateIfNotExists(ctx context.Context, client client.Client, object clie
 func getSecretDataValuesForCluster(clusterName string) (string, error) {
 	secret := &v1.Secret{}
 	secretKey := client.ObjectKey{
-		Namespace: clusterNamespace,
+		Namespace: defaultString,
 		Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName),
 	}
 	if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
@@ -119,6 +120,7 @@ func getSecretDataValuesForCluster(clusterName string) (string, error) {
 var _ = Describe("VSphereCPIConfig Reconciler", func() {
 	var (
 		key                     client.ObjectKey
+		configKey               client.ObjectKey
 		clusterName             string
 		clusterResourceFilePath string
 		vsphereClusterName      string
@@ -127,8 +129,12 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 	JustBeforeEach(func() {
 		By("Creating cluster and VSphereCPIConfig resources")
 		key = client.ObjectKey{
-			Namespace: clusterNamespace,
+			Namespace: defaultString,
 			Name:      clusterName,
+		}
+		configKey = client.ObjectKey{
+			Namespace: defaultString,
+			Name:      util.GeneratePackageSecretName(clusterName, constants.CPIDefaultRefName),
 		}
 		f, err := os.Open(clusterResourceFilePath)
 		Expect(err).ToNot(HaveOccurred())
@@ -151,7 +157,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 		}
 	})
 
-	Context("reconcile VSphereCPIConfig manifests in non-paravirtual mode", func() {
+	Context("reconcile VSphereCPIConfig manifests in non-paravirtual mode, no multitenancy", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-cpi"
 			clusterResourceFilePath = "testdata/test-vsphere-cpi-non-paravirtual.yaml"
@@ -174,7 +180,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 					return false
 				}
 				if err := k8sClient.Get(ctx, client.ObjectKey{
-					Namespace: clusterNamespace,
+					Namespace: defaultString,
 					Name:      clusterName + "-control-plane-template",
 				}, cpMachineTemplate); err != nil {
 					return false
@@ -185,7 +191,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			// the cpi config object should be deployed
 			config := &cpiv1alpha1.VSphereCPIConfig{}
 			Eventually(func() bool {
-				if err := k8sClient.Get(ctx, key, config); err != nil {
+				if err := k8sClient.Get(ctx, configKey, config); err != nil {
 					return false
 				}
 				Expect(*config.Spec.VSphereCPI.Mode).Should(Equal("vsphereCPI"))
@@ -205,7 +211,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			secret := &v1.Secret{}
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
-					Namespace: clusterNamespace,
+					Namespace: defaultString,
 					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName),
 				}
 				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
@@ -278,7 +284,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 					return false
 				}
 				if err := k8sClient.Get(ctx, client.ObjectKey{
-					Namespace: clusterNamespace,
+					Namespace: defaultString,
 					Name:      clusterName + "-control-plane-template",
 				}, cpMachineTemplate); err != nil {
 					return false
@@ -289,7 +295,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			By("patching cpi with ownerRef")
 			config := &cpiv1alpha1.VSphereCPIConfig{}
 			cpiConfigKey := client.ObjectKey{
-				Namespace: clusterNamespace,
+				Namespace: defaultString,
 				Name:      "test-cluster-cpi-enqueue-cluster-event-random",
 			}
 			Consistently(func() bool {
@@ -326,8 +332,8 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			secret := &v1.Secret{}
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
-					Namespace: clusterNamespace,
-					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName),
+					Namespace: defaultString,
+					Name:      util.GenerateDataValueSecretName(clusterName, constants.CPIDefaultRefName),
 				}
 				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
 					return false
@@ -401,7 +407,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			secret := &v1.Secret{}
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
-					Namespace: clusterNamespace,
+					Namespace: defaultString,
 					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName),
 				}
 				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
@@ -459,7 +465,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			// eventually the secret ref to the data values should be updated
 			config := &cpiv1alpha1.VSphereCPIConfig{}
 			Eventually(func() bool {
-				if err := k8sClient.Get(ctx, key, config); err != nil {
+				if err := k8sClient.Get(ctx, configKey, config); err != nil {
 					return false
 				}
 				Expect(config.Status.SecretRef).To(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName)))
@@ -470,7 +476,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
 			Eventually(func() bool {
 				serviceAccountKey := client.ObjectKey{
-					Namespace: clusterNamespace,
+					Namespace: defaultString,
 					Name:      fmt.Sprintf("%s-ccm", vsphereClusterName),
 				}
 				if err := k8sClient.Get(ctx, serviceAccountKey, serviceAccount); err != nil {
@@ -498,7 +504,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				}))
 				Expect(clusterRole.Rules).To(HaveLen(4))
 				return true
-			})
+			}, waitTimeout, pollingInterval).Should(BeTrue())
 		})
 	})
 
@@ -511,9 +517,15 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 
 		It("Should skip the reconciliation", func() {
 
-			key.Namespace = addonNamespace
+			configKey.Name = "test-cluster-cpi-config-template"
+			configKey.Namespace = addonNamespace
 			config := &cpiv1alpha1.VSphereCPIConfig{}
-			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, configKey, config); err != nil {
+					return false
+				}
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			By("OwnerReferences is not set")
 			Expect(len(config.OwnerReferences)).Should(Equal(0))
@@ -600,7 +612,7 @@ var _ = Describe("VSphereCPIConfig Reconciler multi clusters", func() {
 			Eventually(func() error {
 				selectedClusterKey := client.ObjectKey{
 					Name:      clusterName,
-					Namespace: clusterNamespace,
+					Namespace: defaultString,
 				}
 				notSelectedClusterKey := client.ObjectKey{
 					Name:      clusterName,
@@ -620,7 +632,7 @@ var _ = Describe("VSphereCPIConfig Reconciler multi clusters", func() {
 				}
 				serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
 				serviceAccountKey := client.ObjectKey{
-					Namespace: clusterNamespace,
+					Namespace: defaultString,
 					Name:      fmt.Sprintf("%s-ccm", clusterName),
 				}
 				if err := k8sClient.Get(ctx, serviceAccountKey, serviceAccount); err != nil {

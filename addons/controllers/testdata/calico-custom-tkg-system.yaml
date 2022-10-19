@@ -138,30 +138,3 @@ spec:
     openAPIv3:
       title: calico.tanzu.vmware.com.1.2.5+vmware.1-tkg.1 values schema
 
----
-apiVersion: cluster.x-k8s.io/v1beta1
-kind: Cluster
-metadata:
-  name: test-cluster-calico-1
-  namespace: tkg-system
-  labels:
-    "tkg.tanzu.vmware.com/cluster-name": test-cluster-calico-1
-    "run.tanzu.vmware.com/tkr": v1.23.2
-    cluster-role.tkg.tanzu.vmware.com/management: ""
-spec:
-  infrastructureRef:
-    kind: VSphereCluster
-  clusterNetwork:
-    pods:
-      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
----
-apiVersion: cni.tanzu.vmware.com/v1alpha1
-kind: CalicoConfig
-metadata:
-  name: test-cluster-calico-1-calico-package
-  namespace: tkg-system
-spec:
-  calico:
-    config:
-      vethMTU: 7
-      skipCNIBinaries: true

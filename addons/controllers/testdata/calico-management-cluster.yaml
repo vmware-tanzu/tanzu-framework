@@ -1,0 +1,16 @@
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: mgmt-cluster
+  namespace: tkg-system
+  labels:
+    "tkg.tanzu.vmware.com/cluster-name": mgmt-cluster
+    "run.tanzu.vmware.com/tkr": v1.23.2
+    "cluster-role.tkg.tanzu.vmware.com/management": ""
+spec:
+  infrastructureRef:
+    kind: DockerCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16"]

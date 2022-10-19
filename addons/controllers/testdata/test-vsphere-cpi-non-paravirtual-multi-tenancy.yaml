@@ -108,8 +108,15 @@ data:
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
 kind: VSphereCPIConfig
 metadata:
-  name: test-cluster-cpi-multi-tenancy
+  name: test-cluster-cpi-multi-tenancy-vsphere-cpi-package
   namespace: default
+  ownerReferences:
+    - apiVersion: cluster.x-k8s.io/v1beta1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Cluster
+      name: test-cluster-cpi-multi-tenancy
+      uid: cbd29b10-c190-422e-86f1-a0321d1aab7d
 spec:
   vsphereCPI:
     mode: vsphereCPI

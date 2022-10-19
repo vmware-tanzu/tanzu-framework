@@ -5,7 +5,7 @@ package controllers
 
 import (
 	"context"
-	"time"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -161,9 +161,15 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	// deep copy VSphereCSIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	vcsiConfig = vcsiConfig.DeepCopy()
 
-	cluster, err := r.getOwnerCluster(ctx, vcsiConfig)
-	if cluster == nil {
-		return ctrl.Result{RequeueAfter: 20 * time.Second}, err // retry until corresponding cluster is found
+	cluster, err := cutil.GetOwnerCluster(ctx, r.Client, vcsiConfig, req.Namespace, constants.CSIDefaultRefName)
+	if err != nil {
+		if apierrors.IsNotFound(err) && cluster != nil {
+			logger.Info(fmt.Sprintf("'%s/%s' is listed as owner reference but could not be found",
+				cluster.Namespace, cluster.Name))
+			return ctrl.Result{}, nil
+		}
+		logger.Error(err, "could not determine owner cluster")
+		return ctrl.Result{}, err
 	}
 
 	return r.reconcileVSphereCSIConfig(ctx, vcsiConfig, cluster)

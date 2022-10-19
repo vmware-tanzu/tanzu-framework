@@ -1,76 +1,19 @@
 ---
-apiVersion: run.tanzu.vmware.com/v1alpha3
-kind: TanzuKubernetesRelease
+apiVersion: v1
+kind: Secret
 metadata:
-  name: v1.23.2
-spec:
-  version: v1.23.2
-  kubernetes:
-    version: v1.23.2
-    imageRepository: foo
-  osImages: []
-  bootstrapPackages:
-    - name: calico.tanzu.vmware.com.1.2.5--vmware.12-tkg.1
+  name: calico-custom-cb-ns
+  namespace: calico-custom-cb-ns
+data:
+  password: QWRtaW4hMjM= # Admin!23
+  username: YWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2Fs # administrator@vsphere.local
 ---
-apiVersion: run.tanzu.vmware.com/v1alpha3
-kind: ClusterBootstrapTemplate
-metadata:
-  name: v1.23.2
-  namespace: tkg-system
-spec:
-  kapp:
-    refName: kapp-controller.tanzu.vmware.com.0.31.2
-    valuesFrom:
-      providerRef:
-        apiGroup: run.tanzu.vmware.com
-        kind: KappControllerConfig
-        name: c-kapp-config-template-3
-  cni:
-    refName: calico.tanzu.vmware.com.1.2.5--vmware.12-tkg.1
-    valuesFrom:
-      providerRef:
-        apiGroup: cni.tanzu.vmware.com
-        kind: CalicoConfig
-        name: calico-config-template-3
----
-apiVersion: cni.tanzu.vmware.com/v1alpha1
-kind: CalicoConfig
-metadata:
-  name: calico-config-template-3
-  namespace: tkg-system
-  annotations:
-    tkg.tanzu.vmware.com/template-config: "true"
-spec:
-  calico:
-    config:
-      vethMTU: 0
-      skipCNIBinaries: true
----
-apiVersion: run.tanzu.vmware.com/v1alpha3
-kind: KappControllerConfig
-metadata:
-  name: c-kapp-config-template-3
-  namespace: tkg-system
-  annotations:
-    tkg.tanzu.vmware.com/template-config: "true"
-spec:
-  namespace: test-ns
-  kappController:
-    createNamespace: true
-    globalNamespace: tanzu-package-repo-global
-
----
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-kind: DockerCluster
-metadata:
-  name: custom-cb-docker-cluster
-
----
+# manually sync package to required namespace (done by kapp-controller on a real cluster)
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: kapp-controller.tanzu.vmware.com.0.31.2
-  namespace: tkg-system
+  namespace: calico-custom-cb-ns
 spec:
   refName: kapp-controller.tanzu.vmware.com
   version: 0.31.0
@@ -102,11 +45,12 @@ spec:
     openAPIv3:
       title: kapp-controller.tanzu.vmware.com.0.31.2+vmware.1-tkg.1 values schema
 ---
+# manually sync package to required namespace (done by kapp-controller on a real cluster)
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: calico.tanzu.vmware.com.1.2.5--vmware.12-tkg.1
-  namespace: tkg-system
+  namespace: calico-custom-cb-ns
 spec:
   refName: calico.tanzu.vmware.com
   version: 1.2.5+vmware.1-tkg.1
@@ -137,30 +81,80 @@ spec:
   valuesSchema:
     openAPIv3:
       title: calico.tanzu.vmware.com.1.2.5+vmware.1-tkg.1 values schema
+
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
+metadata:
+  name: kapp-config-custom
+  namespace: calico-custom-cb-ns
+spec:
+  namespace: test-ns
+  kappController:
+    createNamespace: true
+    globalNamespace: tanzu-package-repo-global
+    deployment:
+      concurrency: 4
+      hostNetwork: true
+      priorityClassName: system-cluster-critical
+      apiPort: 10100
+      metricsBindAddress: "0"
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+        - effect: NoSchedule
+          key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: CalicoConfig
+metadata:
+  name: calico-custom-config
+  namespace: calico-custom-cb-ns
+spec:
+  calico:
+    config:
+      vethMTU: 1420
+      skipCNIBinaries: false
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  name: calico-custom-cb-cluster
+  namespace: calico-custom-cb-ns
+spec:
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.31.2
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: kapp-config-custom
+  cni:
+    refName: calico.tanzu.vmware.com.1.2.5--vmware.12-tkg.1
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: CalicoConfig
+        name: calico-custom-config
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  name: test-cluster-calico-2
-  namespace: tkg-system
+  name: calico-custom-cb-cluster
+  namespace: calico-custom-cb-ns
   labels:
-    "tkg.tanzu.vmware.com/cluster-name": calico-wildcard-cb-cluster
+    "tkg.tanzu.vmware.com/cluster-name": calico-custom-cb-cluster
     "run.tanzu.vmware.com/tkr": v1.23.2
-    cluster-role.tkg.tanzu.vmware.com/management: ""
 spec:
   infrastructureRef:
     kind: DockerCluster
   clusterNetwork:
     pods:
       cidrBlocks: [ "192.168.0.0/16"]
----
-apiVersion: cni.tanzu.vmware.com/v1alpha1
-kind: CalicoConfig
-metadata:
-  name: test-cluster-calico-2-calico-package
-  namespace: tkg-system
-spec:
-  calico:
-    config:
-      vethMTU: 1420
-      skipCNIBinaries: false

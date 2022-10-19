@@ -80,34 +80,41 @@ var vsphereCPIProviderServiceAccountAggregatedClusterRole = &rbacv1.ClusterRole{
 
 // Reconcile the VSphereCPIConfig CRD
 func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("VSphereCPIConfig", req.NamespacedName)
+	logger := r.Log.WithValues("VSphereCPIConfig", req.NamespacedName)
 
-	log.Info("Start reconciliation for VSphereCPIConfig")
+	logger.Info("Start reconciliation for VSphereCPIConfig")
 
 	// fetch VSphereCPIConfig resource
 	cpiConfig := &cpiv1alpha1.VSphereCPIConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cpiConfig); err != nil {
 		if apierrors.IsNotFound(err) {
-			log.Info("VSphereCPIConfig resource not found")
+			logger.Info("VSphereCPIConfig resource not found")
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "Unable to fetch VSphereCPIConfig resource")
+		logger.Error(err, "Unable to fetch VSphereCPIConfig resource")
 		return ctrl.Result{}, err
 	}
 
 	// deep copy VSphereCPIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	cpiConfig = cpiConfig.DeepCopy()
 
-	cluster, err := r.getOwnerCluster(ctx, cpiConfig)
-	if cluster == nil {
-		return ctrl.Result{}, err // no need to requeue if cluster is not found
+	cluster, err := cutil.GetOwnerCluster(ctx, r.Client, cpiConfig, req.Namespace, constants.CPIDefaultRefName)
+	if err != nil {
+		if apierrors.IsNotFound(err) && cluster != nil {
+			logger.Info(fmt.Sprintf("'%s/%s' is listed as owner reference but could not be found",
+				cluster.Namespace, cluster.Name))
+			return ctrl.Result{}, nil
+		}
+		logger.Error(err, "could not determine owner cluster")
+		return ctrl.Result{}, err
 	}
+
 	if cpiConfig.Spec.VSphereCPI.Mode == nil {
-		log.Info("VSphere CPI mode is not provided.")
+		logger.Info("VSphere CPI mode is not provided.")
 		return ctrl.Result{}, nil // no need to requeue if CPI mode is not provided
 	}
 	if res, err := r.reconcileVSphereCPIConfig(ctx, cpiConfig, cluster); err != nil {
-		log.Error(err, "Failed to reconcile VSphereCPIConfig")
+		logger.Error(err, "Failed to reconcile VSphereCPIConfig")
 		return res, err
 	}
 	return ctrl.Result{}, nil

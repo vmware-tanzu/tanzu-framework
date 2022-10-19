@@ -1,0 +1,49 @@
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: CalicoConfig
+metadata:
+  name: calico-wildcard-config
+  namespace: calico-wildcard-cb-ns
+spec:
+  calico:
+    config:
+      vethMTU: 1420
+      skipCNIBinaries: false
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  name: calico-wildcard-cb-cluster
+  namespace: calico-wildcard-cb-ns
+  annotations:
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.23.2
+spec:
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.31.2
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: kapp-config-custom
+  cni:
+    refName: calico*
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: CalicoConfig
+        name: calico-wildcard-config
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: calico-wildcard-cb-cluster
+  namespace: calico-wildcard-cb-ns
+  labels:
+    "tkg.tanzu.vmware.com/cluster-name": calico-wildcard-cb-cluster
+    "run.tanzu.vmware.com/tkr": v1.23.2
+spec:
+  infrastructureRef:
+    kind: DockerCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16"]
