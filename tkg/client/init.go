@@ -255,9 +255,15 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	}
 	regionContext = region.RegionContext{ClusterName: options.ClusterName, ContextName: bootstrapClusterContext, SourceFilePath: bootstrapClusterKubeconfigPath, Status: region.Failed}
 
-	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(bootStrapClusterClient, options.ClusterName, targetClusterNamespace)
+	err = bootStrapClusterClient.WaitForControlPlaneAvailable(options.ClusterName, targetClusterNamespace)
 	if err != nil {
-		return errors.Wrap(err, "unable to wait for cluster and get the cluster kubeconfig")
+		return errors.Wrap(err, "unable to wait for cluster control plane available")
+	}
+	log.Info("Management cluster control plane is available, means API server is ready to receive requests")
+
+	kubeConfigBytes, err := bootStrapClusterClient.GetKubeConfigForCluster(options.ClusterName, targetClusterNamespace, nil)
+	if err != nil {
+		return errors.Wrapf(err, "unable to extract kube config for cluster %s", options.ClusterName)
 	}
 
 	regionalClusterKubeconfigPath, err := getTKGKubeConfigPath(true)
@@ -298,6 +304,11 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		if err = c.InstallOrUpgradeKappController(regionalClusterKubeconfigPath, kubeContext); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
 		}
+	}
+
+	err = bootStrapClusterClient.WaitForClusterInitialized(options.ClusterName, targetClusterNamespace)
+	if err != nil {
+		return errors.Wrap(err, "error waiting for cluster to be provisioned (this may take a few minutes)")
 	}
 
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnRegionalCluster, InitRegionSteps)
