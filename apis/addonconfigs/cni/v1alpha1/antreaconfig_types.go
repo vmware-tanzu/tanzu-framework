@@ -33,7 +33,7 @@ type AntreaNodePortLocal struct {
 
 type AntreaProxy struct {
 	//+ kubebuilder:validation:Optional
-	ProxyAll bool `json:"enabled,omitempty"`
+	ProxyAll bool `json:"proxyAll,omitempty"`
 
 	//+ kubebuilder:validation:Optional
 	NodePortAddresses []string `json:"nodePortAddresses,omitempty"`
@@ -81,9 +81,11 @@ type AntreaConfigDataValue struct {
 	// +kubebuilder:validation:Optional
 	AntreaFlowExporter AntreaFlowExporter `json:"flowExporter,omitempty"`
 
-	// Specifies WireGuard related configuration.
+	// The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly
 	// +kubebuilder:validation:Optional
-	WireGuard AntreaWireGuard `json:"wireGuard,omitempty"`
+	// +kubebuilder:validation:Enum="encap";"noEncap";"hybrid";"networkPolicyOnly"
+	// +kubebuilder:default:=encap
+	KubeAPIServerOverride string `json:"kubeAPIServerOverride,omitempty"`
 
 	// The name of the interface on Node which is used for tunneling or routing.
 	// +kubebuilder:validation:Optional
@@ -97,11 +99,26 @@ type AntreaConfigDataValue struct {
 	// +kubebuilder:validation:Optional
 	MulticastInterfaces []string `json:"multicastInterfaces,omitempty"`
 
-	// The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly
+	// Tunnel protocols used for encapsulating traffic across Nodes. One of the following options =:> geneve, vxlan, gre, stt
 	// +kubebuilder:validation:Optional
-	// +kubebuilder:validation:Enum="encap";"noEncap";"hybrid";"networkPolicyOnly"
-	// +kubebuilder:default:=encap
-	KubeAPIServerOverride string `json:"kubeAPIServerOverride,omitempty"`
+	TunnelType string `json:"tunnelType,omitempty"`
+
+	// Determines how tunnel traffic is encrypted. One of the following options =:> none, ipsec, wireguard
+	// +kubebuilder:validation:Optional
+	TrafficEncryptionMode string `json:"trafficEncryptionMode,omitempty"`
+
+	// Enable usage reporting (telemetry) to VMware.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	EnableUsageReporting bool `json:"enableUsageReporting,omitempty"`
+
+	// Specifies WireGuard related configuration.
+	// +kubebuilder:validation:Optional
+	WireGuard AntreaWireGuard `json:"wireGuard,omitempty"`
+
+	// ClusterIP CIDR range for Services.
+	// +kubebuilder:validation:Optional
+	ServiceCIDR string `json:"serviceCIDR,omitempty"`
 
 	// The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly
 	// +kubebuilder:validation:Optional
@@ -114,6 +131,11 @@ type AntreaConfigDataValue struct {
 	// +kubebuilder:default:=false
 	NoSNAT bool `json:"noSNAT,omitempty"`
 
+	// List of allowed cipher suites. If omitted, the default Go Cipher Suites will be used
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384"
+	TLSCipherSuites string `json:"tlsCipherSuites,omitempty"`
+
 	// Disable UDP tunnel offload feature on default NIC
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
@@ -123,11 +145,6 @@ type AntreaConfigDataValue struct {
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=""
 	DefaultMTU string `json:"defaultMTU,omitempty"`
-
-	// List of allowed cipher suites. If omitted, the default Go Cipher Suites will be used
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384"
-	TLSCipherSuites string `json:"tlsCipherSuites,omitempty"`
 
 	// FeatureGates is a map of feature names to flags that enable or disable experimental features
 	// +kubebuilder:validation:Optional
