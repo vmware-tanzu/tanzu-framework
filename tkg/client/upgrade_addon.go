@@ -248,8 +248,8 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			return errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		// ensure current kapp-controller deployment has last-applied annotation, which is required for future apply operations
-		if addonName == "addons-management/kapp-controller" {
+		// ensure current kapp-controller deployment on the management cluster has last-applied annotation, which is required for future apply operations
+		if addonName == "addons-management/kapp-controller" && options.IsRegionalCluster {
 			if err := clusterClient.PatchKappControllerLastAppliedAnnotation(options.Namespace); err != nil {
 				return errors.Wrap(err, "unable to add last-applied annotation on kapp-controller")
 			}
