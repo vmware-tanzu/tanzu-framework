@@ -25,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -47,47 +48,45 @@ type CalicoConfigReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *CalicoConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.Log = r.Log.WithValues("CalicoConfig", req.NamespacedName)
+	log := r.Log.WithValues("CalicoConfig", req.NamespacedName)
 
-	r.Log.Info("Start reconciliation")
+	log.Info("Start reconciliation")
 
 	// fetch CalicoConfig resource, ignore not-found errors
 	calicoConfig := &cniv1alpha1.CalicoConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, calicoConfig); err != nil {
 		if apierrors.IsNotFound(err) {
-			r.Log.Info("CalicoConfig resource not found")
+			log.Info("CalicoConfig resource not found")
 			return ctrl.Result{}, nil
 		}
-		r.Log.Error(err, "Unable to fetch CalicoConfig resource")
+		log.Error(err, "Unable to fetch CalicoConfig resource")
 		return ctrl.Result{}, err
+	}
+
+	annotations := calicoConfig.GetAnnotations()
+	if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		log.Info(fmt.Sprintf("resource '%v' is a config template. Skipping reconciling", req.NamespacedName))
+		return ctrl.Result{}, nil
 	}
 
 	// deep copy CalicoConfig to avoid issues if in the future other controllers where interacting with the same copy
 	calicoConfig = calicoConfig.DeepCopy()
 
-	// config resources are expected to have the same name as the cluster. However, we ideally try to read the cluster name from the owner reference of the addon config object
-	clusterNamespacedName := req.NamespacedName
-	cluster := &clusterapiv1beta1.Cluster{}
-	for _, ownerRef := range calicoConfig.GetOwnerReferences() {
-		if ownerRef.Kind == constants.ClusterKind {
-			clusterNamespacedName.Name = ownerRef.Name
-			break
-		}
-	}
+	cluster, err := cutil.GetOwnerCluster(ctx, r.Client, calicoConfig, req.Namespace, constants.CalicoDefaultRefName)
 
-	// verify that the cluster related to config is present
-	if err := r.Client.Get(ctx, clusterNamespacedName, cluster); err != nil {
-		if apierrors.IsNotFound(err) {
-			r.Log.Info(fmt.Sprintf("Cluster resource '%s/%s' not found", clusterNamespacedName.Namespace, clusterNamespacedName.Name))
+	if err != nil {
+		if apierrors.IsNotFound(err) && cluster != nil {
+			log.Info(fmt.Sprintf("'%s/%s' is listed as owner reference but could not be found",
+				cluster.Namespace, cluster.Name))
 			return ctrl.Result{}, nil
 		}
-		r.Log.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", clusterNamespacedName.Namespace, clusterNamespacedName.Name))
+		log.Info("could not determine owner cluster")
 		return ctrl.Result{}, err
 	}
 
 	// reconcile CalicoConfig resource
 	if retResult, err := r.ReconcileCalicoConfig(calicoConfig, cluster); err != nil {
-		r.Log.Error(err, "Unable to reconcile CalicoConfig")
+		log.Error(err, "Unable to reconcile CalicoConfig")
 		return retResult, err
 	}
 

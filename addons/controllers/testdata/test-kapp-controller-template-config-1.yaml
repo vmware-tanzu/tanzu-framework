@@ -2,7 +2,7 @@
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: KappControllerConfig
 metadata:
-  name: test-kapp-controller-1
+  name: test-kapp-controller-1-kapp-controller-package
   namespace: tkg-system
   annotations:
     tkg.tanzu.vmware.com/template-config: "true"

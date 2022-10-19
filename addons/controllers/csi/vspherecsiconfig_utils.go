@@ -201,6 +201,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	return dvs, nil
 }
 
+//nolint:unused
 // getOwnerCluster verifies that the VSphereCSIConfig has a cluster as its owner reference,
 // and returns the cluster. It tries to read the cluster name from the VSphereCSIConfig's owner reference objects.
 // If not there, we assume the owner cluster and VSphereCSIConfig always has the same name.

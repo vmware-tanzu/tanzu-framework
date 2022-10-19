@@ -1,0 +1,21 @@
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  name: custom-cb-2-cluster
+  namespace: custom-cb-2-namespace
+spec:
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.31.2
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: test-cluster-custom-cb-2-kapp-controller-config
+  cni:
+    refName: antrea.tanzu.vmware.com.1.2.5--vmware.12-tkg.1
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: AntreaConfig
+        name: antrea-config-custom-2

@@ -379,12 +379,32 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 			packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
 			packages = packagesToBeCloned
 		}
+	} else {
+		// packages with values from inline need to be cloned.
+		var nonEmptyInlinePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, cbPackage := range packages {
+			if cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.Inline != nil {
+				nonEmptyInlinePackages = append(nonEmptyInlinePackages, cbPackage)
+			}
+		}
+		var packagesToBeCloned []*runtanzuv1alpha3.ClusterBootstrapPackage
+		packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
+		packages = packagesToBeCloned
 	}
 
 	secrets, providers, err := h.CloneReferencedObjectsFromCBPackages(cluster, packages, systemNamespace)
 	if err != nil {
 		h.Logger.Error(err, "unable to clone secrets or providers")
 		return nil, err
+	}
+
+	// Packages with values from providerRef do not need to be cloned but we need to set the correct owner references
+	providerRefs, err := h.getListOfProviderRef(clusterBootstrap)
+	if err != nil {
+		h.Logger.Error(err, "unable to get a list of provided providfeRefs")
+	}
+	if err := h.AddClusterOwnerRef(cluster, providerRefs, nil, nil); err != nil {
+		h.Logger.Error(err, fmt.Sprintf("unable to add cluster %s/%s as owner reference to providerRefs", cluster.Namespace, cluster.Name))
 	}
 
 	clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
@@ -405,14 +425,41 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		return nil, err
 	}
 
-	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
-	// clusterBootstrap is created
+	providers = append(providers, providerRefs...)
+	// all providers have the clusterboostrap added as controller owner reference.
 	if err := h.EnsureOwnerRef(clusterBootstrap, secrets, providers); err != nil {
 		h.Logger.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return nil, err
 	}
 
 	return clusterBootstrap, nil
+}
+func (h *Helper) getListOfProviderRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*unstructured.Unstructured, error) {
+	possiblePackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
+		clusterBootstrap.Spec.CNI,
+		clusterBootstrap.Spec.CPI,
+		clusterBootstrap.Spec.CSI,
+		clusterBootstrap.Spec.Kapp,
+	}, clusterBootstrap.Spec.AdditionalPackages...)
+
+	var providerRef []*unstructured.Unstructured
+	for _, pkg := range possiblePackages {
+		if pkg != nil && pkg.ValuesFrom.ProviderRef != nil {
+			continue
+		}
+		gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *pkg.ValuesFrom.ProviderRef.APIGroup, Kind: pkg.ValuesFrom.ProviderRef.Kind})
+		if err != nil {
+			h.Logger.Error(err, "failed to getGVR")
+			return nil, err
+		}
+		provider, err := h.DynamicClient.Resource(*gvr).Namespace(clusterBootstrap.Namespace).Get(h.Ctx, pkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+		if err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s/%s", clusterBootstrap.Namespace, pkg.ValuesFrom.ProviderRef.Name), "gvr", gvr)
+			return nil, err
+		}
+		providerRef = append(providerRef, provider)
+	}
+	return providerRef, nil
 }
 
 // CreateClusterBootstrapFromTemplate does the following:
@@ -827,6 +874,51 @@ func (h *Helper) cloneEmbeddedLocalObjectRef(cluster *clusterapiv1beta1.Cluster,
 	return nil
 }
 
+// AddClusterOwnerRef adds cluster as an owner reference to the children with given controller and blockownerdeletion settings
+func (h *Helper) AddClusterOwnerRef(cluster *clusterapiv1beta1.Cluster, children []*unstructured.Unstructured, controller, blockownerdeletion *bool) error {
+	ownerRef := metav1.OwnerReference{
+		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
+		Kind:               cluster.Kind, // kind is empty after create
+		Name:               cluster.Name,
+		UID:                cluster.UID,
+		Controller:         controller,
+		BlockOwnerDeletion: blockownerdeletion,
+	}
+	return h.setOwnerRef(&ownerRef, children)
+}
+
+func (h *Helper) setOwnerRef(ownerRef *metav1.OwnerReference, children []*unstructured.Unstructured) error {
+	for _, child := range children {
+		gvr, err := h.GVRHelper.GetGVR(child.GroupVersionKind().GroupKind())
+		if err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to get GVR of %s/%s", child.GetNamespace(), child.GetName()))
+			return err
+		}
+		err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+			// We need to get and update, otherwise there could have concurrency issue: ["the object has been modified; please
+			// apply your changes to the latest version and try again"]
+			newChild, errGetProvider := h.DynamicClient.Resource(*gvr).Namespace(child.GetNamespace()).Get(h.Ctx, child.GetName(), metav1.GetOptions{})
+			if errGetProvider != nil {
+				h.Logger.Error(errGetProvider, fmt.Sprintf("unable to get %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
+				return errGetProvider
+			}
+			newChild = newChild.DeepCopy()
+			newChild.SetOwnerReferences(clusterapiutil.EnsureOwnerRef(newChild.GetOwnerReferences(), *ownerRef))
+			_, errUpdateProvider := h.DynamicClient.Resource(*gvr).Namespace(newChild.GetNamespace()).Update(h.Ctx, newChild, metav1.UpdateOptions{})
+			if errUpdateProvider != nil {
+				h.Logger.Error(errUpdateProvider, fmt.Sprintf("unable to update %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
+				return errUpdateProvider
+			}
+			return nil
+		})
+		if err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to update the OwnerRefrences for %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
+			return err
+		}
+	}
+	return nil
+}
+
 // EnsureOwnerRef will ensure the provided OwnerReference onto the secrets and provider objects
 func (h *Helper) EnsureOwnerRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, secrets []*corev1.Secret, providers []*unstructured.Unstructured) error {
 	ownerRef := metav1.OwnerReference{
@@ -864,7 +956,7 @@ func (h *Helper) EnsureOwnerRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootst
 				return errGetProvider
 			}
 			newProvider = newProvider.DeepCopy()
-			newProvider.SetOwnerReferences(clusterapiutil.EnsureOwnerRef(provider.GetOwnerReferences(), ownerRef))
+			newProvider.SetOwnerReferences(clusterapiutil.EnsureOwnerRef(newProvider.GetOwnerReferences(), ownerRef)) // This change was probably a bug. It was using provider owner references. provider owner references are set outside the retryonconflict thus they are probably stale
 			_, errUpdateProvider := h.DynamicClient.Resource(*gvr).Namespace(newProvider.GetNamespace()).Update(h.Ctx, newProvider, metav1.UpdateOptions{})
 			if errUpdateProvider != nil {
 				h.Logger.Error(errUpdateProvider, fmt.Sprintf("unable to update provider %s/%s", provider.GetNamespace(), provider.GetName()))

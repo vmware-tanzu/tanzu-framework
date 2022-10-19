@@ -98,7 +98,7 @@ func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	// deep copy VSphereCPIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	cpiConfig = cpiConfig.DeepCopy()
 
-	cluster, err := r.getOwnerCluster(ctx, cpiConfig)
+	cluster, err := cutil.GetOwnerCluster(ctx, r.Client, cpiConfig, req.Namespace, constants.CPIDefaultRefName)
 	if cluster == nil {
 		return ctrl.Result{}, err // no need to requeue if cluster is not found
 	}

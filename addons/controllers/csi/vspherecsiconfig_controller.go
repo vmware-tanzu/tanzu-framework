@@ -5,7 +5,6 @@ package controllers
 
 import (
 	"context"
-	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -160,10 +159,12 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// deep copy VSphereCSIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	vcsiConfig = vcsiConfig.DeepCopy()
-
-	cluster, err := r.getOwnerCluster(ctx, vcsiConfig)
+	cluster, err := cutil.GetOwnerCluster(ctx, r.Client, vcsiConfig, req.Namespace, constants.CSIDefaultRefName)
+	if err != nil && !apierrors.IsNotFound(err) {
+		return ctrl.Result{}, err
+	}
 	if cluster == nil {
-		return ctrl.Result{RequeueAfter: 20 * time.Second}, err // retry until corresponding cluster is found
+		return ctrl.Result{}, err // retry until corresponding cluster is found
 	}
 
 	return r.reconcileVSphereCSIConfig(ctx, vcsiConfig, cluster)

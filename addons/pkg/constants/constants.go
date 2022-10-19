@@ -26,14 +26,23 @@ const (
 	// CalicoAddonName is name of the Calico addon
 	CalicoAddonName = "calico"
 
+	// CalicoDefaultRefName is default refname for Calico addon
+	CalicoDefaultRefName = CalicoAddonName + ".tanzu.vmware.com"
+
 	// CPIAddonName is name of the cloud-provider-vsphere addon
 	CPIAddonName = "vsphere-cpi"
+
+	// CPIDefaultRefName is default refname for cloud-provider-vsphere addon addon
+	CPIDefaultRefName = CPIAddonName + ".tanzu.vmware.com"
 
 	// PVCSIAddonName is name of the vsphere-pv-csi addon
 	PVCSIAddonName = "vsphere-pv-csi"
 
 	// CSIAddonName is name of the vsphere-csi addon
 	CSIAddonName = "vsphere-csi"
+
+	// CSIDefaultRefName is default refname for vsphere-csi addon
+	CSIDefaultRefName = CSIAddonName + ".tanzu.vmware.com"
 
 	// AwsEbsCSIAddonName is name of the aws-ebs-csi addon
 	AwsEbsCSIAddonName = "aws-ebs-csi"
@@ -166,8 +175,14 @@ const (
 	// AntreaAddonName is the name of Antrea Addon Controller
 	AntreaAddonName = "antrea"
 
+	// AntreaDefaultRefName is default refname for Antrea addon
+	AntreaDefaultRefName = AntreaAddonName + ".tanzu.vmware.com"
+
 	// KappControllerAddonName is the addon name of Kapp Controller
 	KappControllerAddonName = "kapp-controller"
+
+	// KappControllerDefaultRefName is default refname for Kapp Controller addon
+	KappControllerDefaultRefName = KappControllerAddonName + ".tanzu.vmware.com"
 
 	// SecretNameLogKey is the log key for Secrets
 	SecretNameLogKey = "secret-name"

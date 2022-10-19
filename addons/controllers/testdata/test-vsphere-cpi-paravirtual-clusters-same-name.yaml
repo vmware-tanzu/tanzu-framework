@@ -16,8 +16,15 @@ spec:
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
 kind: VSphereCPIConfig
 metadata:
-  name: test-cluster-cpi-paravirtual-same-name
+  name: test-cluster-cpi-paravirtual-same-name-vsphere-cpi-package
   namespace: default
+  ownerReferences:
+    - apiVersion: cluster.x-k8s.io/v1beta1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Cluster
+      name: test-cluster-cpi-paravirtual-same-name
+      uid: cbd29b10-c190-422e-86f1-a0321d1aab7d
 spec:
   vsphereCPI:
     mode: vsphereParavirtualCPI

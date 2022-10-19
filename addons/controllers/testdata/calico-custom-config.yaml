@@ -1,0 +1,23 @@
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-calico-2
+  namespace: default
+spec:
+  infrastructureRef:
+    kind: DockerCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16"]
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: CalicoConfig
+metadata:
+  name: test-cluster-calico-2-calico-package
+  namespace: default
+spec:
+  calico:
+    config:
+      vethMTU: 1420
+      skipCNIBinaries: false
