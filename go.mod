@@ -82,7 +82,7 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.0
 	github.com/tj/assert v0.0.0-20171129193455-018094318fb0
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
 	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220617205641-1d376ccc7312
@@ -102,7 +102,7 @@ require (
 	google.golang.org/api v0.63.0
 	google.golang.org/grpc v1.44.0
 	gopkg.in/yaml.v2 v2.4.0
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.23.5
 	k8s.io/apiextensions-apiserver v0.23.5
 	k8s.io/apimachinery v0.23.5
@@ -113,7 +113,7 @@ require (
 	sigs.k8s.io/cluster-api v1.1.5
 	sigs.k8s.io/cluster-api-provider-aws v1.1.0
 	sigs.k8s.io/cluster-api-provider-azure v1.4.0
-	sigs.k8s.io/cluster-api-provider-vsphere v1.3.1
+	sigs.k8s.io/cluster-api-provider-vsphere v1.3.2
 	sigs.k8s.io/cluster-api/test v1.1.5
 	sigs.k8s.io/controller-runtime v0.11.2
 	sigs.k8s.io/controller-tools v0.7.0
