@@ -8,5 +8,6 @@ spec:
       containers:
         #@overlay/match by=overlay.subset({"name": "manager"})
         - args:
-          #@overlay/append
+          #@overlay/match by=overlay.index(3)
+          #@overlay/replace
           - --bootstrap-token-ttl=${CAPBK_BOOTSTRAP_TOKEN_TTL:=15m}
