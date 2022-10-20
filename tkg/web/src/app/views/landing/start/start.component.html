@@ -11,30 +11,6 @@
     </div>
 </div>
 <div class="clr-row" *ngIf="!loading">
-    <div class="clr-col-lg-4 clr-col-sm-6 clr-col-12" *ngIf="edition === 'tce'">
-        <div class="card provider">
-            <div class="card-block">
-                <div class="card-title">
-                    Docker
-                </div>
-                <div class="card-media-block wrap">
-                    <div class="docker-icon-48"></div>
-                </div>
-                <p class="card-text">
-                    Deploy your {{ clusterTypeDescriptor }} cluster on your local workstation
-                </p>
-            </div>
-            <div class="card-footer">
-                <button
-                    class="btn btn-primary"
-                    id="btn-deploy-docker"
-                    (click)="navigateToWizard(PROVIDERS.DOCKER)"
-                    [attr.aria-label]="'deploy on docker'">
-                    Deploy
-                </button>
-            </div>
-        </div>
-    </div>
     <div class="clr-col-lg-4 clr-col-sm-6 clr-col-12">
         <div class="card provider">
             <div class="card-block">
@@ -107,6 +83,31 @@
             </div>
         </div>
     </div>
+<!--    Temp disable docker provider on TKG; awaiting confirmation from PM -->
+<!--    <div class="clr-col-lg-4 clr-col-sm-6 clr-col-12">-->
+<!--        <div class="card provider">-->
+<!--            <div class="card-block">-->
+<!--                <div class="card-title">-->
+<!--                    Docker-->
+<!--                </div>-->
+<!--                <div class="card-media-block wrap">-->
+<!--                    <div class="docker-icon-48"></div>-->
+<!--                </div>-->
+<!--                <p class="card-text">-->
+<!--                    Deploy your {{ clusterTypeDescriptor }} cluster on your local workstation-->
+<!--                </p>-->
+<!--            </div>-->
+<!--            <div class="card-footer">-->
+<!--                <button-->
+<!--                        class="btn btn-primary"-->
+<!--                        id="btn-deploy-docker"-->
+<!--                        (click)="navigateToWizard(PROVIDERS.DOCKER)"-->
+<!--                        [attr.aria-label]="'deploy on docker'">-->
+<!--                    Deploy-->
+<!--                </button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 </div>
 <div class="clr-row" *ngIf="loading">
     <div class="clr-col-12">

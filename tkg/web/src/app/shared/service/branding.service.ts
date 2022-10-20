@@ -45,7 +45,8 @@ export class BrandingService {
                 this.setBrandingByEdition(brandingEdition)
             ))
             .subscribe((data) => {
-                brandingEdition = data;
+                // override API returned data in favor of TKG
+                brandingEdition = AppEdition.TKG;
             }, (err) => {
                 console.log(`Unable to retrieve edition.`)
             });
