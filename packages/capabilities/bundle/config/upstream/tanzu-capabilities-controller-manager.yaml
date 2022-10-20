@@ -9,6 +9,8 @@ metadata:
     app: tanzu-capabilities-manager
   name: tanzu-capabilities-controller-manager
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/disable-default-label-scoping-rules: ""
 spec:
   replicas: 1
   selector:
