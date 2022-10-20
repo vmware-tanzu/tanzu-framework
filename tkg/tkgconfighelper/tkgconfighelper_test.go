@@ -131,7 +131,7 @@ var _ = Describe("ValidateK8sVersionSupport", func() {
 			})
 			It("should return error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("only [v1.0 v1.1 v1.2 v1.3 v1.4 v1.5 v1.6 v1.7] management cluster versions are supported with current version of TKG CLI. Please upgrade TKG CLI to latest version if you are using it on latest version of management cluster."))
+				Expect(err.Error()).To(ContainSubstring("only [v1.0 v1.1 v1.2 v1.3 v1.4 v1.5 v1.6 v1.7 v2.1] management cluster versions are supported with current version of TKG CLI. Please upgrade TKG CLI to latest version if you are using it on latest version of management cluster."))
 			})
 		})
 	})
