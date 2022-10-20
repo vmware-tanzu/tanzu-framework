@@ -790,6 +790,7 @@ COMPONENTS ?=  \
   capabilities \
   tkr/webhook/tkr-conversion \
   tkr/webhook/cluster/tkr-resolver \
+  tkg/vsphere-template-resolver \
   pinniped-components/tanzu-auth-controller-manager \
   object-propagation
 

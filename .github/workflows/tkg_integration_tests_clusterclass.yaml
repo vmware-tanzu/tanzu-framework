@@ -172,7 +172,7 @@ jobs:
       env:
         NUM: ${{ github.run_id }}
         OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-        COMPONENTS: "tkr/controller/tkr-source tkr/controller/tkr-status featuregates addons capabilities tkr/webhook/tkr-conversion tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager object-propagation"
+        COMPONENTS: "tkr/controller/tkr-source tkr/controller/tkr-status featuregates addons capabilities tkr/webhook/tkr-conversion tkr/webhook/cluster/tkr-resolver tkg/vsphere-template-resolver pinniped-components/tanzu-auth-controller-manager object-propagation"
         BUILD_VERSION: "v0.21.0"
         IMG_VERSION_OVERRIDE: latest
       run: |
@@ -183,7 +183,7 @@ jobs:
       env:
         NUM: ${{ github.run_number }}
         OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-        COMPONENTS: "tkr/controller/tkr-source tkr/controller/tkr-status featuregates addons capabilities tkr/webhook/tkr-conversion tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager object-propagation"
+        COMPONENTS: "tkr/controller/tkr-source tkr/controller/tkr-status featuregates addons capabilities tkr/webhook/tkr-conversion tkr/webhook/cluster/tkr-resolver tkg/vsphere-template-resolver pinniped-components/tanzu-auth-controller-manager object-propagation"
         BUILD_VERSION: "v0.21.0"
         IMG_VERSION_OVERRIDE: latest
       run: |
