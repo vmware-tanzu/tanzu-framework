@@ -1,0 +1,40 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ if data.values.TKG_CLUSTER_ROLE == "workload" and data.values.ENABLE_AUTOSCALER and data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@overlay/match by=overlay.subset({"kind":"Cluster"})
+---
+#@overlay/match-child-defaults missing_ok=True
+spec:
+  topology:
+    workers:
+      machineDeployments:
+        #@overlay/match by=overlay.index(0)
+        - class: tkg-worker
+          name: md-0
+          #@overlay/remove
+          replicas:
+          metadata:
+            annotations:
+              cluster.x-k8s.io/cluster-api-autoscaler-node-group-min-size: #@ "{}".format(data.values.AUTOSCALER_MIN_SIZE_0 or data.values.WORKER_MACHINE_COUNT_0)
+              cluster.x-k8s.io/cluster-api-autoscaler-node-group-max-size: #@ "{}".format(data.values.AUTOSCALER_MAX_SIZE_0 or data.values.WORKER_MACHINE_COUNT_0)
+        #@ if data.values.CLUSTER_PLAN == "prodcc":
+        #@overlay/match by=overlay.index(1)
+        - class: tkg-worker
+          name: md-1
+          #@overlay/remove
+          replicas:
+          metadata:
+            annotations:
+              cluster.x-k8s.io/cluster-api-autoscaler-node-group-min-size: #@ "{}".format(data.values.AUTOSCALER_MIN_SIZE_1 or data.values.WORKER_MACHINE_COUNT_1)
+              cluster.x-k8s.io/cluster-api-autoscaler-node-group-max-size: #@ "{}".format(data.values.AUTOSCALER_MAX_SIZE_1 or data.values.WORKER_MACHINE_COUNT_1)
+        #@overlay/match by=overlay.index(2)
+        - class: tkg-worker
+          name: md-2
+          #@overlay/remove
+          replicas:
+          metadata:
+            annotations:
+              cluster.x-k8s.io/cluster-api-autoscaler-node-group-min-size: #@ "{}".format(data.values.AUTOSCALER_MIN_SIZE_2 or data.values.WORKER_MACHINE_COUNT_2)
+              cluster.x-k8s.io/cluster-api-autoscaler-node-group-max-size: #@ "{}".format(data.values.AUTOSCALER_MAX_SIZE_2 or data.values.WORKER_MACHINE_COUNT_2)
+        #@ end
+#@ end

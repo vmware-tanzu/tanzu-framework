@@ -236,16 +236,17 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return errors.Wrap(err, "unable to wait for cluster nodes to be available")
 	}
 
-	c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace)
+	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.TargetNamespace)
+	if err != nil {
+		return errors.Wrap(err, "error while checking workload cluster type")
+	}
+
+	c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace, isClusterClassBased)
 	workloadClusterClient, err := clusterclient.NewClient(workloadClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: 15 * time.Minute})
 	if err != nil {
 		return errors.Wrap(err, "unable to create workload cluster client")
 	}
 
-	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.TargetNamespace)
-	if err != nil {
-		return errors.Wrap(err, "error while checking workload cluster type")
-	}
 	isTKGSCluster, err := regionalClusterClient.IsPacificRegionalCluster()
 	if err != nil {
 		return err
@@ -300,10 +301,21 @@ func (c *TkgClient) getValueForAutoscalerDeploymentConfig() bool {
 }
 
 // WaitForAutoscalerDeployment waits for autoscaler deployment if enabled
-func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clusterclient.Client, clusterName, targetNamespace string) {
-	if isEnabled := c.getValueForAutoscalerDeploymentConfig(); isEnabled {
+func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clusterclient.Client, clusterName, targetNamespace string, isClusterClassBased bool) {
+	isEnabled := false
+	autoscalerDeploymentName := clusterName + constants.AutoscalerDeploymentNameSuffix
+	if isClusterClassBased {
+		autoscalerDeployment, err := regionalClusterClient.GetDeployment(autoscalerDeploymentName, targetNamespace)
+		if autoscalerDeployment.Name == "" || err != nil {
+			log.Warning("unable to get the autoscaler deployment, maybe it is not exist")
+			return
+		}
+		isEnabled = true
+	} else {
+		isEnabled = c.getValueForAutoscalerDeploymentConfig()
+	}
+	if isEnabled {
 		log.Warning("Waiting for cluster autoscaler to be available...")
-		autoscalerDeploymentName := clusterName + "-cluster-autoscaler"
 		if err := regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, targetNamespace); err != nil {
 			log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
 		}

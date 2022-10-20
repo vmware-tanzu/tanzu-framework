@@ -167,6 +167,7 @@ const (
 	ConfigVaraibleDisableCRSForAddonType     = "DISABLE_CRS_FOR_ADDON_TYPE"
 	ConfigVariableEnableAutoscaler           = "ENABLE_AUTOSCALER"
 	ConfigVariableDisableTMCCloudPermissions = "DISABLE_TMC_CLOUD_PERMISSIONS"
+	AutoscalerDeploymentNameSuffix           = "-cluster-autoscaler"
 
 	ConfigVariableControlPlaneMachineCount = "CONTROL_PLANE_MACHINE_COUNT"
 	ConfigVariableControlPlaneMachineType  = "CONTROL_PLANE_MACHINE_TYPE"
