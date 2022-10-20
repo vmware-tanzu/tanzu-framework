@@ -606,22 +606,18 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 }
 
 func (c *client) WaitForControlPlaneAvailable(clusterName, namespace string) error {
-	start := time.Now()
-	return c.poller.PollImmediateInfiniteWithGetter(CheckClusterInterval, func() (interface{}, error) {
+	_, err := c.poller.PollImmediateWithGetter(CheckClusterInterval, c.operationTimeout, func() (interface{}, error) {
 		kcpObject, err := c.GetKCPObjectForCluster(clusterName, namespace)
 		if err != nil {
 			return false, err
 		}
-		if kcpObject.Status.Ready {
+		if conditions.IsTrue(kcpObject, controlplanev1.AvailableCondition) {
 			return true, nil
 		}
 
-		if time.Since(start) > c.operationTimeout {
-			return true, errors.Wrap(err, "timed out waiting for cluster API server available")
-		}
-
-		return false, nil
+		return false, errors.New("control plane is not available yet")
 	})
+	return err
 }
 
 func (c *client) WaitForClusterReady(clusterName, namespace string, checkAllReplicas bool) error {

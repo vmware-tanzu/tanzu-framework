@@ -554,11 +554,27 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When cluster control plane is not available", func() {
 			JustBeforeEach(func() {
-				clientset.ListReturns(errors.New("timed out waiting for cluster API server available"))
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *controlplanev1.KubeadmControlPlaneList:
+						kcp := getDummyKCP(3, 0, 1, 1)
+						conditions := capi.Conditions{}
+						conditions = append(conditions, capi.Condition{
+							Type:   controlplanev1.AvailableCondition,
+							Status: corev1.ConditionFalse,
+						})
+						kcp.Status.Conditions = conditions
+						o.Items = append(o.Items, kcp)
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
 				err = clstClient.WaitForControlPlaneAvailable("fake-clusterName", "fake-namespace")
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("control plane is not available yet"))
 			})
 		})
 		Context("When cluster control plane is available", func() {
@@ -567,7 +583,12 @@ var _ = Describe("Cluster Client", func() {
 					switch o := o.(type) {
 					case *controlplanev1.KubeadmControlPlaneList:
 						kcp := getDummyKCP(3, 1, 1, 1)
-						kcp.Status.Ready = true
+						conditions := capi.Conditions{}
+						conditions = append(conditions, capi.Condition{
+							Type:   controlplanev1.AvailableCondition,
+							Status: corev1.ConditionTrue,
+						})
+						kcp.Status.Conditions = conditions
 						o.Items = append(o.Items, kcp)
 					default:
 						return errors.New("invalid object type")
