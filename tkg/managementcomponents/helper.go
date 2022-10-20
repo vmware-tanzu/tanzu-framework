@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"reflect"
 
 	"gopkg.in/yaml.v3"
 
@@ -93,8 +94,32 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 		CoreManagementPluginsPackage: CoreManagementPluginsPackage{
 			VersionConstraints: managementPackageVersion,
 		},
-	}
 
+		AkoOperatorPackage: AkoOperatorPackage{
+			AkoOperatorPackageValues: AkoOperatorPackageValues{
+				AviEnable: fmt.Sprint(userProviderConfigValues[constants.ConfigVariableAviEnable]),
+				AviOperatorConfig: AviOperatorConfig{
+					AviControllerAddress:                           convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerAddress]),
+					AviControllerVersion:                           convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerVersion]),
+					AviControllerUsername:                          convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerUsername]),
+					AviControllerPassword:                          convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerPassword]),
+					AviControllerCA:                                convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerCA]),
+					AviCloudName:                                   convertToString(userProviderConfigValues[constants.ConfigVariableAviCloudName]),
+					AviServiceEngineGroup:                          convertToString(userProviderConfigValues[constants.ConfigVariableAviServiceEngineGroup]),
+					AviManagementClusterServiceEngineGroup:         convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterServiceEngineGroup]),
+					AviDataPlaneNetworkName:                        convertToString(userProviderConfigValues[constants.ConfigVariableAviDataPlaneNetworkName]),
+					AviDataPlaneNetworkCIDR:                        convertToString(userProviderConfigValues[constants.ConfigVariableAviDataPlaneNetworkCIDR]),
+					AviControlPlaneNetworkName:                     convertToString(userProviderConfigValues[constants.ConfigVariableAviControlPlaneNetworkName]),
+					AviControlPlaneNetworkCIDR:                     convertToString(userProviderConfigValues[constants.ConfigVariableAviControlPlaneNetworkCIDR]),
+					AviManagementClusterDataPlaneNetworkName:       convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkName]),
+					AviManagementClusterDataPlaneNetworkCIDR:       convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR]),
+					AviManagementClusterControlPlaneVipNetworkName: convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName]),
+					AviManagementClusterControlPlaneVipNetworkCIDR: convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR]),
+				},
+			},
+		},
+	}
+	tkgPackageConfig.AkoOperatorPackage.AkoOperatorPackageValues.AviOperatorConfig = aviOperatorValidator(tkgPackageConfig.AkoOperatorPackage.AkoOperatorPackageValues.AviOperatorConfig)
 	setProxyConfiguration(&tkgPackageConfig, userProviderConfigValues)
 
 	configBytes, err := yaml.Marshal(tkgPackageConfig)
@@ -107,9 +132,50 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 	if err != nil {
 		return "", err
 	}
+	
 	return valuesFile, nil
 }
 
+func convertToString(aviOperatorConfig interface{}) string {
+	switch aviOperatorConfig.(type) {
+		case string:
+			return aviOperatorConfig.(string)
+		default:
+			return ""
+	}
+	if aviOperatorConfig == nil || reflect.ValueOf(aviOperatorConfig).IsNil() {
+		return ""
+	}
+	return ""
+}
+func aviOperatorValidator(aviOperatorConfig AviOperatorConfig) AviOperatorConfig{
+	if aviOperatorConfig.AviManagementClusterServiceEngineGroup == ""{
+		aviOperatorConfig.AviManagementClusterServiceEngineGroup = aviOperatorConfig.AviServiceEngineGroup
+	}
+
+	if aviOperatorConfig.AviManagementClusterDataPlaneNetworkName != "" && aviOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR != "" {
+		aviOperatorConfig.AviControlPlaneNetworkName = aviOperatorConfig.AviManagementClusterDataPlaneNetworkName
+		aviOperatorConfig.AviControlPlaneNetworkCIDR = aviOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR
+	}else if aviOperatorConfig.AviControlPlaneNetworkName == "" || aviOperatorConfig.AviControlPlaneNetworkCIDR == "" {
+		aviOperatorConfig.AviControlPlaneNetworkName = aviOperatorConfig.AviDataPlaneNetworkName
+		aviOperatorConfig.AviControlPlaneNetworkCIDR = aviOperatorConfig.AviDataPlaneNetworkCIDR
+	}
+
+	if aviOperatorConfig.AviManagementClusterDataPlaneNetworkName != "" && aviOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR != ""{
+		aviOperatorConfig.AviManagementClusterControlPlaneVipNetworkName = aviOperatorConfig.AviManagementClusterDataPlaneNetworkName
+		aviOperatorConfig.AviManagementClusterControlPlaneVipNetworkCIDR = aviOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR
+	}else if aviOperatorConfig.AviManagementClusterControlPlaneVipNetworkName == "" || aviOperatorConfig.AviManagementClusterControlPlaneVipNetworkCIDR == "" {
+		aviOperatorConfig.AviManagementClusterControlPlaneVipNetworkName = aviOperatorConfig.AviDataPlaneNetworkName
+		aviOperatorConfig.AviManagementClusterControlPlaneVipNetworkCIDR = aviOperatorConfig.AviDataPlaneNetworkCIDR
+	}
+
+	if aviOperatorConfig.AviManagementClusterDataPlaneNetworkName == "" || aviOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR == "" {
+		aviOperatorConfig.AviManagementClusterDataPlaneNetworkName = aviOperatorConfig.AviDataPlaneNetworkName
+		aviOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR = aviOperatorConfig.AviDataPlaneNetworkCIDR
+	}
+	
+	return aviOperatorConfig
+}
 func setProxyConfiguration(tkgPackageConfig *TKGPackageConfig, userProviderConfigValues map[string]interface{}) {
 	var (
 		httpProxy  string

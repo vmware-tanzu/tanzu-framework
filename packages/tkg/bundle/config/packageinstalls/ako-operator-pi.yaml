@@ -1,0 +1,31 @@
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: ako-operator
+  namespace: tkg-system
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
+spec:
+  packageRef:
+    refName: ako-operator.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  serviceAccountName: ako-operator-package-sa
+  values:
+    - secretRef:
+        name: ako-operator-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ako-operator-values
+  namespace: tkg-system
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting ako-operator-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting ako-operator-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.akoOperatorPackage)
