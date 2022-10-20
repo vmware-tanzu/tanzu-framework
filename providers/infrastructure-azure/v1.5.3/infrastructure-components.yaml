@@ -10,7 +10,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -66,12 +66,13 @@ spec:
                 description: ClientSecret is a secret reference which should contain either a Service Principal password or certificate secret.
                 properties:
                   name:
-                    description: Name is unique within a namespace to reference a secret resource.
+                    description: name is unique within a namespace to reference a secret resource.
                     type: string
                   namespace:
-                    description: Namespace defines the space within which the secret name must be unique.
+                    description: namespace defines the space within which the secret name must be unique.
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               resourceID:
                 description: User assigned MSI resource id.
                 type: string
@@ -183,6 +184,7 @@ spec:
                         description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
                         type: object
                     type: object
+                    x-kubernetes-map-type: atomic
                 type: object
               clientID:
                 description: Both User Assigned MSI and SP can use this field.
@@ -191,12 +193,13 @@ spec:
                 description: ClientSecret is a secret reference which should contain either a Service Principal password or certificate secret.
                 properties:
                   name:
-                    description: Name is unique within a namespace to reference a secret resource.
+                    description: name is unique within a namespace to reference a secret resource.
                     type: string
                   namespace:
-                    description: Namespace defines the space within which the secret name must be unique.
+                    description: namespace defines the space within which the secret name must be unique.
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               resourceID:
                 description: User assigned MSI resource id.
                 type: string
@@ -308,32 +311,35 @@ spec:
                         description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
                         type: object
                     type: object
+                    x-kubernetes-map-type: atomic
                 type: object
               clientID:
-                description: Both User Assigned MSI and SP can use this field.
+                description: ClientID is the service principal client ID. Both User Assigned MSI and SP can use this field.
                 type: string
               clientSecret:
                 description: ClientSecret is a secret reference which should contain either a Service Principal password or certificate secret.
                 properties:
                   name:
-                    description: Name is unique within a namespace to reference a secret resource.
+                    description: name is unique within a namespace to reference a secret resource.
                     type: string
                   namespace:
-                    description: Namespace defines the space within which the secret name must be unique.
+                    description: namespace defines the space within which the secret name must be unique.
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               resourceID:
-                description: User assigned MSI resource id.
+                description: ResourceID is the Azure resource ID for the User Assigned MSI resource. Only applicable when type is UserAssignedMSI.
                 type: string
               tenantID:
-                description: Service principal primary tenant id.
+                description: TenantID is the service principal primary tenant id.
                 type: string
               type:
-                description: UserAssignedMSI or Service Principal
+                description: Type is the type of Azure Identity used. ServicePrincipal, ServicePrincipalCertificate, UserAssignedMSI or ManualServicePrincipal.
                 enum:
                 - ServicePrincipal
-                - ManualServicePrincipal
                 - UserAssignedMSI
+                - ManualServicePrincipal
+                - ServicePrincipalCertificate
                 type: string
             required:
             - clientID
@@ -379,19 +385,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -504,6 +504,7 @@ spec:
                     description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               location:
                 type: string
               networkSpec:
@@ -1017,6 +1018,7 @@ spec:
                     description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               location:
                 type: string
               networkSpec:
@@ -1454,6 +1456,21 @@ spec:
                         properties:
                           dnsName:
                             type: string
+                          ipTags:
+                            items:
+                              description: IPTag contains the IpTag associated with the object.
+                              properties:
+                                tag:
+                                  description: 'Tag specifies the value of the IP tag associated with the public IP. Example: SQL.'
+                                  type: string
+                                type:
+                                  description: 'Type specifies the IP tag type. Example: FirstPartyUsage.'
+                                  type: string
+                              required:
+                              - tag
+                              - type
+                              type: object
+                            type: array
                           name:
                             type: string
                         required:
@@ -1484,6 +1501,21 @@ spec:
                                 properties:
                                   dnsName:
                                     type: string
+                                  ipTags:
+                                    items:
+                                      description: IPTag contains the IpTag associated with the object.
+                                      properties:
+                                        tag:
+                                          description: 'Tag specifies the value of the IP tag associated with the public IP. Example: SQL.'
+                                          type: string
+                                        type:
+                                          description: 'Type specifies the IP tag type. Example: FirstPartyUsage.'
+                                          type: string
+                                      required:
+                                      - tag
+                                      - type
+                                      type: object
+                                    type: array
                                   name:
                                     type: string
                                 required:
@@ -1568,6 +1600,9 @@ spec:
                                   - protocol
                                   type: object
                                 type: array
+                                x-kubernetes-list-map-keys:
+                                - name
+                                x-kubernetes-list-type: map
                               tags:
                                 additionalProperties:
                                   type: string
@@ -1696,6 +1731,7 @@ spec:
                     description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               location:
                 type: string
               networkSpec:
@@ -1718,6 +1754,21 @@ spec:
                               properties:
                                 dnsName:
                                   type: string
+                                ipTags:
+                                  items:
+                                    description: IPTag contains the IpTag associated with the object.
+                                    properties:
+                                      tag:
+                                        description: 'Tag specifies the value of the IP tag associated with the public IP. Example: SQL.'
+                                        type: string
+                                      type:
+                                        description: 'Type specifies the IP tag type. Example: FirstPartyUsage.'
+                                        type: string
+                                    required:
+                                    - tag
+                                    - type
+                                    type: object
+                                  type: array
                                 name:
                                   type: string
                               required:
@@ -1764,6 +1815,21 @@ spec:
                               properties:
                                 dnsName:
                                   type: string
+                                ipTags:
+                                  items:
+                                    description: IPTag contains the IpTag associated with the object.
+                                    properties:
+                                      tag:
+                                        description: 'Tag specifies the value of the IP tag associated with the public IP. Example: SQL.'
+                                        type: string
+                                      type:
+                                        description: 'Type specifies the IP tag type. Example: FirstPartyUsage.'
+                                        type: string
+                                    required:
+                                    - tag
+                                    - type
+                                    type: object
+                                  type: array
                                 name:
                                   type: string
                               required:
@@ -1810,6 +1876,21 @@ spec:
                               properties:
                                 dnsName:
                                   type: string
+                                ipTags:
+                                  items:
+                                    description: IPTag contains the IpTag associated with the object.
+                                    properties:
+                                      tag:
+                                        description: 'Tag specifies the value of the IP tag associated with the public IP. Example: SQL.'
+                                        type: string
+                                      type:
+                                        description: 'Type specifies the IP tag type. Example: FirstPartyUsage.'
+                                        type: string
+                                    required:
+                                    - tag
+                                    - type
+                                    type: object
+                                  type: array
                                 name:
                                   type: string
                               required:
@@ -1869,6 +1950,21 @@ spec:
                               properties:
                                 dnsName:
                                   type: string
+                                ipTags:
+                                  items:
+                                    description: IPTag contains the IpTag associated with the object.
+                                    properties:
+                                      tag:
+                                        description: 'Tag specifies the value of the IP tag associated with the public IP. Example: SQL.'
+                                        type: string
+                                      type:
+                                        description: 'Type specifies the IP tag type. Example: FirstPartyUsage.'
+                                        type: string
+                                    required:
+                                    - tag
+                                    - type
+                                    type: object
+                                  type: array
                                 name:
                                   type: string
                               required:
@@ -1953,6 +2049,9 @@ spec:
                                 - protocol
                                 type: object
                               type: array
+                              x-kubernetes-list-map-keys:
+                              - name
+                              x-kubernetes-list-type: map
                             tags:
                               additionalProperties:
                                 type: string
@@ -1966,6 +2065,9 @@ spec:
                       - role
                       type: object
                     type: array
+                    x-kubernetes-list-map-keys:
+                    - name
+                    x-kubernetes-list-type: map
                   vnet:
                     description: Vnet is the configuration for the Azure virtual network.
                     properties:
@@ -2098,19 +2200,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -2158,6 +2254,7 @@ spec:
                 description: AzureClusterTemplateResource describes the data needed to create an AzureCluster from a template.
                 properties:
                   spec:
+                    description: AzureClusterTemplateResourceSpec specifies an Azure cluster template resource.
                     properties:
                       additionalTags:
                         additionalProperties:
@@ -2171,14 +2268,19 @@ spec:
                         description: BastionSpec encapsulates all things related to the Bastions in the cluster.
                         properties:
                           azureBastion:
+                            description: AzureBastionTemplateSpec specifies a template for an Azure Bastion host.
                             properties:
                               subnet:
+                                description: SubnetTemplateSpec specifies a template for a subnet.
                                 properties:
                                   cidrBlocks:
                                     description: CIDRBlocks defines the subnet's address space, specified as one or more address prefixes in CIDR notation.
                                     items:
                                       type: string
                                     type: array
+                                  name:
+                                    description: Name defines a name for the subnet resource.
+                                    type: string
                                   natGateway:
                                     description: NatGateway associated with this subnet.
                                     properties:
@@ -2245,6 +2347,9 @@ spec:
                                           - protocol
                                           type: object
                                         type: array
+                                        x-kubernetes-list-map-keys:
+                                        - name
+                                        x-kubernetes-list-type: map
                                       tags:
                                         additionalProperties:
                                           type: string
@@ -2252,6 +2357,7 @@ spec:
                                         type: object
                                     type: object
                                 required:
+                                - name
                                 - role
                                 type: object
                             type: object
@@ -2356,6 +2462,7 @@ spec:
                             description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                             type: string
                         type: object
+                        x-kubernetes-map-type: atomic
                       location:
                         type: string
                       networkSpec:
@@ -2409,12 +2516,16 @@ spec:
                           subnets:
                             description: Subnets is the configuration for the control-plane subnet and the node subnet.
                             items:
+                              description: SubnetTemplateSpec specifies a template for a subnet.
                               properties:
                                 cidrBlocks:
                                   description: CIDRBlocks defines the subnet's address space, specified as one or more address prefixes in CIDR notation.
                                   items:
                                     type: string
                                   type: array
+                                name:
+                                  description: Name defines a name for the subnet resource.
+                                  type: string
                                 natGateway:
                                   description: NatGateway associated with this subnet.
                                   properties:
@@ -2481,6 +2592,9 @@ spec:
                                         - protocol
                                         type: object
                                       type: array
+                                      x-kubernetes-list-map-keys:
+                                      - name
+                                      x-kubernetes-list-type: map
                                     tags:
                                       additionalProperties:
                                         type: string
@@ -2488,9 +2602,13 @@ spec:
                                       type: object
                                   type: object
                               required:
+                              - name
                               - role
                               type: object
                             type: array
+                            x-kubernetes-list-map-keys:
+                            - name
+                            x-kubernetes-list-type: map
                           vnet:
                             description: Vnet is the configuration for the Azure virtual network.
                             properties:
@@ -2502,9 +2620,13 @@ spec:
                               peerings:
                                 description: Peerings defines a list of peerings of the newly created virtual network with existing virtual networks.
                                 items:
+                                  description: VnetPeeringClassSpec specifies a virtual network peering class.
                                   properties:
                                     remoteVnetName:
                                       description: RemoteVnetName defines name of the remote virtual network.
+                                      type: string
+                                    resourceGroup:
+                                      description: ResourceGroup is the resource group name of the remote virtual network.
                                       type: string
                                   required:
                                   - remoteVnetName
@@ -2531,12 +2653,6 @@ spec:
         type: object
     served: true
     storage: true
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -2699,7 +2815,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -3053,19 +3169,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -4165,6 +4275,52 @@ spec:
                   image:
                     description: Image is used to provide details of an image to use during VM creation. If image details are omitted the image will default the Azure Marketplace "capi" offer, which is based on Ubuntu.
                     properties:
+                      computeGallery:
+                        description: ComputeGallery specifies an image to use from the Azure Compute Gallery
+                        properties:
+                          gallery:
+                            description: Gallery specifies the name of the compute image gallery that contains the image
+                            minLength: 1
+                            type: string
+                          name:
+                            description: Name is the name of the image
+                            minLength: 1
+                            type: string
+                          plan:
+                            description: Plan contains plan information.
+                            properties:
+                              offer:
+                                description: Offer specifies the name of a group of related images created by the publisher. For example, UbuntuServer, WindowsServer
+                                minLength: 1
+                                type: string
+                              publisher:
+                                description: Publisher is the name of the organization that created the image
+                                minLength: 1
+                                type: string
+                              sku:
+                                description: SKU specifies an instance of an offer, such as a major release of a distribution. For example, 18.04-LTS, 2019-Datacenter
+                                minLength: 1
+                                type: string
+                            required:
+                            - offer
+                            - publisher
+                            - sku
+                            type: object
+                          resourceGroup:
+                            description: ResourceGroup specifies the resource group containing the private compute gallery.
+                            type: string
+                          subscriptionID:
+                            description: SubscriptionID is the identifier of the subscription that contains the private compute gallery.
+                            type: string
+                          version:
+                            description: Version specifies the version of the marketplace image. The allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are decimal numbers. Specify 'latest' to use the latest version of an image available at deploy time. Even if you use 'latest', the VM image will not automatically update after deploy time even if a new version becomes available.
+                            minLength: 1
+                            type: string
+                        required:
+                        - gallery
+                        - name
+                        - version
+                        type: object
                       id:
                         description: ID specifies an image to use by ID
                         type: string
@@ -4198,7 +4354,7 @@ spec:
                         - version
                         type: object
                       sharedGallery:
-                        description: SharedGallery specifies an image to use from an Azure Shared Image Gallery
+                        description: 'SharedGallery specifies an image to use from an Azure Shared Image Gallery Deprecated: use ComputeGallery instead.'
                         properties:
                           gallery:
                             description: Gallery specifies the name of the shared image gallery that contains the image
@@ -4373,6 +4529,52 @@ spec:
               image:
                 description: Image is the current image used in the AzureMachinePool. When the spec image is nil, this image is populated with the details of the defaulted Azure Marketplace "capi" offer.
                 properties:
+                  computeGallery:
+                    description: ComputeGallery specifies an image to use from the Azure Compute Gallery
+                    properties:
+                      gallery:
+                        description: Gallery specifies the name of the compute image gallery that contains the image
+                        minLength: 1
+                        type: string
+                      name:
+                        description: Name is the name of the image
+                        minLength: 1
+                        type: string
+                      plan:
+                        description: Plan contains plan information.
+                        properties:
+                          offer:
+                            description: Offer specifies the name of a group of related images created by the publisher. For example, UbuntuServer, WindowsServer
+                            minLength: 1
+                            type: string
+                          publisher:
+                            description: Publisher is the name of the organization that created the image
+                            minLength: 1
+                            type: string
+                          sku:
+                            description: SKU specifies an instance of an offer, such as a major release of a distribution. For example, 18.04-LTS, 2019-Datacenter
+                            minLength: 1
+                            type: string
+                        required:
+                        - offer
+                        - publisher
+                        - sku
+                        type: object
+                      resourceGroup:
+                        description: ResourceGroup specifies the resource group containing the private compute gallery.
+                        type: string
+                      subscriptionID:
+                        description: SubscriptionID is the identifier of the subscription that contains the private compute gallery.
+                        type: string
+                      version:
+                        description: Version specifies the version of the marketplace image. The allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are decimal numbers. Specify 'latest' to use the latest version of an image available at deploy time. Even if you use 'latest', the VM image will not automatically update after deploy time even if a new version becomes available.
+                        minLength: 1
+                        type: string
+                    required:
+                    - gallery
+                    - name
+                    - version
+                    type: object
                   id:
                     description: ID specifies an image to use by ID
                     type: string
@@ -4406,7 +4608,7 @@ spec:
                     - version
                     type: object
                   sharedGallery:
-                    description: SharedGallery specifies an image to use from an Azure Shared Image Gallery
+                    description: 'SharedGallery specifies an image to use from an Azure Shared Image Gallery Deprecated: use ComputeGallery instead.'
                     properties:
                       gallery:
                         description: Gallery specifies the name of the shared image gallery that contains the image
@@ -4518,19 +4720,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -5319,6 +5515,13 @@ spec:
               acceleratedNetworking:
                 description: AcceleratedNetworking enables or disables Azure accelerated networking. If omitted, it will be set based on whether the requested VMSize supports accelerated networking. If AcceleratedNetworking is set to true with a VMSize that does not support it, Azure will return an error.
                 type: boolean
+              additionalCapabilities:
+                description: AdditionalCapabilities specifies additional capabilities enabled or disabled on the virtual machine.
+                properties:
+                  ultraSSDEnabled:
+                    description: UltraSSDEnabled enables or disables Azure UltraSSD capability for the virtual machine. Defaults to true if Ultra SSD data disks are specified, otherwise it doesn't set the capability on the VM.
+                    type: boolean
+                type: object
               additionalTags:
                 additionalProperties:
                   type: string
@@ -5368,6 +5571,11 @@ spec:
                   - nameSuffix
                   type: object
                 type: array
+              dnsServers:
+                description: DNSServers adds a list of DNS Server IP addresses to the VM NICs.
+                items:
+                  type: string
+                type: array
               enableIPForwarding:
                 description: EnableIPForwarding enables IP Forwarding in Azure which is required for some CNI's to send traffic from a pods on one machine to another. This is required for IpV6 with Calico in combination with User Defined Routes (set by the Azure Cloud Controller manager). Default is false for disabled.
                 type: boolean
@@ -5385,6 +5593,52 @@ spec:
               image:
                 description: Image is used to provide details of an image to use during VM creation. If image details are omitted the image will default the Azure Marketplace "capi" offer, which is based on Ubuntu.
                 properties:
+                  computeGallery:
+                    description: ComputeGallery specifies an image to use from the Azure Compute Gallery
+                    properties:
+                      gallery:
+                        description: Gallery specifies the name of the compute image gallery that contains the image
+                        minLength: 1
+                        type: string
+                      name:
+                        description: Name is the name of the image
+                        minLength: 1
+                        type: string
+                      plan:
+                        description: Plan contains plan information.
+                        properties:
+                          offer:
+                            description: Offer specifies the name of a group of related images created by the publisher. For example, UbuntuServer, WindowsServer
+                            minLength: 1
+                            type: string
+                          publisher:
+                            description: Publisher is the name of the organization that created the image
+                            minLength: 1
+                            type: string
+                          sku:
+                            description: SKU specifies an instance of an offer, such as a major release of a distribution. For example, 18.04-LTS, 2019-Datacenter
+                            minLength: 1
+                            type: string
+                        required:
+                        - offer
+                        - publisher
+                        - sku
+                        type: object
+                      resourceGroup:
+                        description: ResourceGroup specifies the resource group containing the private compute gallery.
+                        type: string
+                      subscriptionID:
+                        description: SubscriptionID is the identifier of the subscription that contains the private compute gallery.
+                        type: string
+                      version:
+                        description: Version specifies the version of the marketplace image. The allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are decimal numbers. Specify 'latest' to use the latest version of an image available at deploy time. Even if you use 'latest', the VM image will not automatically update after deploy time even if a new version becomes available.
+                        minLength: 1
+                        type: string
+                    required:
+                    - gallery
+                    - name
+                    - version
+                    type: object
                   id:
                     description: ID specifies an image to use by ID
                     type: string
@@ -5418,7 +5672,7 @@ spec:
                     - version
                     type: object
                   sharedGallery:
-                    description: SharedGallery specifies an image to use from an Azure Shared Image Gallery
+                    description: 'SharedGallery specifies an image to use from an Azure Shared Image Gallery Deprecated: use ComputeGallery instead.'
                     properties:
                       gallery:
                         description: Gallery specifies the name of the shared image gallery that contains the image
@@ -5642,19 +5896,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capz-system/capz-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -6242,6 +6490,13 @@ spec:
                       acceleratedNetworking:
                         description: AcceleratedNetworking enables or disables Azure accelerated networking. If omitted, it will be set based on whether the requested VMSize supports accelerated networking. If AcceleratedNetworking is set to true with a VMSize that does not support it, Azure will return an error.
                         type: boolean
+                      additionalCapabilities:
+                        description: AdditionalCapabilities specifies additional capabilities enabled or disabled on the virtual machine.
+                        properties:
+                          ultraSSDEnabled:
+                            description: UltraSSDEnabled enables or disables Azure UltraSSD capability for the virtual machine. Defaults to true if Ultra SSD data disks are specified, otherwise it doesn't set the capability on the VM.
+                            type: boolean
+                        type: object
                       additionalTags:
                         additionalProperties:
                           type: string
@@ -6291,6 +6546,11 @@ spec:
                           - nameSuffix
                           type: object
                         type: array
+                      dnsServers:
+                        description: DNSServers adds a list of DNS Server IP addresses to the VM NICs.
+                        items:
+                          type: string
+                        type: array
                       enableIPForwarding:
                         description: EnableIPForwarding enables IP Forwarding in Azure which is required for some CNI's to send traffic from a pods on one machine to another. This is required for IpV6 with Calico in combination with User Defined Routes (set by the Azure Cloud Controller manager). Default is false for disabled.
                         type: boolean
@@ -6308,6 +6568,52 @@ spec:
                       image:
                         description: Image is used to provide details of an image to use during VM creation. If image details are omitted the image will default the Azure Marketplace "capi" offer, which is based on Ubuntu.
                         properties:
+                          computeGallery:
+                            description: ComputeGallery specifies an image to use from the Azure Compute Gallery
+                            properties:
+                              gallery:
+                                description: Gallery specifies the name of the compute image gallery that contains the image
+                                minLength: 1
+                                type: string
+                              name:
+                                description: Name is the name of the image
+                                minLength: 1
+                                type: string
+                              plan:
+                                description: Plan contains plan information.
+                                properties:
+                                  offer:
+                                    description: Offer specifies the name of a group of related images created by the publisher. For example, UbuntuServer, WindowsServer
+                                    minLength: 1
+                                    type: string
+                                  publisher:
+                                    description: Publisher is the name of the organization that created the image
+                                    minLength: 1
+                                    type: string
+                                  sku:
+                                    description: SKU specifies an instance of an offer, such as a major release of a distribution. For example, 18.04-LTS, 2019-Datacenter
+                                    minLength: 1
+                                    type: string
+                                required:
+                                - offer
+                                - publisher
+                                - sku
+                                type: object
+                              resourceGroup:
+                                description: ResourceGroup specifies the resource group containing the private compute gallery.
+                                type: string
+                              subscriptionID:
+                                description: SubscriptionID is the identifier of the subscription that contains the private compute gallery.
+                                type: string
+                              version:
+                                description: Version specifies the version of the marketplace image. The allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are decimal numbers. Specify 'latest' to use the latest version of an image available at deploy time. Even if you use 'latest', the VM image will not automatically update after deploy time even if a new version becomes available.
+                                minLength: 1
+                                type: string
+                            required:
+                            - gallery
+                            - name
+                            - version
+                            type: object
                           id:
                             description: ID specifies an image to use by ID
                             type: string
@@ -6341,7 +6647,7 @@ spec:
                             - version
                             type: object
                           sharedGallery:
-                            description: SharedGallery specifies an image to use from an Azure Shared Image Gallery
+                            description: 'SharedGallery specifies an image to use from an Azure Shared Image Gallery Deprecated: use ComputeGallery instead.'
                             properties:
                               gallery:
                                 description: Gallery specifies the name of the shared image gallery that contains the image
@@ -6480,18 +6786,12 @@ spec:
         type: object
     served: true
     storage: true
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
@@ -6639,18 +6939,12 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
@@ -6744,7 +7038,7 @@ spec:
                 - calico
                 type: string
               nodeResourceGroupName:
-                description: NodeResourceGroupName is the name of the resource group containining cluster IaaS resources. Will be populated to default in webhook.
+                description: NodeResourceGroupName is the name of the resource group containing cluster IaaS resources. Will be populated to default in webhook.
                 type: string
               resourceGroupName:
                 description: ResourceGroupName is the name of the Azure resource group for this AKS Cluster.
@@ -6950,7 +7244,7 @@ spec:
                 - calico
                 type: string
               nodeResourceGroupName:
-                description: NodeResourceGroupName is the name of the resource group containining cluster IaaS resources. Will be populated to default in webhook.
+                description: NodeResourceGroupName is the name of the resource group containing cluster IaaS resources. Will be populated to default in webhook.
                 type: string
               resourceGroupName:
                 description: ResourceGroupName is the name of the Azure resource group for this AKS Cluster.
@@ -7082,6 +7376,27 @@ spec:
                   type: string
                 description: AdditionalTags is an optional set of tags to add to Azure resources managed by the Azure provider, in addition to the ones added by default.
                 type: object
+              addonProfiles:
+                description: AddonProfiles are the profiles of managed cluster add-on.
+                items:
+                  description: AddonProfile represents a managed cluster add-on.
+                  properties:
+                    config:
+                      additionalProperties:
+                        type: string
+                      description: Config - Key-value pairs for configuring the add-on.
+                      type: object
+                    enabled:
+                      description: Enabled - Whether the add-on is enabled or not.
+                      type: boolean
+                    name:
+                      description: Name - The name of the managed cluster add-on.
+                      type: string
+                  required:
+                  - enabled
+                  - name
+                  type: object
+                type: array
               apiServerAccessProfile:
                 description: APIServerAccessProfile is the access profile for AKS API server.
                 properties:
@@ -7193,7 +7508,7 @@ spec:
                 - calico
                 type: string
               nodeResourceGroupName:
-                description: NodeResourceGroupName is the name of the resource group containining cluster IaaS resources. Will be populated to default in webhook.
+                description: NodeResourceGroupName is the name of the resource group containing cluster IaaS resources. Will be populated to default in webhook.
                 type: string
               resourceGroupName:
                 description: ResourceGroupName is the name of the Azure resource group for this AKS Cluster.
@@ -7320,18 +7635,12 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   labels:
     cluster.x-k8s.io/provider: infrastructure-azure
@@ -7473,7 +7782,11 @@ spec:
     storage: false
     subresources:
       status: {}
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.mode
+      name: Mode
+      type: string
+    name: v1beta1
     schema:
       openAPIV3Schema:
         description: AzureManagedMachinePool is the Schema for the azuremanagedmachinepools API.
@@ -7494,6 +7807,12 @@ spec:
                 items:
                   type: string
                 type: array
+              enableNodePublicIP:
+                description: EnableNodePublicIP controls whether or not nodes in the pool each have a public IP address.
+                type: boolean
+              enableUltraSSD:
+                description: EnableUltraSSD enables the storage type UltraSSD_LRS for the agent pool.
+                type: boolean
               maxPods:
                 description: MaxPods specifies the kubelet --max-pods configuration for the node pool.
                 format: int32
@@ -7523,6 +7842,12 @@ spec:
                 - Ephemeral
                 - Managed
                 type: string
+              osType:
+                description: 'OSType specifies the virtual machine operating system. Default to Linux. Possible values include: ''Linux'', ''Windows'''
+                enum:
+                - Linux
+                - Windows
+                type: string
               providerIDList:
                 description: ProviderIDList is the unique identifier as specified by the cloud provider.
                 items:
@@ -7544,6 +7869,7 @@ spec:
               taints:
                 description: Taints specifies the taints for nodes present in this agent pool.
                 items:
+                  description: Taint represents a Kubernetes taint.
                   properties:
                     effect:
                       description: Effect specifies the effect for the taint
@@ -7647,12 +7973,6 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -7858,6 +8178,8 @@ rules:
   verbs:
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - cluster.x-k8s.io
@@ -8132,7 +8454,7 @@ spec:
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/default-logs-container: manager
+        kubectl.kubernetes.io/default-container: manager
       labels:
         aadpodidbinding: capz-controller-aadpodidentity-selector
         cluster.x-k8s.io/provider: infrastructure-azure
@@ -8211,6 +8533,11 @@ spec:
           readOnly: true
       serviceAccountName: capz-manager
       terminationGracePeriodSeconds: 10
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
       volumes:
       - name: cert
         secret:
@@ -8287,6 +8614,9 @@ spec:
         volumeMounts:
         - mountPath: /run/xtables.lock
           name: iptableslock
+        - mountPath: /etc/default
+          name: default-path
+          readOnly: true
         - mountPath: /etc/default/kubelet
           name: kubelet-config
           readOnly: true
@@ -8300,6 +8630,10 @@ spec:
           path: /run/xtables.lock
           type: FileOrCreate
         name: iptableslock
+      - hostPath:
+          path: /etc/default
+          type: DirectoryOrCreate
+        name: default-path
       - hostPath:
           path: /etc/default/kubelet
           type: FileOrCreate
