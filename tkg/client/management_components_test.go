@@ -299,3 +299,54 @@ func readFileData(filePath string) (string, error) {
 	data, err := os.ReadFile(filePath)
 	return string(data), err
 }
+
+var _ = Describe("Unit tests for processAKOPackageInstallFile", func() {
+	var (
+		err                            error
+		inputDataValuesFile            string
+		processedAKOPackageInstallFile string
+		outputAKOPackageInstallFile    string
+		akoDir                         string
+	)
+
+	validateResult := func() {
+		Expect(err).NotTo(HaveOccurred())
+		Expect(processedAKOPackageInstallFile).NotTo(BeEmpty())
+		filedata1, err := readFileData(processedAKOPackageInstallFile)
+		Expect(err).NotTo(HaveOccurred())
+		filedata2, err := readFileData(outputAKOPackageInstallFile)
+		Expect(err).NotTo(HaveOccurred())
+		if strings.Compare(filedata1, filedata2) != 0 {
+			log.Infof("Processed Output: %v\n", filedata1)
+			log.Infof("Expected  Output: %v\n", filedata2)
+		}
+		Expect(filedata1).To(Equal(filedata2))
+	}
+
+	JustBeforeEach(func() {
+		akoPackageInstallTemplateFile, err := utils.CreateTempFile("", "*.yaml")
+		Expect(err).NotTo(HaveOccurred())
+		err = utils.WriteToFile(akoPackageInstallTemplateFile, []byte(constants.AKOPackageInstall))
+		Expect(err).NotTo(HaveOccurred())
+		processedAKOPackageInstallFile, err = ProcessAKOPackageInstallFile(akoPackageInstallTemplateFile, inputDataValuesFile)
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	AfterEach(func() {
+		// Remove intermediate config files if err is empty
+		if err == nil {
+			os.RemoveAll(akoDir)
+		}
+	})
+
+	Context("When cluster_name is inside user's config are defined by user", func() {
+		BeforeEach(func() {
+			inputDataValuesFile = "test/ako-packageinstall/testcase1/uservalues.yaml"
+			outputAKOPackageInstallFile = "test/ako-packageinstall/testcase1/output.yaml"
+		})
+		It("should match the output file", func() {
+			validateResult()
+		})
+	})
+
+})

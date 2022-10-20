@@ -231,6 +231,17 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		if err = c.InstallOrUpgradeManagementComponents(bootStrapClusterClient, bootstrapPkgClient, "", false); err != nil {
 			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
 		}
+
+		akoRequired, err := c.isAKORequiredInBootstrapCluster()
+		if err != nil {
+			return errors.Wrap(err, "unable to check whether avi ha is enabled")
+		}
+		if akoRequired {
+			log.Info("Installing AKO...")
+			if err = c.InstallAKO(bootStrapClusterClient); err != nil {
+				return errors.Wrap(err, "unable to upgrade ako")
+			}
+		}
 	}
 
 	if options.AdditionalTKGManifests != "" {
@@ -887,4 +898,14 @@ func (c *TkgClient) removeKappControllerLabelsFromClusterClassResources(regional
 	}
 
 	return kerrors.NewAggregate(errList)
+}
+
+// isAKORequiredInBootstrapCluster return whether AVI_CONTROL_PLANE_HA_PROVIDER is enabled
+func (c *TkgClient) isAKORequiredInBootstrapCluster() (bool, error) {
+	log.V(5).Info("Get AVI_CONTROL_PLANE_HA_PROVIDER from user config ")
+
+	if p, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereHaProvider); err == nil && p == trueString {
+		return true, nil
+	}
+	return false, nil
 }

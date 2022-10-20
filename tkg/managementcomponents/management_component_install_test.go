@@ -5,6 +5,7 @@ package managementcomponents_test
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -21,7 +22,8 @@ import (
 )
 
 const (
-	addonsManager = "addons-manager"
+	addonsManager   = "addons-manager"
+	akoOperatorName = "ako-operator"
 )
 
 func Test(t *testing.T) {
@@ -328,7 +330,7 @@ var _ = Describe("Test NoopDeletePackageInstall", func() {
 	})
 
 	JustBeforeEach(func() {
-		err = NoopDeletePackageInstall(clusterClient, namespace, addonName)
+		err = NoopDeletePackageInstall(clusterClient, namespace, fmt.Sprintf("tanzu-%s", addonName))
 	})
 
 	Context("Resource manipulation returns no errors", func() {
@@ -391,7 +393,7 @@ var _ = Describe("Test DeleteAddonSecret", func() {
 	})
 
 	JustBeforeEach(func() {
-		err = DeleteAddonSecret(clusterClient, "fake-cluster", addonName, namespace)
+		err = DeleteAddonSecret(clusterClient, fmt.Sprintf("fake-cluster-tanzu-%s-addon", addonName), namespace)
 	})
 	Context("Resource manipulation returns no errors", func() {
 		It("should return no error", func() {
@@ -472,7 +474,7 @@ var _ = Describe("Test AddonSecretExists", func() {
 	})
 
 	JustBeforeEach(func() {
-		pauseAddonsManagerLifecycle, err = AddonSecretExists(clusterClient, "fake-cluster", addonName, constants.TkgNamespace)
+		pauseAddonsManagerLifecycle, err = AddonSecretExists(clusterClient, fmt.Sprintf("fake-cluster-tanzu-%s-addon", addonName), constants.TkgNamespace)
 	})
 	Context("Getting resources returns no errors", func() {
 		It("should return true, and no error", func() {
@@ -499,4 +501,70 @@ var _ = Describe("Test AddonSecretExists", func() {
 		})
 	})
 
+})
+
+var _ = Describe("Test DeleteLegacyAkoOperatorPackageInstall", func() {
+	var (
+		clusterClient *fakes.ClusterClient
+		err           error
+		notFoundError = apierrors.NewNotFound(
+			schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
+			"fakeGroupResource")
+	)
+
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		clusterClient.PatchResourceReturns(nil)
+		clusterClient.DeleteResourceReturns(nil)
+	})
+
+	JustBeforeEach(func() {
+		err = DeleteLegacyAkoOperatorPackageInstall(clusterClient, fmt.Sprintf("fake-cluster-%s-addon", akoOperatorName))
+	})
+
+	Context("Resource manipulation returns no errors", func() {
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+	Context("Patching resources returns unknown errors", func() {
+		BeforeEach(func() {
+			clusterClient.PatchResourceReturns(errors.New("Unknown error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("Patching resources returns unknown errors", func() {
+		BeforeEach(func() {
+			clusterClient.PatchResourceReturnsOnCall(1, errors.New("Unknown error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("Patch returns not found", func() {
+		BeforeEach(func() {
+			clusterClient.PatchResourceReturns(notFoundError)
+		})
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+	Context("Deleting resources returns  unknown errors", func() {
+		BeforeEach(func() {
+			clusterClient.DeleteResourceReturns(errors.New("Unknown error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("Deleting resources returns not found", func() {
+		BeforeEach(func() {
+			clusterClient.DeleteResourceReturns(notFoundError)
+		})
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
 })

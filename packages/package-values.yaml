@@ -56,6 +56,14 @@ repositories:
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "addons-manager:latest"
+      - name: ako-operator-v2
+        displayName: ako-operator-v2
+        #! Relative path to package bundle
+        path: packages/ako-operator-v2
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "ako-operator:latest"
       - name: tkg
         displayName: tkg
         #! Relative path to package bundle

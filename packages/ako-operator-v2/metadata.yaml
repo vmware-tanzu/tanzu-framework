@@ -1,0 +1,18 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: ako-operator-v2.tanzu.vmware.com
+spec:
+  displayName: "ako-operator-v2"
+  longDescription: "NSX Advanced Load Balancer using ako-operator"
+  shortDescription: "NSX Advanced Load Balancer using ako-operator"
+  providerName: VMware
+  maintainers:
+  - name: Xudong Liu
+  - name: Guangyuan Wang
+  - name: Fang Han
+  - name: Lubron Zhan
+  - name: Sharath Bhat
+  - name: Chen Lin
+  categories:
+    - "networking"

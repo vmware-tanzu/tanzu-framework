@@ -2,4 +2,4 @@ apiVersion: kbld.k14s.io/v1alpha1
 kind: Config
 overrides:
   - image: tkr-source-controller:latest
-    newImage: ""
+    newImage: "projects-stg.registry.vmware.com/tkg/sandbox/ako-operator:v1.7.0_vmware.1"

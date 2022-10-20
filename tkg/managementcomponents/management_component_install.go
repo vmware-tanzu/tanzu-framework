@@ -33,6 +33,7 @@ import (
 const (
 	addonsManagerName = "addons-manager"
 	addonFinalizer    = "tkg.tanzu.vmware.com/addon"
+	akoOperatorName   = "ako-operator"
 )
 
 // ClusterOptions specifies cluster configuration
@@ -134,9 +135,8 @@ func PauseAddonLifecycleManagement(clusterClient clusterclient.Client, clusterNa
 }
 
 // NoopDeletePackageInstall sets spec.noopdelete = true before deleting the package install
-func NoopDeletePackageInstall(clusterClient clusterclient.Client, addonName, namespace string) error {
-	log.Infof("Deleting %s/%s packageinstall with noopdelete", namespace, addonName)
-	pkgiName := fmt.Sprintf("tanzu-%s", addonName)
+func NoopDeletePackageInstall(clusterClient clusterclient.Client, pkgiName, namespace string) error {
+	log.Infof("Deleting %s/%s packageinstall with noopdelete", namespace, pkgiName)
 
 	jsonPatch := []map[string]interface{}{
 		{
@@ -167,10 +167,28 @@ func NoopDeletePackageInstall(clusterClient clusterclient.Client, addonName, nam
 	return nil
 }
 
+// DeleteLegacyAkoOperatorPackageInstall removes legacy management cluster ako operator packageInstall
+func DeleteLegacyAkoOperatorPackageInstall(clusterClient clusterclient.Client, akoOperatorAddonName string) error {
+	akoOperatorPkgiName := akoOperatorName
+
+	if err := pauseAddonSecretReconciliation(clusterClient, akoOperatorAddonName, constants.TkgNamespace); err != nil {
+		return err
+	}
+
+	if err := pausePackageInstallReconciliation(clusterClient, akoOperatorPkgiName, constants.TkgNamespace); err != nil {
+		return err
+	}
+
+	if err := NoopDeletePackageInstall(clusterClient, akoOperatorPkgiName, constants.TkgNamespace); err != nil {
+		return err
+	}
+	return nil
+}
+
 // DeleteAddonSecret deletes the secrete associated with the addon if present. Return no error if secret not found.
-func DeleteAddonSecret(clusterClient clusterclient.Client, clusterName, addonName, namespace string) error {
+func DeleteAddonSecret(clusterClient clusterclient.Client, addonSecretName, namespace string) error {
 	addonSecret := &corev1.Secret{}
-	addonSecret.Name = generateAddonSecretName(clusterName, addonName)
+	addonSecret.Name = addonSecretName
 	addonSecret.Namespace = constants.TkgNamespace
 	log.Infof("Deleting %s/%s secret", addonSecret.Namespace, addonSecret.Name)
 	err := clusterClient.GetResource(addonSecret, addonSecret.Name, addonSecret.Namespace, nil, nil)
@@ -207,9 +225,9 @@ func DeleteAddonSecret(clusterClient clusterclient.Client, clusterName, addonNam
 }
 
 // AddonSecretExists returns true if given addon is present and was installed from core repository.
-func AddonSecretExists(clusterClient clusterclient.Client, clusterName, addonName, namespace string) (bool, error) {
+func AddonSecretExists(clusterClient clusterclient.Client, addonSecretName, namespace string) (bool, error) {
 	addonSecret := &corev1.Secret{}
-	addonSecret.Name = generateAddonSecretName(clusterName, addonName)
+	addonSecret.Name = addonSecretName
 	addonSecret.Namespace = constants.TkgNamespace
 
 	err := clusterClient.GetResource(addonSecret, addonSecret.Name, addonSecret.Namespace, nil, nil)
@@ -231,7 +249,7 @@ func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient p
 
 	// If the addons-manager is moving from core repository to management repository, its lifecycle management
 	// needs to be paused.
-	previousAddonsManagerIsFromCoreRepo, err := AddonSecretExists(clusterClient, clusterName, addonsManagerName, constants.TkgNamespace)
+	previousAddonsManagerIsFromCoreRepo, err := AddonSecretExists(clusterClient, generateAddonSecretName(clusterName, addonsManagerName), constants.TkgNamespace)
 	if err != nil {
 		return err
 	}
@@ -241,15 +259,24 @@ func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient p
 			return err
 		}
 
-		err = NoopDeletePackageInstall(clusterClient, addonsManagerName, constants.TkgNamespace)
+		err = NoopDeletePackageInstall(clusterClient, fmt.Sprintf("tanzu-%s", addonsManagerName), constants.TkgNamespace)
 		if err != nil {
 			return err
 		}
 	}
 
+	akoOperatorAddonName := fmt.Sprintf("%s-%s-addon", clusterName, akoOperatorName)
+	previousAkoOperatorIsFromCoreRepo, err := AddonSecretExists(clusterClient, akoOperatorAddonName, constants.TkgNamespace)
+	if err != nil {
+		return err
+	}
+
+	if err := DeleteLegacyAkoOperatorPackageInstall(clusterClient, clusterName); err != nil {
+		return err
+	}
+
 	if err = InstallManagementPackages(pkgClient, mcip.ManagementPackageRepositoryOptions); err != nil {
 		// instead of throwing error here, wait for some additional time for packages to get reconciled successfully
-		// error will be thrown at the next step if packages are not reconciled after timeout value
 		log.Warning(err.Error())
 	}
 
@@ -271,7 +298,14 @@ func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient p
 	}
 
 	if previousAddonsManagerIsFromCoreRepo {
-		err = DeleteAddonSecret(clusterClient, clusterName, addonsManagerName, constants.TkgNamespace)
+		err = DeleteAddonSecret(clusterClient, generateAddonSecretName(clusterName, addonsManagerName), constants.TkgNamespace)
+		if err != nil {
+			return err
+		}
+	}
+
+	if previousAkoOperatorIsFromCoreRepo {
+		err = DeleteAddonSecret(clusterClient, fmt.Sprintf("%s-%s-addon", clusterName, akoOperatorName), constants.TkgNamespace)
 		if err != nil {
 			return err
 		}

@@ -166,6 +166,28 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 	return err
 }
 
+// InstallAKO install AKO to the cluster
+func (c *TkgClient) InstallAKO(mcClient clusterclient.Client) error {
+	// Get AKO file
+	akoPackageInstallFile, err := c.getAKOPackageInstallFile()
+	if err != nil {
+		return err
+	}
+
+	// Apply ako packageinstall configuration
+	if err := mcClient.ApplyFile(akoPackageInstallFile); err != nil {
+		return errors.Wrapf(err, "error installing %s", constants.AKODeploymentName)
+	}
+	// Remove intermediate config files if err is empty
+	if err == nil {
+		os.Remove(akoPackageInstallFile)
+	}
+	// no need to wait for AKO packageInstall to be ready. It will be ready once the AKOO
+	// creates the secret for it when a cluster is created.
+	// this is to workaround a bug that AKO might allocate control plane HA IP to pinniped service
+	return err
+}
+
 // GetAddonsManagerPackageversion returns a addons manager package version
 func (c *TkgClient) GetAddonsManagerPackageversion(managementPackageVersion string) (string, error) {
 	envDefinedVersion := os.Getenv("_ADDONS_MANAGER_PACKAGE_VERSION")
@@ -440,4 +462,45 @@ func GetConfigVariableListFromYamlData(bytes []byte) ([]string, error) {
 	}
 
 	return keys, nil
+}
+
+func (c *TkgClient) getAKOPackageInstallFile() (string, error) {
+	akoPackageInstallTemplateFile, err := utils.CreateTempFile("", "*.yaml")
+	if err != nil {
+		return "", err
+	}
+	err = utils.WriteToFile(akoPackageInstallTemplateFile, []byte(constants.AKOPackageInstall))
+	if err != nil {
+		return "", err
+	}
+
+	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile()
+	if err != nil {
+		return "", err
+	}
+
+	akoPackageInstallFile, err := ProcessAKOPackageInstallFile(akoPackageInstallTemplateFile, userConfigValuesFile)
+	if err != nil {
+		return "", err
+	}
+
+	return akoPackageInstallFile, nil
+}
+
+func ProcessAKOPackageInstallFile(akoPackageInstallTemplateFile, userConfigValuesFile string) (string, error) {
+	akoPackageInstallContent, err := carvelhelpers.ProcessYTTPackage(akoPackageInstallTemplateFile, userConfigValuesFile)
+	if err != nil {
+		return "", err
+	}
+
+	akoPackageInstallFile, err := utils.CreateTempFile("", "*.yaml")
+	if err != nil {
+		return "", err
+	}
+
+	if err := utils.WriteToFile(akoPackageInstallFile, akoPackageInstallContent); err != nil {
+		return "", err
+	}
+
+	return akoPackageInstallFile, nil
 }
