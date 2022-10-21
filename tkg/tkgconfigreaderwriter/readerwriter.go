@@ -4,6 +4,7 @@
 package tkgconfigreaderwriter
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -61,6 +62,7 @@ func (v *tkgConfigReaderWriter) Init(tkgConfigFile string) error {
 
 func (v *tkgConfigReaderWriter) MergeInConfig(configFilePath string) error {
 	// Use path file from the flag.
+	fmt.Println("## MergeInConfig", configFilePath)
 	v.viperStore.SetConfigFile(configFilePath)
 	v.viperStore.SetConfigType("yaml")
 	// If a path file is found, read it in.
@@ -78,10 +80,12 @@ func (v *tkgConfigReaderWriter) Get(key string) (string, error) {
 }
 
 func (v *tkgConfigReaderWriter) Set(key, value string) {
+	fmt.Println("## Set", key, value)
 	v.viperStore.Set(key, value)
 }
 
 func (v *tkgConfigReaderWriter) SetMap(data map[string]string) {
+	fmt.Println("## SetMap", data)
 	for key, val := range data {
 		v.Set(key, val)
 	}
