@@ -22,8 +22,8 @@ spec:
         - image: #@ "{}/{}:{}".format(get_image_repo_for_component(calicoImages.calicoCniImage), calicoImages.calicoCniImage.imagePath, calicoImages.calicoCniImage.tag)
           #@overlay/match missing_ok=True
           imagePullPolicy: IfNotPresent
-        #@overlay/match by=overlay.subset({"name":"flexvol-driver"})
-        - image: #@ "{}/{}:{}".format(get_image_repo_for_component(calicoImages.calicoPodDaemonImage), calicoImages.calicoPodDaemonImage.imagePath, calicoImages.calicoPodDaemonImage.tag)
+        #@overlay/match by=overlay.subset({"name":"mount-bpffs"})
+        - image: #@ "{}/{}:{}".format(get_image_repo_for_component(calicoImages.calicoNodeImage), calicoImages.calicoNodeImage.imagePath, calicoImages.calicoNodeImage.tag)
           #@overlay/match missing_ok=True
           imagePullPolicy: IfNotPresent
       containers:
