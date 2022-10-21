@@ -290,16 +290,18 @@ func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error
 }
 
 // InstallKappController installs kapp-controller to the cluster
-func InstallKappController(clusterClient clusterclient.Client, kappControllerOptions KappControllerOptions) error {
-	// Ensure last-applied annotation is present before kapp-controller upgrade
-	err := clusterClient.GetResource(&appsv1.Deployment{}, constants.KappControllerDeploymentName, kappControllerOptions.KappControllerInstallNamespace, nil, nil)
-	if err != nil && !apierrors.IsNotFound(err) {
-		return err
-	}
-	if err == nil { // only attempt to add annotation when kapp-controller exists on the cluster
-		log.Infof("Adding last-applied annotation on kapp-controller...")
-		if err := clusterClient.PatchKappControllerLastAppliedAnnotation(kappControllerOptions.KappControllerInstallNamespace); err != nil {
-			return errors.Wrap(err, "error adding last-applied annotation on kapp-controller")
+func InstallKappController(clusterClient clusterclient.Client, kappControllerOptions KappControllerOptions, operationType constants.OperationType) error {
+	if operationType == constants.OperationTypeUpgrade {
+		// Ensure last-applied annotation is present before kapp-controller upgrade
+		err := clusterClient.GetResource(&appsv1.Deployment{}, constants.KappControllerDeploymentName, kappControllerOptions.KappControllerInstallNamespace, nil, nil)
+		if err != nil && !apierrors.IsNotFound(err) {
+			return err
+		}
+		if err == nil { // only attempt to add annotation when kapp-controller exists on the cluster
+			log.Infof("Adding last-applied annotation on kapp-controller...")
+			if err := clusterClient.PatchKappControllerLastAppliedAnnotation(kappControllerOptions.KappControllerInstallNamespace); err != nil {
+				return errors.Wrap(err, "error adding last-applied annotation on kapp-controller")
+			}
 		}
 	}
 	// Apply kapp-controller configuration

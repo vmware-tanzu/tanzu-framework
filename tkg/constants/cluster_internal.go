@@ -189,3 +189,10 @@ const (
 	ResourceVSphereClusterTemplate      = "vsphereclustertemplates"
 	ResourceVSphereMachineTemplate      = "vspheremachinetemplates"
 )
+
+type OperationType int
+
+const (
+	OperationTypeInstall OperationType = iota
+	OperationTypeUpgrade
+)

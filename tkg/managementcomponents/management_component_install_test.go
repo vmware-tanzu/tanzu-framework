@@ -93,11 +93,10 @@ var _ = Describe("Test InstallKappController", func() {
 		kcOptions = KappControllerOptions{KappControllerConfigFile: "", KappControllerInstallNamespace: ""}
 	})
 
-	JustBeforeEach(func() {
-		err = InstallKappController(clusterClient, kcOptions)
-	})
-
-	Context("when getting kapp-controller deployment throws error other than NotFound err", func() {
+	Context("when getting kapp-controller deployment throws error other than NotFound err, while upgrading kapp controller", func() {
+		JustBeforeEach(func() {
+			err = InstallKappController(clusterClient, kcOptions, constants.OperationTypeUpgrade)
+		})
 		BeforeEach(func() {
 			clusterClient.GetResourceReturns(errors.New("fake error getting resource"))
 		})
@@ -107,7 +106,10 @@ var _ = Describe("Test InstallKappController", func() {
 		})
 	})
 
-	Context("when adding last-applied annotation on kapp-controller throws error", func() {
+	Context("when adding last-applied annotation on kapp-controller throws error, while upgrading kapp controller", func() {
+		JustBeforeEach(func() {
+			err = InstallKappController(clusterClient, kcOptions, constants.OperationTypeUpgrade)
+		})
 		BeforeEach(func() {
 			clusterClient.GetResourceReturns(nil)
 			clusterClient.PatchKappControllerLastAppliedAnnotationReturns(errors.New("fake error adding annotation"))
@@ -119,7 +121,10 @@ var _ = Describe("Test InstallKappController", func() {
 		})
 	})
 
-	Context("when applying kapp-controller config throws error", func() {
+	Context("when applying kapp-controller config throws error, while upgrading kapp controller", func() {
+		JustBeforeEach(func() {
+			err = InstallKappController(clusterClient, kcOptions, constants.OperationTypeUpgrade)
+		})
 		BeforeEach(func() {
 			clusterClient.GetResourceReturns(notFoundError)
 			clusterClient.ApplyFileReturns(errors.New("fake error applyfile"))
@@ -131,7 +136,10 @@ var _ = Describe("Test InstallKappController", func() {
 		})
 	})
 
-	Context("when WaitForDeployment config throws error", func() {
+	Context("when WaitForDeployment config throws error, while upgrading kapp controller", func() {
+		JustBeforeEach(func() {
+			err = InstallKappController(clusterClient, kcOptions, constants.OperationTypeUpgrade)
+		})
 		BeforeEach(func() {
 			clusterClient.GetResourceReturns(notFoundError)
 			clusterClient.ApplyFileReturns(nil)
@@ -144,7 +152,10 @@ var _ = Describe("Test InstallKappController", func() {
 		})
 	})
 
-	Context("when kapp-controller is deployed successfully", func() {
+	Context("when kapp-controller is deployed successfully, while upgrading kapp controller", func() {
+		JustBeforeEach(func() {
+			err = InstallKappController(clusterClient, kcOptions, constants.OperationTypeUpgrade)
+		})
 		BeforeEach(func() {
 			clusterClient.GetResourceReturns(notFoundError)
 			clusterClient.ApplyFileReturns(nil)
@@ -155,6 +166,50 @@ var _ = Describe("Test InstallKappController", func() {
 		})
 	})
 
+	Context("when applying kapp-controller throws error, while installing kapp controller", func() {
+		JustBeforeEach(func() {
+			err = InstallKappController(clusterClient, kcOptions, constants.OperationTypeInstall)
+		})
+		BeforeEach(func() {
+			clusterClient.GetResourceReturns(notFoundError)
+			clusterClient.ApplyFileReturns(errors.New("fake error applyfile"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("fake error applyfile"))
+			Expect(err.Error()).To(ContainSubstring("error installing %s", constants.KappControllerDeploymentName))
+		})
+	})
+
+	Context("when WaitForDeployment config throws error, while installing kapp controller", func() {
+		JustBeforeEach(func() {
+			err = InstallKappController(clusterClient, kcOptions, constants.OperationTypeInstall)
+		})
+		BeforeEach(func() {
+			clusterClient.GetResourceReturns(notFoundError)
+			clusterClient.ApplyFileReturns(nil)
+			clusterClient.WaitForDeploymentReturns(errors.New("fake error waitfordeployment"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("fake error waitfordeployment"))
+			Expect(err.Error()).To(ContainSubstring("error while waiting for deployment %s", constants.KappControllerDeploymentName))
+		})
+	})
+
+	Context("when kapp-controller is deployed successfully, while installing kapp controller", func() {
+		JustBeforeEach(func() {
+			err = InstallKappController(clusterClient, kcOptions, constants.OperationTypeInstall)
+		})
+		BeforeEach(func() {
+			clusterClient.GetResourceReturns(notFoundError)
+			clusterClient.ApplyFileReturns(nil)
+			clusterClient.WaitForDeploymentReturns(nil)
+		})
+		It("should return error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
 })
 
 var _ = Describe("Test WaitForManagementPackages", func() {
