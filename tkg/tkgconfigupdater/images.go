@@ -4,6 +4,7 @@
 package tkgconfigupdater
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -108,12 +109,14 @@ func (c *client) getImageMapForConfigFile() (map[string]imageForConfigFile, erro
 		imageInfoFromBOM, exists := bomConfig.Components[bomImageComponent.ComponentName][0].Images[bomImageComponent.ImageName]
 		if !exists {
 			log.V(7).Infof("unable to find component %s, image %s in BOM file", bomImageComponent.ComponentName, bomImageComponent.ImageName)
+			fmt.Println("unable to find component %s, image %s in BOM file", bomImageComponent.ComponentName, bomImageComponent.ImageName)
 			continue
 		}
 
 		repository, err := getRepositoryFromImagePathWithBaseRepositoryPatch(imageInfoFromBOM, baseImageRepository)
 		if err != nil {
 			log.V(7).Infof("unable to construct repository information for component %s, image %s in BOM file", bomImageComponent.ComponentName, bomImageComponent.ImageName)
+			fmt.Println("unable to construct repository information for component %s, image %s in BOM file", bomImageComponent.ComponentName, bomImageComponent.ImageName)
 			continue
 		}
 
@@ -127,6 +130,7 @@ func (c *client) getImageMapForConfigFile() (map[string]imageForConfigFile, erro
 			image.Tag = imageInfoFromBOM.Tag
 		}
 		images[configKey] = image
+		fmt.Println("Image repo and tag:", image.Repository, image.Tag)
 	}
 
 	return images, nil
