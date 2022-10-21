@@ -531,6 +531,78 @@ var _ = Describe("Cluster Client", func() {
 		})
 	})
 
+	Describe("Wait For Control plane available", func() {
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			kcp := controlplanev1.KubeadmControlPlane{}
+			kcp.Name = "fake-kcp-name"
+			kcp.Namespace = "fake-kcp-namespace"
+			kcp.Spec.Version = "fake-version"
+			Expect(err).NotTo(HaveOccurred())
+		})
+		Context("When cluster control plane is not initialized", func() {
+			JustBeforeEach(func() {
+				clientset.ListReturns(errors.New("zero or multiple KCP objects found for the given cluster"))
+				err = clstClient.WaitForControlPlaneAvailable("fake-clusterName", "fake-namespace")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("zero or multiple KCP objects found for the given cluster"))
+			})
+		})
+		Context("When cluster control plane is not available", func() {
+			JustBeforeEach(func() {
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *controlplanev1.KubeadmControlPlaneList:
+						kcp := getDummyKCP(3, 0, 1, 1)
+						conditions := capi.Conditions{}
+						conditions = append(conditions, capi.Condition{
+							Type:   controlplanev1.AvailableCondition,
+							Status: corev1.ConditionFalse,
+						})
+						kcp.Status.Conditions = conditions
+						o.Items = append(o.Items, kcp)
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				err = clstClient.WaitForControlPlaneAvailable("fake-clusterName", "fake-namespace")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("control plane is not available yet"))
+			})
+		})
+		Context("When cluster control plane is available", func() {
+			JustBeforeEach(func() {
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *controlplanev1.KubeadmControlPlaneList:
+						kcp := getDummyKCP(3, 1, 1, 1)
+						conditions := capi.Conditions{}
+						conditions = append(conditions, capi.Condition{
+							Type:   controlplanev1.AvailableCondition,
+							Status: corev1.ConditionTrue,
+						})
+						kcp.Status.Conditions = conditions
+						o.Items = append(o.Items, kcp)
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				err = clstClient.WaitForControlPlaneAvailable("fake-clusterName", "fake-namespace")
+			})
+			It("should not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
 	Describe("Wait For Cluster Ready", func() {
 		BeforeEach(func() {
 			reInitialize()

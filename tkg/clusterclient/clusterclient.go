@@ -116,6 +116,8 @@ type Client interface {
 	ApplyFile(string) error
 	// WaitForClusterInitialized waits for a cluster to be initialized so the kubeconfig file can be fetched
 	WaitForClusterInitialized(clusterName string, namespace string) error
+	// WaitForControlPlaneAvailable wait for cluster API server is ready to receive requests
+	WaitForControlPlaneAvailable(clusterName string, namespace string) error
 	// WaitForClusterReady for a cluster to be fully provisioned and so ready to be moved
 	// If checkReplicas is true, will also ensure that the number of ready
 	// replicas matches the expected number in the cluster's spec
@@ -601,6 +603,21 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 	}
 
 	return c.poller.PollImmediateInfiniteWithGetter(interval, getterFunc)
+}
+
+func (c *client) WaitForControlPlaneAvailable(clusterName, namespace string) error {
+	_, err := c.poller.PollImmediateWithGetter(CheckClusterInterval, c.operationTimeout, func() (interface{}, error) {
+		kcpObject, err := c.GetKCPObjectForCluster(clusterName, namespace)
+		if err != nil {
+			return false, err
+		}
+		if conditions.IsTrue(kcpObject, controlplanev1.AvailableCondition) {
+			return true, nil
+		}
+
+		return false, errors.New("control plane is not available yet")
+	})
+	return err
 }
 
 func (c *client) WaitForClusterReady(clusterName, namespace string, checkAllReplicas bool) error {

@@ -56,7 +56,11 @@ spec:
       - class: tkg-worker
         name: md-0
         #@overlay/match missing_ok=True
+        #@ if data.values.CLUSTER_PLAN == "prodcc":
+        replicas: #@ data.values.WORKER_MACHINE_COUNT_0
+        #@ else:
         replicas: #@ data.values.WORKER_MACHINE_COUNT
+        #@ end
         #@overlay/match missing_ok=True
         metadata:
           annotations:

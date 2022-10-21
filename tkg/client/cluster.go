@@ -703,10 +703,11 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 
 // ValidateProviderConfig configure and validate based on provider
 func (c *TkgClient) configureAndValidateProviderConfig(providerName string, options *CreateClusterOptions, clusterClient clusterclient.Client, skipValidation bool) error {
+	isProdPlan := IsProdPlan(options.ClusterConfigOptions.ProviderRepositorySource.Flavor)
 	switch providerName {
 	case AWSProviderName:
 		if err := c.ConfigureAndValidateAWSConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
-			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, clusterClient, false); err != nil {
+			isProdPlan, *options.WorkerMachineCount, clusterClient, false); err != nil {
 			return errors.Wrap(err, "AWS config validation failed")
 		}
 	case VSphereProviderName:
@@ -717,8 +718,7 @@ func (c *TkgClient) configureAndValidateProviderConfig(providerName string, opti
 			return NewValidationError(ValidationErrorCode, errors.Wrap(err, "vSphere control plane endpoint IP validation failed").Error())
 		}
 	case AzureProviderName:
-		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
-			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, nil, false); err != nil {
+		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation, nil); err != nil {
 			return errors.Wrap(err, "Azure config validation failed")
 		}
 	case DockerProviderName:
@@ -726,6 +726,13 @@ func (c *TkgClient) configureAndValidateProviderConfig(providerName string, opti
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
 	}
+
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, isProdPlan, false, providerName, false)
+	if err != nil {
+		return errors.Wrap(err, "failed to distribute machine deployments")
+	}
+	c.SetMachineDeploymentWorkerCounts(workerCounts, *options.WorkerMachineCount, isProdPlan)
+
 	return nil
 }
 

@@ -1170,6 +1170,18 @@ type ClusterClient struct {
 	waitForClusterReadyReturnsOnCall map[int]struct {
 		result1 error
 	}
+	WaitForControlPlaneAvailableStub        func(string, string) error
+	waitForControlPlaneAvailableMutex       sync.RWMutex
+	waitForControlPlaneAvailableArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	waitForControlPlaneAvailableReturns struct {
+		result1 error
+	}
+	waitForControlPlaneAvailableReturnsOnCall map[int]struct {
+		result1 error
+	}
 	WaitForDeploymentStub        func(string, string) error
 	waitForDeploymentMutex       sync.RWMutex
 	waitForDeploymentArgsForCall []struct {
@@ -6754,6 +6766,68 @@ func (fake *ClusterClient) WaitForClusterReadyReturnsOnCall(i int, result1 error
 	}{result1}
 }
 
+func (fake *ClusterClient) WaitForControlPlaneAvailable(arg1 string, arg2 string) error {
+	fake.waitForControlPlaneAvailableMutex.Lock()
+	ret, specificReturn := fake.waitForControlPlaneAvailableReturnsOnCall[len(fake.waitForControlPlaneAvailableArgsForCall)]
+	fake.waitForControlPlaneAvailableArgsForCall = append(fake.waitForControlPlaneAvailableArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.WaitForControlPlaneAvailableStub
+	fakeReturns := fake.waitForControlPlaneAvailableReturns
+	fake.recordInvocation("WaitForControlPlaneAvailable", []interface{}{arg1, arg2})
+	fake.waitForControlPlaneAvailableMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) WaitForControlPlaneAvailableCallCount() int {
+	fake.waitForControlPlaneAvailableMutex.RLock()
+	defer fake.waitForControlPlaneAvailableMutex.RUnlock()
+	return len(fake.waitForControlPlaneAvailableArgsForCall)
+}
+
+func (fake *ClusterClient) WaitForControlPlaneAvailableCalls(stub func(string, string) error) {
+	fake.waitForControlPlaneAvailableMutex.Lock()
+	defer fake.waitForControlPlaneAvailableMutex.Unlock()
+	fake.WaitForControlPlaneAvailableStub = stub
+}
+
+func (fake *ClusterClient) WaitForControlPlaneAvailableArgsForCall(i int) (string, string) {
+	fake.waitForControlPlaneAvailableMutex.RLock()
+	defer fake.waitForControlPlaneAvailableMutex.RUnlock()
+	argsForCall := fake.waitForControlPlaneAvailableArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) WaitForControlPlaneAvailableReturns(result1 error) {
+	fake.waitForControlPlaneAvailableMutex.Lock()
+	defer fake.waitForControlPlaneAvailableMutex.Unlock()
+	fake.WaitForControlPlaneAvailableStub = nil
+	fake.waitForControlPlaneAvailableReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) WaitForControlPlaneAvailableReturnsOnCall(i int, result1 error) {
+	fake.waitForControlPlaneAvailableMutex.Lock()
+	defer fake.waitForControlPlaneAvailableMutex.Unlock()
+	fake.WaitForControlPlaneAvailableStub = nil
+	if fake.waitForControlPlaneAvailableReturnsOnCall == nil {
+		fake.waitForControlPlaneAvailableReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.waitForControlPlaneAvailableReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) WaitForDeployment(arg1 string, arg2 string) error {
 	fake.waitForDeploymentMutex.Lock()
 	ret, specificReturn := fake.waitForDeploymentReturnsOnCall[len(fake.waitForDeploymentArgsForCall)]
@@ -7313,6 +7387,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.waitForClusterInitializedMutex.RUnlock()
 	fake.waitForClusterReadyMutex.RLock()
 	defer fake.waitForClusterReadyMutex.RUnlock()
+	fake.waitForControlPlaneAvailableMutex.RLock()
+	defer fake.waitForControlPlaneAvailableMutex.RUnlock()
 	fake.waitForDeploymentMutex.RLock()
 	defer fake.waitForDeploymentMutex.RUnlock()
 	fake.waitForPacificClusterMutex.RLock()
