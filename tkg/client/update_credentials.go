@@ -4,11 +4,14 @@
 package client
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 )
@@ -19,6 +22,7 @@ type UpdateCredentialsOptions struct {
 	Namespace                   string
 	Kubeconfig                  string
 	VSphereUpdateClusterOptions *VSphereUpdateClusterOptions
+	AzureUpdateClusterOptions   *AzureUpdateClusterOptions
 	IsRegionalCluster           bool
 	IsCascading                 bool
 }
@@ -27,6 +31,14 @@ type UpdateCredentialsOptions struct {
 type VSphereUpdateClusterOptions struct {
 	Username string
 	Password string
+}
+
+// AzureUpdateClusterOptions azure credential options
+type AzureUpdateClusterOptions struct {
+	AzureTenantID       string
+	AzureSubscriptionID string
+	AzureClientID       string
+	AzureClientSecret   string
 }
 
 // UpdateCredentialsRegion update management cluster credentials
@@ -75,8 +87,15 @@ func (c *TkgClient) UpdateCredentialsRegion(options *UpdateCredentialsOptions) e
 		}
 	}
 
+	if infraProviderName == AzureProviderName {
+		log.Infof("Updating credentials for azure provider")
+		if err := c.UpdateAzureClusterCredentials(regionalClusterClient, options); err != nil {
+			return err
+		}
+	}
+
 	// update operation is supported only on vsphere clusters for now
-	if infraProviderName != VSphereProviderName {
+	if infraProviderName != VSphereProviderName && infraProviderName != AzureProviderName {
 		return errors.New("Updating '" + infraProviderName + "' cluster is not yet supported")
 	}
 
@@ -122,8 +141,15 @@ func (c *TkgClient) UpdateCredentialsCluster(options *UpdateCredentialsOptions) 
 		}
 	}
 
+	if infraProviderName == AzureProviderName {
+		log.Infof("Updating credentials for azure provider")
+		if err := c.UpdateAzureClusterCredentials(regionalClusterClient, options); err != nil {
+			return err
+		}
+	}
+
 	// update operation is supported only on vsphere clusters for now
-	if infraProviderName != VSphereProviderName {
+	if infraProviderName != VSphereProviderName && infraProviderName != AzureProviderName {
 		return errors.New("Updating '" + infraProviderName + "' cluster is not yet supported")
 	}
 
@@ -192,6 +218,100 @@ func (c *TkgClient) updateVSphereCredentialsForCluster(clusterClient clusterclie
 
 	// update csi-vsphere-config
 	if err := clusterClient.UpdateVsphereCsiConfigSecret(options.ClusterName, options.Namespace, options.VSphereUpdateClusterOptions.Username, options.VSphereUpdateClusterOptions.Password); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UpdateAzureClusterCredentials update azure cluster credentials
+func (c *TkgClient) UpdateAzureClusterCredentials(clusterClient clusterclient.Client, options *UpdateCredentialsOptions) error {
+	if options.AzureUpdateClusterOptions.AzureTenantID == "" || options.AzureUpdateClusterOptions.AzureSubscriptionID == "" || options.AzureUpdateClusterOptions.AzureClientID == "" || options.AzureUpdateClusterOptions.AzureClientSecret == "" {
+		return errors.New("either tenantId, subscriptionId, clientId or clientSecret should not be empty")
+	}
+
+	if err := c.updateAzureCredentialsForCluster(clusterClient, options); err != nil {
+		return err
+	}
+
+	if options.IsRegionalCluster {
+		if options.IsCascading {
+			log.Infof("Updating credentials for all workload clusters under management cluster %q", options.ClusterName)
+			clusters, err := clusterClient.ListClusters("")
+			if err != nil {
+				return errors.Wrapf(err, "unable to update credentials on workload clusters")
+			}
+
+			for i := range clusters {
+				if clusters[i].Name == options.ClusterName {
+					continue
+				}
+
+				log.Infof("Updating credentials for workload cluster %q ...", clusters[i].Name)
+				err := c.updateAzureCredentialsForCluster(clusterClient, &UpdateCredentialsOptions{
+					ClusterName:               clusters[i].Name,
+					Namespace:                 clusters[i].Namespace,
+					IsRegionalCluster:         false,
+					AzureUpdateClusterOptions: options.AzureUpdateClusterOptions,
+				})
+				if err != nil {
+					log.Error(err, "unable to update credentials for workload cluster")
+					continue
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (c *TkgClient) updateAzureCredentialsForCluster(clusterClient clusterclient.Client, options *UpdateCredentialsOptions) error {
+	if options.IsRegionalCluster {
+		// update capz-manager-bootstrap-credentials
+		if err := clusterClient.UpdateCapzManagerBootstrapCredentialsSecret(options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureSubscriptionID, options.AzureUpdateClusterOptions.AzureClientID, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
+			return err
+		}
+
+		// set secret and namespace name for AzureClusterIdentity
+		identitySecretName := fmt.Sprintf("%s-identity-secret", options.ClusterName)
+		azureClusterIdentityNamespace := constants.TkgNamespace
+
+		// update Azure Identity Secret
+		if err := clusterClient.UpdateAzureIdentityRefSecret(identitySecretName, azureClusterIdentityNamespace, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
+			return err
+		}
+
+		// Update AzureClusterIdentity
+		if err := clusterClient.UpdateAzureClusterIdentityRef(identitySecretName, azureClusterIdentityNamespace, options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureClientID); err != nil {
+			return err
+		}
+
+		// restart capz-controller-manager pod
+		if err := c.restartCAPZControllerManagerPod(clusterClient); err != nil {
+			return err
+		}
+	}
+
+	// Restart the Controller Manager pod
+	// Recycle all KCP in the cluster
+	if err := clusterClient.UpdateAzureKCP(options.ClusterName, options.Namespace); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *TkgClient) restartCAPZControllerManagerPod(clusterClient clusterclient.Client) error {
+	replicas, err := clusterClient.GetCAPZControllerManagerDeploymentsReplicas()
+	if err != nil {
+		return err
+	}
+
+	if err := clusterClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0)); err != nil {
+		return err
+	}
+
+	if err := clusterClient.UpdateCAPZControllerManagerDeploymentReplicas(replicas); err != nil {
 		return err
 	}
 

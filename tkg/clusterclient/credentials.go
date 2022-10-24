@@ -6,13 +6,17 @@ package clusterclient
 import (
 	"encoding/base64"
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	azureclient "github.com/vmware-tanzu/tanzu-framework/tkg/azure"
@@ -25,6 +29,7 @@ const (
 	vSphereBootstrapCredentialSecret = "capv-manager-bootstrap-credentials" // #nosec
 	AWSBootstrapCredentialsSecret    = "capa-manager-bootstrap-credentials" // #nosec
 	AzureBootstrapCredentialsSecret  = "capz-manager-bootstrap-credentials" // #nosec
+	AzureControllerManagerDeploy     = "capz-controller-manager"
 	KeyAzureClientID                 = "client-id"
 	KeyAzureSubsciptionID            = "subscription-id"
 	KeyAzureClientSecret             = "client-secret"
@@ -35,6 +40,7 @@ const (
 	KeyVSphereCpiConfig              = "values.yaml"
 	KeyCAInSecret                    = "ca.crt"
 	CapvNamespace                    = "capv-system"
+	CapzNamespace                    = "capz-system"
 )
 
 func (c *client) GetVCCredentialsFromCluster(clusterName, clusterNamespace string) (string, string, error) {
@@ -434,4 +440,188 @@ func (c *client) GetAzureCredentialsFromSecret() (azureclient.Credentials, error
 	}
 
 	return res, nil
+}
+
+func (c *client) UpdateCapzManagerBootstrapCredentialsSecret(tenantID, subscriptionID, clientID, clientSecret string) error {
+	var tenantIDBytes []byte
+	var subscriptionIDBytes []byte
+	var clientIDBytes []byte
+	var clientSecretBytes []byte
+
+	clientIDBytes = []byte(clientID)
+	clientIDBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(clientIDBytes)))
+	base64.StdEncoding.Encode(clientIDBytesB64, clientIDBytes)
+
+	clientSecretBytes = []byte(clientSecret)
+	clientSecretBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(clientSecretBytes)))
+	base64.StdEncoding.Encode(clientSecretBytesB64, clientSecretBytes)
+
+	subscriptionIDBytes = []byte(subscriptionID)
+	subscriptionIDBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(subscriptionIDBytes)))
+	base64.StdEncoding.Encode(subscriptionIDBytesB64, subscriptionIDBytes)
+
+	tenantIDBytes = []byte(tenantID)
+	tenantIDBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(tenantIDBytes)))
+	base64.StdEncoding.Encode(tenantIDBytesB64, tenantIDBytes)
+
+	secret := &corev1.Secret{}
+
+	patchString := fmt.Sprintf(`[
+		{
+			"op": "replace",
+			"path": "/data/client-id",
+			"value": "%s"
+		},
+		{
+			"op": "replace",
+			"path": "/data/client-secret",
+			"value": "%s"
+		},
+		{
+			"op": "replace",
+			"path": "/data/subscription-id",
+			"value": "%s"
+		},
+		{
+			"op": "replace",
+			"path": "/data/tenant-id",
+			"value": "%s"
+		}
+	]`, string(clientIDBytesB64), string(clientSecretBytesB64), string(subscriptionIDBytesB64), string(tenantIDBytesB64))
+
+	log.V(4).Info("Patching capz-manager bootstrap credentials")
+
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
+	if err := c.PatchResource(secret, AzureBootstrapCredentialsSecret, CapzNamespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+		return errors.Wrap(err, "unable to save capz-manager bootstrap credential secret")
+	}
+
+	return nil
+}
+
+func (c *client) GetCAPZControllerManagerDeploymentsReplicas() (int32, error) {
+	deployment := &appsv1.Deployment{}
+	if err := c.GetResource(deployment, AzureControllerManagerDeploy, CapzNamespace, nil, nil); err != nil {
+		if k8serrors.IsNotFound(err) {
+			// if deployment is missing, return without errors
+			return 0, nil
+		}
+		return 0, errors.Wrapf(err, "failed to look up '%s' deployment", calicoKubeControllerKey)
+	}
+	curReplicas := *deployment.Spec.Replicas
+	return curReplicas, nil
+}
+
+func (c *client) UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) error {
+	deployment := &appsv1.Deployment{}
+	if err := c.GetResource(deployment, AzureControllerManagerDeploy, CapzNamespace, nil, nil); err != nil {
+		if k8serrors.IsNotFound(err) {
+			// if deployment is missing, return without errors
+			return nil
+		}
+		return errors.Wrapf(err, "failed to look up '%s' deployment", calicoKubeControllerKey)
+	}
+
+	patchString := fmt.Sprintf(`[
+		{
+			"op": "replace",
+			"path": "/spec/replicas",
+			"value": "%d"
+		}
+	]`, replicas)
+
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
+
+	if err := c.PatchResource(&appsv1.Deployment{}, AzureControllerManagerDeploy, CapzNamespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+		return errors.Wrap(err, "unable to rollback capz-controller-manager deployment replicas")
+	}
+
+	return nil
+}
+
+func (c *client) UpdateAzureIdentityRefSecret(identitySecretName, namespace, clientSecret string) error {
+	secret := &corev1.Secret{}
+	err := c.GetResource(secret, identitySecretName, namespace, nil, nil)
+	if err != nil {
+		if k8serrors.IsNotFound(err) {
+			log.Info("Cluster identity secret not present. Skipping update...")
+			return nil
+		}
+		return err
+	}
+
+	var clientSecretBytes []byte
+
+	clientSecretBytes = []byte(clientSecret)
+	clientSecretBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(clientSecretBytes)))
+	base64.StdEncoding.Encode(clientSecretBytesB64, clientSecretBytes)
+
+	patchString := fmt.Sprintf(`[
+		{
+			"op": "replace",
+			"path": "/data/clientSecret",
+			"value": "%s"
+		}
+	]`, string(clientSecretBytesB64))
+
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
+	if err := c.PatchResource(&corev1.Secret{}, identitySecretName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+		return errors.Wrap(err, "unable to save cluster identityRef secret")
+	}
+
+	return nil
+}
+
+func (c *client) UpdateAzureClusterIdentityRef(identitySecretName, namespace, tenantID, clientID string) error {
+	azureClusterIdentityLst := &capzv1beta1.AzureClusterIdentityList{}
+	if err := c.ListResources(azureClusterIdentityLst, &crtclient.ListOptions{Namespace: namespace}); err != nil {
+		return err
+	}
+
+	patchString := fmt.Sprintf(`[
+		{
+			"op": "replace",
+			"path": "/spec/clientSecret/clientID",
+			"value": "%s"
+		},
+		{
+			"op": "replace",
+			"path": "/spec/clientSecret/tenantID",
+			"value": "%s"
+		}
+	]`, clientID, tenantID)
+
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
+
+	for i := range azureClusterIdentityLst.Items {
+		if azureClusterIdentityLst.Items[i].Spec.ClientSecret.Name == identitySecretName {
+			azureClusterIdentityName := azureClusterIdentityLst.Items[i].Name
+			if err := c.PatchResource(&capzv1beta1.AzureClusterIdentity{}, azureClusterIdentityName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+				return errors.Wrap(err, "unable to save azure cluster identity")
+			}
+		}
+	}
+
+	return nil
+}
+
+func (c *client) UpdateAzureKCP(clusterName, namespace string) error { // nolint:dupl
+	kcp := &controlplanev1.KubeadmControlPlane{}
+	azureKCPName := fmt.Sprintf("%s-control-plane", clusterName)
+	curTime := time.Now()
+	patchString := fmt.Sprintf(`[
+		{
+			"op": "replace",
+			"path": "/spec/rolloutAfter",
+			"value": "%s"
+		}
+	]`, string(curTime.Format(time.RFC3339)))
+
+	log.V(4).Info("Recycling azure KCP for secret updating")
+
+	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
+	if err := c.PatchResource(kcp, azureKCPName, namespace, patchString, types.MergePatchType, pollOptions); err != nil {
+		return errors.Wrap(err, "unable to recycle azure KCP")
+	}
+	return nil
 }

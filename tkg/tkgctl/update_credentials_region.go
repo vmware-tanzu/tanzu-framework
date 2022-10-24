@@ -11,11 +11,15 @@ import (
 
 // UpdateCredentialsRegionOptions options that can passed while updating credentials of a management-cluster
 type UpdateCredentialsRegionOptions struct {
-	ClusterName     string
-	VSphereUsername string
-	VSpherePassword string
-	IsCascading     bool
-	Timeout         time.Duration
+	ClusterName         string
+	VSphereUsername     string
+	VSpherePassword     string
+	AzureTenantID       string
+	AzureSubscriptionID string
+	AzureClientID       string
+	AzureClientSecret   string
+	IsCascading         bool
+	Timeout             time.Duration
 }
 
 // UpdateCredentialsRegion updates credentials used to login to a management-cluster
@@ -29,6 +33,12 @@ func (t *tkgctl) UpdateCredentialsRegion(options UpdateCredentialsRegionOptions)
 		VSphereUpdateClusterOptions: &client.VSphereUpdateClusterOptions{
 			Username: options.VSphereUsername,
 			Password: options.VSpherePassword,
+		},
+		AzureUpdateClusterOptions: &client.AzureUpdateClusterOptions{
+			AzureTenantID:       options.AzureTenantID,
+			AzureSubscriptionID: options.AzureSubscriptionID,
+			AzureClientID:       options.AzureClientID,
+			AzureClientSecret:   options.AzureClientSecret,
 		},
 		IsCascading: options.IsCascading,
 	}

@@ -65,5 +65,65 @@ var _ = Describe("Unit tests for update credentials", func() {
 			Expect(updateCredentialOptions.IsRegionalCluster).To(Equal(true))
 			Expect(updateCredentialOptions.IsCascading).To(Equal(true))
 		})
+
+		It("Update azure credentials for workload cluster", func() {
+			kubeConfigPath := getConfigFilePath()
+
+			tkgClient = &fakes.Client{}
+
+			tkgctlClient := &tkgctl{
+				tkgClient:  tkgClient,
+				kubeconfig: kubeConfigPath,
+			}
+
+			err := tkgctlClient.UpdateCredentialsCluster(UpdateCredentialsClusterOptions{
+				ClusterName:         "clusterName",
+				AzureTenantID:       "tenantID",
+				AzureSubscriptionID: "subscriptionID",
+				AzureClientID:       "clientID",
+				AzureClientSecret:   "clientSecret",
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(tkgClient.UpdateCredentialsClusterCallCount()).To(Equal(1))
+			updateCredentialOptions := tkgClient.UpdateCredentialsClusterArgsForCall(0)
+			Expect(updateCredentialOptions.ClusterName).To(Equal("clusterName"))
+			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureTenantID).To(Equal("tenantID"))
+			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureSubscriptionID).To(Equal("subscriptionID"))
+			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureClientID).To(Equal("clientID"))
+			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureClientSecret).To(Equal("clientSecret"))
+			Expect(updateCredentialOptions.IsRegionalCluster).To(Equal(false))
+		})
+
+		It("Update azure credentials for management cluster", func() {
+			kubeConfigPath := getConfigFilePath()
+
+			tkgClient = &fakes.Client{}
+
+			tkgctlClient := &tkgctl{
+				tkgClient:  tkgClient,
+				kubeconfig: kubeConfigPath,
+			}
+
+			err := tkgctlClient.UpdateCredentialsRegion(UpdateCredentialsRegionOptions{
+				ClusterName:         "clusterName",
+				AzureTenantID:       "tenantID",
+				AzureSubscriptionID: "subscriptionID",
+				AzureClientID:       "clientID",
+				AzureClientSecret:   "clientSecret",
+				IsCascading:         true,
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(tkgClient.UpdateCredentialsRegionCallCount()).To(Equal(1))
+			updateCredentialOptions := tkgClient.UpdateCredentialsRegionArgsForCall(0)
+			Expect(updateCredentialOptions.ClusterName).To(Equal("clusterName"))
+			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureTenantID).To(Equal("tenantID"))
+			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureSubscriptionID).To(Equal("subscriptionID"))
+			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureClientID).To(Equal("clientID"))
+			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureClientSecret).To(Equal("clientSecret"))
+			Expect(updateCredentialOptions.IsRegionalCluster).To(Equal(true))
+			Expect(updateCredentialOptions.IsCascading).To(Equal(true))
+		})
 	})
 })
