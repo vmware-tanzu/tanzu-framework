@@ -12,6 +12,7 @@ import (
 
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
@@ -289,15 +290,26 @@ func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error
 }
 
 // InstallKappController installs kapp-controller to the cluster
-func InstallKappController(clusterClient clusterclient.Client, kappControllerOptions KappControllerOptions) error {
+func InstallKappController(clusterClient clusterclient.Client, kappControllerOptions KappControllerOptions, operationType constants.OperationType) error {
+	if operationType == constants.OperationTypeUpgrade {
+		// Ensure last-applied annotation is present before kapp-controller upgrade
+		err := clusterClient.GetResource(&appsv1.Deployment{}, constants.KappControllerDeploymentName, kappControllerOptions.KappControllerInstallNamespace, nil, nil)
+		if err != nil && !apierrors.IsNotFound(err) {
+			return err
+		}
+		if err == nil { // only attempt to add annotation when kapp-controller exists on the cluster
+			log.Infof("Adding last-applied annotation on kapp-controller...")
+			if err := clusterClient.PatchKappControllerLastAppliedAnnotation(kappControllerOptions.KappControllerInstallNamespace); err != nil {
+				return errors.Wrap(err, "error adding last-applied annotation on kapp-controller")
+			}
+		}
+	}
 	// Apply kapp-controller configuration
-	err := clusterClient.ApplyFile(kappControllerOptions.KappControllerConfigFile)
-	if err != nil {
+	if err := clusterClient.ApplyFile(kappControllerOptions.KappControllerConfigFile); err != nil {
 		return errors.Wrapf(err, "error installing %s", constants.KappControllerDeploymentName)
 	}
 	// Wait for kapp-controller to be deployed and running
-	err = clusterClient.WaitForDeployment(constants.KappControllerDeploymentName, kappControllerOptions.KappControllerInstallNamespace)
-	if err != nil {
+	if err := clusterClient.WaitForDeployment(constants.KappControllerDeploymentName, kappControllerOptions.KappControllerInstallNamespace); err != nil {
 		return errors.Wrapf(err, "error while waiting for deployment %s", constants.KappControllerDeploymentName)
 	}
 	return nil
