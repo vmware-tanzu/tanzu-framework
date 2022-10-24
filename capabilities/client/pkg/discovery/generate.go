@@ -10,7 +10,8 @@ import (
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 )
 
-// QueryTargetsToCapabilityResource is a helper function to generate a Capability v1alpha1 resource from a slice of QueryTarget.
+// QueryTargetsToCapabilityResource is a helper function to generate a
+// Capability v1alpha1 resource from a slice of QueryTarget.
 func QueryTargetsToCapabilityResource(queryTargets []QueryTarget) (*runv1alpha1.Capability, error) {
 	var (
 		gvrQueries           []runv1alpha1.QueryGVR
