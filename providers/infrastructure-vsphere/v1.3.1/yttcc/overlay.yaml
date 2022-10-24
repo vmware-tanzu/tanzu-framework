@@ -48,7 +48,7 @@ spec:
       #@overlay/match missing_ok=True
       metadata:
         annotations:
-          run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+          run.tanzu.vmware.com/resolve-os-image: #@ "image-type=ova,os-name={}".format(data.values.OS_NAME)
     workers:
       machineDeployments:
       #@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
@@ -64,7 +64,7 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+            run.tanzu.vmware.com/resolve-os-image: #@ "image-type=ova,os-name={}".format(data.values.OS_NAME)
         #@ if data.values.VSPHERE_AZ_0:
         #@overlay/match missing_ok=True
         failureDomain: #@ data.values.VSPHERE_AZ_0
@@ -77,7 +77,7 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+            run.tanzu.vmware.com/resolve-os-image: #@ "image-type=ova,os-name={}".format(data.values.OS_NAME)
         #@ if data.values.VSPHERE_AZ_1:
         failureDomain: #@ data.values.VSPHERE_AZ_1
         #@ end
@@ -88,7 +88,7 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+            run.tanzu.vmware.com/resolve-os-image: #@ "image-type=ova,os-name={}".format(data.values.OS_NAME)
         #@ if data.values.VSPHERE_AZ_2:
         failureDomain: #@ data.values.VSPHERE_AZ_2
         #@ end
