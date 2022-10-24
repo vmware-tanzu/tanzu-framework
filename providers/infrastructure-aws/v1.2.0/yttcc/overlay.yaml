@@ -83,6 +83,8 @@ spec:
           - name: worker
             value:
               instanceType: #@ data.values.NODE_MACHINE_TYPE_1
+              rootVolume:
+                sizeGiB: #@ data.values.AWS_NODE_OS_DISK_SIZE_GIB
         #@ end
       #@overlay/append
       - class: tkg-worker
@@ -99,6 +101,8 @@ spec:
           - name: worker
             value:
               instanceType: #@ data.values.NODE_MACHINE_TYPE_2
+              rootVolume:
+                sizeGiB: #@ data.values.AWS_NODE_OS_DISK_SIZE_GIB
         #@ end
       #@ end
     #@overlay/match missing_ok=True
