@@ -47,6 +47,7 @@ type Fetcher struct {
 // Config contains the controller manager context.
 type Config struct {
 	TKRNamespace         string
+	LegacyTKRNamespace   string
 	BOMImagePath         string
 	BOMMetadataImagePath string
 	TKRRepoImagePath     string
@@ -145,21 +146,31 @@ func (f *Fetcher) fetchTKRCompatibilityCM(ctx context.Context) error {
 		return err
 	}
 
+	for _, ns := range []string{f.Config.TKRNamespace, f.Config.LegacyTKRNamespace} {
+		if ns != "" {
+			if err := f.saveTKRCompatibilityCM(ctx, ns, metadataContent); err != nil {
+				return errors.Wrap(err, "error creating or updating BOM metadata ConfigMap")
+			}
+		}
+	}
+	return nil
+}
+
+func (f *Fetcher) saveTKRCompatibilityCM(ctx context.Context, ns string, metadataContent []byte) error {
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: f.Config.TKRNamespace,
+			Namespace: ns,
 			Name:      constants.BOMMetadataConfigMapName,
 		},
 	}
-
-	_, err = controllerutil.CreateOrUpdate(ctx, f.Client, cm, func() error {
+	f.Log.Info("Creating/updating TKR compatibility ConfigMap", "ns", ns, "name", constants.BOMMetadataConfigMapName)
+	_, err := controllerutil.CreateOrUpdate(ctx, f.Client, cm, func() error {
 		cm.BinaryData = map[string][]byte{
 			constants.BOMMetadataCompatibilityKey: metadataContent,
 		}
 		return nil
 	})
-
-	return errors.Wrap(err, "error creating or updating BOM metadata ConfigMap")
+	return err
 }
 
 func (f *Fetcher) fetchCompatibilityMetadata() (*tkrv1.CompatibilityMetadata, error) {
@@ -272,6 +283,17 @@ func (f *Fetcher) createBOMConfigMap(ctx context.Context, tag string) error {
 
 	name := strings.ReplaceAll(releaseName, "+", "---")
 
+	for _, ns := range []string{f.Config.TKRNamespace, f.Config.LegacyTKRNamespace} {
+		if ns != "" {
+			if err := f.saveBOMConfigMap(ctx, ns, name, tag, bomContent); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (f *Fetcher) saveBOMConfigMap(ctx context.Context, ns string, name string, tag string, bomContent []byte) error {
 	// label the ConfigMap with image tag and tkr name
 	ls := make(map[string]string)
 	ls[constants.BomConfigMapTKRLabel] = name
@@ -285,13 +307,14 @@ func (f *Fetcher) createBOMConfigMap(ctx context.Context, tag string) error {
 	cm := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
-			Namespace:   f.Config.TKRNamespace,
+			Namespace:   ns,
 			Labels:      ls,
 			Annotations: annotations,
 		},
 		BinaryData: binaryData,
 	}
 
+	f.Log.Info("Creating BOM ConfigMap", "ns", ns, "name", name)
 	if err := f.Client.Create(ctx, &cm); err != nil && !apierrors.IsAlreadyExists(err) {
 		return errors.Wrapf(err, "could not create ConfigMap: name='%s'", cm.Name)
 	}
