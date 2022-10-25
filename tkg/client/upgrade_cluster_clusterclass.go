@@ -37,5 +37,13 @@ func (c *TkgClient) DoClassyClusterUpgrade(regionalClusterClient clusterclient.C
 		return errors.Wrap(err, "error waiting for kubernetes version update for worker nodes")
 	}
 
+	if !options.IsRegionalCluster {
+		// update autoscaler deployment if enabled
+		err = regionalClusterClient.ApplyPatchForAutoScalerDeployment(c.tkgBomClient, options.ClusterName, options.KubernetesVersion, options.Namespace)
+		if err != nil {
+			return errors.Wrapf(err, "failed to upgrade autoscaler for cluster '%s'", options.ClusterName)
+		}
+	}
+
 	return nil
 }
