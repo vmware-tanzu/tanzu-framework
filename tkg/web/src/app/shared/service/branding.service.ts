@@ -39,17 +39,18 @@ export class BrandingService {
      * Note that the caller should have retrieved feature flags before calling this method
      */
     initBranding(): void {
-        let brandingEdition;
-        this.apiClient.getTanzuEdition().pipe(
-            finalize(() =>
-                this.setBrandingByEdition(brandingEdition)
-            ))
-            .subscribe((data) => {
-                // override API returned data in favor of TKG
-                brandingEdition = AppEdition.TKG;
-            }, (err) => {
-                console.log(`Unable to retrieve edition.`)
-            });
+        this.setBrandingByEdition(AppEdition.TKG);
+        // let brandingEdition;
+        // this.apiClient.getTanzuEdition().pipe(
+        //     finalize(() =>
+        //         this.setBrandingByEdition(brandingEdition)
+        //     ))
+        //     .subscribe((data) => {
+        //         // override API returned data in favor of TKG
+        //         brandingEdition = AppEdition.TKG;
+        //     }, (err) => {
+        //         console.log(`Unable to retrieve edition.`)
+        //     });
     }
 
     /**
@@ -60,18 +61,18 @@ export class BrandingService {
      * default branding.
      */
     private setBrandingByEdition(edition?: string): void {
-        let brandingPayload: EditionData = brandingDefault;
-
-        if (edition && edition === AppEdition.TCE) {
-            console.log('Setting branding based on edition: ' + AppEdition.TCE);
-            brandingPayload = brandingTce;
-        }
-        if (AppServices.appDataService.isModeClusterStandalone()) {
-            console.log('Due to standalone cluster mode, setting branding to edition: ' + AppEdition.TCE);
-            brandingPayload = brandingTce;
-            brandingPayload.clusterTypeDescriptor = brandingStandalone.clusterTypeDescriptor;
-            brandingPayload.branding.landingPage.intro = brandingStandalone.branding.landingPage.intro;
-        }
+        const brandingPayload: EditionData = brandingDefault;
+        // Disable branding changes for TCE
+        // if (edition && edition === AppEdition.TCE) {
+        //     console.log('Setting branding based on edition: ' + AppEdition.TCE);
+        //     brandingPayload = brandingTce;
+        // }
+        // if (AppServices.appDataService.isModeClusterStandalone()) {
+        //     console.log('Due to standalone cluster mode, setting branding to edition: ' + AppEdition.TCE);
+        //     brandingPayload = brandingTce;
+        //     brandingPayload.clusterTypeDescriptor = brandingStandalone.clusterTypeDescriptor;
+        //     brandingPayload.branding.landingPage.intro = brandingStandalone.branding.landingPage.intro;
+        // }
 
         AppServices.messenger.publish({
             type: TanzuEventType.BRANDING_CHANGED,
