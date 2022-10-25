@@ -5,7 +5,7 @@
 # git config --global core.excludesfile ~/.gitignore
 #
 # cat ~/.gitignore
-#   .idea
+.idea
 #   .vscode
 #   *~
 
