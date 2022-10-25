@@ -25,14 +25,22 @@ type TKRSourceControllerPackage struct {
 }
 
 type TKRSourceControllerPackageValues struct {
-	Namespace            string `yaml:"namespace,omitempty"`
-	CreateNamespace      string `yaml:"createNamespace,omitempty"`
-	VersionConstraints   string `yaml:"versionConstraints,omitempty"`
-	BomImagePath         string `yaml:"bomImagePath,omitempty"`
-	BomMetadataImagePath string `yaml:"bomMetadataImagePath,omitempty"`
-	TKRRepoImagePath     string `yaml:"tkrRepoImagePath,omitempty"`
-	DefaultCompatibleTKR string `yaml:"defaultCompatibleTKR,omitempty"`
+	Namespace            string                                     `yaml:"namespace,omitempty"`
+	CreateNamespace      string                                     `yaml:"createNamespace,omitempty"`
+	VersionConstraints   string                                     `yaml:"versionConstraints,omitempty"`
+	BomImagePath         string                                     `yaml:"bomImagePath,omitempty"`
+	BomMetadataImagePath string                                     `yaml:"bomMetadataImagePath,omitempty"`
+	TKRRepoImagePath     string                                     `yaml:"tkrRepoImagePath,omitempty"`
+	DefaultCompatibleTKR string                                     `yaml:"defaultCompatibleTKR,omitempty"`
+	Deployment           TKRSourceControllerPackageValuesDeployment `yaml:"deployment,omitempty"`
 }
+
+type TKRSourceControllerPackageValuesDeployment struct {
+	HttpProxy  string `yaml:"httpProxy,omitempty"`
+	HttpsProxy string `yaml:"httpsProxy,omitempty"`
+	NoProxy    string `yaml:"noProxy,omitempty"`
+}
+
 type FrameworkPackage struct {
 	NamespaceForPackageInstallation string                     `yaml:"namespaceForPackageInstallation,omitempty"`
 	VersionConstraints              string                     `yaml:"versionConstraints,omitempty"`
