@@ -112,7 +112,10 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	if !e2eConfig.UseExistingCluster {
 		// TODO(vuil): Remove this temporary workaround (to populate the TKr  BOM config map in tkr-system namespace)
 		// once https://github.com/vmware-tanzu/tanzu-framework/issues/2891 is fixed
-		tkrURLToApply := "https://gist.githubusercontent.com/vuil/c10295e438b6b7c7232192999dac2cd8/raw/e592364eecde64ab941eed71af7239ce9c8295b7/v1.23.5---vmware.1-tkg.1-zshippable-configmap.yaml"
+		// tkrURLToApply := "https://gist.githubusercontent.com/vuil/c10295e438b6b7c7232192999dac2cd8/raw/e592364eecde64ab941eed71af7239ce9c8295b7/v1.23.5---vmware.1-tkg.1-zshippable-configmap.yaml"
+		// Update for 1.23.8
+		tkrURLToApply := "https://gist.githubusercontent.com/jeffwubj/38ba192c45f7fc8d28c8cd4e5ec7e2f3/raw/6a9a0a6d267a86232a360b7b904b8be32af4b492/v1.23.8---vmware.2-tkg.2-zshippable-configmap.yaml"
+
 		os.Setenv("_ADDITIONAL_MANAGEMENT_COMPONENT_CONFIGURATION_FILE", tkrURLToApply)
 
 		err := cli.Init(tkgctl.InitRegionOptions{
