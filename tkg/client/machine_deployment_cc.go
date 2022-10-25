@@ -24,6 +24,23 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 		return errors.New("cluster topology workers are not set. please repair your cluster before trying again")
 	}
 
+	var nodePoolVarFound bool
+	for i := range cluster.Spec.Topology.Variables {
+		if cluster.Spec.Topology.Variables[i].Name == "nodePoolLabels" {
+			nodePoolVarFound = true
+		}
+	}
+
+	if !nodePoolVarFound && options.Labels != nil {
+		output, _ := json.Marshal([]map[string]string{})
+		cluster.Spec.Topology.Variables = append(cluster.Spec.Topology.Variables, capi.ClusterVariable{
+			Name: "nodePoolLabels",
+			Value: v1.JSON{
+				Raw: output,
+			},
+		})
+	}
+
 	for i := range cluster.Spec.Topology.Workers.MachineDeployments {
 		if cluster.Spec.Topology.Workers.MachineDeployments[i].Name == options.Name {
 			update = &cluster.Spec.Topology.Workers.MachineDeployments[i]

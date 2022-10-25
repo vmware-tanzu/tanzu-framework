@@ -286,7 +286,7 @@ var _ = Describe("GetMachineDeploymentCC", func() {
 	})
 })
 
-var _ = Describe("GetMachineDeploymentCC", func() {
+var _ = Describe("DeleteMachineDeploymentCC", func() {
 	var (
 		err                   error
 		regionalClusterClient *fakes.ClusterClient
@@ -501,6 +501,8 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 				clusterInterface, _, _, _ := regionalClusterClient.UpdateResourceArgsForCall(0)
 				actual, ok := clusterInterface.(*capi.Cluster)
 				Expect(ok).To(BeTrue())
+				Expect(len(actual.Spec.Topology.Variables)).To(Equal(2))
+				Expect(actual.Spec.Topology.Variables[1].Name).To(Equal("nodePoolLabels"))
 				Expect(len(actual.Spec.Topology.Workers.MachineDeployments)).To(Equal(3))
 				Expect(actual.Spec.Topology.Workers.MachineDeployments[2].Variables.Overrides[0].Value.Raw).To(Equal(expected))
 			})
