@@ -61,6 +61,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
@@ -327,6 +328,10 @@ type Client interface {
 	GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error)
 	// GetBomConfigMap returns configmap associated w3ith the tkrNameLabel
 	GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error)
+	// GetClusterResolvedTanzuKubernetesRelease gets the resolved TKR for the management cluster
+	GetClusterResolvedTanzuKubernetesRelease() (*runv1alpha3.TanzuKubernetesRelease, error)
+	// GetClusterResolvedOSImagesFromTKR get a list of OSImage resource from the resolved TKR
+	GetClusterResolvedOSImagesFromTKR(*runv1alpha3.TanzuKubernetesRelease) ([]*runv1alpha3.OSImage, error)
 	// GetClusterInfrastructure gets cluster infrastructure name like VSphereCluster, AWSCluster, AzureCluster
 	GetClusterInfrastructure() (string, error)
 	// ActivateTanzuKubernetesReleases activates TanzuKubernetesRelease
@@ -1206,8 +1211,8 @@ func (c *client) GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error) 
 	return cmList.Items[0], nil
 }
 
-// GetClusterInfrastructure gets the underlying infrastructure being used
-func (c *client) GetClusterInfrastructure() (string, error) {
+// getManagementCluster searches the cluster list for the one with management cluster role label
+func (c *client) getManagementCluster() (*capi.Cluster, error) {
 	clusters := &capi.ClusterList{}
 
 	selectors := []crtclient.ListOption{
@@ -1215,10 +1220,51 @@ func (c *client) GetClusterInfrastructure() (string, error) {
 	}
 	err := c.clientSet.List(context.Background(), clusters, selectors...)
 	if err != nil || len(clusters.Items) != 1 {
-		return "", errors.Wrap(err, "unable to get current management cluster")
+		return nil, errors.Wrap(err, "unable to get current management cluster")
 	}
+	return &clusters.Items[0], nil
+}
 
-	return clusters.Items[0].Spec.InfrastructureRef.Kind, nil
+// GetClusterInfrastructure gets the underlying infrastructure being used
+func (c *client) GetClusterInfrastructure() (string, error) {
+	cluster, err := c.getManagementCluster()
+	if err != nil {
+		return "", err
+	}
+	return cluster.Spec.InfrastructureRef.Kind, nil
+}
+
+// GetClusterResolvedTanzuKubernetesRelease gets the resolved TKR for the management cluster
+func (c *client) GetClusterResolvedTanzuKubernetesRelease() (*v1alpha3.TanzuKubernetesRelease, error) {
+	cluster, err := c.getManagementCluster()
+	if cluster == nil || err != nil {
+		return nil, err
+	}
+	tkrName, exists := cluster.Labels[runv1alpha3.LabelTKR]
+	if cluster.Labels == nil || !exists {
+		return nil, nil // the cluster doesn't have resolved TKR
+	}
+	var tkr v1alpha3.TanzuKubernetesRelease
+	if err := c.GetResource(&tkr, tkrName, "", nil, nil); err != nil {
+		return nil, err
+	}
+	return &tkr, nil
+}
+
+// GetClusterResolvedOSImagesFromTKR get a list of OSImage resource from the resolved TKR
+func (c *client) GetClusterResolvedOSImagesFromTKR(tkr *runv1alpha3.TanzuKubernetesRelease) ([]*runv1alpha3.OSImage, error) {
+	if tkr == nil {
+		return []*v1alpha3.OSImage{}, nil
+	}
+	var osImageList []*v1alpha3.OSImage
+	for _, osImageRef := range tkr.Spec.OSImages {
+		var osImage runv1alpha3.OSImage
+		if err := c.GetResource(&osImage, osImageRef.Name, "", nil, nil); err != nil {
+			return nil, errors.New("unable to get resolved OSImage " + osImage.Name)
+		}
+		osImageList = append(osImageList, &osImage)
+	}
+	return osImageList, nil
 }
 
 // DeactivateTanzuKubernetesReleases deactivates the given TanzuKubernetesReleases

@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/juju/fslock"
 	"github.com/pkg/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
@@ -26,6 +27,7 @@ import (
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
@@ -454,6 +456,40 @@ func (c *TkgClient) MoveObjects(fromKubeconfigPath, toKubeconfigPath, namespace 
 		Namespace:      namespace,
 	}
 	return c.clusterctlClient.Move(moveOptions)
+}
+
+// CopyNeededTKRAndOSImages moves the resolved TKR and associated OSImage CR for a Cluster resource
+// from namespaceto a target management
+func (c *TkgClient) CopyNeededTKRAndOSImages(fromClusterClient, toClusterClient clusterclient.Client) error {
+	tkr, err := fromClusterClient.GetClusterResolvedTanzuKubernetesRelease()
+	if tkr == nil {
+		return err // error occurs or management cluster does not have resolved TKR
+	}
+	osImages, err := fromClusterClient.GetClusterResolvedOSImagesFromTKR(tkr)
+	if err != nil {
+		return err
+	}
+
+	// copy the solved TKR if not presented in the cleanup cluster
+	var toClusterTKR v1alpha3.TanzuKubernetesRelease
+	if err = toClusterClient.GetResource(&toClusterTKR, tkr.Name, tkr.Namespace, nil, nil); apierrors.IsNotFound(err) {
+		tkr.SetResourceVersion("")
+		if err := toClusterClient.CreateResource(tkr, tkr.Name, tkr.Namespace); err != nil {
+			return err
+		}
+	}
+
+	// copy the solved OSImage(s) if not presented in the cleanup cluster
+	for _, osImage := range osImages {
+		var toClusterOSImage v1alpha3.OSImage
+		if err = toClusterClient.GetResource(&toClusterOSImage, osImage.Name, osImage.Namespace, nil, nil); apierrors.IsNotFound(err) {
+			osImage.SetResourceVersion("")
+			if err := toClusterClient.CreateResource(&osImage, osImage.Name, osImage.Namespace); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (c *TkgClient) ensureKindCluster(kubeconfig string, useExistingCluster bool, backupPath string) (string, error) {
