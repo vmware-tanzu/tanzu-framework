@@ -168,7 +168,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 
 		isStartedRegionalClusterDeletion = true
 
-		log.Info("Moving Cluster API objects from management cluster to cleanup cluster...")
+		log.Info("Moving TKR and Cluster API objects from management cluster to cleanup cluster...")
 		regionalClusterKubeConfigPath, err := regionalClusterClient.ExportCurrentKubeconfigToFile()
 		if err != nil {
 			return errors.Wrap(err, "unable to export management cluster's kubeconfig")
@@ -176,6 +176,11 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		defer func() {
 			_ = utils.DeleteFile(regionalClusterKubeConfigPath)
 		}()
+
+		// Copy coresponding TKR and OSImages from management cluster to cleanup cluster for all namespaces
+		if err = c.CopyNeededTKRAndOSImages(regionalClusterClient, cleanupClusterClient); err != nil {
+			return errors.Wrap(err, "unable to copy coresponding TKR and OSImages from management cluster to cleanup cluster")
+		}
 
 		// Move all Cluster API objects from management cluster to cleanup cluster for all namespaces
 		if err = c.MoveObjects(regionalClusterKubeConfigPath, cleanupClusterKubeconfigPath, regionalClusterNamespace); err != nil {
