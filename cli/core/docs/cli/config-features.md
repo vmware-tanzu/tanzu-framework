@@ -33,7 +33,7 @@ The options for the command are:
 
 For developers making use of this feature:
 
-* To set a default value in the tanzu config file, add an entry to `DefaultCliFeatureFlags` (in pkg/v1/config/clientconfig.go)
+* To set a default value in the tanzu config file, pass `DefaultFeatureFlags` as part of PluginDescriptor when defining the plugin
 * Users can change the value by using the command above, or by manually editing their tanzu config file
 * Throughout your code, you may use `cfg.IsConfigFeatureActivated()` to check the flag value (in apis/config/v1alpha1/clientconfig.go)
 
@@ -42,7 +42,7 @@ If you want to make this feature available for a beta period:
 * To let users know the feature is available but still under development, use a `false` default value; when ready for production, change to `true`. This will create an entry in
  their config file so they can see the flag name.
 * We recommend using two flags, one for the beta period and one for production. For the beta period, simply append `-beta` to the flag name that you expect to use in production.
-For example, your production flag might be `features.cluster.foobar` and for the beta you could use `features.cluster.foobar-beta`. There are two advantages to this approach:
+For example, your production flag might be `features.global.foobar` and for the beta you could use `features.global.foobar-beta`. There are two advantages to this approach:
 (1) The user is clear when they are using a beta flag and when they are using a production flag,
 (2) There are no transition issues between beta flag use and production. (If you use the same flag name for beta and for production, then when the production code runs the
  previous "beta" setting will be taken as the production setting. This would force either the user or an installation script to activate the flag from `false` to `true` using

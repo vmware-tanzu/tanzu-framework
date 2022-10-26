@@ -201,6 +201,7 @@ func setEdition(cfg *configapi.ClientConfig, edition string) error {
 var initConfigCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize config with defaults",
+	Long:  "Initialize config with defaults including plugin specific defaults for all active and installed plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Acquire tanzu config lock
 		configlib.AcquireTanzuConfigLock()
@@ -228,6 +229,9 @@ var initConfigCmd = &cobra.Command{
 			return err
 		}
 
+		// Add the default featureflags for active plugins based on the currentContext
+		// Plugins that are installed but are not active plugin will not be processed here
+		// and defaultFeatureFlags will not be configured for those plugins
 		for _, desc := range append(serverPluginDescriptors, standalonePluginDescriptors...) {
 			config.AddDefaultFeatureFlagsIfMissing(cfg, desc.DefaultFeatureFlags)
 		}
