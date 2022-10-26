@@ -127,8 +127,8 @@ ARTIFACTS_ADMIN_DIR ?= $(ROOT_DIR)/artifacts-admin
 
 XDG_CACHE_HOME := ${HOME}/.cache
 XDG_CONFIG_HOME := ${HOME}/.config
-TANZU_PLUGIN_PUBLISH_PATH ?= $(XDG_CONFIG_HOME)/tanzu-plugins # Local path to publish the tanzu CLI plugins
-
+# Local path to publish the tanzu CLI plugins
+TANZU_PLUGIN_PUBLISH_PATH ?= $(XDG_CONFIG_HOME)/tanzu-plugins
 export XDG_DATA_HOME
 export XDG_CACHE_HOME
 export XDG_CONFIG_HOME

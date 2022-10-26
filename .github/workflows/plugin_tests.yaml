@@ -9,6 +9,7 @@ on:
       - 'tkg/**'
       - 'providers/**'
       - '.github/workflows/plugin_tests.yaml'
+      - Makefile
 
 concurrency:
   group: ${{ format('plugin-tests-{0}', github.head_ref) }}
