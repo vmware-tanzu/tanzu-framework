@@ -17,9 +17,10 @@ import (
 )
 
 type listClusterOptions struct {
-	namespace    string
-	includeMC    bool
-	outputFormat string
+	namespace     string
+	includeMC     bool
+	outputFormat  string
+	allNamespaces bool
 }
 
 var lc = &listClusterOptions{}
@@ -32,7 +33,8 @@ var listClustersCmd = &cobra.Command{
 }
 
 func init() {
-	listClustersCmd.Flags().StringVarP(&lc.namespace, "namespace", "n", "", "The namespace from which to list workload clusters. If not provided clusters from all namespaces will be returned")
+	listClustersCmd.Flags().StringVarP(&lc.namespace, "namespace", "n", "default", "The namespace from which to list workload clusters. If not provided clusters from default namespace will be returned")
+	listClustersCmd.Flags().BoolVarP(&lc.allNamespaces, "all-namespaces", "A", false, "If present, list the cluster(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
 	listClustersCmd.Flags().BoolVarP(&lc.includeMC, "include-management-cluster", "", false, "Show active management cluster information as well")
 	listClustersCmd.Flags().StringVarP(&lc.outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 }
@@ -57,9 +59,10 @@ func listClusters(cmd *cobra.Command, server *configapi.Server) error {
 	}
 
 	ccOptions := tkgctl.ListTKGClustersOptions{
-		ClusterName: "",
-		Namespace:   lc.namespace,
-		IncludeMC:   lc.includeMC,
+		ClusterName:   "",
+		Namespace:     lc.namespace,
+		IncludeMC:     lc.includeMC,
+		AllNamespaces: lc.allNamespaces,
 	}
 
 	clusters, err := tkgctlClient.GetClusters(ccOptions)

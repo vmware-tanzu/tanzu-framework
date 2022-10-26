@@ -42,10 +42,12 @@ var _ = Describe("Unit test for get clusters", func() {
 			Expect(err.Error()).To(ContainSubstring("fake-error"))
 		})
 	})
-	Context("when the management cluster is not Pacific(TKGS) supervisor cluster and is able to list clusters", func() {
+	Context("when the management cluster is not Pacific(TKGS) supervisor cluster and is able to list clusters with option --AllNamespace false", func() {
 		BeforeEach(func() {
+			ops.AllNamespaces = false
+			ops.Namespace = "default"
 			tkgClient.IsPacificManagementClusterReturns(false, nil)
-			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: "my-cluster", Namespace: "default"}, {Name: "my-cluster-2", Namespace: "my-system"}}, nil)
+			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: "my-cluster", Namespace: "default"}}, nil)
 		})
 		It("should not return an error", func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -98,6 +100,18 @@ var _ = Describe("Unit test for get clusters", func() {
 			Expect(err).ToNot(HaveOccurred())
 			options := tkgClient.ListTKGClustersArgsForCall(3)
 			Expect(options.IsTKGSClusterClassFeatureActivated).To(BeTrue())
+		})
+	})
+	Context("when the management cluster is not Pacific(TKGS) supervisor cluster and the listCluster with --AllNamespace", func() {
+		BeforeEach(func() {
+			ops.AllNamespaces = true
+			tkgClient.IsPacificManagementClusterReturns(false, nil)
+			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: "my-cluster", Namespace: "default"}, {Name: "my-cluster-2", Namespace: "my-system"}}, nil)
+		})
+		It("should not return an error", func() {
+			Expect(err).ToNot(HaveOccurred())
+			options := tkgClient.ListTKGClustersArgsForCall(0)
+			Expect(options.IsTKGSClusterClassFeatureActivated).To(BeFalse())
 		})
 	})
 })
