@@ -95,6 +95,8 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 		},
 	}
 
+	setProxyConfiguration(&tkgPackageConfig, userProviderConfigValues)
+
 	configBytes, err := yaml.Marshal(tkgPackageConfig)
 	if err != nil {
 		return "", err
@@ -106,4 +108,33 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 		return "", err
 	}
 	return valuesFile, nil
+}
+
+func setProxyConfiguration(tkgPackageConfig *TKGPackageConfig, userProviderConfigValues map[string]interface{}) {
+	var (
+		httpProxy  string
+		httpsProxy string
+		noProxy    string
+	)
+
+	if p, ok := userProviderConfigValues[constants.TKGHTTPProxy]; ok {
+		httpProxy = p.(string)
+	}
+	if p, ok := userProviderConfigValues[constants.TKGHTTPSProxy]; ok {
+		httpsProxy = p.(string)
+	}
+	if p, ok := userProviderConfigValues[constants.TKGNoProxy]; ok {
+		noProxy = p.(string)
+	}
+
+	setProxyInTKRSourceControllerPackage(tkgPackageConfig, httpProxy, httpsProxy, noProxy)
+}
+
+func setProxyInTKRSourceControllerPackage(tkgPackageConfig *TKGPackageConfig, httpProxy, httpsProxy, noProxy string) {
+	tkgPackageConfig.TKRSourceControllerPackage.TKRSourceControllerPackageValues.Deployment =
+		TKRSourceControllerPackageValuesDeployment{
+			HttpProxy:  httpProxy,
+			HttpsProxy: httpsProxy,
+			NoProxy:    noProxy,
+		}
 }
