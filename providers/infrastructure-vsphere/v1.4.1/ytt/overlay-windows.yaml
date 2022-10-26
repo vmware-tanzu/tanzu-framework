@@ -277,13 +277,6 @@ spec:
       sshAuthorizedKeys:
       - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
       sudo: ALL=(ALL) NOPASSWD:ALL
-    #! TODO: we can remove this block once we are consuming a version of containerd with this change: https://github.com/containerd/containerd/pull/5145
-    #@ if data.values.TKG_IP_FAMILY == "ipv6":
-    #@overlay/match missing_ok=True
-    postKubeadmCommands:
-    #@overlay/append
-    - sed -i '/listen-client-urls/ s/$/,https:\/\/127.0.0.1:2379/' /etc/kubernetes/manifests/etcd.yaml
-    #@ end
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
   version: #@ data.values.KUBERNETES_VERSION
 

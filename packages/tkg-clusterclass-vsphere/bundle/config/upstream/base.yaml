@@ -880,18 +880,6 @@ spec:
         path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs
         value:
           node-ip: "::"
-  - name: ipv6Hack
-    enabledIf: '{{ .builtin.cluster.network.ipFamily | eq "IPv6" }}'
-    definitions:
-    - selector:
-        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-        kind: KubeadmControlPlaneTemplate
-        matchResources:
-          controlPlane: true
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
-        value: sed -i '/listen-client-urls/ s/$/,https:\/\/127.0.0.1:2379/' /etc/kubernetes/manifests/etcd.yaml
   - name: nodeLabels
     definitions:
     - selector:
