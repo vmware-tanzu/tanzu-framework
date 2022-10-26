@@ -10,12 +10,6 @@ metadata:
 spec:
   template:
     spec:
-      controlPlaneEndpoint:
-        host: '#@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT'
-        port: 6443
-      identityRef:
-        kind: Secret
-        name: '${ CLUSTER_NAME }'
       server: #@ data.values.VSPHERE_SERVER
       thumbprint: #@ data.values.VSPHERE_TLS_THUMBPRINT
 ---
@@ -170,15 +164,6 @@ spec:
         - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
         sudo: ALL=(ALL) NOPASSWD:ALL
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: #@ data.values.CLUSTER_NAME
-  namespace: #@ data.values.NAMESPACE
-stringData:
-  username: #@ data.values.VSPHERE_USERNAME
-  password: #@ data.values.VSPHERE_PASSWORD
----
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
@@ -278,6 +263,7 @@ spec:
         - resourcePool
         - server
   - name: VSPHERE_WINDOWS_TEMPLATE
+    required: false
     schema:
       openAPIV3Schema:
         type: string
@@ -477,10 +463,12 @@ spec:
         matchResources:
           infrastructureCluster: true
       jsonPatches:
-      - op: replace
-        path: /spec/template/spec/controlPlaneEndpoint/host
+      - op: add
+        path: /spec/template/spec/controlPlaneEndpoint
         valueFrom:
-          variable: apiServerEndpoint
+          template: |
+            host: '{{ .apiServerEndpoint }}'
+            port: 6443
       - op: replace
         path: /spec/template/spec/thumbprint
         valueFrom:
@@ -489,10 +477,12 @@ spec:
         path: /spec/template/spec/server
         valueFrom:
           variable: vcenter.server
-      - op: replace
-        path: /spec/template/spec/identityRef/name
+      - op: add
+        path: /spec/template/spec/identityRef
         valueFrom:
-          template: '{{ .builtin.cluster.name }}'
+          template: |
+            kind: Secret
+            name: '{{ .builtin.cluster.name }}'
   - name: controlPlaneMachineTemplate
     definitions:
     - selector:
