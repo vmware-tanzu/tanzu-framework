@@ -1,0 +1,55 @@
+package config
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v3"
+
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
+)
+
+func TestSetDiscoverySource(t *testing.T) {
+	func() {
+		LocalDirName = fmt.Sprintf(".tanzu-test")
+	}()
+
+	defer func() {
+		cleanupDir(LocalDirName)
+	}()
+
+	tests := []struct {
+		name            string
+		discoverySource configapi.PluginDiscovery
+		contextNode     *yaml.Node
+		errStr          string
+	}{
+		{
+			name: "success k8s",
+			discoverySource: configapi.PluginDiscovery{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test",
+					Bucket:       "updated-test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+				ContextType: configapi.CtxTypeTMC,
+			},
+
+			contextNode: &yaml.Node{},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := setDiscoverySource(tc.contextNode, tc.discoverySource)
+			if tc.errStr == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.EqualError(t, err, tc.errStr)
+			}
+
+		})
+	}
+
+}

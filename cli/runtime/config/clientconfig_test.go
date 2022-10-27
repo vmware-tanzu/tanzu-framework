@@ -69,7 +69,7 @@ func TestClientConfig(t *testing.T) {
 		},
 	}
 
-	err = AddServer(server1, true)
+	err = SetServer(server1, true)
 	require.NoError(t, err)
 
 	c, err := GetClientConfig()
@@ -93,7 +93,7 @@ func TestClientConfig(t *testing.T) {
 	require.Len(t, c.KnownServers, 1)
 	require.Equal(t, "", c.CurrentServer)
 
-	err = PutServer(server1, true)
+	err = SetServer(server1, true)
 	require.NoError(t, err)
 
 	c, err = GetClientConfig()
@@ -159,7 +159,7 @@ func TestConfigLegacyDir(t *testing.T) {
 		},
 	}
 
-	err = AddServer(server1, true)
+	err = SetServer(server1, true)
 	require.NoError(t, err)
 
 	c, err := GetClientConfig()
@@ -263,7 +263,7 @@ func TestClientConfigUpdateInParallel(t *testing.T) {
 				Path:    "fake-path",
 			},
 		}
-		err = AddServer(s, true)
+		err = SetServer(s, true)
 		if err != nil {
 			return err
 		}
@@ -319,7 +319,7 @@ func TestEndpointFromContext(t *testing.T) {
 			name: "success k8s",
 			ctx: &configapi.Context{
 				Name: "test-mc",
-				Type: configapi.CtxTypeK8s,
+				Type: "k8s",
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
@@ -332,7 +332,7 @@ func TestEndpointFromContext(t *testing.T) {
 			name: "success tmc current",
 			ctx: &configapi.Context{
 				Name: "test-tmc",
-				Type: configapi.CtxTypeTMC,
+				Type: "tmc",
 				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},

@@ -1,0 +1,71 @@
+package config
+
+import (
+	"context"
+	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"golang.org/x/sync/errgroup"
+
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
+)
+
+func TestClientConfigNodeUpdateInParallel(t *testing.T) {
+
+	func() {
+		LocalDirName = fmt.Sprintf(".tanzu-test")
+	}()
+
+	addServer := func(mcName string) error {
+		_, err := GetClientConfigNode()
+		if err != nil {
+			return err
+		}
+
+		s := &configapi.Server{
+			Name: mcName,
+			Type: configapi.ManagementClusterServerType,
+			ManagementClusterOpts: &configapi.ManagementClusterServer{
+				Context: "fake-context",
+				Path:    "fake-path",
+			},
+		}
+		err = SetServer(s, true)
+		if err != nil {
+			return err
+		}
+
+		_, err = GetClientConfigNode()
+		return err
+	}
+
+	// Run the parallel tests of reading and updating the configuration file
+	// multiple times to make sure all the attempts are successful
+	for testCounter := 1; testCounter <= 5; testCounter++ {
+		func() {
+
+			defer func() {
+				cleanupDir(LocalDirName)
+			}()
+			// run addServer in parallel
+			parallelExecutionCounter := 100
+			group, _ := errgroup.WithContext(context.Background())
+			for i := 1; i <= parallelExecutionCounter; i++ {
+				id := i
+				group.Go(func() error {
+					return addServer(fmt.Sprintf("mc-%v", id))
+				})
+			}
+			err := group.Wait()
+
+			// Make sure that the configuration file is not corrupted
+			node, err := GetClientConfigNode()
+			assert.Nil(t, err)
+
+			// Make sure all expected servers are added to the knownServers list
+			assert.Equal(t, parallelExecutionCounter, len(node.Content[0].Content[1].Content))
+		}()
+	}
+}
