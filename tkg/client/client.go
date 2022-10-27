@@ -57,7 +57,7 @@ type CreateClusterOptions struct {
 	Edition                      string
 	IsInputFileClusterClassBased bool
 	ClusterConfigFile            string
-	legacy                       bool
+	Legacy                       bool
 }
 
 // InitRegionOptions contains options supported by InitRegion

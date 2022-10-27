@@ -173,7 +173,7 @@ func createCluster(clusterName string, server *configapi.Server) error {
 		SkipPrompt:                  cc.unattended,
 		Timeout:                     cc.timeout,
 		Edition:                     edition,
-		legacy:                      cc.legacy,
+		Legacy:                      cc.legacy,
 	}
 
 	return tkgctlClient.CreateCluster(ccOptions)
