@@ -1,0 +1,98 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: tkr-vsphere-resolver-webhook
+  name: tkr-vsphere-resolver-manager-sa
+  namespace: #@ data.values.NAMESPACE
+  annotations:
+    kapp.k14s.io/change-group: "tkr-vsphere-resolver.tanzu.vmware.com/serviceaccount"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tkr-vsphere-resolver-manager-role
+  annotations:
+    kapp.k14s.io/change-group: "tkr-vsphere-resolver.tanzu.vmware.com/serviceaccount"
+rules:
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - tanzukubernetesreleases
+  - osimages
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - tanzukubernetesreleases/status
+  - osimages/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - clusters
+  - clusters/status
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - clusterclasses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tkr-vsphere-resolver-manager-clusterrolebinding
+  annotations:
+    kapp.k14s.io/change-group: "tkr-vsphere-resolver.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-vsphere-resolver.tanzu.vmware.com/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-vsphere-resolver.tanzu.vmware.com/serviceaccount"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tkr-vsphere-resolver-manager-role
+subjects:
+- kind: ServiceAccount
+  name: tkr-vsphere-resolver-manager-sa
+  namespace: #@ data.values.NAMESPACE
