@@ -29,7 +29,12 @@ cd ${HOME}
 rpmdev-setuptree
 cd rpmbuild
 # Copy the tanzu binary to the SOURCES directory
-curl -o SOURCES/tanzu-cli-linux-amd64.tar.gz https://github.com/vmware-tanzu/tanzu-framework/releases/download/v${VERSION}/tanzu-cli-linux-amd64.tar.gz
+curl -Lo tanzu-cli-linux-amd64.tar.gz https://github.com/vmware-tanzu/tanzu-framework/releases/download/v${VERSION}/tanzu-cli-linux-amd64.tar.gz
+tar xzf tanzu-cli-linux-amd64.tar.gz v${VERSION}
+rm -f tanzu-cli-linux-amd64.tar.gz
+mv v${VERSION} tanzu-cli-${VERSION}
+tar cf SOURCES/tanzu-cli.tar.gz tanzu-cli-${VERSION}
+rm -rf tanzu-cli-${VERSION}
 
 # Copy the spec file
 cp ${BASE_DIR}/tanzu-cli.spec SPECS
