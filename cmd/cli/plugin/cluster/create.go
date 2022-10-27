@@ -45,6 +45,7 @@ type createClusterOptions struct {
 	timeout                     time.Duration
 	generateOnly                bool
 	unattended                  bool
+	legacy                      bool
 }
 
 var cc = &createClusterOptions{}
@@ -64,7 +65,7 @@ func init() {
 	createClusterCmd.Flags().IntVarP(&cc.controlPlaneMachineCount, "controlplane-machine-count", "c", 0, "The number of control plane machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	createClusterCmd.Flags().IntVarP(&cc.workerMachineCount, "worker-machine-count", "w", 0, "The number of worker machines to be added to the workload cluster (default 1 or 3 depending on dev or prod plan)")
 	createClusterCmd.Flags().BoolVarP(&cc.generateOnly, "dry-run", "d", false, "Does not create cluster, but show the deployment YAML instead")
-	createClusterCmd.Flags().StringVarP(&cc.namespace, "namespace", "n", "", "The namespace where the cluster should be deployed. Assumes 'default' if not specified")
+	createClusterCmd.Flags().BoolVarP(&cc.legacy, "legacy", "", false, "don't use cluster class by default")
 	createClusterCmd.Flags().StringVarP(&cc.vsphereControlPlaneEndpoint, "vsphere-controlplane-endpoint", "", "", "Virtual IP address or FQDN for the cluster's control plane nodes")
 	createClusterCmd.Flags().DurationVarP(&cc.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
 	createClusterCmd.Flags().StringVarP(&cc.cniType, "cni", "", "", "Specify the CNI provider the workload cluster should use ['antrea' (default), 'calico', 'none'].")
@@ -172,6 +173,7 @@ func createCluster(clusterName string, server *configapi.Server) error {
 		SkipPrompt:                  cc.unattended,
 		Timeout:                     cc.timeout,
 		Edition:                     edition,
+		legacy:                      cc.legacy,
 	}
 
 	return tkgctlClient.CreateCluster(ccOptions)

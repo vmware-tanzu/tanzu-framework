@@ -32,6 +32,7 @@ type CreateClusterOptions struct {
 	IsWindowsWorkloadCluster bool
 	GenerateOnly             bool
 	SkipPrompt               bool
+	legacy                   bool
 
 	ClusterConfigFile           string
 	ClusterName                 string
