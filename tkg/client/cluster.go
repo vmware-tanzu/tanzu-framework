@@ -148,11 +148,11 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		}
 
 		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-			if isCustomOverlayPresent, err = c.isCustomOverlayPresent(); err != nil {
+			if iscustomoverlaypresent, err := c.isCustomOverlayPresent(); err != nil {
 				return false, err
 			}
 			// if ytt changed, create non clusterclass cluster.
-			if isCustomOverlayPresent && !isManagementCluster && !option.legacy {
+			if iscustomoverlaypresent && !isManagementCluster && !options.legacy {
 				log.Warning("Warning: Use of ytt based cluster templates will be deprecated in favor of ClusterClass templates in a future version of TKG. Please work to move your workloads to a ClusterClass enabled cluster.")
 				// waiting for user confirmation here.
 			} else {
