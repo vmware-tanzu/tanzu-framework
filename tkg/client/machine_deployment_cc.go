@@ -11,6 +11,7 @@ import (
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/pkg/errors"
+
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/util/topology"
 )
