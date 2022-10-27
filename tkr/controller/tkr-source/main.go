@@ -142,9 +142,12 @@ func main() {
 	setupWithManager(mgr, []managedComponent{
 		registryInstance,
 		fetcherInstance,
-		pkgcrReconciler,
-		compatibilityReconciler,
+		// pkgcrReconciler,
+		// compatibilityReconciler,
 	})
+	if pkgcrReconciler == nil || compatibilityReconciler == nil {
+		// TODO(imikushin) uncomment above and remove
+	}
 
 	startManager(ctx, mgr)
 }

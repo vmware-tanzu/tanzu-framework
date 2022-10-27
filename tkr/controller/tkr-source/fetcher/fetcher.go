@@ -146,7 +146,7 @@ func (f *Fetcher) fetchTKRCompatibilityCM(ctx context.Context) error {
 		return err
 	}
 
-	for _, ns := range []string{f.Config.TKRNamespace, f.Config.LegacyTKRNamespace} {
+	for _, ns := range []string{f.Config.LegacyTKRNamespace, f.Config.TKRNamespace} {
 		if ns != "" {
 			if err := f.saveTKRCompatibilityCM(ctx, ns, metadataContent); err != nil {
 				return errors.Wrap(err, "error creating or updating BOM metadata ConfigMap")
@@ -170,7 +170,8 @@ func (f *Fetcher) saveTKRCompatibilityCM(ctx context.Context, ns string, metadat
 		}
 		return nil
 	})
-	return err
+	err = kerrors.FilterOut(err, apierrors.IsNotFound) // ignoring NotFound for ns
+	return errors.Wrapf(err, "could not create/update ConfigMap: '%s/%s'", ns, cm.Name)
 }
 
 func (f *Fetcher) fetchCompatibilityMetadata() (*tkrv1.CompatibilityMetadata, error) {
@@ -283,7 +284,7 @@ func (f *Fetcher) createBOMConfigMap(ctx context.Context, tag string) error {
 
 	name := strings.ReplaceAll(releaseName, "+", "---")
 
-	for _, ns := range []string{f.Config.TKRNamespace, f.Config.LegacyTKRNamespace} {
+	for _, ns := range []string{f.Config.LegacyTKRNamespace, f.Config.TKRNamespace} {
 		if ns != "" {
 			if err := f.saveBOMConfigMap(ctx, ns, name, tag, bomContent); err != nil {
 				return err
@@ -315,10 +316,9 @@ func (f *Fetcher) saveBOMConfigMap(ctx context.Context, ns string, name string, 
 	}
 
 	f.Log.Info("Creating BOM ConfigMap", "ns", ns, "name", name)
-	if err := f.Client.Create(ctx, &cm); err != nil && !apierrors.IsAlreadyExists(err) {
-		return errors.Wrapf(err, "could not create ConfigMap: name='%s'", cm.Name)
-	}
-	return nil
+	err := f.Client.Create(ctx, &cm)
+	err = kerrors.FilterOut(err, apierrors.IsAlreadyExists, apierrors.IsNotFound) // ignoring NotFound for ns
+	return errors.Wrapf(err, "could not create ConfigMap: '%s/%s'", ns, cm.Name)
 }
 
 func (f *Fetcher) fetchTKRPackages(ctx context.Context) error {
