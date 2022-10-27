@@ -522,6 +522,10 @@ spec:
         valueFrom:
           variable: vcenter.network
       - op: replace
+        path: /spec/template/spec/template
+        valueFrom:
+          variable: vcenter.template
+      - op: replace
         path: /spec/template/spec/datacenter
         valueFrom:
           variable: vcenter.datacenter
@@ -580,6 +584,11 @@ spec:
         path: /spec/template/spec/network
         valueFrom:
           variable: vcenter.network
+      #! TODO: move this patch elsewhere
+      - op: replace
+        path: /spec/template/spec/template
+        valueFrom:
+          variable: vcenter.template
       - op: replace
         path: /spec/template/spec/datacenter
         valueFrom:
