@@ -36,7 +36,7 @@ ifndef IS_OFFICIAL_BUILD
 IS_OFFICIAL_BUILD = ""
 endif
 
-ifndef TANZU_PLUGIN_UNSTABLE_VERSIONS
+ifndef TANZU_PLUGIN_UNSTABLE_VERSIONS # Config used to install cli plugins without discovery
 TANZU_PLUGIN_UNSTABLE_VERSIONS = "experimental"
 endif
 
@@ -55,19 +55,19 @@ ifndef TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH
 TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "framework-zshippable/tkg-compatibility"
 endif
 
-ifndef ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY
+ifndef ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY # Current Default Plugin Discovery more info https://github.com/vmware-tanzu/tanzu-framework/blob/main/docs/design/context-aware-plugin-discovery-design.md
 ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY = "true"
 endif
-ifndef DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH
+ifndef DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH # Image path Config used for Plugins Discovery i.e. Independent of the CLI context and are discovered using standalone discovery source
 DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH = "packages/standalone-plugins"
 endif
-ifndef DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG
+ifndef DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG # Build version used for Plugins Discovery i.e. Independent of the CLI context and are discovered using standalone discovery source
 DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG = "${BUILD_VERSION}"
 endif
 ifndef DEFAULT_STANDALONE_DISCOVERY_TYPE
 DEFAULT_STANDALONE_DISCOVERY_TYPE = "local"
 endif
-ifndef DEFAULT_STANDALONE_DISCOVERY_LOCAL_PATH
+ifndef DEFAULT_STANDALONE_DISCOVERY_LOCAL_PATH # Local path config used for Plugins Discovery i.e. Independent of the CLI context and are discovered using standalone discovery source
 DEFAULT_STANDALONE_DISCOVERY_LOCAL_PATH = "standalone"
 endif
 ifndef TANZU_PLUGINS_ALLOWED_IMAGE_REPOSITORIES
@@ -91,11 +91,11 @@ OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/tkg/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 
-ifneq ($(strip $(TANZU_CORE_BUCKET)),)
+ifneq ($(strip $(TANZU_CORE_BUCKET)),) # Name of the core plugin repository bucket to use. Ex:- tanzu-cli-framework
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.CoreBucketName=$(TANZU_CORE_BUCKET)'
 endif
 
-ifeq ($(TANZU_FORCE_NO_INIT), true)
+ifeq ($(TANZU_FORCE_NO_INIT), true) # Force No installation of plugins and override TANZU_NO_INIT env variable
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command.forceNoInit=true'
 endif
 
@@ -127,8 +127,8 @@ ARTIFACTS_ADMIN_DIR ?= $(ROOT_DIR)/artifacts-admin
 
 XDG_CACHE_HOME := ${HOME}/.cache
 XDG_CONFIG_HOME := ${HOME}/.config
+# Local path to publish the tanzu CLI plugins
 TANZU_PLUGIN_PUBLISH_PATH ?= $(XDG_CONFIG_HOME)/tanzu-plugins
-
 export XDG_DATA_HOME
 export XDG_CACHE_HOME
 export XDG_CONFIG_HOME
@@ -238,7 +238,7 @@ $(BUILDER): $(BUILDER_SRC)
 	cd cmd/cli/plugin-admin/builder && $(GO) build -o $(BUILDER) .
 
 .PHONY: prepare-builder
-prepare-builder: $(BUILDER)
+prepare-builder: $(BUILDER) ## Build Tanzu CLI Plugin Admin builder
 
 .PHONY: build-cli
 build-cli: build-cli-with-local-discovery ## Build Tanzu CLI
@@ -790,6 +790,7 @@ COMPONENTS ?=  \
   capabilities \
   tkr/webhook/tkr-conversion \
   tkr/webhook/cluster/tkr-resolver \
+  tkg/vsphere-template-resolver \
   pinniped-components/tanzu-auth-controller-manager \
   object-propagation
 

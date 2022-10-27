@@ -16,7 +16,7 @@ NODE_MACHINE_TYPE: "NA","m5.large"
 _TKG_CLUSTER_FORCE_ROLE: "NA", "management"
 _CNAME: "testcluster", "c1", "really-long-cluster-name-with-hyphen"
 _PLAN: "dev", "prod"
-_INFRA: "vsphere:v1.3.1"
+_INFRA: "vsphere:v1.4.1"
 
 BASTION_HOST_ENABLED: "true"
 NODE_STARTUP_TIMEOUT: "20m"
