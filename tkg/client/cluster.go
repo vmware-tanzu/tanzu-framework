@@ -156,7 +156,6 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 				log.Warning("Warning: Use of ytt based cluster templates will be deprecated in favor of ClusterClass templates in a future version of TKG. Please work to move your workloads to a ClusterClass enabled cluster.")
 				// waiting for user confirmation here.
 			} else {
-				if ShouldDeployClusterClassBasedCluster
 				clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
 				if err != nil {
 					return false, err
@@ -176,7 +175,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 					log.Warningf("    tanzu cluster create --file %v", configFilePath)
 					return false, nil
 				}
-				log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)	
+				log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)
 			}
 		}
 	}
