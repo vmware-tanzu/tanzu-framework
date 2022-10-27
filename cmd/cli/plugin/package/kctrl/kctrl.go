@@ -12,15 +12,13 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
-func Invoke(p *plugin.Plugin) error {
+func Invoke(p *plugin.Plugin) {
 	writerUI := ui.NewWriterUI(p.Cmd.OutOrStdout(), p.Cmd.ErrOrStderr(), ui.NewNoopLogger())
 	adapterUI := &AdapterUI{WriterUI: *writerUI, outWriter: p.Cmd.OutOrStdout()}
-	confUI := ui.NewWrappingConfUI(adapterUI, ui.NewNoopLogger())
+	confUI := ui.NewWrappingConfUI(ui.NewPaddingUI(adapterUI), ui.NewNoopLogger())
 	defer confUI.Flush()
 
 	kctrlcmd.AttachKctrlPackageCommandTree(p.Cmd, confUI, kctrlcmdcore.PackageCommandTreeOpts{BinaryName: "tanzu", PositionalArgs: true,
 		Color: false, JSON: false})
 	setOutputFormatFlag(p.Cmd, adapterUI)
-
-	return p.Execute()
 }
