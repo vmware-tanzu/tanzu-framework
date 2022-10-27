@@ -1,0 +1,66 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tkr-vsphere-resolver-webhook
+  name: tkr-vsphere-resolver-webhook-manager
+  namespace: #@ data.values.NAMESPACE
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-vsphere-resolver.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-vsphere-resolver.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.2: "upsert after upserting tkr-vsphere-resolver.tanzu.vmware.com/certificate"
+    kapp.k14s.io/change-rule.3: "delete before deleting tkr-vsphere-resolver.tanzu.vmware.com/certificate"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tkr-vsphere-resolver-webhook
+  template:
+    metadata:
+      labels:
+        app: tkr-vsphere-resolver-webhook
+    spec:
+      containers:
+      - image: tkr-vsphere-cluster-webhook:latest
+        imagePullPolicy: IfNotPresent
+        name: manager
+        command:
+        - /manager
+        args:
+        - --metrics-bind-addr=0
+        - #@ "--webhook-server-port={}".format(data.values.deployment.tkrVsphereResolverWebhookServerPort)
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: #@ data.values.deployment.tkrVsphereResolverWebhookServerPort
+          name: webhook-server
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+      serviceAccount: tkr-vsphere-resolver-manager-sa
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          secretName: tkr-vsphere-resolver-webhook-service-cert
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'hostNetwork') and data.values.deployment.hostNetwork:
+      #@overlay/match missing_ok=True
+      hostNetwork: true
+      #@ end
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'tolerations') and data.values.deployment.tolerations:
+      #@overlay/match missing_ok=True
+      tolerations: #@ data.values.deployment.tolerations
+      #@ end
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'nodeSelector') and data.values.deployment.nodeSelector:
+      #@overlay/match missing_ok=True
+      nodeSelector: #@ data.values.deployment.nodeSelector
+      #@ end
