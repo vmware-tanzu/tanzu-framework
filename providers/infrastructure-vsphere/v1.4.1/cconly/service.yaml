@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+#! tkr-vsphere-resolver-webhook
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tkr-vsphere-resolver-webhook-service
+  namespace: #@ data.values.NAMESPACE
+spec:
+  ports:
+  - port: 443
+    targetPort: webhook-server
+  selector:
+    app: tkr-vsphere-resolver-webhook

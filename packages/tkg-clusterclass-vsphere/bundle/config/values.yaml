@@ -36,3 +36,10 @@ VSPHERE_WORKER_MEM_MIB: 4096
 VSPHERE_CLONE_MODE: "fullClone"
 
 CLUSTER_NAME: management-cluster
+
+deployment:
+  hostNetwork: false
+  nodeSelector: null
+  tolerations: []
+  #! If hostNetwork is set to true the below two ports should be different
+  tkrVsphereResolverWebhookServerPort: 9443

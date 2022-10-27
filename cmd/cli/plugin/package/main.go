@@ -39,7 +39,8 @@ func main() {
 	}
 
 	if config.IsFeatureActivated(config.FeatureFlagPackagePluginKctrlCommandTree) {
-		if err := kctrl.Invoke(p); err != nil {
+		kctrl.Invoke(p)
+		if err := p.Execute(); err != nil {
 			os.Exit(1)
 		}
 		return
