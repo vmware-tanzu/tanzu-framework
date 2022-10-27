@@ -29,6 +29,7 @@ type createClusterOptions struct {
 	workerMachineCount          int
 	unattended                  bool
 	generateOnly                bool
+	legacy                      bool
 }
 
 var cc = &createClusterOptions{}
