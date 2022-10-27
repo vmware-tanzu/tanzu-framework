@@ -148,7 +148,8 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		}
 
 		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-			if iscustomoverlaypresent, err := c.isCustomOverlayPresent(); err != nil {
+			iscustomoverlaypresent, err := c.isCustomOverlayPresent()
+			if err != nil {
 				return false, err
 			}
 			// if ytt changed, create non clusterclass cluster.
