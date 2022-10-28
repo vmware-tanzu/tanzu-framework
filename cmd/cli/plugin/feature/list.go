@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package main
@@ -7,146 +7,187 @@ import (
 	"context"
 	"fmt"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	crClient "sigs.k8s.io/controller-runtime/pkg/client"
-
 	"github.com/spf13/cobra"
 
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient"
 )
 
-var featuregate, outputFormat string
-var activated, deactivated, unavailable, extended bool
+var (
+	featuregate, outputFormat     string
+	activated, deactivated        bool
+	extended, includeExperimental bool
+)
 
-// FeatureListCmd is for activating Features
+// FeatureListCmd is for listing features in (a) featuregate(s).
 var FeatureListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List Features",
+	Short: "List features",
 	Args:  cobra.NoArgs,
 	Example: `
-	# List a clusters Features
+	# List feature(s) in the cluster.
 	tanzu feature list --activated
-	tanzu feature list --unavailable
 	tanzu feature list --deactivated`,
-	RunE: featureList,
+	RunE: printFeatures,
 }
 
 func init() {
-	FeatureListCmd.Flags().BoolVarP(&extended, "extended", "e", false, "Include extended output. Higher latency as it requires more API calls.")
-	FeatureListCmd.Flags().StringVarP(&featuregate, "featuregate", "f", "tkg-system", "List Features gated by a particular FeatureGate")
-	FeatureListCmd.Flags().BoolVarP(&activated, "activated", "a", false, "List only activated Features")
-	FeatureListCmd.Flags().BoolVarP(&deactivated, "deactivated", "d", false, "List only deactivated Features")
-	FeatureListCmd.Flags().BoolVarP(&unavailable, "unavailable", "u", false, "List only Features specified in the gate but missing from cluster")
+	FeatureListCmd.Flags().BoolVarP(&extended, "extended", "e", false, "Include extended output")
+	FeatureListCmd.Flags().StringVarP(&featuregate, "featuregate", "f", "", "List features gated by specified FeatureGate")
+	FeatureListCmd.Flags().BoolVarP(&activated, "activated", "a", false, "List only activated features")
+	FeatureListCmd.Flags().BoolVarP(&deactivated, "deactivated", "d", false, "List only deactivated features")
 	FeatureListCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
+	FeatureListCmd.Flags().BoolVarP(&includeExperimental, "include-experimental", "x", false, "Include experimental features in list")
 }
 
-// FeatureInfo is a struct that holds Feature information
+// FeatureInfo is a struct that holds Feature information an if it can be listed by plugin.
 type FeatureInfo struct {
-	Name        string
-	Maturity    string
-	Description string
-	Activated   bool
-	Available   bool
-	Immutable   bool
+	Name         string
+	Description  string
+	Stability    corev1alpha2.StabilityLevel
+	Immutable    bool
+	Discoverable bool
+	FeatureGate  string
+	Activated    bool
+	ShowInList   bool
 }
 
-func featureList(cmd *cobra.Command, _ []string) error {
-	featureGateClient, err := featuregateclient.NewFeatureGateClient()
+func printFeatures(cmd *cobra.Command, _ []string) error {
+	fgClient, err := featuregateclient.NewFeatureGateClient()
 	if err != nil {
-		return fmt.Errorf("couldn't get featureGateRunner: %w", err)
+		return fmt.Errorf("could not get FeatureGateClient: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
-	gate, err := featureGateClient.GetFeatureGate(ctx, featuregate)
-	if crClient.IgnoreNotFound(err) != nil {
-		return err
-	}
+	infos, err := featureInfoList(ctx, fgClient, featuregate)
 	if err != nil {
-		return fmt.Errorf("featuregate %s not found: %w", featuregate, err)
+		return fmt.Errorf("could not gather features' information: %w", err)
 	}
 
-	var features []*FeatureInfo
-	switch {
-	case activated:
-		for _, a := range gate.Status.ActivatedFeatures {
-			features = append(features, &FeatureInfo{
-				Name:      a,
-				Activated: true,
-				Available: true,
-			})
-		}
-	case deactivated:
-		for _, a := range gate.Status.DeactivatedFeatures {
-			features = append(features, &FeatureInfo{
-				Name:      a,
-				Activated: false,
-				Available: true,
-			})
-		}
-	case unavailable:
-		for _, a := range gate.Status.UnavailableFeatures {
-			features = append(features, &FeatureInfo{
-				Name:      a,
-				Activated: false,
-				Available: false,
-			})
-		}
-	default:
-		for _, a := range gate.Status.ActivatedFeatures {
-			features = append(features, &FeatureInfo{
-				Name:      a,
-				Activated: true,
-				Available: true,
-			})
-		}
-		for _, a := range gate.Status.DeactivatedFeatures {
-			features = append(features, &FeatureInfo{
-				Name:      a,
-				Activated: false,
-				Available: true,
-			})
-		}
-		for _, a := range gate.Status.UnavailableFeatures {
-			features = append(features, &FeatureInfo{
-				Name:      a,
-				Activated: false,
-				Available: false,
-			})
-		}
-	}
 	if extended {
-		err := joinFeatures(ctx, featureGateClient, features)
-		if err != nil {
-			return fmt.Errorf("couldn't get extended information about features: %w", err)
-		}
+		return listExtended(cmd, infos)
+	}
+	return listBasic(cmd, infos)
+}
 
-		// Many API calls to gather and join on Features
-		return listExtended(cmd, features)
+// featureInfoList will determine which features' information will be listed. If a feature's info
+// is displayed or not depends on the flags passed in by the user (e.g., activated, deactivated),
+// as well as the features' discoverable settings and stability levels.
+func featureInfoList(ctx context.Context, cl *featuregateclient.FeatureGateClient, featuregate string) ([]FeatureInfo, error) {
+	clusterFeatures, err := cl.GetFeatureList(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return listBasic(cmd, features)
+	gateList, err := cl.GetFeatureGateList(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	featureInfos := collectFeaturesInfo(gateList.Items, clusterFeatures.Items)
+
+	setShowInList(featureInfos, includeExperimental, featuregate)
+
+	filteredList := featuresFilteredByFlags(featureInfos, activated, deactivated)
+	return filteredList, nil
+}
+
+// collectFeaturesInfo will create a map of features and their information from
+// FeatureGate references and features.
+func collectFeaturesInfo(gates []corev1alpha2.FeatureGate, features []corev1alpha2.Feature) map[string]*FeatureInfo {
+	infos := map[string]*FeatureInfo{}
+
+	for i := range features {
+		policy := corev1alpha2.GetPolicyForStabilityLevel(features[i].Spec.Stability)
+
+		infos[features[i].Name] = &FeatureInfo{
+			Name:         features[i].Name,
+			Description:  features[i].Spec.Description,
+			Stability:    features[i].Spec.Stability,
+			Activated:    features[i].Status.Activated,
+			Immutable:    policy.Immutable,
+			Discoverable: policy.Discoverable,
+			FeatureGate:  "--",
+		}
+	}
+
+	for i := range gates {
+		for _, featRef := range gates[i].Spec.Features {
+			info, ok := infos[featRef.Name]
+			if ok {
+				// FeatureGate referenced Feature is in cluster.
+				info.FeatureGate = gates[i].Name
+			}
+
+			if !ok {
+				// FeatureGate referenced Feature is not in cluster. Since the Discoverable policy
+				// cannot be known until the Feature shows up in cluster, set it to true for now.
+				infos[featRef.Name] = &FeatureInfo{
+					Name:         featRef.Name,
+					Discoverable: true,
+					FeatureGate:  gates[i].Name,
+				}
+			}
+		}
+	}
+
+	return infos
+}
+
+// setShowInList will determine if a Feature will be listed based on Features that can
+// be listed by default and whether or not a FeatureGate was specified by the user.
+func setShowInList(infos map[string]*FeatureInfo, inclExperimental bool, gateName string) {
+	for _, v := range infos {
+		// Only discoverable features can be listed.
+		v.ShowInList = v.Discoverable
+
+		// Experimental features are not listed by default, but can be listed via flag.
+		if v.Stability == corev1alpha2.Experimental {
+			v.ShowInList = inclExperimental
+		}
+
+		// If FeatureGate is specified, delist the Features not gated.
+		if gateName != "" && v.FeatureGate != gateName {
+			v.ShowInList = false
+		}
+	}
+}
+
+// featuresFilteredByFlags will determine which features will be listed based on the flags provided.
+// If none of flags were set, then all features will be selected to display.
+func featuresFilteredByFlags(infos map[string]*FeatureInfo, activated, deactivated bool) []FeatureInfo {
+	var filteredList []FeatureInfo
+	for _, v := range infos {
+		if activated && v.Activated && v.ShowInList {
+			filteredList = append(filteredList, *v)
+		}
+
+		if deactivated && !v.Activated && v.ShowInList {
+			filteredList = append(filteredList, *v)
+		}
+
+		// No flags were provided, so only filter out features that shouldn't be listed.
+		if !activated && !deactivated && v.ShowInList {
+			filteredList = append(filteredList, *v)
+		}
+	}
+	return filteredList
 }
 
 // listExtended renders the output with extended feature information
-func listExtended(cmd *cobra.Command, features []*FeatureInfo) error {
+func listExtended(cmd *cobra.Command, features []FeatureInfo) error {
 	var t component.OutputWriterSpinner
 	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
-		"Retrieving Features...", true, "NAME", "ACTIVATION STATE", "AVAILABLE", "MATURITY", "DESCRIPTION", "IMMUTABLE")
+		"Retrieving Features...", true, "NAME", "ACTIVATION STATE", "STABILITY", "DESCRIPTION", "IMMUTABLE", "FEATUREGATE")
 	if err != nil {
-		return fmt.Errorf("couldn't get OutputWriterSpinner: %w", err)
+		return fmt.Errorf("could not get OutputWriterSpinner: %w", err)
 	}
 
 	for _, info := range features {
-		t.AddRow(
-			info.Name,
-			info.Activated,
-			info.Available,
-			info.Maturity,
-			info.Description,
-			info.Immutable)
+		t.AddRow(info.Name, info.Activated, info.Stability, info.Description, info.Immutable, info.FeatureGate)
 	}
 	t.RenderWithSpinner()
 
@@ -154,40 +195,18 @@ func listExtended(cmd *cobra.Command, features []*FeatureInfo) error {
 }
 
 // listBasic renders the output with basic feature information
-func listBasic(cmd *cobra.Command, features []*FeatureInfo) error {
+func listBasic(cmd *cobra.Command, features []FeatureInfo) error {
 	var t component.OutputWriterSpinner
 	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
-		"Retrieving Features...", true, "NAME", "ACTIVATION STATE", "AVAILABLE")
+		"Retrieving Features...", true, "NAME", "ACTIVATION STATE", "FEATUREGATE")
 	if err != nil {
-		return fmt.Errorf("couldn't get OutputWriterSpinner: %w", err)
+		return fmt.Errorf("could not get OutputWriterSpinner: %w", err)
 	}
 
 	for _, info := range features {
-		t.AddRow(
-			info.Name,
-			info.Activated,
-			info.Available)
+		t.AddRow(info.Name, info.Activated, info.FeatureGate)
 	}
 	t.RenderWithSpinner()
 
-	return nil
-}
-
-// joinFeatures retrieves additional information of a Feature and merges it with existing information.
-func joinFeatures(ctx context.Context, featureGateClient *featuregateclient.FeatureGateClient, features []*FeatureInfo) error {
-	for _, info := range features {
-		feature, err := featureGateClient.GetFeature(ctx, info.Name)
-		if err != nil {
-			// skip returning the error for unavailable feature when not found
-			// to fetch others
-			if !info.Available && apierrors.IsNotFound(err) {
-				continue
-			}
-			return err
-		}
-		info.Maturity = feature.Spec.Maturity
-		info.Description = feature.Spec.Description
-		info.Immutable = feature.Spec.Immutable
-	}
 	return nil
 }

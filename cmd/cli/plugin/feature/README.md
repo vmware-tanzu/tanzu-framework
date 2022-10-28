@@ -1,20 +1,20 @@
-# feature
+# Feature
 
-Feature plugin lets you operate on Features and FeatureGates
+Feature plugin gives access to features using featuregates.
 
 ## Usage
 
-Feature plugin has 3 commands
+Feature plugin has three commands:
 
 1. list - allows to list the features that are gated by a particular
    FeatureGate.
 2. activate - allows to activate a feature.
 3. deactivate - allows to deactivate a feature.
 
-By default, Feature plugin operates on Features that are gated by `tkg-system`
-FeatureGate, but that can be changed by specifying `featuregate` flag.
+Feature plugin is able to list all discoverable features on the cluster.
+Optionally, a FeatureGate may be specified by using the `featuregate` flag.
 
-Ex:
+Example:
 
 ```sh
 # list Features associated with tkg-system FeatureGate
@@ -45,26 +45,25 @@ Use "tanzu feature [command] --help" for more information about a command.
 
 ```sh
 >>> tanzu feature list --help
-List Features
+List features
 
 Usage:
   tanzu feature list [flags]
 
 Examples:
   
-    # List a clusters Features
+    # List feature(s) in the cluster.
     tanzu feature list --activated
-    tanzu feature list --unavailable
     tanzu feature list --deactivated
 
 Flags:
-  -a, --activated            List only activated Features
-  -d, --deactivated          List only deactivated Features
-  -e, --extended             Include extended output. Higher latency as it requires more API calls.
-  -f, --featuregate string   List Features gated by a particular FeatureGate (default "tkg-system")
-  -h, --help                 help for list
-  -o, --output string        Output format (yaml|json|table)
-  -u, --unavailable          List only Features specified in the gate but missing from cluster
+  -a, --activated                             List only activated features
+  -d, --deactivated                           List only deactivated features
+  -e, --extended                              Include extended output
+  -f, --featuregate string                    List features gated by a particular FeatureGate
+  -h, --help                                  Help for list
+  -x, --include-experimental                  Allows displaying experimental features
+  -o, --output string                         Output format (yaml|json|table)
 ```
 
 ### activate command
