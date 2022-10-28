@@ -30,6 +30,7 @@ spec:
         - --metrics-bind-addr=0
         - --sa-name=tkr-source-controller-manager-sa
         - #@ "--namespace={}".format(data.values.namespace)
+        - #@ "--legacy-namespace={}".format(data.values.legacyNamespace)
         - #@ "--bom-image-path={}".format(data.values.bomImagePath)
         - #@ "--bom-metadata-image-path={}".format(data.values.bomMetadataImagePath)
         - #@ "--tkr-repo-image-path={}".format(data.values.tkrRepoImagePath)
