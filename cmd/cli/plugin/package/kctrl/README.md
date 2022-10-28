@@ -8,7 +8,7 @@ Package and Repository Operations ( Subject to Change ):
 
 ```sh
 >>> tanzu package --help
-Tanzu package management (available, install, installed, repository)
+Tanzu package management (available, init, install, installed, release, repository)
 
 Usage:
   tanzu package [flags]
@@ -17,9 +17,11 @@ Usage:
 Available Commands:
   available     Manage available packages (get, list)
   completion    Generate the autocompletion script for the specified shell
+  init          Initialize Package (experimental)
   install       Install package
-  installed     Manage installed packages (create, delete, get, list, update)
-  repository    Manage package repositories (add, delete, get, list, update)
+  installed     Manage installed packages (create, delete, get, kick, list, pause, status, update)
+  release       Release package (experimental)
+  repository    Manage package repositories (add, delete, get, kick, list, release, update)
 
 Flags:
       --column strings              Filter to show only given columns
@@ -30,7 +32,6 @@ Flags:
       --kubeconfig string           Path to the kubeconfig file ($TANZU_KUBECONFIG)
       --kubeconfig-context string   Kubeconfig context override ($TANZU_KUBECONFIG_CONTEXT)
       --kubeconfig-yaml string      Kubeconfig contents as YAML ($TANZU_KUBECONFIG_YAML)
-      --tty                         Force TTY-like output (default true)
   -y, --yes                         Assume yes for any prompt
 
 Use "tanzu package [command] --help" for more information about a command.
@@ -38,21 +39,25 @@ Use "tanzu package [command] --help" for more information about a command.
 
 ```sh
 >>> tanzu package repository --help
-Manage package repositories (add, delete, get, list, update)
+Manage package repositories (add, delete, get, kick, list, release, update)
 
 Usage:
-  tanzu package repository [flags]
-  tanzu package repository [command]
+  package repository [flags]
+  package repository [command]
 
 Aliases:
   repository, repo, r
 
-Available Commands:
+Package Management Commands:
   add         Add a package repository
   delete      Delete a package repository
   get         Get details for a package repository
+  kick        Trigger reconciliation for repository
   list        List package repositories in a namespace
   update      Update a package repository
+
+Package Authoring Commands:
+  release     Build and create a package repository (experimental)
 
 Flags:
   -h, --help   help for repository
@@ -65,10 +70,9 @@ Global Flags:
       --kubeconfig string           Path to the kubeconfig file ($TANZU_KUBECONFIG)
       --kubeconfig-context string   Kubeconfig context override ($TANZU_KUBECONFIG_CONTEXT)
       --kubeconfig-yaml string      Kubeconfig contents as YAML ($TANZU_KUBECONFIG_YAML)
-      --tty                         Force TTY-like output (default true)
   -y, --yes                         Assume yes for any prompt
 
-Use "tanzu package repository [command] --help" for more information about a command.
+Use "package repository [command] --help" for more information about a command.
 ```
 
 ## Test
@@ -99,8 +103,19 @@ Use "tanzu package repository [command] --help" for more information about a com
    ```sh
    >>> tanzu package repository add standard-repo --url projects-stg.registry.vmware.com/tkg/test-packages/standard-repo:v1.0.0 -n test-ns
    Waiting for package repository to be added
-   4:04:00PM: packagerepository/standard-repo (packaging.carvel.dev/v1alpha1) namespace: test-ns: Reconciling
-   4:04:14PM: packagerepository/standard-repo (packaging.carvel.dev/v1alpha1) namespace: test-ns: ReconcileSucceeded
+   2:26:44PM: Waiting for package repository reconciliation for 'standard-repo'
+   2:26:44PM: Fetch started (7s ago)
+   2:26:51PM: Fetching
+               | apiVersion: vendir.k14s.io/v1alpha1
+               | directories:
+               | - contents:
+
+   ...snip...
+
+               | 2:26:52PM: ---- applying complete [16/16 done] ----
+               | 2:26:52PM: ---- waiting complete [16/16 done] ----
+               | Succeeded
+   2:26:52PM: Deploy succeeded
    ```
 
 4. Get repository status
@@ -122,7 +137,18 @@ Use "tanzu package repository [command] --help" for more information about a com
    ```sh
    >>> tanzu package repository update standard-repo --url projects-stg.registry.vmware.com/tkg/test-packages/standard-repo:v1.0.0 -n test-ns
    Waiting for package repository to be updated
-   4:13:30PM: packagerepository/standard-repo (packaging.carvel.dev/v1alpha1) namespace: test-ns: ReconcileSucceeded
+   2:36:11PM: Waiting for package repository reconciliation for 'standard-repo'
+   2:36:11PM: Fetching
+               | apiVersion: vendir.k14s.io/v1alpha1
+               | directories:
+               | - contents:
+               |   - imgpkgBundle:
+
+    ...snip...
+
+               | Wait to: 0 reconcile, 0 delete, 0 noop
+               | Succeeded
+   2:36:59PM: Deploy succeeded
    ```
 
 6. List the repository
@@ -362,12 +388,12 @@ Use "tanzu package repository [command] --help" for more information about a com
     2:41:00PM: Template succeeded
     2:41:00PM: Deploy started (2s ago)
     2:41:02PM: Deploying
-        | Target cluster 'https://10.96.0.1:443' (nodes: minikube)
-        | Changes
-        | Namespace  Name  Kind  Conds.  Age  Op  Op st.  Wait to  Rs  Ri
-        | Op:      0 create, 0 delete, 0 update, 0 noop, 0 exists
-        | Wait to: 0 reconcile, 0 delete, 0 noop
-        | Succeeded
+            | Target cluster 'https://10.96.0.1:443' (nodes: minikube)
+            | Changes
+            | Namespace  Name  Kind  Conds.  Age  Op  Op st.  Wait to  Rs  Ri
+            | Op:      0 create, 0 delete, 0 update, 0 noop, 0 exists
+            | Wait to: 0 reconcile, 0 delete, 0 noop
+            | Succeeded
     2:41:03PM: App reconciled
 
     >>> tanzu package installed get contour-pkg --namespace test-ns
@@ -521,6 +547,115 @@ Use "tanzu package repository [command] --help" for more information about a com
     Waiting for deletion to be completed...
     11:47:25PM: packagerepository/standard-repo (packaging.carvel.dev/v1alpha1) namespace: test-ns: Deleting
     11:47:38PM: packagerepository/standard-repo (packaging.carvel.dev/v1alpha1) namespace: test-ns: DeletionSucceeded
+    ```
+
+15. Create a package
+
+    ```sh
+    >>> tanzu package init
+
+    Welcome! Before we start, do install the latest Carvel suite of tools,
+    specifically ytt, imgpkg, vendir and kbld.
+
+    Basic Information
+    A package reference name must be at least three '.' separated segments,e.g.
+    samplepackage.corp.com
+    > Enter the package reference name (samplepackage.corp.com): certmanager.carvel.dev
+
+    Content
+    Please provide the location from where your Kubernetes manifests or Helm chart
+    can be fetched. This will be bundled as a part of the package.
+    1: Local Directory
+    2: Github Release
+    3: Helm Chart from Helm Repository
+    4: Git Repository
+    5: Helm Chart from Git Repository
+    > Enter source (1): 2
+
+    Repository details
+    Slug format is org/repo e.g. vmware-tanzu/simple-app
+    > Enter slug for repository (): cert-manager/cert-manager
+    > Enter the release tag to be used (latest): v1.9.0
+
+    We need to know which files contain Kubernetes manifests. Multiple files can be
+    included using a comma separator. To include all the files, enter *
+    > Enter the paths which contain Kubernetes manifests (*): cert-manager.yaml
+
+    We will use vendir to fetch the data from the source to the local directory.
+    Vendir allows us to declaratively state what should be in a directory and sync
+    data sources into it.
+    All the information entered above has been persisted into a vendir.yml file.
+    Printing vendir.yml
+          | apiVersion: vendir.k14s.io/v1alpha1
+          | directories:
+          | - contents:
+          |   - githubRelease:
+          |       disableAutoChecksumValidation: true
+          |       slug: cert-manager/cert-manager
+          |       tag: v1.9.0
+          |     includePaths:
+          |     - cert-manager.yaml
+          |     path: .
+          |   path: upstream
+          | kind: Config
+          | minimumRequiredVersion: ""
+
+    Next step is to run 'vendir sync' to fetch the data from the source to the local
+    directory.
+    Vendir will sync the data into the upstream folder.
+    Running vendir sync
+          | $ vendir sync -f vendir.yml
+
+    Output
+    Successfully updated package-build.yml
+    Successfully updated package-resources.yml
+
+    Next steps
+    Created files can be consumed in following ways:
+    1. `package release` command to release the package.
+    2. `package release --repo-output repo` to release the package and add it to the
+    package repository directory.
+    ```
+
+16. Release a package
+
+    ```sh
+    >>> tanzu package release --version 1.0.0
+
+    Prerequisites
+    1. Host is authorized to push images to a registry (can be set up by running
+    `docker login`)
+    2. `package init` ran successfully.
+
+    The bundle created needs to be pushed to an OCI registry. (format:
+    <REGISTRY_URL/REPOSITORY_NAME>) e.g. index.docker.io/k8slt/sample-bundle
+    > Enter the registry URL (): index.docker.io/prewar/sample-bundle
+
+    kbld builds images when necessary and ensures that all image references are
+    resolved to an immutable reference
+    Building images and resolving references
+          | $ ytt -f /tmp/kapp-controller-fetch-template-deploy1725259937/0/upstream
+          | $ kbld -f - --imgpkg-lock-output=.imgpkg/images.yml
+
+    An imgpkg bundle consists of all required manifests bundled into an OCI image.
+    This image is pushed to a registry and consumed by the package.
+    Pushing imgpkg bundle
+          | $ imgpkg push -b index.docker.io/k8slt/sample-bundle:build-1666806420 -f ./bundle-index.docker.io-prewar-sample-bundle:build-1666806420-3630282961 --tty=true
+          | dir: .
+          | dir: .imgpkg
+          | file: .imgpkg/images.yml
+          | dir: upstream
+          | file: upstream/cert-manager.yaml
+          | Pushed 'index.docker.io/prewar/sample-bundle@sha256:93a4e6d0577a0c56b69f7d7b24621d98bd205f69846a683a4dc5bcdd53879da5'
+          | Succeeded
+    Artifact created: carvel-artifacts/packages/certmanager.carvel.dev/metadata.yml
+    Artifact created: carvel-artifacts/packages/certmanager.carvel.dev/package.yml
+
+    Next steps
+    1. The artifacts generated by the `--repo-output` flag can be bundled into a
+    PackageRepository by using the `package repository release` command.
+    2. Generated Package and PackageMetadata manifests can be applied to the cluster
+    directly.
     ```
 
 All the above commands are equipped with --kubeconfig flag to perform the package and repository operations on the desired cluster.

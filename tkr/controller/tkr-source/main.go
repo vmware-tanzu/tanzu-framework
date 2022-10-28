@@ -47,6 +47,7 @@ func init() {
 var (
 	metricsAddr               string
 	tkrNamespace              string
+	legacyTKRNamespace        string
 	tkrPkgServiceAccountName  string
 	bomImagePath              string
 	bomMetadataImagePath      string
@@ -59,6 +60,7 @@ var (
 func init() {
 	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&tkrNamespace, "namespace", "tkg-system", "Namespace for TKR related resources")
+	flag.StringVar(&legacyTKRNamespace, "legacy-namespace", "", "Legacy namespace for TKR BOM ConfigMaps")
 	flag.StringVar(&tkrPkgServiceAccountName, "sa-name", "tkr-source-controller-manager-sa", "ServiceAccount name used by TKR PackageInstalls")
 	flag.StringVar(&bomImagePath, "bom-image-path", "", "The BOM image path.")
 	flag.StringVar(&bomMetadataImagePath, "bom-metadata-image-path", "", "The BOM compatibility metadata image path.")
@@ -76,6 +78,7 @@ func init() {
 	}
 	fetcherConfig = fetcher.Config{
 		TKRNamespace:         tkrNamespace,
+		LegacyTKRNamespace:   legacyTKRNamespace,
 		BOMImagePath:         bomImagePath,
 		BOMMetadataImagePath: bomMetadataImagePath,
 		TKRRepoImagePath:     tkrRepoImagePath,

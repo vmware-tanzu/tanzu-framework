@@ -15,19 +15,20 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../../../../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../../../../util
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.4
+	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.12.3
 )
 
 require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
-	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
+	github.com/cppforlife/go-cli-ui v0.0.0-20220520125801-e45d9169a663
 	github.com/k14s/semver/v4 v4.0.1-0.20210701191048-266d47ac6115
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
-	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
-	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220617205641-1d376ccc7312
+	github.com/vmware-tanzu/carvel-kapp-controller v0.39.0
+	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20221026213745-c834810997d4
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret v0.0.0-00010101000000-000000000000
@@ -35,10 +36,10 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/tkg v0.0.0-00010101000000-000000000000
 	go.uber.org/multierr v1.8.0
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.24.4
-	k8s.io/apiextensions-apiserver v0.24.4
-	k8s.io/apimachinery v0.24.4
-	k8s.io/client-go v0.24.4
+	k8s.io/api v0.25.0
+	k8s.io/apiextensions-apiserver v0.25.0
+	k8s.io/apimachinery v0.25.0
+	k8s.io/client-go v0.25.0
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -50,8 +51,8 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.5 // indirect
 	github.com/Azure/azure-sdk-for-go v66.0.0+incompatible // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
-	github.com/Azure/go-autorest/autorest v0.11.23 // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.9.18 // indirect
+	github.com/Azure/go-autorest/autorest v0.11.27 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.9.20 // indirect
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.10 // indirect
 	github.com/Azure/go-autorest/autorest/azure/cli v0.4.2 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
@@ -78,13 +79,14 @@ require (
 	github.com/awslabs/goformation/v4 v4.19.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/briandowns/spinner v1.19.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cheggaaa/pb v1.0.29 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.11.4 // indirect
 	github.com/coredns/caddy v1.1.1 // indirect
 	github.com/coredns/corefile-migration v1.0.17 // indirect
-	github.com/cppforlife/cobrautil v0.0.0-20220411122935-c28a9f274a4e // indirect
+	github.com/cppforlife/cobrautil v0.0.0-20220907150944-da5ee3a6ab1f // indirect
 	github.com/cppforlife/color v1.9.1-0.20200716202919-6706ac40b835 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -107,6 +109,7 @@ require (
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/go-ldap/ldap/v3 v3.3.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-logr/zapr v1.2.3 // indirect
 	github.com/go-openapi/analysis v0.19.5 // indirect
 	github.com/go-openapi/errors v0.19.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
@@ -120,7 +123,7 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gobuffalo/flect v0.2.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.0.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -172,6 +175,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20220114050600-8b9d41f48198 // indirect
+	github.com/otiai10/copy v1.7.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -196,7 +200,7 @@ require (
 	github.com/subosito/gotenv v1.3.0 // indirect
 	github.com/valyala/fastjson v1.6.3 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
-	github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec // indirect
+	github.com/vito/go-interact v1.0.1 // indirect
 	github.com/vmware-tanzu/carvel-imgpkg v0.23.1 // indirect
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0 // indirect
 	github.com/vmware-tanzu/carvel-vendir v0.30.0 // indirect
@@ -206,11 +210,13 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/cli/core v0.0.0-20220914003300-5b2ed024556a // indirect
 	github.com/vmware-tanzu/tanzu-framework/tkr v0.0.0-00010101000000-000000000000 // indirect
+	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware/govmomi v0.27.1 // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	go.mongodb.org/mongo-driver v1.5.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
+	go.uber.org/zap v1.22.0 // indirect
 	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
@@ -231,9 +237,9 @@ require (
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	k8s.io/apiserver v0.24.4 // indirect
+	k8s.io/apiserver v0.25.0 // indirect
 	k8s.io/cluster-bootstrap v0.24.4 // indirect
-	k8s.io/component-base v0.24.4 // indirect
+	k8s.io/component-base v0.25.0 // indirect
 	k8s.io/klog/v2 v2.80.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803164354-a70c9af30aea // indirect
 	k8s.io/kubectl v0.24.0 // indirect
@@ -243,7 +249,7 @@ require (
 	sigs.k8s.io/cluster-api-provider-azure v1.5.3 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 // indirect
 	sigs.k8s.io/cluster-api/test v1.2.4 // indirect
-	sigs.k8s.io/controller-runtime v0.12.3 // indirect
+	sigs.k8s.io/controller-runtime v0.13.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/kind v0.15.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
