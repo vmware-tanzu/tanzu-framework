@@ -15,6 +15,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../../../../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../../../../util
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.4
+	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.12.3
 )
 
 require (
@@ -214,9 +215,9 @@ require (
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	go.mongodb.org/mongo-driver v1.5.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/zap v1.21.0 // indirect
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
+	go.uber.org/zap v1.22.0 // indirect
+	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
@@ -237,7 +238,7 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/apiserver v0.25.0 // indirect
-	k8s.io/cluster-bootstrap v0.24.0 // indirect
+	k8s.io/cluster-bootstrap v0.24.4 // indirect
 	k8s.io/component-base v0.25.0 // indirect
 	k8s.io/klog/v2 v2.80.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803164354-a70c9af30aea // indirect
@@ -248,7 +249,7 @@ require (
 	sigs.k8s.io/cluster-api-provider-azure v1.5.3 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 // indirect
 	sigs.k8s.io/cluster-api/test v1.2.4 // indirect
-	sigs.k8s.io/controller-runtime v0.12.3 // indirect
+	sigs.k8s.io/controller-runtime v0.13.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/kind v0.15.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
