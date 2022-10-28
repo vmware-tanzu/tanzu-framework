@@ -39,10 +39,12 @@ func main() {
 	var metricsAddr string
 	var webhookServerPort int
 	var customImageRepositoryCCVar string
+	var tlsMinVersion string
 	flag.StringVar(&webhookCertDir, "webhook-cert-dir", "/tmp/k8s-webhook-server/serving-certs/", "Webhook cert directory.")
 	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&customImageRepositoryCCVar, "custom-image-repository-cc-var", "imageRepository", "Custom imageRepository ClusterClass variable")
 	flag.IntVar(&webhookServerPort, "webhook-server-port", 9443, "The port that the webhook server serves at.")
+	flag.StringVar(&tlsMinVersion, "tls-min-version", "1.2", "minimum TLS version in use by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
 
 	opts := zap.Options{
 		Development: true,
@@ -67,6 +69,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	mgr.GetWebhookServer().TLSMinVersion = tlsMinVersion
 	tkrResolver := resolver.New()
 
 	if err := (&cache.Reconciler{
