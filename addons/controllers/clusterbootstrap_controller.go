@@ -393,6 +393,9 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 	clusterBootstrapHelper := clusterbootstrapclone.NewHelper(
 		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.gvrHelper, r.Log)
 	if clusterBootstrap.UID == "" {
+		if _, ok := cluster.Annotations[constants.CustomClusterBootstrap]; ok {
+			return nil, nil
+		}
 		// When ClusterBootstrap.UID is empty, that means this is the ClusterBootstrap CR about to be created by clusterbootstrap_controller.
 		// And clusterBootstrap.Status.ResolvedTKR will be updated accordingly.
 		log.Info(fmt.Sprintf("ClusterBootstrap for cluster %s/%s does not exist, creating from template %s/%s",

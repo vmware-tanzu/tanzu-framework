@@ -1137,6 +1137,30 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			})
 		})
 	})
+
+	When("cluster is created with custom clusterbootstrap annotation present", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-6"
+			clusterNamespace = "cluster-namespace-6"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-6.yaml"
+		})
+		Context("custom ClusterBootstrap being used", func() {
+			It("should not create ClusterBootstrap CR by cloning from the template", func() {
+
+				By("verifying cluster has the annotation and CB is not cloned from template")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				Expect(cluster.Annotations).NotTo(BeNil())
+				_, ok := cluster.Annotations[constants.CustomClusterBootstrap]
+				Expect(ok).To(BeTrue())
+
+				clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+				Expect(err).Should(HaveOccurred())
+				Expect(strings.Contains(err.Error(), fmt.Sprintf("clusterbootstraps.run.tanzu.vmware.com \"%s\" not found", clusterName))).To(BeTrue())
+			})
+		})
+	})
 })
 
 func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {
