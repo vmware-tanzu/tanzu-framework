@@ -147,15 +147,17 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 
+		log.Warning("FeatureFlagPackageBasedLCM 1\n")
 		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+			log.Warning("FeatureFlagPackageBasedLCM 2\n")
 			iscustomoverlaypresent, err := c.isCustomOverlayPresent()
 			if err != nil {
 				return false, err
 			}
 			// if ytt changed, create non clusterclass cluster.
-			log.Warning("iscustomoverlaypresent: %v", iscustomoverlaypresent)
-			log.Warning("isManagementCluster: %v", isManagementCluster)
-			log.Warning("options.Legacy: %v", options.Legacy)
+			log.Warning("iscustomoverlaypresent: %v\n", iscustomoverlaypresent)
+			log.Warning("isManagementCluster: %v\n", isManagementCluster)
+			log.Warning("options.Legacy: %v\n", options.Legacy)
 			if iscustomoverlaypresent && !isManagementCluster && !options.Legacy {
 				log.Warning("Warning: Use of ytt based cluster templates will be deprecated in favor of ClusterClass templates in a future version of TKG. Please work to move your workloads to a ClusterClass enabled cluster.")
 				// waiting for user confirmation here.
