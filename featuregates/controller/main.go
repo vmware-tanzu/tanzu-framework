@@ -34,7 +34,9 @@ func init() {
 
 func main() {
 	var webhookServerPort int
+	var tlsMinVersion string
 	flag.IntVar(&webhookServerPort, "webhook-server-port", 9443, "The port that the webhook server serves at.")
+	flag.StringVar(&tlsMinVersion, "tls-min-version", "1.2", "minimum TLS version in use by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
 
 	opts := zap.Options{
 		Development: true,
@@ -53,6 +55,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	mgr.GetWebhookServer().TLSMinVersion = tlsMinVersion
 	if err = (&featuregate.FeatureGateReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("FeatureGate"),
