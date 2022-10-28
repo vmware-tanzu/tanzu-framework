@@ -26,6 +26,9 @@ providers:
 - name: docker
   url: providers/infrastructure-docker/v1.2.4/infrastructure-components.yaml
   type: InfrastructureProvider
+- name: ipam-in-cluster
+  url: providers/infrastructure-ipam-in-cluster/v0.1.0/ipam-components.yaml
+  type: InfrastructureProvider
 cert-manager:
   url: providers/cert-manager/v1.9.1/cert-manager.yaml
   version: "v1.9.1"

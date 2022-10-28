@@ -206,6 +206,8 @@ const (
 	ConfigVariableIPFamily = "TKG_IP_FAMILY"
 	TKGIPV6Primary         = "TKG_IPV6_PRIMARY"
 
+	ConfigVariableNodeIPAMIPPoolName = "NODE_IPAM_IP_POOL_NAME"
+
 	ConfigVariableControlPlaneNodeNameservers = "CONTROL_PLANE_NODE_NAMESERVERS"
 	ConfigVariableWorkerNodeNameservers       = "WORKER_NODE_NAMESERVERS"
 
@@ -233,16 +235,17 @@ const (
 	ConfigVariableOIDCIdentiryProviderClientSecret = "OIDC_IDENTITY_PROVIDER_CLIENT_SECRET" //nolint:gosec
 
 	// Config variables for image tags used for provider installation
-	ConfigVariableInternalKubeRBACProxyImageTag   = "KUBE_RBAC_PROXY_IMAGE_TAG"
-	ConfigVariableInternalCABPKControllerImageTag = "CABPK_CONTROLLER_IMAGE_TAG"
-	ConfigVariableInternalCAPIControllerImageTag  = "CAPI_CONTROLLER_IMAGE_TAG"
-	ConfigVariableInternalKCPControllerImageTag   = "KCP_CONTROLLER_IMAGE_TAG"
-	ConfigVariableInternalCAPDManagerImageTag     = "CAPD_CONTROLLER_IMAGE_TAG"
-	ConfigVariableInternalCAPAManagerImageTag     = "CAPA_CONTROLLER_IMAGE_TAG"
-	ConfigVariableInternalCAPVManagerImageTag     = "CAPV_CONTROLLER_IMAGE_TAG"
-	ConfigVariableInternalCAPZManagerImageTag     = "CAPZ_CONTROLLER_IMAGE_TAG"
-	ConfigVariableInternalCAPOCIManagerImageTag   = "CAPOCI_CONTROLLER_IMAGE_TAG"
-	ConfigVariableInternalNMIImageTag             = "NMI_IMAGE_TAG"
+	ConfigVariableInternalKubeRBACProxyImageTag             = "KUBE_RBAC_PROXY_IMAGE_TAG"
+	ConfigVariableInternalCABPKControllerImageTag           = "CABPK_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPIControllerImageTag            = "CAPI_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalKCPControllerImageTag             = "KCP_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPDManagerImageTag               = "CAPD_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPAManagerImageTag               = "CAPA_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPVManagerImageTag               = "CAPV_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPZManagerImageTag               = "CAPZ_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPOCIManagerImageTag             = "CAPOCI_CONTROLLER_IMAGE_TAG"
+	ConfigVariableInternalCAPIIPAMProviderInClusterImageTag = "CAPI_IPAM_PROVIDER_IN_CLUSTER_IMAGE_TAG"
+	ConfigVariableInternalNMIImageTag                       = "NMI_IMAGE_TAG"
 
 	// Other variables related to provider installation
 	ConfigVariableClusterTopology = "CLUSTER_TOPOLOGY"

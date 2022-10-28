@@ -492,6 +492,9 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereAz2)
 			Expect("us-east-1c").To(Equal(fmt.Sprintf("%v", mappedVal)))
 
+			// check value for ".network.addressesFromPools": NODE_IPAM_IP_POOL_NAME
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeIPAMIPPoolName)
+			Expect("inclusterpool").To(Equal(fmt.Sprintf("%v", mappedVal)))
 		})
 	})
 })

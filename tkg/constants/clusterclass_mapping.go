@@ -195,6 +195,9 @@ var ClusterAttributesToLegacyVariablesMapAzure = map[string]string{
 // spec.topology.variables.* mapped as per config_variable_association.star:get_vsphere_vars()
 // other attributes mapped as per infrastructure-vsphere/v*.*.*/yttcc/overlay.yaml
 var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
+	"spec.topology.variables.network.addressesFromPools.apiGroup": "",
+	"spec.topology.variables.network.addressesFromPools.kind":     "",
+	"spec.topology.variables.network.addressesFromPools.name":     ConfigVariableNodeIPAMIPPoolName, // NODE_IPAM_IP_POOL_NAME
 
 	"spec.topology.variables.apiServerEndpoint":      ConfigVariableVsphereControlPlaneEndpoint, // VSPHERE_CONTROL_PLANE_ENDPOINT
 	"spec.topology.variables.vipNetworkInterface":    ConfigVariableVipNetworkInterface,         // VIP_NETWORK_INTERFACE

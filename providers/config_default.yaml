@@ -467,6 +467,9 @@ TKG_PROXY_CA_CERT: ""
 #! IP Family setting
 TKG_IP_FAMILY:
 
+#! IPAM settings
+NODE_IPAM_IP_POOL_NAME: ""
+
 #! Configure cloud provider permissions for TMC enablement. Only affects AWS at present.
 DISABLE_TMC_CLOUD_PERMISSIONS: false
 
