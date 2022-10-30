@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // nolint:typecheck,nolintlint
-package docker
+package docker_cc
 
 import (
 	"context"
 	"fmt"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 	"os"
 	"path/filepath"
 	"strings"
@@ -58,6 +60,8 @@ func TestE2E(t *testing.T) {
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Before all parallel nodes
+
+	var mcClusterClient clusterclient.Client
 
 	Expect(e2eConfigPath).To(BeAnExistingFile(), "e2e config file is either not set or invalid")
 	Expect(os.MkdirAll(artifactsFolder, 0o700)).To(Succeed(), "Can't create artifacts directory %q", artifactsFolder)
@@ -113,6 +117,30 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		})
 
 		Expect(err).To(BeNil())
+		kubeConfigFileName := e2eConfig.ManagementClusterName + ".kubeconfig"
+		mcKubeconfigFile := filepath.Join(os.TempDir(), kubeConfigFileName)
+		mcKubecontext := e2eConfig.ManagementClusterName + "-admin@" + e2eConfig.ManagementClusterName
+		defer os.Remove(mcKubeconfigFile)
+		err = cli.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+			ClusterName: e2eConfig.ManagementClusterName,
+			Namespace:   "tkg-system",
+			ExportFile:  mcKubeconfigFile,
+		})
+		Expect(err).To(BeNil())
+
+		// Create management-cluster client
+		mcClusterClient, err = clusterclient.NewClient(mcKubeconfigFile, mcKubecontext, clusterclient.Options{})
+		Expect(err).To(BeNil())
+
+		// Should verify management cluster is created using default ClusterClass
+		clusterInfo := mcClusterClient.GetClusterStatusInfo(e2eConfig.ManagementClusterName, "tkg-system", nil)
+		Expect(clusterInfo.ClusterObject).NotTo(BeNil())
+		Expect(clusterInfo.ClusterObject.Spec.Topology).NotTo(BeNil())
+		Expect(clusterInfo.ClusterObject.Spec.Topology.Class).To(Equal("tkg-" + e2eConfig.InfrastructureName + "-default"))
+
+		// Should verify all management packages are deployed and reconciled successfully
+		err = managementcomponents.WaitForManagementPackages(mcClusterClient, 2*time.Minute)
+		Expect(err).To(BeNil())
 	}
 
 	return []byte(
@@ -148,12 +176,14 @@ var _ = SynchronizedAfterSuite(func() {
 	})
 	Expect(err).To(BeNil())
 
-	err = cli.DeleteRegion(tkgctl.DeleteRegionOptions{
-		ClusterName: e2eConfig.ManagementClusterName,
-		Force:       true,
-		SkipPrompt:  true,
-		Timeout:     timeout,
-	})
+	if !e2eConfig.UseExistingCluster {
+		err = cli.DeleteRegion(tkgctl.DeleteRegionOptions{
+			ClusterName: e2eConfig.ManagementClusterName,
+			Force:       true,
+			SkipPrompt:  true,
+			Timeout:     timeout,
+		})
 
-	Expect(err).To(BeNil())
+		Expect(err).To(BeNil())
+	}
 })
