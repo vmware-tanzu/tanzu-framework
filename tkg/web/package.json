@@ -67,7 +67,7 @@
     "codelyzer": "^5.1.2",
     "html-frontmatter": "^1.6.1",
     "is-ip": "^3.1.0",
-    "jasmine-core": "^4.0.1",
+    "jasmine-core": "^4.5.0",
     "jasmine-spec-reporter": "^4.2.1",
     "karma": "^6.3.14",
     "karma-chrome-launcher": "^3.1.1",
