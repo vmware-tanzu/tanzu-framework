@@ -394,6 +394,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.gvrHelper, r.Log)
 	if clusterBootstrap.UID == "" {
 		if _, ok := cluster.Annotations[constants.CustomClusterBootstrap]; ok {
+			log.Info(fmt.Sprintf("ClusterBootstrap object will not be cloned for cluster %s/%s due to the existence of '%s' annotation", cluster.Namespace, cluster.Name, constants.CustomClusterBootstrap))
 			return nil, nil
 		}
 		// When ClusterBootstrap.UID is empty, that means this is the ClusterBootstrap CR about to be created by clusterbootstrap_controller.

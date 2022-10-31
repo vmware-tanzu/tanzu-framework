@@ -243,7 +243,7 @@ const (
 	// ClusterPauseLabel is the label on the Cluster Object to indicate the cluster is paused by TKG
 	ClusterPauseLabel = "tkg.tanzu.vmware.com/paused"
 
-	// CustomClusterBootstrap is the annotation in the cluster object to indicate that a custom ClusterBootstrap object was provided
+	// CustomClusterBootstrap is the annotation in the cluster object to indicate that a custom ClusterBootstrap object will be provided
 	CustomClusterBootstrap = "tkg.tanzu.vmware.com/custom-clusterbootstrap"
 
 	// ManagementClusterRoleLabel is the management cluster role label
