@@ -658,7 +658,7 @@ var _ = Describe("ValidateAWSConfig", func() {
 	JustBeforeEach(func() {
 		tkgClient, cerr := CreateTKGClient(tkgConfigPath, testingDir, bomFile, 2*time.Second)
 		Expect(cerr).ToNot(HaveOccurred())
-		err = tkgClient.ConfigureAndValidateAwsConfig(tkrVersion, false, false, 1, false, false)
+		err = tkgClient.ConfigureAndValidateAwsConfig(tkrVersion, 1, false)
 	})
 
 	Context("When the AWS_REGION is not found from tkg config or environment variable", func() {

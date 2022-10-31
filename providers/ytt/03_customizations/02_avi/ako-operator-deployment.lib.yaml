@@ -4,7 +4,6 @@
 
 #@ akooRepo = get_default_tkr_bom_data().components["ako-operator"][0]
 #@ akoRepo = get_default_tkr_bom_data().components["load-balancer-and-ingress-service"][0]
-#@ rbacRepo = get_default_tkg_bom_data().components["kube_rbac_proxy"][0]
 
 #@ def labels():
 app: tanzu-ako-operator
@@ -16,10 +15,6 @@ app: tanzu-ako-operator
 
 #@ def ako_image():
 #@  return "{}/{}".format(tkg_image_repo(), akoRepo.images.loadBalancerAndIngressServiceImage.imagePath)
-#@ end
-
-#@ def rbac_image():
-#@  return "{}/{}:{}".format(tkg_image_repo(), rbacRepo.images.kubeRbacProxyControllerImageCapi.imagePath, rbacRepo.images.kubeRbacProxyControllerImageCapi.tag)
 #@ end
 
 #@ def avi_credentials():
@@ -61,16 +56,6 @@ spec:
       labels: #@ labels()
     spec:
       containers:
-        - args:
-            - --secure-listen-address=0.0.0.0:8443
-            - --upstream=http://127.0.0.1:8080/
-            - --logtostderr=true
-            - --v=10
-          image: #@ rbac_image()
-          name: kube-rbac-proxy
-          ports:
-            - containerPort: 8443
-              name: https
         - args:
             - --metrics-addr=127.0.0.1:8080
           command:

@@ -9,6 +9,8 @@ metadata:
     app: tanzu-capabilities-manager
   name: tanzu-capabilities-controller-manager
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/disable-default-label-scoping-rules: ""
 spec:
   replicas: 1
   selector:
@@ -43,6 +45,8 @@ spec:
       tolerations:
         - effect: NoSchedule
           key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
       #@ end
       #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'nodeSelector') and data.values.deployment.nodeSelector:
       #@overlay/match missing_ok=True

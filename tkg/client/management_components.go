@@ -22,7 +22,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
-func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext string) error {
+func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext string, operationType constants.OperationType) error {
 	// Get kapp-controller configuration file
 	kappControllerConfigFile, err := c.getKappControllerConfigFile()
 	if err != nil {
@@ -38,7 +38,7 @@ func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext strin
 		KappControllerConfigFile:       kappControllerConfigFile,
 		KappControllerInstallNamespace: constants.TkgNamespace,
 	}
-	err = managementcomponents.InstallKappController(clusterClient, kappControllerOptions)
+	err = managementcomponents.InstallKappController(clusterClient, kappControllerOptions, operationType)
 
 	// Remove intermediate config files if err is empty
 	if err == nil {

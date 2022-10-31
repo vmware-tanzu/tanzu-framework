@@ -11,6 +11,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ../../cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../../packageclients
+	github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr => ../../pkg/v1/tkr
 	github.com/vmware-tanzu/tanzu-framework/tkg => ../../tkg
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../../util

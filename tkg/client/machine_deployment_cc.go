@@ -6,13 +6,19 @@ package client
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 
-	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	"github.com/pkg/errors"
+
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/util/topology"
+)
+
+const (
+	NodePoolLabelsName string = "nodePoolLabels"
+	NodePoolTaintsName string = "nodePoolTaints"
 )
 
 //nolint:funlen,gocyclo
@@ -24,9 +30,11 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 		return errors.New("cluster topology workers are not set. please repair your cluster before trying again")
 	}
 
+	mdIndex := -1
 	for i := range cluster.Spec.Topology.Workers.MachineDeployments {
 		if cluster.Spec.Topology.Workers.MachineDeployments[i].Name == options.Name {
 			update = &cluster.Spec.Topology.Workers.MachineDeployments[i]
+			mdIndex = i
 		}
 		if cluster.Spec.Topology.Workers.MachineDeployments[i].Name == options.BaseMachineDeployment {
 			base = cluster.Spec.Topology.Workers.MachineDeployments[i].DeepCopy()
@@ -56,6 +64,7 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 
 		cluster.Spec.Topology.Workers.MachineDeployments = append(cluster.Spec.Topology.Workers.MachineDeployments, *base)
 		base = &cluster.Spec.Topology.Workers.MachineDeployments[len(cluster.Spec.Topology.Workers.MachineDeployments)-1]
+		mdIndex = len(cluster.Spec.Topology.Workers.MachineDeployments) - 1
 	}
 
 	base.Name = options.Name
@@ -81,19 +90,10 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 	}
 
 	if options.Labels != nil {
-		nodeLabelsVar := getClusterVariableByName("nodePoolLabels", base.Variables.Overrides)
-		if nodeLabelsVar == nil {
-			nodeLabelsVar = &capi.ClusterVariable{
-				Name:  "nodePoolLabels",
-				Value: v1.JSON{},
-			}
-			base.Variables.Overrides = append(base.Variables.Overrides, *nodeLabelsVar)
-			nodeLabelsVar = &base.Variables.Overrides[len(base.Variables.Overrides)-1]
-		}
-
 		var labels []map[string]string
-		// ignore nodePoolLabels not existing
-		_ = json.NewDecoder(bytes.NewBuffer(nodeLabelsVar.Value.Raw)).Decode(&labels)
+		if err := topology.GetMDVariable(cluster, mdIndex, NodePoolLabelsName, &labels); err != nil {
+			return errors.Errorf("unable to find or marshal variable with name %s", NodePoolLabelsName)
+		}
 
 		for k, v := range *options.Labels {
 			labels = append(labels, map[string]string{
@@ -102,23 +102,15 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 			})
 		}
 
-		output, _ := json.Marshal(labels)
-		nodeLabelsVar.Value.Raw = output
+		if err := topology.SetMDVariable(cluster, mdIndex, NodePoolLabelsName, labels); err != nil {
+			return errors.Errorf("unable to set variable with name %s", NodePoolLabelsName)
+		}
 	}
 
 	if options.Taints != nil {
-		nodeTaintsVar := getClusterVariableByName("nodePoolTaints", base.Variables.Overrides)
-		if nodeTaintsVar == nil {
-			nodeTaintsVar = &capi.ClusterVariable{
-				Name:  "nodePoolTaints",
-				Value: v1.JSON{},
-			}
-			base.Variables.Overrides = append(base.Variables.Overrides, *nodeTaintsVar)
-			nodeTaintsVar = &base.Variables.Overrides[len(base.Variables.Overrides)-1]
+		if err := topology.SetMDVariable(cluster, mdIndex, NodePoolTaintsName, &options.Taints); err != nil {
+			return errors.Errorf("unable to set variable with name %s", NodePoolTaintsName)
 		}
-
-		output, _ := json.Marshal(options.Taints)
-		nodeTaintsVar.Value.Raw = output
 	}
 
 	if update != nil {

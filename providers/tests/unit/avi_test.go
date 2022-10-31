@@ -81,10 +81,6 @@ func NoAVIRelatedObjects(output string) {
 		"$.metadata.name": "ako",
 	}))
 	assertNotFound(matchers.FindDocsMatchingYAMLPath(output, map[string]string{
-		"$.kind":          "Service",
-		"$.metadata.name": "ako-operator-controller-manager-metrics-service",
-	}))
-	assertNotFound(matchers.FindDocsMatchingYAMLPath(output, map[string]string{
 		"$.kind":          "ClusterRole",
 		"$.metadata.name": "ako-operator-manager-bootstrap",
 	}))
@@ -130,10 +126,6 @@ func AllAVIRelatedObjects(output string) {
 	assertFoundOne(matchers.FindDocsMatchingYAMLPath(output, map[string]string{
 		"$.kind":          "StatefulSet",
 		"$.metadata.name": "ako",
-	}))
-	assertFoundOne(matchers.FindDocsMatchingYAMLPath(output, map[string]string{
-		"$.kind":          "Service",
-		"$.metadata.name": "ako-operator-controller-manager-metrics-service",
 	}))
 	assertFoundOne(matchers.FindDocsMatchingYAMLPath(output, map[string]string{
 		"$.kind":          "ClusterRole",

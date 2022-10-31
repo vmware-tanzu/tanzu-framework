@@ -25,6 +25,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -131,6 +132,7 @@ type Replicas struct {
 var _ = Describe("Cluster Client", func() {
 	var (
 		clstClient             Client
+		bomClient              *fakes.TKGConfigBomClient
 		currentNamespace       string
 		clientset              *fakes.CRTClusterClient
 		discoveryClient        *fakes.DiscoveryClient
@@ -161,6 +163,7 @@ var _ = Describe("Cluster Client", func() {
 		clientset = &fakes.CRTClusterClient{}
 		discoveryClient = &fakes.DiscoveryClient{}
 		crtClientFactory = &fakes.CrtClientFactory{}
+		bomClient = &fakes.TKGConfigBomClient{}
 		crtClientFactory.NewClientReturns(clientset, nil)
 		discoveryClientFactory = &fakes.DiscoveryClientFactory{}
 		discoveryClientFactory.NewDiscoveryClientForConfigReturns(discoveryClient, nil)
@@ -537,6 +540,78 @@ var _ = Describe("Cluster Client", func() {
 		})
 	})
 
+	Describe("Wait For Control plane available", func() {
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			kcp := controlplanev1.KubeadmControlPlane{}
+			kcp.Name = "fake-kcp-name"
+			kcp.Namespace = "fake-kcp-namespace"
+			kcp.Spec.Version = "fake-version"
+			Expect(err).NotTo(HaveOccurred())
+		})
+		Context("When cluster control plane is not initialized", func() {
+			JustBeforeEach(func() {
+				clientset.ListReturns(errors.New("zero or multiple KCP objects found for the given cluster"))
+				err = clstClient.WaitForControlPlaneAvailable("fake-clusterName", "fake-namespace")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("zero or multiple KCP objects found for the given cluster"))
+			})
+		})
+		Context("When cluster control plane is not available", func() {
+			JustBeforeEach(func() {
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *controlplanev1.KubeadmControlPlaneList:
+						kcp := getDummyKCP(3, 0, 1, 1)
+						conditions := capi.Conditions{}
+						conditions = append(conditions, capi.Condition{
+							Type:   controlplanev1.AvailableCondition,
+							Status: corev1.ConditionFalse,
+						})
+						kcp.Status.Conditions = conditions
+						o.Items = append(o.Items, kcp)
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				err = clstClient.WaitForControlPlaneAvailable("fake-clusterName", "fake-namespace")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("control plane is not available yet"))
+			})
+		})
+		Context("When cluster control plane is available", func() {
+			JustBeforeEach(func() {
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *controlplanev1.KubeadmControlPlaneList:
+						kcp := getDummyKCP(3, 1, 1, 1)
+						conditions := capi.Conditions{}
+						conditions = append(conditions, capi.Condition{
+							Type:   controlplanev1.AvailableCondition,
+							Status: corev1.ConditionTrue,
+						})
+						kcp.Status.Conditions = conditions
+						o.Items = append(o.Items, kcp)
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				err = clstClient.WaitForControlPlaneAvailable("fake-clusterName", "fake-namespace")
+			})
+			It("should not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
 	Describe("Wait For Cluster Ready", func() {
 		BeforeEach(func() {
 			reInitialize()
@@ -793,6 +868,77 @@ var _ = Describe("Cluster Client", func() {
 					return nil
 				})
 				err = clstClient.WaitForClusterReady("fake-clusterName", "fake-namespace", true)
+			})
+			It("should not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
+	Describe("wait For Autoscaler Patch", func() {
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		Context("If autoscaler deployment was not found", func() {
+			JustBeforeEach(func() {
+				clientset.GetReturns(k8serrors.NewNotFound(schema.GroupResource{Group: "apps", Resource: "Deployment"}, "autoscaler"))
+				err = clstClient.ApplyPatchForAutoScalerDeployment(bomClient, "fake-clusterName", "v1.23.8_vmware.1", "default")
+			})
+			It("should not return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+		Context("If autoscaler deployment was found but the new image was not found ", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					deploy := &appsv1.Deployment{}
+					deploy.Name = "fake-clusterName" + constants.AutoscalerDeploymentNameSuffix
+					return nil
+				})
+				bomClient.GetAutoscalerImageForK8sVersionReturns("", errors.New("autoscaler image was not found"))
+				err = clstClient.ApplyPatchForAutoScalerDeployment(bomClient, "fake-clusterName", "v1.23.8_vmware.1", "default")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("autoscaler image was not found"))
+			})
+		})
+		Context("If autoscaler deployment was found and the new image also was found but patch failed", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					deploy := &appsv1.Deployment{}
+					deploy.Name = "fake-clusterName" + constants.AutoscalerDeploymentNameSuffix
+					return nil
+				})
+				bomClient.GetAutoscalerImageForK8sVersionReturns("v1.23.0_vmware.1", nil)
+				clientset.PatchReturns(errors.New("patch failed"))
+				err = clstClient.ApplyPatchForAutoScalerDeployment(bomClient, "fake-clusterName", "v1.23.8_vmware.1", "default")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("patch failed"))
+			})
+		})
+		Context("If autoscaler deployment was found and the new image also was found and patch succeed", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, deployment crtclient.Object) error {
+					deploy := deployment.(*appsv1.Deployment)
+					deploy.Name = "fake-clusterName" + constants.AutoscalerDeploymentNameSuffix
+					replicas := int32(1)
+					deploy.Spec.Replicas = &replicas
+					deploy.Status.Replicas = replicas
+					deploy.Status.UpdatedReplicas = replicas
+					deploy.Status.AvailableReplicas = replicas
+					return nil
+				})
+				bomClient.GetAutoscalerImageForK8sVersionReturns("v1.23.0_vmware.1", nil)
+				clientset.PatchCalls(func(ctx context.Context, object crtclient.Object, patch crtclient.Patch, option ...crtclient.PatchOption) error {
+					return nil
+				})
+				err = clstClient.ApplyPatchForAutoScalerDeployment(bomClient, "fake-clusterName", "v1.23.8_vmware.1", "default")
 			})
 			It("should not return an error", func() {
 				Expect(err).NotTo(HaveOccurred())
@@ -2222,12 +2368,11 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 
-		Context("UpdateCAPZControllerManagerDeploymentReplicas", func() {
+		Context("GetCAPZControllerManagerDeploymentsReplicas", func() {
 			It("should not return an error", func() {
 				clientset.GetReturns(nil)
-				clientset.PatchReturns(nil)
 
-				dReplicas := Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+				dReplicas := Replicas{SpecReplica: 4, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
 				capzDeploy := getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas)
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
@@ -2237,7 +2382,44 @@ var _ = Describe("Cluster Client", func() {
 					return nil
 				})
 				curReplicas, err := clstClient.GetCAPZControllerManagerDeploymentsReplicas()
-				Expect(curReplicas).To(Equal(int32(3)))
+				Expect(curReplicas).To(Equal(int32(4)))
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if clientset get returns error", func() {
+				clientset.GetReturns(errors.New("dummy"))
+
+				dReplicas := Replicas{SpecReplica: 4, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, option ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *appsv1.DeploymentList:
+						o.Items = append(o.Items, getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas))
+					}
+					return nil
+				})
+				curReplicas, err := clstClient.GetCAPZControllerManagerDeploymentsReplicas()
+				Expect(curReplicas).To(Equal(int32(0)))
+				Expect(err).ToNot(BeNil())
+			})
+		})
+
+		Context("UpdateCAPZControllerManagerDeploymentReplicas", func() {
+			It("should not return an error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				dReplicas := Replicas{SpecReplica: 4, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+				capzDeploy := getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas)
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *appsv1.Deployment:
+						*o = capzDeploy
+					}
+					return nil
+				})
+				curReplicas, err := clstClient.GetCAPZControllerManagerDeploymentsReplicas()
+				Expect(curReplicas).To(Equal(int32(4)))
 				Expect(err).To(BeNil())
 
 				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(1))

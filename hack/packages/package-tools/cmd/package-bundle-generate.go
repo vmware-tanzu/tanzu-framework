@@ -128,10 +128,12 @@ func generateSingleImgpkgLockOutput(toolsBinDir, packagePath string, envArray ..
 	kbldCmd.Stderr = &kbldCmdErrBytes
 	yttCmd.Stderr = &yttCmdErrBytes
 
+	fmt.Println(yttCmd.String())
 	if err := yttCmd.Start(); err != nil {
 		return fmt.Errorf("couldn't run ytt command: %w", err)
 	}
 
+	fmt.Println(kbldCmd.String())
 	if err := kbldCmd.Run(); err != nil {
 		return fmt.Errorf("couldn't run kbld command to generate imgpkg lock output file: %s", kbldCmdErrBytes.String())
 	}
@@ -236,6 +238,7 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 
 			var imgpkgCmdErrBytes bytes.Buffer
 			imgpkgCmd.Stderr = &imgpkgCmdErrBytes
+			fmt.Println(imgpkgCmd.String())
 			if err := imgpkgCmd.Run(); err != nil {
 				return fmt.Errorf("couldn't push the imgpkg bundle: %s", imgpkgCmdErrBytes.String())
 			}

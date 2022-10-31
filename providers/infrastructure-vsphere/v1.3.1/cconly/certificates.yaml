@@ -1,0 +1,31 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+  name: tkr-vsphere-resolver-service-selfsigned-issuer
+  namespace: #@ data.values.NAMESPACE
+  annotations:
+    kapp.k14s.io/change-group: "tkr-vsphere-resolver.tanzu.vmware.com/issuer"
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+  name: tkr-vsphere-resolver-webhook-serving-cert
+  namespace: #@ data.values.NAMESPACE
+  annotations:
+    kapp.k14s.io/change-group: "tkr-vsphere-resolver.tanzu.vmware.com/certificate"
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-vsphere-resolver.tanzu.vmware.com/issuer"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-vsphere-resolver.tanzu.vmware.com/issuer"
+spec:
+  dnsNames:
+  - #@ "tkr-vsphere-resolver-webhook-service.{}.svc".format(data.values.NAMESPACE)
+  - #@ "tkr-vsphere-resolver-webhook-service-cert.{}.svc.cluster.local".format(data.values.NAMESPACE)
+  issuerRef:
+    kind: Issuer
+    name: tkr-vsphere-resolver-service-selfsigned-issuer
+  secretName: tkr-vsphere-resolver-webhook-service-cert

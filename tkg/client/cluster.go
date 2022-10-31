@@ -236,16 +236,17 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return errors.Wrap(err, "unable to wait for cluster nodes to be available")
 	}
 
-	c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace)
+	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.TargetNamespace)
+	if err != nil {
+		return errors.Wrap(err, "error while checking workload cluster type")
+	}
+
+	c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace, isClusterClassBased)
 	workloadClusterClient, err := clusterclient.NewClient(workloadClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: 15 * time.Minute})
 	if err != nil {
 		return errors.Wrap(err, "unable to create workload cluster client")
 	}
 
-	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.TargetNamespace)
-	if err != nil {
-		return errors.Wrap(err, "error while checking workload cluster type")
-	}
 	isTKGSCluster, err := regionalClusterClient.IsPacificRegionalCluster()
 	if err != nil {
 		return err
@@ -300,10 +301,21 @@ func (c *TkgClient) getValueForAutoscalerDeploymentConfig() bool {
 }
 
 // WaitForAutoscalerDeployment waits for autoscaler deployment if enabled
-func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clusterclient.Client, clusterName, targetNamespace string) {
-	if isEnabled := c.getValueForAutoscalerDeploymentConfig(); isEnabled {
+func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clusterclient.Client, clusterName, targetNamespace string, isClusterClassBased bool) {
+	isEnabled := false
+	autoscalerDeploymentName := clusterName + constants.AutoscalerDeploymentNameSuffix
+	if isClusterClassBased {
+		autoscalerDeployment, err := regionalClusterClient.GetDeployment(autoscalerDeploymentName, targetNamespace)
+		if autoscalerDeployment.Name == "" || err != nil {
+			log.Warning("unable to get the autoscaler deployment, maybe it is not exist")
+			return
+		}
+		isEnabled = true
+	} else {
+		isEnabled = c.getValueForAutoscalerDeploymentConfig()
+	}
+	if isEnabled {
 		log.Warning("Waiting for cluster autoscaler to be available...")
-		autoscalerDeploymentName := clusterName + "-cluster-autoscaler"
 		if err := regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, targetNamespace); err != nil {
 			log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
 		}
@@ -703,10 +715,11 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 
 // ValidateProviderConfig configure and validate based on provider
 func (c *TkgClient) configureAndValidateProviderConfig(providerName string, options *CreateClusterOptions, clusterClient clusterclient.Client, skipValidation bool) error {
+	isProdPlan := IsProdPlan(options.ClusterConfigOptions.ProviderRepositorySource.Flavor)
 	switch providerName {
 	case AWSProviderName:
 		if err := c.ConfigureAndValidateAWSConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
-			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, clusterClient, false); err != nil {
+			isProdPlan, *options.WorkerMachineCount, clusterClient, false); err != nil {
 			return errors.Wrap(err, "AWS config validation failed")
 		}
 	case VSphereProviderName:
@@ -717,8 +730,7 @@ func (c *TkgClient) configureAndValidateProviderConfig(providerName string, opti
 			return NewValidationError(ValidationErrorCode, errors.Wrap(err, "vSphere control plane endpoint IP validation failed").Error())
 		}
 	case AzureProviderName:
-		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
-			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, nil, false); err != nil {
+		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation, nil); err != nil {
 			return errors.Wrap(err, "Azure config validation failed")
 		}
 	case DockerProviderName:
@@ -726,6 +738,13 @@ func (c *TkgClient) configureAndValidateProviderConfig(providerName string, opti
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
 	}
+
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, isProdPlan, false, providerName, false)
+	if err != nil {
+		return errors.Wrap(err, "failed to distribute machine deployments")
+	}
+	c.SetMachineDeploymentWorkerCounts(workerCounts, *options.WorkerMachineCount, isProdPlan)
+
 	return nil
 }
 

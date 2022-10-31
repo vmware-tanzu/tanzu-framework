@@ -160,6 +160,7 @@ type CLIOptions struct {
 	DiscoverySources []PluginDiscovery `json:"discoverySources,omitempty" yaml:"discoverySources"`
 	// UnstableVersionSelector determined which version tags are allowed
 	UnstableVersionSelector VersionSelectorLevel `json:"unstableVersionSelector,omitempty" yaml:"unstableVersionSelector"`
+	// Deprecated: Edition has been deprecated and will be removed from future version
 	// Edition
 	Edition EditionSelector `json:"edition,omitempty" yaml:"edition"`
 	// Deprecated: BOMRepo has been deprecated and will be removed from future version

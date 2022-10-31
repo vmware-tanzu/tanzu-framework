@@ -206,11 +206,6 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			}
 			crsDisabledAddon = true
 			ccOptions.TargetNamespace = constants.TkrNamespace
-		case "capabilities/capabilities-controller":
-			if !options.IsRegionalCluster {
-				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
-			}
-			crsDisabledAddon = true
 		case "packages/management-package-repo":
 			if !options.IsRegionalCluster {
 				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
@@ -248,8 +243,8 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			return errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		// ensure current kapp-controller deployment has last-applied annotation, which is required for future apply operations
-		if addonName == "addons-management/kapp-controller" {
+		// ensure current kapp-controller deployment on the management cluster has last-applied annotation, which is required for future apply operations
+		if addonName == "addons-management/kapp-controller" && options.IsRegionalCluster {
 			if err := clusterClient.PatchKappControllerLastAppliedAnnotation(options.Namespace); err != nil {
 				return errors.Wrap(err, "unable to add last-applied annotation on kapp-controller")
 			}

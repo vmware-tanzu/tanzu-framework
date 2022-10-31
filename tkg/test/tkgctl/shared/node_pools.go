@@ -107,7 +107,7 @@ func E2ENodePoolSpec(context context.Context, inputGetter func() E2ENodePoolSpec
 		Expect(err).To(BeNil())
 
 		if strings.Contains(input.Plan, "prod") {
-			expectedNodes = 4
+			expectedNodes = 6
 		} else {
 			expectedNodes = 2
 		}

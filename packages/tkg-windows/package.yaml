@@ -1,0 +1,25 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tkg-windows.tanzu.vmware.com
+spec:
+  refName: tkg-windows.tanzu.vmware.com
+  version: latest
+  releaseNotes: "Windows RBAC resources installation"
+  licenses:
+    - "Apache 2.0"
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: # Get this value by pushing to your OCI Registry
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - "-"
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}

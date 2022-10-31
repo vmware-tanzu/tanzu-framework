@@ -65,6 +65,10 @@ func (cw *Webhook) Handle(ctx context.Context, req admission.Request) admission.
 }
 
 func (cw *Webhook) getClusterClass(ctx context.Context, cluster *clusterv1.Cluster) (*clusterv1.ClusterClass, *admission.Response) {
+	if cluster.Spec.Paused {
+		return nil, respPtr(admission.Allowed("Doing nothing. Cluster is paused."))
+	}
+
 	if !cluster.GetDeletionTimestamp().IsZero() {
 		return nil, respPtr(admission.Allowed("Doing nothing. Cluster is being deleted"))
 	}

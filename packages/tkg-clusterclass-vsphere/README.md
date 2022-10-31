@@ -4,6 +4,8 @@ This package provides << awesome functionality >> using [tkg-clusterclass-vspher
 
 ## Components
 
+* tkr-vsphere-cluster-webhook
+
 ## Configuration
 
 The following configuration values can be set to customize the tkg-clusterclass-vsphere installation.

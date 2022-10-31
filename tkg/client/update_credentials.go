@@ -307,12 +307,14 @@ func (c *TkgClient) restartCAPZControllerManagerPod(clusterClient clusterclient.
 		return err
 	}
 
-	if err := clusterClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0)); err != nil {
-		return err
-	}
+	if replicas != 0 {
+		if err := clusterClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0)); err != nil {
+			return err
+		}
 
-	if err := clusterClient.UpdateCAPZControllerManagerDeploymentReplicas(replicas); err != nil {
-		return err
+		if err := clusterClient.UpdateCAPZControllerManagerDeploymentReplicas(replicas); err != nil {
+			return err
+		}
 	}
 
 	return nil

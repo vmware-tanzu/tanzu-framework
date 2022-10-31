@@ -78,6 +78,7 @@ tkrSourceControllerPackage:
   versionConstraints:
   tkrSourceControllerPackageValues:
     namespace: tkg-system
+    legacyNamespace: tkr-system
     bomImagePath:
     bomMetadataImagePath:
     tkrRepoImagePath:

@@ -141,3 +141,67 @@ tkr-package:
 		})
 	})
 })
+
+var _ = Describe("Test Set proxy settings", func() {
+	var (
+		managementPackageVersion string
+		userProviderConfigValues map[string]interface{}
+		tkgBomConfigData         string
+		tkgBomConfig             *tkgconfigbom.BOMConfiguration
+		valuesFile               string
+		outputFile               string
+		err                      error
+	)
+
+	tkgBomConfigData = `apiVersion: run.tanzu.vmware.com/v1alpha2
+default:
+  k8sVersion: v1.23.5+vmware.1-tkg.1-fake
+release:
+  version: v1.6.0-fake
+imageConfig:
+  imageRepository: fake.custom.repo
+tkr-bom:
+  imagePath: tkr-bom
+tkr-compatibility:
+  imagePath: fake-path/tkr-compatibility
+tkr-package-repo:
+  aws: tkr-repository-aws
+  azure: tkr-repository-azure
+  vsphere-nonparavirt: tkr-repository-vsphere-nonparavirt
+tkr-package:
+  aws: tkr-aws
+  azure: tkr-azure
+  vsphere-nonparavirt: tkr-vsphere-nonparavirt
+`
+	// Configure user provider configuration
+	userProviderConfigValues = map[string]interface{}{
+		"TKG_HTTP_PROXY":  "http://192.168.116.1:3128",
+		"TKG_HTTPS_PROXY": "http://192.168.116.1:3128",
+		"TKG_NO_PROXY":    ".svc,100.64.0.0/13,192.168.118.0/24,192.168.119.0/24,192.168.120.0/24",
+		"PROVIDER_TYPE":   "vsphere",
+	}
+
+	JustBeforeEach(func() {
+		// Configure tkgBoMConfig
+		tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
+		err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
+		Expect(err).NotTo(HaveOccurred())
+		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing
+		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues, tkgBomConfig)
+	})
+
+	Context("when proxy is set", func() {
+		BeforeEach(func() {
+			managementPackageVersion = verStr
+			outputFile = "test/output_vsphere_with_proxy.yaml"
+		})
+		It("should not return error", func() {
+			Expect(err).NotTo(HaveOccurred())
+			f1, err := os.ReadFile(valuesFile)
+			Expect(err).NotTo(HaveOccurred())
+			f2, err := os.ReadFile(outputFile)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(f1)).To(Equal(string(f2)))
+		})
+	})
+})

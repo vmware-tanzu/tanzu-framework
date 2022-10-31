@@ -39,6 +39,26 @@ rules:
       - patch
       - update
   - apiGroups:
+      - core.tanzu.vmware.com
+    resources:
+      - capabilities
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - core.tanzu.vmware.com
+    resources:
+      - capabilities/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
       - run.tanzu.vmware.com
     resources:
       - tanzukubernetesreleases

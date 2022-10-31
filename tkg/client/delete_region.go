@@ -139,7 +139,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 
 		// If clusterclass feature flag is enabled then deploy kapp-controller
 		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-			if err = c.InstallOrUpgradeKappController(cleanupClusterKubeconfigPath, ""); err != nil {
+			if err = c.InstallOrUpgradeKappController(cleanupClusterKubeconfigPath, "", constants.OperationTypeInstall); err != nil {
 				return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
 			}
 		}

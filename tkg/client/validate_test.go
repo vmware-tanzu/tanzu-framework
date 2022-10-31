@@ -1418,9 +1418,13 @@ var _ = Describe("Validate", func() {
 			clusterClient        *fakes.ClusterClient
 		)
 		BeforeEach(func() {
+			workerMachineCount := int64(3)
 			createClusterOptions = &client.CreateClusterOptions{
 				VsphereControlPlaneEndpoint: "foo.bar",
 				Edition:                     "tkg",
+				ClusterConfigOptions: client.ClusterConfigOptions{
+					WorkerMachineCount: &workerMachineCount,
+				},
 			}
 			createClusterOptions.ProviderRepositorySource = &clusterctl.ProviderRepositorySourceOptions{
 				InfrastructureProvider: "vsphere",

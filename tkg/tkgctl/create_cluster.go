@@ -372,7 +372,7 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 			cc.ControlPlaneMachineCount = cpmc
 		} else {
 			cc.ControlPlaneMachineCount = constants.DefaultDevControlPlaneMachineCount
-			if cc.Plan == constants.PlanProd {
+			if client.IsProdPlan(cc.Plan) {
 				cc.ControlPlaneMachineCount = constants.DefaultProdControlPlaneMachineCount
 			}
 		}
@@ -388,7 +388,7 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 			cc.WorkerMachineCount = wmc
 		} else {
 			cc.WorkerMachineCount = constants.DefaultDevWorkerMachineCount
-			if cc.Plan == constants.PlanProd {
+			if client.IsProdPlan(cc.Plan) {
 				cc.WorkerMachineCount = constants.DefaultProdWorkerMachineCount
 			}
 		}

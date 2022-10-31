@@ -20,6 +20,8 @@ var (
 	completionShells = []string{
 		"bash",
 		"zsh",
+		"fish",
+		"powershell",
 	}
 
 	completionLongDesc = dedent.Dedent(`
@@ -28,8 +30,7 @@ var (
 		The shell completion code must be evaluated to provide completion. See Examples
 		for how to perform this for your given shell.
 
-		Note for bash users: make sure the bash-completions package has been installed.
-		Note for zsh users: zsh >= 5.2 is required for command completion.`)
+		Note for bash users: make sure the bash-completions package has been installed.`)
 
 	completionExamples = dedent.Dedent(`
 		# Bash instructions:
@@ -45,9 +46,30 @@ var (
 
 		# Zsh instructions:
 
+		  ## Load only for current session:
+		  autoload -U compinit; compinit
+		  source <(tanzu completion zsh)
+		  compdef _tanzu tanzu
+
 		  ## Load for all new sessions:
 		  echo "autoload -U compinit; compinit" >> ~/.zshrc
-		  tanzu completion zsh > "${fpath[1]}/_tanzu"`)
+		  tanzu completion zsh > "${fpath[1]}/_tanzu"
+
+		# Fish instructions:
+
+		  ## Load only for current session:
+		  tanzu completion fish | source
+
+		  ## Load for all new sessions:
+		  tanzu completion fish > ~/.config/fish/completions/tanzu.fish
+
+		# Powershell instructions:
+
+		  ## Load only for current session:
+		  tanzu completion powershell | Out-String | Invoke-Expression
+
+		  ## Load for all new sessions:
+		  Add the output of the above command to your powershell profile.`)
 )
 
 // completionCmd represents the completion command
@@ -78,6 +100,10 @@ func runCompletion(out io.Writer, cmd *cobra.Command, args []string) error {
 		return cmd.Root().GenBashCompletion(out)
 	case "zsh":
 		return cmd.Root().GenZshCompletion(out)
+	case "fish":
+		return cmd.Root().GenFishCompletion(out, true)
+	case "powershell", "pwsh":
+		return cmd.Root().GenPowerShellCompletionWithDesc(out)
 	default:
 		return errors.New("unrecognized shell type specified")
 	}

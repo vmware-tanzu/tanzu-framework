@@ -239,7 +239,7 @@ func (c *TkgClient) ConfigureAzureVMImage(tkrVersion string) error {
 }
 
 // ConfigureAndValidateAzureConfig configures and validates azure configurationn
-func (c *TkgClient) ConfigureAndValidateAzureConfig(tkrVersion string, nodeSizes NodeSizeOptions, skipValidation, isProdConfig bool, workerMachineCount int64, clusterClient clusterclient.Client, isManagementCluster bool) error {
+func (c *TkgClient) ConfigureAndValidateAzureConfig(tkrVersion string, nodeSizes NodeSizeOptions, skipValidation bool, clusterClient clusterclient.Client) error {
 	var client azure.Client
 	var err error
 
@@ -269,11 +269,6 @@ func (c *TkgClient) ConfigureAndValidateAzureConfig(tkrVersion string, nodeSizes
 		return err
 	}
 
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "azure", false)
-	if err != nil {
-		return errors.Wrapf(err, "failed to distribute machine deployments")
-	}
-	c.SetMachineDeploymentWorkerCounts(workerCounts, workerMachineCount, isProdConfig)
 	return nil
 }
 
@@ -310,7 +305,7 @@ func (c *TkgClient) ConfigureAndValidateDockerConfig(tkrVersion string, nodeSize
 }
 
 // ConfigureAndValidateAwsConfig configures and validates aws configuration
-func (c *TkgClient) ConfigureAndValidateAwsConfig(tkrVersion string, skipValidation, isProdConfig bool, workerMachineCount int64, isManagementCluster, useExistingVPC bool) error {
+func (c *TkgClient) ConfigureAndValidateAwsConfig(tkrVersion string, workerMachineCount int64, useExistingVPC bool) error {
 	if tkrVersion == "" {
 		return errors.New("TKr version is empty")
 	}
@@ -340,11 +335,6 @@ func (c *TkgClient) ConfigureAndValidateAwsConfig(tkrVersion string, skipValidat
 	if workerMachineCount < 0 {
 		return errors.Errorf("invalid WorkerMachineCount. Please use a number greater or equal than 0")
 	}
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "aws", false)
-	if err != nil {
-		return errors.Wrapf(err, "failed to distribute machine deployments")
-	}
-	c.SetMachineDeploymentWorkerCounts(workerCounts, workerMachineCount, isProdConfig)
 
 	return nil
 }
@@ -394,7 +384,7 @@ func (c *TkgClient) ConfigureAndValidateAWSConfig(tkrVersion string, nodeSizes N
 			return err
 		}
 		log.Warningf("unable to create AWS client. Skipping validations that require an AWS client")
-		return c.ConfigureAndValidateAwsConfig(tkrVersion, skipValidation, isProdConfig, workerMachineCount, isManagementCluster, false)
+		return c.ConfigureAndValidateAwsConfig(tkrVersion, workerMachineCount, false)
 	}
 
 	if !skipValidation {
@@ -410,7 +400,7 @@ func (c *TkgClient) ConfigureAndValidateAWSConfig(tkrVersion string, nodeSizes N
 		log.Warningf("unable to validate VPC configuration, %s", err.Error())
 	}
 
-	return c.ConfigureAndValidateAwsConfig(tkrVersion, skipValidation, isProdConfig, workerMachineCount, isManagementCluster, useExistingVPC)
+	return c.ConfigureAndValidateAwsConfig(tkrVersion, workerMachineCount, useExistingVPC)
 }
 
 // TrimVsphereSSHKey trim the comment part of the vsphere ssh key
@@ -605,7 +595,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	isProdPlan := options.Plan == constants.PlanProd
+	isProdPlan := IsProdPlan(options.Plan)
 	_, workerMachineCount := c.getMachineCountForMC(options.Plan)
 
 	switch name {
@@ -621,7 +611,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 			log.Warningf("WARNING: The control plane endpoint '%s' might already used by other cluster. This might affect the deployment of the cluster", options.VsphereControlPlaneEndpoint)
 		}
 	case AzureProviderName:
-		err = c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, isProdPlan, int64(workerMachineCount), nil, true)
+		err = c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, nil)
 	case DockerProviderName:
 		err = c.ConfigureAndValidateDockerConfig(tkrVersion, options.NodeSizeOptions, skipValidation)
 	}
@@ -629,6 +619,12 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 	if err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
+
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(int64(workerMachineCount), isProdPlan, true, name, false)
+	if err != nil {
+		return NewValidationError(ValidationErrorCode, errors.Wrap(err, "failed to distribute machine deployments").Error())
+	}
+	c.SetMachineDeploymentWorkerCounts(workerCounts, int64(workerMachineCount), isProdPlan)
 
 	return nil
 }
@@ -1966,7 +1962,7 @@ func (c *TkgClient) ValidateAviServiceEngineGroup(aviClient avi.Client) error {
 	if err != nil {
 		return err
 	}
-	if _, err = aviClient.GetServiceEngineGroupByName(aviServiceEngineGroup); err != nil {
+	if _, err = aviClient.GetServiceEngineGroupByName(aviServiceEngineGroup); err != nil && !isAviResourceDuplicatedNameError(err) {
 		return err
 	}
 	return nil
@@ -1977,7 +1973,7 @@ func (c *TkgClient) ValidateAviManagementClusterServiceEngineGroup(aviClient avi
 	aviManagementClusterSEG, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterServiceEngineGroup)
 	// this field is optional, only validates if it has value
 	if aviManagementClusterSEG != "" {
-		if _, err := aviClient.GetServiceEngineGroupByName(aviManagementClusterSEG); err != nil {
+		if _, err := aviClient.GetServiceEngineGroupByName(aviManagementClusterSEG); err != nil && !isAviResourceDuplicatedNameError(err) {
 			return err
 		}
 	}
@@ -2042,7 +2038,7 @@ func (c *TkgClient) ValidateAviManagementClusterControlPlaneNetwork(aviClient av
 // ValidateAviNetwork validates if the network can be found in AVI controller or not and the subnet CIDR format is correct or not
 func (c *TkgClient) ValidateAviNetwork(networkName, networkCIDR string, aviClient avi.Client) error {
 	_, err := aviClient.GetVipNetworkByName(networkName)
-	if err != nil {
+	if err != nil && !isAviResourceDuplicatedNameError(err) {
 		return err
 	}
 	_, _, err = net.ParseCIDR(networkCIDR)
@@ -2120,6 +2116,10 @@ func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) erro
 	}
 
 	return nil
+}
+
+func isAviResourceDuplicatedNameError(err error) bool {
+	return strings.Contains(err.Error(), "More than one object of type ")
 }
 
 func dualStackFeatureFlagError(ipFamily, featureFlag string) error {

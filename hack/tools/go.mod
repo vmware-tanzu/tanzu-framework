@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/hack/tools
+module github.com/vmware-tanzu/tanzu-framework/hack/tools
 
 go 1.18
 

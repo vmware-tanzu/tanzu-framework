@@ -228,5 +228,51 @@ var _ = Describe("", func() {
 			Expect(cname).To(Equal(clusterName))
 			Expect(namespace).To(Equal(""))
 		})
+
+		It("Should successfully update management cluster credentials without restarting CAPZ Controller Manager Pod", func() {
+			identitySecretName := fmt.Sprintf("%s-identity-secret", clusterName)
+			clusterClient.GetCAPZControllerManagerDeploymentsReplicasReturnsOnCall(0, int32(0), nil)
+			err := tkgClient.UpdateAzureClusterCredentials(clusterClient, &UpdateCredentialsOptions{
+				ClusterName: clusterName,
+				Kubeconfig:  kubeconfig,
+				AzureUpdateClusterOptions: &AzureUpdateClusterOptions{
+					AzureTenantID:       "azureTenantID",
+					AzureSubscriptionID: "azureSubscriptionID",
+					AzureClientID:       "azureClientID",
+					AzureClientSecret:   "azureClientSecret",
+				},
+				IsRegionalCluster: true,
+			})
+			Expect(err).To(BeNil())
+
+			Expect(clusterClient.UpdateCapzManagerBootstrapCredentialsSecretCallCount()).To(Equal(1))
+			tenantID, subscriptionID, clientID, clientSecret := clusterClient.UpdateCapzManagerBootstrapCredentialsSecretArgsForCall(0)
+			Expect(tenantID).To(Equal("azureTenantID"))
+			Expect(subscriptionID).To(Equal("azureSubscriptionID"))
+			Expect(clientID).To(Equal("azureClientID"))
+			Expect(clientSecret).To(Equal("azureClientSecret"))
+
+			Expect(clusterClient.UpdateAzureIdentityRefSecretCallCount()).To(Equal(1))
+			secretName, namespace, clientSecret := clusterClient.UpdateAzureIdentityRefSecretArgsForCall(0)
+			Expect(secretName).To(Equal(identitySecretName))
+			Expect(namespace).To(Equal("tkg-system"))
+			Expect(clientSecret).To(Equal("azureClientSecret"))
+
+			Expect(clusterClient.UpdateAzureClusterIdentityRefCallCount()).To(Equal(1))
+			secretName, namespace, tenantID, clientID = clusterClient.UpdateAzureClusterIdentityRefArgsForCall(0)
+			Expect(secretName).To(Equal(identitySecretName))
+			Expect(namespace).To(Equal("tkg-system"))
+			Expect(tenantID).To(Equal("azureTenantID"))
+			Expect(clientID).To(Equal("azureClientID"))
+
+			Expect(clusterClient.GetCAPZControllerManagerDeploymentsReplicasCallCount()).To(Equal(1))
+
+			Expect(clusterClient.UpdateCAPZControllerManagerDeploymentReplicasCallCount()).To(Equal(0))
+
+			Expect(clusterClient.UpdateAzureKCPCallCount()).To(Equal(1))
+			cname, namespace := clusterClient.UpdateAzureKCPArgsForCall(0)
+			Expect(cname).To(Equal(clusterName))
+			Expect(namespace).To(Equal(""))
+		})
 	})
 })

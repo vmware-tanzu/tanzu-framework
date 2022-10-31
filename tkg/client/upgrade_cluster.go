@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -219,7 +218,7 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 
 	if !options.IsRegionalCluster {
 		// update autoscaler deployment if enabled
-		err = c.applyPatchForAutoScalerDeployment(regionalClusterClient, options)
+		err = regionalClusterClient.ApplyPatchForAutoScalerDeployment(c.tkgBomClient, options.ClusterName, options.KubernetesVersion, options.Namespace)
 		if err != nil {
 			return errors.Wrapf(err, "failed to upgrade autoscaler for cluster '%s'", options.ClusterName)
 		}
@@ -239,47 +238,6 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 		log.Warningf("Warning: Cluster is upgraded successfully, but some packages are failing. %v", err)
 	}
 
-	return nil
-}
-
-func (c *TkgClient) applyPatchForAutoScalerDeployment(regionalClusterClient clusterclient.Client, options *UpgradeClusterOptions) error {
-	var autoScalerDeployment appsv1.Deployment
-	autoscalerDeploymentName := options.ClusterName + "-cluster-autoscaler"
-	err := regionalClusterClient.GetResource(&autoScalerDeployment, autoscalerDeploymentName, options.Namespace, nil, nil)
-	if err != nil && apierrors.IsNotFound(err) {
-		log.V(4).Infof("cluster autoscaler is not enabled for cluster %s", options.ClusterName)
-		return nil
-	}
-	if err != nil {
-		return errors.Wrapf(err, "unable to get autoscaler deployment from management cluster")
-	}
-
-	newAutoscalerImage, err := c.tkgBomClient.GetAutoscalerImageForK8sVersion(options.KubernetesVersion)
-	if err != nil {
-		return err
-	}
-
-	log.Infof("Patching autoscaler deployment '%s'", autoscalerDeploymentName)
-	patchString := `[
-		{
-			"op": "replace",
-			"path": "/spec/template/spec/containers/0/image",
-			"value": "%s"
-		}
-	]`
-
-	autoscalerDeploymentPatch := fmt.Sprintf(patchString, newAutoscalerImage)
-
-	pollOptions := &clusterclient.PollOptions{Interval: upgradePatchInterval, Timeout: upgradePatchTimeout}
-	err = regionalClusterClient.PatchResource(&autoScalerDeployment, autoscalerDeploymentName, options.Namespace, autoscalerDeploymentPatch, types.JSONPatchType, pollOptions)
-	if err != nil {
-		return errors.Wrap(err, "unable to update the container image for autoscaler deployment")
-	}
-
-	log.Infof("Waiting for cluster autoscaler to be patched and available...")
-	if err = regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, options.Namespace); err != nil {
-		log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
-	}
 	return nil
 }
 
@@ -370,7 +328,6 @@ func (c *TkgClient) upgradeAddonPreNodeUpgrade(regionalClusterClient clusterclie
 			"addons-management/tanzu-addons-manager",
 			"tkr/tkr-controller",
 			"addons-management/core-package-repo",
-			"capabilities/capabilities-controller",
 			"packages/management-package-repo",
 			"packages/management-package")
 	}

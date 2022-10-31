@@ -11,21 +11,23 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	appsv1 "k8s.io/api/apps/v1"
+
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
-
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
 var _ = Describe("Unit tests for create cluster", func() {
 	var (
-		err             error
-		clusterClient   *fakes.ClusterClient
-		kubeConfigBytes []byte
-		tkgClient       *TkgClient
-		name            string
-		namespace       string
-		manifest        string
+		err              error
+		clusterClient    *fakes.ClusterClient
+		kubeConfigBytes  []byte
+		tkgClient        *TkgClient
+		name             string
+		namespace        string
+		manifest         string
+		autoscalerDeploy *appsv1.Deployment
 	)
 
 	BeforeEach(func() {
@@ -33,6 +35,8 @@ var _ = Describe("Unit tests for create cluster", func() {
 		tkgClient, err = CreateTKGClient("../fakes/config/config.yaml", testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
 		Expect(err).NotTo(HaveOccurred())
 		name = "testClusterName"
+		autoscalerDeploy = &appsv1.Deployment{}
+		autoscalerDeploy.Name = constants.AutoscalerDeploymentNameSuffix
 		manifest = `---
 apiVersion: cluster.x-k8s.io/v1alpha3
 kind: Cluster
@@ -117,9 +121,9 @@ spec:
 		})
 	})
 
-	Describe("WaitForAutoscalerDeployment", func() {
+	Describe("WaitForAutoscalerDeployment by legacy mod", func() {
 		JustBeforeEach(func() {
-			tkgClient.WaitForAutoscalerDeployment(clusterClient, name, constants.DefaultNamespace)
+			tkgClient.WaitForAutoscalerDeployment(clusterClient, name, constants.DefaultNamespace, false)
 		})
 
 		Context("When the value for config variable 'ENABLE_AUTOSCALER' is not set", func() {
@@ -141,6 +145,32 @@ spec:
 		Context("When the value for config variable 'ENABLE_AUTOSCALER' is set to 'true'", func() {
 			BeforeEach(func() {
 				os.Setenv(constants.ConfigVariableEnableAutoscaler, "true")
+			})
+
+			It("should wait for autoscaler deployment", func() {
+				Expect(clusterClient.WaitForAutoscalerDeploymentCallCount()).To(Equal(1))
+			})
+		})
+	})
+
+	Describe("WaitForAutoscalerDeployment by clusterclass mod", func() {
+		JustBeforeEach(func() {
+			tkgClient.WaitForAutoscalerDeployment(clusterClient, name, constants.DefaultNamespace, true)
+		})
+
+		Context("When the deployment of autoscaler not exsits in mgmt cluster", func() {
+			BeforeEach(func() {
+				clusterClient.GetDeploymentReturns(appsv1.Deployment{}, errors.New("can't get resource of autoscaler deployment"))
+			})
+
+			It("should not wait for autoscaler deployment", func() {
+				Expect(clusterClient.WaitForAutoscalerDeploymentCallCount()).To(Equal(0))
+			})
+		})
+
+		Context("When the deployment of autoscaler exsits in mgmt cluster", func() {
+			BeforeEach(func() {
+				clusterClient.GetDeploymentReturns(*autoscalerDeploy, nil)
 			})
 
 			It("should wait for autoscaler deployment", func() {

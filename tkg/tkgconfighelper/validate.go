@@ -22,8 +22,8 @@ var ManagementClusterVersionToK8sVersionSupportMatrix = map[string][]string{
 	"v1.4": {"v1.17", "v1.18", "v1.19", "v1.20", "v1.21"},
 	"v1.5": {"v1.19", "v1.20", "v1.21", "v1.22"},
 	"v1.6": {"v1.20", "v1.21", "v1.22", "v1.23"},
-	"v1.7": {"v1.22", "v1.23", "v1.24"},
-	"v2.1": {"v1.22", "v1.23", "v1.24"},
+	"v1.7": {"v1.21", "v1.22", "v1.23", "v1.24"},
+	"v2.1": {"v1.21", "v1.22", "v1.23", "v1.24"},
 }
 
 // ValidateK8sVersionSupport validates the k8s version is supported on management cluster or not

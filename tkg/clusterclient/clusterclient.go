@@ -84,8 +84,9 @@ import (
 )
 
 const (
-	kubectlApplyRetryTimeout  = 30 * time.Second
-	kubectlApplyRetryInterval = 5 * time.Second
+	kubectlApplyRetryTimeout          = 30 * time.Second
+	kubectlApplyRetryInterval         = 5 * time.Second
+	kubectlApplyLastAppliedAnnotation = "kubectl.kubernetes.io/last-applied-configuration"
 	// DefaultKappControllerHostPort is the default kapp-controller port for it's extension apiserver
 	DefaultKappControllerHostPort           = 10100
 	waitPeriodBeforePollingForUpgradeStatus = 60 * time.Second
@@ -116,6 +117,8 @@ type Client interface {
 	ApplyFile(string) error
 	// WaitForClusterInitialized waits for a cluster to be initialized so the kubeconfig file can be fetched
 	WaitForClusterInitialized(clusterName string, namespace string) error
+	// WaitForControlPlaneAvailable wait for cluster API server is ready to receive requests
+	WaitForControlPlaneAvailable(clusterName string, namespace string) error
 	// WaitForClusterReady for a cluster to be fully provisioned and so ready to be moved
 	// If checkReplicas is true, will also ensure that the number of ready
 	// replicas matches the expected number in the cluster's spec
@@ -126,6 +129,8 @@ type Client interface {
 	WaitForDeployment(deploymentName string, namespace string) error
 	// WaitForAutoscalerDeployment waits for the autoscaler deployment to be available
 	WaitForAutoscalerDeployment(deploymentName string, namespace string) error
+	// ApplyPatchForAutoScalerDeployment update autoscaler by patch image
+	ApplyPatchForAutoScalerDeployment(tkgBomClient tkgconfigbom.Client, clusterName string, k8sVersion string, namespace string) error
 	// WaitForAVIResourceCleanUp waits for the avi resource clean up finished
 	WaitForAVIResourceCleanUp(statefulSetName, namespace string) error
 	// WaitForPackageInstall waits for the package to be installed successfully
@@ -210,6 +215,8 @@ type Client interface {
 	DeleteCluster(clusterName string, namespace string) error
 	// GetKubernetesVersion gets kubernetes server version for a given cluster
 	GetKubernetesVersion() (string, error)
+	// GetDeployment gets deployment object in the specified namespace
+	GetDeployment(deploymentName string, namespace string) (appsv1.Deployment, error)
 	// GetMDObjectForCluster gets machine deployment object of worker nodes for cluster
 	GetMDObjectForCluster(clusterName string, namespace string) ([]capi.MachineDeployment, error)
 	// GetClusterControlPlaneNodeObject gets cluster control plane node for cluster
@@ -408,6 +415,8 @@ type client struct {
 
 // constants regarding timeout and configs
 const (
+	upgradePatchInterval              = 30 * time.Second
+	upgradePatchTimeout               = 5 * time.Minute
 	operationDefaultTimeout           = 30 * time.Minute
 	CheckResourceInterval             = 5 * time.Second
 	CheckClusterInterval              = 10 * time.Second
@@ -615,6 +624,21 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 	return c.poller.PollImmediateInfiniteWithGetter(interval, getterFunc)
 }
 
+func (c *client) WaitForControlPlaneAvailable(clusterName, namespace string) error {
+	_, err := c.poller.PollImmediateWithGetter(CheckClusterInterval, c.operationTimeout, func() (interface{}, error) {
+		kcpObject, err := c.GetKCPObjectForCluster(clusterName, namespace)
+		if err != nil {
+			return false, err
+		}
+		if conditions.IsTrue(kcpObject, controlplanev1.AvailableCondition) {
+			return true, nil
+		}
+
+		return false, errors.New("control plane is not available yet")
+	})
+	return err
+}
+
 func (c *client) WaitForClusterReady(clusterName, namespace string, checkAllReplicas bool) error {
 	if err := c.GetResource(&capi.Cluster{}, clusterName, namespace, VerifyClusterReady, &PollOptions{Interval: CheckClusterInterval, Timeout: c.operationTimeout}); err != nil {
 		return err
@@ -678,6 +702,47 @@ func (c *client) WaitForDeployment(deploymentName, namespace string) error {
 
 func (c *client) WaitForAutoscalerDeployment(deploymentName, namespace string) error {
 	return c.GetResource(&appsv1.Deployment{}, deploymentName, namespace, VerifyAutoscalerDeploymentAvailable, &PollOptions{Interval: CheckResourceInterval, Timeout: CheckAutoscalerDeploymentTimeout})
+}
+
+func (c *client) ApplyPatchForAutoScalerDeployment(tkgBomClient tkgconfigbom.Client, clusterName string, k8sVersion string, namespace string) error {
+	var autoScalerDeployment appsv1.Deployment
+	autoscalerDeploymentName := clusterName + "-cluster-autoscaler"
+	err := c.GetResource(&autoScalerDeployment, autoscalerDeploymentName, namespace, nil, nil)
+	if err != nil && apierrors.IsNotFound(err) {
+		log.V(4).Infof("cluster autoscaler is not enabled for cluster %s", clusterName)
+		return nil
+	}
+	if err != nil {
+		return errors.Wrapf(err, "unable to get autoscaler deployment from management cluster")
+	}
+
+	newAutoscalerImage, err := tkgBomClient.GetAutoscalerImageForK8sVersion(k8sVersion)
+	if err != nil {
+		return err
+	}
+
+	log.Infof("Patching autoscaler deployment '%s'", autoscalerDeploymentName)
+	patchString := `[
+		{
+			"op": "replace",
+			"path": "/spec/template/spec/containers/0/image",
+			"value": "%s"
+		}
+	]`
+
+	autoscalerDeploymentPatch := fmt.Sprintf(patchString, newAutoscalerImage)
+
+	pollOptions := &PollOptions{Interval: upgradePatchInterval, Timeout: upgradePatchTimeout}
+	err = c.PatchResource(&autoScalerDeployment, autoscalerDeploymentName, namespace, autoscalerDeploymentPatch, types.JSONPatchType, pollOptions)
+	if err != nil {
+		return errors.Wrap(err, "unable to update the container image for autoscaler deployment")
+	}
+
+	log.Infof("Waiting for cluster autoscaler to be patched and available...")
+	if err = c.WaitForAutoscalerDeployment(autoscalerDeploymentName, namespace); err != nil {
+		log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
+	}
+	return nil
 }
 
 func (c *client) WaitForAVIResourceCleanUp(statefulSetName, namespace string) error {
@@ -998,6 +1063,14 @@ func (c *client) GetKCPObjectForCluster(clusterName, namespace string) (*control
 		return nil, errors.Errorf("zero or multiple KCP objects found for the given cluster, %v %v %v", len(kcpList.Items), clusterName, namespace)
 	}
 	return &kcpList.Items[0], nil
+}
+
+func (c *client) GetDeployment(deploymentName string, namespace string) (appsv1.Deployment, error) {
+	dpObject := &appsv1.Deployment{}
+	if err := c.GetResource(dpObject, deploymentName, namespace, nil, nil); err != nil {
+		return appsv1.Deployment{}, err
+	}
+	return *dpObject, nil
 }
 
 func (c *client) GetMDObjectForCluster(clusterName, namespace string) ([]capi.MachineDeployment, error) {
@@ -2102,6 +2175,10 @@ func (c *client) PatchKappControllerLastAppliedAnnotation(namespace string) erro
 		return errors.Wrap(err, "failed to get kapp-controller deployment from cluster")
 	}
 	kappYaml := result.([]byte)
+	// Skip adding last-applied annotation if already has it
+	if strings.Contains(string(kappYaml), kubectlApplyLastAppliedAnnotation) {
+		return nil
+	}
 
 	f, err := os.CreateTemp("", "kubeapply-")
 	if err != nil {

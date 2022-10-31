@@ -97,6 +97,17 @@ var _ = Describe("cluster.Webhook", func() {
 	const strNonExistent = "non-existent"
 
 	Context("getClusterClass()", func() {
+
+		When("Cluster is paused", func() {
+			It("should allow the request to pass", func() {
+				cluster.Spec.Paused = true
+				cc, resp := cw.getClusterClass(context.Background(), cluster)
+				Expect(cc).To(BeNil())
+				Expect(resp).ToNot(BeNil())
+				Expect(resp.Allowed).To(BeTrue())
+			})
+		})
+
 		When("Cluster has deletionTimestamp set", func() {
 			It("should allow the request to pass", func() {
 				cluster.DeletionTimestamp = &metav1.Time{Time: time.Now()}

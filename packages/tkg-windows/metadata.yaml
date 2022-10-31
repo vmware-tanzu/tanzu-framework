@@ -1,0 +1,13 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkg-windows.tanzu.vmware.com
+spec:
+  displayName: "tkg-windows"
+  longDescription: "TKG Windows BYOI resources"
+  shortDescription: "TKG Windows BYOI resources"
+  providerName: VMware
+  maintainers:
+    - name: "Amim Knabben"
+  categories:
+    - "tkg windows"

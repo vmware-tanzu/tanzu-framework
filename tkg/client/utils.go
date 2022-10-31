@@ -377,16 +377,12 @@ func (c *TkgClient) getDefaultMachineCountForMC(plan string) (int, int) {
 	controlPlaneMachineCount = constants.DefaultDevControlPlaneMachineCount
 	workerMachineCount = constants.DefaultDevWorkerMachineCount
 
-	switch plan {
-	case constants.PlanDev:
-		// use the defaults already set above
-	case constants.PlanProd:
+	if IsProdPlan(plan) {
 		// update controlplane count for prod plan
 		controlPlaneMachineCount = constants.DefaultProdControlPlaneMachineCount
 		workerMachineCount = constants.DefaultProdWorkerMachineCount
-	default:
-		// do nothing. If config overrides are provided, they'll get overridden in the calling function
 	}
+
 	return controlPlaneMachineCount, workerMachineCount
 }
 
@@ -429,6 +425,10 @@ func getCCPlanFromLegacyPlan(plan string) (string, error) {
 		return constants.PlanProdCC, nil
 	}
 	return "", errors.Errorf("unknown plan '%v'", plan)
+}
+
+func IsProdPlan(plan string) bool {
+	return plan == constants.PlanProd || plan == constants.PlanProdCC
 }
 
 // Sets the appropriate CAPI ClusterTopology configuration unless it has been explicitly overridden

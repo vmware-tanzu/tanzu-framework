@@ -1,4 +1,4 @@
-// Copyright 2020 VMware, Inc. All Rights Reserved.
+// Copyright 2020-2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package controllers
@@ -43,6 +43,7 @@ import (
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
+	awsebscsi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/awsebscsi"
 	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	csi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
@@ -326,6 +327,12 @@ var _ = BeforeSuite(func(done Done) {
 	Expect((&MachineReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("MachineController"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&awsebscsi.AwsEbsCSIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("AwsEbsCSIConfig"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 

@@ -39,16 +39,13 @@ spec:
       cidrBlocks: #@ data.values.SERVICE_CIDR.split(",")
   topology:
     class: #@ data.values.CLUSTER_CLASS
-    #! VVV TODO(vui) compute
-    #! version: #@ data.values.KUBERNETES_VERSION
-    #! hack to match up tkr
-    version: #@ "{}-tkg.1-zshippable".format(data.values.KUBERNETES_VERSION)
+    version: #@ data.values.KUBERNETES_VERSION
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
       #@overlay/match missing_ok=True
       metadata:
         annotations:
-          run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+          run.tanzu.vmware.com/resolve-os-image: #@ "image-type=ova,os-name={}".format(data.values.OS_NAME)
     workers:
       machineDeployments:
       #@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
@@ -56,11 +53,15 @@ spec:
       - class: tkg-worker
         name: md-0
         #@overlay/match missing_ok=True
+        #@ if data.values.CLUSTER_PLAN == "prodcc":
+        replicas: #@ data.values.WORKER_MACHINE_COUNT_0
+        #@ else:
         replicas: #@ data.values.WORKER_MACHINE_COUNT
+        #@ end
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+            run.tanzu.vmware.com/resolve-os-image: #@ "image-type=ova,os-name={}".format(data.values.OS_NAME)
         #@ if data.values.VSPHERE_AZ_0:
         #@overlay/match missing_ok=True
         failureDomain: #@ data.values.VSPHERE_AZ_0
@@ -73,7 +74,7 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+            run.tanzu.vmware.com/resolve-os-image: #@ "image-type=ova,os-name={}".format(data.values.OS_NAME)
         #@ if data.values.VSPHERE_AZ_1:
         failureDomain: #@ data.values.VSPHERE_AZ_1
         #@ end
@@ -84,7 +85,7 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+            run.tanzu.vmware.com/resolve-os-image: #@ "image-type=ova,os-name={}".format(data.values.OS_NAME)
         #@ if data.values.VSPHERE_AZ_2:
         failureDomain: #@ data.values.VSPHERE_AZ_2
         #@ end

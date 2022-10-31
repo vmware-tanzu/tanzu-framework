@@ -506,7 +506,7 @@ func (c *client) GetCAPZControllerManagerDeploymentsReplicas() (int32, error) {
 			// if deployment is missing, return without errors
 			return 0, nil
 		}
-		return 0, errors.Wrapf(err, "failed to look up '%s' deployment", calicoKubeControllerKey)
+		return 0, errors.Wrapf(err, "failed to look up '%s' deployment", AzureControllerManagerDeploy)
 	}
 	curReplicas := *deployment.Spec.Replicas
 	return curReplicas, nil
@@ -519,7 +519,7 @@ func (c *client) UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) e
 			// if deployment is missing, return without errors
 			return nil
 		}
-		return errors.Wrapf(err, "failed to look up '%s' deployment", calicoKubeControllerKey)
+		return errors.Wrapf(err, "failed to look up '%s' deployment", AzureControllerManagerDeploy)
 	}
 
 	patchString := fmt.Sprintf(`[

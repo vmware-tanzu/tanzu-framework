@@ -34,6 +34,7 @@ import (
 	kappdatapkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/controllers"
 	antreacontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
+	awsebscsicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/awsebscsi"
 	calicocontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	csicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
@@ -105,6 +106,7 @@ type addonFlags struct {
 	featureGatePackageInstallStatus bool
 	enablePprof                     bool
 	pprofBindAddress                string
+	tlsMinVersion                   string
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -147,6 +149,7 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.BoolVar(&addonFlags.featureGatePackageInstallStatus, "feature-gate-package-install-status", false, "Feature gate to enable packageinstallstatus controller")
 	flag.BoolVar(&addonFlags.enablePprof, "enable-pprof", false, "Enable pprof web server")
 	flag.StringVar(&addonFlags.pprofBindAddress, "pprof-bind-addr", ":18318", "Bind address of pprof web server if enabled")
+	flag.StringVar(&addonFlags.tlsMinVersion, "tls-min-version", "1.2", "minimum TLS version in use by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
 
 	flag.Parse()
 }
@@ -212,6 +215,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	mgr.GetWebhookServer().TLSMinVersion = flags.tlsMinVersion
 	addonReconciler := &controllers.AddonReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
@@ -311,6 +315,17 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CSIConfigController", "controller", "vspherecsi")
+		os.Exit(1)
+	}
+
+	if err := (&awsebscsicontroller.AwsEbsCSIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("AwsEbsCSIConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.AwsEbsCSIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create AwsEbsCSIConfigController", "controller", "awsebscsi")
 		os.Exit(1)
 	}
 

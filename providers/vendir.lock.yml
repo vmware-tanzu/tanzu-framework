@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Fix Antrea 1.5.3 parameters (#4966)
-      sha: f0774ead4e7f39dcb83e82444dd7f046d42b2dd6
+      commitTitle: Add calico v3.24.1 (#5431)...
+      sha: 9715f65cb72e03a9a1e24283d95a5251d1225bd1
       tags:
-      - v0.13.0-dev.2-139-gf0774ead
+      - v0.13.0-dev.2-402-g9715f65c
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:

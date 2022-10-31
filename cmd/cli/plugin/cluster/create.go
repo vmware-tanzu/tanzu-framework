@@ -129,11 +129,6 @@ func create(cmd *cobra.Command, args []string) error {
 }
 
 func createCluster(clusterName string, server *configapi.Server) error {
-	err := tkgctl.SetCompatibilityFileBasedOnEdition()
-	if err != nil {
-		log.V(3).Infof("%v", err.Error())
-	}
-
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
 		return err
