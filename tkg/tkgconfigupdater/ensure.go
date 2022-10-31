@@ -263,12 +263,12 @@ func (c *client) EnsureTemplateFiles() (bool, error) {
 	providerDirPath := filepath.Join(tkgDir, constants.LocalProvidersFolderName)
 
 	if c.isProviderTemplatesEmbedded() {
-		log.Warningf("c.isProviderTemplatesEmbedded\n")
+		log.Warning("c.isProviderTemplatesEmbedded\n")
 		return true, c.saveEmbeddedProviderTemplates(providerDirPath)
 	}
 
 	if providersNeedUpdate {
-		log.Warningf("providersNeedUpdate\n")
+		log.Warning("providersNeedUpdate\n")
 
 		if !isProvidersDirectoryEmpty {
 			t := time.Now()

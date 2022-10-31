@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 )
 
 // CheckProviderTemplatesNeedUpdate checks if .tkg/providers/config.yaml is up-to-date.
@@ -22,10 +22,16 @@ func (c *client) CheckProviderTemplatesNeedUpdate() (bool, error) {
 		return false, nil
 	}
 
+	log.Warning("$$$$$$$$$$$$$$$$$$$\n")
+	log.Warning("c.isProviderTemplatesEmbedded\n")
+
 	// If local develeopment and providers are embedded then always update providers based
 	if c.isProviderTemplatesEmbedded() {
 		return true, nil
 	}
+
+	log.Warning("$$$$$$$$$$$$$$$$$$$\n")
+	log.Warning("error get TKG providers directory\n")
 
 	providerDir, err := c.tkgConfigPathsClient.GetTKGProvidersDirectory()
 	if err != nil {
@@ -36,11 +42,16 @@ func (c *client) CheckProviderTemplatesNeedUpdate() (bool, error) {
 	// if it matches no need to update anything
 	// if not providers need to be updated
 
+	log.Warning("$$$$$$$$$$$$$$$$$$$\n")
+	log.Warning("error reading TKG BoM configuration\n")
+
 	tkgBomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
 	if err != nil {
 		return true, errors.Wrap(err, "error reading TKG BoM configuration")
 	}
 
+	log.Warning("$$$$$$$$$$$$$$$$$$$\n")
+	log.Warning("error get provider template image from BoM\n")
 	providerTemplateImage, err := getProviderTemplateImageFromBoM(tkgBomConfig)
 	if err != nil {
 		return true, errors.Wrap(err, "error get provider template image from BoM")
