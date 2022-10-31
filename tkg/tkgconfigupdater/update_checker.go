@@ -12,6 +12,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 // CheckProviderTemplatesNeedUpdate checks if .tkg/providers/config.yaml is up-to-date.
@@ -28,7 +29,7 @@ func (c *client) CheckProviderTemplatesNeedUpdate() (bool, error) {
 
 	providerDir, err := c.tkgConfigPathsClient.GetTKGProvidersDirectory()
 	if err != nil {
-		return true, err
+		return true, errors.Wrap(err, "error get TKG providers directory")
 	}
 
 	// check the version info with BoM file's tag
@@ -42,9 +43,12 @@ func (c *client) CheckProviderTemplatesNeedUpdate() (bool, error) {
 
 	providerTemplateImage, err := getProviderTemplateImageFromBoM(tkgBomConfig)
 	if err != nil {
-		return true, err
+		return true, errors.Wrap(err, "error get provider template image from BoM")
 	}
 
+	log.Warning("$$$$$$$$$$$$$$$$$$$\n")
+	log.Warningf("providerDir %v\n", providerDir)
+	log.Warningf("providerTemplateImage.Tag %v\n", providerTemplateImage.Tag)
 	imageTag := providerTemplateImage.Tag
 	if _, err := os.Stat(filepath.Join(providerDir, imageTag)); os.IsNotExist(err) {
 		return true, nil
