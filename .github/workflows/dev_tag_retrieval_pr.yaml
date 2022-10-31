@@ -30,7 +30,9 @@ jobs:
           echo ::set-output name=NEXT_VERSION::$major.$minor.$patch-dev
 
       - name: Update version in file
-        run: sed -i -e "/TKGManagementClusterPluginVersion/ s/= .*/= \"${{ steps.next_version.outputs.NEXT_VERSION }}\"/" tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
+        run: |
+          sed -i -e "/TKGManagementClusterPluginVersion/ s/= .*/= \"${{ steps.next_version.outputs.NEXT_VERSION }}\"/" tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
+          sed -i -e "/Version/ s/= .*/= \"${{ steps.next_version.outputs.NEXT_VERSION }}\"/" cli/runtime/version/zz_generated_plugin_runtime_version.go
 
       - name: Set variables
         id: vars
