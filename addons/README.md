@@ -221,9 +221,8 @@ When the config resource is pre-created, addons-controller will use it in lieu o
 #### Pre-create ClusterBootstrap resource
 
 If the use case is to swap out a specific package, for example CNI with your own package then create the ClusterBootstrap object in its entirety
-with the same name as the Cluster resource. In case where a custom ClusterBootstrap object was provided, the ClusterBootstrap object will not be
-cloned from the ClusterBootstrapTemplate anymore. Creating the ClusterBootstrap resource in its entirety can put additional burden on clients so a
-defaulting webhook is provided.
+with the same name as the Cluster resource. Creating this resouce in its entirety can put additional burden on clients so a defaulting webhook is
+provided.
 
 ```yaml
 apiVersion: run.tanzu.vmware.com/v1alpha3
@@ -300,6 +299,12 @@ spec:
             kind: CalicoConfig
             name: sample-config
 ```
+
+#### Create fully custom ClusterBootstrap and Config custom resources
+There might be cases where the user wants to create custom Config and ClusterBootstrap resources on their entirety. The user might choose to
+create these custom resources prior to or after the creation of the cluster object. In such cases, the user needs to add the annotation of the
+format `tkg.tanzu.vmware.com/custom-clusterbootstrap : ""` to the Cluster resource. When this annotation exists on the Cluster object, the
+ClusterBootstrap resource will not get cloned from the ClusterBootstrapTemplate anymore.
 
 ## Provider values to a Package
 
