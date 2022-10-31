@@ -19,7 +19,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000
 	k8s.io/api v0.24.2
 	k8s.io/apimachinery v0.24.2
-	sigs.k8s.io/cluster-api v1.2.3
+	sigs.k8s.io/cluster-api v1.2.4
 	sigs.k8s.io/controller-runtime v0.12.3
 	sigs.k8s.io/yaml v1.3.0
 )

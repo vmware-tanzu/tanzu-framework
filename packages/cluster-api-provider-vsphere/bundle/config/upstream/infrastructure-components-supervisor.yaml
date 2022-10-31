@@ -927,8 +927,50 @@ rules:
 - apiGroups:
   - cluster.x-k8s.io
   resources:
+  - clusters
   - machines
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - machinedeployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - machinedeployments
+  - machinesets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - machines
+  verbs:
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
   - machines/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - controlplane.cluster.x-k8s.io
+  resources:
+  - kubeadmcontrolplanes
   verbs:
   - get
   - list
@@ -940,6 +982,17 @@ rules:
   verbs:
   - get
   - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - delete
+  - get
+  - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - ""
@@ -1045,6 +1098,14 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - infrastructure.cluster.x-k8s.io
+  resources:
+  - vspheremachinetemplates
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - infrastructure.cluster.x-k8s.io
   resources:
@@ -1343,15 +1404,16 @@ spec:
     spec:
       containers:
       - args:
-        - --enable-leader-election
+        - --leader-elect
         - --logtostderr
         - --v=4
+        - --feature-gates=NodeAntiAffinity=${EXP_NODE_ANTI_AFFINITY:=false},NodeLabeling=${EXP_NODE_LABELING:=false}
         env:
         - name: SERVICE_ACCOUNTS_CM_NAMESPACE
           value: ${SERVICE_ACCOUNTS_CM_NAMESPACE}
         - name: SERVICE_ACCOUNTS_CM_NAME
           value: ${SERVICE_ACCOUNTS_CM_NAME}
-        image: gcr.io/cluster-api-provider-vsphere/release/manager:v1.3.1
+        image: gcr.io/cluster-api-provider-vsphere/release/manager:v1.4.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -1380,6 +1442,8 @@ spec:
       tolerations:
       - effect: NoSchedule
         key: node-role.kubernetes.io/master
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
       volumes:
       - name: cert
         secret:
@@ -1489,6 +1553,27 @@ webhooks:
     - UPDATE
     resources:
     - vspheremachines
+  sideEffects: None
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
+    service:
+      name: capv-webhook-service
+      namespace: capv-system
+      path: /mutate-infrastructure-cluster-x-k8s-io-v1beta1-vspherevm
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: default.vspherevm.infrastructure.x-k8s.io
+  rules:
+  - apiGroups:
+    - infrastructure.cluster.x-k8s.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - vspherevms
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
