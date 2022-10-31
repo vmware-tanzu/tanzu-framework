@@ -1,0 +1,212 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region", "verify_and_configure_machine_deployment_rollout_strategy")
+#@ load("lib/validate.star", "validate_configuration")
+
+#@ validate_configuration("aws")
+
+#@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+
+#@ default_az_0 = get_az_from_region(data.values.AWS_REGION, data.values.AWS_NODE_AZ, "a")
+
+#@overlay/match by=overlay.subset({"kind":"Cluster"})
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  labels:
+    #@overlay/match missing_ok=True
+    #@yaml/text-templated-strings
+    #@ if data.values.TKG_CLUSTER_ROLE != "workload":
+    cluster-role.tkg.tanzu.vmware.com/(@= data.values.TKG_CLUSTER_ROLE @): ""
+    #@ end
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    #@overlay/match missing_ok=True
+    tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
+spec:
+  infrastructureRef:
+    name: #@ data.values.CLUSTER_NAME
+  controlPlaneRef:
+    name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  clusterNetwork:
+    #@ if data.values.CLUSTER_API_SERVER_PORT:
+    #@overlay/match missing_ok=True
+    apiServerPort: #@ data.values.CLUSTER_API_SERVER_PORT
+    #@ end
+    pods:
+      cidrBlocks:
+      #@overlay/match by=overlay.index(0)
+      - #@ data.values.CLUSTER_CIDR
+    services:
+      cidrBlocks:
+      #@overlay/match by=overlay.index(0)
+      - #@ data.values.SERVICE_CIDR
+
+#@overlay/match by=overlay.subset({"kind":"AWSCluster"})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: AWSCluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+spec:
+  #@ if data.values.AWS_IDENTITY_REF_NAME != "":
+  #@overlay/match missing_ok=True
+  identityRef:
+    kind: #@ data.values.AWS_IDENTITY_REF_KIND or "AWSClusterRoleIdentity"
+    name: #@ data.values.AWS_IDENTITY_REF_NAME
+  #@ end
+  network:
+    #@ if data.values.AWS_SECURITY_GROUP_BASTION != "" or data.values.AWS_SECURITY_GROUP_CONTROLPLANE != "" or data.values.AWS_SECURITY_GROUP_APISERVER_LB != "" or data.values.AWS_SECURITY_GROUP_NODE != "" or data.values.AWS_SECURITY_GROUP_LB != "":
+    #@overlay/match missing_ok=True
+    securityGroupOverrides:
+      #@ if data.values.AWS_SECURITY_GROUP_BASTION != "":
+      #@overlay/match missing_ok=True
+      bastion: #@ data.values.AWS_SECURITY_GROUP_BASTION
+      #@ end
+      #@ if data.values.AWS_SECURITY_GROUP_CONTROLPLANE != "":
+      #@overlay/match missing_ok=True
+      controlplane: #@ data.values.AWS_SECURITY_GROUP_CONTROLPLANE
+      #@ end
+      #@ if data.values.AWS_SECURITY_GROUP_APISERVER_LB != "":
+      #@overlay/match missing_ok=True
+      apiserver-lb: #@ data.values.AWS_SECURITY_GROUP_APISERVER_LB
+      #@ end
+      #@ if data.values.AWS_SECURITY_GROUP_NODE != "":
+      #@overlay/match missing_ok=True
+      node: #@ data.values.AWS_SECURITY_GROUP_NODE
+      #@ end
+      #@ if data.values.AWS_SECURITY_GROUP_LB != "":
+      #@overlay/match missing_ok=True
+      lb: #@ data.values.AWS_SECURITY_GROUP_LB
+      #@ end
+    #@ end
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+kind: KubeadmControlPlane
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+metadata:
+  name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+spec:
+  replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+  machineTemplate:
+    infrastructureRef:
+      kind: AWSMachineTemplate
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+      name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  kubeadmConfigSpec:
+    initConfiguration:
+      nodeRegistration:
+        criSocket: /var/run/containerd/containerd.sock
+        name: '{{ ds.meta_data.local_hostname }}'
+        kubeletExtraArgs:
+          cloud-provider: aws
+    clusterConfiguration:
+      apiServer:
+        extraArgs:
+          cloud-provider: aws
+      controllerManager:
+        extraArgs:
+          cloud-provider: aws
+      imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
+      etcd:
+        local:
+          imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageRepository)
+          imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
+          #@ if getattr(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local, "extraArgs", None) != None:
+          #@overlay/match missing_ok=True
+          extraArgs:
+            #@ for key in bomDataForK8sVersion.kubeadmConfigSpec.etcd.local["extraArgs"]:
+            #@overlay/match missing_ok=True
+            #@yaml/text-templated-strings
+            (@= key @): #@ "{}".format(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local["extraArgs"][key]).lower()
+            #@ end
+          #@ end
+      dns:
+        imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.dns.imageRepository)
+        imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
+    joinConfiguration:
+      nodeRegistration:
+        criSocket: /var/run/containerd/containerd.sock
+        name: '{{ ds.meta_data.local_hostname }}'
+        kubeletExtraArgs:
+          cloud-provider: aws
+  version: #@ data.values.KUBERNETES_VERSION
+#@overlay/match by=overlay.subset({"kind": "AWSMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-control-plane"}})
+---
+kind: AWSMachineTemplate
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+metadata:
+  name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      instanceType: #@ data.values.CONTROL_PLANE_MACHINE_TYPE
+      iamInstanceProfile: "control-plane.tkg.cloud.vmware.com"
+      sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
+      ami:
+        id: #@ data.values.AWS_AMI_ID
+      rootVolume:
+        size: #@ int(data.values.AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB) or 80
+#@overlay/match by=overlay.subset({"kind": "AWSMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: AWSMachineTemplate
+metadata:
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      instanceType: #@ data.values.NODE_MACHINE_TYPE
+      iamInstanceProfile: "nodes.tkg.cloud.vmware.com"
+      sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
+      ami:
+        id: #@ data.values.AWS_AMI_ID
+      rootVolume:
+        size: #@ int(data.values.AWS_NODE_OS_DISK_SIZE_GIB) or 80
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      joinConfiguration:
+        nodeRegistration:
+          criSocket: /var/run/containerd/containerd.sock
+          name: '{{ ds.meta_data.local_hostname }}'
+          kubeletExtraArgs:
+            cloud-provider: aws
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${CLUSTER_NAME}-md-0"}})
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+spec:
+  clusterName: #@ data.values.CLUSTER_NAME
+  replicas: #@ data.values.WORKER_MACHINE_COUNT_0
+  selector:
+    matchLabels: null
+  strategy:
+    type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+  template:
+    metadata:
+      labels:
+        node-pool: #@ "{}-worker-pool".format(data.values.CLUSTER_NAME)
+    spec:
+      clusterName: #@ data.values.CLUSTER_NAME
+      version: #@ data.values.KUBERNETES_VERSION
+      bootstrap:
+        configRef:
+          name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+      infrastructureRef:
+        name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+        kind: AWSMachineTemplate
+      failureDomain: #@ default_az_0

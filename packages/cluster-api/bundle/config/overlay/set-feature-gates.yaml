@@ -6,8 +6,8 @@ spec:
   template:
     spec:
       containers:
-      #@overlay/match by=overlay.subset({"name": "manager"})
-      - args:
-        #@overlay/match by=overlay.index(2)
-        #@overlay/replace
-        - "--feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterResourceSet=${EXP_CLUSTER_RESOURCE_SET:=true},ClusterTopology=${CLUSTER_TOPOLOGY:=true}"
+        #@overlay/match by=overlay.subset({"name": "manager"})
+        - args:
+            #@overlay/match by=overlay.index(2)
+            #@overlay/replace
+            - "--feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterResourceSet=${EXP_CLUSTER_RESOURCE_SET:=true},ClusterTopology=${CLUSTER_TOPOLOGY:=true}"

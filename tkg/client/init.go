@@ -16,7 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
+	capav1beta2 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta2"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -804,8 +804,8 @@ func (c *TkgClient) removeKappControllerLabelsFromClusterClassResources(regional
 		capi.GroupVersion.WithKind(constants.KindClusterClass):                          constants.ResourceClusterClass,
 		controlplanev1.GroupVersion.WithKind(constants.KindKubeadmControlPlaneTemplate): constants.ResourceKubeadmControlPlaneTemplate,
 		bootstrapv1.GroupVersion.WithKind(constants.KindKubeadmConfigTemplate):          constants.ResourceKubeadmConfigTemplate,
-		capav1beta1.GroupVersion.WithKind(constants.KindAWSClusterTemplate):             constants.ResourceAWSClusterTemplate,
-		capav1beta1.GroupVersion.WithKind(constants.KindAWSMachineTemplate):             constants.ResourceAWSMachineTemplate,
+		capav1beta2.GroupVersion.WithKind(constants.KindAWSClusterTemplate):             constants.ResourceAWSClusterTemplate,
+		capav1beta2.GroupVersion.WithKind(constants.KindAWSMachineTemplate):             constants.ResourceAWSMachineTemplate,
 		capzv1beta1.GroupVersion.WithKind(constants.KindAzureClusterTemplate):           constants.ResourceAzureClusterTemplate,
 		capzv1beta1.GroupVersion.WithKind(constants.KindAzureMachineTemplate):           constants.ResourceAzureMachineTemplate,
 		capvv1beta1.GroupVersion.WithKind(constants.KindVSphereClusterTemplate):         constants.ResourceVSphereClusterTemplate,
