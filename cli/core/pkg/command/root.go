@@ -143,7 +143,7 @@ func addCtxPlugins(cmd *cobra.Command, ctxType configapi.ContextType) error {
 	if ctxType == configapi.CtxTypeK8s {
 		// Standalone plugins exist only for K8s context type.
 		for i := range standalonePlugins {
-			if standalonePlugins[i].Group == cliapi.SystemCmdGroup {
+			if standalonePlugins[i].Group == cliapi.SystemCmdGroup || standalonePlugins[i].Group == cliapi.AdminCmdGroup {
 				// Do not include plugins from the system command group.
 				continue
 			}

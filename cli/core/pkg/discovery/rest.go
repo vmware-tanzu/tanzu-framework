@@ -16,6 +16,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/distribution"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 var defaultTimeout = 5 * time.Second
@@ -42,6 +43,9 @@ type Plugin struct {
 	// To view the list of plugin, user can use `tanzu plugin list` and
 	// to download a specific plugin run, `tanzu plugin install <plugin-name>`
 	Optional bool `json:"optional"`
+
+	// ContextType specifies the context/target type of the plugin
+	ContextType string `json:"contextType"`
 }
 
 // DescribePluginResponse defines the response from Describe Plugin API.
@@ -170,6 +174,7 @@ func DiscoveredFromREST(p *Plugin) (plugin.Discovered, error) {
 		Description:        p.Description,
 		RecommendedVersion: p.RecommendedVersion,
 		Optional:           p.Optional,
+		ContextType:        v1alpha1.ContextType(p.ContextType),
 	}
 	dp.SupportedVersions = make([]string, 0)
 	for v := range p.Artifacts {

@@ -90,6 +90,7 @@ func discoverPlugins(pd []configapi.PluginDiscovery) ([]plugin.Discovered, error
 			log.Warningf("unable to list plugin from discovery '%v': %v", discObject.Name(), err.Error())
 			continue
 		}
+
 		allPlugins = append(allPlugins, plugins...)
 	}
 	return allPlugins, nil
@@ -130,6 +131,7 @@ func DiscoverServerPlugins(serverName string) ([]plugin.Discovered, error) {
 	}
 
 	discoverySources := configlib.GetDiscoverySources(serverName)
+
 	plugins, err := discoverPlugins(discoverySources)
 	if err != nil {
 		return plugins, err
@@ -232,7 +234,7 @@ func DiscoveredFromPluginDescriptor(p *cliapi.PluginDescriptor) plugin.Discovere
 func setAvailablePluginsStatus(availablePlugins []plugin.Discovered, installedPluginDesc []cliapi.PluginDescriptor) {
 	for i := range installedPluginDesc {
 		for j := range availablePlugins {
-			if installedPluginDesc[i].Name == availablePlugins[j].Name {
+			if installedPluginDesc[i].Name == availablePlugins[j].Name && installedPluginDesc[i].ContextType == string(availablePlugins[j].ContextType) {
 				// Match found, Check for update available and update status
 				if installedPluginDesc[i].DiscoveredRecommendedVersion == availablePlugins[j].RecommendedVersion {
 					availablePlugins[j].Status = common.PluginStatusInstalled
@@ -252,7 +254,7 @@ func availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, dis
 	isLocalStandaloneDiscovery := config.GetDefaultStandaloneDiscoveryType() == common.DiscoveryTypeLocal
 
 	for i := range discoveredStandalonePlugins {
-		matchIndex := pluginIndexForName(availablePlugins, discoveredStandalonePlugins[i].Name)
+		matchIndex := pluginIndexForName(availablePlugins, discoveredStandalonePlugins[i])
 
 		// Add the standalone plugin to available plugins if it doesn't exist in the serverPlugins list
 		// OR
@@ -271,9 +273,9 @@ func availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, dis
 	return availablePlugins
 }
 
-func pluginIndexForName(availablePlugins []plugin.Discovered, pluginName string) int {
+func pluginIndexForName(availablePlugins []plugin.Discovered, plugin plugin.Discovered) int {
 	for j := range availablePlugins {
-		if pluginName == availablePlugins[j].Name {
+		if plugin.Name == availablePlugins[j].Name && plugin.ContextType == availablePlugins[j].ContextType {
 			return j
 		}
 	}
@@ -483,7 +485,8 @@ func fetchAndVerifyPlugin(p *plugin.Discovered, version string) ([]byte, error) 
 }
 
 func installAndDescribePlugin(p *plugin.Discovered, version string, binary []byte) (*cliapi.PluginDescriptor, error) {
-	pluginPath := filepath.Join(common.DefaultPluginRoot, p.Name, version)
+	versionWithChecksum := fmt.Sprintf("%s_%x", version, sha256.Sum256(binary))
+	pluginPath := filepath.Join(common.DefaultPluginRoot, p.Name, versionWithChecksum)
 
 	if err := os.MkdirAll(filepath.Dir(pluginPath), os.ModePerm); err != nil {
 		return nil, err
@@ -508,6 +511,7 @@ func installAndDescribePlugin(p *plugin.Discovered, version string, binary []byt
 	descriptor.InstallationPath = pluginPath
 	descriptor.Discovery = p.Source
 	descriptor.DiscoveredRecommendedVersion = p.RecommendedVersion
+	descriptor.ContextType = string(p.ContextType)
 
 	return &descriptor, nil
 }

@@ -154,6 +154,9 @@ type PluginDescriptor struct {
 	// DiscoveredRecommendedVersion specifies the recommended version of the plugin that was discovered
 	DiscoveredRecommendedVersion string `json:"discoveredRecommendedVersion"`
 
+	// ContextType specifies the context/target type of the plugin
+	ContextType string `json:"contextType"`
+
 	// PostInstallHook is function to be run post install of a plugin.
 	PostInstallHook Hook `json:"-" yaml:"-"`
 

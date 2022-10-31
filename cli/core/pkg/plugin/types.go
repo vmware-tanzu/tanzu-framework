@@ -6,6 +6,7 @@ package plugin
 
 import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/distribution"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 // Discovered defines discovered plugin resource
@@ -51,6 +52,10 @@ type Discovered struct {
 	// DiscoveryType defines the type of the discovery. Possible values are
 	// oci, local or kubernetes
 	DiscoveryType string
+
+	// ContextType defines the type of the discovery. Possible values are
+	// oci, local or kubernetes
+	ContextType configapi.ContextType
 
 	// Status is the installed/uninstalled status of the plugin.
 	Status string

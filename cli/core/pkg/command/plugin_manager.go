@@ -91,10 +91,10 @@ var listPluginCmd = &cobra.Command{
 			data := [][]string{}
 			for index := range availablePlugins {
 				data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
-					availablePlugins[index].Source, getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
+					availablePlugins[index].Source, string(availablePlugins[index].ContextType), getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
 			}
 
-			output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
+			output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Target", "Version", "Status")
 			for _, row := range data {
 				vals := make([]interface{}, len(row))
 				for i, val := range row {

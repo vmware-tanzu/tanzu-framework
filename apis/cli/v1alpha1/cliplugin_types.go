@@ -42,6 +42,8 @@ type CLIPluginSpec struct {
 	// To view the list of plugin, user can use `tanzu plugin list` and
 	// to download a specific plugin run, `tanzu plugin install <plugin-name>`
 	Optional bool `json:"optional"`
+	// ContextType specifies the context/target type of the plugin
+	ContextType string `json:"contextType"`
 }
 
 //+kubebuilder:object:root=true
