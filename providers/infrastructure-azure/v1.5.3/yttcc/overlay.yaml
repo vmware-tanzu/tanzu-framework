@@ -79,8 +79,7 @@ spec:
       - #@ data.values.SERVICE_CIDR
   topology:
     class: #@ data.values.CLUSTER_CLASS
-    #! VVV TODO(vui) compute
-    version: #@ "{}-tkg.1-zshippable".format(data.values.KUBERNETES_VERSION)
+    version: #@ data.values.KUBERNETES_VERSION
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
       #@overlay/match missing_ok=True
