@@ -522,11 +522,12 @@ func (c *client) UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) e
 		return errors.Wrapf(err, "failed to look up '%s' deployment", AzureControllerManagerDeploy)
 	}
 
+	log.Info("Updating CAPZ deployment replicas")
 	patchString := fmt.Sprintf(`[
 		{
 			"op": "replace",
 			"path": "/spec/replicas",
-			"value": "%d"
+			"value": %d
 		}
 	]`, replicas)
 
@@ -620,7 +621,7 @@ func (c *client) UpdateAzureKCP(clusterName, namespace string) error { // nolint
 	log.V(4).Info("Recycling azure KCP for secret updating")
 
 	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
-	if err := c.PatchResource(kcp, azureKCPName, namespace, patchString, types.MergePatchType, pollOptions); err != nil {
+	if err := c.PatchResource(kcp, azureKCPName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
 		return errors.Wrap(err, "unable to recycle azure KCP")
 	}
 	return nil

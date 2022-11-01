@@ -80,9 +80,9 @@ func updateClusterCredentials(clusterName string) error {
 	} else {
 		err := component.Prompt(
 			&component.PromptConfig{
-				Message: "Specify vSphere username or azure tenant id",
+				Message: "Specify provider \"vsphere\" or \"azure\"",
 			},
-			provider,
+			&provider,
 			promptOpts...,
 		)
 		if err != nil {
@@ -118,21 +118,56 @@ func updateClusterCredentials(clusterName string) error {
 			}
 		}
 	} else if provider == "azure" {
-		azureVariables := [4]string{updateCredentialsOpts.azureTenantID, updateCredentialsOpts.azureSubscriptionID, updateCredentialsOpts.azureClientID, updateCredentialsOpts.azureClientSecret}
-		azureMessages := [4]string{"Enter azure tenant id", "Enter azure subscription id", "Enter azure client id", "Enter azure client secret"}
-		for index, value := range azureVariables {
-			if value == "" {
-				err = component.Prompt(
-					&component.PromptConfig{
-						Message:   azureMessages[index],
-						Sensitive: true,
-					},
-					&value,
-					promptOpts...,
-				)
-				if err != nil {
-					return err
-				}
+		if updateCredentialsOpts.azureClientID == "" {
+			err = component.Prompt(
+				&component.PromptConfig{
+					Message: "Enter azure client id",
+				},
+				&updateCredentialsOpts.azureClientID,
+				promptOpts...,
+			)
+			if err != nil {
+				return err
+			}
+		}
+
+		if updateCredentialsOpts.azureClientSecret == "" {
+			err = component.Prompt(
+				&component.PromptConfig{
+					Message:   "Enter azure client secret",
+					Sensitive: true,
+				},
+				&updateCredentialsOpts.azureClientSecret,
+				promptOpts...,
+			)
+			if err != nil {
+				return err
+			}
+		}
+
+		if updateCredentialsOpts.azureTenantID == "" {
+			err = component.Prompt(
+				&component.PromptConfig{
+					Message: "Enter azure tenant id",
+				},
+				&updateCredentialsOpts.azureTenantID,
+				promptOpts...,
+			)
+			if err != nil {
+				return err
+			}
+		}
+
+		if updateCredentialsOpts.azureSubscriptionID == "" {
+			err = component.Prompt(
+				&component.PromptConfig{
+					Message:   "Enter azure subscription id",
+				},
+				&updateCredentialsOpts.azureSubscriptionID,
+				promptOpts...,
+			)
+			if err != nil {
+				return err
 			}
 		}
 	}

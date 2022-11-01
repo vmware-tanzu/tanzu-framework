@@ -94,7 +94,7 @@ func (c *TkgClient) UpdateCredentialsRegion(options *UpdateCredentialsOptions) e
 		}
 	}
 
-	// update operation is supported only on vsphere clusters for now
+	// update operation is supported only on vsphere and azure clusters for now
 	if infraProviderName != VSphereProviderName && infraProviderName != AzureProviderName {
 		return errors.New("Updating '" + infraProviderName + "' cluster is not yet supported")
 	}
@@ -148,7 +148,7 @@ func (c *TkgClient) UpdateCredentialsCluster(options *UpdateCredentialsOptions) 
 		}
 	}
 
-	// update operation is supported only on vsphere clusters for now
+	// update operation is supported only on vsphere and azure clusters for now
 	if infraProviderName != VSphereProviderName && infraProviderName != AzureProviderName {
 		return errors.New("Updating '" + infraProviderName + "' cluster is not yet supported")
 	}
@@ -268,6 +268,7 @@ func (c *TkgClient) UpdateAzureClusterCredentials(clusterClient clusterclient.Cl
 func (c *TkgClient) updateAzureCredentialsForCluster(clusterClient clusterclient.Client, options *UpdateCredentialsOptions) error {
 	if options.IsRegionalCluster {
 		// update capz-manager-bootstrap-credentials
+		log.Infof("Updating secret capz-manager-bootstrap-credentials for management cluster %q", options.ClusterName)
 		if err := clusterClient.UpdateCapzManagerBootstrapCredentialsSecret(options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureSubscriptionID, options.AzureUpdateClusterOptions.AzureClientID, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
 			return err
 		}
@@ -277,16 +278,19 @@ func (c *TkgClient) updateAzureCredentialsForCluster(clusterClient clusterclient
 		azureClusterIdentityNamespace := constants.TkgNamespace
 
 		// update Azure Identity Secret
+		log.Infof("Updating identity secret %q for management cluster", identitySecretName)
 		if err := clusterClient.UpdateAzureIdentityRefSecret(identitySecretName, azureClusterIdentityNamespace, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
 			return err
 		}
 
 		// Update AzureClusterIdentity
+		log.Infof("Updating AzureClusterIdentity for management cluster %q", options.ClusterName)
 		if err := clusterClient.UpdateAzureClusterIdentityRef(identitySecretName, azureClusterIdentityNamespace, options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureClientID); err != nil {
 			return err
 		}
 
 		// restart capz-controller-manager pod
+		log.Infof("Restart capz-controller-manager pod")
 		if err := c.restartCAPZControllerManagerPod(clusterClient); err != nil {
 			return err
 		}
@@ -294,6 +298,7 @@ func (c *TkgClient) updateAzureCredentialsForCluster(clusterClient clusterclient
 
 	// Restart the Controller Manager pod
 	// Recycle all KCP in the cluster
+	log.Infof("Update KCP rolloutAfter for cluster %q", options.ClusterName)
 	if err := clusterClient.UpdateAzureKCP(options.ClusterName, options.Namespace); err != nil {
 		return err
 	}
@@ -308,10 +313,12 @@ func (c *TkgClient) restartCAPZControllerManagerPod(clusterClient clusterclient.
 	}
 
 	if replicas != 0 {
+		log.Infof("Set capz-controller-manager deployment replicas to 0")
 		if err := clusterClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0)); err != nil {
 			return err
 		}
 
+		log.Infof("Reset capz-controller-manager deployment replicas")
 		if err := clusterClient.UpdateCAPZControllerManagerDeploymentReplicas(replicas); err != nil {
 			return err
 		}
