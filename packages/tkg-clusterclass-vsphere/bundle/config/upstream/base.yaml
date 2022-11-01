@@ -704,7 +704,7 @@ spec:
                     value: {{ .apiServerEndpoint }}
                   {{- if and (not .aviControlPlaneHAProvider) .apiServerPort }}
                   - name: port
-                    value: {{ .apiServerPort }}
+                    value: "{{ .apiServerPort }}"
                   {{- end }}
                   - name: vip_interface
                     value: {{ .vipNetworkInterface }}
