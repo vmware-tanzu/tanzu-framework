@@ -85,7 +85,7 @@ var (
 		FeatureFlagClusterCustomNameservers:                   false,
 		FeatureFlagAwsInstanceTypesExcludeArm:                 true,
 		FeatureFlagTKRVersionV1Alpha3:                         false,
-		FeatureFlagPackagePluginKctrlCommandTree:              false,
+		FeatureFlagPackagePluginKctrlCommandTree:              true,
 	}
 )
 

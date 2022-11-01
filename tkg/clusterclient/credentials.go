@@ -582,12 +582,12 @@ func (c *client) UpdateAzureClusterIdentityRef(identitySecretName, namespace, te
 	patchString := fmt.Sprintf(`[
 		{
 			"op": "replace",
-			"path": "/spec/clientSecret/clientID",
+			"path": "/spec/clientID",
 			"value": "%s"
 		},
 		{
 			"op": "replace",
-			"path": "/spec/clientSecret/tenantID",
+			"path": "/spec/tenantID",
 			"value": "%s"
 		}
 	]`, clientID, tenantID)

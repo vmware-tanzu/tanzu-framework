@@ -161,7 +161,7 @@ func updateClusterCredentials(clusterName string) error {
 		if updateCredentialsOpts.azureSubscriptionID == "" {
 			err = component.Prompt(
 				&component.PromptConfig{
-					Message:   "Enter azure subscription id",
+					Message: "Enter azure subscription id",
 				},
 				&updateCredentialsOpts.azureSubscriptionID,
 				promptOpts...,

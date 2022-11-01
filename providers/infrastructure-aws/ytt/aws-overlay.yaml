@@ -11,7 +11,7 @@
 
 #@overlay/match by=overlay.subset({"kind":"AWSCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSCluster
 metadata:
   name: #@ data.values.CLUSTER_NAME
@@ -31,49 +31,55 @@ spec:
       cidrBlock: #@ data.values.AWS_VPC_CIDR
       id: #@ data.values.AWS_VPC_ID
     subnets:
-    #@ if data.values.AWS_VPC_ID == "" or data.values.AWS_PUBLIC_SUBNET_ID != "":
+    #@ if data.values.AWS_VPC_ID != "" and data.values.AWS_PUBLIC_SUBNET_ID != "":
     #@overlay/append
     - availabilityZone: #@ default_az_0
       cidrBlock: #@ data.values.AWS_PUBLIC_NODE_CIDR
       isPublic: true
       id: #@ data.values.AWS_PUBLIC_SUBNET_ID
     #@ end
+    #@ if data.values.AWS_VPC_ID != "" and data.values.AWS_PRIVATE_SUBNET_ID != "":
     #@overlay/match by=overlay.index(0)
     #@overlay/replace
     - availabilityZone: #@ default_az_0
       cidrBlock: #@ data.values.AWS_PRIVATE_NODE_CIDR
       id: #@ data.values.AWS_PRIVATE_SUBNET_ID
+    #@ end
 
 #@ if data.values.CLUSTER_PLAN == "prod":
 #@overlay/match by=overlay.subset({"kind":"AWSCluster"})
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSCluster
 spec:
   network:
     subnets:
-    #@ if data.values.AWS_VPC_ID == "" or data.values.AWS_PUBLIC_SUBNET_ID_1 != "":
+    #@ if data.values.AWS_VPC_ID != "" and data.values.AWS_PUBLIC_SUBNET_ID_1 != "":
     #@overlay/append
     - availabilityZone: #@ default_az_1
       cidrBlock: #@ data.values.AWS_PUBLIC_NODE_CIDR_1
       isPublic: true
       id: #@ data.values.AWS_PUBLIC_SUBNET_ID_1
     #@ end
+    #@ if data.values.AWS_VPC_ID != "" and data.values.AWS_PRIVATE_SUBNET_ID_1 != "":
     #@overlay/append
     - availabilityZone: #@ default_az_1
       cidrBlock: #@ data.values.AWS_PRIVATE_NODE_CIDR_1
       id: #@ data.values.AWS_PRIVATE_SUBNET_ID_1
-    #@ if data.values.AWS_VPC_ID == "" or data.values.AWS_PUBLIC_SUBNET_ID_2 != "":
+    #@ end
+    #@ if data.values.AWS_VPC_ID != "" and data.values.AWS_PUBLIC_SUBNET_ID_2 != "":
     #@overlay/append
     - availabilityZone: #@ default_az_2
       cidrBlock: #@ data.values.AWS_PUBLIC_NODE_CIDR_2
       isPublic: true
       id: #@ data.values.AWS_PUBLIC_SUBNET_ID_2
     #@ end
+    #@ if data.values.AWS_VPC_ID != "" and data.values.AWS_PRIVATE_SUBNET_ID_2 != "":
     #@overlay/append
     - availabilityZone: #@ default_az_2
       cidrBlock: #@ data.values.AWS_PRIVATE_NODE_CIDR_2
       id: #@ data.values.AWS_PRIVATE_SUBNET_ID_2
+    #@ end
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
@@ -98,7 +104,7 @@ spec:
           kind: KubeadmConfigTemplate
       infrastructureRef:
         name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
       failureDomain: #@ default_az_1
 ---
@@ -125,11 +131,11 @@ spec:
           kind: KubeadmConfigTemplate
       infrastructureRef:
         name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
       failureDomain: #@ default_az_2
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSMachineTemplate
 metadata:
   name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
@@ -148,7 +154,7 @@ spec:
       rootVolume:
         size: #@ int(data.values.AWS_NODE_OS_DISK_SIZE_GIB) or 80
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSMachineTemplate
 metadata:
   name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)

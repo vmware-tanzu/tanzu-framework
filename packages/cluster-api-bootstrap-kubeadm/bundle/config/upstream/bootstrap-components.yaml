@@ -11,7 +11,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capi-kubeadm-bootstrap-system/capi-kubeadm-bootstrap-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: bootstrap-kubeadm
     cluster.x-k8s.io/v1alpha3: v1alpha3
@@ -1280,12 +1280,12 @@ spec:
                     type: object
                   imageRepository:
                     description: ImageRepository sets the container registry to pull
-                      images from. If empty, `k8s.gcr.io` will be used by default;
+                      images from. If empty, `registry.k8s.io` will be used by default;
                       in case of kubernetes version is a CI build (kubernetes version
                       starts with `ci/` or `ci-cross/`) `gcr.io/k8s-staging-ci-images`
                       will be used as a default for control plane components and for
-                      kube-proxy, while `k8s.gcr.io` will be used for all the other
-                      images.
+                      kube-proxy, while `registry.k8s.io` will be used for all the
+                      other images.
                     type: string
                   kind:
                     description: 'Kind is a string value representing the REST resource
@@ -2268,12 +2268,12 @@ spec:
                     type: object
                   imageRepository:
                     description: ImageRepository sets the container registry to pull
-                      images from. If empty, `k8s.gcr.io` will be used by default;
+                      images from. If empty, `registry.k8s.io` will be used by default;
                       in case of kubernetes version is a CI build (kubernetes version
                       starts with `ci/` or `ci-cross/`) `gcr.io/k8s-staging-ci-images`
                       will be used as a default for control plane components and for
-                      kube-proxy, while `k8s.gcr.io` will be used for all the other
-                      images.
+                      kube-proxy, while `registry.k8s.io` will be used for all the
+                      other images.
                     type: string
                   kind:
                     description: 'Kind is a string value representing the REST resource
@@ -2438,6 +2438,10 @@ spec:
                   description: File defines the input for generating write_files in
                     cloud-init.
                   properties:
+                    append:
+                      description: Append specifies whether to append Content to existing
+                        file if Path exists.
+                      type: boolean
                     content:
                       description: Content is the actual content of the file.
                       type: string
@@ -2488,7 +2492,6 @@ spec:
                   type: object
                 type: array
               format:
-                default: cloud-config
                 description: Format specifies the output format of the bootstrap data
                 enum:
                 - cloud-config
@@ -2690,6 +2693,14 @@ spec:
                           content inline or by referencing a secret.
                         type: string
                     type: object
+                  skipPhases:
+                    description: SkipPhases is a list of phases to skip during command
+                      execution. The list of phases can be obtained with the "kubeadm
+                      init --help" command. This option takes effect only on Kubernetes
+                      >=1.22.0.
+                    items:
+                      type: string
+                    type: array
                 type: object
               joinConfiguration:
                 description: JoinConfiguration is the kubeadm configuration for the
@@ -2893,6 +2904,14 @@ spec:
                           content inline or by referencing a secret.
                         type: string
                     type: object
+                  skipPhases:
+                    description: SkipPhases is a list of phases to skip during command
+                      execution. The list of phases can be obtained with the "kubeadm
+                      init --help" command. This option takes effect only on Kubernetes
+                      >=1.22.0.
+                    items:
+                      type: string
+                    type: array
                 type: object
               mounts:
                 description: Mounts specifies a list of mount points to be setup.
@@ -2933,7 +2952,9 @@ spec:
                   joins fail due to timing (and other issues). The long term goal
                   is to add retries to kubeadm proper and use that functionality.
                   \n This will add about 40KB to userdata \n For more information,
-                  refer to https://github.com/kubernetes-sigs/cluster-api/pull/2763#discussion_r397306055."
+                  refer to https://github.com/kubernetes-sigs/cluster-api/pull/2763#discussion_r397306055.
+                  Deprecated: This experimental fix is no longer needed and this field
+                  will be removed in a future release."
                 type: boolean
               users:
                 description: Users specifies extra users to add
@@ -2965,6 +2986,29 @@ spec:
                     passwd:
                       description: Passwd specifies a hashed password for the user
                       type: string
+                    passwdFrom:
+                      description: PasswdFrom is a referenced source of passwd to
+                        populate the passwd.
+                      properties:
+                        secret:
+                          description: Secret represents a secret that should populate
+                            this password.
+                          properties:
+                            key:
+                              description: Key is the key in the secret's data map
+                                for this value.
+                              type: string
+                            name:
+                              description: Name of the secret in the KubeadmBootstrapConfig's
+                                namespace to use.
+                              type: string
+                          required:
+                          - key
+                          - name
+                          type: object
+                      required:
+                      - secret
+                      type: object
                     primaryGroup:
                       description: PrimaryGroup specifies the primary group for the
                         user
@@ -3064,19 +3108,13 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: capi-kubeadm-bootstrap-system/capi-kubeadm-bootstrap-serving-cert
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.1
   labels:
     cluster.x-k8s.io/provider: bootstrap-kubeadm
     cluster.x-k8s.io/v1alpha3: v1alpha3
@@ -4354,12 +4392,13 @@ spec:
                             type: object
                           imageRepository:
                             description: ImageRepository sets the container registry
-                              to pull images from. If empty, `k8s.gcr.io` will be
-                              used by default; in case of kubernetes version is a
-                              CI build (kubernetes version starts with `ci/` or `ci-cross/`)
-                              `gcr.io/k8s-staging-ci-images` will be used as a default
-                              for control plane components and for kube-proxy, while
-                              `k8s.gcr.io` will be used for all the other images.
+                              to pull images from. If empty, `registry.k8s.io` will
+                              be used by default; in case of kubernetes version is
+                              a CI build (kubernetes version starts with `ci/` or
+                              `ci-cross/`) `gcr.io/k8s-staging-ci-images` will be
+                              used as a default for control plane components and for
+                              kube-proxy, while `registry.k8s.io` will be used for
+                              all the other images.
                             type: string
                           kind:
                             description: 'Kind is a string value representing the
@@ -5335,12 +5374,13 @@ spec:
                             type: object
                           imageRepository:
                             description: ImageRepository sets the container registry
-                              to pull images from. If empty, `k8s.gcr.io` will be
-                              used by default; in case of kubernetes version is a
-                              CI build (kubernetes version starts with `ci/` or `ci-cross/`)
-                              `gcr.io/k8s-staging-ci-images` will be used as a default
-                              for control plane components and for kube-proxy, while
-                              `k8s.gcr.io` will be used for all the other images.
+                              to pull images from. If empty, `registry.k8s.io` will
+                              be used by default; in case of kubernetes version is
+                              a CI build (kubernetes version starts with `ci/` or
+                              `ci-cross/`) `gcr.io/k8s-staging-ci-images` will be
+                              used as a default for control plane components and for
+                              kube-proxy, while `registry.k8s.io` will be used for
+                              all the other images.
                             type: string
                           kind:
                             description: 'Kind is a string value representing the
@@ -5516,6 +5556,10 @@ spec:
                           description: File defines the input for generating write_files
                             in cloud-init.
                           properties:
+                            append:
+                              description: Append specifies whether to append Content
+                                to existing file if Path exists.
+                              type: boolean
                             content:
                               description: Content is the actual content of the file.
                               type: string
@@ -5567,7 +5611,6 @@ spec:
                           type: object
                         type: array
                       format:
-                        default: cloud-config
                         description: Format specifies the output format of the bootstrap
                           data
                         enum:
@@ -5787,6 +5830,14 @@ spec:
                                   content inline or by referencing a secret.
                                 type: string
                             type: object
+                          skipPhases:
+                            description: SkipPhases is a list of phases to skip during
+                              command execution. The list of phases can be obtained
+                              with the "kubeadm init --help" command. This option
+                              takes effect only on Kubernetes >=1.22.0.
+                            items:
+                              type: string
+                            type: array
                         type: object
                       joinConfiguration:
                         description: JoinConfiguration is the kubeadm configuration
@@ -6005,6 +6056,14 @@ spec:
                                   content inline or by referencing a secret.
                                 type: string
                             type: object
+                          skipPhases:
+                            description: SkipPhases is a list of phases to skip during
+                              command execution. The list of phases can be obtained
+                              with the "kubeadm init --help" command. This option
+                              takes effect only on Kubernetes >=1.22.0.
+                            items:
+                              type: string
+                            type: array
                         type: object
                       mounts:
                         description: Mounts specifies a list of mount points to be
@@ -6047,7 +6106,9 @@ spec:
                           environments where joins fail due to timing (and other issues).
                           The long term goal is to add retries to kubeadm proper and
                           use that functionality. \n This will add about 40KB to userdata
-                          \n For more information, refer to https://github.com/kubernetes-sigs/cluster-api/pull/2763#discussion_r397306055."
+                          \n For more information, refer to https://github.com/kubernetes-sigs/cluster-api/pull/2763#discussion_r397306055.
+                          Deprecated: This experimental fix is no longer needed and
+                          this field will be removed in a future release."
                         type: boolean
                       users:
                         description: Users specifies extra users to add
@@ -6082,6 +6143,29 @@ spec:
                               description: Passwd specifies a hashed password for
                                 the user
                               type: string
+                            passwdFrom:
+                              description: PasswdFrom is a referenced source of passwd
+                                to populate the passwd.
+                              properties:
+                                secret:
+                                  description: Secret represents a secret that should
+                                    populate this password.
+                                  properties:
+                                    key:
+                                      description: Key is the key in the secret's
+                                        data map for this value.
+                                      type: string
+                                    name:
+                                      description: Name of the secret in the KubeadmBootstrapConfig's
+                                        namespace to use.
+                                      type: string
+                                  required:
+                                  - key
+                                  - name
+                                  type: object
+                              required:
+                              - secret
+                              type: object
                             primaryGroup:
                               description: PrimaryGroup specifies the primary group
                                 for the user
@@ -6116,12 +6200,6 @@ spec:
     served: true
     storage: true
     subresources: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -6278,9 +6356,10 @@ spec:
         - --leader-elect
         - --metrics-bind-addr=localhost:8080
         - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},KubeadmBootstrapFormatIgnition=${EXP_KUBEADM_BOOTSTRAP_FORMAT_IGNITION:=false}
+        - --bootstrap-token-ttl=${KUBEADM_BOOTSTRAP_TOKEN_TTL:=15m}
         command:
         - /manager
-        image: k8s.gcr.io/cluster-api/kubeadm-bootstrap-controller:v1.1.5
+        image: k8s.gcr.io/cluster-api/kubeadm-bootstrap-controller:v1.2.4
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -6342,6 +6421,58 @@ metadata:
   namespace: capi-kubeadm-bootstrap-system
 spec:
   selfSigned: {}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: capi-kubeadm-bootstrap-system/capi-kubeadm-bootstrap-serving-cert
+  labels:
+    cluster.x-k8s.io/provider: bootstrap-kubeadm
+  name: capi-kubeadm-bootstrap-mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: capi-kubeadm-bootstrap-webhook-service
+      namespace: capi-kubeadm-bootstrap-system
+      path: /mutate-bootstrap-cluster-x-k8s-io-v1beta1-kubeadmconfig
+  failurePolicy: Fail
+  name: default.kubeadmconfig.bootstrap.cluster.x-k8s.io
+  rules:
+  - apiGroups:
+    - bootstrap.cluster.x-k8s.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kubeadmconfigs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: capi-kubeadm-bootstrap-webhook-service
+      namespace: capi-kubeadm-bootstrap-system
+      path: /mutate-bootstrap-cluster-x-k8s-io-v1beta1-kubeadmconfigtemplate
+  failurePolicy: Fail
+  name: default.kubeadmconfigtemplate.bootstrap.cluster.x-k8s.io
+  rules:
+  - apiGroups:
+    - bootstrap.cluster.x-k8s.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kubeadmconfigtemplates
+  sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration

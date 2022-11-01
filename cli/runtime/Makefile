@@ -17,6 +17,20 @@ GOBIN=$(shell go env GOBIN)
 endif
 GO := go
 
+NUL = /dev/null
+ifeq ($(GOHOSTOS),windows)
+	NUL = NUL
+endif
+
+BUILD_SHA ?= $$(git describe --match=$(git rev-parse --short HEAD) --always --dirty)
+BUILD_DATE ?= $$(date -u +"%Y-%m-%d")
+BUILD_VERSION ?= $(shell git describe --tags --abbrev=0 2>$(NUL))
+
+ifeq ($(strip $(BUILD_VERSION)),)
+BUILD_VERSION = dev
+endif
+
+
 # Directories
 TOOLS_DIR := $(abspath $(MODULE_ROOT_DIR)/hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
@@ -39,6 +53,12 @@ help: ## Display this help (default)
 
 .PHONY: all
 all: test ## Tests the library
+
+
+.PHONY: configure-version
+configure-version: ## Configure plugin runtime version
+	# Update plugin runtime version variable in version pkg
+	sed "s+TANZU_PLUGIN_RUNTIME_VERSION+${BUILD_VERSION}+g"  hack/update-bundled-plugin-runtime-version/update-bundled-plugin-runtime-version.txt  > version/zz_generated_plugin_runtime_version.go
 
 ## --------------------------------------
 ## Testing

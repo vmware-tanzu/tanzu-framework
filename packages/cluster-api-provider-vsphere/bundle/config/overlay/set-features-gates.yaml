@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind":"Deployment", "metadata": {"name": "capv-controller-manager"}}),expects="1+"
+---
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name": "manager"})
+        - args:
+            #@overlay/match by=overlay.index(3)
+            #@overlay/replace
+            - "--feature-gates=NodeAntiAffinity=${EXP_NODE_ANTI_AFFINITY:=true},NodeLabeling=${EXP_NODE_LABELING:=true}"
