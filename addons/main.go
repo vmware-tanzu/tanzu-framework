@@ -215,7 +215,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	mgr.GetWebhookServer().TLSMinVersion = flags.tlsMinVersion
 	addonReconciler := &controllers.AddonReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
@@ -359,6 +358,7 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 }
 
 func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
+	mgr.GetWebhookServer().TLSMinVersion = flags.tlsMinVersion
 	certPath := path.Join(constants.WebhookCertDir, "tls.crt")
 	keyPath := path.Join(constants.WebhookCertDir, "tls.key")
 	webhookTLS := webhooks.WebhookTLS{
