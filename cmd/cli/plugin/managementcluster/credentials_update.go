@@ -4,6 +4,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
@@ -41,6 +43,11 @@ var credentialsUpdateCmd = &cobra.Command{
 	SilenceUsage: true,
 }
 
+const (
+	vsphereProvider = "vsphere"
+	azureProvider   = "azure"
+)
+
 func init() {
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.vSphereUser, "vsphere-user", "", "", "Username for vSphere provider")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.vSpherePassword, "vsphere-password", "", "", "Password for vSphere provider")
@@ -74,13 +81,13 @@ func updateClusterCredentials(clusterName string) error {
 	provider := ""
 
 	if updateCredentialsOpts.vSphereUser != "" {
-		provider = "vsphere"
+		provider = vsphereProvider
 	} else if updateCredentialsOpts.azureClientID != "" {
-		provider = "azure"
+		provider = azureProvider
 	} else {
 		err := component.Prompt(
 			&component.PromptConfig{
-				Message: "Specify provider \"vsphere\" or \"azure\"",
+				Message: fmt.Sprintf("Specify provider %q or %q", vsphereProvider, azureProvider),
 			},
 			&provider,
 			promptOpts...,
@@ -90,7 +97,7 @@ func updateClusterCredentials(clusterName string) error {
 		}
 	}
 
-	if provider == "vsphere" {
+	if provider == vsphereProvider {
 		if updateCredentialsOpts.vSphereUser == "" {
 			err = component.Prompt(
 				&component.PromptConfig{
@@ -117,7 +124,7 @@ func updateClusterCredentials(clusterName string) error {
 				return err
 			}
 		}
-	} else if provider == "azure" {
+	} else if provider == azureProvider {
 		if updateCredentialsOpts.azureClientID == "" {
 			err = component.Prompt(
 				&component.PromptConfig{

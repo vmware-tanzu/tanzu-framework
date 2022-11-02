@@ -5,6 +5,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/spf13/cobra"
 
@@ -34,6 +35,11 @@ var credentialsUpdateCmd = &cobra.Command{
 	RunE:         updateCredentials,
 	SilenceUsage: true,
 }
+
+const (
+	vsphereProvider = "vsphere"
+	azureProvider   = "azure"
+)
 
 func init() {
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.namespace, "namespace", "n", "", "The namespace of the cluster to be updated")
@@ -84,13 +90,13 @@ func updateClusterCredentials(clusterName string, server *configapi.Server) erro
 	provider := ""
 
 	if updateCredentialsOpts.vSphereUser != "" {
-		provider = "vsphere"
+		provider = vsphereProvider
 	} else if updateCredentialsOpts.azureClientID != "" {
-		provider = "azure"
+		provider = azureProvider
 	} else {
 		err := component.Prompt(
 			&component.PromptConfig{
-				Message: "Specify provider \"vsphere\" or \"azure\"",
+				Message: fmt.Sprintf("Specify provider %q or %q", vsphereProvider, azureProvider),
 			},
 			&provider,
 			promptOpts...,
@@ -100,7 +106,7 @@ func updateClusterCredentials(clusterName string, server *configapi.Server) erro
 		}
 	}
 
-	if provider == "vsphere" {
+	if provider == vsphereProvider {
 		if updateCredentialsOpts.vSphereUser == "" {
 			err = component.Prompt(
 				&component.PromptConfig{
@@ -127,7 +133,7 @@ func updateClusterCredentials(clusterName string, server *configapi.Server) erro
 				return err
 			}
 		}
-	} else if provider == "azure" {
+	} else if provider == azureProvider {
 		if updateCredentialsOpts.azureClientID == "" {
 			err = component.Prompt(
 				&component.PromptConfig{
