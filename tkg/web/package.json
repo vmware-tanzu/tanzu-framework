@@ -60,7 +60,7 @@
     "@angular/compiler-cli": "^12.2.13",
     "@angular/language-service": "^12.2.13",
     "@types/jasmine": "^4.0.3",
-    "@types/jasminewd2": "^2.0.8",
+    "@types/jasminewd2": "^2.0.10",
     "@types/node": "^12.11.1",
     "api-client-generator": "^4.7.1",
     "axios": "^0.24.0",
