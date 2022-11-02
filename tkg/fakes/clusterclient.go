@@ -10,7 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	v1beta1a "sigs.k8s.io/cluster-api/api/v1beta1"
-	"sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+	v1alpha3a "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -18,6 +18,7 @@ import (
 	v1alpha1b "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	v1alpha1a "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
@@ -265,6 +266,31 @@ type ClusterClient struct {
 		result1 string
 		result2 error
 	}
+	GetClusterResolvedOSImagesFromTKRStub        func(*v1alpha3.TanzuKubernetesRelease) ([]*v1alpha3.OSImage, error)
+	getClusterResolvedOSImagesFromTKRMutex       sync.RWMutex
+	getClusterResolvedOSImagesFromTKRArgsForCall []struct {
+		arg1 *v1alpha3.TanzuKubernetesRelease
+	}
+	getClusterResolvedOSImagesFromTKRReturns struct {
+		result1 []*v1alpha3.OSImage
+		result2 error
+	}
+	getClusterResolvedOSImagesFromTKRReturnsOnCall map[int]struct {
+		result1 []*v1alpha3.OSImage
+		result2 error
+	}
+	GetClusterResolvedTanzuKubernetesReleaseStub        func() (*v1alpha3.TanzuKubernetesRelease, error)
+	getClusterResolvedTanzuKubernetesReleaseMutex       sync.RWMutex
+	getClusterResolvedTanzuKubernetesReleaseArgsForCall []struct {
+	}
+	getClusterResolvedTanzuKubernetesReleaseReturns struct {
+		result1 *v1alpha3.TanzuKubernetesRelease
+		result2 error
+	}
+	getClusterResolvedTanzuKubernetesReleaseReturnsOnCall map[int]struct {
+		result1 *v1alpha3.TanzuKubernetesRelease
+		result2 error
+	}
 	GetClusterStatusInfoStub        func(string, string, clusterclient.Client) clusterclient.ClusterStatusInfo
 	getClusterStatusInfoMutex       sync.RWMutex
 	getClusterStatusInfoArgsForCall []struct {
@@ -490,10 +516,10 @@ type ClusterClient struct {
 		result2 string
 		result3 error
 	}
-	GetRegionalClusterDefaultProviderNameStub        func(v1alpha3.ProviderType) (string, error)
+	GetRegionalClusterDefaultProviderNameStub        func(v1alpha3a.ProviderType) (string, error)
 	getRegionalClusterDefaultProviderNameMutex       sync.RWMutex
 	getRegionalClusterDefaultProviderNameArgsForCall []struct {
-		arg1 v1alpha3.ProviderType
+		arg1 v1alpha3a.ProviderType
 	}
 	getRegionalClusterDefaultProviderNameReturns struct {
 		result1 string
@@ -2560,6 +2586,126 @@ func (fake *ClusterClient) GetClusterInfrastructureReturnsOnCall(i int, result1 
 	}{result1, result2}
 }
 
+func (fake *ClusterClient) GetClusterResolvedOSImagesFromTKR(arg1 *v1alpha3.TanzuKubernetesRelease) ([]*v1alpha3.OSImage, error) {
+	fake.getClusterResolvedOSImagesFromTKRMutex.Lock()
+	ret, specificReturn := fake.getClusterResolvedOSImagesFromTKRReturnsOnCall[len(fake.getClusterResolvedOSImagesFromTKRArgsForCall)]
+	fake.getClusterResolvedOSImagesFromTKRArgsForCall = append(fake.getClusterResolvedOSImagesFromTKRArgsForCall, struct {
+		arg1 *v1alpha3.TanzuKubernetesRelease
+	}{arg1})
+	stub := fake.GetClusterResolvedOSImagesFromTKRStub
+	fakeReturns := fake.getClusterResolvedOSImagesFromTKRReturns
+	fake.recordInvocation("GetClusterResolvedOSImagesFromTKR", []interface{}{arg1})
+	fake.getClusterResolvedOSImagesFromTKRMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) GetClusterResolvedOSImagesFromTKRCallCount() int {
+	fake.getClusterResolvedOSImagesFromTKRMutex.RLock()
+	defer fake.getClusterResolvedOSImagesFromTKRMutex.RUnlock()
+	return len(fake.getClusterResolvedOSImagesFromTKRArgsForCall)
+}
+
+func (fake *ClusterClient) GetClusterResolvedOSImagesFromTKRCalls(stub func(*v1alpha3.TanzuKubernetesRelease) ([]*v1alpha3.OSImage, error)) {
+	fake.getClusterResolvedOSImagesFromTKRMutex.Lock()
+	defer fake.getClusterResolvedOSImagesFromTKRMutex.Unlock()
+	fake.GetClusterResolvedOSImagesFromTKRStub = stub
+}
+
+func (fake *ClusterClient) GetClusterResolvedOSImagesFromTKRArgsForCall(i int) *v1alpha3.TanzuKubernetesRelease {
+	fake.getClusterResolvedOSImagesFromTKRMutex.RLock()
+	defer fake.getClusterResolvedOSImagesFromTKRMutex.RUnlock()
+	argsForCall := fake.getClusterResolvedOSImagesFromTKRArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *ClusterClient) GetClusterResolvedOSImagesFromTKRReturns(result1 []*v1alpha3.OSImage, result2 error) {
+	fake.getClusterResolvedOSImagesFromTKRMutex.Lock()
+	defer fake.getClusterResolvedOSImagesFromTKRMutex.Unlock()
+	fake.GetClusterResolvedOSImagesFromTKRStub = nil
+	fake.getClusterResolvedOSImagesFromTKRReturns = struct {
+		result1 []*v1alpha3.OSImage
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetClusterResolvedOSImagesFromTKRReturnsOnCall(i int, result1 []*v1alpha3.OSImage, result2 error) {
+	fake.getClusterResolvedOSImagesFromTKRMutex.Lock()
+	defer fake.getClusterResolvedOSImagesFromTKRMutex.Unlock()
+	fake.GetClusterResolvedOSImagesFromTKRStub = nil
+	if fake.getClusterResolvedOSImagesFromTKRReturnsOnCall == nil {
+		fake.getClusterResolvedOSImagesFromTKRReturnsOnCall = make(map[int]struct {
+			result1 []*v1alpha3.OSImage
+			result2 error
+		})
+	}
+	fake.getClusterResolvedOSImagesFromTKRReturnsOnCall[i] = struct {
+		result1 []*v1alpha3.OSImage
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetClusterResolvedTanzuKubernetesRelease() (*v1alpha3.TanzuKubernetesRelease, error) {
+	fake.getClusterResolvedTanzuKubernetesReleaseMutex.Lock()
+	ret, specificReturn := fake.getClusterResolvedTanzuKubernetesReleaseReturnsOnCall[len(fake.getClusterResolvedTanzuKubernetesReleaseArgsForCall)]
+	fake.getClusterResolvedTanzuKubernetesReleaseArgsForCall = append(fake.getClusterResolvedTanzuKubernetesReleaseArgsForCall, struct {
+	}{})
+	stub := fake.GetClusterResolvedTanzuKubernetesReleaseStub
+	fakeReturns := fake.getClusterResolvedTanzuKubernetesReleaseReturns
+	fake.recordInvocation("GetClusterResolvedTanzuKubernetesRelease", []interface{}{})
+	fake.getClusterResolvedTanzuKubernetesReleaseMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) GetClusterResolvedTanzuKubernetesReleaseCallCount() int {
+	fake.getClusterResolvedTanzuKubernetesReleaseMutex.RLock()
+	defer fake.getClusterResolvedTanzuKubernetesReleaseMutex.RUnlock()
+	return len(fake.getClusterResolvedTanzuKubernetesReleaseArgsForCall)
+}
+
+func (fake *ClusterClient) GetClusterResolvedTanzuKubernetesReleaseCalls(stub func() (*v1alpha3.TanzuKubernetesRelease, error)) {
+	fake.getClusterResolvedTanzuKubernetesReleaseMutex.Lock()
+	defer fake.getClusterResolvedTanzuKubernetesReleaseMutex.Unlock()
+	fake.GetClusterResolvedTanzuKubernetesReleaseStub = stub
+}
+
+func (fake *ClusterClient) GetClusterResolvedTanzuKubernetesReleaseReturns(result1 *v1alpha3.TanzuKubernetesRelease, result2 error) {
+	fake.getClusterResolvedTanzuKubernetesReleaseMutex.Lock()
+	defer fake.getClusterResolvedTanzuKubernetesReleaseMutex.Unlock()
+	fake.GetClusterResolvedTanzuKubernetesReleaseStub = nil
+	fake.getClusterResolvedTanzuKubernetesReleaseReturns = struct {
+		result1 *v1alpha3.TanzuKubernetesRelease
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetClusterResolvedTanzuKubernetesReleaseReturnsOnCall(i int, result1 *v1alpha3.TanzuKubernetesRelease, result2 error) {
+	fake.getClusterResolvedTanzuKubernetesReleaseMutex.Lock()
+	defer fake.getClusterResolvedTanzuKubernetesReleaseMutex.Unlock()
+	fake.GetClusterResolvedTanzuKubernetesReleaseStub = nil
+	if fake.getClusterResolvedTanzuKubernetesReleaseReturnsOnCall == nil {
+		fake.getClusterResolvedTanzuKubernetesReleaseReturnsOnCall = make(map[int]struct {
+			result1 *v1alpha3.TanzuKubernetesRelease
+			result2 error
+		})
+	}
+	fake.getClusterResolvedTanzuKubernetesReleaseReturnsOnCall[i] = struct {
+		result1 *v1alpha3.TanzuKubernetesRelease
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) GetClusterStatusInfo(arg1 string, arg2 string, arg3 clusterclient.Client) clusterclient.ClusterStatusInfo {
 	fake.getClusterStatusInfoMutex.Lock()
 	ret, specificReturn := fake.getClusterStatusInfoReturnsOnCall[len(fake.getClusterStatusInfoArgsForCall)]
@@ -3603,11 +3749,11 @@ func (fake *ClusterClient) GetPinnipedIssuerURLAndCAReturnsOnCall(i int, result1
 	}{result1, result2, result3}
 }
 
-func (fake *ClusterClient) GetRegionalClusterDefaultProviderName(arg1 v1alpha3.ProviderType) (string, error) {
+func (fake *ClusterClient) GetRegionalClusterDefaultProviderName(arg1 v1alpha3a.ProviderType) (string, error) {
 	fake.getRegionalClusterDefaultProviderNameMutex.Lock()
 	ret, specificReturn := fake.getRegionalClusterDefaultProviderNameReturnsOnCall[len(fake.getRegionalClusterDefaultProviderNameArgsForCall)]
 	fake.getRegionalClusterDefaultProviderNameArgsForCall = append(fake.getRegionalClusterDefaultProviderNameArgsForCall, struct {
-		arg1 v1alpha3.ProviderType
+		arg1 v1alpha3a.ProviderType
 	}{arg1})
 	stub := fake.GetRegionalClusterDefaultProviderNameStub
 	fakeReturns := fake.getRegionalClusterDefaultProviderNameReturns
@@ -3628,13 +3774,13 @@ func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameCallCount() int 
 	return len(fake.getRegionalClusterDefaultProviderNameArgsForCall)
 }
 
-func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameCalls(stub func(v1alpha3.ProviderType) (string, error)) {
+func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameCalls(stub func(v1alpha3a.ProviderType) (string, error)) {
 	fake.getRegionalClusterDefaultProviderNameMutex.Lock()
 	defer fake.getRegionalClusterDefaultProviderNameMutex.Unlock()
 	fake.GetRegionalClusterDefaultProviderNameStub = stub
 }
 
-func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameArgsForCall(i int) v1alpha3.ProviderType {
+func (fake *ClusterClient) GetRegionalClusterDefaultProviderNameArgsForCall(i int) v1alpha3a.ProviderType {
 	fake.getRegionalClusterDefaultProviderNameMutex.RLock()
 	defer fake.getRegionalClusterDefaultProviderNameMutex.RUnlock()
 	argsForCall := fake.getRegionalClusterDefaultProviderNameArgsForCall[i]
@@ -7853,6 +7999,10 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getClientSetMutex.RUnlock()
 	fake.getClusterInfrastructureMutex.RLock()
 	defer fake.getClusterInfrastructureMutex.RUnlock()
+	fake.getClusterResolvedOSImagesFromTKRMutex.RLock()
+	defer fake.getClusterResolvedOSImagesFromTKRMutex.RUnlock()
+	fake.getClusterResolvedTanzuKubernetesReleaseMutex.RLock()
+	defer fake.getClusterResolvedTanzuKubernetesReleaseMutex.RUnlock()
 	fake.getClusterStatusInfoMutex.RLock()
 	defer fake.getClusterStatusInfoMutex.RUnlock()
 	fake.getCurrentClusterNameMutex.RLock()
