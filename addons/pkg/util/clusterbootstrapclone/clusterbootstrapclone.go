@@ -442,7 +442,7 @@ func (h *Helper) getListOfProvidersFromRef(clusterBootstrap *runtanzuv1alpha3.Cl
 
 	var providers []*unstructured.Unstructured
 	for _, pkg := range possiblePackages {
-		if pkg == nil || pkg.ValuesFrom.ProviderRef == nil {
+		if pkg == nil || pkg.ValuesFrom == nil || pkg.ValuesFrom.ProviderRef == nil {
 			continue
 		}
 		gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *pkg.ValuesFrom.ProviderRef.APIGroup, Kind: pkg.ValuesFrom.ProviderRef.Kind})
