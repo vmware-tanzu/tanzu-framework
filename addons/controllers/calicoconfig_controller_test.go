@@ -130,8 +130,7 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
 					return false
 				}
-
-				return true
+				return cutil.VerifyOwnerRef(secret, clusterName, constants.ClusterKind)
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 			// check data values secret contents
 			Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
@@ -202,7 +201,7 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
 					return false
 				}
-				return true
+				return cutil.VerifyOwnerRef(secret, clusterName, constants.ClusterKind)
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 			// check data values secret contents
 			Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))

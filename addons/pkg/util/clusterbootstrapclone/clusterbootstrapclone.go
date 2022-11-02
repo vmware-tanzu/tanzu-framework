@@ -392,19 +392,18 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		packages = packagesToBeCloned
 	}
 
-	secrets, providers, err := h.CloneReferencedObjectsFromCBPackages(cluster, packages, systemNamespace)
+	secrets, _, err := h.CloneReferencedObjectsFromCBPackages(cluster, packages, systemNamespace)
 	if err != nil {
 		h.Logger.Error(err, "unable to clone secrets or providers")
 		return nil, err
 	}
 
-	// Packages with values from providerRef do not need to be cloned but we need to set the correct owner references
-	providerRefs, err := h.getListOfProviderRef(clusterBootstrap)
+	providers, err := h.getListOfProvidersFromRef(clusterBootstrap)
 	if err != nil {
 		h.Logger.Error(err, "unable to get a list of provided providfeRefs")
 	}
-	if err := h.AddClusterOwnerRef(cluster, providerRefs, nil, nil); err != nil {
-		h.Logger.Error(err, fmt.Sprintf("unable to add cluster %s/%s as owner reference to providerRefs", cluster.Namespace, cluster.Name))
+	if err := h.AddClusterOwnerRef(cluster, providers, nil, nil); err != nil {
+		h.Logger.Error(err, fmt.Sprintf("unable to add cluster %s/%s as owner reference to providers", cluster.Namespace, cluster.Name))
 	}
 
 	clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
@@ -425,7 +424,6 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		return nil, err
 	}
 
-	providers = append(providers, providerRefs...)
 	// all providers have the clusterboostrap added as controller owner reference.
 	if err := h.EnsureOwnerRef(clusterBootstrap, secrets, providers); err != nil {
 		h.Logger.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
@@ -434,7 +432,7 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 
 	return clusterBootstrap, nil
 }
-func (h *Helper) getListOfProviderRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*unstructured.Unstructured, error) {
+func (h *Helper) getListOfProvidersFromRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*unstructured.Unstructured, error) {
 	possiblePackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
 		clusterBootstrap.Spec.CNI,
 		clusterBootstrap.Spec.CPI,
@@ -442,9 +440,9 @@ func (h *Helper) getListOfProviderRef(clusterBootstrap *runtanzuv1alpha3.Cluster
 		clusterBootstrap.Spec.Kapp,
 	}, clusterBootstrap.Spec.AdditionalPackages...)
 
-	var providerRef []*unstructured.Unstructured
+	var providers []*unstructured.Unstructured
 	for _, pkg := range possiblePackages {
-		if pkg != nil && pkg.ValuesFrom.ProviderRef != nil {
+		if pkg == nil || pkg.ValuesFrom.ProviderRef == nil {
 			continue
 		}
 		gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *pkg.ValuesFrom.ProviderRef.APIGroup, Kind: pkg.ValuesFrom.ProviderRef.Kind})
@@ -457,9 +455,9 @@ func (h *Helper) getListOfProviderRef(clusterBootstrap *runtanzuv1alpha3.Cluster
 			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s/%s", clusterBootstrap.Namespace, pkg.ValuesFrom.ProviderRef.Name), "gvr", gvr)
 			return nil, err
 		}
-		providerRef = append(providerRef, provider)
+		providers = append(providers, provider)
 	}
-	return providerRef, nil
+	return providers, nil
 }
 
 // CreateClusterBootstrapFromTemplate does the following:
