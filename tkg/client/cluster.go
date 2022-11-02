@@ -167,6 +167,17 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 				log.Warningf("    tanzu cluster create --file %v", configFilePath)
 				return false, nil
 			}
+
+			// if both FeatureFlagPackageBasedLCM and FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration enabled
+			// customization ytt overlay will cause create legacy cluster
+			iscustomoverlaypresent, err := c.isCustomOverlayPresent()
+			if err != nil {
+				return false, errors.Wrap(err, "fail to get iscustomoverlaypresent")
+			}
+			if iscustomoverlaypresent && !isManagementCluster {
+				log.Warning("Warning: Use of ytt based cluster templates will be deprecated in favor of ClusterClass templates in a future version of TKG. Please work to move your workloads to a ClusterClass enabled cluster.")
+			}
+
 			log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)
 		}
 	}
