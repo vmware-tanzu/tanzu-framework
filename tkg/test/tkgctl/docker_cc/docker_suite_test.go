@@ -108,7 +108,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 			DeployTKGonVsphere7:         e2eConfig.ManagementClusterOptions.DeployTKGonVsphere7,
 			EnableTKGSOnVsphere7:        e2eConfig.ManagementClusterOptions.EnableTKGSOnVsphere7,
 			VsphereControlPlaneEndpoint: e2eConfig.ManagementClusterOptions.Endpoint,
-			CniType:                     "antrea",
+			CniType:                     "calico",
 			Edition:                     "tkg",
 		})
 
