@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: object-propagation.tanzu.vmware.com
+  namespace: object-propagation
+spec:
+  displayName: "object-propagation"
+  longDescription: "Defines the default set of object-propagation resources for Tanzu"
+  shortDescription: "Defines the object-propagation resources for Tanzu"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "clusterclass"

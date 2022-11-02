@@ -44,7 +44,7 @@ docker-publish: ## Publish docker image
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yaml
 	cd ../hack/packages/kbld-image-replace && \
-		go run main.go -kbld-config ../../../packages/tkg-clusterclass/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG)
+		go run main.go -kbld-config ../../../packages/object-propagation/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG)
 
 .PHONY: docker-image-names
 docker-image-names:

@@ -17,11 +17,11 @@ Below is the hierarchy of management packages association:
     - featuregates
     - tanzu-auth
     - cliplugins
-  - tkg-clusterclass (TKG ClusterClass Meta Package)
-    - tkg-clusterclass-docker
-    - tkg-clusterclass-aws
-    - tkg-clusterclass-azure
-    - tkg-clusterclass-vsphere
+  - object-propagation
+  - tkg-clusterclass-docker
+  - tkg-clusterclass-aws
+  - tkg-clusterclass-azure
+  - tkg-clusterclass-vsphere
   - core-management-plugins
   - tkr-source-controller
 
