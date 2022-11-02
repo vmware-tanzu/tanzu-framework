@@ -441,8 +441,7 @@ spec:
   clusterName: #@ data.values.CLUSTER_NAME
   replicas: #@ data.values.WORKER_MACHINE_COUNT
   selector:
-    matchLabels:
-      cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+    matchLabels: {}
   #@ if data.values.WORKER_ROLLOUT_STRATEGY:
   strategy:
     type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
@@ -450,7 +449,6 @@ spec:
   template:
     metadata:
       labels:
-        cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
         node-pool: #@ "{}-worker-pool".format(data.values.CLUSTER_NAME)
     spec:
       bootstrap:

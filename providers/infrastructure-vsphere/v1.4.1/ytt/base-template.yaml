@@ -249,14 +249,12 @@ spec:
   clusterName: '${ CLUSTER_NAME }'
   replicas: ${ WORKER_MACHINE_COUNT }
   selector:
-    matchLabels:
-      cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+    matchLabels: {}
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
         node-pool: "${CLUSTER_NAME}-worker-pool"
     spec:
       bootstrap:
