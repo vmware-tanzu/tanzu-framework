@@ -170,7 +170,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 
 			// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
 			// log command to use to create cluster using ClusterClass based config file and return
-			if !config.IsFeatureActivated(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
+			if !options.Legacy && !config.IsFeatureActivated(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
 				log.Warningf("\nTo create a cluster with it, use")
 				log.Warningf("    tanzu cluster create --file %v", configFilePath)
 				return false, nil
@@ -211,7 +211,7 @@ func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, 
 	}
 
 	// If ClusterClass based cluster creation is feasible update the plan to use ClusterClass based plan
-	if !options.Legacy && deployClusterClassBasedCluster {
+	if deployClusterClassBasedCluster {
 		plan, err := getCCPlanFromLegacyPlan(options.ProviderRepositorySource.Flavor)
 		if err != nil {
 			return nil, err
