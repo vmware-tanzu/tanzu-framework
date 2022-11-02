@@ -186,7 +186,7 @@ metadata:
   namespace: #@ data.values.NAMESPACE
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
-    identifier.cc.vmware.com: tanzu-vsphere-default-0.0.1
+    identifier.cc.vmware.com: tanzu-vsphere-default-0.0.2
 spec:
   controlPlane:
     ref:
