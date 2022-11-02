@@ -64,14 +64,14 @@ repositories:
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "tkg:latest"
-      - name: tkg-clusterclass
-        displayName: tkg-clusterclass
+      - name: object-propagation
+        displayName: object-propagation
         #! Relative path to package bundle
-        path: packages/tkg-clusterclass
+        path: packages/object-propagation
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
-        sha256: "tkg-clusterclass:latest"
+        sha256: "object-propagation:latest"
       - name: tkg-autoscaler
         displayName: tkg-autoscaler
         #! Relative path to package bundle

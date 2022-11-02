@@ -1,7 +1,7 @@
 #@data/values
 ---
 
-#! User configurable values for tkg-clusterclass.
+#! User configurable values for object-propagation.
 
 namespaceForPackageInstallation: tkg-system
 clusterclassInfraPackageValues:
