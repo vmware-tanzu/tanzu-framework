@@ -294,26 +294,29 @@ spec:
       openAPIV3Schema:
         type: object
         properties:
-          proxy:
-            type: object
-            properties:
-              httpProxy:
-                type: string
-              httpsProxy:
-                type: string
-              noProxy:
-                type: array
-                items:
-                  type: string
-                default: []
-            required:
-            - httpProxy
-            - httpsProxy
           ipv6Primary:
             type: boolean
             default: false
         default:
           ipv6Primary: false
+  - name: proxy
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          httpProxy:
+            type: string
+          httpsProxy:
+            type: string
+          noProxy:
+            type: array
+            items:
+              type: string
+            default: []
+        required:
+        - httpProxy
+        - httpsProxy
   - name: imageRepository
     required: false
     schema:
@@ -966,9 +969,9 @@ spec:
           template: &containerdProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
-              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
-              Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
+              Environment="HTTP_PROXY= {{- .proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy -}} "
+              Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /etc/systemd/system/containerd.service.d/http-proxy.conf
             permissions: "0640"
@@ -978,9 +981,9 @@ spec:
           template: &kubeletProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
-              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
-              Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
+              Environment="HTTP_PROXY= {{- .proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy -}} "
+              Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
             permissions: "0640"
@@ -997,17 +1000,17 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportHTTPProxy |
-            export HTTP_PROXY= {{- .network.proxy.httpProxy }}
+            export HTTP_PROXY= {{- .proxy.httpProxy }}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportHTTPSProxy |
-            export HTTPS_PROXY= {{- .network.proxy.httpsProxy }}
+            export HTTPS_PROXY= {{- .proxy.httpsProxy }}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportNoProxy |
-            export NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}
+            export NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
