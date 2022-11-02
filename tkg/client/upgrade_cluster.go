@@ -176,7 +176,7 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 		return c.DoClassyClusterUpgrade(regionalClusterClient, currentClusterClient, options)
 	}
 
-	log.Warning("Warning: Use of ytt based cluster templates will be deprecated in favor of ClusterClass templates in a future version of TKG. Please work to move your workloads to a ClusterClass enabled cluster.")
+	log.Warning(constants.YTTBasedClusterWarning)
 	return c.DoLegacyClusterUpgrade(regionalClusterClient, currentClusterClient, options)
 }
 
