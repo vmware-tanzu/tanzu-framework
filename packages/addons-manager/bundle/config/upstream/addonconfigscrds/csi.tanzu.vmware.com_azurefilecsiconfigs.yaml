@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   name: azurefilecsiconfigs.csi.tanzu.vmware.com
 spec:
@@ -50,6 +50,8 @@ spec:
                     type: string
                   noProxy:
                     type: string
+                required:
+                - namespace
                 type: object
             required:
             - azureFileCSIDriver
@@ -66,9 +68,3 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
