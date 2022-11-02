@@ -207,6 +207,16 @@ spec:
               frontendIPCount:
                 type: integer
                 default: 1
+          nodeLabels:
+            type: array
+            items:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+            default: []
   - name: worker
     required: false
     schema:
@@ -257,6 +267,16 @@ spec:
               idleTimeoutInMinutes:
                 type: integer
                 default: 4
+          nodeLabels:
+            type: array
+            items:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+            default: []
   - name: imageRepository
     required: false
     schema:
@@ -746,6 +766,31 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
+        valueFrom:
+          template: |
+            {{ $first := true }}
+            {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels }}
+            {{- if $first }}
+              {{- $first = false }}
+            {{- else -}}
+              ,
+            {{- end }}
+            {{- $key -}} = {{- $val }}
+            {{- end }}
+            {{- if .controlPlane.nodeLabels -}}
+              ,
+              {{- $first := true }}
+              {{- range .controlPlane.nodeLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
+      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
         valueFrom:
           template: |
@@ -758,6 +803,18 @@ spec:
             {{- end }}
             {{- $key -}} = {{- $val }}
             {{- end }}
+            {{- if .controlPlane.nodeLabels -}}
+              ,
+              {{- $first := true }}
+              {{- range .controlPlane.nodeLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -783,6 +840,18 @@ spec:
               ,
               {{- $first := true }}
               {{- range .nodePoolLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
+            {{- if .worker.nodeLabels -}}
+              ,
+              {{- $first := true }}
+              {{- range .worker.nodeLabels }}
                 {{- if $first }}
                   {{- $first = false }}
                 {{- else -}}
