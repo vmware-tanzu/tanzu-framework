@@ -2,6 +2,8 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:ip", "ip")
 #@ load("lib/helpers.star", "get_tkr_version_from_tkr_name")
+#! importing from ../ytt instead of the sibling file atm. no reason to duplicate...?
+#@ load("../ytt/pinniped_addon_secret.lib.yaml", "getPinnipedDataValues")
 
 #@ vsphereControlPlaneEndpointAsCidr = ""
 #@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
@@ -17,6 +19,7 @@
 #@ end
 
 #! skipping data.values.CERT_DURATION and data.values.CERT_RENEW_BEFORE as I don't recall if these are exclusive to Pinniped, but they certainly are not significant enough config on their own
+#! these other pinniped config values must be present for the secret to be generated
 #@ def pinniped_configs_exist():
 #@  return (data.values.OIDC_IDENTITY_PROVIDER_CLIENT_ID or
 #@          data.values.OIDC_IDENTITY_PROVIDER_CLIENT_SECRET or
@@ -72,7 +75,29 @@
 
 #@ if pinniped_configs_exist():
 ---
-#@ TODO: put the pinniped config here. 
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.IDENTITY_MANAGEMENT_TYPE != "none":
+---
+apiVersion: v1alpha1beta1gamma1
+kind: Secret
+metadata:
+ name: "this-is-a-test-it-is-only-a-test"
+ namespace: "this-is-a-test-namespace-it-is-only-a-test-namespace"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-pinniped-addon".format(data.values.CLUSTER_NAME)
+  namespace: #@ data.values.NAMESPACE
+  labels:
+    tkg.tanzu.vmware.com/addon-name: pinniped
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    clusterctl.cluster.x-k8s.io/move: ""
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "authentication/pinniped"
+type: tkg.tanzu.vmware.com/addon
+stringData:
+  values.yaml: #@ ValuesFormatStr.format(yaml.encode(getPinnipedDataValues()))
+#@ end
 #@ end
 #@ if antrea_configs_exist():
 ---
