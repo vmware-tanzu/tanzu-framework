@@ -136,54 +136,59 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		return false, err
 	}
 
+	log.Warning("###########################\n")
+	log.Warningf("isManagementCluster: %v\n", isManagementCluster)
+	log.Warningf("options.Legacy: %v\n", options.Legacy)
+
 	if options.IsInputFileClusterClassBased {
+		log.Warning("options.IsInputFileClusterClassBased is true\n")
 		bytes, err = getContentFromInputFile(options.ClusterConfigFile)
 		if err != nil {
-			return false, errors.Wrap(err, "unable to get cluster configuration")
+			return false, errors.Wrap(err, "getContentFromInputFile, unable to get cluster configuration")
 		}
 	} else {
 		bytes, err = c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster, options.IsWindowsWorkloadCluster)
 		if err != nil {
-			return false, errors.Wrap(err, "unable to get cluster configuration")
+			return false, errors.Wrap(err, "getClusterConfigurationBytes, unable to get cluster configuration")
 		}
 
 		log.Warning("FeatureFlagPackageBasedLCM 1\n")
 		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
 			log.Warning("FeatureFlagPackageBasedLCM 2\n")
-			iscustomoverlaypresent, err := c.isCustomOverlayPresent()
+
+			clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
 			if err != nil {
 				return false, err
 			}
-			// if ytt changed, create non clusterclass cluster.
-			log.Warningf("iscustomoverlaypresent: %v\n", iscustomoverlaypresent)
-			log.Warningf("isManagementCluster: %v\n", isManagementCluster)
-			log.Warningf("options.Legacy: %v\n", options.Legacy)
-			if iscustomoverlaypresent && !isManagementCluster && !options.Legacy {
-				log.Warning("Warning: Use of ytt based cluster templates will be deprecated in favor of ClusterClass templates in a future version of TKG. Please work to move your workloads to a ClusterClass enabled cluster.")
-				// waiting for user confirmation here.
-			} else {
-				clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
-				if err != nil {
-					return false, err
-				}
-				configFilePath = filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
-				err = utils.SaveFile(configFilePath, bytes)
-				if err != nil {
-					return false, err
-				}
-
-				log.Warningf("\nLegacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration as '%v'", configFilePath)
-
-				// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
-				// log command to use to create cluster using ClusterClass based config file and return
-				if !config.IsFeatureActivated(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
-					log.Warningf("\nTo create a cluster with it, use")
-					log.Warningf("    tanzu cluster create --file %v", configFilePath)
-					return false, nil
-				}
-				log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)
+			configFilePath = filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
+			err = utils.SaveFile(configFilePath, bytes)
+			if err != nil {
+				return false, err
 			}
+
+			log.Warningf("\nLegacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration as '%v'", configFilePath)
+
+			// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
+			// log command to use to create cluster using ClusterClass based config file and return
+			if !config.IsFeatureActivated(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
+				log.Warningf("\nTo create a cluster with it, use")
+				log.Warningf("    tanzu cluster create --file %v", configFilePath)
+				return false, nil
+			}
+			log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)
 		}
+	}
+
+	iscustomoverlaypresent, err := c.isCustomOverlayPresent()
+	if err != nil {
+		return false, errors.Wrap(err, "fail to get iscustomoverlaypresent")
+	}
+	// if ytt changed, create non clusterclass cluster.
+	log.Warningf("iscustomoverlaypresent: %v\n", iscustomoverlaypresent)
+	log.Warningf("isManagementCluster: %v\n", isManagementCluster)
+	log.Warningf("options.Legacy: %v\n", options.Legacy)
+	if iscustomoverlaypresent && !isManagementCluster && !options.Legacy {
+		log.Warning("Warning: Use of ytt based cluster templates will be deprecated in favor of ClusterClass templates in a future version of TKG. Please work to move your workloads to a ClusterClass enabled cluster.")
 	}
 
 	log.Infof("creating workload cluster '%s'...", options.ClusterName)
@@ -206,7 +211,7 @@ func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, 
 	}
 
 	// If ClusterClass based cluster creation is feasible update the plan to use ClusterClass based plan
-	if deployClusterClassBasedCluster {
+	if !options.Legacy && deployClusterClassBasedCluster {
 		plan, err := getCCPlanFromLegacyPlan(options.ProviderRepositorySource.Flavor)
 		if err != nil {
 			return nil, err

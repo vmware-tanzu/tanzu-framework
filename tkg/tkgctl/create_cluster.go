@@ -265,6 +265,7 @@ func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions, 
 		IsWindowsWorkloadCluster:     cc.IsWindowsWorkloadCluster,
 		ClusterConfigFile:            cc.ClusterConfigFile,
 		IsInputFileClusterClassBased: isInputFileClusterClassBased,
+		Legacy:                       cc.Legacy,
 	}, nil
 }
 
