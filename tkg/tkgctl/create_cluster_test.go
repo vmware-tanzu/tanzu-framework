@@ -292,7 +292,7 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.TKGIPFamily)
 			Expect(constants.DualStackPrimaryIPv6Family).To(Equal(fmt.Sprintf("%v", mappedVal)))
 
-			// check value for "spec.topology.variables.network.proxy.httpsProxy": TKGHTTPSProxy
+			// check value for "spec.topology.variables.proxy.httpsProxy": TKGHTTPSProxy
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
 			Expect("http://10.0.200.100").To(Equal(fmt.Sprintf("%v", mappedVal)))
 
@@ -454,7 +454,7 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableControlPlaneMachineCount)
 			Expect("5").To(Equal(fmt.Sprintf("%v", mappedVal)))
 
-			// check value for "spec.topology.variables.network.proxy.httpsProxy": TKGHTTPSProxy
+			// check value for "spec.topology.variables.proxy.httpsProxy": TKGHTTPSProxy
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
 			Expect("http://10.0.200.100").To(Equal(fmt.Sprintf("%v", mappedVal)))
 

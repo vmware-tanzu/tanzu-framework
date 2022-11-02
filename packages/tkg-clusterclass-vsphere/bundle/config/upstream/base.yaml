@@ -955,7 +955,7 @@ spec:
               {{ end }}
             {{ end }}
   - name: httpProxy
-    enabledIf: '{{ not (empty .network.proxy) }}'
+    enabledIf: '{{ not (empty .proxy) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
