@@ -24,23 +24,24 @@ spec:
       - name: network
         value:
           ipv6Primary: false #TKG_IP_FAMILY (if true expect TKG_IP_FAMILY="ipv6,ipv4")
-          proxy: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
-            httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
-            httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
-            noProxy: #TKG_NO_PROXY
-              - 127.0.0.1
-              - 100.64.0.0/18
-              - 10.0.0.0/16
-              - 169.254.0.0/16
-              - .svc.cluster.local
-              - .svc
-              - localhost
           vnet:
             cidrBlocks: #AZURE_VNET_CIDR
               - 10.0.0.0/8
               - 10.0.0.0/16
             name: azure-vnet-name #AZURE_VNET_NAME
             resourceGroup: azure-vnet-resource-group #AZURE_VNET_RESOURCE_GROUP
+      - name: proxy
+        value: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
+          httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
+          httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
+          noProxy: #TKG_NO_PROXY
+            - 127.0.0.1
+            - 100.64.0.0/18
+            - 10.0.0.0/16
+            - 169.254.0.0/16
+            - .svc.cluster.local
+            - .svc
+            - localhost
       - name: imageRepository
         value:
           host: imageRepositoryHost #TKG_CUSTOM_IMAGE_REPOSITORY
