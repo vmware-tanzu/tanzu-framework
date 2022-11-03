@@ -1,0 +1,31 @@
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: load-balancer-and-ingress-service
+  namespace: tkg-system
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
+spec:
+  packageRef:
+    refName: load-balancer-and-ingress-service.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  serviceAccountName: load-balancer-and-ingress-service-package-sa
+  values:
+    - secretRef:
+        name: #@ "{}-load-balancer-and-ingress-service-addon".format(data.values.akoOperatorPackage.akoOperator.cluster_name)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name:  #@ "{}-load-balancer-and-ingress-service-addon".format(data.values.akoOperatorPackage.akoOperator.cluster_name)
+  namespace: tkg-system
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting load-balancer-and-ingress-service-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting load-balancer-and-ingress-service-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.loadBalancerAndIngressServicePackage)

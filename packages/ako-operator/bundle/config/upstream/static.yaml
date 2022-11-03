@@ -659,6 +659,17 @@ rules:
       - update
       - patch
       - delete
+  - apiGroups:
+      - "run.tanzu.vmware.com"
+    resources:
+      - clusterbootstraps
+      - clusterbootstraps/status
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

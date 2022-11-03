@@ -135,3 +135,36 @@ akoOperatorPackage:
       avi_ingress_shard_vs_size: ""
       avi_ingress_service_type: ""
       avi_ingress_node_network_list: '""'
+
+loadBalancerAndIngressServicePackage:
+  loadBalancerAndIngressService:
+    name: ako-default-wc-1
+    namespace: avi-system
+    config:
+      replica_count: 1
+      ako_settings:
+        api_server_port: 8080
+        delete_config: "false"
+        disable_static_route_sync: "true"
+        cluster_name: default-wc-1
+        cni_plugin: antrea
+      network_settings:
+        vip_network_list: "[]"
+      l7_settings:
+        default_ing_controller: false
+        service_type: NodePort
+      controller_settings:
+        service_engine_group_name: Default-Group
+        controller_version:
+        cloud_name: Default-Cloud
+        controller_ip: 10.1.1.1
+      resources:
+        request:
+          cpu: 50m
+          memory: 50Mi
+      rbac:
+        psp_policy_api_version:
+      avi_credentials:
+        username: ""
+        password: ""
+        certificate_authority_data: ""
