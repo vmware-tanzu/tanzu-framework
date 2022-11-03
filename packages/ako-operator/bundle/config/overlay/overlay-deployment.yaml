@@ -58,12 +58,9 @@ spec:
             - name: avi_controller_version
               value: #@ "{}".format(values.akoOperator.config.avi_controller_version)
           resources:
-            limits:
-              cpu: 100m
-              memory: 300Mi
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 50m
+              memory: 50Mi
           volumeMounts:
             - mountPath: /tmp/k8s-webhook-server/serving-certs
               name: cert
