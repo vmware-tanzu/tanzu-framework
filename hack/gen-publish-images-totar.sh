@@ -110,7 +110,7 @@ for imageTag in ${list}; do
     get_comp_images="yq e '.components[\"${comp}\"][]  | select(has(\"images\"))|.images[] | .imagePath + \":\" + .tag' "\"tmp/\"$TKR_BOM_FILE""
 
     flags="-i"
-    if [ $comp = "tkg-core-packages" ]; then
+    if [ "$comp" = "tkg-core-packages" ] || [ "$comp" = "capabilities-package" ] || [ "$comp" = "tkg-storageclass-package" ]; then
       flags="-b"
     fi
     eval $get_comp_images | while read -r image; do

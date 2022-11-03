@@ -16,9 +16,10 @@ import (
 
 // ListTKGClustersOptions ptions passed while getting a list of TKG Clusters
 type ListTKGClustersOptions struct {
-	ClusterName string
-	Namespace   string
-	IncludeMC   bool
+	ClusterName   string
+	Namespace     string
+	IncludeMC     bool
+	AllNamespaces bool
 }
 
 // GetClusters returns list of cluster
@@ -34,12 +35,17 @@ func (t *tkgctl) GetClusters(options ListTKGClustersOptions) ([]client.ClusterIn
 			return nil, errors.Wrap(err, fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace))
 		}
 	}
+	namespace := options.Namespace
+	allNamespaces := options.AllNamespaces
+	// if allNamespaces is present, namespace in current context is ignored even if specified with --namespace.
+	if allNamespaces {
+		namespace = ""
+	}
 	listTKGClustersOptions := client.ListTKGClustersOptions{
-		Namespace:                          options.Namespace,
+		Namespace:                          namespace,
 		IncludeMC:                          options.IncludeMC,
 		IsTKGSClusterClassFeatureActivated: isTKGSClusterClassFeatureActivated,
 	}
-
 	clusters, err := t.tkgClient.ListTKGClusters(listTKGClustersOptions)
 	if err != nil {
 		return nil, err
