@@ -449,12 +449,21 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 	}
 
 	// No need to update ClusterBootstrap ownerRef
-	// Patch the Spec and update the Resolved TKR
-	updatedClusterBootstrap.Status.ResolvedTKR = tkrName
+	// Patch ClusterBootstrap's Spec
 	if err := patchHelper.Patch(r.context, updatedClusterBootstrap); err != nil {
-		log.Error(err, "failed to updated clusterBootstrap")
+		log.Error(err, "failed to update clusterBootstrap spec")
 		return nil, err
 	}
+
+	// Patch ClusterBootstrap's Resolved TKR
+	// Note that we are separating out spec and status patch calls, as per current behavior of cluster API Patch utility function,
+	// patching of the status of the object can go through even if the object's spec has failed to get patched
+	updatedClusterBootstrap.Status.ResolvedTKR = tkrName
+	if err := patchHelper.Patch(r.context, updatedClusterBootstrap); err != nil {
+		log.Error(err, "failed to update clusterBootstrap status")
+		return nil, err
+	}
+
 	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
 	// clusterBootstrap is updated
 	if err := clusterBootstrapHelper.EnsureOwnerRef(updatedClusterBootstrap, secrets, providers); err != nil {
@@ -483,7 +492,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 	//    5. We will keep users' customization on valuesFrom of each package, users are responsible for the correctness of the content they put in will work with the next version.
 	packages := make([]*runtanzuv1alpha3.ClusterBootstrapPackage, 0)
 	if updatedClusterBootstrap.Spec.CNI == nil {
-		log.Info("no CNI package specified in ClusterBootstarp, should not happen. Continue with CNI in ClusterBootstrapTemplate of new TKR")
+		log.Info("no CNI package specified in ClusterBootstrap, should not happen. Continue with CNI in ClusterBootstrapTemplate of new TKR")
 		updatedClusterBootstrap.Spec.CNI = clusterBootstrapTemplate.Spec.CNI.DeepCopy()
 	} else {
 		// We don't allow change to the CNI selection once it starts running, however we allow version bump
