@@ -1,5 +1,6 @@
 #@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:data", "data")
+#@ if data.values.akoOperatorPackage.akoOperator.avi_enable and data.values.akoOperatorPackage.akoOperator.config.avi_control_plane_ha_provider:
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
@@ -29,3 +30,4 @@ metadata:
 type: Opaque
 stringData:
   values.yaml: #@ yaml.encode(data.values.loadBalancerAndIngressServicePackage)
+#@ end

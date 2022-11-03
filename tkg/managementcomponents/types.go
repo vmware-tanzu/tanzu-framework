@@ -122,7 +122,7 @@ type TanzuAuthPackageValues struct {
 
 // AkoOperatorPackageValues
 type AkoOperatorPackageValues struct {
-	AviEnable         string            `yaml:"avi_enable,omitempty"`
+	AviEnable         bool              `yaml:"avi_enable,omitempty"`
 	ClusterName       string            `yaml:"cluster_name,omitempty"`
 	AviOperatorConfig AviOperatorConfig `yaml:"config,omitempty"`
 }
@@ -152,6 +152,7 @@ type AviOperatorConfig struct {
 	AviManagementClusterDataPlaneNetworkCIDR       string `yaml:"avi_management_cluster_vip_network_cidr,omitempty"`
 	AviManagementClusterControlPlaneVipNetworkName string `yaml:"avi_management_cluster_control_plane_vip_network_name,omitempty"`
 	AviManagementClusterControlPlaneVipNetworkCIDR string `yaml:"avi_management_cluster_control_plane_vip_network_cidr,omitempty"`
+	AviControlPlaneHaProvider                      bool   `yaml:"avi_control_plane_ha_provider,omitempty"`
 }
 
 // NetworkSettings

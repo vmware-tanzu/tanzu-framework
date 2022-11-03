@@ -26,7 +26,7 @@ spec:
             - --metrics-addr=:8080
           command:
             - /manager
-          image: harbor-repo.vmware.com/tanzu_ako_operator_dev/tkg-networking/tanzu-ako-operator:v1.7.0_dev1
+          image: harbor-repo.vmware.com/tanzu_ako_operator_dev/tkg-networking/tanzu-ako-operator:v1.7.0_dev7
           name: manager
           ports:
             - containerPort: 9443
@@ -41,10 +41,6 @@ spec:
               value: "default-cluster"
             - name: control_plane_endpoint_port
               value: "6443"
-          resources:
-            requests:
-              cpu: 50m
-              memory: 50Mi
           volumeMounts:
             - mountPath: /tmp/k8s-webhook-server/serving-certs
               name: cert

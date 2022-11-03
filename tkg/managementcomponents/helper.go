@@ -8,12 +8,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/aunum/log"
-	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
 	"reflect"
 	"time"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/pkg/errors"
 
@@ -49,9 +49,9 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 	default:
 		return "", errors.Errorf("unknown provider type %q", providerType)
 	}
-	ns := convertToString(userProviderConfigValues[constants.ConfigVariableNamespace])
-	if ns == "" {
-		ns = "default"
+	clusterNamespace := convertToString(userProviderConfigValues[constants.ConfigVariableNamespace])
+	if clusterNamespace == "" {
+		clusterNamespace = "default"
 	}
 	aviCertificate, err := base64.StdEncoding.DecodeString(convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerCA]))
 	if err != nil {
@@ -108,7 +108,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 		},
 		AkoOperatorPackage: AkoOperatorPackage{
 			AkoOperatorPackageValues: AkoOperatorPackageValues{
-				AviEnable:   convertToString(userProviderConfigValues[constants.ConfigVariableAviEnable]),
+				AviEnable:   convertToBool(userProviderConfigValues[constants.ConfigVariableAviEnable]),
 				ClusterName: convertToString(userProviderConfigValues[constants.ConfigVariableClusterName]),
 				AviOperatorConfig: AviOperatorConfig{
 					AviControllerAddress:                           convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerAddress]),
@@ -127,12 +127,13 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 					AviManagementClusterDataPlaneNetworkCIDR:       convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR]),
 					AviManagementClusterControlPlaneVipNetworkName: convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName]),
 					AviManagementClusterControlPlaneVipNetworkCIDR: convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR]),
+					AviControlPlaneHaProvider:                      convertToBool(userProviderConfigValues[constants.ConfigVariableVsphereHaProvider]),
 				},
 			},
 		},
 		LoadBalancerAndIngressServicePackage: LoadBalancerAndIngressServicePackage{
 			LoadBalancerAndIngressServicePackageValues: LoadBalancerAndIngressServicePackageValues{
-				Name:      "ako-" + ns + "-" + convertToString(userProviderConfigValues[constants.ConfigVariableClusterName]),
+				Name:      "ako-" + clusterNamespace + "-" + convertToString(userProviderConfigValues[constants.ConfigVariableClusterName]),
 				Namespace: aviNamespace,
 				LoadBalancerAndIngressServiceConfig: LoadBalancerAndIngressServiceConfig{
 					AkoSettings: AkoSettings{
@@ -162,30 +163,24 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 	err = akoValidator(&tkgPackageConfig)
 	setProxyConfiguration(&tkgPackageConfig, userProviderConfigValues)
 
-	//log---------remove
-	log.Infof("tkgPackage config:", tkgPackageConfig)
 	configBytes, err := yaml.Marshal(tkgPackageConfig)
 	if err != nil {
 		return "", err
 	}
-	//
 
 	valuesFile := filepath.Join(os.TempDir(), constants.TKGPackageValuesFile)
 	err = utils.SaveFile(valuesFile, configBytes)
 	if err != nil {
 		return "", err
 	}
-	//log---------remove
-	file, _ := os.Open(valuesFile)
-	fmt.Println(file)
-	//
+
 	return valuesFile, nil
 }
 
 func convertToString(aviOperatorConfig interface{}) string {
 	switch aviOperatorConfig.(type) {
 	case string:
-		return string(aviOperatorConfig)
+		return aviOperatorConfig.(string)
 	default:
 		return ""
 	}
@@ -193,6 +188,19 @@ func convertToString(aviOperatorConfig interface{}) string {
 		return ""
 	}
 	return ""
+}
+
+func convertToBool(aviOperatorConfig interface{}) bool {
+	switch aviOperatorConfig.(type) {
+	case bool:
+		return aviOperatorConfig.(bool)
+	default:
+		return false
+	}
+	if aviOperatorConfig == nil || reflect.ValueOf(aviOperatorConfig).IsNil() {
+		return false
+	}
+	return false
 }
 
 func aviOperatorValidator(aviOperatorConfig *AviOperatorConfig) {
@@ -224,25 +232,25 @@ func aviOperatorValidator(aviOperatorConfig *AviOperatorConfig) {
 
 // VipNetwork
 type VipNetwork struct {
-	NetworkName string
-	Cidr        string
+	NetworkName string `json:"networkName,omitempty"`
+	Cidr        string `json:"cidr,omitempty"`
 }
 
 func akoValidator(tkgPackageConfig *TKGPackageConfig) error {
 	aviOperatorConfig := tkgPackageConfig.AkoOperatorPackage.AkoOperatorPackageValues.AviOperatorConfig
-	loadBalancerAndIngressServiceConfig := tkgPackageConfig.LoadBalancerAndIngressServicePackage.LoadBalancerAndIngressServicePackageValues.LoadBalancerAndIngressServiceConfig
-	loadBalancerAndIngressServiceConfig.ControllerSettings.ServiceEngineGroupName = aviOperatorConfig.AviManagementClusterServiceEngineGroup
+	tkgPackageConfig.LoadBalancerAndIngressServicePackage.LoadBalancerAndIngressServicePackageValues.LoadBalancerAndIngressServiceConfig.ControllerSettings.ServiceEngineGroupName = aviOperatorConfig.AviManagementClusterServiceEngineGroup
 
-	vipNetwork := VipNetwork{
-		NetworkName: aviOperatorConfig.AviControlPlaneNetworkName,
-		Cidr:        aviOperatorConfig.AviControlPlaneNetworkCIDR,
+	vipNetwork := []VipNetwork{
+		VipNetwork{
+			NetworkName: aviOperatorConfig.AviControlPlaneNetworkName,
+			Cidr:        aviOperatorConfig.AviControlPlaneNetworkCIDR,
+		},
 	}
 	data, err := json.Marshal(vipNetwork)
 	if err != nil {
 		return err
 	}
-	loadBalancerAndIngressServiceConfig.NetworkSettings.VipNetworkList = string(data)
-
+	tkgPackageConfig.LoadBalancerAndIngressServicePackage.LoadBalancerAndIngressServicePackageValues.LoadBalancerAndIngressServiceConfig.NetworkSettings.VipNetworkList = string(data)
 	return nil
 }
 

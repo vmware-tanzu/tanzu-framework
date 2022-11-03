@@ -93,10 +93,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          resources:
-            requests:
-              cpu: 50m
-              memory: 50Mi
           livenessProbe:
             httpGet:
               path: /api/status

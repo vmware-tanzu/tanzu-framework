@@ -40,7 +40,7 @@ spec:
             - --metrics-addr=:8080
           command:
             - /manager
-          image: projects-stg.registry.vmware.com/tkg/ako-operator:v1.6.0_vmware.16
+          image: harbor-repo.vmware.com/tanzu_ako_operator_dev/tkg-networking/tanzu-ako-operator:v1.7.0_dev7
           name: manager
           ports:
             - containerPort: 9443
@@ -57,10 +57,6 @@ spec:
               value: #@ "{}".format(values.akoOperator.config.avi_control_plane_endpoint_port)
             - name: avi_controller_version
               value: #@ "{}".format(values.akoOperator.config.avi_controller_version)
-          resources:
-            requests:
-              cpu: 50m
-              memory: 50Mi
           volumeMounts:
             - mountPath: /tmp/k8s-webhook-server/serving-certs
               name: cert
