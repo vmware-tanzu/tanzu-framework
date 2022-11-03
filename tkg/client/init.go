@@ -846,6 +846,8 @@ func (c *TkgClient) removeKappControllerLabelsFromClusterClassResources(regional
 		capzv1beta1.GroupVersion.WithKind(constants.KindAzureMachineTemplate):           constants.ResourceAzureMachineTemplate,
 		capvv1beta1.GroupVersion.WithKind(constants.KindVSphereClusterTemplate):         constants.ResourceVSphereClusterTemplate,
 		capvv1beta1.GroupVersion.WithKind(constants.KindVSphereMachineTemplate):         constants.ResourceVSphereMachineTemplate,
+		capvv1beta1.GroupVersion.WithKind(constants.KindDockerClusterTemplate):          constants.ResourceDockerClusterTemplate,
+		capvv1beta1.GroupVersion.WithKind(constants.KindDockerMachineTemplate):          constants.ResourceDockerMachineTemplate,
 	}
 
 	for gvk, resourceName := range gvkToResourcesMap {
