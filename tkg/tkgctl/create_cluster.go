@@ -160,7 +160,7 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 			return isInputFileClusterClassBased, err
 		}
 		if isInputFileClusterClassBased {
-			err = t.processClusterObjectForConfigurationVariables(clusterobj)
+			err = t.processClusterObjectForConfigurationVariables(clusterobj, ir.ClusterConfigFile)
 			if err != nil {
 				return isInputFileClusterClassBased, err
 			}
@@ -183,7 +183,7 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKG
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())
 		} else {
-			err = t.processClusterObjectForConfigurationVariables(clusterobj)
+			err = t.processClusterObjectForConfigurationVariables(clusterobj, cc.ClusterConfigFile)
 			if err != nil {
 				return isInputFileClusterClassBased, err
 			}
