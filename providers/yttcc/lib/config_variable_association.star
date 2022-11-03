@@ -308,9 +308,9 @@ def get_cluster_variables():
                 continue
             end
             if configVariable == "TKG_HTTP_PROXY":
-                if data.values[TKG_HTTP_PROXY] != "":
+                if data.values["TKG_HTTP_PROXY"] != "":
                     vars["proxy"] = {
-                        "httpProxy": data.values[configVariable],
+                        "httpProxy": data.values["TKG_HTTP_PROXY"],
                         "httpsProxy": data.values["TKG_HTTPS_PROXY"],
                         "noProxy": data.values["TKG_NO_PROXY"].split(","),
                     }
