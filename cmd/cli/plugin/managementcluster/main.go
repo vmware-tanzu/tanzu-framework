@@ -14,13 +14,14 @@ import (
 )
 
 var descriptor = cliapi.PluginDescriptor{
-	Name:            "management-cluster",
-	Description:     "Kubernetes management cluster operations",
-	Version:         buildinfo.Version,
-	BuildSHA:        buildinfo.SHA,
-	Group:           cliapi.RunCmdGroup,
-	Aliases:         []string{"mc", "management-clusters"},
-	PostInstallHook: postInstallHook,
+	Name:                "management-cluster",
+	Description:         "Kubernetes management cluster operations",
+	Version:             buildinfo.Version,
+	BuildSHA:            buildinfo.SHA,
+	Group:               cliapi.RunCmdGroup,
+	Aliases:             []string{"mc", "management-clusters"},
+	DefaultFeatureFlags: DefaultFeatureFlagsForManagementClusterPlugin,
+	PostInstallHook:     postInstallHook,
 }
 
 var (

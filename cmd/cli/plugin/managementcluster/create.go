@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/pflag"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/cmd"
 
+	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
@@ -191,7 +192,7 @@ func runInit() error {
 	}
 
 	// Sync plugins if management-cluster creation is successful
-	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 		server, err := config.GetCurrentServer()
 		if err == nil && server != nil {
 			err = pluginmanager.SyncPlugins(server.Name)

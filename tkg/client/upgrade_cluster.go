@@ -196,7 +196,7 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 	// We will ensure backward compatibility when shipping packages going forward
 	// With package-package-lcm approach addons will be upgraded as part of management package upgrade
 	// and we do not need to upgrade addons with below function
-	if !options.SkipAddonUpgrade && !config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+	if !options.SkipAddonUpgrade && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		err = c.upgradeAddonPreNodeUpgrade(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
 		if err != nil {
 			return err
@@ -225,7 +225,7 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 	}
 
 	if options.IsRegionalCluster {
-		if !config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 			log.Info("Waiting for additional components to be up and running...")
 			if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
 				return err

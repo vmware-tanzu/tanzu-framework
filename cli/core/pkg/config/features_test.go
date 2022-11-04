@@ -171,12 +171,12 @@ func TestConfigFeaturesDefaultsAdded(t *testing.T) {
 		},
 	}
 
-	added := addDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
-	require.True(t, added, "addDefaultFeatureFlagsIfMissing should have added missing default values")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
-	require.Equal(t, cfg.ClientOptions.Features["global"]["truthy"], "true", "addDefaultFeatureFlagsIfMissing should have added global TRUE value for truthy")
-	require.Equal(t, cfg.ClientOptions.Features["global"]["falsey"], "false", "addDefaultFeatureFlagsIfMissing should have added global FALSE value for falsey")
+	added := AddDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
+	require.True(t, added, "AddDefaultFeatureFlagsIfMissing should have added missing default values")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "AddDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "AddDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
+	require.Equal(t, cfg.ClientOptions.Features["global"]["truthy"], "true", "AddDefaultFeatureFlagsIfMissing should have added global TRUE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["global"]["falsey"], "false", "AddDefaultFeatureFlagsIfMissing should have added global FALSE value for falsey")
 }
 
 func TestConfigFeaturesDefaultsNoneAdded(t *testing.T) {
@@ -201,8 +201,8 @@ func TestConfigFeaturesDefaultsNoneAdded(t *testing.T) {
 		},
 	}
 
-	added := addDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
-	require.False(t, added, "addDefaultFeatureFlagsIfMissing should NOT have added any default values")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
+	added := AddDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
+	require.False(t, added, "AddDefaultFeatureFlagsIfMissing should NOT have added any default values")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "AddDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "AddDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/csp"
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/tkg"
 	wcpauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/wcp"
+	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
@@ -137,7 +138,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	// Sync all required plugins if the "features.global.context-aware-cli-for-plugins" feature is enabled
-	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 		if err = pluginmanager.SyncPlugins(serverTarget.Name); err != nil {
 			log.Warning("unable to automatically sync the plugins from target server. Please run 'tanzu plugin sync' command to sync plugins manually")
 		}

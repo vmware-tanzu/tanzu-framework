@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
+	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
@@ -65,7 +66,7 @@ var listPluginCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -195,7 +196,7 @@ var describePluginCmd = &cobra.Command{
 		}
 		pluginName := args[0]
 
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -245,7 +246,7 @@ var installPluginCmd = &cobra.Command{
 
 		pluginName := args[0]
 
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 
 			// Invoke install plugin from local source if local files are provided
 			if local != "" {
@@ -333,7 +334,7 @@ var upgradePluginCmd = &cobra.Command{
 		}
 		pluginName := args[0]
 
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -383,7 +384,7 @@ var deletePluginCmd = &cobra.Command{
 		}
 		pluginName := args[0]
 
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -418,7 +419,7 @@ var cleanPluginCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			err = pluginmanager.Clean()
 			if err != nil {
 				return err
@@ -440,7 +441,7 @@ var syncPluginCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Sync the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			serverName := ""
 			server, err := config.GetCurrentServer()
 			if err == nil && server != nil {
@@ -453,7 +454,7 @@ var syncPluginCmd = &cobra.Command{
 			log.Success("Done")
 			return nil
 		}
-		return errors.Errorf("command is only applicable if `%s` feature is enabled", config.FeatureContextAwareCLIForPlugins)
+		return errors.Errorf("command is only applicable if `%s` feature is enabled", cliconfig.FeatureContextAwareCLIForPlugins)
 	},
 }
 

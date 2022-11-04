@@ -21,7 +21,7 @@ func init() {
 	}
 
 	addedDefaultDiscovery := populateDefaultStandaloneDiscovery(c)
-	addedFeatureFlags := addDefaultFeatureFlagsIfMissing(c, config.DefaultCliFeatureFlags)
+	addedFeatureFlags := AddDefaultFeatureFlagsIfMissing(c, DefaultCliFeatureFlags)
 	addedEdition := addDefaultEditionIfMissing(c)
 	addedBomRepo := AddBomRepoIfMissing(c)
 	addedCompatabilityFile := AddCompatibilityFileIfMissing(c)

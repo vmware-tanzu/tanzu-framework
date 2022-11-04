@@ -20,6 +20,7 @@ import (
 	iamv1 "sigs.k8s.io/cluster-api-provider-aws/iam/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
@@ -464,7 +465,7 @@ func meetsNodeMinimumRequirements(instanceInfo *ec2.InstanceTypeInfo) bool {
 
 // isSupportedInstance checks feature flag to determine if CPU supported architecture filters should be applied
 func isSupportedInstance(instanceInfo *ec2.InstanceTypeInfo) bool {
-	if config.IsFeatureActivated(config.FeatureFlagAwsInstanceTypesExcludeArm) {
+	if config.IsFeatureActivated(constants.FeatureFlagAwsInstanceTypesExcludeArm) {
 		// feature flag is active; apply filtering
 		return isSupportedCPUArchitecture(instanceInfo)
 	}
