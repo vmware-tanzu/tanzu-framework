@@ -91,8 +91,6 @@ This will list all versions of the plugin along with its description.
 
 Context is an isolated scope of relevant client-side configurations for a combination of user identity and server identity. There can be multiple contexts for the same combination of `(user, server)`. Previously, this was referred to as `Server` in the Tanzu CLI. Going forward we shall refer to them as `Context` to be explicit. Also, the context can be managed at one place using the `tanzu context` command. Earlier, this was distributed between the `tanzu login` command and `tanzu config server` command.
 
-Note: This is currently behind a feature flag. To enable the flag please run `tanzu config set features.global.context-target true`
-
 Create a new context:
 
 ```sh
