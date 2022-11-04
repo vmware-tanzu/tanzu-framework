@@ -1055,7 +1055,7 @@ spec:
                 {{- end }}
                 {{- .key -}} = {{- .value -}}
               {{ end }}
-            {{ end }}
+            {{- end }}
             {{- if .worker.nodeLabels -}}
               ,
               {{- $first := true }}
