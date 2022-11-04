@@ -337,8 +337,23 @@ func (c *TkgClient) getProvidersUpgradeInfo(regionalClusterClient clusterclient.
 				installedProviders.Items[i].ProviderName, latestVersion, installedProviders.Items[i].Version)
 			continue
 		}
+
+		providerVersion := fmt.Sprintf("v%v.%v.%v", latestSemVersion.Major(), latestSemVersion.Minor(), latestSemVersion.Patch())
+		// special handling for pre-release versions
+		if preReleaseVersion := latestSemVersion.PreRelease(); preReleaseVersion != "" {
+			preReleaseVersionArray := strings.Split(preReleaseVersion, "-")
+			if len(preReleaseVersionArray) == 1 || len(preReleaseVersionArray) > 2 {
+				// latestSemVersion like 2.0.0-beta.1 or 2.0.0-beta.1-13-ga74685ee9, set the version to v2.0.0-beta.1
+				installedProviders.Items[i].Version = fmt.Sprintf("%s-%s", providerVersion, preReleaseVersionArray[0])
+			} else {
+				// latestSemVersion like 2.0.0-13-ga74685ee9, set the version to v2.0.0
+				installedProviders.Items[i].Version = providerVersion
+			}
+		} else {
+			// latestSemVersion like 2.0.0, set the version to v2.0.0
+			installedProviders.Items[i].Version = providerVersion
+		}
 		// update the provider to the latest version to be upgraded
-		installedProviders.Items[i].Version = fmt.Sprintf("v%v.%v.%v", latestSemVersion.Major(), latestSemVersion.Minor(), latestSemVersion.Patch())
 		pUpgradeInfo.providers = append(pUpgradeInfo.providers, installedProviders.Items[i])
 	}
 
