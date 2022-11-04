@@ -197,9 +197,6 @@ var _ = Describe("Utils", func() {
 		})
 
 		Context("when feature flag is set to enable CC use", func() {
-			BeforeEach(func() {
-				featureFlagClient.FeatureValues[constants.FeatureFlagPackageBasedLCM] = true
-			})
 
 			It("The cluster topology configuration is always set to true", func() {
 				tkgClient.ensureClusterTopologyConfiguration()
@@ -218,38 +215,6 @@ var _ = Describe("Utils", func() {
 				value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(value).To(Equal("true"))
-			})
-		})
-
-		Context("when feature flag is set to not enable CC use", func() {
-			BeforeEach(func() {
-				featureFlagClient.FeatureValues[constants.FeatureFlagPackageBasedLCM] = false
-			})
-
-			Context("when CLUSTER_TOPOLOGY is explicitly overridden", func() {
-				It("The retains the value", func() {
-					var value string //nolint:govet
-					tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, "false")
-					tkgClient.ensureClusterTopologyConfiguration()
-					value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
-					Expect(err).NotTo(HaveOccurred())
-					Expect(value).To(Equal("false"))
-
-					tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, "true")
-					tkgClient.ensureClusterTopologyConfiguration()
-					value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
-					Expect(err).NotTo(HaveOccurred())
-					Expect(value).To(Equal("true"))
-				})
-			})
-
-			Context("when CLUSTER_TOPOLOGY is not previously set", func() {
-				It("The cluster topology configuration is set to false", func() {
-					tkgClient.ensureClusterTopologyConfiguration()
-					value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
-					Expect(err).NotTo(HaveOccurred())
-					Expect(value).To(Equal("false"))
-				})
 			})
 		})
 

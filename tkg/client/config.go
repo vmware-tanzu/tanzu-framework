@@ -10,7 +10,6 @@ import (
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -104,10 +103,6 @@ func (c *TkgClient) configureAndValidateConfiguration(options *CreateClusterOpti
 func (c *TkgClient) getClusterConfiguration(options *ClusterConfigOptions, isManagementCluster bool, infraProvider string, isWindowsWorkloadCluster bool) ([]byte, error) {
 	// Set CLUSTER_PLAN to viper configuration
 	c.SetPlan(options.ProviderRepositorySource.Flavor)
-
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		c.TKGConfigReaderWriter().Set(constants.ConfigVariableFeatureFlagPackageBasedLCM, "true")
-	}
 
 	infraProviderName, _, err := ParseProviderName(infraProvider)
 	if err != nil {

@@ -20,7 +20,6 @@ import (
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
@@ -142,11 +141,9 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 			return errors.Wrap(err, "unable to get a PackageClient")
 		}
 
-		// If clusterclass feature flag is enabled then deploy kapp-controller
-		if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-			if err = c.InstallOrUpgradeKappController(cleanupClusterClient, constants.OperationTypeInstall); err != nil {
-				return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
-			}
+		// Deploy kapp-controller
+		if err = c.InstallOrUpgradeKappController(cleanupClusterClient, constants.OperationTypeInstall); err != nil {
+			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
 		}
 
 		log.Info("Installing providers to cleanup cluster...")
@@ -155,20 +152,18 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 			return errors.Wrap(err, "unable to initialize providers")
 		}
 
-		// If clusterclass feature flag is enabled then deploy management components
-		if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-			// Read config variable from management cluster and set it into cleanup cluster
-			configValues, err := c.getUserConfigVariableValueMapFromSecret(regionalClusterClient)
-			if err != nil {
-				return errors.Wrap(err, "unable to get config variables from management cluster")
-			}
-			for k, v := range configValues {
-				// Handle bool, int and string
-				c.TKGConfigReaderWriter().Set(k, fmt.Sprint(v))
-			}
-			if err = c.InstallOrUpgradeManagementComponents(cleanupClusterClient, cleanupPkgClient, "", false); err != nil {
-				return errors.Wrap(err, "unable to install management components to bootstrap cluster")
-			}
+		// Deploy management components
+		// Read config variable from management cluster and set it into cleanup cluster
+		configValues, err := c.getUserConfigVariableValueMapFromSecret(regionalClusterClient)
+		if err != nil {
+			return errors.Wrap(err, "unable to get config variables from management cluster")
+		}
+		for k, v := range configValues {
+			// Handle bool, int and string
+			c.TKGConfigReaderWriter().Set(k, fmt.Sprint(v))
+		}
+		if err = c.InstallOrUpgradeManagementComponents(cleanupClusterClient, cleanupPkgClient, "", false); err != nil {
+			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
 		}
 
 		isStartedRegionalClusterDeletion = true

@@ -433,15 +433,6 @@ func IsProdPlan(plan string) bool {
 // Sets the appropriate CAPI ClusterTopology configuration unless it has been explicitly overridden
 func (c *TkgClient) ensureClusterTopologyConfiguration() {
 	clusterTopologyValueToSet := trueStr
-	if !c.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
-		if err != nil {
-			clusterTopologyValueToSet = falseStr
-		} else {
-			log.V(6).Infof("%v configuration already set to %q", constants.ConfigVariableClusterTopology, value)
-			return
-		}
-	}
 	log.V(6).Infof("Setting %v to %q", constants.ConfigVariableClusterTopology, clusterTopologyValueToSet)
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, clusterTopologyValueToSet)
 }

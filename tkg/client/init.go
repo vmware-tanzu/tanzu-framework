@@ -28,8 +28,11 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+<<<<<<< HEAD
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+=======
+>>>>>>> 7a16e998 (Remove package based LCM feature gate)
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/kind"
@@ -211,12 +214,10 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to configure variables for provider installation")
 	}
 
-	// If clusterclass feature flag is enabled then deploy kapp-controller
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		log.Info("Installing kapp-controller on bootstrap cluster...")
-		if err = c.InstallOrUpgradeKappController(bootStrapClusterClient, constants.OperationTypeInstall); err != nil {
-			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
-		}
+	// Deploy kapp-controller
+	log.Info("Installing kapp-controller on bootstrap cluster...")
+	if err = c.InstallOrUpgradeKappController(bootStrapClusterClient, constants.OperationTypeInstall); err != nil {
+		return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
 	}
 
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnBootstrapCluster, InitRegionSteps)
@@ -226,11 +227,9 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to initialize providers")
 	}
 
-	// If clusterclass feature flag is enabled then deploy management components
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		if err = c.InstallOrUpgradeManagementComponents(bootStrapClusterClient, bootstrapPkgClient, "", false); err != nil {
-			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
-		}
+	// Deploy management components
+	if err = c.InstallOrUpgradeManagementComponents(bootStrapClusterClient, bootstrapPkgClient, "", false); err != nil {
+		return errors.Wrap(err, "unable to install management components to bootstrap cluster")
 	}
 
 	if options.AdditionalTKGManifests != "" {
@@ -318,12 +317,10 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to get a PackageClient")
 	}
 
-	// If clusterclass feature flag is enabled then deploy kapp-controller
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		log.Info("Installing kapp-controller on management cluster...")
-		if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeInstall); err != nil {
-			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
-		}
+	// Deploy kapp-controller
+	log.Info("Installing kapp-controller on management cluster...")
+	if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeInstall); err != nil {
+		return errors.Wrap(err, "unable to install kapp-controller to management cluster")
 	}
 
 	err = bootStrapClusterClient.WaitForClusterInitialized(options.ClusterName, targetClusterNamespace)
@@ -341,11 +338,9 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return err
 	}
 
-	// If clusterclass feature flag is enabled then deploy management components to the cluster
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		if err = c.InstallOrUpgradeManagementComponents(regionalClusterClient, regionalPkgClient, kubeContext, false); err != nil {
-			return errors.Wrap(err, "unable to install management components to management cluster")
-		}
+	// Deploy management components to the cluster
+	if err = c.InstallOrUpgradeManagementComponents(regionalClusterClient, regionalPkgClient, kubeContext, false); err != nil {
+		return errors.Wrap(err, "unable to install management components to management cluster")
 	}
 
 	log.Info("Waiting for the management cluster to get ready for move...")
@@ -413,23 +408,6 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
-	if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		log.Info("Waiting for additional components to be up and running...")
-		if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
-			return err
-		}
-	}
-
-	// Wait for packages if the feature-flag is disabled
-	// We do not need to wait for packages as we have already installed and waited for all
-	// packages to be deployed during tkg package installation
-	if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		log.Info("Waiting for packages to be up and running...")
-		if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, targetClusterNamespace, true); err != nil {
-			log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
-		}
-	}
-
 	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
 	isSuccessful = true
 	return nil
@@ -461,12 +439,10 @@ func (c *TkgClient) PatchClusterInitOperations(regionalClusterClient clusterclie
 		return errors.Wrap(err, "unable to patch optional metadata under labels")
 	}
 
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		// Patch and remove kapp-controller labels from clusterclass resources
-		err = c.removeKappControllerLabelsFromClusterClassResources(regionalClusterClient)
-		if err != nil {
-			return errors.Wrap(err, "unable to remove kapp-controller labels from the clusterclass resources")
-		}
+	// Patch and remove kapp-controller labels from clusterclass resources
+	err = c.removeKappControllerLabelsFromClusterClassResources(regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "unable to remove kapp-controller labels from the clusterclass resources")
 	}
 	return err
 }

@@ -20,7 +20,6 @@ import (
 	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	capdv1beta1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -192,30 +191,9 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 		return errors.Wrapf(err, "unable to patch the cluster object with TanzuKubernetesRelease label")
 	}
 
-	// Upgrade/Add certain addons on old clusters during upgrade
-	// The addons should upgrade prior to cluster upgrade to account for forward compatibility
-	// i.e. some old addons may not run on the nodes with new k8s version
-	// We will ensure backward compatibility when shipping packages going forward
-	// With package-package-lcm approach addons will be upgraded as part of management package upgrade
-	// and we do not need to upgrade addons with below function
-	if !options.SkipAddonUpgrade && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		err = c.upgradeAddonPreNodeUpgrade(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
-		if err != nil {
-			return err
-		}
-	}
-
 	err = c.DoClusterUpgrade(regionalClusterClient, currentClusterClient, options)
 	if err != nil {
 		return err
-	}
-
-	// Upgrade addon metadata configmaps after the nodes are upgraded
-	if !options.SkipAddonUpgrade {
-		err = c.upgradeAddonPostNodeUpgrade(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
-		if err != nil {
-			return err
-		}
 	}
 
 	if !options.IsRegionalCluster {
@@ -223,15 +201,6 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 		err = regionalClusterClient.ApplyPatchForAutoScalerDeployment(c.tkgBomClient, options.ClusterName, options.KubernetesVersion, options.Namespace)
 		if err != nil {
 			return errors.Wrapf(err, "failed to upgrade autoscaler for cluster '%s'", options.ClusterName)
-		}
-	}
-
-	if options.IsRegionalCluster {
-		if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-			log.Info("Waiting for additional components to be up and running...")
-			if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
-				return err
-			}
 		}
 	}
 

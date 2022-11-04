@@ -29,7 +29,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	netutils "k8s.io/utils/net"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/avi"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/azure"
@@ -115,11 +114,7 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 		return errors.Wrap(err, "unable to get cluster client while listing tkg clusters")
 	}
 
-	namespace := constants.TkrNamespace
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		//TODO: After CLI fully support package based LCM, "constants.TkrNamespace" should be updated to "tkg-system"
-		namespace = "tkg-system"
-	}
+	namespace := "tkg-system"
 
 	tkrConfigMap := &corev1.ConfigMap{}
 	if err := regionalClusterClient.GetResource(tkrConfigMap, tkrName, namespace, nil, nil); err != nil {

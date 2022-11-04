@@ -24,8 +24,11 @@ import (
 
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+<<<<<<< HEAD
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+=======
+>>>>>>> 7a16e998 (Remove package based LCM feature gate)
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -142,25 +145,23 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	}
 	log.Info("Management cluster providers upgraded successfully...")
 
-	// If clusterclass feature flag is enabled then deploy management components
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		log.Info("Upgrading kapp-controller...")
-		if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeUpgrade); err != nil {
-			return errors.Wrap(err, "unable to upgrade kapp-controller")
-		}
-		log.Info("Removing old management components...")
-		if err := RemoveObsoleteManagementComponents(regionalClusterClient); err != nil {
-			return errors.Wrap(err, "unable to remove obsolete management components")
-		}
-		log.Info("Upgrading management components...")
-		if err = c.InstallOrUpgradeManagementComponents(regionalClusterClient, regionalPkgClient, currentRegion.ContextName, true); err != nil {
-			return errors.Wrap(err, "unable to upgrade management components")
-		}
+	// Deploy management components
+	log.Info("Upgrading kapp-controller...")
+	if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeUpgrade); err != nil {
+		return errors.Wrap(err, "unable to upgrade kapp-controller")
+	}
+	log.Info("Removing old management components...")
+	if err := RemoveObsoleteManagementComponents(regionalClusterClient); err != nil {
+		return errors.Wrap(err, "unable to remove obsolete management components")
+	}
+	log.Info("Upgrading management components...")
+	if err = c.InstallOrUpgradeManagementComponents(regionalClusterClient, regionalPkgClient, currentRegion.ContextName, true); err != nil {
+		return errors.Wrap(err, "unable to upgrade management components")
+	}
 
-		log.Info("Cleanup core packages repository...")
-		if err = c.CleanupCorePackageRepo(regionalClusterClient); err != nil {
-			return errors.Wrap(err, "unable to cleanup core package repository")
-		}
+	log.Info("Cleanup core packages repository...")
+	if err = c.CleanupCorePackageRepo(regionalClusterClient); err != nil {
+		return errors.Wrap(err, "unable to cleanup core package repository")
 	}
 
 	log.Info("Upgrading management cluster kubernetes version...")
