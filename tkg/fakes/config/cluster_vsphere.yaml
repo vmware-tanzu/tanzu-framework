@@ -110,6 +110,8 @@ spec:
               os-arch: amd64
               os-name: ubuntu
               os-type: linux
+      - name: kubeVipLoadBalancerProvider
+        value: false
 
     version: v1.21.2
     workers:

@@ -278,6 +278,10 @@ return {
 "AVI_INGRESS_NODE_NETWORK_LIST": ["vsphere"],
 "AVI_CONTROL_PLANE_HA_PROVIDER": ["vsphere"],
 
+"KUBEVIP_LOADBALANCER_ENABLE": ["vsphere"],
+"KUBEVIP_LOADBALANCER_CIDRs": ["vsphere"],
+"KUBEVIP_LOADBALANCER_IP_RANGES": ["vsphere"],
+
 "ANTREA_NO_SNAT": ["vsphere", "aws", "azure", "docker"],
 "ANTREA_TRAFFIC_ENCAP_MODE": ["vsphere", "aws", "azure", "docker"],
 "ANTREA_PROXY": ["vsphere", "aws", "azure", "docker"],
@@ -838,6 +842,10 @@ def get_vsphere_vars():
 
     if data.values["NTP_SERVERS"] != None:
         vars["ntpServers"] = data.values["NTP_SERVERS"].replace(" ", "").split(",")
+    end
+
+    if data.values["KUBEVIP_LOADBALANCER_ENABLE"] != "":
+        vars["kubeVipLoadBalancerProvider"] = True
     end
 
     return vars

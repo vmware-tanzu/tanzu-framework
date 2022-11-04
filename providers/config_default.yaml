@@ -667,6 +667,9 @@ ANTREA_FLOWEXPORTER: false
 ANTREA_SERVICE_EXTERNALIP: false
 ANTREA_MULTICAST: false
 
+KUBEVIP_LOADBALANCER_ENABLE: false
+KUBEVIP_LOADBALANCER_IP_RANGES: ""
+KUBEVIP_LOADBALANCER_CIDRs: ""
 
 #! ---------------------------------------------------------------------
 #! Internal configuration, not meant to be overridden
