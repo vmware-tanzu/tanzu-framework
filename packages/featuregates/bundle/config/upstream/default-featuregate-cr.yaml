@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: FeatureGate
+metadata:
+  name: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting featuregates.config.tanzu.vmware.com/crd"
+    kapp.k14s.io/change-rule.1: "delete before deleting featuregates.config.tanzu.vmware.com/crd"
+    kapp.k14s.io/change-rule.2: "upsert after upserting features.config.tanzu.vmware.com/crd"
+    kapp.k14s.io/change-rule.3: "delete before deleting features.config.tanzu.vmware.com/crd"
+    kapp.k14s.io/update-strategy: skip
+spec:
+  namespaceSelector: {}
