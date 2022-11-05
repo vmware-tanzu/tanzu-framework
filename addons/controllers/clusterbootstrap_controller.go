@@ -6,6 +6,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -1315,7 +1316,7 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 	if err != nil {
 		log.Error(err, "unable to fetch cluster HTTPS proxy setting, defaulting to empty")
 	}
-	NoProxy, err := util.ParseClusterVariableInterface(cluster, "proxy", "noProxy")
+	NoProxy, err := util.ParseClusterVariableArray(cluster, "proxy", "noProxy")
 	if err != nil {
 		log.Error(err, "unable to fetch cluster no-proxy proxy setting, defaulting to empty")
 	}
@@ -1337,7 +1338,7 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 
 	cluster.Annotations[addontypes.HTTPProxyConfigAnnotation] = HTTPProxy
 	cluster.Annotations[addontypes.HTTPSProxyConfigAnnotation] = HTTPSProxy
-	cluster.Annotations[addontypes.NoProxyConfigAnnotation] = NoProxy
+	cluster.Annotations[addontypes.NoProxyConfigAnnotation] = strings.Join(NoProxy, ",")
 	cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] = ProxyCACert
 	cluster.Annotations[addontypes.IPFamilyConfigAnnotation] = IPFamily
 	cluster.Annotations[addontypes.SkipTLSVerifyConfigAnnotation] = SkipTLSVerify
