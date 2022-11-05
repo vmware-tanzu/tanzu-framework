@@ -159,6 +159,50 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		})
 	})
 
+	Context("Verify AddclusterOwnerRefToExistingProviders()", func() {
+		It("should succeed on adding cluster as owner to existing orphan config", func() {
+			fakeCluster := constructFakeCluster()
+			fakeBootstrap := constructFakeClusterBootstrap()
+			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, constructFakeAntreaConfig())
+			helper.DynamicClient = fakeDynamicClient
+
+			err := helper.AddClusterOwnerRefToExistingProviders(fakeCluster, fakeBootstrap)
+			Expect(err).ToNot(HaveOccurred())
+		})
+		It("should succeed on adding cluster as owner to config which already lists same cluster as owner", func() {
+			fakeBootstrap := constructFakeClusterBootstrap()
+			fakeAntreaConfig := constructFakeAntreaConfig()
+			fakeCluster := constructNamespacedFakeCluster("same-cluster", "fake-ns")
+			fakeAntreaConfigWithOwner := constructFakeAntreaConfigWithClusterOwner(fakeAntreaConfig.Name, fakeCluster.Name)
+			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, fakeAntreaConfigWithOwner)
+			helper.DynamicClient = fakeDynamicClient
+
+			err := helper.AddClusterOwnerRefToExistingProviders(fakeCluster, fakeBootstrap)
+			Expect(err).ToNot(HaveOccurred())
+		})
+		It("should throw error if config has different cluster owner", func() {
+			fakeBootstrap := constructFakeClusterBootstrap()
+			fakeAntreaConfig := constructFakeAntreaConfig()
+			fakeCluster := constructNamespacedFakeCluster("same-cluster", "fake-ns")
+			fakeAntreaConfigWithOwner := constructFakeAntreaConfigWithClusterOwner(fakeAntreaConfig.Name, "someothercluster")
+			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, fakeAntreaConfigWithOwner)
+			helper.DynamicClient = fakeDynamicClient
+
+			err := helper.AddClusterOwnerRefToExistingProviders(fakeCluster, fakeBootstrap)
+			Expect(err).To(HaveOccurred())
+		})
+		It("should handle non existing config ", func() {
+			fakeBootstrap := constructFakeClusterBootstrap()
+			fakeCluster := constructNamespacedFakeCluster("same-cluster", "fake-ns")
+			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme)
+			helper.DynamicClient = fakeDynamicClient
+
+			err := helper.AddClusterOwnerRefToExistingProviders(fakeCluster, fakeBootstrap)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+	})
+
 	Context("Verify cloneEmbeddedLocalObjectRef()", func() {
 		BeforeEach(func() {
 			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, constructFakeAntreaConfig(), constructFakeVSphereCPIConfig(), constructFakeSecret())
@@ -776,6 +820,23 @@ func constructFakeClusterBootstrapTemplate() *v1alpha3.ClusterBootstrapTemplate 
 	return &v1alpha3.ClusterBootstrapTemplate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "fake-clusterbootstrap-template",
+			Namespace: "fake-ns",
+		},
+		Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
+			CNI: constructFakeClusterBootstrapPackageWithAntreaProviderRef(),
+			CSI: constructFakeClusterBootstrapPackageWithCSIInlineRef(),
+			AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
+				{RefName: fakePinnipedCBPackageRefName, ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "oidc"}}},
+				{RefName: fakeMetricsServerCBPackageRefName},
+			},
+		},
+	}
+}
+
+func constructFakeClusterBootstrap() *v1alpha3.ClusterBootstrap {
+	return &v1alpha3.ClusterBootstrap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "fake-clusterbootstrap",
 			Namespace: "fake-ns",
 		},
 		Spec: &v1alpha3.ClusterBootstrapTemplateSpec{

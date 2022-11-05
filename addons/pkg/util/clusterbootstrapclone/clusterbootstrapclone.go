@@ -899,6 +899,44 @@ func (h *Helper) cloneEmbeddedLocalObjectRef(cluster *clusterapiv1beta1.Cluster,
 	return nil
 }
 
+func (h *Helper) getListOfExistingProviders(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*unstructured.Unstructured, error) {
+	// returns a slice of providers listed in the clusterbootstrap and that have been verified to exist.
+	providers := []*unstructured.Unstructured{}
+	cbPkgs, err := h.getListOfPkgsWithProviderRefNames(clusterBootstrap)
+	if err != nil {
+		return nil, err
+	}
+	for _, pkg := range cbPkgs {
+		gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *pkg.ValuesFrom.ProviderRef.APIGroup, Kind: pkg.ValuesFrom.ProviderRef.Kind})
+		if err != nil {
+			h.Logger.Error(err, "failed to getGVR")
+			return nil, err
+		}
+		provider, err := h.DynamicClient.Resource(*gvr).Namespace(clusterBootstrap.Namespace).Get(h.Ctx, pkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			continue
+		}
+		if err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s/%s", clusterBootstrap.Namespace, pkg.ValuesFrom.ProviderRef.Name), "gvr", gvr)
+			return nil, err
+		}
+		providers = append(providers, provider)
+	}
+	return providers, nil
+}
+
+func (h *Helper) AddClusterOwnerRefToExistingProviders(cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
+
+	exsitingProviders, err := h.getListOfExistingProviders(clusterBootstrap)
+	if err != nil {
+		return err
+	}
+	if err = h.AddClusterOwnerRef(cluster, exsitingProviders, nil, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
 // AddClusterOwnerRef adds cluster as an owner reference to the children with given controller and blockownerdeletion settings
 func (h *Helper) AddClusterOwnerRef(cluster *clusterapiv1beta1.Cluster, children []*unstructured.Unstructured, controller, blockownerdeletion *bool) error {
 	ownerRef := metav1.OwnerReference{
