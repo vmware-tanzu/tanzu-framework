@@ -321,64 +321,62 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		clusterBootstrap.Spec.Kapp,
 	}, clusterBootstrap.Spec.AdditionalPackages...)
 
-	if clusterBootstrap.Annotations != nil {
-		if annotationValue, annotationExist := clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]; annotationExist {
-			tkrName = annotationValue
-			clusterBootstrapTemplateName := annotationValue // TanzuKubernetesRelease and ClusterBootstrapTemplate share the same name
-			clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
-			// Get the ClusterBootstrapTemplate mentioned in the annotation under system namespace
-			if err := h.K8sClient.Get(h.Ctx, client.ObjectKey{Namespace: systemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
-				return nil, err
-			}
-
-			// Update the packages slice to make it only contains the ones we want the rest of the code to do the cloning.
-			// For cloning, we only care about the ClusterBootstrap packages which have no valuesFrom originally. The missing
-			// valuesFrom field will be added by AddMissingSpecFieldsFromTemplate() in few lines below, and we want to clone
-			// those packages from system namespace.
-			var nilValuesFromPackages []*runtanzuv1alpha3.ClusterBootstrapPackage
-			for _, cbPackage := range packages {
-				if cbPackage != nil && cbPackage.ValuesFrom == nil {
-					nilValuesFromPackages = append(nilValuesFromPackages, cbPackage)
-				}
-			}
-
-			var nonEmptyInlinePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
-			for _, cbPackage := range packages {
-				if cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.Inline != nil {
-					nonEmptyInlinePackages = append(nonEmptyInlinePackages, cbPackage)
-				}
-			}
-
-			if err := h.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, nil); err != nil {
-				h.Logger.Error(err, fmt.Sprintf("unable to add missing spec fields of ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
-					clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
-				return nil, err
-			}
-
-			// AddMissingSpecFieldsFromTemplate() updates clusterBootstrap.Spec, it holds the updated pointers now.
-			// Declaring updatedCBPackages is to compare with original nilValuesFromPackages and figure out which packages
-			// need to be cloned.
-			updatedCBPackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
-				clusterBootstrap.Spec.CNI,
-				clusterBootstrap.Spec.CPI,
-				clusterBootstrap.Spec.CSI,
-				clusterBootstrap.Spec.Kapp,
-			}, clusterBootstrap.Spec.AdditionalPackages...)
-
-			var packagesToBeCloned []*runtanzuv1alpha3.ClusterBootstrapPackage
-			for _, nilValuesFromPackage := range nilValuesFromPackages {
-				for _, updatedCBPackage := range updatedCBPackages {
-					// If the nilValuesFromPackage has been filled by AddMissingSpecFieldsFromTemplate(), it is the package
-					// we want to record and do cloning.
-					if updatedCBPackage != nil && updatedCBPackage.ValuesFrom != nil && updatedCBPackage.RefName == nilValuesFromPackage.RefName {
-						packagesToBeCloned = append(packagesToBeCloned, updatedCBPackage)
-					}
-				}
-			}
-			h.Logger.Info("Updating packagesToBeCloned with inline packages")
-			packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
-			packages = packagesToBeCloned
+	if annotationValue, annotationExist := clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]; annotationExist {
+		tkrName = annotationValue
+		clusterBootstrapTemplateName := annotationValue // TanzuKubernetesRelease and ClusterBootstrapTemplate share the same name
+		clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
+		// Get the ClusterBootstrapTemplate mentioned in the annotation under system namespace
+		if err := h.K8sClient.Get(h.Ctx, client.ObjectKey{Namespace: systemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
+			return nil, err
 		}
+
+		// Update the packages slice to make it only contains the ones we want the rest of the code to do the cloning.
+		// For cloning, we only care about the ClusterBootstrap packages which have no valuesFrom originally. The missing
+		// valuesFrom field will be added by AddMissingSpecFieldsFromTemplate() in few lines below, and we want to clone
+		// those packages from system namespace.
+		var nilValuesFromPackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, cbPackage := range packages {
+			if cbPackage != nil && cbPackage.ValuesFrom == nil {
+				nilValuesFromPackages = append(nilValuesFromPackages, cbPackage)
+			}
+		}
+
+		var nonEmptyInlinePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, cbPackage := range packages {
+			if cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.Inline != nil {
+				nonEmptyInlinePackages = append(nonEmptyInlinePackages, cbPackage)
+			}
+		}
+
+		if err := h.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, nil); err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to add missing spec fields of ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
+				clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
+			return nil, err
+		}
+
+		// AddMissingSpecFieldsFromTemplate() updates clusterBootstrap.Spec, it holds the updated pointers now.
+		// Declaring updatedCBPackages is to compare with original nilValuesFromPackages and figure out which packages
+		// need to be cloned.
+		updatedCBPackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
+			clusterBootstrap.Spec.CNI,
+			clusterBootstrap.Spec.CPI,
+			clusterBootstrap.Spec.CSI,
+			clusterBootstrap.Spec.Kapp,
+		}, clusterBootstrap.Spec.AdditionalPackages...)
+
+		var packagesToBeCloned []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, nilValuesFromPackage := range nilValuesFromPackages {
+			for _, updatedCBPackage := range updatedCBPackages {
+				// If the nilValuesFromPackage has been filled by AddMissingSpecFieldsFromTemplate(), it is the package
+				// we want to record and do cloning.
+				if updatedCBPackage != nil && updatedCBPackage.ValuesFrom != nil && updatedCBPackage.RefName == nilValuesFromPackage.RefName {
+					packagesToBeCloned = append(packagesToBeCloned, updatedCBPackage)
+				}
+			}
+		}
+		h.Logger.Info("Updating packagesToBeCloned with inline packages")
+		packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
+		packages = packagesToBeCloned
 	} else {
 		// packages with values from inline need to be cloned for two cases:
 		//
