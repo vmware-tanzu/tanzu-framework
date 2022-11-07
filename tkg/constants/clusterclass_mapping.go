@@ -18,11 +18,11 @@ var ClusterAttributesToLegacyVariablesMapCommon = map[string]string{
 
 	"spec.topology.controlPlane.metadata.annotations.run.tanzu.vmware.com/resolve-os-image": "",
 
-	"spec.topology.variables.network.ipv6Primary":      TKGIPV6Primary,      // TKG_IPV6_PRIMARY
-	"spec.topology.variables.network.proxy":            TKGHTTPProxyEnabled, // TKG_HTTP_PROXY_ENABLED
-	"spec.topology.variables.network.proxy.httpProxy":  TKGHTTPProxy,        // TKG_HTTP_PROXY
-	"spec.topology.variables.network.proxy.httpsProxy": TKGHTTPSProxy,       // TKG_HTTPS_PROXY
-	"spec.topology.variables.network.proxy.noProxy":    TKGNoProxy,          // TKG_NO_PROXY
+	"spec.topology.variables.network.ipv6Primary": TKGIPV6Primary,      // TKG_IPV6_PRIMARY
+	"spec.topology.variables.proxy":               TKGHTTPProxyEnabled, // TKG_HTTP_PROXY_ENABLED
+	"spec.topology.variables.proxy.httpProxy":     TKGHTTPProxy,        // TKG_HTTP_PROXY
+	"spec.topology.variables.proxy.httpsProxy":    TKGHTTPSProxy,       // TKG_HTTPS_PROXY
+	"spec.topology.variables.proxy.noProxy":       TKGNoProxy,          // TKG_NO_PROXY
 
 	"spec.topology.variables.imageRepository.host":                     ConfigVariableCustomImageRepository,
 	"spec.topology.variables.imageRepository.tlsCertificateValidation": ConfigVariableCustomImageRepositorySkipTLSVerify,
@@ -245,7 +245,7 @@ var ClusterAttributesToLegacyVariablesMapDocker = map[string]string{}
 var ClusterAttributesWithArrayTypeValue = map[string]bool{
 	"spec.clusterNetwork.pods.cidrBlocks":             true,
 	"spec.clusterNetwork.services.cidrBlocks":         true,
-	"spec.topology.variables.network.proxy.noProxy":   true,
+	"spec.topology.variables.proxy.noProxy":           true,
 	"spec.topology.variables.user.sshAuthorizedKeys":  true,
 	"spec.topology.variables.network.vnet.cidrBlocks": true,
 }

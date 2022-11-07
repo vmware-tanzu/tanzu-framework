@@ -302,9 +302,9 @@ func processYamlObjectAndAddToMap(value interface{}, clusterAttributePath string
 			log.Warningf("duplicate variable in input cluster class config file, variable path: %v", clusterAttributePath)
 		} else if fmt.Sprintf("%v", value) != "" {
 			inputVariablesMap[clusterAttributePath] = value
-			// if path spec.topology.variables.network.proxy has any child attributes then enable TKG_HTTP_PROXY_ENABLED, spec.topology.variables.network.proxy mapped to TKG_HTTP_PROXY_ENABLED
-			if strings.HasPrefix(clusterAttributePath, "spec.topology.variables.network.proxy") {
-				inputVariablesMap["spec.topology.variables.network.proxy"] = true
+			// if path spec.topology.variables.proxy has any child attributes then enable TKG_HTTP_PROXY_ENABLED, spec.topology.variables.proxy mapped to TKG_HTTP_PROXY_ENABLED
+			if strings.HasPrefix(clusterAttributePath, "spec.topology.variables.proxy") {
+				inputVariablesMap["spec.topology.variables.proxy"] = true
 			}
 		}
 	default:

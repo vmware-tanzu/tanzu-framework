@@ -27,9 +27,10 @@ const (
 var _ = Describe("Parse Cluster Variable", func() {
 	Context("ParseClusterVariable functions", func() {
 		var (
-			err        error
-			result     string
-			clusterObj *clusterapiv1beta1.Cluster
+			err         error
+			result      string
+			resultArray []string
+			clusterObj  *clusterapiv1beta1.Cluster
 		)
 		BeforeEach(func() {
 			clusterObj = &clusterapiv1beta1.Cluster{
@@ -164,6 +165,18 @@ var _ = Describe("Parse Cluster Variable", func() {
 			})
 			It("should return cluster variable value", func() {
 				Expect(result).To(Equal("foo.com"))
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+		When("cluster variable interface array exists and match the input variable name", func() {
+			BeforeEach(func() {
+				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{
+					{Name: testClusterVariableName, Value: apiextensionsv1.JSON{Raw: []byte(`{"noProxy":["10.0.0.1/24","127.0.0.1"]}`)}},
+				}
+				resultArray, err = ParseClusterVariableInterfaceArray(clusterObj, testClusterVariableName, "noProxy")
+			})
+			It("should return cluster variable value", func() {
+				Expect(resultArray).To(Equal([]string{"10.0.0.1/24", "127.0.0.1"}))
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})

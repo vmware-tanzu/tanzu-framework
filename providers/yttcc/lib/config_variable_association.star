@@ -299,7 +299,7 @@ end
 def get_cluster_variables():
     vars = {}
     kvs = config_variable_association()
-    network = {}
+
     for configVariable in kvs:
         if data.values.PROVIDER_TYPE in kvs[configVariable]:
             if data.values[configVariable] != None:
@@ -308,9 +308,9 @@ def get_cluster_variables():
                 continue
             end
             if configVariable == "TKG_HTTP_PROXY":
-                if vars["TKG_HTTP_PROXY"] != "":
-                    network["proxy"] = {
-                        "httpProxy": vars["TKG_HTTP_PROXY"],
+                if data.values["TKG_HTTP_PROXY"] != "":
+                    vars["proxy"] = {
+                        "httpProxy": data.values["TKG_HTTP_PROXY"],
                         "httpsProxy": data.values["TKG_HTTPS_PROXY"],
                         "noProxy": data.values["TKG_NO_PROXY"].split(","),
                     }
@@ -319,6 +319,7 @@ def get_cluster_variables():
         end
     end
 
+    network = {}
     if data.values["TKG_IP_FAMILY"] == "ipv6,ipv4":
         network["ipv6Primary"] = True
     end
@@ -394,7 +395,7 @@ def get_aws_vars():
 
 
     vars["bastion"] = {
-        "enabled": data.values["BASTION_HOST_ENABLED"] 
+        "enabled": data.values["BASTION_HOST_ENABLED"]
     }
 
     if vars.get("network") == None:

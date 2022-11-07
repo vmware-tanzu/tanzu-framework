@@ -47,6 +47,31 @@ func ParseClusterVariableInterface(cluster *clusterapiv1beta1.Cluster, variableN
 	return "", err
 }
 
+func ParseClusterVariableInterfaceArray(cluster *clusterapiv1beta1.Cluster, variableName, keyName string) ([]string, error) {
+	var result interface{}
+
+	result, err := parseClusterVariable(cluster, variableName)
+	if err != nil || result == nil {
+		return nil, err
+	}
+	interfaceVars := result.(map[string]interface{})
+
+	if valueName, ok := interfaceVars[keyName]; ok {
+		if _, ok := valueName.([]interface{}); ok {
+			interfaceArr := valueName.([]interface{})
+
+			aString := make([]string, len(interfaceArr))
+			for i, v := range interfaceArr {
+				aString[i] = v.(string)
+			}
+			return aString, err
+		} else {
+			return nil, fmt.Errorf("failed to parse the value %v to target type []interface{}", valueName)
+		}
+	}
+	return nil, err
+}
+
 func ParseClusterVariableList(cluster *clusterapiv1beta1.Cluster, variableName string) (string, error) {
 	var result interface{}
 

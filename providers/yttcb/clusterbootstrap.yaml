@@ -31,12 +31,17 @@
 #@ end
 
 #@ def vspherecpi_configs_exist():
-#@   return data.values.PROVIDER_TYPE == "vsphere" and (data.values.VSPHERE_SERVER or data.values.NSXT_MANAGER_HOST)
+#@   return data.values.PROVIDER_TYPE == "vsphere" and ((data.values.VSPHERE_SERVER or
+#@           data.values.NSXT_MANAGER_HOST) or (data.values.TKG_HTTP_PROXY != "" or
+#@           data.values.TKG_HTTPS_PROXY != "" or
+#@           data.values.TKG_NO_PROXY != ""))
 #@ end
 
 #@ def vspherecsi_configs_exist():
-#@   return data.values.PROVIDER_TYPE == "vsphere" and (not data.values.VSPHERE_INSECURE or
-#@           data.values.USE_TOPOLOGY_CATEGORIES)
+#@   return data.values.PROVIDER_TYPE == "vsphere" and ((not data.values.VSPHERE_INSECURE or
+#@           data.values.USE_TOPOLOGY_CATEGORIES) or (data.values.TKG_HTTP_PROXY != "" or
+#@           data.values.TKG_HTTPS_PROXY != "" or
+#@           data.values.TKG_NO_PROXY != ""))
 #@ end
 
 #@ def storage_class_configs_exist():
@@ -180,6 +185,9 @@ spec:
       zone: #@ data.values.VSPHERE_ZONE
       region: #@ data.values.VSPHERE_REGION
       useTopologyCategories: #@ data.values.USE_TOPOLOGY_CATEGORIES
+      httpProxy: #@ data.values.TKG_HTTP_PROXY
+      httpsProxy: #@ data.values.TKG_HTTPS_PROXY
+      noProxy: #@ data.values.TKG_NO_PROXY
 #@ end
 
 #@ def vsphere_storage_class():
