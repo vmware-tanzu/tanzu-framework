@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	"testing"
 
 	"github.com/go-logr/logr"
@@ -759,10 +760,11 @@ var _ = Describe("Webhook", func() {
 			cluster *clusterv1.Cluster
 
 			// For fakes and mocks
-			username      string
-			password      string
-			fakeClient    *fakes.CRTClusterClient
-			getSecretFunc func(object crtclient.Object) error
+			username                      string
+			password                      string
+			fakeClient                    *fakes.CRTClusterClient
+			getSecretFunc                 func(object crtclient.Object) error
+			getVSphereClusterIdentityFunc func(object crtclient.Object) error
 		)
 		BeforeEach(func() {
 			cluster = &clusterv1.Cluster{
@@ -803,14 +805,50 @@ var _ = Describe("Webhook", func() {
 				return nil
 			}
 
-			fakeClient.GetCalls(func(ctx context.Context, name types.NamespacedName, object crtclient.Object) error {
-				if _, ok := object.(*corev1.Secret); ok {
-					return getSecretFunc(object)
+			getVSphereClusterIdentityFunc = func(object crtclient.Object) error {
+				identity := object.(*capvv1beta1.VSphereClusterIdentity)
+				identity.Spec = capvv1beta1.VSphereClusterIdentitySpec{
+					SecretName: "SecretName",
 				}
-				return errors.New("Get() failed")
+				identity.Status.Ready = true
+				return nil
+			}
+
+			fakeClient.GetCalls(func(ctx context.Context, name types.NamespacedName, object crtclient.Object) error {
+				switch object.(type) {
+				case *corev1.Secret:
+					return getSecretFunc(object)
+				case *capvv1beta1.VSphereClusterIdentity:
+					return getVSphereClusterIdentityFunc(object)
+				default:
+					return errors.New("Get() failed")
+				}
 			})
 		})
-		When("TLSThumbprint is not empty", func() {
+		When("IdentityRef is a VSphereClusterIdentity", func() {
+			BeforeEach(func() {
+				vCenterClusterVar := VCenterClusterVar{
+					DataCenter: defaultDatacenter,
+					Server:     defaultServer,
+				}
+				Expect(topology.SetVariable(cluster, varVCenter, vCenterClusterVar)).To(BeNil())
+				identityRef := map[string]string{
+					"name": "vCenterCredential",
+					"kind": string(capvv1beta1.VSphereClusterIdentityKind),
+				}
+				Expect(topology.SetVariable(cluster, varIdentityRef, identityRef)).To(BeNil())
+			})
+			It("should return VsphereContext and should contain the correct username and password", func() {
+				vsphereContext, err := cw.getVSphereContext(context.TODO(), cluster)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vsphereContext.InsecureSkipVerify).To(BeTrue())
+				Expect(vsphereContext.DataCenter).To(Equal(defaultDatacenter))
+				Expect(vsphereContext.Server).To(Equal(defaultServer))
+				Expect(vsphereContext.Username).To(Equal(defaultUserName))
+				Expect(vsphereContext.Password).To(Equal(defaultPassword))
+			})
+		})
+		When("TLSThumbprint is not empty and identityRef is empty", func() {
 			BeforeEach(func() {
 				vCenterClusterVar := VCenterClusterVar{
 					TLSThumbprint: "some-tls-thumbprint",
