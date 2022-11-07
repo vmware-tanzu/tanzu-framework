@@ -47,7 +47,7 @@ func ParseClusterVariableInterface(cluster *clusterapiv1beta1.Cluster, variableN
 	return "", err
 }
 
-func ParseClusterVariableArray(cluster *clusterapiv1beta1.Cluster, variableName, keyName string) ([]string, error) {
+func ParseClusterVariableInterfaceArray(cluster *clusterapiv1beta1.Cluster, variableName, keyName string) ([]string, error) {
 	var result interface{}
 
 	result, err := parseClusterVariable(cluster, variableName)

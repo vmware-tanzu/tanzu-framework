@@ -1316,7 +1316,7 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 	if err != nil {
 		log.Error(err, "unable to fetch cluster HTTPS proxy setting, defaulting to empty")
 	}
-	NoProxy, err := util.ParseClusterVariableArray(cluster, "proxy", "noProxy")
+	NoProxy, err := util.ParseClusterVariableInterfaceArray(cluster, "proxy", "noProxy")
 	if err != nil {
 		log.Error(err, "unable to fetch cluster no-proxy proxy setting, defaulting to empty")
 	}
