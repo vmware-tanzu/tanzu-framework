@@ -144,9 +144,9 @@ stringData:
                 nullable: true
               enforceVersion:
                 type: string
-                #! Version defaults to v1.24 for now. When v1.25 is part of tanzu-framework, the defaulting should be done
+                #! Version defaults to v1.23 for now. When v1.25 is part of tanzu-framework, the defaulting should be done
                 #! by a defaulting webhook instead for extended logic.
-                default: "v1.24"
+                default: "v1.23"
                 description: "enforceVersion sets the version for the enforce PodSecurityConfiguration mode."
               audit:
                 type: string
@@ -155,9 +155,9 @@ stringData:
                 nullable: true
               auditVersion:
                 type: string
-                #! Version defaults to v1.24 for now. When v1.25 is part of tanzu-framework, the defaulting should be done
+                #! Version defaults to v1.23 for now. When v1.25 is part of tanzu-framework, the defaulting should be done
                 #! by a defaulting webhook instead for extended logic.
-                default: "v1.24"
+                default: "v1.23"
                 description: "auditVersion sets the version for the audit PodSecurityConfiguration mode."
               warn:
                 type: string
@@ -166,9 +166,9 @@ stringData:
                 nullable: true
               warnVersion:
                 type: string
-                #! Version defaults to v1.24 for now. When v1.25 is part of tanzu-framework, the defaulting should be done
+                #! Version defaults to v1.23 for now. When v1.25 is part of tanzu-framework, the defaulting should be done
                 #! by a defaulting webhook instead for extended logic.
-                default: "v1.24"
+                default: "v1.23"
                 description: "warnVersion sets the version for the warn PodSecurityConfiguration mode."
               exemptions:
                 type: object
@@ -246,4 +246,4 @@ stringData:
                         runtimeClasses: []
                         namespaces: [{{ $namespace_exemptions }}]
                 path: /etc/kubernetes/kube-apiserver-admission-pss.yaml
-        enabledIf: '{{ and (not .podSecurityStandard.deactivated) (semverCompare ">= v1.24" .builtin.controlPlane.version) }}'
+        enabledIf: '{{ and (not .podSecurityStandard.deactivated) (semverCompare ">= v1.23" .builtin.controlPlane.version) }}'

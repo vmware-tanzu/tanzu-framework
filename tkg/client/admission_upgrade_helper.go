@@ -22,9 +22,9 @@ plugins:
       enforce: ""
       enforce-version: ""
       audit: "baseline"
-      audit-version: "v1.24"
+      audit-version: "v1.23"
       warn: "baseline"
-      warn-version: "v1.24"
+      warn-version: "v1.23"
     exemptions:
       usernames: []
       runtimeClasses: []

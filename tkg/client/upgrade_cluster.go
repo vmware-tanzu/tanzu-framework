@@ -1103,7 +1103,7 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 		}
 	}
 
-	if semver.Compare(clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion, "v1.24.0") >= 0 {
+	if semver.Compare(clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion, "v1.23.0") >= 0 {
 		newKCP := c.configurePodSecurityStandard(currentKCP)
 		if newKCP != nil {
 			log.Infof("Enabling Pod Security Standard for KCP")

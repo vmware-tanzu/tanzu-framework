@@ -373,7 +373,7 @@ def activate_pod_security_standard():
     return False
   end
   tkrVersion = get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE)
-  if compare_semver_versions(tkrVersion, "v1.24.0") >= 0:
+  if compare_semver_versions(tkrVersion, "v1.23.0") >= 0:
      return True
   end
   return False
