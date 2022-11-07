@@ -15,11 +15,11 @@ plugins:
     kind: PodSecurityConfiguration
     defaults:
       enforce: #@ data.values.POD_SECURITY_STANDARD_ENFORCE
-      enforce-version: "v1.23"
+      enforce-version: "v1.24"
       audit: #@ data.values.POD_SECURITY_STANDARD_AUDIT
-      audit-version: "v1.23"
+      audit-version: "v1.24"
       warn: #@ data.values.POD_SECURITY_STANDARD_WARN
-      warn-version: "v1.23"
+      warn-version: "v1.24"
     exemptions:
       usernames: []
       runtimeClasses: []
