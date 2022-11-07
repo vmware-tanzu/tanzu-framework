@@ -1,7 +1,6 @@
 #@ load("@ytt:assert", "assert")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:ip", "ip")
-#@ load("lib/helpers.star", "get_tkr_version_from_tkr_name")
 
 #@ vsphereControlPlaneEndpointAsCidr = ""
 #@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
