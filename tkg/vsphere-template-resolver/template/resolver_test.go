@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"testing"
 
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+
 	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -759,10 +761,11 @@ var _ = Describe("Webhook", func() {
 			cluster *clusterv1.Cluster
 
 			// For fakes and mocks
-			username      string
-			password      string
-			fakeClient    *fakes.CRTClusterClient
-			getSecretFunc func(object crtclient.Object) error
+			username                      string
+			password                      string
+			fakeClient                    *fakes.CRTClusterClient
+			getSecretFunc                 func(object crtclient.Object) error
+			getVSphereClusterIdentityFunc func(object crtclient.Object) error
 		)
 		BeforeEach(func() {
 			cluster = &clusterv1.Cluster{
@@ -803,14 +806,158 @@ var _ = Describe("Webhook", func() {
 				return nil
 			}
 
-			fakeClient.GetCalls(func(ctx context.Context, name types.NamespacedName, object crtclient.Object) error {
-				if _, ok := object.(*corev1.Secret); ok {
-					return getSecretFunc(object)
+			getVSphereClusterIdentityFunc = func(object crtclient.Object) error {
+				identity := object.(*capvv1beta1.VSphereClusterIdentity)
+				identity.Spec = capvv1beta1.VSphereClusterIdentitySpec{
+					SecretName: "SecretName",
 				}
-				return errors.New("Get() failed")
+				identity.Status.Ready = true
+				return nil
+			}
+
+			fakeClient.GetCalls(func(ctx context.Context, name types.NamespacedName, object crtclient.Object) error {
+				switch object.(type) {
+				case *corev1.Secret:
+					return getSecretFunc(object)
+				case *capvv1beta1.VSphereClusterIdentity:
+					return getVSphereClusterIdentityFunc(object)
+				default:
+					return errors.New("Get() failed")
+				}
 			})
 		})
-		When("TLSThumbprint is not empty", func() {
+		When("there is an error to parse variable identityRef", func() {
+			BeforeEach(func() {
+				vCenterClusterVar := VCenterClusterVar{
+					DataCenter: defaultDatacenter,
+					Server:     defaultServer,
+				}
+				Expect(topology.SetVariable(cluster, varVCenter, vCenterClusterVar)).To(BeNil())
+				identityRef := "Not the right type"
+				Expect(topology.SetVariable(cluster, varIdentityRef, identityRef)).To(BeNil())
+			})
+			It("should return nil and error", func() {
+				vsphereContext, err := cw.getVSphereContext(context.TODO(), cluster)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("could not parse variable identityRef"))
+				Expect(vsphereContext).To(BeNil())
+			})
+		})
+		When("variable identityRef is not a supported type", func() {
+			BeforeEach(func() {
+				vCenterClusterVar := VCenterClusterVar{
+					DataCenter: defaultDatacenter,
+					Server:     defaultServer,
+				}
+				Expect(topology.SetVariable(cluster, varVCenter, vCenterClusterVar)).To(BeNil())
+				identityRef := map[string]string{
+					"name": "vCenterCredential",
+					"kind": "unsupported",
+				}
+				Expect(topology.SetVariable(cluster, varIdentityRef, identityRef)).To(BeNil())
+			})
+			It("should return nil and error", func() {
+				vsphereContext, err := cw.getVSphereContext(context.TODO(), cluster)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("not supported identityRef type"))
+				Expect(vsphereContext).To(BeNil())
+			})
+		})
+		When("IdentityRef is a VSphereClusterIdentity whose status is not ready", func() {
+			BeforeEach(func() {
+				vCenterClusterVar := VCenterClusterVar{
+					DataCenter: defaultDatacenter,
+					Server:     defaultServer,
+				}
+				Expect(topology.SetVariable(cluster, varVCenter, vCenterClusterVar)).To(BeNil())
+				identityRef := map[string]string{
+					"name": "vCenterCredential",
+					"kind": string(capvv1beta1.VSphereClusterIdentityKind),
+				}
+				Expect(topology.SetVariable(cluster, varIdentityRef, identityRef)).To(BeNil())
+				fakeClient.GetCalls(func(ctx context.Context, name types.NamespacedName, object crtclient.Object) error {
+					identity := object.(*capvv1beta1.VSphereClusterIdentity)
+					identity.Status.Ready = false
+					return nil
+				})
+			})
+			It("should return nil and error", func() {
+				vsphereContext, err := cw.getVSphereContext(context.TODO(), cluster)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("is not ready yet"))
+				Expect(vsphereContext).To(BeNil())
+			})
+		})
+		When("IdentityRef VSphereClusterIdentity does not exist", func() {
+			BeforeEach(func() {
+				vCenterClusterVar := VCenterClusterVar{
+					DataCenter: defaultDatacenter,
+					Server:     defaultServer,
+				}
+				Expect(topology.SetVariable(cluster, varVCenter, vCenterClusterVar)).To(BeNil())
+				identityRef := map[string]string{
+					"name": "vCenterCredential",
+					"kind": string(capvv1beta1.VSphereClusterIdentityKind),
+				}
+				Expect(topology.SetVariable(cluster, varIdentityRef, identityRef)).To(BeNil())
+				fakeClient.GetCalls(func(ctx context.Context, name types.NamespacedName, object crtclient.Object) error {
+					return errors.New("not found")
+				})
+			})
+			It("should return error", func() {
+				vsphereContext, err := cw.getVSphereContext(context.TODO(), cluster)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("could not get VSphereClusterIdentity"))
+				Expect(vsphereContext).To(BeNil())
+			})
+		})
+		When("IdentityRef is a VSphereClusterIdentity", func() {
+			BeforeEach(func() {
+				vCenterClusterVar := VCenterClusterVar{
+					DataCenter: defaultDatacenter,
+					Server:     defaultServer,
+				}
+				Expect(topology.SetVariable(cluster, varVCenter, vCenterClusterVar)).To(BeNil())
+				identityRef := map[string]string{
+					"name": "vCenterCredential",
+					"kind": string(capvv1beta1.VSphereClusterIdentityKind),
+				}
+				Expect(topology.SetVariable(cluster, varIdentityRef, identityRef)).To(BeNil())
+			})
+			It("should return VsphereContext and should contain the correct username and password", func() {
+				vsphereContext, err := cw.getVSphereContext(context.TODO(), cluster)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vsphereContext.InsecureSkipVerify).To(BeTrue())
+				Expect(vsphereContext.DataCenter).To(Equal(defaultDatacenter))
+				Expect(vsphereContext.Server).To(Equal(defaultServer))
+				Expect(vsphereContext.Username).To(Equal(defaultUserName))
+				Expect(vsphereContext.Password).To(Equal(defaultPassword))
+			})
+		})
+		When("IdentityRef is a Secret", func() {
+			BeforeEach(func() {
+				vCenterClusterVar := VCenterClusterVar{
+					DataCenter: defaultDatacenter,
+					Server:     defaultServer,
+				}
+				Expect(topology.SetVariable(cluster, varVCenter, vCenterClusterVar)).To(BeNil())
+				identityRef := map[string]string{
+					"name": "SecretName",
+					"kind": "Secret",
+				}
+				Expect(topology.SetVariable(cluster, varIdentityRef, identityRef)).To(BeNil())
+			})
+			It("should return VsphereContext and should contain the correct username and password", func() {
+				vsphereContext, err := cw.getVSphereContext(context.TODO(), cluster)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vsphereContext.InsecureSkipVerify).To(BeTrue())
+				Expect(vsphereContext.DataCenter).To(Equal(defaultDatacenter))
+				Expect(vsphereContext.Server).To(Equal(defaultServer))
+				Expect(vsphereContext.Username).To(Equal(defaultUserName))
+				Expect(vsphereContext.Password).To(Equal(defaultPassword))
+			})
+		})
+		When("TLSThumbprint is not empty and identityRef is empty", func() {
 			BeforeEach(func() {
 				vCenterClusterVar := VCenterClusterVar{
 					TLSThumbprint: "some-tls-thumbprint",

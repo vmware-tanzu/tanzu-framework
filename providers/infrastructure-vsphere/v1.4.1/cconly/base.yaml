@@ -473,6 +473,19 @@ spec:
       openAPIV3Schema:
         type: boolean
         default: true
+  - name: identityRef
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          name:
+            type: string
+          kind:
+            type: string
+        required:
+        - name
+        - kind
   patches:
   - name: vsphereClusterTemplate
     definitions:
@@ -496,12 +509,25 @@ spec:
         path: /spec/template/spec/server
         valueFrom:
           variable: vcenter.server
+  - name: vSphereClusterIdentityRef
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: VSphereClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
       - op: add
         path: /spec/template/spec/identityRef
         valueFrom:
           template: |
+            {{ if .identityRef -}}
+            kind: {{ .identityRef.kind }}
+            name: {{ .identityRef.name }}
+            {{- else -}}
             kind: Secret
             name: '{{ .builtin.cluster.name }}'
+            {{- end }}
   - name: controlPlaneMachineTemplate
     definitions:
     - selector:

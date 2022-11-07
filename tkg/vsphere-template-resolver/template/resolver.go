@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"net/http"
 
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -29,6 +31,8 @@ const (
 	osImageRefVersion  = "version"
 	osImageRefTemplate = "template"
 	osImageRefMOID     = "moid"
+	varIdentityRef     = "identityRef"
+	namespaceCAPV      = "capv-system"
 )
 
 type Webhook struct {
@@ -307,11 +311,40 @@ func populateTKRDataFromResult(tkrDataValue *resolver_cluster.TKRDataValue, temp
 
 func (cw *Webhook) getVSphereContext(ctx context.Context, cluster *clusterv1.Cluster) (*templateresolver.VSphereContext, error) {
 	c := cw.Client
-	// Get Secret (cluster name in cluster namespace)
-	clusterName, clusterNamespace := cluster.Name, cluster.Namespace
+
+	// By default, a Secret with the same name and namespace will be used as the vSphere identity. However, API
+	// consumers like TMC are allowed to use alternative identity type, e.g. VSphereClusterIdentity through the
+	// Cluster variable identityRef. We need to retrieve the credential Secret according to different use cases.
+	secretName := cluster.Name
+	secretNamespace := cluster.Namespace
+	for _, variable := range cluster.Spec.Topology.Variables {
+		if variable.Name == varIdentityRef {
+			identityRef := &capvv1beta1.VSphereIdentityReference{}
+			if err := json.Unmarshal(variable.Value.Raw, identityRef); err != nil {
+				return nil, errors.Wrapf(err, fmt.Sprintf("could not parse variable identityRef: %v", variable))
+			}
+			switch identityRef.Kind {
+			case capvv1beta1.VSphereClusterIdentityKind:
+				vSphereClusterIdentity := &capvv1beta1.VSphereClusterIdentity{}
+				if err := c.Get(ctx, client.ObjectKey{Name: identityRef.Name}, vSphereClusterIdentity); err != nil {
+					return nil, errors.Wrapf(err, fmt.Sprintf("could not get VSphereClusterIdentity %s", identityRef.Name))
+				}
+				if vSphereClusterIdentity.Status.Ready {
+					secretName = vSphereClusterIdentity.Spec.SecretName
+					secretNamespace = namespaceCAPV
+				} else {
+					return nil, errors.New(fmt.Sprintf("VShereClusterIdentity %s is not ready yet", identityRef.Name))
+				}
+			case capvv1beta1.SecretKind:
+				secretName = identityRef.Name
+			default:
+				return nil, errors.New(fmt.Sprintf("not supported identityRef type %s", identityRef.Kind))
+			}
+		}
+	}
 
 	secret := &corev1.Secret{}
-	objKey := client.ObjectKey{Name: clusterName, Namespace: clusterNamespace}
+	objKey := client.ObjectKey{Name: secretName, Namespace: secretNamespace}
 	cw.Log.Info("Getting secret for VC Client", "key", objKey)
 	err := c.Get(ctx, objKey, secret)
 	if err != nil {
