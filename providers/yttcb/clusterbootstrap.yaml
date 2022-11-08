@@ -16,18 +16,23 @@
 #@   end
 #@ end
 
+#@ def split_comma_values(value):
+#@  return value.split(",") if value else []
+#@ end
+
 #@ def antrea_configs_exist():
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED or
-#@           data.values.ANTREA_NO_SNAT or
-#@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
-#@           not data.values.ANTREA_PROXY or
-#@           not data.values.ANTREA_ENDPOINTSLICE or
-#@           not data.values.ANTREA_POLICY or
-#@           not data.values.ANTREA_NODEPORTLOCAL or
-#@           not data.values.ANTREA_TRACEFLOW or
-#@           not data.values.ANTREA_EGRESS or
+#@           data.values.ANTREA_PROXY or
+#@           data.values.ANTREA_ENDPOINTSLICE or
+#@           data.values.ANTREA_POLICY or
+#@           data.values.ANTREA_TRACEFLOW or
+#@           data.values.ANTREA_NODEPORTLOCAL or
+#@           data.values.ANTREA_NETWORKPOLICY_STATS or
+#@           data.values.ANTREA_EGRESS or
+#@           data.values.ANTREA_IPAM or
 #@           data.values.ANTREA_FLOWEXPORTER or
-#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD)
+#@           data.values.ANTREA_SERVICE_EXTERNALIP or
+#@           data.values.ANTREA_MULTICAST)
 #@ end
 
 #@ def vspherecpi_configs_exist():
@@ -74,6 +79,31 @@ metadata:
 spec:
   antrea:
     config:
+      egress:
+        exceptCIDRs: #@ split_comma_values(data.values.ANTREA_EGRESS_EXCEPT_CIDRS)
+      nodePortLocal:
+        enabled: #@ data.values.ANTREA_NODEPORTLOCAL_ENABLED
+        portRange: #@ data.values.ANTREA_NODEPORTLOCAL_PORTRANGE
+      antreaProxy:
+        proxyAll: #@ data.values.ANTREA_PROXY_ALL
+        nodePortAddresses: #@ split_comma_values(data.values.ANTREA_PROXY_NODEPORT_ADDRS)
+        skipServices: #@ split_comma_values(data.values.ANTREA_PROXY_SKIP_SERVICES)
+        proxyLoadBalancerIPs: #@ data.values.ANTREA_PROXY_LOAD_BALANCER_IPS
+      flowExporter:
+        collectorAddress: #@ data.values.ANTREA_FLOWEXPORTER_COLLECTOR_ADDRESS
+        pollInterval: #@ data.values.ANTREA_FLOWEXPORTER_POLL_INTERVAL
+        activeFlowTimeout: #@ data.values.ANTREA_FLOWEXPORTER_ACTIVE_TIMEOUT
+        idleFlowTimeout: #@ data.values.ANTREA_FLOWEXPORTER_IDLE_TIMEOUT
+      kubeAPIServerOverride: #@ data.values.ANTREA_KUBE_APISERVER_OVERRIDE
+      transportInterface: #@ data.values.ANTREA_TRANSPORT_INTERFACE
+      transportInterfaceCIDRs: #@ split_comma_values(data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS)
+      multicastInterfaces: #@ split_comma_values(data.values.ANTREA_MULTICAST_INTERFACES)
+      tunnelType: #@ data.values.ANTREA_TUNNEL_TYPE
+      trafficEncryptionMode: #@ data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE
+      enableUsageReporting: #@ data.values.ANTREA_ENABLE_USAGE_REPORTING
+      wireGuard:
+        port: #@ data.values.ANTREA_WIREGUARD_PORT
+      serviceCIDR: #@ data.values.SERVICE_CIDR
       #@ if data.values.NSXT_POD_ROUTING_ENABLED:
       trafficEncapMode: "noEncap"
       noSNAT: true
@@ -89,11 +119,15 @@ spec:
         AntreaProxy: #@ data.values.ANTREA_PROXY
         #@ end
         EndpointSlice: #@ data.values.ANTREA_ENDPOINTSLICE
-        AntreaPolicy: #@ data.values.ANTREA_POLICY
-        NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
         AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
-        Egress: #@ data.values.ANTREA_EGRESS
+        NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
+        AntreaPolicy: #@ data.values.ANTREA_POLICY
         FlowExporter: #@ data.values.ANTREA_FLOWEXPORTER
+        NetworkPolicyStats: #@ data.values.ANTREA_NETWORKPOLICY_STATS
+        Egress: #@ data.values.ANTREA_EGRESS
+        AntreaIPAM: #@ data.values.ANTREA_IPAM
+        ServiceExternalIP: #@ data.values.ANTREA_SERVICE_EXTERNALIP
+        Multicast: #@ data.values.ANTREA_MULTICAST
 #@ end
 ---
 #@ if data.values.CNI == "calico":
