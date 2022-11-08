@@ -85,7 +85,7 @@ metadata:
     kapp.k14s.io/change-rule.1: "delete before deleting tkg-infra-clusterclass-packageinstall/serviceaccount"
 type: Opaque
 stringData:
-  kcp-empty-array-ovleray.yaml: |
+  kcp-empty-array-overlay.yaml: |
     #! This overlay is adds a patch as first element in the patches to create empty
     #! arrays inside the KCP object. With this other patches are able to append to the
     #! now empty array.
