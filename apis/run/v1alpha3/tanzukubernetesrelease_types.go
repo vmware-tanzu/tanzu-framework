@@ -28,6 +28,8 @@ const (
 
 	LabelTKR     = "run.tanzu.vmware.com/tkr"
 	LabelOSImage = "run.tanzu.vmware.com/os-image"
+
+	LabelLegacyTKR = "run.tanzu.vmware.com/legacy-tkr"
 )
 
 // TanzuKubernetesReleaseSpec defines the desired state of TanzuKubernetesRelease
