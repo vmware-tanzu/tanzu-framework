@@ -13,5 +13,6 @@ var (
 		constants.FeatureFlagClusterDualStackIPv4Primary: false,
 		constants.FeatureFlagClusterDualStackIPv6Primary: false,
 		constants.FeatureFlagClusterCustomNameservers:    false,
+		constants.FeatureFlagPackageBasedLCM: true,
 	}
 )

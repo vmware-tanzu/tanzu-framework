@@ -690,6 +690,7 @@ VSPHERE_VERSION:
 #! It is the 10th index of SERVICE_CIDR subnet
 CORE_DNS_IP:
 #! This defines feature flag package-based-lcm is enabled or not
+#! By default, this is true
 FEATURE_FLAG_PACKAGE_BASED_LCM:
 #! Used for testing clusterclasses only
 TKR_DATA:
