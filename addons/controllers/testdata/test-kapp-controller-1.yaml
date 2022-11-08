@@ -23,8 +23,15 @@ spec:
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: KappControllerConfig
 metadata:
-  name: test-kapp-controller-1
+  name: test-kapp-controller-1-kapp-controller-package
   namespace: default
+  ownerReferences:
+    - apiVersion: cluster.x-k8s.io/v1beta1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Cluster
+      name: test-kapp-controller-1
+      uid: cbd29b10-c190-422e-86f1-a0321d1aab7d
 spec:
   namespace: test-ns
   kappController:

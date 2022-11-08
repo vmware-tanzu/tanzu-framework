@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -64,28 +65,24 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
+	annotations := antreaConfig.GetAnnotations()
+	if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		log.Info(fmt.Sprintf("resource '%v' is a config template. Skipping reconciling", req.NamespacedName))
+		return ctrl.Result{}, nil
+	}
+
 	// deep copy AntreaConfig to avoid issues if in the future other controllers where interacting with the same copy
 	antreaConfig = antreaConfig.DeepCopy()
 
-	// get the parent cluster name from owner reference
-	// if the owner reference doesn't exist, use the same name as config CRD
-	clusterNamespacedName := req.NamespacedName
-	cluster := &clusterapiv1beta1.Cluster{}
-	for _, owner := range antreaConfig.OwnerReferences {
-		if owner.Kind == constants.ClusterKind {
-			clusterNamespacedName.Name = owner.Name
-			break
-		}
-	}
+	cluster, err := cutil.GetOwnerCluster(ctx, r.Client, antreaConfig, req.Namespace, constants.AntreaDefaultRefName)
 
-	// verify that the cluster related to config is present
-	if err := r.Client.Get(ctx, clusterNamespacedName, cluster); err != nil {
-		if apierrors.IsNotFound(err) {
-			log.Info(fmt.Sprintf("Cluster '%s'not found in '%s'", clusterNamespacedName.Name, clusterNamespacedName.Namespace))
+	if err != nil {
+		if apierrors.IsNotFound(err) && cluster != nil {
+			log.Info(fmt.Sprintf("'%s/%s' is listed as owner reference but could not be found",
+				cluster.Namespace, cluster.Name))
 			return ctrl.Result{}, nil
 		}
-
-		log.Error(err, fmt.Sprintf("unable to fetch cluster '%s' in '%s'", clusterNamespacedName.Name, clusterNamespacedName.Namespace))
+		log.Error(err, "could not determine owner cluster")
 		return ctrl.Result{}, err
 	}
 

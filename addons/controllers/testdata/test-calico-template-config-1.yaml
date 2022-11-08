@@ -2,7 +2,7 @@
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: CalicoConfig
 metadata:
-  name: test-cluster-calico-1
+  name: test-cluster-calico-1-calico-package
   namespace: tkg-system
   annotations:
     tkg.tanzu.vmware.com/template-config: "true"

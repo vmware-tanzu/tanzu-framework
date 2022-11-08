@@ -2,74 +2,58 @@
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: TanzuKubernetesRelease
 metadata:
-  name: v1.23.2
+  name: v1.23.1
 spec:
-  version: v1.23.2
+  version: v1.23.1
   kubernetes:
-    version: v1.23.2
+    version: v1.23.1
     imageRepository: foo
   osImages: []
-  bootstrapPackages:
-    - name: calico.tanzu.vmware.com.1.2.5--vmware.12-tkg.1
+  bootstrapPackages: []
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrapTemplate
 metadata:
-  name: v1.23.2
+  name: v1.23.1
   namespace: tkg-system
 spec:
   kapp:
-    refName: kapp-controller.tanzu.vmware.com.0.31.2
+    refName: kapp-controller.tanzu.vmware.com.0.31.1
     valuesFrom:
       providerRef:
         apiGroup: run.tanzu.vmware.com
         kind: KappControllerConfig
-        name: c-kapp-config-template-3
+        name: kapp-config-template
   cni:
-    refName: calico.tanzu.vmware.com.1.2.5--vmware.12-tkg.1
+    refName: antrea.tanzu.vmware.com.1.2.5--vmware.11-tkg.1
     valuesFrom:
       providerRef:
         apiGroup: cni.tanzu.vmware.com
-        kind: CalicoConfig
-        name: calico-config-template-3
+        kind: AntreaConfig
+        name: antrea-config-template
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
-kind: CalicoConfig
+kind: AntreaConfig
 metadata:
-  name: calico-config-template-3
+  name: antrea-config-template
   namespace: tkg-system
   annotations:
     tkg.tanzu.vmware.com/template-config: "true"
 spec:
-  calico:
+  antrea:
     config:
-      vethMTU: 0
-      skipCNIBinaries: true
----
-apiVersion: run.tanzu.vmware.com/v1alpha3
-kind: KappControllerConfig
-metadata:
-  name: c-kapp-config-template-3
-  namespace: tkg-system
-  annotations:
-    tkg.tanzu.vmware.com/template-config: "true"
-spec:
-  namespace: test-ns
-  kappController:
-    createNamespace: true
-    globalNamespace: tanzu-package-repo-global
-
+      trafficEncapMode: encap
+      defaultMTU:       "8900"
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerCluster
 metadata:
   name: custom-cb-docker-cluster
-
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: kapp-controller.tanzu.vmware.com.0.31.2
+  name: kapp-controller.tanzu.vmware.com.0.31.1
   namespace: tkg-system
 spec:
   refName: kapp-controller.tanzu.vmware.com
@@ -100,24 +84,24 @@ spec:
   releasedAt: "2021-12-30T10:59:32Z"
   valuesSchema:
     openAPIv3:
-      title: kapp-controller.tanzu.vmware.com.0.31.2+vmware.1-tkg.1 values schema
+      title: kapp-controller.tanzu.vmware.com.0.31.1+vmware.1-tkg.1 values schema
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: calico.tanzu.vmware.com.1.2.5--vmware.12-tkg.1
+  name: antrea.tanzu.vmware.com.1.2.5--vmware.11-tkg.1
   namespace: tkg-system
 spec:
-  refName: calico.tanzu.vmware.com
+  refName: antrea.tanzu.vmware.com
   version: 1.2.5+vmware.1-tkg.1
-  releaseNotes: calico 1.2.3 https://github.com/calico-io/calico/releases/tag/v1.2.3
+  releaseNotes: antrea 1.2.3 https://github.com/antrea-io/antrea/releases/tag/v1.2.3
   licenses:
     - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
   template:
     spec:
       fetch:
         - imgpkgBundle:
-            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/calico:v1.2.3_vmware.1-tkg.1
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/antrea:v1.2.3_vmware.1-tkg.1
       template:
         - ytt:
             paths:
@@ -136,32 +120,35 @@ spec:
   releasedAt: "2021-12-20T10:59:32Z"
   valuesSchema:
     openAPIv3:
-      title: calico.tanzu.vmware.com.1.2.5+vmware.1-tkg.1 values schema
-
+      title: antrea.tanzu.vmware.com.1.2.5+vmware.1-tkg.1 values schema
 ---
-apiVersion: cluster.x-k8s.io/v1beta1
-kind: Cluster
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
 metadata:
-  name: test-cluster-calico-1
+  name: kapp-config-template
   namespace: tkg-system
-  labels:
-    "tkg.tanzu.vmware.com/cluster-name": test-cluster-calico-1
-    "run.tanzu.vmware.com/tkr": v1.23.2
-    cluster-role.tkg.tanzu.vmware.com/management: ""
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
-  infrastructureRef:
-    kind: VSphereCluster
-  clusterNetwork:
-    pods:
-      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
----
-apiVersion: cni.tanzu.vmware.com/v1alpha1
-kind: CalicoConfig
-metadata:
-  name: test-cluster-calico-1-calico-package
-  namespace: tkg-system
-spec:
-  calico:
-    config:
-      vethMTU: 7
-      skipCNIBinaries: true
+  namespace: test-ns
+  kappController:
+    createNamespace: true
+    globalNamespace: tanzu-package-repo-global
+    deployment:
+      concurrency: 4
+      hostNetwork: true
+      priorityClassName: system-cluster-critical
+      apiPort: 10100
+      metricsBindAddress: "0"
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+        - effect: NoSchedule
+          key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"

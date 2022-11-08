@@ -321,70 +321,98 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		clusterBootstrap.Spec.Kapp,
 	}, clusterBootstrap.Spec.AdditionalPackages...)
 
-	if clusterBootstrap.Annotations != nil {
-		if annotationValue, annotationExist := clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]; annotationExist {
-			tkrName = annotationValue
-			clusterBootstrapTemplateName := annotationValue // TanzuKubernetesRelease and ClusterBootstrapTemplate share the same name
-			clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
-			// Get the ClusterBootstrapTemplate mentioned in the annotation under system namespace
-			if err := h.K8sClient.Get(h.Ctx, client.ObjectKey{Namespace: systemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
-				return nil, err
-			}
-
-			// Update the packages slice to make it only contains the ones we want the rest of the code to do the cloning.
-			// For cloning, we only care about the ClusterBootstrap packages which have no valuesFrom originally. The missing
-			// valuesFrom field will be added by AddMissingSpecFieldsFromTemplate() in few lines below, and we want to clone
-			// those packages from system namespace.
-			var nilValuesFromPackages []*runtanzuv1alpha3.ClusterBootstrapPackage
-			for _, cbPackage := range packages {
-				if cbPackage != nil && cbPackage.ValuesFrom == nil {
-					nilValuesFromPackages = append(nilValuesFromPackages, cbPackage)
-				}
-			}
-
-			var nonEmptyInlinePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
-			for _, cbPackage := range packages {
-				if cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.Inline != nil {
-					nonEmptyInlinePackages = append(nonEmptyInlinePackages, cbPackage)
-				}
-			}
-
-			if err := h.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, nil); err != nil {
-				h.Logger.Error(err, fmt.Sprintf("unable to add missing spec fields of ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
-					clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
-				return nil, err
-			}
-
-			// AddMissingSpecFieldsFromTemplate() updates clusterBootstrap.Spec, it holds the updated pointers now.
-			// Declaring updatedCBPackages is to compare with original nilValuesFromPackages and figure out which packages
-			// need to be cloned.
-			updatedCBPackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
-				clusterBootstrap.Spec.CNI,
-				clusterBootstrap.Spec.CPI,
-				clusterBootstrap.Spec.CSI,
-				clusterBootstrap.Spec.Kapp,
-			}, clusterBootstrap.Spec.AdditionalPackages...)
-
-			var packagesToBeCloned []*runtanzuv1alpha3.ClusterBootstrapPackage
-			for _, nilValuesFromPackage := range nilValuesFromPackages {
-				for _, updatedCBPackage := range updatedCBPackages {
-					// If the nilValuesFromPackage has been filled by AddMissingSpecFieldsFromTemplate(), it is the package
-					// we want to record and do cloning.
-					if updatedCBPackage != nil && updatedCBPackage.ValuesFrom != nil && updatedCBPackage.RefName == nilValuesFromPackage.RefName {
-						packagesToBeCloned = append(packagesToBeCloned, updatedCBPackage)
-					}
-				}
-			}
-			h.Logger.Info("Updating packagesToBeCloned with inline packages")
-			packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
-			packages = packagesToBeCloned
+	if annotationValue, annotationExist := clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]; annotationExist {
+		tkrName = annotationValue
+		clusterBootstrapTemplateName := annotationValue // TanzuKubernetesRelease and ClusterBootstrapTemplate share the same name
+		clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
+		// Get the ClusterBootstrapTemplate mentioned in the annotation under system namespace
+		if err := h.K8sClient.Get(h.Ctx, client.ObjectKey{Namespace: systemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
+			return nil, err
 		}
+
+		// Update the packages slice to make it only contains the ones we want the rest of the code to do the cloning.
+		// For cloning, we only care about the ClusterBootstrap packages which have no valuesFrom originally. The missing
+		// valuesFrom field will be added by AddMissingSpecFieldsFromTemplate() in few lines below, and we want to clone
+		// those packages from system namespace.
+		var nilValuesFromPackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, cbPackage := range packages {
+			if cbPackage != nil && cbPackage.ValuesFrom == nil {
+				nilValuesFromPackages = append(nilValuesFromPackages, cbPackage)
+			}
+		}
+
+		var nonEmptyInlinePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, cbPackage := range packages {
+			if cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.Inline != nil {
+				nonEmptyInlinePackages = append(nonEmptyInlinePackages, cbPackage)
+			}
+		}
+
+		if err := h.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, nil); err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to add missing spec fields of ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
+				clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
+			return nil, err
+		}
+
+		// AddMissingSpecFieldsFromTemplate() updates clusterBootstrap.Spec, it holds the updated pointers now.
+		// Declaring updatedCBPackages is to compare with original nilValuesFromPackages and figure out which packages
+		// need to be cloned.
+		updatedCBPackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
+			clusterBootstrap.Spec.CNI,
+			clusterBootstrap.Spec.CPI,
+			clusterBootstrap.Spec.CSI,
+			clusterBootstrap.Spec.Kapp,
+		}, clusterBootstrap.Spec.AdditionalPackages...)
+
+		var packagesToBeCloned []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, nilValuesFromPackage := range nilValuesFromPackages {
+			for _, updatedCBPackage := range updatedCBPackages {
+				// If the nilValuesFromPackage has been filled by AddMissingSpecFieldsFromTemplate(), it is the package
+				// we want to record and do cloning.
+				if updatedCBPackage != nil && updatedCBPackage.ValuesFrom != nil && updatedCBPackage.RefName == nilValuesFromPackage.RefName {
+					packagesToBeCloned = append(packagesToBeCloned, updatedCBPackage)
+				}
+			}
+		}
+		h.Logger.Info("Updating packagesToBeCloned with inline packages")
+		packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
+		packages = packagesToBeCloned
+	} else {
+		// packages with values from inline need to be cloned for two cases:
+		//
+		// 1. When no Clusterbootstrap is given by user and clusterbootstraptemplate
+		//    is cloned as clusterbootstrap but resolved tkr is not set - In this
+		//   case the providers are already cloned so providers do not have to be cloned again
+		//
+		// 2. When full clusterbootstrap without tkr annotation is given by user.
+		//    In this case we only want to handle inline packages for creating
+		//    secret. The providers are expected to be present in the
+		//   clusternamespace, created by user before clusterbootstrap is created.
+		var nonEmptyInlinePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, cbPackage := range packages {
+			if cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.Inline != nil {
+				nonEmptyInlinePackages = append(nonEmptyInlinePackages, cbPackage)
+			}
+		}
+		var packagesToBeCloned []*runtanzuv1alpha3.ClusterBootstrapPackage
+		packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
+		packages = packagesToBeCloned
 	}
 
-	secrets, providers, err := h.CloneReferencedObjectsFromCBPackages(cluster, packages, systemNamespace)
+	secrets, _, err := h.CloneReferencedObjectsFromCBPackages(cluster, packages, systemNamespace)
 	if err != nil {
 		h.Logger.Error(err, "unable to clone secrets or providers")
 		return nil, err
+	}
+
+	// We need to verify that all the listed prvoiders in the clusterbootstrap with fromRef exist
+	providers, err := h.verifyProvidersFromRefExist(clusterBootstrap)
+	if err != nil {
+		h.Logger.Error(err, "could not verify all providers listed with providerRef in clusterbootstrap exists")
+		return nil, err
+	}
+	if err := h.AddClusterOwnerRef(cluster, providers, nil, nil); err != nil {
+		h.Logger.Error(err, fmt.Sprintf("unable to add cluster %s/%s as owner reference to providers", cluster.Namespace, cluster.Name))
 	}
 
 	clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
@@ -405,14 +433,56 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		return nil, err
 	}
 
-	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
-	// clusterBootstrap is created
+	// all providers have the clusterboostrap added as controller owner reference.
 	if err := h.EnsureOwnerRef(clusterBootstrap, secrets, providers); err != nil {
 		h.Logger.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return nil, err
 	}
 
 	return clusterBootstrap, nil
+}
+func (h *Helper) verifyProvidersFromRefExist(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*unstructured.Unstructured, error) {
+
+	providers := []*unstructured.Unstructured{}
+	cbPkgs, err := h.getListOfPkgsWithProviderRefNames(clusterBootstrap)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, pkg := range cbPkgs {
+		gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *pkg.ValuesFrom.ProviderRef.APIGroup, Kind: pkg.ValuesFrom.ProviderRef.Kind})
+		if err != nil {
+			h.Logger.Error(err, "failed to getGVR")
+			return nil, err
+		}
+		provider, err := h.DynamicClient.Resource(*gvr).Namespace(clusterBootstrap.Namespace).Get(h.Ctx, pkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+		if err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s/%s", clusterBootstrap.Namespace, pkg.ValuesFrom.ProviderRef.Name), "gvr", gvr)
+			return nil, err
+		}
+		providers = append(providers, provider)
+	}
+	return providers, nil
+}
+
+func (h *Helper) getListOfPkgsWithProviderRefNames(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*runtanzuv1alpha3.ClusterBootstrapPackage, error) {
+
+	cbPkgs := []*runtanzuv1alpha3.ClusterBootstrapPackage{}
+
+	possiblePackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
+		clusterBootstrap.Spec.CNI,
+		clusterBootstrap.Spec.CPI,
+		clusterBootstrap.Spec.CSI,
+		clusterBootstrap.Spec.Kapp,
+	}, clusterBootstrap.Spec.AdditionalPackages...)
+	for _, pkg := range possiblePackages {
+		if pkg == nil || pkg.ValuesFrom == nil || pkg.ValuesFrom.ProviderRef == nil {
+			continue
+		}
+		cbPkgs = append(cbPkgs, pkg)
+	}
+
+	return cbPkgs, nil
 }
 
 // CreateClusterBootstrapFromTemplate does the following:
@@ -827,6 +897,107 @@ func (h *Helper) cloneEmbeddedLocalObjectRef(cluster *clusterapiv1beta1.Cluster,
 	return nil
 }
 
+func (h *Helper) getListOfExistingProviders(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*unstructured.Unstructured, error) {
+	// returns a slice of providers listed in the clusterbootstrap and that have been verified to exist.
+	providers := []*unstructured.Unstructured{}
+	cbPkgs, err := h.getListOfPkgsWithProviderRefNames(clusterBootstrap)
+	if err != nil {
+		return nil, err
+	}
+	for _, pkg := range cbPkgs {
+		gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *pkg.ValuesFrom.ProviderRef.APIGroup, Kind: pkg.ValuesFrom.ProviderRef.Kind})
+		if err != nil {
+			h.Logger.Error(err, "failed to getGVR")
+			return nil, err
+		}
+		provider, err := h.DynamicClient.Resource(*gvr).Namespace(clusterBootstrap.Namespace).Get(h.Ctx, pkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			continue
+		}
+		if err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s/%s", clusterBootstrap.Namespace, pkg.ValuesFrom.ProviderRef.Name), "gvr", gvr)
+			return nil, err
+		}
+		providers = append(providers, provider)
+	}
+	return providers, nil
+}
+
+func (h *Helper) AddClusterOwnerRefToExistingProviders(cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
+
+	exsitingProviders, err := h.getListOfExistingProviders(clusterBootstrap)
+	if err != nil {
+		return err
+	}
+	if err = h.AddClusterOwnerRef(cluster, exsitingProviders, nil, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddClusterOwnerRef adds cluster as an owner reference to the children with given controller and blockownerdeletion settings
+func (h *Helper) AddClusterOwnerRef(cluster *clusterapiv1beta1.Cluster, children []*unstructured.Unstructured, controller, blockownerdeletion *bool) error {
+	ownerRef := metav1.OwnerReference{
+		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
+		Kind:               cluster.Kind, // kind is empty after create
+		Name:               cluster.Name,
+		UID:                cluster.UID,
+		Controller:         controller,
+		BlockOwnerDeletion: blockownerdeletion,
+	}
+	// check that none of the children is owned by another cluster
+	for _, child := range children {
+		differentClusterName := ownedByDifferentCluster(child, cluster)
+		if differentClusterName != "" {
+			err := fmt.Errorf("%s/%s is already owned by %s", child.GetNamespace(), child.GetName(), differentClusterName)
+			return err
+		}
+	}
+	return h.setOwnerRef(&ownerRef, children)
+}
+
+// Returns the name of any other cluster that owns the object, besides "cluster".
+func ownedByDifferentCluster(k8SObject *unstructured.Unstructured, cluster *clusterapiv1beta1.Cluster) string {
+	for _, reference := range k8SObject.GetOwnerReferences() {
+		if reference.Kind == constants.ClusterKind && reference.Name != cluster.Name {
+			return reference.Name
+		}
+	}
+	return ""
+}
+
+func (h *Helper) setOwnerRef(ownerRef *metav1.OwnerReference, children []*unstructured.Unstructured) error {
+	for _, child := range children {
+		gvr, err := h.GVRHelper.GetGVR(child.GroupVersionKind().GroupKind())
+		if err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to get GVR of %s/%s", child.GetNamespace(), child.GetName()))
+			return err
+		}
+		err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+			// We need to get and update, otherwise there could have concurrency issue: ["the object has been modified; please
+			// apply your changes to the latest version and try again"]
+			newChild, errGetProvider := h.DynamicClient.Resource(*gvr).Namespace(child.GetNamespace()).Get(h.Ctx, child.GetName(), metav1.GetOptions{})
+			if errGetProvider != nil {
+				h.Logger.Error(errGetProvider, fmt.Sprintf("unable to get %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
+				return errGetProvider
+			}
+			newChild = newChild.DeepCopy()
+			newChild.SetOwnerReferences(clusterapiutil.EnsureOwnerRef(newChild.GetOwnerReferences(), *ownerRef))
+			_, errUpdateProvider := h.DynamicClient.Resource(*gvr).Namespace(newChild.GetNamespace()).Update(h.Ctx, newChild, metav1.UpdateOptions{})
+			if errUpdateProvider != nil {
+				h.Logger.Error(errUpdateProvider, fmt.Sprintf("unable to update %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
+				return errUpdateProvider
+			}
+			return nil
+		})
+		if err != nil {
+			h.Logger.Error(err, fmt.Sprintf("unable to update the OwnerRefrences for %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
+			return err
+		}
+	}
+	return nil
+}
+
 // EnsureOwnerRef will ensure the provided OwnerReference onto the secrets and provider objects
 func (h *Helper) EnsureOwnerRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, secrets []*corev1.Secret, providers []*unstructured.Unstructured) error {
 	ownerRef := metav1.OwnerReference{
@@ -864,7 +1035,7 @@ func (h *Helper) EnsureOwnerRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootst
 				return errGetProvider
 			}
 			newProvider = newProvider.DeepCopy()
-			newProvider.SetOwnerReferences(clusterapiutil.EnsureOwnerRef(provider.GetOwnerReferences(), ownerRef))
+			newProvider.SetOwnerReferences(clusterapiutil.EnsureOwnerRef(newProvider.GetOwnerReferences(), ownerRef)) // This change was probably a bug. It was using provider owner references. provider owner references are set outside the retryonconflict thus they are probably stale
 			_, errUpdateProvider := h.DynamicClient.Resource(*gvr).Namespace(newProvider.GetNamespace()).Update(h.Ctx, newProvider, metav1.UpdateOptions{})
 			if errUpdateProvider != nil {
 				h.Logger.Error(errUpdateProvider, fmt.Sprintf("unable to update provider %s/%s", provider.GetNamespace(), provider.GetName()))

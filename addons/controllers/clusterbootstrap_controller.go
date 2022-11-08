@@ -187,6 +187,14 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 		return ctrl.Result{}, nil
 	}
 
+	clusterBootstrapHelper := clusterbootstrapclone.NewHelper(
+		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.gvrHelper, r.Log)
+
+	if err := clusterBootstrapHelper.AddClusterOwnerRefToExistingProviders(cluster, clusterBootstrap); err != nil {
+		log.Error(err, "could not add cluster as owner to existing providers")
+		return ctrl.Result{}, err
+	}
+
 	// reconcile the proxy settings of the cluster
 	if err := r.reconcileClusterProxyAndNetworkSettings(cluster, log); err != nil {
 		return ctrl.Result{}, err
