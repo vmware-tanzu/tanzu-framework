@@ -39,7 +39,7 @@ type antreaNodePortLocal struct {
 }
 
 type antreaProxy struct {
-	ProxyAll             bool     `yaml:"enabled,omitempty"`
+	ProxyAll             bool     `yaml:"proxyAll,omitempty"`
 	NodePortAddresses    []string `yaml:"nodePortAddresses,omitempty"`
 	SkipServices         []string `yaml:"skipServices,omitempty"`
 	ProxyLoadBalancerIPs bool     `yaml:"proxyLoadBalancerIPs,omitempty"`
@@ -61,17 +61,21 @@ type antreaConfigDataValue struct {
 	NodePortLocal           antreaNodePortLocal `yaml:"nodePortLocal,omitempty"`
 	AntreaProxy             antreaProxy         `yaml:"antreaProxy,omitempty"`
 	FlowExporter            antreaFlowExporter  `yaml:"flowExporter,omitempty"`
-	WireGuard               antreaWireGuard     `yaml:"wireGuard,omitempty"`
+	KubeAPIServerOverride   string              `yaml:"kubeAPIServerOverride,omitempty"`
 	transportInterface      string              `yaml:"transportInterface,omitempty"`
 	transportInterfaceCIDRs []string            `yaml:"transportInterfaceCIDRs,omitempty"`
 	multicastInterfaces     []string            `yaml:"multicastInterfaces,omitempty"`
+	TunnelType              string              `yaml:"tunnelType,omitempty"`
+	TrafficEncryptionMode   string              `yaml:"trafficEncryptionMode,omitempty"`
+	EnableUsageReporting    bool                `yaml:"enableUsageReporting,omitempty"`
+	WireGuard               antreaWireGuard     `yaml:"wireGuard,omitempty"`
 	ServiceCIDR             string              `yaml:"serviceCIDR,omitempty"`
 	ServiceCIDRv6           string              `yaml:"serviceCIDRv6,omitempty"`
 	TrafficEncapMode        string              `yaml:"trafficEncapMode,omitempty"`
-	NoSNAT                  bool                `yaml:"noSNAT"`
+	NoSNAT                  bool                `yaml:"noSNAT,omitempty"`
+	TLSCipherSuites         string              `yaml:"tlsCipherSuites,omitempty"`
 	DisableUDPTunnelOffload bool                `yaml:"disableUdpTunnelOffload"`
 	DefaultMTU              string              `yaml:"defaultMTU,omitempty"`
-	TLSCipherSuites         string              `yaml:"tlsCipherSuites,omitempty"`
 	FeatureGates            antreaFeatureGates  `yaml:"featureGates,omitempty"`
 }
 
@@ -171,15 +175,18 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.An
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.PollInterval = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.PollInterval
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.ActiveFlowTimeout = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.ActiveFlowTimeout
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.IdleFlowTimeout = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.IdleFlowTimeout
-	configSpec.Antrea.AntreaConfigDataValue.WireGuard.Port = config.Spec.Antrea.AntreaConfigDataValue.WireGuard.Port
+	configSpec.Antrea.AntreaConfigDataValue.KubeAPIServerOverride = config.Spec.Antrea.AntreaConfigDataValue.KubeAPIServerOverride
 	configSpec.Antrea.AntreaConfigDataValue.transportInterface = config.Spec.Antrea.AntreaConfigDataValue.TransportInterface
 	configSpec.Antrea.AntreaConfigDataValue.transportInterfaceCIDRs = config.Spec.Antrea.AntreaConfigDataValue.TransportInterfaceCIDRs
 	configSpec.Antrea.AntreaConfigDataValue.multicastInterfaces = config.Spec.Antrea.AntreaConfigDataValue.MulticastInterfaces
+	configSpec.Antrea.AntreaConfigDataValue.TunnelType = config.Spec.Antrea.AntreaConfigDataValue.TunnelType
+	configSpec.Antrea.AntreaConfigDataValue.EnableUsageReporting = config.Spec.Antrea.AntreaConfigDataValue.EnableUsageReporting
+	configSpec.Antrea.AntreaConfigDataValue.WireGuard.Port = config.Spec.Antrea.AntreaConfigDataValue.WireGuard.Port
 	configSpec.Antrea.AntreaConfigDataValue.TrafficEncapMode = config.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode
 	configSpec.Antrea.AntreaConfigDataValue.NoSNAT = config.Spec.Antrea.AntreaConfigDataValue.NoSNAT
+	configSpec.Antrea.AntreaConfigDataValue.TLSCipherSuites = config.Spec.Antrea.AntreaConfigDataValue.TLSCipherSuites
 	configSpec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload = config.Spec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload
 	configSpec.Antrea.AntreaConfigDataValue.DefaultMTU = config.Spec.Antrea.AntreaConfigDataValue.DefaultMTU
-	configSpec.Antrea.AntreaConfigDataValue.TLSCipherSuites = config.Spec.Antrea.AntreaConfigDataValue.TLSCipherSuites
 
 	// FeatureGates
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy
