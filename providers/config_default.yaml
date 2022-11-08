@@ -155,6 +155,17 @@ VSPHERE_WORKER_CUSTOM_VMX_KEYS:
 #! on updates, the existing worker machines will be deleted *first* before the replacement worker machines are created.
 WORKER_ROLLOUT_STRATEGY: "RollingUpdate"
 
+#! Customizable hardware version for VMs
+#! This is used to explicitly upgrade the hardware version of the VM after the clone operation succeeds.
+#! The version should be higher than the vmx_version property of the OVA.
+#! If unset, the hardware version defaults to the proprty in the OVA.
+#! VSPHERE_CONTROL_PLANE_HARDWARE_VERSION configures the hardware version of the control plane nodes.
+#! e.g. VSPHERE_CONTROL_PLANE_HARDWARE_VERSION: "vmx-17"
+VSPHERE_CONTROL_PLANE_HARDWARE_VERSION:
+#! VSPHERE_WORKER_HARDWARE_VERSION configures the hardware version of the worker nodes.
+#! e.g. VSPHERE_WORKER_HARDWARE_VERSION: "vmx-17"
+VSPHERE_WORKER_HARDWARE_VERSION:
+
 #! Thumbprint of the vCenter server specified with VSPHERE_SERVER config variable
 #! this value can be skipped if user wants to use insecure connection
 #! by setting VSPHERE_INSECURE to true

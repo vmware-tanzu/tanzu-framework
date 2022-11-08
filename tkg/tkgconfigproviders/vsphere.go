@@ -97,6 +97,8 @@ type VSphereConfig struct {
 	VSphereControlPlaneCustomVMXKeys               string `yaml:"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"`
 	VSphereWorkerCustomVMXKeys                     string `yaml:"VSPHERE_WORKER_CUSTOM_VMX_KEYS"`
 	VSphereIgnorePCIDevicesAllowList               string `yaml:"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"`
+	VSphereControlPlaneHardwareVersion             string `yaml:"VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"`
+	VSphereWorkerHardwareVersion                   string `yaml:"VSPHERE_WORKER_HARDWARE_VERSION"`
 	IDPConfig                                      `yaml:",inline"`
 	OsInfo                                         `yaml:",inline"`
 }
