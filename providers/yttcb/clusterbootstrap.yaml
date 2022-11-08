@@ -18,16 +18,17 @@
 
 #@ def antrea_configs_exist():
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED or
-#@           data.values.ANTREA_NO_SNAT or
-#@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
-#@           not data.values.ANTREA_PROXY or
-#@           not data.values.ANTREA_ENDPOINTSLICE or
-#@           not data.values.ANTREA_POLICY or
-#@           not data.values.ANTREA_NODEPORTLOCAL or
-#@           not data.values.ANTREA_TRACEFLOW or
-#@           not data.values.ANTREA_EGRESS or
+#@           data.values.ANTREA_PROXY or
+#@           data.values.ANTREA_ENDPOINTSLICE or
+#@           data.values.ANTREA_POLICY or
+#@           data.values.ANTREA_TRACEFLOW or
+#@           data.values.ANTREA_NODEPORTLOCAL or
+#@           data.values.ANTREA_NETWORKPOLICY_STATS or
+#@           data.values.ANTREA_EGRESS or
+#@           data.values.ANTREA_IPAM or
 #@           data.values.ANTREA_FLOWEXPORTER or
-#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD)
+#@           data.values.ANTREA_SERVICE_EXTERNALIP or
+#@           data.values.ANTREA_MULTICAST)
 #@ end
 
 #@ def vspherecpi_configs_exist():
