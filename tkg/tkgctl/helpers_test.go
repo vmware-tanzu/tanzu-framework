@@ -5,6 +5,7 @@ package tkgctl
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
@@ -271,6 +272,103 @@ spec:
 			It("should return false without error", func() {
 				Expect(isClusterClassBased).To(Equal(false))
 				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+})
+
+var _ = Describe("Test cases for setVSphereCredentialFromInputfile", func() {
+	Context("Test cases for setVSphereCredentialFromInputfile", func() {
+		var (
+			configFile        string
+			configFileContext string
+			err               error
+			varMap            map[string]string
+			clusterName       = "workload"
+			namespace         = "default"
+		)
+		JustBeforeEach(func() {
+			configFile, err = utils.CreateTempFile("", "cluster-*.yaml")
+			Expect(err).To(BeNil())
+			err = utils.SaveFile(configFile, []byte(configFileContext))
+			Expect(err).To(BeNil())
+			varMap = make(map[string]string)
+			err = setVSphereCredentialFromInputfile(&varMap, configFile, clusterName, namespace)
+		})
+		AfterEach(func() {
+			err = os.Remove(configFile)
+			Expect(err).To(BeNil())
+		})
+		When("File contains the same name/namespace secret and data format is correct", func() {
+			BeforeEach(func() {
+				configFileContext = `
+apiVersion: v1
+kind: Secret
+metadata:
+  name: workload
+  namespace: default
+stringData:
+  password: Admin!23
+  username: administrator@vsphere.local
+`
+			})
+			It("VSPHERE_USERNAME and VSPHERE_PASSWORD should be set in the map", func() {
+				Expect(err).To(BeNil())
+				Expect(varMap[constants.ConfigVariableVsphereUsername]).To(Equal("administrator@vsphere.local"))
+				Expect(varMap[constants.ConfigVariableVspherePassword]).To(Equal("Admin!23"))
+			})
+		})
+		When("File does not contain the same name/namespace secret", func() {
+			BeforeEach(func() {
+				configFileContext = `
+apiVersion: v1
+kind: Secret
+metadata:
+  name: workload-2
+  namespace: default
+stringData:
+  password: Admin!23
+  username: administrator@vsphere.local
+`
+			})
+			It("", func() {
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("Secret default/workload not found"))
+			})
+		})
+		When("Field stringData.password does not exist", func() {
+			BeforeEach(func() {
+				configFileContext = `
+apiVersion: v1
+kind: Secret
+metadata:
+  name: workload
+  namespace: default
+stringData:
+  username: administrator@vsphere.local
+`
+			})
+			It("", func() {
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("stringData.password not found"))
+			})
+		})
+		When("Field stringData.username is not string", func() {
+			BeforeEach(func() {
+				configFileContext = `
+apiVersion: v1
+kind: Secret
+metadata:
+  name: workload
+  namespace: default
+stringData:
+  password: Admin!23
+  username: 234
+`
+			})
+			It("", func() {
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("Failed to parse stringData.username"))
 			})
 		})
 	})
