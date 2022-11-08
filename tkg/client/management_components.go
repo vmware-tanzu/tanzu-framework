@@ -183,17 +183,41 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(kubeconfig, kubecont
 
 	var tkgPackageConfig managementcomponents.TKGPackageConfig
 
+	clusterName, clusterNamespace, err := c.getRegionalClusterNameAndNamespace(clusterClient)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get management cluster name and namespace")
+	}
+	isClusterClassBased, err := clusterClient.IsClusterClassBased(clusterName, clusterNamespace)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to check if the management cluster is ClusterClass based")
+	}
 	// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
-	// legacy (non-package-based-lcm) management cluster will not have this secret defined
-	// on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
+	// legacy (non-package-based-lcm) management cluster will not have the secret tkg-pkg-tkg-system-values
+	// defined on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
+	if !isClusterClassBased {
+		// So we retrieve the user config variables from the <cluster-name>-config-values secret
+		// which was managed in legacy ytt template providers/ytt/09_miscellaneous
+		bytes, err := clusterClient.GetSecretValue(fmt.Sprintf("%s-config-values", clusterName), "value", constants.TkgNamespace, nil)
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("unable to get the %s-config-values secret", clusterName))
+		}
+		configValues := make(map[string]interface{})
+		err = yaml.Unmarshal(bytes, &configValues)
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("unable to yaml unmashal the data.value of %s-config-values secret", clusterName))
+		}
+		return configValues, nil
+	}
+
+	// In ClusterClass based cluster, the user config variables can be retrieved from the tkg-pkg package data values secret directly
 	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(packagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to get cluster client")
+		return nil, errors.Wrapf(err, "unable to get the secret %v-%v-values, namespace: %v", constants.TKGManagementPackageInstallName, constants.TkgNamespace, constants.TkgNamespace)
 	}
 
 	err = yaml.Unmarshal(bytes, &tkgPackageConfig)
 	if err != nil {
-		return nil, errors.Wrapf(err, "unable to unmarshal configuration from secret: %v, namespace: %v", constants.TKGPackageValues, constants.TkgNamespace)
+		return nil, errors.Wrapf(err, "unable to unmarshal configuration from secret:  %v-%v-values, namespace: %v", constants.TKGManagementPackageInstallName, constants.TkgNamespace, constants.TkgNamespace)
 	}
 
 	return tkgPackageConfig.ConfigValues, nil
