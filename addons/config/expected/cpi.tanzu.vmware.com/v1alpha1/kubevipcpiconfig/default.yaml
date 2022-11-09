@@ -1,5 +1,5 @@
-apiVersion: lb.tanzu.vmware.com/v1alpha1
-kind: KubevipCPConfig
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: KubevipCPIConfig
 metadata:
   name: v1.23.3---vmware.1-tkg.1
   namespace: tkg-system

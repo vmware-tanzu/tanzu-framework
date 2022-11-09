@@ -84,7 +84,7 @@ type AzureFileCSIConfigControllerConfig struct {
 	ConfigControllerConfig
 }
 
-// KubevipCPConfigControllerConfig contains configuration information of KubevipLBConfig controller
-type KubevipCPConfigControllerConfig struct {
+// KubevipCPIConfigControllerConfig contains configuration information of KubevipLBConfig controller
+type KubevipCPIConfigControllerConfig struct {
 	ConfigControllerConfig
 }

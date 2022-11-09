@@ -15,11 +15,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	lbv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/lb/v1alpha1"
+	kvcpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
 
-// ClusterToKubevipCPConfig returns a list of Requests with KubevipCPConfig ObjectKey based on Cluster events
-func (r *KubevipCPConfigReconciler) ClusterToKubevipCPConfig(o client.Object) []ctrl.Request {
+// ClusterToKubevipCPIConfig returns a list of Requests with KubevipCPIConfig ObjectKey based on Cluster events
+func (r *KubevipCPIConfigReconciler) ClusterToKubevipCPIConfig(o client.Object) []ctrl.Request {
 	cluster, ok := o.(*clusterapiv1beta1.Cluster)
 	if !ok {
 		r.Log.Error(errors.New("invalid type"),
@@ -28,21 +28,21 @@ func (r *KubevipCPConfigReconciler) ClusterToKubevipCPConfig(o client.Object) []
 		return nil
 	}
 
-	r.Log.V(4).Info("Mapping Cluster to KubevipCPConfig")
+	r.Log.V(4).Info("Mapping Cluster to KubevipCPIConfig")
 
-	cs := &lbv1alpha1.KubevipCPConfigList{}
+	cs := &kvcpiv1alpha1.KubevipCPIConfigList{}
 	_ = r.List(context.Background(), cs)
 
 	requests := []ctrl.Request{}
 	for i := 0; i < len(cs.Items); i++ {
 		config := &cs.Items[i]
 		if config.Namespace == cluster.Namespace {
-			// avoid enqueuing reconcile requests for template KubevipCPConfig CRs in event handler of Cluster CR
+			// avoid enqueuing reconcile requests for template KubevipCPIConfig CRs in event handler of Cluster CR
 			if _, ok := config.Annotations[constants.TKGAnnotationTemplateConfig]; ok && config.Namespace == r.Config.SystemNamespace {
 				continue
 			}
 
-			// corresponding KubevipCPConfig should have following ownerRef
+			// corresponding KubevipCPIConfig should have following ownerRef
 			ownerReference := metav1.OwnerReference{
 				APIVersion: clusterapiv1beta1.GroupVersion.String(),
 				Kind:       cluster.Kind,
@@ -50,7 +50,7 @@ func (r *KubevipCPConfigReconciler) ClusterToKubevipCPConfig(o client.Object) []
 				UID:        cluster.UID,
 			}
 			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) {
-				r.Log.V(4).Info("Adding KubevipCPConfig for reconciliation",
+				r.Log.V(4).Info("Adding KubevipCPIConfig for reconciliation",
 					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
 
 				requests = append(requests, ctrl.Request{
@@ -63,14 +63,14 @@ func (r *KubevipCPConfigReconciler) ClusterToKubevipCPConfig(o client.Object) []
 	return requests
 }
 
-// mapkubevipCPConfigToDataValuesNonParavirtual generates CPI data values for non-paravirtual modes
-func (r *KubevipCPConfigReconciler) mapKubevipCPConfigToDataValues( // nolint
+// mapKubevipCPIConfigToDataValues generates CPI data values for non-paravirtual modes
+func (r *KubevipCPIConfigReconciler) mapKubevipCPIConfigToDataValues( // nolint
 	ctx context.Context,
-	kubevipCPConfig *lbv1alpha1.KubevipCPConfig, cluster *clusterapiv1beta1.Cluster) (KubevipCloudProviderDataValues, error,
+	kubevipCPIConfig *kvcpiv1alpha1.KubevipCPIConfig, cluster *clusterapiv1beta1.Cluster) (KubevipCPIDataValues, error,
 ) { // nolint:whitespace
-	// allow API user to override the derived values if he/she specified fields in the KubevipCPConfig
-	dataValue := &KubevipCloudProviderDataValues{}
-	config := kubevipCPConfig.Spec
+	// allow API user to override the derived values if he/she specified fields in the KubevipCPIConfig
+	dataValue := &KubevipCPIDataValues{}
+	config := kubevipCPIConfig.Spec
 	dataValue.LoadbalancerCIDRs = tryParseString(dataValue.LoadbalancerCIDRs, config.LoadbalancerCIDRs)
 	dataValue.LoadbalancerIPRanges = tryParseString(dataValue.LoadbalancerIPRanges, config.LoadbalancerIPRanges)
 

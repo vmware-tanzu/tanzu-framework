@@ -28,38 +28,38 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
-	lbv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/lb/v1alpha1"
+	kvcpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
 
-// KubevipCPConfigReconciler reconciles a KubevipCPConfig object
-type KubevipCPConfigReconciler struct {
+// KubevipCPIConfigReconciler reconciles a KubevipCPIConfig object
+type KubevipCPIConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
-	Config addonconfig.KubevipCPConfigControllerConfig
+	Config addonconfig.KubevipCPIConfigControllerConfig
 }
 
-//+kubebuilder:rbac:groups=lb.tanzu.vmware.com,resources=KubevipCPconfigs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=lb.tanzu.vmware.com,resources=KubevipCPconfigs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=KubevipCPIConfigs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=KubevipCPIConfigs/status,verbs=get;update;patch
 
-// Reconcile the KubevipCPConfig CRD
-func (r *KubevipCPConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	logger := r.Log.WithValues("KubevipCPConfig", req.NamespacedName)
+// Reconcile the KubevipCPIConfig CRD
+func (r *KubevipCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	logger := r.Log.WithValues("KubevipCPIConfig", req.NamespacedName)
 
-	logger.Info("Start reconciliation for KubevipCPConfig")
+	logger.Info("Start reconciliation for KubevipCPIConfig")
 
-	// fetch KubevipCPConfig resource
-	kvcpConfig := &lbv1alpha1.KubevipCPConfig{}
+	// fetch KubevipCPIConfig resource
+	kvcpConfig := &kvcpiv1alpha1.KubevipCPIConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, kvcpConfig); err != nil {
 		if apierrors.IsNotFound(err) {
-			logger.Info("KubevipCPConfig resource not found")
+			logger.Info("KubevipCPIConfig resource not found")
 			return ctrl.Result{}, nil
 		}
-		logger.Error(err, "Unable to fetch KubevipCPConfig resource")
+		logger.Error(err, "Unable to fetch KubevipCPIConfig resource")
 		return ctrl.Result{}, err
 	}
 
-	// deep copy KubevipCPConfig to avoid issues if in the future other controllers where interacting with the same copy
+	// deep copy KubevipCPIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	kvcpConfig = kvcpConfig.DeepCopy()
 
 	cluster, err := cutil.GetOwnerCluster(ctx, r.Client, kvcpConfig, req.Namespace, constants.CPIDefaultRefName)
@@ -73,54 +73,54 @@ func (r *KubevipCPConfigReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		return ctrl.Result{}, err
 	}
 
-	if res, err := r.reconcileKubevipCPConfig(ctx, kvcpConfig, cluster); err != nil {
-		logger.Error(err, "Failed to reconcile KubevipCPConfig")
+	if res, err := r.reconcileKubevipCPIConfig(ctx, kvcpConfig, cluster); err != nil {
+		logger.Error(err, "Failed to reconcile KubevipCPIConfig")
 		return res, err
 	}
 	return ctrl.Result{}, nil
 }
 
-// reconcileKubevipCPConfig reconciles KubevipCPConfig with its owner cluster
-func (r *KubevipCPConfigReconciler) reconcileKubevipCPConfig(ctx context.Context, kvcpConfig *lbv1alpha1.KubevipCPConfig, cluster *clusterapiv1beta1.Cluster) (_ ctrl.Result, retErr error) {
+// reconcileKubevipCPIConfig reconciles KubevipCPIConfig with its owner cluster
+func (r *KubevipCPIConfigReconciler) reconcileKubevipCPIConfig(ctx context.Context, kvcpConfig *kvcpiv1alpha1.KubevipCPIConfig, cluster *clusterapiv1beta1.Cluster) (_ ctrl.Result, retErr error) {
 	patchHelper, err := clusterapipatchutil.NewHelper(kvcpConfig, r.Client)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	// patch KubevipCPConfig before returning the function
+	// patch KubevipCPIConfig before returning the function
 	defer func() {
-		r.Log.Info("Patching KubevipCPConfig")
+		r.Log.Info("Patching KubevipCPIConfig")
 		if err := patchHelper.Patch(ctx, kvcpConfig); err != nil {
-			r.Log.Error(err, "Error patching KubevipCPConfig")
+			r.Log.Error(err, "Error patching KubevipCPIConfig")
 			retErr = err
 		}
-		r.Log.Info("Successfully patched KubevipCPConfig")
+		r.Log.Info("Successfully patched KubevipCPIConfig")
 	}()
 
 	if !kvcpConfig.GetDeletionTimestamp().IsZero() {
 		return ctrl.Result{}, nil
 	}
-	if err = r.reconcileKubevipCPConfigNormal(ctx, kvcpConfig, cluster); err != nil {
-		r.Log.Error(err, "Error reconciling KubevipCPConfig to create/patch data values secret")
+	if err = r.reconcileKubevipCPIConfigNormal(ctx, kvcpConfig, cluster); err != nil {
+		r.Log.Error(err, "Error reconciling KubevipCPIConfig to create/patch data values secret")
 		return ctrl.Result{}, err
 	}
-	r.Log.Info("Successfully reconciled KubevipCPConfig")
+	r.Log.Info("Successfully reconciled KubevipCPIConfig")
 	return ctrl.Result{}, nil
 }
 
-// reconcileKubevipCPConfigNormal triggers when a KubevipCPConfig is not being deleted
-// it ensures the owner reference of the KubevipCPConfig and generates the data values secret for Kubevip CloudProvider
-func (r *KubevipCPConfigReconciler) reconcileKubevipCPConfigNormal(ctx context.Context,
-	kvcpConfig *lbv1alpha1.KubevipCPConfig, cluster *clusterapiv1beta1.Cluster) (retErr error) {
-	// add owner reference to KubevipCPConfig if not already added by TanzuClusterBootstrap Controller
+// reconcileKubevipCPIConfigNormal triggers when a KubevipCPIConfig is not being deleted
+// it ensures the owner reference of the KubevipCPIConfig and generates the data values secret for Kubevip CloudProvider
+func (r *KubevipCPIConfigReconciler) reconcileKubevipCPIConfigNormal(ctx context.Context,
+	kvcpConfig *kvcpiv1alpha1.KubevipCPIConfig, cluster *clusterapiv1beta1.Cluster) (retErr error) {
+	// add owner reference to KubevipCPIConfig if not already added by TanzuClusterBootstrap Controller
 	ownerReference := metav1.OwnerReference{
 		APIVersion: clusterapiv1beta1.GroupVersion.String(),
 		Kind:       cluster.Kind,
 		Name:       cluster.Name,
 		UID:        cluster.UID,
 	}
-	r.Log.Info("Ensure KubevipCPConfig has the cluster as owner reference")
+	r.Log.Info("Ensure KubevipCPIConfig has the cluster as owner reference")
 	if !clusterapiutil.HasOwnerRef(kvcpConfig.OwnerReferences, ownerReference) {
-		r.Log.Info("Adding owner reference to KubevipCPConfig")
+		r.Log.Info("Adding owner reference to KubevipCPIConfig")
 		kvcpConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(kvcpConfig.OwnerReferences, ownerReference)
 	}
 	secret := &v1.Secret{
@@ -134,41 +134,41 @@ func (r *KubevipCPConfigReconciler) reconcileKubevipCPConfigNormal(ctx context.C
 
 	mutateFn := func() error {
 		secret.StringData = make(map[string]string)
-		kvcpConfigSpec, err := r.mapKubevipCPConfigToDataValues(ctx, kvcpConfig, cluster)
+		kvcpConfigSpec, err := r.mapKubevipCPIConfigToDataValues(ctx, kvcpConfig, cluster)
 		if err != nil {
-			r.Log.Error(err, "Error while mapping KubevipCPConfig to data values")
+			r.Log.Error(err, "Error while mapping KubevipCPIConfig to data values")
 			return err
 		}
 		yamlBytes, err := kvcpConfigSpec.Serialize()
 		if err != nil {
-			r.Log.Error(err, "Error marshaling KubevipCPConfig to Yaml")
+			r.Log.Error(err, "Error marshaling KubevipCPIConfig to Yaml")
 			return err
 		}
 		secret.StringData[constants.TKGDataValueFileName] = string(yamlBytes)
-		r.Log.Info("Mutated KubevipCPConfig data values")
+		r.Log.Info("Mutated KubevipCPIConfig data values")
 		return nil
 	}
 	result, err := controllerutil.CreateOrPatch(ctx, r.Client, secret, mutateFn)
 	if err != nil {
-		r.Log.Error(err, "Error creating or patching KubevipCPConfig data values secret")
+		r.Log.Error(err, "Error creating or patching KubevipCPIConfig data values secret")
 		return err
 	}
 
 	r.Log.Info(fmt.Sprintf("Resource '%s' data values secret '%s'", constants.KubevipCloudProviderAddonName, result))
-	// update the secret reference in KubevipCPConfig status
+	// update the secret reference in KubevipCPIConfig status
 	kvcpConfig.Status.SecretRef = &secret.Name
 	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *KubevipCPConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (r *KubevipCPIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&lbv1alpha1.KubevipCPConfig{}).
+		For(&kvcpiv1alpha1.KubevipCPIConfig{}).
 		WithOptions(options).
-		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.KubevipCPConfigKind, r.Config.SystemNamespace, r.Log)).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.KubevipCPIConfigKind, r.Config.SystemNamespace, r.Log)).
 		Watches(
 			&source.Kind{Type: &clusterapiv1beta1.Cluster{}},
-			handler.EnqueueRequestsFromMapFunc(r.ClusterToKubevipCPConfig),
+			handler.EnqueueRequestsFromMapFunc(r.ClusterToKubevipCPIConfig),
 		).
 		Complete(r)
 }

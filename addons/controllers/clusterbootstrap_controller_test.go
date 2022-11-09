@@ -28,9 +28,9 @@ import (
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
+	kvcpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
-	lbv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/lb/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -1190,7 +1190,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("patching kubevip cloudprovider with ownerRef as ClusterBootstrapController would do")
 				// the kvcp config object should be deployed
-				config := &lbv1alpha1.KubevipCPConfig{}
+				config := &kvcpiv1alpha1.KubevipCPIConfig{}
 				key := client.ObjectKey{
 					Namespace: clusterNamespace,
 					Name:      clusterName,
@@ -1208,8 +1208,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
-				// patch the KubevipCPConfig with ownerRef
-				patchedKubevipCPConfig := config.DeepCopy()
+				// patch the KubevipCPIConfig with ownerRef
+				patchedKubevipCPIConfig := config.DeepCopy()
 				ownerRef := metav1.OwnerReference{
 					APIVersion: clusterapiv1beta1.GroupVersion.String(),
 					Kind:       cluster.Kind,
@@ -1218,8 +1218,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				}
 
 				ownerRef.Kind = "Cluster"
-				patchedKubevipCPConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedKubevipCPConfig.OwnerReferences, ownerRef)
-				Expect(k8sClient.Patch(ctx, patchedKubevipCPConfig, client.MergeFrom(config))).ShouldNot(HaveOccurred())
+				patchedKubevipCPIConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedKubevipCPIConfig.OwnerReferences, ownerRef)
+				Expect(k8sClient.Patch(ctx, patchedKubevipCPIConfig, client.MergeFrom(config))).ShouldNot(HaveOccurred())
 
 				By("Should have remote secret value created for kubevip cloud provider")
 				remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))

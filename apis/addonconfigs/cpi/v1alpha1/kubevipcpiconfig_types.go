@@ -10,8 +10,8 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// KubevipCPConfigSpec defines the desired state of KubevipCPConfig
-type KubevipCPConfigSpec struct {
+// KubevipCPIConfigSpec defines the desired state of KubevipCPIConfig
+type KubevipCPIConfigSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
@@ -28,8 +28,8 @@ type KubevipCPConfigSpec struct {
 	LoadbalancerIPRanges *string `json:"loadbalancerIPRanges,omitempty"`
 }
 
-// KubevipCPConfigStatus defines the observed state of KubevipCPConfig
-type KubevipCPConfigStatus struct {
+// KubevipCPIConfigStatus defines the observed state of KubevipCPIConfig
+type KubevipCPIConfigStatus struct {
 	// Name of the secret created by kubevip cloudprovider config controller
 	//+ kubebuilder:validation:Optional
 	SecretRef *string `json:"secretRef,omitempty"`
@@ -38,24 +38,24 @@ type KubevipCPConfigStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// KubevipCPConfig is the Schema for the kubevipcpconfigs API
-type KubevipCPConfig struct {
+// KubevipCPIConfig is the Schema for the kubevipcpiconfigs API
+type KubevipCPIConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   KubevipCPConfigSpec   `json:"spec,omitempty"`
-	Status KubevipCPConfigStatus `json:"status,omitempty"`
+	Spec   KubevipCPIConfigSpec   `json:"spec,omitempty"`
+	Status KubevipCPIConfigStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// KubevipCPConfigList contains a list of KubevipCPConfig
-type KubevipCPConfigList struct {
+// KubevipCPIConfigList contains a list of KubevipCPIConfig
+type KubevipCPIConfigList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []KubevipCPConfig `json:"items"`
+	Items           []KubevipCPIConfig `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&KubevipCPConfig{}, &KubevipCPConfigList{})
+	SchemeBuilder.Register(&KubevipCPIConfig{}, &KubevipCPIConfigList{})
 }

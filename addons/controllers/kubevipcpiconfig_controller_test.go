@@ -19,10 +19,10 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
-	lbv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/lb/v1alpha1"
+	kvcpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
 
-var _ = Describe("KubevipCPConfig Reconciler", func() {
+var _ = Describe("KubevipCPIConfig Reconciler", func() {
 	var (
 		key                     client.ObjectKey
 		clusterName             string
@@ -31,7 +31,7 @@ var _ = Describe("KubevipCPConfig Reconciler", func() {
 	)
 
 	JustBeforeEach(func() {
-		By("Creating cluster and KubevipCPConfig resources")
+		By("Creating cluster and KubevipCPIConfig resources")
 		key = client.ObjectKey{
 			Namespace: clusterNamespace,
 			Name:      clusterName,
@@ -44,7 +44,7 @@ var _ = Describe("KubevipCPConfig Reconciler", func() {
 	})
 
 	AfterEach(func() {
-		By("Deleting cluster and KubevipCPConfig resources")
+		By("Deleting cluster and KubevipCPIConfig resources")
 		for _, filePath := range []string{clusterResourceFilePath} {
 			f, err := os.Open(filePath)
 			Expect(err).ToNot(HaveOccurred())
@@ -57,14 +57,14 @@ var _ = Describe("KubevipCPConfig Reconciler", func() {
 		}
 	})
 
-	Context("reconcile KubevipCPConfig manifests", func() {
+	Context("reconcile KubevipCPIConfig manifests", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-kvcp"
 			clusterNamespace = "default"
 			clusterResourceFilePath = "testdata/test-kubevip-cloudprovider-config.yaml"
 		})
 
-		It("Should reconcile KubevipCPConfig and create data values secret for KubevipCPConfig on management cluster", func() {
+		It("Should reconcile KubevipCPIConfig and create data values secret for KubevipCPIConfig on management cluster", func() {
 			cluster := &clusterapiv1beta1.Cluster{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, cluster); err != nil {
@@ -74,7 +74,7 @@ var _ = Describe("KubevipCPConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			// the kvcp config object should be deployed
-			config := &lbv1alpha1.KubevipCPConfig{}
+			config := &kvcpiv1alpha1.KubevipCPIConfig{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, config); err != nil {
 					return false
@@ -89,8 +89,8 @@ var _ = Describe("KubevipCPConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			By("patching kubevip cloudprovider with ownerRef as ClusterBootstrapController would do")
-			// patch the KubevipCPConfig with ownerRef
-			patchedKubevipCPConfig := config.DeepCopy()
+			// patch the KubevipCPIConfig with ownerRef
+			patchedKubevipCPIConfig := config.DeepCopy()
 			ownerRef := metav1.OwnerReference{
 				APIVersion: clusterapiv1beta1.GroupVersion.String(),
 				Kind:       cluster.Kind,
@@ -99,8 +99,8 @@ var _ = Describe("KubevipCPConfig Reconciler", func() {
 			}
 
 			ownerRef.Kind = "Cluster"
-			patchedKubevipCPConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedKubevipCPConfig.OwnerReferences, ownerRef)
-			Expect(k8sClient.Patch(ctx, patchedKubevipCPConfig, client.MergeFrom(config))).ShouldNot(HaveOccurred())
+			patchedKubevipCPIConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedKubevipCPIConfig.OwnerReferences, ownerRef)
+			Expect(k8sClient.Patch(ctx, patchedKubevipCPIConfig, client.MergeFrom(config))).ShouldNot(HaveOccurred())
 
 			// the data values secret should be generated
 			secret := &v1.Secret{}

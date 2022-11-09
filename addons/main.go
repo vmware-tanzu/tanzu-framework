@@ -40,7 +40,7 @@ import (
 	cpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	csicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
 	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
-	kvcpcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/lb"
+	kvcpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kubevipcpi"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/buildinfo"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -50,7 +50,6 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
-	lbv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/lb/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	vmoperatorv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
@@ -80,7 +79,6 @@ func init() {
 	_ = capvvmwarev1beta1.AddToScheme(scheme)
 	_ = vmoperatorv1alpha1.AddToScheme(scheme)
 	_ = topologyv1alpha1.AddToScheme(scheme)
-	_ = lbv1alpha1.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }
@@ -343,14 +341,14 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		os.Exit(1)
 	}
 
-	if err := (&kvcpcontroller.KubevipCPConfigReconciler{
+	if err := (&kvcpicontroller.KubevipCPIConfigReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("KubevipCPConfig"),
+		Log:    ctrl.Log.WithName("KubevipCPIConfig"),
 		Scheme: mgr.GetScheme(),
-		Config: addonconfig.KubevipCPConfigControllerConfig{
+		Config: addonconfig.KubevipCPIConfigControllerConfig{
 			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
-		setupLog.Error(err, "unable to create KubevipCPConfigController", "controller", "kubevipcloudprovider")
+		setupLog.Error(err, "unable to create KubevipCPIConfigController", "controller", "kubevipcloudprovider")
 		os.Exit(1)
 	}
 

@@ -13,7 +13,6 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
-	lbv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/lb/v1alpha1"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -330,6 +329,6 @@ var (
 	// AwsEbsCSIConfigKind is the Kind for csi AwsEbsCSIConfig object
 	AwsEbsCSIConfigKind = reflect.TypeOf(csiv1alpha1.AwsEbsCSIConfig{}).Name()
 
-	// KubevipCPConfigKind is the Kind for KubevipCPConfigConfig object
-	KubevipCPConfigKind = reflect.TypeOf(lbv1alpha1.KubevipCPConfig{}).Name()
+	// KubevipCPIConfigKind is the Kind for KubevipCPIConfigConfig object
+	KubevipCPIConfigKind = reflect.TypeOf(cpiv1alpha1.KubevipCPIConfig{}).Name()
 )

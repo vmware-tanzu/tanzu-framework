@@ -7,14 +7,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type KubevipCloudProviderDataValues struct {
+type KubevipCPIDataValues struct {
 	LoadbalancerCIDRs    string `yaml:"loadbalancerCIDRs"`
 	LoadbalancerIPRanges string `yaml:"loadbalancerIPRanges"`
 }
 
-func (v *KubevipCloudProviderDataValues) Serialize() ([]byte, error) {
+func (v *KubevipCPIDataValues) Serialize() ([]byte, error) {
 	dataValues := struct {
-		DataValues KubevipCloudProviderDataValues `yaml:"kubevipCloudProvider"`
+		DataValues KubevipCPIDataValues `yaml:"kubevipCloudProvider"`
 	}{DataValues: *v}
 	return yaml.Marshal(dataValues)
 }
