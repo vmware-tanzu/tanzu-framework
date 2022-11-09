@@ -2,5 +2,5 @@ apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
-    - path: providers/infrastructure-docker/v1.2.4/cconly
+    - path: providers/infrastructure-docker/v1.2.6/cconly
     - path: providers/config_default.yaml

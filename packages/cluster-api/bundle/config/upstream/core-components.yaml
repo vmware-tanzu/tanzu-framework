@@ -11357,7 +11357,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.uid
-          image: k8s.gcr.io/cluster-api/cluster-api-controller:v1.2.4
+          image: k8s.gcr.io/cluster-api/cluster-api-controller:v1.2.6
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:

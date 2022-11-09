@@ -12,7 +12,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../packageclients
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../util
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.4
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.6
 )
 
 require (
@@ -91,11 +91,11 @@ require (
 	k8s.io/client-go v0.24.4
 	k8s.io/kubectl v0.24.0
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
-	sigs.k8s.io/cluster-api v1.2.4
+	sigs.k8s.io/cluster-api v1.2.6
 	sigs.k8s.io/cluster-api-provider-aws v1.4.1-0.20220928212229-13c0c2e7324b
 	sigs.k8s.io/cluster-api-provider-azure v1.5.3
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1
-	sigs.k8s.io/cluster-api/test v1.2.4
+	sigs.k8s.io/cluster-api/test v1.2.6
 	sigs.k8s.io/controller-runtime v0.12.3
 	sigs.k8s.io/kind v0.15.0
 	sigs.k8s.io/yaml v1.3.0
