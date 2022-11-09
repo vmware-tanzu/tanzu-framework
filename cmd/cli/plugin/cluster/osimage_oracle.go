@@ -11,15 +11,13 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"golang.org/x/sync/errgroup"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 	utilyaml "k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/carvelhelpers"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/oracle"
 )
 
@@ -84,56 +82,30 @@ func getTKRFromManifest(path string) (*v1alpha3.TanzuKubernetesRelease, error) {
 	return &tkr, nil
 }
 
-// getTKRPath returns the absolute path for the TKR manifest
-func getTKRPath() string {
+// getOSImageFromManifest reads the OSImage from its yaml manifest given path
+func getOSImageFromManifest(path string) (*v1alpha3.OSImage, error) {
+	var osImage v1alpha3.OSImage
+	osImageFile, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer osImageFile.Close()
+	if err := utilyaml.NewYAMLOrJSONDecoder(osImageFile, 100).Decode(&osImage); err != nil {
+		return nil, err
+	}
+	return &osImage, nil
+}
+
+// TKRPath returns the absolute path for the TKR manifest
+func TKRPath() string {
 	// default TKR manifest file name in the bundle
 	tkrFileName := "TanzuKubernetesRelease.yml"
 	return filepath.Join(outputDirectory, "config", tkrFileName)
 }
 
-// getOSImage returns the absolute path for the OSImage manifest to create
-func getOSImage() string {
-	return filepath.Join(outputDirectory, "config", fmt.Sprintf("%s.yaml", name))
-}
-
-// getOSImageName calculates the default OSImage name, given provided flags
-func getOSImageName(tkrK8sVersion string) string {
-	return fmt.Sprintf("%s-%s-%s-%s-%s", osName, osType, osVersion, osArch, tkrK8sVersion)
-}
-
-// patchTKrWithOSImage patches the TKR bundle with the imported OSImage information
-func patchTKrWithOSImage(tkr *v1alpha3.TanzuKubernetesRelease, imageID, compartment, region string) (err error) {
-	tkr.Spec.OSImages = append(tkr.Spec.OSImages, v1.LocalObjectReference{Name: name})
-	osImage := &v1alpha3.OSImage{
-		TypeMeta: metav1.TypeMeta{Kind: "OSImage", APIVersion: v1alpha3.GroupVersion.Version},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: constants.TkgNamespace,
-		},
-		Spec: v1alpha3.OSImageSpec{
-			KubernetesVersion: tkr.Spec.Kubernetes.Version,
-			OS: v1alpha3.OSInfo{
-				Type:    osType,
-				Name:    osName,
-				Version: osVersion,
-				Arch:    osArch,
-			},
-			Image: v1alpha3.MachineImageInfo{
-				Type: "oci",
-				Ref: map[string]interface{}{
-					"id":          &imageID,
-					"compartment": &compartment,
-					"region":      region,
-				}},
-		},
-	}
-	if err := writeToFile(tkr, getTKRPath()); err != nil {
-		return err
-	}
-	if err := writeToFile(osImage, getOSImage()); err != nil {
-		return err
-	}
-	return nil
+// OSImagePath returns the absolute path for the OSImage manifest to create, provided its name
+func OSImagePath(name string) string {
+	return filepath.Join(outputDirectory, "config", fmt.Sprintf("OSImage-%s.yaml", name))
 }
 
 func ociPopulateCmdInitRun(_ *cobra.Command, _ []string) {
@@ -151,19 +123,15 @@ func ociPopulateCmdInitRun(_ *cobra.Command, _ []string) {
 	}
 	log.Infof("downloaded TKR from %s to %s", tkrRegistryPath, outputDirectory)
 
-	tkr, err := getTKRFromManifest(getTKRPath())
+	tkr, err := getTKRFromManifest(TKRPath())
 	if err != nil {
-		log.Fatalf("unable to read TKR package image from %s: %v", getTKRPath(), err.Error())
+		log.Fatalf("unable to read TKR package image from %s: %v", TKRPath(), err.Error())
 	}
-	if name == "" {
-		name = getOSImageName(tkr.Spec.Kubernetes.Version)
-	}
-	log.Infof("start importing image: %s", name)
 
 	// import the BYOI image from the public endpoint to user's compartment
 	oracleClient, err := oracle.New()
 	if err != nil {
-		log.Fatal("unable to get Oracle client")
+		log.Fatalf("unable to get Oracle client: %v", err)
 	}
 	region, err := oracleClient.Region()
 	if err != nil {
@@ -176,16 +144,49 @@ func ociPopulateCmdInitRun(_ *cobra.Command, _ []string) {
 	}
 	log.Infof("destination compartment %s exists", compartmentID)
 
-	log.Infof("start creating customized image from public endpoint %s in compartment %s", imageEndpoint, compartmentID)
-	image, err := oracleClient.ImportImageSync(ctx, name, compartmentID, imageEndpoint)
-	if err != nil {
-		log.Fatalf("unable to import image: %v", err.Error())
-	}
-	log.Infof("created customized image from public endpoint %s in compartment %s, ocid is %s", imageEndpoint, compartmentID, *image.Id)
+	var waitGroup errgroup.Group
+	for _, osImageRef := range tkr.Spec.OSImages {
+		name := osImageRef.Name
+		waitGroup.Go(func() error {
+			osImage, err := getOSImageFromManifest(OSImagePath(name))
+			if err != nil {
+				return err
+			}
+			if osImage.Spec.Image.Type != "oci" {
+				log.Infof("skip patching image %s, image type is %s, not 'oci'", osImage.Spec.Image.Type)
+				return nil
+			}
+			mapRef := osImage.Spec.Image.Ref
+			imageURL, exists := mapRef["imageURL"]
+			if !exists {
+				log.Infof("skip patching image %s, image ref does not contains key 'imageURL'")
+				return nil
+			}
+			imageURLStr, ok := imageURL.(string)
+			if !ok {
+				log.Infof("skip patching image %s, image ref value of key 'imageURL' is not a string")
+				return nil
+			}
 
-	// patch the TKR bundle with the imported OSImage
-	if err = patchTKrWithOSImage(tkr, *image.Id, compartmentID, region); err != nil {
-		log.Fatalf("unable to patch TKR package in %s: %v", outputDirectory, err)
+			image, err := oracleClient.ImportImageSync(ctx, name, compartmentID, imageURLStr)
+			if err != nil {
+				return err
+			}
+			log.Infof("finish importing image %s, ocid is %s", name, *image.Id)
+
+			newOSImage := osImage.DeepCopy()
+			newOSImage.Spec.Image.Ref["compartment"] = compartmentID
+			newOSImage.Spec.Image.Ref["id"] = *image.Id
+			newOSImage.Spec.Image.Ref["region"] = region
+			if err := writeToFile(newOSImage, OSImagePath(name)); err != nil {
+				log.Infof("failed to patch OSImage %s: %v", name, err)
+				return err
+			}
+			return nil
+		})
+	}
+	if err := waitGroup.Wait(); err != nil {
+		log.Fatal(err)
 	}
 	log.Infof("TKR has been patched! To consume, \n\t\t tanzu management-cluster create -f <cluster-config>.yaml --additional-manifests %s", outputDirectory)
 }
