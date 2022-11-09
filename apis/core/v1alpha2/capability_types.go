@@ -1,7 +1,7 @@
-// Copyright 2022 VMware, Inc. All Rights Reserved.
+// Copyright YEAR VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package v1alpha1
+package v1alpha2
 
 import (
 	corev1 "k8s.io/api/core/v1"
@@ -149,7 +149,7 @@ type Result struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:unservedversion
+//+kubebuilder:storageversion
 
 // Capability is the Schema for the capabilities API
 type Capability struct {

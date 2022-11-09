@@ -17,6 +17,7 @@ import (
 	// +kubebuilder:scaffold:imports
 
 	corev1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha1"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/capabilities/core"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/capabilities/run"
@@ -31,6 +32,7 @@ var (
 func init() {
 	utilruntime.Must(corev1.AddToScheme(scheme))
 	utilruntime.Must(corev1alpha1.AddToScheme(scheme))
+	utilruntime.Must(corev1alpha2.AddToScheme(scheme))
 	utilruntime.Must(runv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
