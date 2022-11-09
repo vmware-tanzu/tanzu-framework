@@ -6,6 +6,7 @@ package vc
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
@@ -28,6 +29,25 @@ const (
 	TypeOpaqueNetwork   = "OpaqueNetwork"
 	TypeVirtualMachine  = "VirtualMachine"
 )
+
+//go:generate counterfeiter -o ../fakes/vcclientfactory.go --fake-name VcClientFactory . VcClientFactory
+
+// VcClientFactory a factory for creating VC clients
+type VcClientFactory interface {
+	NewClient(vcURL *url.URL, thumbprint string, insecure bool) (Client, error)
+}
+
+type vcClientFactory struct{}
+
+// NewClient creates new clusterclient
+func (c *vcClientFactory) NewClient(vcURL *url.URL, thumbprint string, insecure bool) (Client, error) { //nolint:gocritic
+	return NewClient(vcURL, thumbprint, insecure)
+}
+
+// NewVcClientFactory creates new vcclient factory
+func NewVcClientFactory() VcClientFactory {
+	return &vcClientFactory{}
+}
 
 //go:generate counterfeiter -o ../fakes/vcclient.go --fake-name VCClient . Client
 

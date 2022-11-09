@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/utils/pointer"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
@@ -74,6 +75,18 @@ func GetMDVariable(cluster *clusterv1.Cluster, mdIndex int, name string, value i
 	data, _ := json.Marshal(jsonValue) // apiextensionsv1.JSON never returns errors when (un)marshaling JSON
 	err := json.Unmarshal(data, value)
 	return errors.Wrap(err, "unmarshalling from JSON into value")
+}
+
+// IsSingleNodeCluster checks if the cluster topology is single node cluster(with CP count as 1 and worker count as 0).
+// Pre-reqs: cluster.Spec.Topology != nil
+func IsSingleNodeCluster(cluster *clusterv1.Cluster) bool {
+	return *cluster.Spec.Topology.ControlPlane.Replicas == *pointer.Int32(1) && HasWorkerNodes(cluster)
+}
+
+// HasWorkerNodes checks if the cluster topology has worker nodes.
+// Pre-reqs: cluster.Spec.Topology != nil
+func HasWorkerNodes(cluster *clusterv1.Cluster) bool {
+	return cluster.Spec.Topology.Workers == nil || len(cluster.Spec.Topology.Workers.MachineDeployments) == 0
 }
 
 func jsonValue(value interface{}) (*apiextensionsv1.JSON, error) {

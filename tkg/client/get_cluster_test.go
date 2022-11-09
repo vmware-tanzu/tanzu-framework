@@ -315,6 +315,52 @@ var _ = Describe("Unit tests for get clusters", func() {
 			})
 		})
 
+		Context("When cluster is in running state: #CP=1 #Worker=0", func() {
+			BeforeEach(func() {
+				createClusterOptions = fakehelper.TestAllClusterComponentOptions{
+					ClusterName: "cluster-1",
+					Namespace:   constants.DefaultNamespace,
+					Labels: map[string]string{
+						TkgLabelClusterRolePrefix + TkgLabelClusterRoleWorkload: "",
+					},
+					ClusterOptions: fakehelper.TestClusterOptions{
+						Phase:                   "provisioned",
+						InfrastructureReady:     true,
+						ControlPlaneInitialized: true,
+						ControlPlaneReady:       true,
+
+						OperationType:     clusterclient.OperationTypeCreate,
+						OperationtTimeout: 30 * 60, // 30 minutes
+						StartTimestamp:    time.Now().UTC().Add(-2 * time.Hour).String(),
+						// when cluster is in running state opeationType & lastObserved state
+						// should not matter even if more then timout time has elapsed
+						LastObservedTimestamp: time.Now().UTC().Add(-1 * time.Hour).String(),
+					},
+					CPOptions: fakehelper.TestCPOptions{
+						SpecReplicas:    1,
+						ReadyReplicas:   1,
+						UpdatedReplicas: 1,
+						Replicas:        1,
+						K8sVersion:      "v1.18.2+vmware.1",
+					},
+					MachineOptions: []fakehelper.TestMachineOptions{
+						{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
+					},
+				}
+			})
+			It("should not return an error and all status should be correct", func() {
+				Expect(err).NotTo(HaveOccurred())
+				Expect(len(clusterInfo)).To(Equal(1))
+				Expect(clusterInfo[0].Name).To(Equal(createClusterOptions.ClusterName))
+				Expect(clusterInfo[0].Namespace).To(Equal(createClusterOptions.Namespace))
+				Expect(clusterInfo[0].ControlPlaneCount).To(Equal(fmt.Sprintf("%v/%v", createClusterOptions.CPOptions.ReadyReplicas, createClusterOptions.CPOptions.SpecReplicas)))
+				Expect(clusterInfo[0].WorkerCount).To(Equal(""))
+				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
+				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
+				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseRunning)))
+			})
+		})
+
 		Context("When cluster is in running state #CP=3 #Worker=3", func() {
 			BeforeEach(func() {
 				createClusterOptions = fakehelper.TestAllClusterComponentOptions{

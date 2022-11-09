@@ -4,15 +4,21 @@
 package client
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/version"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
@@ -25,6 +31,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfighelper"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/util/topology"
 )
 
 const (
@@ -95,7 +102,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		GetClientTimeout:  3 * time.Second,
 		OperationTimeout:  c.timeout,
 	}
-	regionalClusterClient, err := clusterclient.NewClient(options.Kubeconfig.Path, options.Kubeconfig.Context, clusterclientOptions)
+	regionalClusterClient, err := c.clusterClientFactory.NewClient(options.Kubeconfig.Path, options.Kubeconfig.Context, clusterclientOptions)
 	if err != nil {
 		return false, errors.Wrap(err, "unable to get cluster client while creating cluster")
 	}
@@ -140,6 +147,11 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		bytes, err = getContentFromInputFile(options.ClusterConfigFile)
 		if err != nil {
 			return false, errors.Wrap(err, "unable to get cluster configuration")
+		}
+
+		err = validateConfigForSingleNodeCluster(bytes, options, c)
+		if err != nil {
+			return false, err
 		}
 	} else {
 		bytes, err = c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster, options.IsWindowsWorkloadCluster)
@@ -861,4 +873,64 @@ func (c *TkgClient) ValidateManagementClusterVersionWithCLI(regionalClusterClien
 	}
 
 	return nil
+}
+
+// validateConfigForSingleNodeCluster validates that the controlPlaneTaint CC variable is not set for the single node workload cluster, otherwise returns error
+func validateConfigForSingleNodeCluster(stream []byte, options *CreateClusterOptions, tkgClient *TkgClient) error {
+	cluster, err := getClusterObjectFromYaml(stream)
+	if err != nil {
+		return err
+	}
+
+	if !topology.IsSingleNodeCluster(cluster) {
+		return nil
+	}
+
+	controlPlaneTaint := true
+	err = topology.GetVariable(cluster, "controlPlaneTaint", &controlPlaneTaint)
+	if err != nil {
+		return errors.Wrap(err, "failed to get CC variable controlPlaneTaint")
+	}
+
+	// Do not allow the creation of single node clusters without the feature gate.
+	if !tkgClient.IsFeatureActivated(constants.FeatureFlagSingleNodeClusters) {
+		return errors.New("Worker count cannot be 0, minimum worker count required is 1")
+	}
+
+	if controlPlaneTaint {
+		return errors.New(fmt.Sprintf("unable to create single node cluster %s as control plane node has taint", options.ClusterName))
+	}
+
+	return nil
+}
+
+func getClusterObjectFromYaml(stream []byte) (*capi.Cluster, error) {
+	clusterYaml, err := findClusterDefinitionIn(stream)
+	if err != nil {
+		return nil, err
+	}
+
+	cluster := &capi.Cluster{}
+	err = runtime.DefaultUnstructuredConverter.FromUnstructured(clusterYaml, cluster)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to convert yaml to structured format")
+	}
+	return cluster, nil
+}
+
+func findClusterDefinitionIn(stream []byte) (map[string]interface{}, error) {
+	clusterYaml := make(map[string]interface{})
+	decoder := yaml.NewDecoder(bytes.NewBufferString(string(stream)))
+	for {
+		if err := decoder.Decode(&clusterYaml); err != nil {
+			if err == io.EOF {
+				break
+			}
+			return clusterYaml, errors.Wrap(err, "unable to read cluster yaml")
+		}
+		if clusterYaml["kind"] == constants.KindCluster {
+			break
+		}
+	}
+	return clusterYaml, nil
 }

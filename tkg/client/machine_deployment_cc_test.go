@@ -6,13 +6,17 @@ package client_test
 import (
 	"encoding/json"
 	"errors"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/utils/pointer"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
@@ -425,6 +429,7 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 
 	JustBeforeEach(func() {
 		err = DoSetMachineDeploymentCC(regionalClusterClient, &cluster, &options)
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	Context("adding a new MachineDeployment", func() {
@@ -654,3 +659,200 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 		})
 	})
 })
+
+var _ = Describe("SetMachineDeploymentCC", func() {
+	Context("SetMachineDeployment", func() {
+		Context("When Cluster Class is enabled", func() {
+			var (
+				clusterClientFactory *fakes.ClusterClientFactory
+				clusterClient        *fakes.ClusterClient
+				featureFlagClient    *fakes.FeatureFlagClient
+				options              *SetMachineDeploymentOptions
+				tkgClient            *TkgClient
+			)
+
+			BeforeEach(func() {
+				clusterClientFactory = &fakes.ClusterClientFactory{}
+				clusterClient = &fakes.ClusterClient{}
+				clusterClientFactory.NewClientReturns(clusterClient, nil)
+				clusterClient.IsClusterClassBasedReturns(true, nil)
+				featureFlagClient = &fakes.FeatureFlagClient{}
+				options = &SetMachineDeploymentOptions{
+					ClusterName: "test-cluster",
+					Namespace:   "default",
+				}
+				tkgClient, err = CreateTKGClientOptsMutator("../fakes/config/config2.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Second, func(o Options) Options {
+					o.ClusterClientFactory = clusterClientFactory
+					o.FeatureFlagClient = featureFlagClient
+					return o
+				})
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			Context("When feature toggle is enabled", func() {
+				BeforeEach(func() {
+					featureFlagClient.IsConfigFeatureActivatedStub = func(featureFlagName string) (bool, error) {
+						if featureFlagName == constants.FeatureFlagSingleNodeClusters {
+							return true, nil
+						}
+						return false, nil
+					}
+				})
+
+				It("Should not create machine deployment when creating a single node cluster", func() {
+					clusterClient.GetResourceCalls(func(c interface{}, name, namespace string, pv clusterclient.PostVerifyrFunc, opt *clusterclient.PollOptions) error {
+						cc := c.(*capi.Cluster)
+						fc := singleNodeCluster()
+						fc.Spec.Topology.Workers = nil
+						*cc = *fc
+						return nil
+					})
+
+					err = tkgClient.SetMachineDeployment(options)
+					Expect(err).ToNot(HaveOccurred())
+
+					Expect(clusterClient.GetResourceCallCount()).To(Equal(1))
+					Expect(clusterClient.UpdateResourceCallCount()).To(BeZero())
+
+					obj, _, _, _, _ := clusterClient.GetResourceArgsForCall(0)
+					cluster := obj.(*capi.Cluster)
+					Expect(*cluster.Spec.Topology.ControlPlane.Replicas).To(Equal(int32(1)))
+					Expect(cluster.Spec.Topology.Workers).To(BeNil())
+				})
+
+				It("Should create machine deployment when creating a multi node cluster", func() {
+					clusterClient.GetResourceCalls(func(c interface{}, name, namespace string, pv clusterclient.PostVerifyrFunc, opt *clusterclient.PollOptions) error {
+						cc := c.(*capi.Cluster)
+						fc := multiNodeCluster()
+						*cc = *fc
+						return nil
+					})
+
+					err = tkgClient.SetMachineDeployment(multiNodeOptions(options))
+					Expect(err).ToNot(HaveOccurred())
+
+					Expect(clusterClient.GetResourceCallCount()).To(Equal(1))
+					Expect(clusterClient.UpdateResourceCallCount()).To(Equal(1))
+					obj, _, _, _, _ := clusterClient.GetResourceArgsForCall(0)
+					cluster := obj.(*capi.Cluster)
+					Expect(*cluster.Spec.Topology.ControlPlane.Replicas).To(Equal(int32(1)))
+					Expect(*cluster.Spec.Topology.Workers.MachineDeployments[0].Replicas).To(Equal(int32(1)))
+				})
+			})
+
+			Context("When feature toggle is disabled", func() {
+				BeforeEach(func() {
+					featureFlagClient.IsConfigFeatureActivatedStub = func(featureFlagName string) (bool, error) {
+						if featureFlagName == constants.FeatureFlagSingleNodeClusters {
+							return false, nil
+						}
+						return false, nil
+					}
+				})
+
+				It("Should create machine deployment", func() {
+					clusterClient.GetResourceCalls(func(c interface{}, name, namespace string, pv clusterclient.PostVerifyrFunc, opt *clusterclient.PollOptions) error {
+						cc := c.(*capi.Cluster)
+						fc := multiNodeCluster()
+						*cc = *fc
+						return nil
+					})
+
+					err = tkgClient.SetMachineDeployment(multiNodeOptions(options))
+					Expect(err).ToNot(HaveOccurred())
+
+					Expect(clusterClient.GetResourceCallCount()).To(Equal(1))
+					Expect(clusterClient.UpdateResourceCallCount()).To(Equal(1))
+					obj, _, _, _, _ := clusterClient.GetResourceArgsForCall(0)
+					cluster := obj.(*capi.Cluster)
+					Expect(*cluster.Spec.Topology.ControlPlane.Replicas).To(Equal(int32(1)))
+					Expect(*cluster.Spec.Topology.Workers.MachineDeployments[0].Replicas).To(Equal(int32(1)))
+				})
+
+				It("Should return error when trying to create a single node cluster", func() {
+					clusterClient.GetResourceCalls(func(c interface{}, name, namespace string, pv clusterclient.PostVerifyrFunc, opt *clusterclient.PollOptions) error {
+						cc := c.(*capi.Cluster)
+						fc := singleNodeCluster()
+						fc.Spec.Topology.Workers = nil
+						*cc = *fc
+						return nil
+					})
+
+					err = tkgClient.SetMachineDeployment(options)
+					Expect(err).To(MatchError("cluster topology workers are not set. please repair your cluster before trying again"))
+
+					Expect(clusterClient.GetResourceCallCount()).To(Equal(1))
+					Expect(clusterClient.UpdateResourceCallCount()).To(BeZero())
+
+					obj, _, _, _, _ := clusterClient.GetResourceArgsForCall(0)
+					cluster := obj.(*capi.Cluster)
+					Expect(*cluster.Spec.Topology.ControlPlane.Replicas).To(Equal(int32(1)))
+					Expect(cluster.Spec.Topology.Workers).To(BeNil())
+				})
+			})
+		})
+	})
+})
+
+func singleNodeCluster() *capi.Cluster {
+	return &capi.Cluster{
+		Spec: capi.ClusterSpec{
+			Topology: &capi.Topology{
+				ControlPlane: capi.ControlPlaneTopology{
+					Replicas: pointer.Int32(1),
+				},
+				Workers: &capi.WorkersTopology{
+					MachineDeployments: []capi.MachineDeploymentTopology{},
+				},
+			},
+		},
+	}
+}
+
+func multiNodeCluster() *capi.Cluster {
+	worker0Raw, _ := json.Marshal(map[string]interface{}{
+		"instanceType": "m5.large",
+	})
+
+	return &capi.Cluster{
+		Spec: capi.ClusterSpec{
+			Topology: &capi.Topology{
+				ControlPlane: capi.ControlPlaneTopology{
+					Replicas: pointer.Int32(1),
+				},
+				Workers: &capi.WorkersTopology{
+					MachineDeployments: []capi.MachineDeploymentTopology{
+						{
+							Name:     md0Name,
+							Replicas: pointer.Int32(1),
+							Class:    tkgWorker,
+							Variables: &capi.MachineDeploymentVariables{
+								Overrides: []capi.ClusterVariable{
+									{
+										Name: "worker",
+										Value: v1.JSON{
+											Raw: worker0Raw,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func multiNodeOptions(options *SetMachineDeploymentOptions) *SetMachineDeploymentOptions {
+	options.NodePool = NodePool{
+		Labels: &map[string]string{
+			"os":   "ubuntu",
+			"arch": "amd64",
+		},
+		Replicas:    pointer.Int32(1),
+		WorkerClass: tkgWorker,
+		TKRResolver: osNameUbuntu,
+	}
+	return options
+}

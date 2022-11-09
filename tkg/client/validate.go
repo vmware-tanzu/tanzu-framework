@@ -467,7 +467,7 @@ func (c *TkgClient) GetVSphereEndpoint(clusterClient clusterclient.Client) (vc.C
 		vsphereInsecure := (vsphereInsecureString == trueString)
 		vsphereThumbprint, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereTLSThumbprint)
 
-		return vc.GetAuthenticatedVCClient(server, username, password, vsphereThumbprint, vsphereInsecure)
+		return vc.GetAuthenticatedVCClient(server, username, password, vsphereThumbprint, vsphereInsecure, c.vcClientFactory)
 	}
 
 	vcHost, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereServer)
@@ -500,7 +500,7 @@ func (c *TkgClient) GetVSphereEndpoint(clusterClient clusterclient.Client) (vc.C
 		return nil, errors.Wrap(err, "failed to parse vc host")
 	}
 	vcURL.Path = "/sdk"
-	vcClient, err := vc.NewClient(vcURL, thumbprint, vsphereInsecure)
+	vcClient, err := c.vcClientFactory.NewClient(vcURL, thumbprint, vsphereInsecure)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vc client")
 	}

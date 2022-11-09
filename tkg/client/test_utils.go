@@ -39,6 +39,10 @@ func createTKGClient(clusterConfigFile, configDir, defaultBomFile string, timeou
 	return createTKGClientOpts(clusterConfigFile, configDir, defaultBomFile, timeout, func(options Options) Options { return options })
 }
 
+func CreateTKGClientOptsMutator(clusterConfigFile, configDir, defaultBomFile string, timeout time.Duration, optMutator func(options Options) Options) (*TkgClient, error) {
+	return createTKGClientOpts(clusterConfigFile, configDir, defaultBomFile, timeout, optMutator)
+}
+
 func createTKGClientOpts(clusterConfigFile, configDir, defaultBomFile string, timeout time.Duration, optMutator func(options Options) Options) (*TkgClient, error) {
 	setupTestingFiles(clusterConfigFile, configDir, defaultBomFile)
 	appConfig := types.AppConfig{
