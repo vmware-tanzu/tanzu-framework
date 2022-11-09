@@ -578,7 +578,7 @@ func GetEdition() (string, error) {
 		return "", err
 	}
 	if cfg != nil && cfg.ClientOptions != nil && cfg.ClientOptions.CLI != nil {
-		return string(cfg.ClientOptions.CLI.Edition), nil
+		return string(cfg.ClientOptions.CLI.Edition), nil //nolint:staticcheck
 	}
 	return "", nil
 }
