@@ -18,7 +18,7 @@ spec:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: AzureFileCSIConfig is the Schema for the azurefilecsiconfigs API
+        description: AzureFileCSIConfig is the Schema for the azurefilecsiconfigs
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -36,7 +36,7 @@ spec:
             description: AzureFileCSIConfigSpec defines the desired state of AzureFileCSIConfig
             properties:
               azureFileCSIDriver:
-                description: AzureFileCSI is the Schema for the azurefilecsiconfigs API
+                description: AzureFileCSI is the Schema for the AzureFileCSIConfig
                 properties:
                   deploymentReplicas:
                     format: int32
