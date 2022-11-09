@@ -69,7 +69,7 @@ var _ = Describe("Reconciler", func() {
 		}
 	})
 
-	It("should label TKRs withour bootstrap packages as legacy", func() {
+	It("should label TKRs without bootstrap packages as legacy", func() {
 		for _, tkr0 := range tkrs {
 			req := ctrl.Request{NamespacedName: types.NamespacedName{Name: tkr0.Name}}
 			result, err := r.Reconcile(ctx, req)
