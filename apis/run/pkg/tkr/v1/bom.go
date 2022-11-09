@@ -253,3 +253,7 @@ func (b *Bom) GetOVAInfo() ([]OVAInfo, error) {
 	}
 	return b.bom.OVA, nil
 }
+
+func (b *Bom) GetBomContent() BomContent {
+	return b.bom
+}

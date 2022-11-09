@@ -232,6 +232,11 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, err
 	}
 
+	err = r.createOrUpdateClusterMetadata(remoteClient, cluster)
+	if err != nil {
+		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
