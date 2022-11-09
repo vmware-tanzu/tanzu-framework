@@ -309,9 +309,8 @@ spec:
     httpProxy: #@ data.values.TKG_HTTP_PROXY
     httpsProxy: #@ data.values.TKG_HTTPS_PROXY
     noProxy: #@ data.values.TKG_NO_PROXY
----
 #@ end
-
+---
 #@ if awsebscsi_configs_exist():
 apiVersion: csi.tanzu.vmware.com/v1alpha1
 kind: AwsEbsCSIConfig
