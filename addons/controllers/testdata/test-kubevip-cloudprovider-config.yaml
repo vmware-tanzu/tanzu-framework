@@ -76,8 +76,8 @@ spec:
           dhcp6: true
           dhcp4: false
 ---
-apiVersion: lb.tanzu.vmware.com/v1alpha1
-kind: KubevipCPConfig
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: KubevipCPIConfig
 metadata:
   name: test-cluster-kvcp
   namespace: default

@@ -5,20 +5,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: kubevipcpconfigs.lb.tanzu.vmware.com
+  name: kubevipcpiconfigs.cpi.tanzu.vmware.com
 spec:
-  group: lb.tanzu.vmware.com
+  group: cpi.tanzu.vmware.com
   names:
-    kind: KubevipCPConfig
-    listKind: KubevipCPConfigList
-    plural: kubevipcpconfigs
-    singular: kubevipcpconfig
+    kind: KubevipCPIConfig
+    listKind: KubevipCPIConfigList
+    plural: kubevipcpiconfigs
+    singular: kubevipcpiconfig
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: KubevipCPConfig is the Schema for the kubevipcpconfigs API
+        description: KubevipCPIConfig is the Schema for the kubevipcpiconfigs API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -33,7 +33,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: KubevipCPConfigSpec defines the desired state of KubevipCPConfig
+            description: KubevipCPIConfigSpec defines the desired state of KubevipCPIConfig
             properties:
               loadbalancerCIDRs:
                 description: loadbalancerCIDRs is a list of comma separated
@@ -47,7 +47,7 @@ spec:
                 type: string
             type: object
           status:
-            description: KubevipCPConfigStatus defines the observed state of KubevipCPConfig
+            description: KubevipCPIConfigStatus defines the observed state of KubevipCPIConfig
             properties:
               secretRef:
                 description: Name of the secret created by kubevip cloudprovider config

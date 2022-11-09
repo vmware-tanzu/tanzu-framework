@@ -1,7 +1,7 @@
 #@ load("@ytt:data", "data")
 ---
-apiVersion: lb.tanzu.vmware.com/v1alpha1
-kind: KubevipCPConfig
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: KubevipCPIConfig
 metadata:
   name: #@ data.values.TKR_VERSION
   namespace: #@ data.values.GLOBAL_NAMESPACE

@@ -59,17 +59,17 @@ data:
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: lb.tanzu.vmware.com.0.0.4
+  name: cpi.tanzu.vmware.com.0.0.4
   namespace: cluster-namespace-7
 spec:
-  refName: lb.tanzu.vmware.com
+  refName: cpi.tanzu.vmware.com
   version: 0.0.4+vmware.1-tkg.1
   releasedAt: "2021-05-13T18:00:00Z"
   releaseNotes: lb 0.0.4
   capacityRequirementsDescription: Varies significantly based on cluster size. This should be tuned based on observed usage.
   valuesSchema:
     openAPIv3:
-      title: lb.tanzu.vmware.com.0.0.4+vmware.1-tkg.1 values schema
+      title: cpi.tanzu.vmware.com.0.0.4+vmware.1-tkg.1 values schema
       properties:
         namespace:
           type: string
@@ -101,17 +101,17 @@ spec:
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: lb.tanzu.vmware.com.0.0.4
+  name: cpi.tanzu.vmware.com.0.0.4
   namespace: tkg-system
 spec:
-  refName: lb.tanzu.vmware.com
+  refName: cpi.tanzu.vmware.com
   version: 0.0.4+vmware.1-tkg.1
   releasedAt: "2021-05-13T18:00:00Z"
   releaseNotes: lb 0.0.4
   capacityRequirementsDescription: Varies significantly based on cluster size. This should be tuned based on observed usage.
   valuesSchema:
     openAPIv3:
-      title: lb.tanzu.vmware.com.0.0.4+vmware.1-tkg.1 values schema
+      title: cpi.tanzu.vmware.com.0.0.4+vmware.1-tkg.1 values schema
       properties:
         namespace:
           type: string
@@ -333,8 +333,8 @@ spec:
       title: kapp-controller.tanzu.vmware.com.0.30.23+vmware.1-tkg.1 values schema
 
 ---
-apiVersion: lb.tanzu.vmware.com/v1alpha1
-kind: KubevipCPConfig
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: KubevipCPIConfig
 metadata:
   name: test-cluster-7
   namespace: cluster-namespace-7
@@ -517,9 +517,9 @@ spec:
     - refName: foobar1.example.com.1.17.2
       valuesFrom:
         secretRef: foobar2secret
-    - refName: lb.tanzu.vmware.com.0.0.4
+    - refName: cpi.tanzu.vmware.com.0.0.4
       valuesFrom:
         providerRef:
-          apiGroup: lb.tanzu.vmware.com
-          kind: KubevipCPConfig
+          apiGroup: cpi.tanzu.vmware.com
+          kind: KubevipCPIConfig
           name: test-cluster-7

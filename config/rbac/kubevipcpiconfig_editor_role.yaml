@@ -1,13 +1,13 @@
-# permissions for end users to edit kubevipcpconfigs.
+# permissions for end users to edit kubevipcpiconfigs.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: kubevipcpconfig-editor-role
+  name: kubevipcpiconfig-editor-role
 rules:
 - apiGroups:
-  - lb.tanzu.vmware.com
+  - cpi.tanzu.vmware.com
   resources:
-  - kubevipcpconfigs
+  - kubevipcpiconfigs
   verbs:
   - create
   - delete
@@ -17,8 +17,8 @@ rules:
   - update
   - watch
 - apiGroups:
-  - lb.tanzu.vmware.com
+  - cpi.tanzu.vmware.com
   resources:
-  - kubevipcpconfigs/status
+  - kubevipcpiconfigs/status
   verbs:
   - get
