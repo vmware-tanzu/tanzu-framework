@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add calico v3.24.1 (#5431)...
-      sha: 9715f65cb72e03a9a1e24283d95a5251d1225bd1
+      commitTitle: update bundle ref
+      sha: a9e3f16da9d01cc977122d2900ebd27332ab214b
       tags:
-      - v0.13.0-dev.2-402-g9715f65c
+      - v0.10.0-dev.2-1585-ga9e3f16d
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:

@@ -11,6 +11,7 @@ deployment:
     maxSurge: null
 daemonset:
   updateStrategy: null
+
 antrea:
   config:
     egress:
@@ -31,7 +32,6 @@ antrea:
     kubeAPIServerOverride: null
     transportInterface: null
     transportInterfaceCIDRs: []
-    multicastInterfaces: []
     tunnelType: geneve
     trafficEncryptionMode: none
     wireGuard:
@@ -46,6 +46,20 @@ antrea:
     #! also adjust MTU to accommodate for tunnel encapsulation overhead.
     defaultMTU: null
     tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+    enableBridgingMode: false
+    disableTXChecksumOffload: false
+    dnsServerOverride: null
+    multicastInterfaces: []
+    multicast:
+      igmpQueryInterval: "125s"
+    ipsec:
+      authenticationMode: "psk"
+    ipsecCSRSigner:
+      autoApprove: true
+      selfSignedCA: true
+    multicluster:
+      enable: false
+      namespace: null
     featureGates:
       AntreaProxy: true
       EndpointSlice: false
@@ -58,3 +72,8 @@ antrea:
       AntreaIPAM: false
       ServiceExternalIP: false
       Multicast: false
+      Multicluster: false
+      SecondaryNetwork: false
+      TrafficControl: false
+      IPsecCertAuth: false
+      NodeIPAM: false
