@@ -5,7 +5,7 @@ go 1.18
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs => ../apis/addonconfigs
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.4
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.6
 )
 
 require (
@@ -33,7 +33,7 @@ require (
 	k8s.io/klog/v2 v2.70.1
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
 	knative.dev/pkg v0.0.0-20220302134643-d2cdc682d974
-	sigs.k8s.io/cluster-api v1.2.4
+	sigs.k8s.io/cluster-api v1.2.6
 	sigs.k8s.io/cluster-api-provider-vsphere v1.5.0
 	sigs.k8s.io/controller-runtime v0.12.3
 	sigs.k8s.io/yaml v1.3.0
@@ -99,7 +99,7 @@ require (
 	go.uber.org/zap v1.22.0 // indirect
 	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
+	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c // indirect
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
 	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect

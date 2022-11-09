@@ -14,7 +14,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/tkg => ./tkg
 	github.com/vmware-tanzu/tanzu-framework/tkr => ./tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ./util
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.4
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.6
 )
 
 // Legacy tags before v0.1.0 was created
@@ -46,7 +46,7 @@ require (
 	k8s.io/api v0.24.4
 	k8s.io/apimachinery v0.24.4
 	k8s.io/client-go v0.24.4
-	sigs.k8s.io/cluster-api v1.2.4
+	sigs.k8s.io/cluster-api v1.2.6
 	sigs.k8s.io/controller-runtime v0.12.3
 )
 
@@ -252,7 +252,7 @@ require (
 	sigs.k8s.io/cluster-api-provider-aws v1.4.1-0.20220928212229-13c0c2e7324b // indirect
 	sigs.k8s.io/cluster-api-provider-azure v1.5.3 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 // indirect
-	sigs.k8s.io/cluster-api/test v1.2.4 // indirect
+	sigs.k8s.io/cluster-api/test v1.2.6 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/kind v0.15.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
