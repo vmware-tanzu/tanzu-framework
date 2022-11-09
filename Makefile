@@ -578,7 +578,7 @@ go-lint: tools ## Run linting of go source
 	@for i in $(GO_MODULES); do \
 		echo "-- Linting $$i --"; \
 		pushd $${i}; \
-		$(GOLANGCI_LINT) run -v --timeout=10m; \
+		$(GOLANGCI_LINT) run -v --timeout=10m || exit 1; \
 		popd; \
 	done
 
