@@ -24,8 +24,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
-const CLI_CLUSTERCLASS_FLAG = "features.global.package-based-lcm-beta"
-
 var (
 	// path to the e2e config file
 	e2eConfigPath string

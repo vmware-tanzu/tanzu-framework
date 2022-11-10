@@ -243,7 +243,8 @@ const (
 	ConfigVariableInternalNMIImageTag             = "NMI_IMAGE_TAG"
 
 	// Other variables related to provider installation
-	ConfigVariableClusterTopology = "CLUSTER_TOPOLOGY"
+	ConfigVariableClusterTopology    = "CLUSTER_TOPOLOGY"
+	ConfigVariableAllowLegacyCluster = "ALLOW_LEGACY_CLUSTER"
 
 	ConfigVariablePackageInstallTimeout = "PACKAGE_INSTALL_TIMEOUT"
 
@@ -272,5 +273,4 @@ const (
 	ConfigVariableAviManagementClusterDataPlaneNetworkCIDR       = "AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR"
 	ConfigVariableAviManagementClusterControlPlaneVipNetworkName = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME"
 	ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"
-
 )

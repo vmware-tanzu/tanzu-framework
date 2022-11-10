@@ -34,4 +34,7 @@ const (
 	// FeatureFlagSingleNodeClusters is to enable Single Node Cluster deployment via tanzu CLI.
 	// Setting the feature flag to true will allow the creation of Single Node Clusters.
 	FeatureFlagSingleNodeClusters = "features.cluster.single-node-clusters"
+	// FeatureFlagAllowLegacyCluster is used to decide the workload cluster is clusterclass based or legayc based.
+	// By default, it's false. If it's true, then workload cluster is legacy based.
+	FeatureFlagAllowLegacyCluster = "features.cluster.allow-legacy-cluster"
 )

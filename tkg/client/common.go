@@ -305,8 +305,26 @@ func (c *TkgClient) isCustomOverlayPresent() (bool, error) {
 	return providersChecksum == "" || providersChecksum != prePopulatedChecksumFromFile, nil
 }
 
+// Sets the appropriate AllowLegacyCluster configuration unless it has been explicitly overridden
+func (c *TkgClient) setAllowLegacyClusterConfiguration() string {
+	allowLegacyCluster := "true"
+	if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
+		value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+		if err != nil {
+			allowLegacyCluster = "false"
+		} else {
+			log.V(6).Infof("%v configuration already set to %q", constants.ConfigVariableAllowLegacyCluster, value)
+			return value
+		}
+	}
+	log.V(6).Infof("Setting %v to %q", constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
+	return allowLegacyCluster
+}
+
 func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster bool) (bool, error) {
 	var isCustomOverlayPresent bool
+	var allowLegacyClusterCreated string
 	var err error
 
 	if isCustomOverlayPresent, err = c.isCustomOverlayPresent(); err != nil {
@@ -321,7 +339,23 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		return true, nil
 	}
 
-	deployClusterClassBasedCluster := config.IsFeatureActivated(constants.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayPresent
+	allowLegacyClusterCreated = c.setAllowLegacyClusterConfiguration()
+	if allowLegacyClusterCreated == "false" {
+		// Return error if user has customized template overlays
+		// but the feature gate FeatureFlagAllowLegacyCluster or ALLOW_LEGACY_CLUSTER parameter is disabled for workload cluster
+		if isCustomOverlayPresent {
+			return false, errors.Errorf("It seems like you have done some customizations to the template overlays. However, the feature gate FeatureFlagAllowLegacyCluster is %v. Please enabe it and try again", constants.FeatureFlagAllowLegacyCluster)
+		} else {
+			// Deploy clusterclass based workload cluster when template overlays don't be customized
+			// and feature gate FeatureFlagAllowLegacyCluster or ALLOW_LEGACY_CLUSTER parameter is disabled
+			return true, nil
+		}
+	}
 
-	return deployClusterClassBasedCluster, nil
+	if config.IsFeatureActivated(constants.FeatureFlagForceDeployClusterWithClusterClass) {
+		return true, nil
+	} else {
+		return false, nil
+	}
+
 }
