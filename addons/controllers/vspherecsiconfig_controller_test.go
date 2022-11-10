@@ -21,6 +21,7 @@ import (
 	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 )
@@ -31,7 +32,8 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 	)
 
 	var (
-		key                       client.ObjectKey
+		clusterKey                client.ObjectKey
+		configKey                 client.ObjectKey
 		clusterName               string
 		clusterResourceFilePath   string
 		enduringResourcesFilePath string
@@ -39,9 +41,13 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 
 	JustBeforeEach(func() {
 		By("Creating cluster and VSphereCSIConfig resources")
-		key = client.ObjectKey{
+		clusterKey = client.ObjectKey{
 			Namespace: clusterNamespace,
 			Name:      clusterName,
+		}
+		configKey = client.ObjectKey{
+			Namespace: clusterNamespace,
+			Name:      util.GeneratePackageSecretName(clusterName, constants.CSIDefaultRefName),
 		}
 		if enduringResourcesFilePath != "" {
 			fers, err := os.Open(enduringResourcesFilePath)
@@ -84,8 +90,8 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
 				cluster := &clusterapiv1beta1.Cluster{}
 				Eventually(func() error {
-					if err := k8sClient.Get(ctx, key, cluster); err != nil {
-						return fmt.Errorf("Failed to get Cluster '%v': '%v'", key, err)
+					if err := k8sClient.Get(ctx, clusterKey, cluster); err != nil {
+						return fmt.Errorf("Failed to get Cluster '%v': '%v'", clusterKey, err)
 					}
 					return nil
 				}, waitTimeout, pollingInterval).Should(Succeed())
@@ -93,8 +99,8 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				// the csi config object should be deployed
 				config := &csiv1alpha1.VSphereCSIConfig{}
 				Eventually(func() error {
-					if err := k8sClient.Get(ctx, key, config); err != nil {
-						return fmt.Errorf("Failed to get VSphereCSIConfig '%v': '%v'", key, err)
+					if err := k8sClient.Get(ctx, configKey, config); err != nil {
+						return fmt.Errorf("Failed to get VSphereCSIConfig '%v': '%v'", configKey, err)
 					}
 					Expect(config.Spec.VSphereCSI.Mode).Should(Equal("vsphereCSI"))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig).NotTo(BeZero())
@@ -170,13 +176,19 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				}, waitTimeout, pollingInterval).Should(Succeed())
 
 				// eventually the secret ref to the data values should be updated
-				Eventually(func() error {
-					if err := k8sClient.Get(ctx, key, config); err != nil {
-						return fmt.Errorf("Failed to get VSphereCSIConfig '%v': '%v'", key, err)
+				Eventually(func() bool {
+					config := &csiv1alpha1.VSphereCSIConfig{}
+					if err := k8sClient.Get(ctx, configKey, config); err != nil {
+						return false
 					}
-					Expect(*config.Status.SecretRef).To(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.CSIAddonName)))
-					return nil
-				}, waitTimeout, pollingInterval).Should(Succeed())
+					if config.Status.SecretRef == nil {
+						return false
+					}
+					if *config.Status.SecretRef == util.GenerateDataValueSecretName(clusterName, constants.CSIDefaultRefName) {
+						return true
+					}
+					return false
+				}, waitTimeout, pollingInterval).Should(BeTrue())
 			})
 
 		})
@@ -201,7 +213,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				// the csi config object should be deployed
 				config := &csiv1alpha1.VSphereCSIConfig{}
 				Eventually(func() error {
-					objKey := client.ObjectKey{Namespace: "default", Name: "test-cluster-csi-minimal"}
+					objKey := client.ObjectKey{Namespace: "default", Name: util.GeneratePackageSecretName(clusterName, constants.CSIDefaultRefName)}
 					if err := k8sClient.Get(ctx, objKey, config); err != nil {
 						return fmt.Errorf("Failed to get VSphereCSIConfig '%v': '%v'", objKey, err)
 					}
@@ -253,7 +265,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 
 				// eventually the secret ref to the data values should be updated
 				Eventually(func() error {
-					objKey := client.ObjectKey{Namespace: "default", Name: "test-cluster-csi-minimal"}
+					objKey := client.ObjectKey{Namespace: "default", Name: util.GeneratePackageSecretName(clusterName, constants.CSIDefaultRefName)}
 					if err := k8sClient.Get(ctx, objKey, config); err != nil {
 						return fmt.Errorf("Failed to get VSphereCSIConfig '%v' : '%v", objKey, err)
 					}
@@ -332,9 +344,9 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			// eventually the secret ref to the data values should be updated
 			config := &csiv1alpha1.VSphereCSIConfig{}
 			Eventually(func() error {
-				configKey := client.ObjectKey{
+				configKey = client.ObjectKey{
 					Namespace: clusterNamespace,
-					Name:      clusterName,
+					Name:      util.GeneratePackageSecretName(clusterName, constants.CSIDefaultRefName),
 				}
 				if err := k8sClient.Get(ctx, configKey, config); err != nil {
 					return fmt.Errorf("Failed to get vsphereconfig '%v': '%v'", configKey, err)
@@ -382,7 +394,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					return fmt.Errorf("Failed to get provider service account '%v' : '%v'", serviceAccountKey, err)
 				}
 				Expect(serviceAccount.Spec.Ref.Name).To(Equal(vsphereClusterName))
-				Expect(serviceAccount.Spec.Ref.Namespace).To(Equal(key.Namespace))
+				Expect(serviceAccount.Spec.Ref.Namespace).To(Equal(configKey.Namespace))
 				Expect(serviceAccount.Spec.Rules).To(HaveLen(6))
 				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-csi"))
 				Expect(serviceAccount.Spec.TargetSecretName).To(Equal("pvcsi-provider-creds"))
@@ -393,10 +405,10 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 		It("Should reconcile aggregated cluster role", func() {
 			clusterRole := &rbacv1.ClusterRole{}
 			Eventually(func() error {
-				key = client.ObjectKey{
+				clusterKey = client.ObjectKey{
 					Name: constants.VsphereCSIProviderServiceAccountAggregatedClusterRole,
 				}
-				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {
+				if err := k8sClient.Get(ctx, clusterKey, clusterRole); err != nil {
 					return err
 				}
 				Expect(clusterRole.Labels).To(Equal(map[string]string{
@@ -418,9 +430,10 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 
 		It("Should skip the reconciliation", func() {
 
-			key.Namespace = addonNamespace
+			configKey.Name = "test-cluster-csi-template-config"
+			configKey.Namespace = addonNamespace
 			config := &csiv1alpha1.VSphereCSIConfig{}
-			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
+			Expect(k8sClient.Get(ctx, configKey, config)).To(Succeed())
 
 			By("OwnerReferences is not set")
 			Expect(len(config.OwnerReferences)).Should(Equal(0))

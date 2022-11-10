@@ -9,7 +9,7 @@ metadata:
   namespace: #@ data.values.NAMESPACE
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
-    identifier.cc.vmware.com: tanzu-aws-default-0.0.1
+    identifier.cc.vmware.com: tanzu-aws-default-0.0.2
 spec:
   controlPlane:
     ref:
@@ -142,24 +142,27 @@ spec:
                 type: string
               node:
                 type: string
-          proxy:
-            type: object
-            properties:
-              httpProxy:
-                type: string
-              httpsProxy:
-                type: string
-              noProxy:
-                type: array
-                items:
-                  type: string
-                default: []
-            required:
-            - httpProxy
-            - httpsProxy
         required:
         - vpc
         - subnets
+  - name: proxy
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          httpProxy:
+            type: string
+          httpsProxy:
+            type: string
+          noProxy:
+            type: array
+            items:
+              type: string
+            default: []
+        required:
+        - httpProxy
+        - httpsProxy
   - name: controlPlane
     required: true
     schema:
@@ -544,7 +547,7 @@ spec:
               {{ end }}
             {{ end }}
   - name: httpProxy
-    enabledIf: '{{ not (empty .network.proxy) }}'
+    enabledIf: '{{ not (empty .proxy) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -558,9 +561,9 @@ spec:
           template: &containerdProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
-              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
-              Environment="NO_PROXY= {{- list .network.vpc.cidr "169.254.0.0/16" "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
+              Environment="HTTP_PROXY= {{- .proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy -}} "
+              Environment="NO_PROXY= {{- list .network.vpc.cidr "169.254.0.0/16" "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /etc/systemd/system/containerd.service.d/http-proxy.conf
             permissions: "0640"
@@ -570,9 +573,9 @@ spec:
           template: &kubeletProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
-              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
-              Environment="NO_PROXY= {{- list .network.vpc.cidr "169.254.0.0/16" "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
+              Environment="HTTP_PROXY= {{- .proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy -}} "
+              Environment="NO_PROXY= {{- list .network.vpc.cidr "169.254.0.0/16" "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
             permissions: "0640"
@@ -589,17 +592,17 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportHTTPProxy |
-            export HTTP_PROXY= {{- .network.proxy.httpProxy }}
+            export HTTP_PROXY= {{- .proxy.httpProxy }}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportHTTPSProxy |
-            export HTTPS_PROXY= {{- .network.proxy.httpsProxy }}
+            export HTTPS_PROXY= {{- .proxy.httpsProxy }}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportNoProxy |
-            export NO_PROXY= {{- list .network.vpc.cidr "169.254.0.0/16" "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}
+            export NO_PROXY= {{- list .network.vpc.cidr "169.254.0.0/16" "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate

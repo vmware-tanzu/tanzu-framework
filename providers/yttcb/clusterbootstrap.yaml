@@ -31,16 +31,27 @@
 #@ end
 
 #@ def vspherecpi_configs_exist():
-#@   return data.values.PROVIDER_TYPE == "vsphere" and (data.values.VSPHERE_SERVER or data.values.NSXT_MANAGER_HOST)
+#@   return data.values.PROVIDER_TYPE == "vsphere" and ((data.values.VSPHERE_SERVER or
+#@           data.values.NSXT_MANAGER_HOST) or (data.values.TKG_HTTP_PROXY != "" or
+#@           data.values.TKG_HTTPS_PROXY != "" or
+#@           data.values.TKG_NO_PROXY != ""))
 #@ end
 
 #@ def vspherecsi_configs_exist():
-#@   return data.values.PROVIDER_TYPE == "vsphere" and (not data.values.VSPHERE_INSECURE or
-#@           data.values.USE_TOPOLOGY_CATEGORIES)
+#@   return data.values.PROVIDER_TYPE == "vsphere" and ((not data.values.VSPHERE_INSECURE or
+#@           data.values.USE_TOPOLOGY_CATEGORIES) or (data.values.TKG_HTTP_PROXY != "" or
+#@           data.values.TKG_HTTPS_PROXY != "" or
+#@           data.values.TKG_NO_PROXY != ""))
 #@ end
 
 #@ def storage_class_configs_exist():
 #@   return data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker"
+#@ end
+
+#@ def azurefilecsi_configs_exist():
+#@   return data.values.PROVIDER_TYPE == "azure" and (data.values.TKG_HTTP_PROXY != "" or
+#@                                                  data.values.TKG_HTTPS_PROXY != "" or
+#@                                                  data.values.TKG_NO_PROXY != "")
 #@ end
 
 #@ def awsebscsi_configs_exist():
@@ -50,7 +61,7 @@
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or azurefilecsi_configs_exist() or storage_class_configs_exist()
 #@ end
 
 #@ if antrea_configs_exist():
@@ -180,6 +191,9 @@ spec:
       zone: #@ data.values.VSPHERE_ZONE
       region: #@ data.values.VSPHERE_REGION
       useTopologyCategories: #@ data.values.USE_TOPOLOGY_CATEGORIES
+      httpProxy: #@ data.values.TKG_HTTP_PROXY
+      httpsProxy: #@ data.values.TKG_HTTPS_PROXY
+      noProxy: #@ data.values.TKG_NO_PROXY
 #@ end
 
 #@ def vsphere_storage_class():
@@ -204,6 +218,26 @@ metadata:
 #@ end
 
 ---
+#@ if azurefilecsi_configs_exist():
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: AzureFileCSIConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+spec:
+  azureFileCSIDriver:
+    namespace: kube-system
+    #@ if data.values.CLUSTER_PLAN == "prod" or data.values.CLUSTER_PLAN == "prodcc":
+    deploymentReplicas: 3
+    #@ else:
+    deploymentReplicas: 1
+    #@ end
+    httpProxy: #@ data.values.TKG_HTTP_PROXY
+    httpsProxy: #@ data.values.TKG_HTTPS_PROXY
+    noProxy: #@ data.values.TKG_NO_PROXY
+---
+#@ end
+
 #@ if awsebscsi_configs_exist():
 apiVersion: csi.tanzu.vmware.com/v1alpha1
 kind: AwsEbsCSIConfig
@@ -292,5 +326,13 @@ spec:
         #@ elif data.values.PROVIDER_TYPE == "azure":
         inline: #@ azure_storage_class()
         #@ end
+    #@ end
+    #@ if azurefilecsi_configs_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+    - refName: azurefile-csi*
+      valuesFrom:
+        providerRef:
+          apiGroup: csi.tanzu.vmware.com
+          kind: AzureFileCSIConfig
+          name: #@ data.values.CLUSTER_NAME
     #@ end
 #@ end

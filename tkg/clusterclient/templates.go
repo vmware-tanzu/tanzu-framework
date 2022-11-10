@@ -10,7 +10,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 )
 
-func (c *client) GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphereMachineTemplateObjectName string) (vc.Client, string, error) {
+func (c *client) GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphereMachineTemplateObjectName string, vcClientFactory vc.VcClientFactory) (vc.Client, string, error) {
 	if c.verificationClientFactory != nil && c.verificationClientFactory.GetVCClientAndDataCenter != nil {
 		return c.verificationClientFactory.GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphereMachineTemplateObjectName)
 	}
@@ -30,7 +30,7 @@ func (c *client) GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphere
 	// TODO: Read `vsphereInsecure`, `vsphereThumbprint` from cluster object
 	// if this values are not available for old cluster use Insecure 'true' by default
 	vsphereInsecure := true
-	vcClient, err := vc.GetAuthenticatedVCClient(vsphereServer, vsphereUsername, vspherePassword, "", vsphereInsecure)
+	vcClient, err := vc.GetAuthenticatedVCClient(vsphereServer, vsphereUsername, vspherePassword, "", vsphereInsecure, vcClientFactory)
 	if err != nil {
 		return nil, "", errors.Wrap(err, "unable to retrieve vSphere Client to retrieve VM Template")
 	}

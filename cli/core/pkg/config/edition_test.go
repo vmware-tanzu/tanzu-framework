@@ -23,8 +23,8 @@ func TestConfigFeaturesDefaultEditionAdded(t *testing.T) {
 
 	added := addDefaultEditionIfMissing(cfg)
 	require.True(t, added, "addDefaultEditionIfMissing should have returned true (having added missing default edition value)")
-	errMsg := "addDefaultEditionIfMissing should have added default edition (" + configapi.EditionStandard + ") instead of " + cfg.ClientOptions.CLI.Edition
-	require.Equal(t, cfg.ClientOptions.CLI.Edition, configapi.EditionSelector(configapi.EditionStandard), errMsg)
+	errMsg := "addDefaultEditionIfMissing should have added default edition (" + configapi.EditionStandard + ") instead of " + cfg.ClientOptions.CLI.Edition //nolint:staticcheck
+	require.Equal(t, cfg.ClientOptions.CLI.Edition, configapi.EditionSelector(configapi.EditionStandard), errMsg)                                            //nolint:staticcheck
 }
 
 func TestConfigFeaturesDefaultEditionNotAdded(t *testing.T) {
@@ -40,6 +40,6 @@ func TestConfigFeaturesDefaultEditionNotAdded(t *testing.T) {
 
 	added := addDefaultEditionIfMissing(cfg)
 	require.False(t, added, "addDefaultEditionIfMissing should have returned false (without adding default edition value)")
-	errMsg := "addDefaultEditionIfMissing should have left existing edition value intact instead of replacing with [" + cfg.ClientOptions.CLI.Edition + "]"
-	require.Equal(t, cfg.ClientOptions.CLI.Edition, configapi.EditionSelector(configapi.EditionCommunity), errMsg)
+	errMsg := "addDefaultEditionIfMissing should have left existing edition value intact instead of replacing with [" + cfg.ClientOptions.CLI.Edition + "]" //nolint:staticcheck
+	require.Equal(t, cfg.ClientOptions.CLI.Edition, configapi.EditionSelector(configapi.EditionCommunity), errMsg)                                          //nolint:staticcheck
 }

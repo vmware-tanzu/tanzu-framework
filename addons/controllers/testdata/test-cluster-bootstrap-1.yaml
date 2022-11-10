@@ -38,7 +38,9 @@ spec:
         value:
           httpProxy: "foo.com"
           httpsProxy: "bar.com"
-          noProxy: "foobar.com"
+          noProxy:
+          - "foobar.com"
+          - "google.com"
       - name: trust
         value:
           additionalTrustedCAs:

@@ -52,7 +52,7 @@ type DefaultClient struct {
 }
 
 // GetAuthenticatedVCClient returns authenticated VC client
-func GetAuthenticatedVCClient(vcHost, vcUsername, vcPassword, thumbprint string, insecure bool) (Client, error) {
+func GetAuthenticatedVCClient(vcHost, vcUsername, vcPassword, thumbprint string, insecure bool, vcClientFactory VcClientFactory) (Client, error) {
 	host := strings.TrimSpace(vcHost)
 	if !strings.HasPrefix(host, "http") {
 		host = "https://" + host
@@ -62,7 +62,7 @@ func GetAuthenticatedVCClient(vcHost, vcUsername, vcPassword, thumbprint string,
 		return nil, errors.Wrap(err, "failed to parse vc host")
 	}
 	vcURL.Path = "/sdk"
-	vcClient, err := NewClient(vcURL, thumbprint, insecure)
+	vcClient, err := vcClientFactory.NewClient(vcURL, thumbprint, insecure)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vc client")
 	}

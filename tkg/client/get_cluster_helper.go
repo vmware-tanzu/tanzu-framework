@@ -306,7 +306,8 @@ func getClusterStatus(clusterInfo *clusterObjects) TKGClusterPhase {
 	creationCompleteCondition := clusterInfo.cluster.Status.InfrastructureReady &&
 		clusterInfo.cluster.Status.ControlPlaneReady &&
 		clusterInfo.kcp.Status.ReadyReplicas > 0 &&
-		readyReplicas > 0
+		// readyReplicas check will only happen in case the replicas in MD is > 0 such that ClusterStatus is `CREATED` in case of SNC.
+		(replicas == 0 || readyReplicas > 0)
 
 	if !creationCompleteCondition {
 		return getClusterStatusWhileCreating(clusterInfo)

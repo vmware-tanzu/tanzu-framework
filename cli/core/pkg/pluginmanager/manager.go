@@ -537,6 +537,9 @@ func updateDescriptorAndInitializePlugin(serverName string, p *plugin.Discovered
 	if err := InitializePlugin(serverName, p.Name); err != nil {
 		log.Infof("could not initialize plugin after installing: %v", err.Error())
 	}
+	if err := config.ConfigureDefaultFeatureFlagsIfMissing(descriptor.DefaultFeatureFlags); err != nil {
+		log.Infof("could not configure default featureflags for the plugin: %v", err.Error())
+	}
 	return nil
 }
 

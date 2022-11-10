@@ -25,17 +25,18 @@ spec:
       - name: network
         value:
           ipv6Primary: false #TKG_IP_FAMILY (if true expect TKG_IP_FAMILY="ipv6,ipv4")
-          proxy: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
-            httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
-            httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
-            noProxy: #TKG_NO_PROXY
-              - 127.0.0.1
-              - 100.64.0.0/18
-              - 10.0.0.0/16
-              - 169.254.0.0/16
-              - .svc.cluster.local
-              - .svc
-              - localhost
+      - name: proxy
+        value: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
+          httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
+          httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
+          noProxy: #TKG_NO_PROXY
+            - 127.0.0.1
+            - 100.64.0.0/18
+            - 10.0.0.0/16
+            - 169.254.0.0/16
+            - .svc.cluster.local
+            - .svc
+            - localhost
       - name: imageRepository
         value:
           host: imageRepositoryHost #TKG_CUSTOM_IMAGE_REPOSITORY
@@ -125,3 +126,12 @@ spec:
           failureDomain: us-east-1c # VSPHERE_AZ_2
           name: md-2
           replicas: 3 # WORKER_MACHINE_COUNT_2
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vsphere-workload-cluster1
+  namespace: namespace-test1
+stringData:
+  password: Admin!23
+  username: administrator@vsphere.local

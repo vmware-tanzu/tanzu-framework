@@ -1,7 +1,7 @@
 apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
-  - directory: {}
+  - manual: {}
     path: crds
   - manual: {}
     path: certificates.yaml
@@ -13,6 +13,8 @@ directories:
     path: tanzu-featuregates-manager.yaml
   - manual: {}
     path: webhook.yaml
+  - manual: {}
+    path: default-featuregate-cr.yaml
   - manual: {}
     path: helpers.star
   path: bundle/config/upstream

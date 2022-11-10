@@ -134,12 +134,14 @@ func updateTemplateDetailsInVMs(vcVMs []*types.VSphereVirtualMachine, query Quer
 }
 
 func queryForVM(vm *types.VSphereVirtualMachine) TemplateQuery {
+	// Change 20.04 to 2004 so that it matches version in OSImage
+	distroVersion := strings.ReplaceAll(vm.DistroVersion, ".", "")
 	query := TemplateQuery{
 		OVAVersion: vm.OVAVersion,
 		OSInfo: v1alpha3.OSInfo{
 			Arch:    vm.DistroArch,
 			Name:    vm.DistroName,
-			Version: vm.DistroVersion,
+			Version: distroVersion,
 		},
 	}
 	return query

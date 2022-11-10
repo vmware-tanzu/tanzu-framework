@@ -131,7 +131,7 @@ spec:
     variables:
     #@ vars = get_vsphere_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["apiServerPort", "controlPlane", "worker", "vcenter", "VSPHERE_WINDOWS_TEMPLATE", "apiServerEndpoint", "network", "imageRepository", "trust", "user", "auditLogging", "aviAPIServerHAProvider", "ntpServers", "TKR_DATA"]:
+    #@  if vars[configVariable] != None and configVariable in ["apiServerPort", "controlPlane", "worker", "vcenter", "VSPHERE_WINDOWS_TEMPLATE", "apiServerEndpoint", "network", "imageRepository", "trust", "user", "auditLogging", "aviAPIServerHAProvider", "ntpServers", "TKR_DATA", "proxy"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end

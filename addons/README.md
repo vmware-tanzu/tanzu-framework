@@ -289,7 +289,7 @@ metadata:
    name: my-cluster
    namespace: my-ns
    annotations:
-      tkg.tanzu.vmware.com/add-missing-fields-from-tkr:v1.22.4
+      tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.22.4
 spec:
    cni:
       refName: calico*

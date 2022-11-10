@@ -129,7 +129,7 @@ Every TKG cluster starting from v1.4.0 includes a `Capability` CRD and an associ
 described above, a `Capability` CR can be used to craft queries to inspect a cluster's state and store the results the
 CR's `status` field. `Capability` CRD's specification allows for different types of queries to inspect a cluster.
 
-The full API can be found in [apis/run/v1alpha1/capability_types.go](../../apis/run/v1alpha1/capability_types.go)
+The full API can be found in [apis/core/v1alpha2/capability_types.go](../../apis/core/v1alpha2/capability_types.go)
 
 ### Example Capability Custom Resource
 
@@ -137,7 +137,7 @@ The following custom resource checks if the cluster is a TKG cluster which suppo
 abilities, and if it has NSX networking capabilities.
 
 ```yaml
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: core.tanzu.vmware.com/v1alpha2
 kind: Capability
 metadata:
   name: tkg-capabilities
@@ -182,7 +182,7 @@ paths `status.results.groupVersionResources`, `status.results.objects` and `stat
 An example of query results is shown below.
 
 ```yaml
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: core.tanzu.vmware.com/v1alpha2
 kind: Capability
 metadata:
   name: tkg-capabilities
@@ -257,7 +257,7 @@ subjects:
 Create a Capability CR in the same namespace as the ServiceAccount(in this case `default` namespace).
 
 ```yaml
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: core.tanzu.vmware.com/v1alpha2
 kind: Capability
 metadata:
   name: nginx-capability
@@ -280,7 +280,7 @@ If you are just querying to check the existence of a GVR, lets say FeatureGate A
 service account name in the Capability CR.
 
 ```yaml
-apiVersion: run.tanzu.vmware.com/v1alpha1
+apiVersion: core.tanzu.vmware.com/v1alpha2
 kind: Capability
 metadata:
   name: tkg-capabilities

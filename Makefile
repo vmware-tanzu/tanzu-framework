@@ -107,7 +107,7 @@ LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.Defa
 endif
 
 ifneq ($(strip $(ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY)),)
-LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/runtime/config.IsContextAwareDiscoveryEnabled=$(ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.IsContextAwareDiscoveryEnabled=$(ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY)'
 endif
 ifneq ($(strip $(DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH)),)
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryImagePath=$(DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH)'
@@ -574,12 +574,26 @@ misspell:
 yamllint:
 	hack/check/check-yaml.sh
 
+
+# These are the modules that still contain issues reported by golangci-lint.
+# Once a module is updated to be lint-free, remove from list to catch lint regressions.
+MODULES_NEEDING_LINT_FIX=./cmd/cli/plugin/cluster ./cmd/cli/plugin/login ./cmd/cli/plugin/package ./cmd/cli/plugin-admin/builder . ./apis/core ./apis/addonconfigs ./capabilities/client ./addons ./hack/packages/package-tools ./packageclients ./tkg ./tkr ./pinniped-components/post-deploy ./pkg/v1/tkr
+
 go-lint: tools ## Run linting of go source
 	@for i in $(GO_MODULES); do \
 		echo "-- Linting $$i --"; \
-		pushd $${i}; \
-		$(GOLANGCI_LINT) run -v --timeout=10m; \
-		popd; \
+		pushd $${i} > /dev/null; \
+		if echo ${MODULES_NEEDING_LINT_FIX} | tr ' ' '\n' | grep -q -x $$i; then \
+			$(GOLANGCI_LINT) run -v --timeout=10m; \
+			if [ $$? -eq 0 ]; then \
+				echo "****** NOTE: $$i is now lint-free. Recommend it be excluded from MODULES_NEEDING_LINT_FIX in Makefile"; \
+			else \
+				echo; echo "****** WARNING: module $$i needs lint fixes"; echo; \
+			fi; \
+		else \
+			$(GOLANGCI_LINT) run -v --timeout=10m || exit 1; \
+		fi; \
+		popd > /dev/null; \
 	done
 
 	# Prevent use of deprecated ioutils module

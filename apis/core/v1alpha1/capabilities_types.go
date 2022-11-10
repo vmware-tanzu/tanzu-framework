@@ -149,6 +149,7 @@ type Result struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:unservedversion
 
 // Capability is the Schema for the capabilities API
 type Capability struct {

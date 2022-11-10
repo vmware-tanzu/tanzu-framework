@@ -5,11 +5,7 @@ directories:
   - path: bundle/config/upstream
     contents:
       - path: crds
-        directory:
-          path: ../../apis/config/config/crd/bases/
-        includePaths:
-          - config.tanzu.vmware.com_features.yaml
-          - config.tanzu.vmware.com_featuregates.yaml
+        manual: {}
       - path: certificates.yaml
         manual: {}
       - path: rbac.yaml
@@ -19,6 +15,8 @@ directories:
       - path: tanzu-featuregates-manager.yaml
         manual: {}
       - path: webhook.yaml
+        manual: {}
+      - path: default-featuregate-cr.yaml
         manual: {}
       - path: helpers.star
         manual: {}

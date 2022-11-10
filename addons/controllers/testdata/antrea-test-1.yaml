@@ -23,8 +23,15 @@ metadata:
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
-  name: test-cluster-4
+  name: test-cluster-4-antrea-package
   namespace: default
+  ownerReferences:
+    - apiVersion: cluster.x-k8s.io/v1beta1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Cluster
+      name: test-cluster-4
+      uid: cbd29b10-c190-422e-86f1-a0321d1aab7d
 spec:
   antrea:
     config:

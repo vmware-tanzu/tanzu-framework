@@ -62,7 +62,6 @@ func (in *AntreaConfigDataValue) DeepCopyInto(out *AntreaConfigDataValue) {
 	out.NodePortLocal = in.NodePortLocal
 	in.AntreaProxy.DeepCopyInto(&out.AntreaProxy)
 	out.AntreaFlowExporter = in.AntreaFlowExporter
-	out.WireGuard = in.WireGuard
 	if in.TransportInterfaceCIDRs != nil {
 		in, out := &in.TransportInterfaceCIDRs, &out.TransportInterfaceCIDRs
 		*out = make([]string, len(*in))
@@ -73,6 +72,7 @@ func (in *AntreaConfigDataValue) DeepCopyInto(out *AntreaConfigDataValue) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	out.WireGuard = in.WireGuard
 	out.FeatureGates = in.FeatureGates
 }
 

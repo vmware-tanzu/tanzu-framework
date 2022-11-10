@@ -71,6 +71,7 @@ import (
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	tmcv1alpha1 "github.com/vmware-tanzu/tanzu-framework/tkg/api/tmc/v1alpha1"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/buildinfo"
@@ -244,7 +245,7 @@ type Client interface {
 	// CloneWithTimeout returns a new client with the same attributes of the current one except for get client timeout settings
 	CloneWithTimeout(getClientTimeout time.Duration) Client
 	// GetVCClientAndDataCenter returns vsphere client and datacenter name by reading on cluster resources
-	GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphereMachineTemplateObjectName string) (vc.Client, string, error)
+	GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphereMachineTemplateObjectName string, vcClientFactory vc.VcClientFactory) (vc.Client, string, error)
 	// PatchK8SVersionToPacificCluster patches the Pacific TKC object to update the k8s version on the cluster
 	PatchK8SVersionToPacificCluster(clusterName, namespace string, kubernetesVersion string) error
 	// WaitForPacificClusterK8sVersionUpdate waits for the Pacific TKC cluster to update k8s version
@@ -792,6 +793,9 @@ func verifyKubernetesUpgradeForWorkerNodes(clusterStatusInfo *ClusterStatusInfo,
 	}
 
 	var desiredReplica int32 = 1
+	if config.IsFeatureActivated(constants.FeatureFlagSingleNodeClusters) && len(clusterStatusInfo.WorkerMachineObjects) == 0 {
+		return nil
+	}
 	errList := []error{}
 
 	for i := range clusterStatusInfo.MDObjects {
@@ -1048,12 +1052,16 @@ func (c *client) GetClusterStatusInfo(clusterName, namespace string, workloadClu
 		errList = append(errList, err)
 	}
 
-	if clusterStatusInfo.MDObjects, err = c.GetMDObjectForCluster(clusterName, namespace); err != nil {
+	if clusterStatusInfo.CPMachineObjects, clusterStatusInfo.WorkerMachineObjects, err = c.GetMachineObjectsForCluster(clusterName, namespace); err != nil {
 		errList = append(errList, err)
 	}
 
-	if clusterStatusInfo.CPMachineObjects, clusterStatusInfo.WorkerMachineObjects, err = c.GetMachineObjectsForCluster(clusterName, namespace); err != nil {
-		errList = append(errList, err)
+	singleNodeCluster := len(clusterStatusInfo.CPMachineObjects) == 1 && len(clusterStatusInfo.WorkerMachineObjects) == 0
+
+	if !singleNodeCluster {
+		if clusterStatusInfo.MDObjects, err = c.GetMDObjectForCluster(clusterName, namespace); err != nil {
+			errList = append(errList, err)
+		}
 	}
 
 	clusterStatusInfo.RetrievalError = kerrors.NewAggregate(errList)

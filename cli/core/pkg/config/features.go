@@ -6,8 +6,34 @@ package config
 import (
 	"strconv"
 
+	"github.com/pkg/errors"
+
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
+	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
+
+// ConfigureDefaultFeatureFlagsIfMissing configures default feature-flags to ClientConfig if missing
+func ConfigureDefaultFeatureFlagsIfMissing(defaultFeatureFlags map[string]bool) error {
+	// Acquire tanzu config lock
+	configlib.AcquireTanzuConfigLock()
+	defer configlib.ReleaseTanzuConfigLock()
+
+	c, err := configlib.GetClientConfigNoLock()
+	if err != nil {
+		return errors.Wrap(err, "error while getting client config")
+	}
+
+	configUpdated := AddDefaultFeatureFlagsIfMissing(c, defaultFeatureFlags)
+	if !configUpdated {
+		return nil
+	}
+
+	err = configlib.StoreClientConfig(c)
+	if err != nil {
+		return errors.Wrap(err, "error while storing client config")
+	}
+	return nil
+}
 
 func populateDefaultCliFeatureValues(c *configapi.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
 	for featureName, flagValue := range defaultCliFeatureFlags {
@@ -33,9 +59,9 @@ func addFeatureFlag(c *configapi.ClientConfig, plugin, flag string, flagValue bo
 	c.ClientOptions.Features[plugin][flag] = strconv.FormatBool(flagValue)
 }
 
-// addDefaultFeatureFlagsIfMissing augments the given configuration object with any default feature flags that do not already have a value
+// AddDefaultFeatureFlagsIfMissing augments the given configuration object with any default feature flags that do not already have a value
 // and returns TRUE if any were added (so the config can be written out to disk, if the caller wants to)
-func addDefaultFeatureFlagsIfMissing(config *configapi.ClientConfig, defaultFeatureFlags map[string]bool) bool {
+func AddDefaultFeatureFlagsIfMissing(config *configapi.ClientConfig, defaultFeatureFlags map[string]bool) bool {
 	added := false
 
 	for featurePath, activated := range defaultFeatureFlags {

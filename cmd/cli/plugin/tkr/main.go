@@ -25,12 +25,13 @@ import (
 )
 
 var descriptor = cliapi.PluginDescriptor{
-	Name:        "kubernetes-release",
-	Description: "Kubernetes release operations",
-	Group:       cliapi.RunCmdGroup,
-	Aliases:     []string{"kr", "kubernetes-releases"},
-	Version:     buildinfo.Version,
-	BuildSHA:    buildinfo.SHA,
+	Name:                "kubernetes-release",
+	Description:         "Kubernetes release operations",
+	Group:               cliapi.RunCmdGroup,
+	Aliases:             []string{"kr", "kubernetes-releases"},
+	Version:             buildinfo.Version,
+	BuildSHA:            buildinfo.SHA,
+	DefaultFeatureFlags: DefaultFeatureFlagsForTKRPlugin,
 }
 
 var (
@@ -79,7 +80,7 @@ func main() {
 // isTKRAPIVersionV1Alpha3 determines the TKR API version based on the management-cluster feature-gate
 func isTKRAPIVersionV1Alpha3() bool {
 	// If feature-flag is activated return true
-	if config.IsFeatureActivated(config.FeatureFlagTKRVersionV1Alpha3) {
+	if config.IsFeatureActivated(FeatureFlagTKRVersionV1Alpha3) {
 		return true
 	}
 

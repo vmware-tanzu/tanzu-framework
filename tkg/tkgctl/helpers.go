@@ -201,9 +201,52 @@ func CheckIfInputFileIsClusterClassBased(clusterConfigFile string) (bool, unstru
 	return isInputFileClusterClassBased, clusterObj, nil
 }
 
+func getFieldfromUnstructuredObject(obj unstructured.Unstructured, fields ...string) (string, error) {
+	path := strings.Join(fields, ".")
+	value, exists, err := unstructured.NestedString(obj.UnstructuredContent(), fields...)
+	if err != nil {
+		return "", errors.Wrap(err, fmt.Sprintf("Failed to parse %s in %s %s/%s", path, obj.GetKind(), obj.GetNamespace(), obj.GetName()))
+	}
+	if !exists {
+		return "", errors.New(fmt.Sprintf("%s not found in %s %s/%s", path, obj.GetKind(), obj.GetNamespace(), obj.GetName()))
+	}
+	return value, nil
+}
+
+func setVSphereCredentialFromInputfile(legacyVarMap *map[string]string, clusterConfigFile, clusterName, namespace string) error {
+	content, err := os.ReadFile(clusterConfigFile)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Unable to read input file: %s", clusterConfigFile))
+	}
+	yamlObjects, err := utilyaml.ToUnstructured(content)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Input file content is not yaml formatted, file path: %s", clusterConfigFile))
+	}
+	found := false
+	for _, obj := range yamlObjects {
+		if obj.GetKind() == "Secret" && obj.GetName() == clusterName && obj.GetNamespace() == namespace {
+			if username, err := getFieldfromUnstructuredObject(obj, "stringData", "username"); err != nil {
+				return err
+			} else {
+				(*legacyVarMap)[constants.ConfigVariableVsphereUsername] = username
+			}
+			if password, err := getFieldfromUnstructuredObject(obj, "stringData", "password"); err != nil {
+				return err
+			} else {
+				(*legacyVarMap)[constants.ConfigVariableVspherePassword] = password
+			}
+			found = true
+		}
+	}
+	if !found {
+		return errors.New(fmt.Sprintf("Secret %s/%s not found in %s", namespace, clusterName, clusterConfigFile))
+	}
+	return nil
+}
+
 // processClusterObjectForConfigurationVariables takes cluster object, process it to capture all configuration variables and add them in environment.
 // TODO (chandrareddyp): validate the cluster class inputs without mapping to legacy variables and deprecate legacy validation (https://github.com/vmware-tanzu/tanzu-framework/issues/2432)
-func (t *tkgctl) processClusterObjectForConfigurationVariables(clusterObj unstructured.Unstructured) error {
+func (t *tkgctl) processClusterObjectForConfigurationVariables(clusterObj unstructured.Unstructured, clusterConfigFile string) error {
 	inputVariablesMap := make(map[string]interface{})
 	inputVariablesMap["metadata.name"] = clusterObj.GetName()
 	inputVariablesMap["metadata.namespace"] = clusterObj.GetNamespace()
@@ -231,6 +274,13 @@ func (t *tkgctl) processClusterObjectForConfigurationVariables(clusterObj unstru
 		}
 	}
 	legacyVarMap[constants.ConfigVariableInfraProvider] = providerName
+
+	// VSPHERE_USERNAME and VSPHERE_PASSWORD do not have mapping to any Cluster variables and should be retrieved from VSphereCluster's identityRef
+	if providerName == constants.InfrastructureProviderVSphere {
+		if err := setVSphereCredentialFromInputfile(&legacyVarMap, clusterConfigFile, clusterObj.GetName(), clusterObj.GetNamespace()); err != nil {
+			return err
+		}
+	}
 
 	// Some properties (NODE_MACHINE_TYPE_1, NODE_MACHINE_TYPE_2, etc)
 	// can have two values from Cluster object attributes, key and value of constants.ClusterAttributesHigherPrecedenceToLowerMap are two attribute paths points to same legacy variable.
@@ -302,9 +352,9 @@ func processYamlObjectAndAddToMap(value interface{}, clusterAttributePath string
 			log.Warningf("duplicate variable in input cluster class config file, variable path: %v", clusterAttributePath)
 		} else if fmt.Sprintf("%v", value) != "" {
 			inputVariablesMap[clusterAttributePath] = value
-			// if path spec.topology.variables.network.proxy has any child attributes then enable TKG_HTTP_PROXY_ENABLED, spec.topology.variables.network.proxy mapped to TKG_HTTP_PROXY_ENABLED
-			if strings.HasPrefix(clusterAttributePath, "spec.topology.variables.network.proxy") {
-				inputVariablesMap["spec.topology.variables.network.proxy"] = true
+			// if path spec.topology.variables.proxy has any child attributes then enable TKG_HTTP_PROXY_ENABLED, spec.topology.variables.proxy mapped to TKG_HTTP_PROXY_ENABLED
+			if strings.HasPrefix(clusterAttributePath, "spec.topology.variables.proxy") {
+				inputVariablesMap["spec.topology.variables.proxy"] = true
 			}
 		}
 	default:

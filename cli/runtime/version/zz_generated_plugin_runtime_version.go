@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package version provides version information about the plugin runtime library
 package version
 
 // IMPORTANT: Please !!DO NOT!!! change the content of this file manually

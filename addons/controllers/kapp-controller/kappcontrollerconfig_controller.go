@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -57,28 +58,24 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 		r.Log.Error(err, "Unable to fetch kappControllerConfig resource")
 		return ctrl.Result{}, err
 	}
+
+	annotations := kappControllerConfig.GetAnnotations()
+	if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		r.Log.Info(fmt.Sprintf("resource '%v' is a config template. Skipping reconciling", req.NamespacedName))
+		return ctrl.Result{}, nil
+	}
+
 	// Deepcopy to prevent client-go cache conflict
 	kappControllerConfig = kappControllerConfig.DeepCopy()
 
-	// get the parent cluster name from owner reference
-	// if the owner reference doesn't exist, use the same name as config CR
-	clusterNamespacedName := req.NamespacedName
-	cluster := &clusterapiv1beta1.Cluster{}
-	for _, owner := range kappControllerConfig.OwnerReferences {
-		if owner.Kind == constants.ClusterKind {
-			clusterNamespacedName.Name = owner.Name
-			break
-		}
-	}
-
-	// verify that the cluster related to config is present
-	if err := r.Client.Get(ctx, clusterNamespacedName, cluster); err != nil {
-		if apierrors.IsNotFound(err) {
-			log.Info(fmt.Sprintf("Cluster %s/%s not found", clusterNamespacedName.Namespace, clusterNamespacedName.Name))
+	cluster, err := cutil.GetOwnerCluster(ctx, r.Client, kappControllerConfig, req.Namespace, constants.KappControllerDefaultRefName)
+	if err != nil {
+		if apierrors.IsNotFound(err) && cluster != nil {
+			r.Log.Info(fmt.Sprintf("'%s/%s' is listed as owner reference but could not be found",
+				cluster.Namespace, cluster.Name))
 			return ctrl.Result{}, nil
 		}
-
-		log.Error(err, fmt.Sprintf("unable to fetch cluster %s/%s", clusterNamespacedName.Namespace, clusterNamespacedName.Name))
+		r.Log.Info("could not determine owner cluster")
 		return ctrl.Result{}, err
 	}
 

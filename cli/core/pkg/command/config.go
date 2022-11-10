@@ -11,10 +11,10 @@ import (
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
@@ -201,6 +201,7 @@ func setEdition(cfg *configapi.ClientConfig, edition string) error {
 var initConfigCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize config with defaults",
+	Long:  "Initialize config with defaults including plugin specific defaults for all active and installed plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Acquire tanzu config lock
 		configlib.AcquireTanzuConfigLock()
@@ -216,39 +217,32 @@ var initConfigCmd = &cobra.Command{
 		if cfg.ClientOptions.CLI == nil {
 			cfg.ClientOptions.CLI = &configapi.CLIOptions{}
 		}
-		repos := cfg.ClientOptions.CLI.Repositories
-		finalRepos := []configapi.PluginRepository{}
-		for _, repo := range config.DefaultRepositories {
-			var exists bool
-			for _, r := range repos {
-				if repo.GCPPluginRepository.Name == r.GCPPluginRepository.Name {
-					finalRepos = append(finalRepos, r)
-					exists = true
-				}
-			}
-			if !exists {
-				finalRepos = append(finalRepos, repo)
-			}
+
+		serverName := ""
+		server, err := cfg.GetCurrentServer()
+		if err == nil && server != nil {
+			serverName = server.Name
 		}
-		cfg.ClientOptions.CLI.Repositories = finalRepos
+
+		serverPluginDescriptors, standalonePluginDescriptors, err := pluginmanager.InstalledPlugins(serverName)
+		if err != nil {
+			return err
+		}
+
+		// Add the default featureflags for active plugins based on the currentContext
+		// Plugins that are installed but are not active plugin will not be processed here
+		// and defaultFeatureFlags will not be configured for those plugins
+		for _, desc := range append(serverPluginDescriptors, standalonePluginDescriptors...) {
+			config.AddDefaultFeatureFlagsIfMissing(cfg, desc.DefaultFeatureFlags)
+		}
 
 		err = configlib.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
-		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		descriptors, err := cli.ListPlugins()
-		if err != nil {
-			return err
-		}
 
-		errList := []error{}
-		for _, desc := range descriptors {
-			if err := cli.InitializePlugin(desc.Name); err != nil {
-				errList = append(errList, err)
-			}
-		}
-		return kerrors.NewAggregate(errList)
+		log.Success("successfully initialized the config")
+		return nil
 	},
 }
 

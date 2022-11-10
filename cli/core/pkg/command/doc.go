@@ -16,6 +16,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/templates"
+	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
@@ -52,7 +53,7 @@ var genAllDocsCmd = &cobra.Command{
 
 		var pluginDescriptions []*cliapi.PluginDescriptor
 		var err error
-		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			pluginDescriptions, err = pluginmanager.InstalledPluginsDescriptors()
 		} else {
 			// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead

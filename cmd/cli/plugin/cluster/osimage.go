@@ -19,30 +19,12 @@ var (
 	// the input tkr package image path
 	// with tag, for example projects-stg.registry.vmware.com/tkg/tkr-oci:v1.23.5
 	tkrRegistryPath string
-	// the input public image endpoint URI
-	imageEndpoint string
 	// the output tkr path
 	outputDirectory string
-	// display name for the imported image and the created OSImage resource
-	name string
-
-	// Image Operating System Information
-	osType    string
-	osName    string
-	osVersion string
-	osArch    string
 )
 
 func init() {
 	osImageCmd.PersistentFlags().StringVar(&tkrRegistryPath, "tkr-path", "", "The input tkr package image path")
-	osImageCmd.PersistentFlags().StringVar(&imageEndpoint, "image", "", "The input public image endpoint URI")
 	osImageCmd.PersistentFlags().StringVarP(&outputDirectory, "output-directory", "d", "", "The output TKR path")
-
-	osImageCmd.PersistentFlags().StringVar(&name, "name", "", "Display name for the imported image and the created OSImage resource")
-	osImageCmd.PersistentFlags().StringVar(&osType, "os-type", "linux", "OS type")
-	osImageCmd.PersistentFlags().StringVar(&osName, "os-name", "ubuntu", "OS name")
-	osImageCmd.PersistentFlags().StringVar(&osVersion, "os-version", "2004", "OS version")
-	osImageCmd.PersistentFlags().StringVar(&osArch, "os-arch", "amd64", "OS amd64")
-
 	osImageCmd.AddCommand(oracleCmd)
 }

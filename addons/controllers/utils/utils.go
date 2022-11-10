@@ -7,6 +7,7 @@ package utils
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
@@ -133,4 +134,50 @@ func TryParseClusterVariableString(ctx context.Context, cluster *clusterapiv1bet
 		log.FromContext(ctx).Error(err, "cannot parse cluster variable", "key", variableName)
 	}
 	return res
+}
+
+// GetOwnerCluster returns cluster owner for the object.
+// Returns cluster=nil and err if no cluster can be determined as owner.
+// Returns cluster object with only name and namespace  and err,
+// if details for the cluster listed as owner reference can not be found.
+func GetOwnerCluster(ctx context.Context, k8sClient client.Client, k8sObject client.Object, namespace, pkgRefName string) (*clusterapiv1beta1.Cluster, error) {
+	logger := log.FromContext(ctx)
+	cluster := &clusterapiv1beta1.Cluster{}
+	clusterName := ""
+
+	for _, ownerRef := range k8sObject.GetOwnerReferences() {
+		if strings.EqualFold(ownerRef.Kind, constants.ClusterKind) {
+			clusterName = ownerRef.Name
+			break
+		}
+	}
+	if clusterName != "" {
+		cluster.Name = clusterName
+		cluster.Namespace = namespace
+	} else {
+		errorString := fmt.Sprintf("no owner cluster could be determined for %s/%s", k8sObject.GetNamespace(), k8sObject.GetName())
+		logger.Info(errorString)
+		err := errors.New(errorString)
+		return nil, err
+	}
+
+	err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), cluster)
+
+	return cluster, err
+}
+
+// VerifyOwnerRef verifies that the ownerKind name ownerName is listed in the
+// list of the objects owner references.
+func VerifyOwnerRef(k8sObject client.Object, ownerName, ownerKind string) bool {
+	// check owner reference
+	ownerReferences := k8sObject.GetOwnerReferences()
+	if len(ownerReferences) == 0 {
+		return false
+	}
+	for _, ownerRef := range ownerReferences {
+		if strings.EqualFold(ownerRef.Kind, ownerKind) && ownerRef.Name == ownerName {
+			return true
+		}
+	}
+	return false
 }

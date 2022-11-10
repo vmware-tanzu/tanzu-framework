@@ -154,6 +154,8 @@ kind: CalicoConfig
 metadata:
   name: test-cluster-tcbt
   namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   calico:
     config:
@@ -164,6 +166,8 @@ kind: AntreaConfig
 metadata:
   name: test-cluster-tcbt
   namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   antrea:
     config:
@@ -174,6 +178,8 @@ kind: KappControllerConfig
 metadata:
   name: test-cluster-tcbt-kapp-controller-config
   namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   namespace: test-ns
   kappController:

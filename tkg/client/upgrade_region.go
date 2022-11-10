@@ -138,7 +138,7 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	log.Info("Management cluster providers upgraded successfully...")
 
 	// If clusterclass feature flag is enabled then deploy management components
-	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		log.Info("Upgrading kapp-controller...")
 		if err = c.InstallOrUpgradeKappController(currentRegion.SourceFilePath, currentRegion.ContextName, constants.OperationTypeUpgrade); err != nil {
 			return errors.Wrap(err, "unable to upgrade kapp-controller")

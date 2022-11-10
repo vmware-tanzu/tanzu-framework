@@ -171,7 +171,7 @@ metadata:
   namespace: #@ data.values.NAMESPACE
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
-    identifier.cc.vmware.com: tanzu-vsphere-default-0.0.1
+    identifier.cc.vmware.com: tanzu-vsphere-default-0.0.2
 spec:
   controlPlane:
     ref:
@@ -280,26 +280,29 @@ spec:
       openAPIV3Schema:
         type: object
         properties:
-          proxy:
-            type: object
-            properties:
-              httpProxy:
-                type: string
-              httpsProxy:
-                type: string
-              noProxy:
-                type: array
-                items:
-                  type: string
-                default: []
-            required:
-            - httpProxy
-            - httpsProxy
           ipv6Primary:
             type: boolean
             default: false
         default:
           ipv6Primary: false
+  - name: proxy
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          httpProxy:
+            type: string
+          httpsProxy:
+            type: string
+          noProxy:
+            type: array
+            items:
+              type: string
+            default: []
+        required:
+        - httpProxy
+        - httpsProxy
   - name: imageRepository
     required: false
     schema:
@@ -397,7 +400,7 @@ spec:
                   type: string
                 default: []
   - name: worker
-    required: true
+    required: false
     schema:
       openAPIV3Schema:
         type: object
@@ -454,6 +457,12 @@ spec:
       openAPIV3Schema:
         type: object
         properties: {}
+  - name: controlPlaneTaint
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: true
   patches:
   - name: vsphereClusterTemplate
     definitions:
@@ -870,18 +879,6 @@ spec:
         path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs
         value:
           node-ip: "::"
-  - name: ipv6Hack
-    enabledIf: '{{ .builtin.cluster.network.ipFamily | eq "IPv6" }}'
-    definitions:
-    - selector:
-        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-        kind: KubeadmControlPlaneTemplate
-        matchResources:
-          controlPlane: true
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
-        value: sed -i '/listen-client-urls/ s/$/,https:\/\/127.0.0.1:2379/' /etc/kubernetes/manifests/etcd.yaml
   - name: nodeLabels
     definitions:
     - selector:
@@ -942,7 +939,7 @@ spec:
               {{ end }}
             {{ end }}
   - name: httpProxy
-    enabledIf: '{{ not (empty .network.proxy) }}'
+    enabledIf: '{{ not (empty .proxy) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -956,9 +953,9 @@ spec:
           template: &containerdProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
-              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
-              Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
+              Environment="HTTP_PROXY= {{- .proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy -}} "
+              Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /etc/systemd/system/containerd.service.d/http-proxy.conf
             permissions: "0640"
@@ -968,9 +965,9 @@ spec:
           template: &kubeletProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
-              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
-              Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
+              Environment="HTTP_PROXY= {{- .proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy -}} "
+              Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
             permissions: "0640"
@@ -987,17 +984,17 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportHTTPProxy |
-            export HTTP_PROXY= {{- .network.proxy.httpProxy }}
+            export HTTP_PROXY= {{- .proxy.httpProxy }}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportHTTPSProxy |
-            export HTTPS_PROXY= {{- .network.proxy.httpsProxy }}
+            export HTTPS_PROXY= {{- .proxy.httpsProxy }}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportNoProxy |
-            export NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}
+            export NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -1411,6 +1408,21 @@ spec:
               - level: Metadata
                 omitStages:
                   - "RequestReceived"
+  - name: controlPlaneTaint
+    enabledIf: '{{ not .controlPlaneTaint }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/nodeRegistration/taints
+        value: []
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/taints
+        value: []
   - name: windows
     definitions:
     - selector:

@@ -28,6 +28,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkr/controller/tkr-source/fetcher"
 	"github.com/vmware-tanzu/tanzu-framework/tkr/controller/tkr-source/pkgcr"
 	"github.com/vmware-tanzu/tanzu-framework/tkr/controller/tkr-source/registry"
+	"github.com/vmware-tanzu/tanzu-framework/tkr/controller/tkr-source/tkr"
 	"github.com/vmware-tanzu/tanzu-framework/util/buildinfo"
 )
 
@@ -138,12 +139,17 @@ func main() {
 		Config:        compatibilityConfig,
 		Compatibility: tkrCompatibility,
 	}
+	tkrReconciler := &tkr.Reconciler{
+		Log:    mgr.GetLogger().WithName("tkr-compatibility"),
+		Client: mgr.GetClient(),
+	}
 
 	setupWithManager(mgr, []managedComponent{
 		registryInstance,
 		fetcherInstance,
 		pkgcrReconciler,
 		compatibilityReconciler,
+		tkrReconciler,
 	})
 
 	startManager(ctx, mgr)

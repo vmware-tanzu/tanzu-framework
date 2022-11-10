@@ -42,8 +42,15 @@ resources:
   kind: CPIConfig
   version: v1alpha1
 - group: core
-  kind: Capabilities
+  kind: Capability
+  version: v1alpha1
 - group: csi
   kind: AwsEbsCSIConfig
   version: v1alpha1
+- group: csi
+  kind: AzureFileCSIConfig
+  version: v1alpha1
+- group: core
+  kind: Capability
+  version: v1alpha2
 version: "2"

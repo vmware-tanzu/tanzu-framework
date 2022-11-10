@@ -35,6 +35,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/controllers"
 	antreacontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	awsebscsicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/awsebscsi"
+	azurefilecsicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/azurefilecsi"
 	calicocontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	csicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
@@ -325,6 +326,17 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create AwsEbsCSIConfigController", "controller", "awsebscsi")
+		os.Exit(1)
+	}
+
+	if err := (&azurefilecsicontroller.AzureFileCSIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("AzureFileCSIConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.AzureFileCSIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create CSIConfigController", "controller", "azurefilecsi")
 		os.Exit(1)
 	}
 

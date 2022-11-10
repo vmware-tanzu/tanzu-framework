@@ -88,7 +88,7 @@ spec:
       #@overlay/match missing_ok=True
       metadata:
         annotations:
-          run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-gallery=TKG_Gallery".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
+          run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-publisher=vmware-inc".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
     workers:
       machineDeployments:
       #@overlay/match by=overlay.index(0)
@@ -100,13 +100,17 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-gallery=TKG_Gallery".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
+            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-publisher=vmware-inc".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker
         name: md-1
         replicas: #@ data.values.WORKER_MACHINE_COUNT_1
         failureDomain: #@ str(data.values.AZURE_NODE_AZ_1) or "2"
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-publisher=vmware-inc".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
         #@ if data.values.NODE_MACHINE_TYPE_1:
         variables:
           overrides:
@@ -119,6 +123,10 @@ spec:
         name: md-2
         replicas: #@ data.values.WORKER_MACHINE_COUNT_2
         failureDomain: #@ str(data.values.AZURE_NODE_AZ_2) or "3"
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-publisher=vmware-inc".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
         #@ if data.values.NODE_MACHINE_TYPE_2:
         variables:
           overrides:
@@ -131,7 +139,7 @@ spec:
     variables:
     #@ vars = get_azure_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["location", "network", "controlPlane", "worker", "resourceGroup", "subscriptionID", "identityRef", "clusterRole", "environment", "sshPublicKey", "acceleratedNetworking", "privateCluster", "frontendPrivateIP", "imageRepository", "auditLogging", "customTags", "apiServerPort", "trust", "TKR_DATA"]:
+    #@  if vars[configVariable] != None and configVariable in ["location", "network", "controlPlane", "worker", "resourceGroup", "subscriptionID", "identityRef", "clusterRole", "environment", "sshPublicKey", "acceleratedNetworking", "privateCluster", "frontendPrivateIP", "imageRepository", "auditLogging", "customTags", "apiServerPort", "trust", "TKR_DATA", "proxy"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end

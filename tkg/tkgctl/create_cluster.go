@@ -17,7 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -154,13 +153,13 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 	var err error
 	isInputFileClusterClassBased := false
 
-	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+	if t.tkgClient.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		isInputFileClusterClassBased, clusterobj, err = CheckIfInputFileIsClusterClassBased(ir.ClusterConfigFile)
 		if err != nil {
 			return isInputFileClusterClassBased, err
 		}
 		if isInputFileClusterClassBased {
-			err = t.processClusterObjectForConfigurationVariables(clusterobj)
+			err = t.processClusterObjectForConfigurationVariables(clusterobj, ir.ClusterConfigFile)
 			if err != nil {
 				return isInputFileClusterClassBased, err
 			}
@@ -176,14 +175,14 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKG
 		return isInputFileClusterClassBased, err
 	}
 	if isInputFileClusterClassBased {
-		if !isTKGSCluster && !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-			return isInputFileClusterClassBased, fmt.Errorf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
+		if !isTKGSCluster && !t.tkgClient.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+			return isInputFileClusterClassBased, fmt.Errorf(constants.ErrorMsgCClassInputFeatureFlagDisabled, constants.FeatureFlagPackageBasedLCM)
 		}
 		if isTKGSCluster {
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())
 		} else {
-			err = t.processClusterObjectForConfigurationVariables(clusterobj)
+			err = t.processClusterObjectForConfigurationVariables(clusterobj, cc.ClusterConfigFile)
 			if err != nil {
 				return isInputFileClusterClassBased, err
 			}
@@ -482,3 +481,9 @@ func (t *tkgctl) getAndDownloadTkrIfNeeded(tkrVersion string) (string, string, e
 
 	return tkrVersion, k8sVersion, nil
 }
+
+// # val 1 - cannot create single node cluster without feature toggle
+//  - if feature toggle true -> allow cp to be 1 and wokrer 0
+//  - if feature toggle false -> worker cannot be 0 - fail saying min worker count is 1
+// # val 2 - control plane taint must be removed for single node cluster
+// - if feature toggle true

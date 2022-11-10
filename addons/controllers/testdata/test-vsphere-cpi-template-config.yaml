@@ -2,7 +2,7 @@
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
 kind: VSphereCPIConfig
 metadata:
-  name: test-cluster-cpi-template
+  name: test-cluster-cpi-config-template
   namespace: tkg-system
   annotations:
     tkg.tanzu.vmware.com/template-config: "true"

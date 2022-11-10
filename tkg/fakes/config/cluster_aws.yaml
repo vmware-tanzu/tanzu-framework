@@ -29,17 +29,6 @@ spec:
       - name: network
         value:
           ipv6Primary: true #TKG_IP_FAMILY (if true expect TKG_IP_FAMILY="ipv6,ipv4")
-          proxy: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
-            httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
-            httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
-            noProxy: #TKG_NO_PROXY
-              - 127.0.0.1
-              - 100.64.0.0/18
-              - 10.0.0.0/16
-              - 169.254.0.0/16
-              - .svc.cluster.local
-              - .svc
-              - localhost
           subnets:
             - az: us-east-1a #AWS_NODE_AZ
               private:
@@ -71,6 +60,18 @@ spec:
             lb: lbvalue # AWS_SECURITY_GROUP_LB
             controlPlane: controlplaneValue # AWS_SECURITY_GROUP_CONTROLPLANE
             node: securitygroupNode # AWS_SECURITY_GROUP_NODE
+      - name: proxy
+        value: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
+          httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
+          httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
+          noProxy: #TKG_NO_PROXY
+            - 127.0.0.1
+            - 100.64.0.0/18
+            - 10.0.0.0/16
+            - 169.254.0.0/16
+            - .svc.cluster.local
+            - .svc
+            - localhost
       - name: imageRepository
         value:
           host: imageRepositoryHost #TKG_CUSTOM_IMAGE_REPOSITORY

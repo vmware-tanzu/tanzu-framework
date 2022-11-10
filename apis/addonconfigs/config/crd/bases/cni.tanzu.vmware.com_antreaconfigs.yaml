@@ -68,12 +68,12 @@ spec:
                       antreaProxy:
                         description: Specifies AntreaProxy related configuration.
                         properties:
-                          enabled:
-                            type: boolean
                           nodePortAddresses:
                             items:
                               type: string
                             type: array
+                          proxyAll:
+                            type: boolean
                           proxyLoadBalancerIPs:
                             type: boolean
                           skipServices:
@@ -100,6 +100,10 @@ spec:
                               type: string
                             type: array
                         type: object
+                      enableUsageReporting:
+                        default: false
+                        description: Enable usage reporting (telemetry) to VMware.
+                        type: boolean
                       featureGates:
                         description: FeatureGates is a map of feature names to flags
                           that enable or disable experimental features
@@ -166,14 +170,8 @@ spec:
                             type: string
                         type: object
                       kubeAPIServerOverride:
-                        default: encap
-                        description: The traffic encapsulation mode. One of the following
-                          options => encap, noEncap, hybrid, networkPolicyOnly
-                        enum:
-                        - encap
-                        - noEncap
-                        - hybrid
-                        - networkPolicyOnly
+                        description: Provide the address of Kubernetes apiserver,
+                          to override any value provided in kubeconfig or InClusterConfig.
                         type: string
                       multicastInterfaces:
                         description: The names of the interfaces on Nodes that are
@@ -194,6 +192,9 @@ spec:
                           portRange:
                             type: string
                         type: object
+                      serviceCIDR:
+                        description: ClusterIP CIDR range for Services.
+                        type: string
                       tlsCipherSuites:
                         default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
                         description: List of allowed cipher suites. If omitted, the
@@ -209,6 +210,10 @@ spec:
                         - hybrid
                         - networkPolicyOnly
                         type: string
+                      trafficEncryptionMode:
+                        description: Determines how tunnel traffic is encrypted. One
+                          of the following options =:> none, ipsec, wireguard
+                        type: string
                       transportInterface:
                         description: The name of the interface on Node which is used
                           for tunneling or routing.
@@ -219,6 +224,11 @@ spec:
                         items:
                           type: string
                         type: array
+                      tunnelType:
+                        description: Tunnel protocols used for encapsulating traffic
+                          across Nodes. One of the following options =:> geneve, vxlan,
+                          gre, stt
+                        type: string
                       wireGuard:
                         description: Specifies WireGuard related configuration.
                         properties:

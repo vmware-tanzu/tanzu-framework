@@ -67,7 +67,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	)
 
 	// If the context and target feature is enabled, add the corresponding commands under root.
-	if config.IsFeatureActivated(config.FeatureContextCommand) {
+	if config.IsFeatureActivated(cliconfig.FeatureContextCommand) {
 		RootCmd.AddCommand(
 			contextCmd,
 			k8sCmd,
@@ -92,7 +92,7 @@ func NewRootCmd() (*cobra.Command, error) {
 
 	// If context-aware-cli-for-plugins feature is not enabled
 	// check that all plugins in the core distro are installed or do so.
-	if !config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+	if !config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 		plugins, err = checkAndInstallMissingPlugins(plugins)
 		if err != nil {
 			return nil, err
@@ -161,7 +161,7 @@ func getAvailablePlugins() ([]*cliapi.PluginDescriptor, error) {
 	plugins := make([]*cliapi.PluginDescriptor, 0)
 	var err error
 
-	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 		currentServerName := ""
 
 		server, err := config.GetCurrentServer()
