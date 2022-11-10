@@ -111,12 +111,10 @@ spec:
   clusterName: #@ data.values.CLUSTER_NAME
   replicas: #@ data.values.WORKER_MACHINE_COUNT_1
   selector:
-    matchLabels:
-      cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+    matchLabels: {}
   template:
     metadata:
       labels:
-        cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
         node-pool: #@ "{}-worker-pool".format(data.values.CLUSTER_NAME)
     spec:
       bootstrap:
@@ -144,8 +142,7 @@ spec:
   clusterName: #@ data.values.CLUSTER_NAME
   replicas: #@ data.values.WORKER_MACHINE_COUNT_2
   selector:
-    matchLabels:
-      cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+    matchLabels: {}
   template:
     metadata:
       labels:
