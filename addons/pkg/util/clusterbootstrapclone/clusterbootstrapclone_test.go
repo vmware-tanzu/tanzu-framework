@@ -514,6 +514,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 					},
 					AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
 						{RefName: fakePinnipedCBPackageRefName, ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "oidc"}}},
+						{RefName: "kube-vip", ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"vip_address": "1.2.3.4"}}},
 					},
 				},
 			}
@@ -534,11 +535,14 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(updatedClusterBootstrap.Spec.CPI.ValuesFrom.SecretRef).To(Equal(fakeCPIClusterBootstrapPackage.ValuesFrom.SecretRef))
 			// The ClusterBootstrapPackage not set in fakeClusterBootstrapTemplate. They should not be copied
 			Expect(updatedClusterBootstrap.Spec.Kapp).To(BeNil())
-			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
-			for idx := range updatedClusterBootstrap.Spec.AdditionalPackages {
+			// Adding +1 since we expect kube-vip package to be there eventhough it is not in CBT
+			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages) + 1))
+			for idx := 0; idx < 2; idx++ {
 				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
 				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].ValuesFrom))
 			}
+			Expect(updatedClusterBootstrap.Spec.AdditionalPackages[2].RefName).To(Equal("kube-vip"))
+			Expect(updatedClusterBootstrap.Spec.AdditionalPackages[2].ValuesFrom).To(Equal(&v1alpha3.ValuesFrom{Inline: map[string]interface{}{"vip_address": "1.2.3.4"}}))
 		})
 
 		It("should add valuesFrom back if not specified in ClusterBootstrap", func() {
