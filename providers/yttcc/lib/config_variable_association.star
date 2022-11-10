@@ -120,7 +120,6 @@ return {
 "NODE_POOL_0_LABELS": ["tkg-service-vsphere"],
 "NODE_POOL_0_TAINTS": ["tkg-service-vsphere"],
 "CONTROL_PLANE_NODE_LABELS": ["vsphere", "aws", "azure"],
-"WORKER_NODE_LABELS": ["vsphere", "aws", "azure"],
 
 "AZURE_ENVIRONMENT": ["azure"],
 "AZURE_TENANT_ID": ["azure"],
@@ -563,10 +562,6 @@ def get_aws_vars():
         worker["rootVolume"] = rootVolume
     end
 
-    if data.values["WORKER_NODE_LABELS"] != None:
-        worker["nodeLabels"] = get_labels_array_from_string(data.values["WORKER_NODE_LABELS"])
-    end
-
     vars["worker"] = worker
 
     controlPlane = {}
@@ -754,10 +749,6 @@ def get_azure_vars():
         worker["outboundLB"] = outboundLB
     end
 
-    if data.values["WORKER_NODE_LABELS"] != None:
-        worker["nodeLabels"] = get_labels_array_from_string(data.values["WORKER_NODE_LABELS"])
-    end
-
     if worker != {}:
         vars["worker"] = worker
     end
@@ -869,10 +860,6 @@ def get_vsphere_vars():
     end
     if network != {}:
         worker["network"] = network
-    end
-
-    if data.values["WORKER_NODE_LABELS"] != None:
-        worker["nodeLabels"] = get_labels_array_from_string(data.values["WORKER_NODE_LABELS"])
     end
 
     if worker != {}:

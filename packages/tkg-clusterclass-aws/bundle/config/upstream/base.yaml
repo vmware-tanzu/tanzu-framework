@@ -211,16 +211,6 @@ spec:
                 #@ else:
                 default: 80
                 #@ end
-          nodeLabels:
-            type: array
-            items:
-              type: object
-              properties:
-                key:
-                  type: string
-                value:
-                  type: string
-            default: []
   - name: imageRepository
     required: false
     schema:
@@ -591,24 +581,10 @@ spec:
             {{- end }}
             {{- $key -}} = {{- $val }}
             {{- end}}
-            {{- $nodePoolLabelNotExist := true }}
             {{- if .nodePoolLabels -}}
               ,
               {{- $first := true }}
               {{- range .nodePoolLabels }}
-                {{- if $first }}
-                  {{- $first = false }}
-                {{- else -}}
-                  ,
-                {{- end }}
-                {{- .key -}} = {{- .value -}}
-                {{- $nodePoolLabelNotExist = false }}
-              {{- end }}
-            {{- end }}
-            {{- if $nodePoolLabelNotExist | and .worker.nodeLabels -}}
-              ,
-              {{- $first := true }}
-              {{- range .worker.nodeLabels }}
                 {{- if $first }}
                   {{- $first = false }}
                 {{- else -}}

@@ -302,9 +302,6 @@ NODE_POOL_0_TAINTS:
 #! Specified node label for control plane
 #! It should be of the format "key1=value1,key2=value2"
 CONTROL_PLANE_NODE_LABELS:
-#! Specified node labels for worker node
-#! It should be of the format "key1=value1,key2=value2"
-WORKER_NODE_LABELS:
 
 
 
