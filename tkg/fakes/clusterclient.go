@@ -1042,31 +1042,20 @@ type ClusterClient struct {
 	updateAWSCNIIngressRulesReturnsOnCall map[int]struct {
 		result1 error
 	}
-	UpdateAzureClusterIdentityRefStub        func(string, string, string, string) error
-	updateAzureClusterIdentityRefMutex       sync.RWMutex
-	updateAzureClusterIdentityRefArgsForCall []struct {
+	UpdateAzureClusterIdentityStub        func(string, string, string, string, string, string) error
+	updateAzureClusterIdentityMutex       sync.RWMutex
+	updateAzureClusterIdentityArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
 		arg4 string
+		arg5 string
+		arg6 string
 	}
-	updateAzureClusterIdentityRefReturns struct {
+	updateAzureClusterIdentityReturns struct {
 		result1 error
 	}
-	updateAzureClusterIdentityRefReturnsOnCall map[int]struct {
-		result1 error
-	}
-	UpdateAzureIdentityRefSecretStub        func(string, string, string) error
-	updateAzureIdentityRefSecretMutex       sync.RWMutex
-	updateAzureIdentityRefSecretArgsForCall []struct {
-		arg1 string
-		arg2 string
-		arg3 string
-	}
-	updateAzureIdentityRefSecretReturns struct {
-		result1 error
-	}
-	updateAzureIdentityRefSecretReturnsOnCall map[int]struct {
+	updateAzureClusterIdentityReturnsOnCall map[int]struct {
 		result1 error
 	}
 	UpdateAzureKCPStub        func(string, string) error
@@ -6262,21 +6251,23 @@ func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturnsOnCall(i int, result1 
 	}{result1}
 }
 
-func (fake *ClusterClient) UpdateAzureClusterIdentityRef(arg1 string, arg2 string, arg3 string, arg4 string) error {
-	fake.updateAzureClusterIdentityRefMutex.Lock()
-	ret, specificReturn := fake.updateAzureClusterIdentityRefReturnsOnCall[len(fake.updateAzureClusterIdentityRefArgsForCall)]
-	fake.updateAzureClusterIdentityRefArgsForCall = append(fake.updateAzureClusterIdentityRefArgsForCall, struct {
+func (fake *ClusterClient) UpdateAzureClusterIdentity(arg1 string, arg2 string, arg3 string, arg4 string, arg5 string, arg6 string) error {
+	fake.updateAzureClusterIdentityMutex.Lock()
+	ret, specificReturn := fake.updateAzureClusterIdentityReturnsOnCall[len(fake.updateAzureClusterIdentityArgsForCall)]
+	fake.updateAzureClusterIdentityArgsForCall = append(fake.updateAzureClusterIdentityArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
 		arg4 string
-	}{arg1, arg2, arg3, arg4})
-	stub := fake.UpdateAzureClusterIdentityRefStub
-	fakeReturns := fake.updateAzureClusterIdentityRefReturns
-	fake.recordInvocation("UpdateAzureClusterIdentityRef", []interface{}{arg1, arg2, arg3, arg4})
-	fake.updateAzureClusterIdentityRefMutex.Unlock()
+		arg5 string
+		arg6 string
+	}{arg1, arg2, arg3, arg4, arg5, arg6})
+	stub := fake.UpdateAzureClusterIdentityStub
+	fakeReturns := fake.updateAzureClusterIdentityReturns
+	fake.recordInvocation("UpdateAzureClusterIdentity", []interface{}{arg1, arg2, arg3, arg4, arg5, arg6})
+	fake.updateAzureClusterIdentityMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2, arg3, arg4, arg5, arg6)
 	}
 	if specificReturn {
 		return ret.result1
@@ -6284,107 +6275,44 @@ func (fake *ClusterClient) UpdateAzureClusterIdentityRef(arg1 string, arg2 strin
 	return fakeReturns.result1
 }
 
-func (fake *ClusterClient) UpdateAzureClusterIdentityRefCallCount() int {
-	fake.updateAzureClusterIdentityRefMutex.RLock()
-	defer fake.updateAzureClusterIdentityRefMutex.RUnlock()
-	return len(fake.updateAzureClusterIdentityRefArgsForCall)
+func (fake *ClusterClient) UpdateAzureClusterIdentityCallCount() int {
+	fake.updateAzureClusterIdentityMutex.RLock()
+	defer fake.updateAzureClusterIdentityMutex.RUnlock()
+	return len(fake.updateAzureClusterIdentityArgsForCall)
 }
 
-func (fake *ClusterClient) UpdateAzureClusterIdentityRefCalls(stub func(string, string, string, string) error) {
-	fake.updateAzureClusterIdentityRefMutex.Lock()
-	defer fake.updateAzureClusterIdentityRefMutex.Unlock()
-	fake.UpdateAzureClusterIdentityRefStub = stub
+func (fake *ClusterClient) UpdateAzureClusterIdentityCalls(stub func(string, string, string, string, string, string) error) {
+	fake.updateAzureClusterIdentityMutex.Lock()
+	defer fake.updateAzureClusterIdentityMutex.Unlock()
+	fake.UpdateAzureClusterIdentityStub = stub
 }
 
-func (fake *ClusterClient) UpdateAzureClusterIdentityRefArgsForCall(i int) (string, string, string, string) {
-	fake.updateAzureClusterIdentityRefMutex.RLock()
-	defer fake.updateAzureClusterIdentityRefMutex.RUnlock()
-	argsForCall := fake.updateAzureClusterIdentityRefArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+func (fake *ClusterClient) UpdateAzureClusterIdentityArgsForCall(i int) (string, string, string, string, string, string) {
+	fake.updateAzureClusterIdentityMutex.RLock()
+	defer fake.updateAzureClusterIdentityMutex.RUnlock()
+	argsForCall := fake.updateAzureClusterIdentityArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
 }
 
-func (fake *ClusterClient) UpdateAzureClusterIdentityRefReturns(result1 error) {
-	fake.updateAzureClusterIdentityRefMutex.Lock()
-	defer fake.updateAzureClusterIdentityRefMutex.Unlock()
-	fake.UpdateAzureClusterIdentityRefStub = nil
-	fake.updateAzureClusterIdentityRefReturns = struct {
+func (fake *ClusterClient) UpdateAzureClusterIdentityReturns(result1 error) {
+	fake.updateAzureClusterIdentityMutex.Lock()
+	defer fake.updateAzureClusterIdentityMutex.Unlock()
+	fake.UpdateAzureClusterIdentityStub = nil
+	fake.updateAzureClusterIdentityReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *ClusterClient) UpdateAzureClusterIdentityRefReturnsOnCall(i int, result1 error) {
-	fake.updateAzureClusterIdentityRefMutex.Lock()
-	defer fake.updateAzureClusterIdentityRefMutex.Unlock()
-	fake.UpdateAzureClusterIdentityRefStub = nil
-	if fake.updateAzureClusterIdentityRefReturnsOnCall == nil {
-		fake.updateAzureClusterIdentityRefReturnsOnCall = make(map[int]struct {
+func (fake *ClusterClient) UpdateAzureClusterIdentityReturnsOnCall(i int, result1 error) {
+	fake.updateAzureClusterIdentityMutex.Lock()
+	defer fake.updateAzureClusterIdentityMutex.Unlock()
+	fake.UpdateAzureClusterIdentityStub = nil
+	if fake.updateAzureClusterIdentityReturnsOnCall == nil {
+		fake.updateAzureClusterIdentityReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.updateAzureClusterIdentityRefReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *ClusterClient) UpdateAzureIdentityRefSecret(arg1 string, arg2 string, arg3 string) error {
-	fake.updateAzureIdentityRefSecretMutex.Lock()
-	ret, specificReturn := fake.updateAzureIdentityRefSecretReturnsOnCall[len(fake.updateAzureIdentityRefSecretArgsForCall)]
-	fake.updateAzureIdentityRefSecretArgsForCall = append(fake.updateAzureIdentityRefSecretArgsForCall, struct {
-		arg1 string
-		arg2 string
-		arg3 string
-	}{arg1, arg2, arg3})
-	stub := fake.UpdateAzureIdentityRefSecretStub
-	fakeReturns := fake.updateAzureIdentityRefSecretReturns
-	fake.recordInvocation("UpdateAzureIdentityRefSecret", []interface{}{arg1, arg2, arg3})
-	fake.updateAzureIdentityRefSecretMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2, arg3)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fakeReturns.result1
-}
-
-func (fake *ClusterClient) UpdateAzureIdentityRefSecretCallCount() int {
-	fake.updateAzureIdentityRefSecretMutex.RLock()
-	defer fake.updateAzureIdentityRefSecretMutex.RUnlock()
-	return len(fake.updateAzureIdentityRefSecretArgsForCall)
-}
-
-func (fake *ClusterClient) UpdateAzureIdentityRefSecretCalls(stub func(string, string, string) error) {
-	fake.updateAzureIdentityRefSecretMutex.Lock()
-	defer fake.updateAzureIdentityRefSecretMutex.Unlock()
-	fake.UpdateAzureIdentityRefSecretStub = stub
-}
-
-func (fake *ClusterClient) UpdateAzureIdentityRefSecretArgsForCall(i int) (string, string, string) {
-	fake.updateAzureIdentityRefSecretMutex.RLock()
-	defer fake.updateAzureIdentityRefSecretMutex.RUnlock()
-	argsForCall := fake.updateAzureIdentityRefSecretArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
-}
-
-func (fake *ClusterClient) UpdateAzureIdentityRefSecretReturns(result1 error) {
-	fake.updateAzureIdentityRefSecretMutex.Lock()
-	defer fake.updateAzureIdentityRefSecretMutex.Unlock()
-	fake.UpdateAzureIdentityRefSecretStub = nil
-	fake.updateAzureIdentityRefSecretReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *ClusterClient) UpdateAzureIdentityRefSecretReturnsOnCall(i int, result1 error) {
-	fake.updateAzureIdentityRefSecretMutex.Lock()
-	defer fake.updateAzureIdentityRefSecretMutex.Unlock()
-	fake.UpdateAzureIdentityRefSecretStub = nil
-	if fake.updateAzureIdentityRefSecretReturnsOnCall == nil {
-		fake.updateAzureIdentityRefSecretReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.updateAzureIdentityRefSecretReturnsOnCall[i] = struct {
+	fake.updateAzureClusterIdentityReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -8117,10 +8045,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.scalePacificClusterWorkerNodesMutex.RUnlock()
 	fake.updateAWSCNIIngressRulesMutex.RLock()
 	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
-	fake.updateAzureClusterIdentityRefMutex.RLock()
-	defer fake.updateAzureClusterIdentityRefMutex.RUnlock()
-	fake.updateAzureIdentityRefSecretMutex.RLock()
-	defer fake.updateAzureIdentityRefSecretMutex.RUnlock()
+	fake.updateAzureClusterIdentityMutex.RLock()
+	defer fake.updateAzureClusterIdentityMutex.RUnlock()
 	fake.updateAzureKCPMutex.RLock()
 	defer fake.updateAzureKCPMutex.RUnlock()
 	fake.updateCAPZControllerManagerDeploymentReplicasMutex.RLock()

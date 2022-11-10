@@ -540,67 +540,91 @@ func (c *client) UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) e
 	return nil
 }
 
-func (c *client) UpdateAzureIdentityRefSecret(identitySecretName, namespace, clientSecret string) error {
-	secret := &corev1.Secret{}
-	err := c.GetResource(secret, identitySecretName, namespace, nil, nil)
+func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, subscriptionID, clientID, clientSecret string) error {
+	azureCluster := &capzv1beta1.AzureCluster{}
+	err := c.GetResource(azureCluster, clusterName, namespace, nil, nil)
 	if err != nil {
-		if k8serrors.IsNotFound(err) {
-			log.Info("Cluster identity secret not present. Skipping update...")
-			return nil
-		}
-		return err
+		return errors.Wrapf(err, "unable to retrieve azure cluster %s", clusterName)
 	}
-
-	var clientSecretBytes []byte
-
-	clientSecretBytes = []byte(clientSecret)
-	clientSecretBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(clientSecretBytes)))
-	base64.StdEncoding.Encode(clientSecretBytesB64, clientSecretBytes)
-
-	patchString := fmt.Sprintf(`[
-		{
-			"op": "replace",
-			"path": "/data/clientSecret",
-			"value": "%s"
-		}
-	]`, string(clientSecretBytesB64))
-
-	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
-	if err := c.PatchResource(&corev1.Secret{}, identitySecretName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
-		return errors.Wrap(err, "unable to save cluster identityRef secret")
-	}
-
-	return nil
-}
-
-func (c *client) UpdateAzureClusterIdentityRef(identitySecretName, namespace, tenantID, clientID string) error {
-	azureClusterIdentityLst := &capzv1beta1.AzureClusterIdentityList{}
-	if err := c.ListResources(azureClusterIdentityLst, &crtclient.ListOptions{Namespace: namespace}); err != nil {
-		return err
-	}
-
-	patchString := fmt.Sprintf(`[
-		{
-			"op": "replace",
-			"path": "/spec/clientID",
-			"value": "%s"
-		},
-		{
-			"op": "replace",
-			"path": "/spec/tenantID",
-			"value": "%s"
-		}
-	]`, clientID, tenantID)
 
 	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
 
-	for i := range azureClusterIdentityLst.Items {
-		if azureClusterIdentityLst.Items[i].Spec.ClientSecret.Name == identitySecretName {
-			azureClusterIdentityName := azureClusterIdentityLst.Items[i].Name
-			if err := c.PatchResource(&capzv1beta1.AzureClusterIdentity{}, azureClusterIdentityName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
-				return errors.Wrap(err, "unable to save azure cluster identity")
-			}
+	// find AzureCluster identityRef
+	if azureCluster.Spec.IdentityRef != nil {
+		azureClusterIdentity := &capzv1beta1.AzureClusterIdentity{}
+		if err := c.GetResource(azureClusterIdentity, azureCluster.Spec.IdentityRef.Name, azureCluster.Spec.IdentityRef.Namespace, nil, nil); err != nil {
+			return errors.Wrapf(err, "unable to retrieve AzureClusterIdentity %s", azureCluster.Spec.IdentityRef.Name)
 		}
+
+		// AzureClusterIdentity name and namespace
+		identityName := azureClusterIdentity.Name
+		identityNamespace := azureClusterIdentity.Namespace
+
+		// Secret referenced by AzureClusterIdentity
+		secretName := azureClusterIdentity.Spec.ClientSecret.Name
+		secretNamespace := azureClusterIdentity.Spec.ClientSecret.Namespace
+
+		log.V(4).Infof("Checking and Updating AzureClusterIdentity %s", identityName)
+
+		// Update AzureClusterIdentity
+		patchString := fmt.Sprintf(`[
+    		{
+    			"op": "replace",
+    			"path": "/spec/clientID",
+    			"value": "%s"
+    		},
+    		{
+    			"op": "replace",
+    			"path": "/spec/tenantID",
+    			"value": "%s"
+    		}
+    	]`, clientID, tenantID)
+
+		if err := c.PatchResource(&capzv1beta1.AzureClusterIdentity{}, identityName, identityNamespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+			return errors.Wrapf(err, "unable to save azure cluster identity %s", identityName)
+		}
+
+		// find the secret
+		log.V(4).Infof("Checking and Updating Secret %s", secretName)
+		secret := &corev1.Secret{}
+		err := c.GetResource(secret, secretName, secretNamespace, nil, nil)
+		if err != nil {
+			return errors.Wrapf(err, "unable to retrieve AzureClusterIdentity Secret %s", secretName)
+		}
+
+		// update secret
+		var clientSecretBytes []byte
+
+		clientSecretBytes = []byte(clientSecret)
+		clientSecretBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(clientSecretBytes)))
+		base64.StdEncoding.Encode(clientSecretBytesB64, clientSecretBytes)
+
+		patchString = fmt.Sprintf(`[
+    		{
+    			"op": "replace",
+    			"path": "/data/clientSecret",
+    			"value": "%s"
+    		}
+    	]`, string(clientSecretBytesB64))
+
+		if err := c.PatchResource(&corev1.Secret{}, secretName, secretNamespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+			return errors.Wrapf(err, "unable to save secret %s", secretName)
+		}
+	} else {
+		log.Warningf("AzureCluster %s use the same AzureClusterIdentity with Management Cluster. It cannot be updated separately.", clusterName)
+	}
+
+	// update subscriptionID
+	patchString := fmt.Sprintf(`[
+		{
+			"op": "replace",
+			"path": "/spec/subscriptionID",
+			"value": "%s"
+		}
+	]`, subscriptionID)
+
+	if err := c.PatchResource(&capzv1beta1.AzureCluster{}, clusterName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+		return errors.Wrapf(err, "unable to save subscriptionID for azure cluster %s", clusterName)
 	}
 
 	return nil

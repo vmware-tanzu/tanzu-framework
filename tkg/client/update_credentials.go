@@ -4,14 +4,11 @@
 package client
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 )
@@ -259,6 +256,8 @@ func (c *TkgClient) UpdateAzureClusterCredentials(clusterClient clusterclient.Cl
 					continue
 				}
 			}
+		} else {
+			log.Warning("WARNING: If workload cluster use the same AzureClusterIdentity with Management Cluster, it is updated together.")
 		}
 	}
 
@@ -273,27 +272,17 @@ func (c *TkgClient) updateAzureCredentialsForCluster(clusterClient clusterclient
 			return err
 		}
 
-		// set secret and namespace name for AzureClusterIdentity
-		identitySecretName := fmt.Sprintf("%s-identity-secret", options.ClusterName)
-		azureClusterIdentityNamespace := constants.TkgNamespace
-
-		// update Azure Identity Secret
-		log.Infof("Updating identity secret %q for management cluster", identitySecretName)
-		if err := clusterClient.UpdateAzureIdentityRefSecret(identitySecretName, azureClusterIdentityNamespace, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
-			return err
-		}
-
-		// Update AzureClusterIdentity
-		log.Infof("Updating AzureClusterIdentity for management cluster %q", options.ClusterName)
-		if err := clusterClient.UpdateAzureClusterIdentityRef(identitySecretName, azureClusterIdentityNamespace, options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureClientID); err != nil {
-			return err
-		}
-
 		// restart capz-controller-manager pod
 		log.Infof("Restart capz-controller-manager pod")
 		if err := c.restartCAPZControllerManagerPod(clusterClient); err != nil {
 			return err
 		}
+	}
+
+	// UpdateAzureClusterIdentity
+	log.Infof("Update AzureCluster Identity %q", options.ClusterName)
+	if err := clusterClient.UpdateAzureClusterIdentity(options.ClusterName, options.Namespace, options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureSubscriptionID, options.AzureUpdateClusterOptions.AzureClientID, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
+		return err
 	}
 
 	// Restart the Controller Manager pod

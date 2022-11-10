@@ -322,10 +322,12 @@ type Client interface {
 	UpdateVsphereCsiConfigSecret(clusterName string, namespace string, username string, password string) error
 	// UpdateCapzManagerBootstrapCredentialsSecret updates the azure creds used by the capz provider
 	UpdateCapzManagerBootstrapCredentialsSecret(tenantID string, subscriptionID string, clientID string, clientSecret string) error
-	// UpdateAzureIdentityRefSecret updates identity secret used by the capz cloud provider
-	UpdateAzureIdentityRefSecret(identitySecretName, namespace, clientSecret string) error
-	// UpdateAzureClusterIdentityRef updates AzureClusterIdentity used by the azure cluster
-	UpdateAzureClusterIdentityRef(identitySecretName string, namespace string, tenantID string, clientID string) error
+	// UpdateAzureClusterIdentity updates the azure cluster identityRef used by the capz provider
+	UpdateAzureClusterIdentity(clusterName string, namespace string, tenantID string, subscriptionID string, clientID string, clientSecret string) error
+	// 	// UpdateAzureIdentityRefSecret updates identity secret used by the capz cloud provider
+	// 	UpdateAzureIdentityRefSecret(identitySecretName, namespace, clientSecret string) error
+	// 	// UpdateAzureClusterIdentityRef updates AzureClusterIdentity used by the azure cluster
+	// 	UpdateAzureClusterIdentityRef(identitySecretName string, namespace string, tenantID string, clientID string) error
 	// GetCAPZControllerManagerDeploymentsReplicas gets current replicas for the capz-controller-manager deployment
 	GetCAPZControllerManagerDeploymentsReplicas() (int32, error)
 	// UpdateCAPZControllerManagerDeploymentReplicas update the capz-controller-manager deployment replicas
