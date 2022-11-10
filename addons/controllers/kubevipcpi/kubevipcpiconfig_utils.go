@@ -71,16 +71,8 @@ func (r *KubevipCPIConfigReconciler) mapKubevipCPIConfigToDataValues( // nolint
 	// allow API user to override the derived values if he/she specified fields in the KubevipCPIConfig
 	dataValue := &KubevipCPIDataValues{}
 	config := kubevipCPIConfig.Spec
-	dataValue.LoadbalancerCIDRs = tryParseString(dataValue.LoadbalancerCIDRs, config.LoadbalancerCIDRs)
-	dataValue.LoadbalancerIPRanges = tryParseString(dataValue.LoadbalancerIPRanges, config.LoadbalancerIPRanges)
+	dataValue.LoadbalancerCIDRs = config.LoadbalancerCIDRs
+	dataValue.LoadbalancerIPRanges = config.LoadbalancerIPRanges
 
 	return *dataValue, nil
-}
-
-// tryParseString tries to convert a string pointer and return its value, if not nil
-func tryParseString(src string, sub *string) string {
-	if sub != nil {
-		return *sub
-	}
-	return src
 }

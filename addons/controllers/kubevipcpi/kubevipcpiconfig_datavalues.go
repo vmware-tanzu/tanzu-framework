@@ -8,8 +8,8 @@ import (
 )
 
 type KubevipCPIDataValues struct {
-	LoadbalancerCIDRs    string `yaml:"loadbalancerCIDRs"`
-	LoadbalancerIPRanges string `yaml:"loadbalancerIPRanges"`
+	LoadbalancerCIDRs    *string `yaml:"loadbalancerCIDRs,omitempty"`
+	LoadbalancerIPRanges *string `yaml:"loadbalancerIPRanges,omitempty"`
 }
 
 func (v *KubevipCPIDataValues) Serialize() ([]byte, error) {

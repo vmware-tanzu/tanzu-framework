@@ -687,6 +687,11 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				},
 				AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
 					{RefName: "pinniped*", ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "oidc"}}},
+					{RefName: "kube-vip-cloud-provider*", ValuesFrom: &v1alpha3.ValuesFrom{
+						ProviderRef: &corev1.TypedLocalObjectReference{
+							Kind: "KubevipCPIConfig",
+							Name: "foo",
+						}}},
 				},
 			}
 			tanzuKubernetesRelease := constructFakeTanzuKubernetesRelease()
@@ -694,9 +699,12 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable"))
 			Expect(clusterBootstrap.Spec.CNI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
-			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(2))
 			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).To(Equal("pinniped.tanzu.vmware.com.0.12.1+vmware.1-tkg.1-zshippable"))
 			Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.Inline["identity_management_type"]).To(Equal("oidc"))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[1].RefName).To(Equal("kube-vip-cloud-provider.tanzu.vmware.com.0.0.4+vmware.1-tkg.1-zshippable"))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.Kind).To(Equal("KubevipCPIConfig"))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.Name).To(Equal("foo"))
 		})
 
 		It("should return error if there is a no match", func() {
@@ -769,6 +777,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable"))
 			Expect(clusterBootstrap.Spec.CNI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
 		})
+
 	})
 })
 
@@ -803,6 +812,7 @@ spec:
   - name: pinniped.tanzu.vmware.com.0.12.1+vmware.1-tkg.1-zshippable
   - name: capabilities.tanzu.vmware.com.0.22.0-dev-43-g2dd1adc9+vmware.1
   - name: calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable
+  - name: kube-vip-cloud-provider.tanzu.vmware.com.0.0.4+vmware.1-tkg.1-zshippable
 `
 	tkrJSONByte, err := k8syaml.YAMLToJSON([]byte(tkrYAML))
 	Expect(err).NotTo(HaveOccurred())

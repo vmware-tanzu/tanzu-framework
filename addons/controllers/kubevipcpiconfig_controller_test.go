@@ -132,4 +132,78 @@ var _ = Describe("KubevipCPIConfig Reconciler", func() {
 		})
 	})
 
+	Context("reconcile KubevipCPIConfig manifests when there is only single input", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-kvcp-2"
+			clusterNamespace = "default"
+			clusterResourceFilePath = "testdata/test-kubevip-cloudprovider-config-2.yaml"
+		})
+
+		It("Should reconcile KubevipCPIConfig and create data values secret for KubevipCPIConfig on management cluster, the secret should only has single value", func() {
+			cluster := &clusterapiv1beta1.Cluster{}
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, key, cluster); err != nil {
+					return false
+				}
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// the kvcp config object should be deployed
+			config := &kvcpiv1alpha1.KubevipCPIConfig{}
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, key, config); err != nil {
+					return false
+				}
+
+				if len(config.OwnerReferences) > 0 {
+					return false
+				}
+
+				Expect(len(config.OwnerReferences)).Should(Equal(0))
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			By("patching kubevip cloudprovider with ownerRef as ClusterBootstrapController would do")
+			// patch the KubevipCPIConfig with ownerRef
+			patchedKubevipCPIConfig := config.DeepCopy()
+			ownerRef := metav1.OwnerReference{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			}
+
+			ownerRef.Kind = "Cluster"
+			patchedKubevipCPIConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedKubevipCPIConfig.OwnerReferences, ownerRef)
+			Expect(k8sClient.Patch(ctx, patchedKubevipCPIConfig, client.MergeFrom(config))).ShouldNot(HaveOccurred())
+
+			// the data values secret should be generated
+			secret := &v1.Secret{}
+			Eventually(func() bool {
+				secretKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.KubevipCloudProviderAddonName),
+				}
+				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+					return false
+				}
+				secretData := string(secret.Data["values.yaml"])
+				Expect(len(secretData)).ShouldNot(BeZero())
+				Expect(strings.Contains(secretData, "kubevipCloudProvider:")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "loadbalancerCIDRs: 10.0.0.1/24")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "loadbalancerIPRanges")).ShouldNot((BeTrue()))
+
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// eventually the secret ref to the data values should be updated
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, key, config); err != nil {
+					return false
+				}
+				Expect(config.Status.SecretRef).To(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.KubevipCloudProviderAddonName)))
+				return true
+			})
+		})
+	})
 })
