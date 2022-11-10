@@ -171,7 +171,7 @@ metadata:
   namespace: #@ data.values.NAMESPACE
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
-    identifier.cc.vmware.com: tanzu-vsphere-default-0.0.2
+    identifier.cc.vmware.com: tanzu-vsphere-default-0.0.3
 spec:
   controlPlane:
     ref:
@@ -274,6 +274,16 @@ spec:
       openAPIV3Schema:
         type: string
         default: eth0
+  - name: cni
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        #@ if data.values.CNI:
+        default: #@ data.values.CNI
+        #@ else:
+        default: "none"
+        #@ end
   - name: network
     required: false
     schema:
@@ -1444,6 +1454,31 @@ spec:
         path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/register-with-taints
         value: os=windows:NoSchedule
       - op: add
+        path: /spec/template/spec/postKubeadmCommands/-
+        value: powershell c:/k/prevent_windows_updates.ps1 -ExecutionPolicy Bypass
+      - op: replace
+        path: /spec/template/spec/users
+        valueFrom:
+          template: |
+            - name: capv
+              groups: Administrators
+              sshAuthorizedKeys:
+              {{- range .user.sshAuthorizedKeys }}
+              - ' {{- . -}} '
+              {{- end }}
+              sudo: ALL=(ALL) NOPASSWD:ALL
+  - name: windows-antrea
+    enabledIf: '{{ .cni | eq "antrea" }}'
+    definitions:
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker-windows
+      jsonPatches:
+      - op: add
         path: /spec/template/spec/files/-
         value:
           path: 'C:\Temp\antrea.ps1'
@@ -1543,28 +1578,8 @@ spec:
             start-service kube-proxy
             start-service antrea-agent
       - op: add
-        path: /spec/template/spec/files/-
-        value:
-          path: c:\k\prevent_windows_updates.ps1
-          content: |
-            Set-Service -Name "wuauserv" -StartupType Disabled -Status Stopped
-      - op: add
         path: /spec/template/spec/postKubeadmCommands/-
         value: powershell C:/Temp/antrea.ps1 -ExecutionPolicy Bypass
-      - op: add
-        path: /spec/template/spec/postKubeadmCommands/-
-        value: powershell c:/k/prevent_windows_updates.ps1 -ExecutionPolicy Bypass
-      - op: replace
-        path: /spec/template/spec/users
-        valueFrom:
-          template: |
-            - name: capv
-              groups: Administrators
-              sshAuthorizedKeys:
-              {{- range .user.sshAuthorizedKeys }}
-              - ' {{- . -}} '
-              {{- end }}
-              sudo: ALL=(ALL) NOPASSWD:ALL
   - name: ntpServers
     enabledIf: '{{ not (empty .ntpServers) }}'
     definitions:
