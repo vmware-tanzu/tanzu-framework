@@ -1043,7 +1043,7 @@ type ClusterClient struct {
 	updateAWSCNIIngressRulesReturnsOnCall map[int]struct {
 		result1 error
 	}
-	UpdateAzureClusterIdentityStub        func(string, string, string, string, string, string) error
+	UpdateAzureClusterIdentityStub        func(string, string, string, string, string) error
 	updateAzureClusterIdentityMutex       sync.RWMutex
 	updateAzureClusterIdentityArgsForCall []struct {
 		arg1 string
@@ -1051,7 +1051,6 @@ type ClusterClient struct {
 		arg3 string
 		arg4 string
 		arg5 string
-		arg6 string
 	}
 	updateAzureClusterIdentityReturns struct {
 		result1 error
@@ -1094,13 +1093,12 @@ type ClusterClient struct {
 	updateCapvManagerBootstrapCredentialsSecretReturnsOnCall map[int]struct {
 		result1 error
 	}
-	UpdateCapzManagerBootstrapCredentialsSecretStub        func(string, string, string, string) error
+	UpdateCapzManagerBootstrapCredentialsSecretStub        func(string, string, string) error
 	updateCapzManagerBootstrapCredentialsSecretMutex       sync.RWMutex
 	updateCapzManagerBootstrapCredentialsSecretArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
-		arg4 string
 	}
 	updateCapzManagerBootstrapCredentialsSecretReturns struct {
 		result1 error
@@ -6253,7 +6251,7 @@ func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturnsOnCall(i int, result1 
 	}{result1}
 }
 
-func (fake *ClusterClient) UpdateAzureClusterIdentity(arg1 string, arg2 string, arg3 string, arg4 string, arg5 string, arg6 string) error {
+func (fake *ClusterClient) UpdateAzureClusterIdentity(arg1 string, arg2 string, arg3 string, arg4 string, arg5 string) error {
 	fake.updateAzureClusterIdentityMutex.Lock()
 	ret, specificReturn := fake.updateAzureClusterIdentityReturnsOnCall[len(fake.updateAzureClusterIdentityArgsForCall)]
 	fake.updateAzureClusterIdentityArgsForCall = append(fake.updateAzureClusterIdentityArgsForCall, struct {
@@ -6262,14 +6260,13 @@ func (fake *ClusterClient) UpdateAzureClusterIdentity(arg1 string, arg2 string, 
 		arg3 string
 		arg4 string
 		arg5 string
-		arg6 string
-	}{arg1, arg2, arg3, arg4, arg5, arg6})
+	}{arg1, arg2, arg3, arg4, arg5})
 	stub := fake.UpdateAzureClusterIdentityStub
 	fakeReturns := fake.updateAzureClusterIdentityReturns
-	fake.recordInvocation("UpdateAzureClusterIdentity", []interface{}{arg1, arg2, arg3, arg4, arg5, arg6})
+	fake.recordInvocation("UpdateAzureClusterIdentity", []interface{}{arg1, arg2, arg3, arg4, arg5})
 	fake.updateAzureClusterIdentityMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4, arg5, arg6)
+		return stub(arg1, arg2, arg3, arg4, arg5)
 	}
 	if specificReturn {
 		return ret.result1
@@ -6283,17 +6280,17 @@ func (fake *ClusterClient) UpdateAzureClusterIdentityCallCount() int {
 	return len(fake.updateAzureClusterIdentityArgsForCall)
 }
 
-func (fake *ClusterClient) UpdateAzureClusterIdentityCalls(stub func(string, string, string, string, string, string) error) {
+func (fake *ClusterClient) UpdateAzureClusterIdentityCalls(stub func(string, string, string, string, string) error) {
 	fake.updateAzureClusterIdentityMutex.Lock()
 	defer fake.updateAzureClusterIdentityMutex.Unlock()
 	fake.UpdateAzureClusterIdentityStub = stub
 }
 
-func (fake *ClusterClient) UpdateAzureClusterIdentityArgsForCall(i int) (string, string, string, string, string, string) {
+func (fake *ClusterClient) UpdateAzureClusterIdentityArgsForCall(i int) (string, string, string, string, string) {
 	fake.updateAzureClusterIdentityMutex.RLock()
 	defer fake.updateAzureClusterIdentityMutex.RUnlock()
 	argsForCall := fake.updateAzureClusterIdentityArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5
 }
 
 func (fake *ClusterClient) UpdateAzureClusterIdentityReturns(result1 error) {
@@ -6504,21 +6501,20 @@ func (fake *ClusterClient) UpdateCapvManagerBootstrapCredentialsSecretReturnsOnC
 	}{result1}
 }
 
-func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecret(arg1 string, arg2 string, arg3 string, arg4 string) error {
+func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecret(arg1 string, arg2 string, arg3 string) error {
 	fake.updateCapzManagerBootstrapCredentialsSecretMutex.Lock()
 	ret, specificReturn := fake.updateCapzManagerBootstrapCredentialsSecretReturnsOnCall[len(fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall)]
 	fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall = append(fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
-		arg4 string
-	}{arg1, arg2, arg3, arg4})
+	}{arg1, arg2, arg3})
 	stub := fake.UpdateCapzManagerBootstrapCredentialsSecretStub
 	fakeReturns := fake.updateCapzManagerBootstrapCredentialsSecretReturns
-	fake.recordInvocation("UpdateCapzManagerBootstrapCredentialsSecret", []interface{}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("UpdateCapzManagerBootstrapCredentialsSecret", []interface{}{arg1, arg2, arg3})
 	fake.updateCapzManagerBootstrapCredentialsSecretMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -6532,17 +6528,17 @@ func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretCallCount(
 	return len(fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall)
 }
 
-func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretCalls(stub func(string, string, string, string) error) {
+func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretCalls(stub func(string, string, string) error) {
 	fake.updateCapzManagerBootstrapCredentialsSecretMutex.Lock()
 	defer fake.updateCapzManagerBootstrapCredentialsSecretMutex.Unlock()
 	fake.UpdateCapzManagerBootstrapCredentialsSecretStub = stub
 }
 
-func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretArgsForCall(i int) (string, string, string, string) {
+func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretArgsForCall(i int) (string, string, string) {
 	fake.updateCapzManagerBootstrapCredentialsSecretMutex.RLock()
 	defer fake.updateCapzManagerBootstrapCredentialsSecretMutex.RUnlock()
 	argsForCall := fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretReturns(result1 error) {

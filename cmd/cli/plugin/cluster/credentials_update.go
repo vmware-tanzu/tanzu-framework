@@ -17,13 +17,12 @@ import (
 )
 
 type updateCredentialsOptions struct {
-	namespace           string
-	vSphereUser         string
-	vSpherePassword     string
-	azureTenantID       string
-	azureSubscriptionID string
-	azureClientID       string
-	azureClientSecret   string
+	namespace         string
+	vSphereUser       string
+	vSpherePassword   string
+	azureTenantID     string
+	azureClientID     string
+	azureClientSecret string
 }
 
 var updateCredentialsOpts = updateCredentialsOptions{}
@@ -46,7 +45,6 @@ func init() {
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.vSphereUser, "vsphere-user", "", "", "Username for vSphere provider")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.vSpherePassword, "vsphere-password", "", "", "Password for vSphere provider")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.azureTenantID, "azure-tenant-id", "", "", "ID for Azure Active Directory in which the app for Tanzu Kubernetes Grid is created")
-	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.azureSubscriptionID, "azure-subscription-id", "", "", "GUID that uniquely identifies the subscription to use Azure services")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.azureClientID, "azure-client-id", "", "", "Client ID of the app for Tanzu Kubernetes Grid that you registered with Azure")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.azureClientSecret, "azure-client-secret", "", "", "Client Password of the app for Tanzu Kubernetes Grid that you registered with Azure")
 
@@ -173,30 +171,16 @@ func updateClusterCredentials(clusterName string, server *configapi.Server) erro
 				return err
 			}
 		}
-
-		if updateCredentialsOpts.azureSubscriptionID == "" {
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message: "Enter azure subscription id",
-				},
-				&updateCredentialsOpts.azureSubscriptionID,
-				promptOpts...,
-			)
-			if err != nil {
-				return err
-			}
-		}
 	}
 
 	uccOptions := tkgctl.UpdateCredentialsClusterOptions{
-		ClusterName:         clusterName,
-		Namespace:           updateCredentialsOpts.namespace,
-		VSphereUsername:     updateCredentialsOpts.vSphereUser,
-		VSpherePassword:     updateCredentialsOpts.vSpherePassword,
-		AzureTenantID:       updateCredentialsOpts.azureTenantID,
-		AzureSubscriptionID: updateCredentialsOpts.azureSubscriptionID,
-		AzureClientID:       updateCredentialsOpts.azureClientID,
-		AzureClientSecret:   updateCredentialsOpts.azureClientSecret,
+		ClusterName:       clusterName,
+		Namespace:         updateCredentialsOpts.namespace,
+		VSphereUsername:   updateCredentialsOpts.vSphereUser,
+		VSpherePassword:   updateCredentialsOpts.vSpherePassword,
+		AzureTenantID:     updateCredentialsOpts.azureTenantID,
+		AzureClientID:     updateCredentialsOpts.azureClientID,
+		AzureClientSecret: updateCredentialsOpts.azureClientSecret,
 	}
 
 	return tkgctlClient.UpdateCredentialsCluster(uccOptions)

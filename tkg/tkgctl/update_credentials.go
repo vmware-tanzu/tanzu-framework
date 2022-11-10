@@ -40,10 +40,9 @@ func (t *tkgctl) UpdateCredentialsCluster(options UpdateCredentialsClusterOption
 			Password: options.VSpherePassword,
 		},
 		AzureUpdateClusterOptions: &client.AzureUpdateClusterOptions{
-			AzureTenantID:       options.AzureTenantID,
-			AzureSubscriptionID: options.AzureSubscriptionID,
-			AzureClientID:       options.AzureClientID,
-			AzureClientSecret:   options.AzureClientSecret,
+			AzureTenantID:     options.AzureTenantID,
+			AzureClientID:     options.AzureClientID,
+			AzureClientSecret: options.AzureClientSecret,
 		},
 	}
 

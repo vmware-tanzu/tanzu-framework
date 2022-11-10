@@ -77,11 +77,10 @@ var _ = Describe("Unit tests for update credentials", func() {
 			}
 
 			err := tkgctlClient.UpdateCredentialsCluster(UpdateCredentialsClusterOptions{
-				ClusterName:         "clusterName",
-				AzureTenantID:       "tenantID",
-				AzureSubscriptionID: "subscriptionID",
-				AzureClientID:       "clientID",
-				AzureClientSecret:   "clientSecret",
+				ClusterName:       "clusterName",
+				AzureTenantID:     "tenantID",
+				AzureClientID:     "clientID",
+				AzureClientSecret: "clientSecret",
 			})
 			Expect(err).NotTo(HaveOccurred())
 
@@ -89,7 +88,6 @@ var _ = Describe("Unit tests for update credentials", func() {
 			updateCredentialOptions := tkgClient.UpdateCredentialsClusterArgsForCall(0)
 			Expect(updateCredentialOptions.ClusterName).To(Equal("clusterName"))
 			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureTenantID).To(Equal("tenantID"))
-			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureSubscriptionID).To(Equal("subscriptionID"))
 			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureClientID).To(Equal("clientID"))
 			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureClientSecret).To(Equal("clientSecret"))
 			Expect(updateCredentialOptions.IsRegionalCluster).To(Equal(false))
@@ -106,12 +104,11 @@ var _ = Describe("Unit tests for update credentials", func() {
 			}
 
 			err := tkgctlClient.UpdateCredentialsRegion(UpdateCredentialsRegionOptions{
-				ClusterName:         "clusterName",
-				AzureTenantID:       "tenantID",
-				AzureSubscriptionID: "subscriptionID",
-				AzureClientID:       "clientID",
-				AzureClientSecret:   "clientSecret",
-				IsCascading:         true,
+				ClusterName:       "clusterName",
+				AzureTenantID:     "tenantID",
+				AzureClientID:     "clientID",
+				AzureClientSecret: "clientSecret",
+				IsCascading:       true,
 			})
 			Expect(err).NotTo(HaveOccurred())
 
@@ -119,7 +116,6 @@ var _ = Describe("Unit tests for update credentials", func() {
 			updateCredentialOptions := tkgClient.UpdateCredentialsRegionArgsForCall(0)
 			Expect(updateCredentialOptions.ClusterName).To(Equal("clusterName"))
 			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureTenantID).To(Equal("tenantID"))
-			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureSubscriptionID).To(Equal("subscriptionID"))
 			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureClientID).To(Equal("clientID"))
 			Expect(updateCredentialOptions.AzureUpdateClusterOptions.AzureClientSecret).To(Equal("clientSecret"))
 			Expect(updateCredentialOptions.IsRegionalCluster).To(Equal(true))

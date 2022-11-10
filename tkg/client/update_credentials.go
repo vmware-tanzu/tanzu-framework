@@ -223,8 +223,8 @@ func (c *TkgClient) updateVSphereCredentialsForCluster(clusterClient clusterclie
 
 // UpdateAzureClusterCredentials update azure cluster credentials
 func (c *TkgClient) UpdateAzureClusterCredentials(clusterClient clusterclient.Client, options *UpdateCredentialsOptions) error {
-	if options.AzureUpdateClusterOptions.AzureTenantID == "" || options.AzureUpdateClusterOptions.AzureSubscriptionID == "" || options.AzureUpdateClusterOptions.AzureClientID == "" || options.AzureUpdateClusterOptions.AzureClientSecret == "" {
-		return errors.New("either tenantId, subscriptionId, clientId or clientSecret should not be empty")
+	if options.AzureUpdateClusterOptions.AzureTenantID == "" || options.AzureUpdateClusterOptions.AzureClientID == "" || options.AzureUpdateClusterOptions.AzureClientSecret == "" {
+		return errors.New("either tenantId, clientId or clientSecret should not be empty")
 	}
 
 	if err := c.updateAzureCredentialsForCluster(clusterClient, options); err != nil {
@@ -268,7 +268,7 @@ func (c *TkgClient) updateAzureCredentialsForCluster(clusterClient clusterclient
 	if options.IsRegionalCluster {
 		// update capz-manager-bootstrap-credentials
 		log.Infof("Updating secret capz-manager-bootstrap-credentials for management cluster %q", options.ClusterName)
-		if err := clusterClient.UpdateCapzManagerBootstrapCredentialsSecret(options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureSubscriptionID, options.AzureUpdateClusterOptions.AzureClientID, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
+		if err := clusterClient.UpdateCapzManagerBootstrapCredentialsSecret(options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureClientID, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
 			return err
 		}
 
@@ -281,7 +281,7 @@ func (c *TkgClient) updateAzureCredentialsForCluster(clusterClient clusterclient
 
 	// UpdateAzureClusterIdentity
 	log.Infof("Update AzureCluster Identity %q", options.ClusterName)
-	if err := clusterClient.UpdateAzureClusterIdentity(options.ClusterName, options.Namespace, options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureSubscriptionID, options.AzureUpdateClusterOptions.AzureClientID, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
+	if err := clusterClient.UpdateAzureClusterIdentity(options.ClusterName, options.Namespace, options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureClientID, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
 		return err
 	}
 

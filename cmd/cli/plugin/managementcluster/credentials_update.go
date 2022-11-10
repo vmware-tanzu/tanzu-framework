@@ -15,13 +15,12 @@ import (
 )
 
 type updateCredentialsOptions struct {
-	vSphereUser         string
-	vSpherePassword     string
-	azureTenantID       string
-	azureSubscriptionID string
-	azureClientID       string
-	azureClientSecret   string
-	isCascading         bool
+	vSphereUser       string
+	vSpherePassword   string
+	azureTenantID     string
+	azureClientID     string
+	azureClientSecret string
+	isCascading       bool
 }
 
 var updateCredentialsOpts = updateCredentialsOptions{}
@@ -52,7 +51,6 @@ func init() {
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.vSphereUser, "vsphere-user", "", "", "Username for vSphere provider")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.vSpherePassword, "vsphere-password", "", "", "Password for vSphere provider")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.azureTenantID, "azure-tenant-id", "", "", "ID for Azure Active Directory in which the app for Tanzu Kubernetes Grid is created")
-	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.azureSubscriptionID, "azure-subscription-id", "", "", "GUID that uniquely identifies the subscription to use Azure services")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.azureClientID, "azure-client-id", "", "", "Client ID of the app for Tanzu Kubernetes Grid that you registered with Azure")
 	credentialsUpdateCmd.Flags().StringVarP(&updateCredentialsOpts.azureClientSecret, "azure-client-secret", "", "", "Client Password of the app for Tanzu Kubernetes Grid that you registered with Azure")
 	credentialsUpdateCmd.Flags().BoolVarP(&updateCredentialsOpts.isCascading, "cascading", "", false, "Update credentials for all workload clusters under the management cluster")
@@ -164,30 +162,16 @@ func updateClusterCredentials(clusterName string) error {
 				return err
 			}
 		}
-
-		if updateCredentialsOpts.azureSubscriptionID == "" {
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message: "Enter azure subscription id",
-				},
-				&updateCredentialsOpts.azureSubscriptionID,
-				promptOpts...,
-			)
-			if err != nil {
-				return err
-			}
-		}
 	}
 
 	options := tkgctl.UpdateCredentialsRegionOptions{
-		ClusterName:         clusterName,
-		VSphereUsername:     updateCredentialsOpts.vSphereUser,
-		VSpherePassword:     updateCredentialsOpts.vSpherePassword,
-		AzureTenantID:       updateCredentialsOpts.azureTenantID,
-		AzureSubscriptionID: updateCredentialsOpts.azureSubscriptionID,
-		AzureClientID:       updateCredentialsOpts.azureClientID,
-		AzureClientSecret:   updateCredentialsOpts.azureClientSecret,
-		IsCascading:         updateCredentialsOpts.isCascading,
+		ClusterName:       clusterName,
+		VSphereUsername:   updateCredentialsOpts.vSphereUser,
+		VSpherePassword:   updateCredentialsOpts.vSpherePassword,
+		AzureTenantID:     updateCredentialsOpts.azureTenantID,
+		AzureClientID:     updateCredentialsOpts.azureClientID,
+		AzureClientSecret: updateCredentialsOpts.azureClientSecret,
+		IsCascading:       updateCredentialsOpts.isCascading,
 	}
 
 	return tkgctlClient.UpdateCredentialsRegion(options)

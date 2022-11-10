@@ -442,9 +442,8 @@ func (c *client) GetAzureCredentialsFromSecret() (azureclient.Credentials, error
 	return res, nil
 }
 
-func (c *client) UpdateCapzManagerBootstrapCredentialsSecret(tenantID, subscriptionID, clientID, clientSecret string) error {
+func (c *client) UpdateCapzManagerBootstrapCredentialsSecret(tenantID, clientID, clientSecret string) error {
 	var tenantIDBytes []byte
-	var subscriptionIDBytes []byte
 	var clientIDBytes []byte
 	var clientSecretBytes []byte
 
@@ -455,10 +454,6 @@ func (c *client) UpdateCapzManagerBootstrapCredentialsSecret(tenantID, subscript
 	clientSecretBytes = []byte(clientSecret)
 	clientSecretBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(clientSecretBytes)))
 	base64.StdEncoding.Encode(clientSecretBytesB64, clientSecretBytes)
-
-	subscriptionIDBytes = []byte(subscriptionID)
-	subscriptionIDBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(subscriptionIDBytes)))
-	base64.StdEncoding.Encode(subscriptionIDBytesB64, subscriptionIDBytes)
 
 	tenantIDBytes = []byte(tenantID)
 	tenantIDBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(tenantIDBytes)))
@@ -479,15 +474,10 @@ func (c *client) UpdateCapzManagerBootstrapCredentialsSecret(tenantID, subscript
 		},
 		{
 			"op": "replace",
-			"path": "/data/subscription-id",
-			"value": "%s"
-		},
-		{
-			"op": "replace",
 			"path": "/data/tenant-id",
 			"value": "%s"
 		}
-	]`, string(clientIDBytesB64), string(clientSecretBytesB64), string(subscriptionIDBytesB64), string(tenantIDBytesB64))
+	]`, string(clientIDBytesB64), string(clientSecretBytesB64), string(tenantIDBytesB64))
 
 	log.V(4).Info("Patching capz-manager bootstrap credentials")
 
@@ -540,7 +530,7 @@ func (c *client) UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) e
 	return nil
 }
 
-func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, subscriptionID, clientID, clientSecret string) error {
+func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, clientID, clientSecret string) error {
 	azureCluster := &capzv1beta1.AzureCluster{}
 	err := c.GetResource(azureCluster, clusterName, namespace, nil, nil)
 	if err != nil {
@@ -612,19 +602,6 @@ func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, su
 		}
 	} else {
 		log.Warningf("AzureCluster %s use the same AzureClusterIdentity with Management Cluster. It cannot be updated separately.", clusterName)
-	}
-
-	// update subscriptionID
-	patchString := fmt.Sprintf(`[
-		{
-			"op": "replace",
-			"path": "/spec/subscriptionID",
-			"value": "%s"
-		}
-	]`, subscriptionID)
-
-	if err := c.PatchResource(&capzv1beta1.AzureCluster{}, clusterName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
-		return errors.Wrapf(err, "unable to save subscriptionID for azure cluster %s", clusterName)
 	}
 
 	return nil

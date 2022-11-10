@@ -127,10 +127,9 @@ var _ = Describe("", func() {
 				ClusterName: clusterName,
 				Kubeconfig:  kubeconfig,
 				AzureUpdateClusterOptions: &AzureUpdateClusterOptions{
-					AzureTenantID:       "azureTenantID",
-					AzureSubscriptionID: "azureSubscriptionID",
-					AzureClientID:       "",
-					AzureClientSecret:   "azureClientSecret",
+					AzureTenantID:     "azureTenantID",
+					AzureClientID:     "",
+					AzureClientSecret: "azureClientSecret",
 				},
 			})
 			Expect(err).ToNot(BeNil())
@@ -141,10 +140,9 @@ var _ = Describe("", func() {
 				ClusterName: clusterName,
 				Kubeconfig:  kubeconfig,
 				AzureUpdateClusterOptions: &AzureUpdateClusterOptions{
-					AzureTenantID:       "azureTenantID",
-					AzureSubscriptionID: "azureSubscriptionID",
-					AzureClientID:       "azureClientID",
-					AzureClientSecret:   "azureClientSecret",
+					AzureTenantID:     "azureTenantID",
+					AzureClientID:     "azureClientID",
+					AzureClientSecret: "azureClientSecret",
 				},
 			})
 			Expect(err).To(BeNil())
@@ -154,11 +152,10 @@ var _ = Describe("", func() {
 			Expect(clusterClient.UpdateCAPZControllerManagerDeploymentReplicasCallCount()).To(Equal(0))
 
 			Expect(clusterClient.UpdateAzureClusterIdentityCallCount()).To(Equal(1))
-			cname, namespace, tenantID, subscriptionID, clientID, clientSecret := clusterClient.UpdateAzureClusterIdentityArgsForCall(0)
+			cname, namespace, tenantID, clientID, clientSecret := clusterClient.UpdateAzureClusterIdentityArgsForCall(0)
 			Expect(cname).To(Equal(clusterName))
 			Expect(namespace).To(Equal(""))
 			Expect(tenantID).To(Equal("azureTenantID"))
-			Expect(subscriptionID).To(Equal("azureSubscriptionID"))
 			Expect(clientID).To(Equal("azureClientID"))
 			Expect(clientSecret).To(Equal("azureClientSecret"))
 
@@ -175,10 +172,9 @@ var _ = Describe("", func() {
 				ClusterName: clusterName,
 				Kubeconfig:  kubeconfig,
 				AzureUpdateClusterOptions: &AzureUpdateClusterOptions{
-					AzureTenantID:       "azureTenantID",
-					AzureSubscriptionID: "azureSubscriptionID",
-					AzureClientID:       "",
-					AzureClientSecret:   "azureClientSecret",
+					AzureTenantID:     "azureTenantID",
+					AzureClientID:     "",
+					AzureClientSecret: "azureClientSecret",
 				},
 				IsRegionalCluster: true,
 			})
@@ -191,19 +187,17 @@ var _ = Describe("", func() {
 				ClusterName: clusterName,
 				Kubeconfig:  kubeconfig,
 				AzureUpdateClusterOptions: &AzureUpdateClusterOptions{
-					AzureTenantID:       "azureTenantID",
-					AzureSubscriptionID: "azureSubscriptionID",
-					AzureClientID:       "azureClientID",
-					AzureClientSecret:   "azureClientSecret",
+					AzureTenantID:     "azureTenantID",
+					AzureClientID:     "azureClientID",
+					AzureClientSecret: "azureClientSecret",
 				},
 				IsRegionalCluster: true,
 			})
 			Expect(err).To(BeNil())
 
 			Expect(clusterClient.UpdateCapzManagerBootstrapCredentialsSecretCallCount()).To(Equal(1))
-			tenantID, subscriptionID, clientID, clientSecret := clusterClient.UpdateCapzManagerBootstrapCredentialsSecretArgsForCall(0)
+			tenantID, clientID, clientSecret := clusterClient.UpdateCapzManagerBootstrapCredentialsSecretArgsForCall(0)
 			Expect(tenantID).To(Equal("azureTenantID"))
-			Expect(subscriptionID).To(Equal("azureSubscriptionID"))
 			Expect(clientID).To(Equal("azureClientID"))
 			Expect(clientSecret).To(Equal("azureClientSecret"))
 
@@ -215,11 +209,10 @@ var _ = Describe("", func() {
 			Expect(replicas).To(Equal(int32(2)))
 
 			Expect(clusterClient.UpdateAzureClusterIdentityCallCount()).To(Equal(1))
-			cname, namespace, tenantID, subscriptionID, clientID, clientSecret := clusterClient.UpdateAzureClusterIdentityArgsForCall(0)
+			cname, namespace, tenantID, clientID, clientSecret := clusterClient.UpdateAzureClusterIdentityArgsForCall(0)
 			Expect(cname).To(Equal(clusterName))
 			Expect(namespace).To(Equal(""))
 			Expect(tenantID).To(Equal("azureTenantID"))
-			Expect(subscriptionID).To(Equal("azureSubscriptionID"))
 			Expect(clientID).To(Equal("azureClientID"))
 			Expect(clientSecret).To(Equal("azureClientSecret"))
 
@@ -235,19 +228,17 @@ var _ = Describe("", func() {
 				ClusterName: clusterName,
 				Kubeconfig:  kubeconfig,
 				AzureUpdateClusterOptions: &AzureUpdateClusterOptions{
-					AzureTenantID:       "azureTenantID",
-					AzureSubscriptionID: "azureSubscriptionID",
-					AzureClientID:       "azureClientID",
-					AzureClientSecret:   "azureClientSecret",
+					AzureTenantID:     "azureTenantID",
+					AzureClientID:     "azureClientID",
+					AzureClientSecret: "azureClientSecret",
 				},
 				IsRegionalCluster: true,
 			})
 			Expect(err).To(BeNil())
 
 			Expect(clusterClient.UpdateCapzManagerBootstrapCredentialsSecretCallCount()).To(Equal(1))
-			tenantID, subscriptionID, clientID, clientSecret := clusterClient.UpdateCapzManagerBootstrapCredentialsSecretArgsForCall(0)
+			tenantID, clientID, clientSecret := clusterClient.UpdateCapzManagerBootstrapCredentialsSecretArgsForCall(0)
 			Expect(tenantID).To(Equal("azureTenantID"))
-			Expect(subscriptionID).To(Equal("azureSubscriptionID"))
 			Expect(clientID).To(Equal("azureClientID"))
 			Expect(clientSecret).To(Equal("azureClientSecret"))
 
@@ -256,11 +247,10 @@ var _ = Describe("", func() {
 			Expect(clusterClient.UpdateCAPZControllerManagerDeploymentReplicasCallCount()).To(Equal(0))
 
 			Expect(clusterClient.UpdateAzureClusterIdentityCallCount()).To(Equal(1))
-			cname, namespace, tenantID, subscriptionID, clientID, clientSecret := clusterClient.UpdateAzureClusterIdentityArgsForCall(0)
+			cname, namespace, tenantID, clientID, clientSecret := clusterClient.UpdateAzureClusterIdentityArgsForCall(0)
 			Expect(cname).To(Equal(clusterName))
 			Expect(namespace).To(Equal(""))
 			Expect(tenantID).To(Equal("azureTenantID"))
-			Expect(subscriptionID).To(Equal("azureSubscriptionID"))
 			Expect(clientID).To(Equal("azureClientID"))
 			Expect(clientSecret).To(Equal("azureClientSecret"))
 
