@@ -352,20 +352,23 @@ def get_cluster_variables():
         }
     end
 
-    trust = []
+
+    additionalTrustedCAs = []
     if data.values["TKG_PROXY_CA_CERT"] != "":
-        trust.append({
+        additionalTrustedCAs.append({
             "name": "proxy",
             "data": data.values["TKG_PROXY_CA_CERT"]
         })
     end
     if data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"] != "":
-        trust.append({
+        additionalTrustedCAs.append({
             "name": "imageRepository",
             "data": data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"]
         })
     end
-    if len(trust) > 0:
+    if len(additionalTrustedCAs) > 0:
+        trust = {}
+        trust["additionalTrustedCAs"] = additionalTrustedCAs
         vars["trust"] = trust
     end
 
