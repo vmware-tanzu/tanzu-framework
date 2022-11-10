@@ -10,6 +10,9 @@ clientOptions:
         path: standalone
     useContextAwareDiscovery: true
 current: mgmt
+currentContext:
+  k8s: mgmt
+  tmc: tmc-fake
 kind: ClientConfig
 metadata:
   creationTimestamp: null
@@ -22,4 +25,21 @@ servers:
   discoverySources:
     - local:
         name: fake-mgmt
-        path: context
+        path: context-mgmt
+contexts:
+- clusterOpts:
+    context: mgmt-admin@mgmt
+    path: config
+    isManagementCluster: true
+  name: mgmt
+  discoverySources:
+    - local:
+        name: fake-mgmt
+        path: context-mgmt
+- globalOpts:
+  name: tmc-fake
+  type: tmc
+  discoverySources:
+    - local:
+        name: fake-tmc
+        path: context-tmc

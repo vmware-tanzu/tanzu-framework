@@ -14,7 +14,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/distribution"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 // KubernetesDiscovery is an artifact discovery utilizing CLIPlugin API in kubernetes cluster
@@ -105,12 +104,6 @@ func (k *KubernetesDiscovery) GetDiscoveredPlugins(clusterClient cluster.Client)
 		dp.Source = k.name
 		dp.DiscoveryType = k.Type()
 
-		// If the ContextType is empty for the plugin discovered through k8s discovery using k8s ContextType by default
-		// Note: Plugins discovered through k8s discovery will always be associated with k8s ContextType
-		if dp.ContextType == "" {
-			dp.ContextType = v1alpha1.CtxTypeK8s
-		}
-
 		plugins = append(plugins, dp)
 	}
 
@@ -132,7 +125,7 @@ func DiscoveredFromK8sV1alpha1WithImageRepositoryOverride(p *cliv1alpha1.CLIPlug
 		Description:        p.Spec.Description,
 		RecommendedVersion: p.Spec.RecommendedVersion,
 		Optional:           p.Spec.Optional,
-		ContextType:        v1alpha1.ContextType(p.Spec.ContextType),
+		Target:             p.Spec.Target,
 	}
 	dp.SupportedVersions = make([]string, 0)
 	for v := range p.Spec.Artifacts {

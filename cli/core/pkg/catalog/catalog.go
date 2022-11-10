@@ -5,8 +5,11 @@ package catalog
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
+
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 
 	"github.com/pkg/errors"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -14,7 +17,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/utils"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 const (
@@ -61,11 +63,13 @@ func NewContextCatalog(context string) (*ContextCatalog, error) {
 
 // Upsert inserts/updates the given plugin.
 func (c *ContextCatalog) Upsert(plugin *cliapi.PluginDescriptor) error {
-	c.plugins[plugin.Name] = plugin.InstallationPath
+	pluginNameTarget := PluginNameTarget(plugin.Name, plugin.Target)
+
+	c.plugins[pluginNameTarget] = plugin.InstallationPath
 	c.sharedCatalog.IndexByPath[plugin.InstallationPath] = *plugin
 
-	if !utils.ContainsString(c.sharedCatalog.IndexByName[plugin.Name], plugin.InstallationPath) {
-		c.sharedCatalog.IndexByName[plugin.Name] = append(c.sharedCatalog.IndexByName[plugin.Name], plugin.InstallationPath)
+	if !utils.ContainsString(c.sharedCatalog.IndexByName[pluginNameTarget], plugin.InstallationPath) {
+		c.sharedCatalog.IndexByName[pluginNameTarget] = append(c.sharedCatalog.IndexByName[pluginNameTarget], plugin.InstallationPath)
 	}
 
 	return saveCatalogCache(c.sharedCatalog)
@@ -121,11 +125,7 @@ func newSharedCatalog() (*cliapi.Catalog, error) {
 		IndexByPath:       map[string]cliapi.PluginDescriptor{},
 		IndexByName:       map[string][]string{},
 		StandAlonePlugins: map[string]string{},
-		StandAlonePluginsByContextType: map[configapi.ContextType]cliapi.PluginAssociation{
-			configapi.CtxTypeK8s: map[string]string{},
-			configapi.CtxTypeTMC: map[string]string{},
-		},
-		ServerPlugins: map[string]cliapi.PluginAssociation{},
+		ServerPlugins:     map[string]cliapi.PluginAssociation{},
 	}
 
 	err := ensureRoot()
@@ -166,15 +166,6 @@ func getCatalogCache() (catalog *cliapi.Catalog, err error) {
 	if c.StandAlonePlugins == nil {
 		c.StandAlonePlugins = map[string]string{}
 	}
-	if c.StandAlonePluginsByContextType == nil {
-		c.StandAlonePluginsByContextType = map[configapi.ContextType]cliapi.PluginAssociation{}
-	}
-	if _, ok := c.StandAlonePluginsByContextType[configapi.CtxTypeK8s]; !ok {
-		c.StandAlonePluginsByContextType[configapi.CtxTypeK8s] = map[string]string{}
-	}
-	if _, ok := c.StandAlonePluginsByContextType[configapi.CtxTypeTMC]; !ok {
-		c.StandAlonePluginsByContextType[configapi.CtxTypeTMC] = map[string]string{}
-	}
 	if c.ServerPlugins == nil {
 		c.ServerPlugins = map[string]cliapi.PluginAssociation{}
 	}
@@ -184,9 +175,6 @@ func getCatalogCache() (catalog *cliapi.Catalog, err error) {
 
 // saveCatalogCache saves the catalog in the local directory.
 func saveCatalogCache(catalog *cliapi.Catalog) error {
-	// Using the K8s context type since it is the only one available publicly.
-	catalog.StandAlonePluginsByContextType[configapi.CtxTypeK8s] = catalog.StandAlonePlugins
-
 	catalogCachePath := getCatalogCachePath()
 	_, err := os.Stat(catalogCachePath)
 	if os.IsNotExist(err) {
@@ -253,4 +241,11 @@ func UpdateCatalogCache() error {
 	}
 
 	return saveCatalogCache(c)
+}
+
+func PluginNameTarget(pluginName string, target cliv1alpha1.Target) string {
+	if target == "" {
+		return pluginName
+	}
+	return fmt.Sprintf("%s-%s", pluginName, target)
 }

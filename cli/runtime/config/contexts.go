@@ -147,6 +147,32 @@ func GetCurrentContext(ctxType configapi.ContextType) (c *configapi.Context, err
 	return getCurrentContext(node, ctxType)
 }
 
+// GetAllCurrentContextsMap returns all current context per ContextType
+func GetAllCurrentContextsMap() (map[configapi.ContextType]*configapi.Context, error) {
+	node, err := getClientConfigNode()
+	if err != nil {
+		return nil, err
+	}
+	return getAllCurrentContextsMap(node)
+}
+
+// GetAllCurrentContextsList returns all current context names as list
+func GetAllCurrentContextsList() ([]string, error) {
+	node, err := getClientConfigNode()
+	if err != nil {
+		return nil, err
+	}
+	currentContextsMap, err := getAllCurrentContextsMap(node)
+	if err != nil {
+		return nil, err
+	}
+	var serverNames []string
+	for _, context := range currentContextsMap {
+		serverNames = append(serverNames, context.Name)
+	}
+	return serverNames, nil
+}
+
 // SetCurrentContext sets the current context to the specified name if context is present
 func SetCurrentContext(name string) error {
 	// Retrieve client config node
@@ -241,6 +267,14 @@ func getCurrentContext(node *yaml.Node, ctxType configapi.ContextType) (*configa
 		return nil, err
 	}
 	return cfg.GetCurrentContext(ctxType)
+}
+
+func getAllCurrentContextsMap(node *yaml.Node) (map[configapi.ContextType]*configapi.Context, error) {
+	cfg, err := convertNodeToClientConfig(node)
+	if err != nil {
+		return nil, err
+	}
+	return cfg.GetAllCurrentContextsMap()
 }
 
 func setContexts(node *yaml.Node, contexts []*configapi.Context) (err error) {

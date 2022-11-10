@@ -218,13 +218,7 @@ var initConfigCmd = &cobra.Command{
 			cfg.ClientOptions.CLI = &configapi.CLIOptions{}
 		}
 
-		serverName := ""
-		server, err := cfg.GetCurrentServer()
-		if err == nil && server != nil {
-			serverName = server.Name
-		}
-
-		serverPluginDescriptors, standalonePluginDescriptors, err := pluginmanager.InstalledPlugins(serverName)
+		serverPluginDescriptors, standalonePluginDescriptors, err := pluginmanager.InstalledPlugins()
 		if err != nil {
 			return err
 		}

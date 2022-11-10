@@ -33,7 +33,6 @@ func TestSetDiscoverySource(t *testing.T) {
 					Bucket:       "updated-test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 
 			contextNode: &yaml.Node{},

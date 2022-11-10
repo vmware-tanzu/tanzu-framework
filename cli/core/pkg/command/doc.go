@@ -16,10 +16,8 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/templates"
-	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 // DefaultDocsDir is the base docs directory
@@ -53,14 +51,15 @@ var genAllDocsCmd = &cobra.Command{
 
 		var pluginDescriptions []*cliapi.PluginDescriptor
 		var err error
-		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			pluginDescriptions, err = pluginmanager.InstalledPluginsDescriptors()
-		} else {
-			// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-			pluginDescriptions, err = cli.ListPlugins()
-		}
+
+		serverPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins()
 		if err != nil {
 			return fmt.Errorf("error while getting installed plugins descriptors: %q", err)
+		}
+
+		combinedPds := append(serverPlugins, standalonePlugins...)
+		for i := range combinedPds {
+			pluginDescriptions = append(pluginDescriptions, &combinedPds[i])
 		}
 
 		if err := genREADME(pluginDescriptions); err != nil {

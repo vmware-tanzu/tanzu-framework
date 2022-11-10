@@ -48,7 +48,7 @@ const (
 var execCommand = exec.Command
 
 type DeletePluginOptions struct {
-	ServerName  string
+	Target      cliv1alpha1.Target
 	PluginName  string
 	ForceDelete bool
 }
@@ -122,17 +122,67 @@ func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
 }
 
 // DiscoverServerPlugins returns the available plugins associated with the given server
-func DiscoverServerPlugins(serverName string) ([]plugin.Discovered, error) {
-	plugins := []plugin.Discovered{}
-	if serverName == "" {
+func DiscoverServerPlugins() ([]plugin.Discovered, error) {
+	// If the context and target feature is enabled, discover plugins from all currentContexts
+	// Else discover plugin based on current Server
+	if configlib.IsFeatureActivated(config.FeatureContextCommand) {
+		return discoverServerPluginsBasedOnAllCurrentContexts()
+	}
+	return discoverServerPluginsBasedOnCurrentServer()
+}
+
+func discoverServerPluginsBasedOnAllCurrentContexts() ([]plugin.Discovered, error) {
+	var plugins []plugin.Discovered
+
+	currentContextMap, err := configlib.GetAllCurrentContextsMap()
+	if err != nil {
+		return nil, err
+	}
+	if len(currentContextMap) == 0 {
+		return plugins, nil
+	}
+
+	for _, context := range currentContextMap {
+		var discoverySources []configapi.PluginDiscovery
+		discoverySources = append(discoverySources, context.DiscoverySources...)
+		discoverySources = append(discoverySources, defaultDiscoverySourceBasedOnContext(context)...)
+		discoveredPlugins, err := discoverPlugins(discoverySources)
+		if err != nil {
+			return discoveredPlugins, err
+		}
+		for i := range discoveredPlugins {
+			discoveredPlugins[i].Scope = common.PluginScopeContext
+			discoveredPlugins[i].Status = common.PluginStatusNotInstalled
+			discoveredPlugins[i].ServerName = context.Name
+
+			// Associate Target of the plugin based on the Context Type of the Context
+			switch context.Type {
+			case configapi.CtxTypeTMC:
+				discoveredPlugins[i].Target = cliv1alpha1.TargetTMC
+			case configapi.CtxTypeK8s:
+				discoveredPlugins[i].Target = cliv1alpha1.TargetK8s
+			}
+		}
+		plugins = append(plugins, discoveredPlugins...)
+	}
+	return plugins, nil
+}
+
+// discoverServerPluginsBasedOnCurrentServer returns the available plugins associated with the given server
+func discoverServerPluginsBasedOnCurrentServer() ([]plugin.Discovered, error) {
+	var plugins []plugin.Discovered
+
+	server, err := configlib.GetCurrentServer()
+	if err != nil || server == nil {
 		// If servername is not specified than returning empty list
 		// as there are no server plugins that can be discovered
 		return plugins, nil
 	}
+	var discoverySources []configapi.PluginDiscovery
+	discoverySources = append(discoverySources, server.DiscoverySources...)
+	discoverySources = append(discoverySources, defaultDiscoverySourceBasedOnServer(server)...)
 
-	discoverySources := configlib.GetDiscoverySources(serverName)
-
-	plugins, err := discoverPlugins(discoverySources)
+	plugins, err = discoverPlugins(discoverySources)
 	if err != nil {
 		return plugins, err
 	}
@@ -145,8 +195,8 @@ func DiscoverServerPlugins(serverName string) ([]plugin.Discovered, error) {
 
 // DiscoverPlugins returns the available plugins that can be used with the given server
 // If serverName is empty(""), return only standalone plugins
-func DiscoverPlugins(serverName string) ([]plugin.Discovered, []plugin.Discovered) {
-	serverPlugins, err := DiscoverServerPlugins(serverName)
+func DiscoverPlugins() ([]plugin.Discovered, []plugin.Discovered) {
+	serverPlugins, err := DiscoverServerPlugins()
 	if err != nil {
 		log.Warningf("unable to discover server plugins, %v", err.Error())
 	}
@@ -162,9 +212,9 @@ func DiscoverPlugins(serverName string) ([]plugin.Discovered, []plugin.Discovere
 
 // AvailablePlugins returns the list of available plugins including discovered and installed plugins
 // If serverName is empty(""), return only available standalone plugins
-func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
-	discoveredServerPlugins, discoveredStandalonePlugins := DiscoverPlugins(serverName)
-	return availablePlugins(serverName, discoveredServerPlugins, discoveredStandalonePlugins)
+func AvailablePlugins() ([]plugin.Discovered, error) {
+	discoveredServerPlugins, discoveredStandalonePlugins := DiscoverPlugins()
+	return availablePlugins(discoveredServerPlugins, discoveredStandalonePlugins)
 }
 
 // AvailablePluginsFromLocalSource returns the list of available plugins from local source
@@ -173,18 +223,18 @@ func AvailablePluginsFromLocalSource(localPath string) ([]plugin.Discovered, err
 	if err != nil {
 		log.Warningf("Unable to discover standalone plugins from local source, %v", err.Error())
 	}
-	return availablePlugins("", []plugin.Discovered{}, localStandalonePlugins)
+	return availablePlugins([]plugin.Discovered{}, localStandalonePlugins)
 }
 
-func availablePlugins(serverName string, discoveredServerPlugins, discoveredStandalonePlugins []plugin.Discovered) ([]plugin.Discovered, error) {
-	installedSeverPluginDesc, installedStandalonePluginDesc, err := InstalledPlugins(serverName)
+func availablePlugins(discoveredServerPlugins, discoveredStandalonePlugins []plugin.Discovered) ([]plugin.Discovered, error) {
+	installedServerPluginDesc, installedStandalonePluginDesc, err := InstalledPlugins()
 	if err != nil {
 		return nil, err
 	}
 
 	availablePlugins := availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, discoveredStandalonePlugins)
 
-	setAvailablePluginsStatus(availablePlugins, installedSeverPluginDesc)
+	setAvailablePluginsStatus(availablePlugins, installedServerPluginDesc)
 	setAvailablePluginsStatus(availablePlugins, installedStandalonePluginDesc)
 
 	installedButNotDiscoveredPlugins := getInstalledButNotDiscoveredStandalonePlugins(availablePlugins, installedStandalonePluginDesc)
@@ -198,7 +248,7 @@ func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Dis
 	for i := range installedPluginDesc {
 		found := false
 		for j := range availablePlugins {
-			if installedPluginDesc[i].Name == availablePlugins[j].Name {
+			if installedPluginDesc[i].Name == availablePlugins[j].Name && installedPluginDesc[i].Target == availablePlugins[j].Target {
 				found = true
 				// If plugin is installed but marked as not installed as part of availablePlugins list
 				// mark the plugin as installed
@@ -234,7 +284,7 @@ func DiscoveredFromPluginDescriptor(p *cliapi.PluginDescriptor) plugin.Discovere
 func setAvailablePluginsStatus(availablePlugins []plugin.Discovered, installedPluginDesc []cliapi.PluginDescriptor) {
 	for i := range installedPluginDesc {
 		for j := range availablePlugins {
-			if installedPluginDesc[i].Name == availablePlugins[j].Name && installedPluginDesc[i].ContextType == string(availablePlugins[j].ContextType) {
+			if installedPluginDesc[i].Name == availablePlugins[j].Name && installedPluginDesc[i].Target == availablePlugins[j].Target {
 				// Match found, Check for update available and update status
 				if installedPluginDesc[i].DiscoveredRecommendedVersion == availablePlugins[j].RecommendedVersion {
 					availablePlugins[j].Status = common.PluginStatusInstalled
@@ -254,7 +304,7 @@ func availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, dis
 	isLocalStandaloneDiscovery := config.GetDefaultStandaloneDiscoveryType() == common.DiscoveryTypeLocal
 
 	for i := range discoveredStandalonePlugins {
-		matchIndex := pluginIndexForName(availablePlugins, discoveredStandalonePlugins[i])
+		matchIndex := pluginIndexForName(availablePlugins, &discoveredStandalonePlugins[i])
 
 		// Add the standalone plugin to available plugins if it doesn't exist in the serverPlugins list
 		// OR
@@ -273,9 +323,9 @@ func availablePluginsFromStandaloneAndServerPlugins(discoveredServerPlugins, dis
 	return availablePlugins
 }
 
-func pluginIndexForName(availablePlugins []plugin.Discovered, plugin plugin.Discovered) int {
+func pluginIndexForName(availablePlugins []plugin.Discovered, p *plugin.Discovered) int {
 	for j := range availablePlugins {
-		if plugin.Name == availablePlugins[j].Name && plugin.ContextType == availablePlugins[j].ContextType {
+		if p != nil && p.Name == availablePlugins[j].Name && p.Target == availablePlugins[j].Target {
 			return j
 		}
 	}
@@ -284,93 +334,85 @@ func pluginIndexForName(availablePlugins []plugin.Discovered, plugin plugin.Disc
 
 // InstalledPlugins returns the installed plugins.
 // If serverName is empty(""), return only installed standalone plugins
-func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, standalonePlugins []cliapi.PluginDescriptor, err error) {
-	var serverCatalog, standAloneCatalog *catalog.ContextCatalog
-
-	if serverName != "" {
-		serverCatalog, err = catalog.NewContextCatalog(serverName)
-		if err != nil {
-			return nil, nil, err
-		}
-		serverPlugins = serverCatalog.List()
-	}
-
-	standAloneCatalog, err = catalog.NewContextCatalog("")
+func InstalledPlugins() (serverPlugins, standalonePlugins []cliapi.PluginDescriptor, err error) {
+	serverPlugins, err = InstalledServerPlugins()
 	if err != nil {
 		return nil, nil, err
 	}
-	standalonePlugins = standAloneCatalog.List()
+	standalonePlugins, err = InstalledStandalonePlugins()
+	if err != nil {
+		return nil, nil, err
+	}
 	return
 }
 
-// InstalledPluginsDescriptors fetches installed plugins (server and standalone) and returns all installed plugins descriptions
-func InstalledPluginsDescriptors() (pluginDescriptions []*cliapi.PluginDescriptor, err error) {
-	serverName := ""
-	server, err := configlib.GetCurrentServer()
-	if err == nil && server != nil {
-		serverName = server.Name
-	}
-
-	serverPlugins, standalonePlugins, err := InstalledPlugins(serverName)
-	if err != nil {
-		return nil, fmt.Errorf("error while getting installed plugin: %q", err)
-	}
-
-	availablePlugins := standalonePlugins
-	availablePlugins = append(availablePlugins, serverPlugins...)
-
-	for i := range availablePlugins {
-		descriptor, err := DescribePluginFromInstallationPath(availablePlugins[i].Name, availablePlugins[i].InstallationPath)
-		if err != nil {
-			return nil, err
-		}
-		pluginDescriptions = append(pluginDescriptions, descriptor)
-	}
-	return pluginDescriptions, nil
-}
-
-// DescribePluginFromInstallationPath describes a plugin from a given installation path.
-func DescribePluginFromInstallationPath(name, pluginPath string) (desc *cliapi.PluginDescriptor, err error) {
-	b, err := execCommand(pluginPath, "info").Output()
-	if err != nil {
-		err = fmt.Errorf("could not describe plugin %q", name)
-		return
-	}
-
-	var descriptor cliapi.PluginDescriptor
-	err = json.Unmarshal(b, &descriptor)
-	if err != nil {
-		err = fmt.Errorf("could not unmarshal plugin %q description", name)
-	}
-	descriptor.InstallationPath = pluginPath
-	return &descriptor, err
-}
-
-// DescribePlugin describes a plugin.
-// If serverName is empty(""), only consider standalone plugins
-func DescribePlugin(serverName, pluginName string) (desc *cliapi.PluginDescriptor, err error) {
-	c, err := catalog.NewContextCatalog(serverName)
+// InstalledStandalonePlugins returns the installed standalone plugins.
+func InstalledStandalonePlugins() ([]cliapi.PluginDescriptor, error) {
+	standAloneCatalog, err := catalog.NewContextCatalog("")
 	if err != nil {
 		return nil, err
 	}
-	descriptor, ok := c.Get(pluginName)
-	if !ok {
-		err = fmt.Errorf("could not get plugin path for plugin %q", pluginName)
+	standalonePlugins := standAloneCatalog.List()
+	return standalonePlugins, nil
+}
+
+// InstalledServerPlugins returns the installed server plugins.
+func InstalledServerPlugins() ([]cliapi.PluginDescriptor, error) {
+	serverNames, err := configlib.GetAllCurrentContextsList()
+	if err != nil {
+		return nil, err
 	}
 
-	return &descriptor, err
+	var serverPlugins []cliapi.PluginDescriptor
+	for _, serverName := range serverNames {
+		if serverName != "" {
+			serverCatalog, err := catalog.NewContextCatalog(serverName)
+			if err != nil {
+				return nil, err
+			}
+			serverPlugins = append(serverPlugins, serverCatalog.List()...)
+		}
+	}
+
+	return serverPlugins, nil
+}
+
+// DescribePlugin describes a plugin.
+func DescribePlugin(pluginName string, target cliv1alpha1.Target) (desc *cliapi.PluginDescriptor, err error) {
+	serverPlugins, standalonePlugins, err := InstalledPlugins()
+	if err != nil {
+		return nil, err
+	}
+	var matchedPlugins []cliapi.PluginDescriptor
+
+	pds := serverPlugins
+	pds = append(pds, standalonePlugins...)
+	for i := range pds {
+		if pds[i].Name == pluginName {
+			matchedPlugins = append(matchedPlugins, pds[i])
+		}
+	}
+
+	if len(matchedPlugins) == 0 {
+		return nil, errors.Errorf("unable to find plugin '%v'", pluginName)
+	}
+	if len(matchedPlugins) == 1 {
+		return &matchedPlugins[0], nil
+	}
+
+	for i := range matchedPlugins {
+		if matchedPlugins[i].Target == target {
+			return &matchedPlugins[i], nil
+		}
+	}
+
+	return nil, errors.Errorf("unable to uniquely identify plugin '%v'. Please specify Target of the plugin", pluginName)
 }
 
 // InitializePlugin initializes the plugin configuration
-// If serverName is empty(""), only consider standalone plugins
-func InitializePlugin(serverName, pluginName string) error {
-	c, err := catalog.NewContextCatalog(serverName)
-	if err != nil {
-		return err
-	}
-	descriptor, ok := c.Get(pluginName)
-	if !ok {
-		return errors.Wrapf(err, "could not get plugin path for plugin %q", pluginName)
+func InitializePlugin(descriptor *cliapi.PluginDescriptor) error {
+	if descriptor == nil {
+		return fmt.Errorf("could not get plugin information")
 	}
 
 	b, err := execCommand(descriptor.InstallationPath, "post-install").CombinedOutput()
@@ -379,67 +421,82 @@ func InitializePlugin(serverName, pluginName string) error {
 	// the plugin does not implement post-install command. Ignoring the
 	// errors if the command does not exist for a particular plugin.
 	if err != nil && !strings.Contains(string(b), "unknown command") {
-		log.Warningf("Warning: Failed to initialize plugin '%q' after installation. %v", pluginName, string(b))
+		log.Warningf("Warning: Failed to initialize plugin '%q' after installation. %v", descriptor.Name, string(b))
 	}
 
 	return nil
 }
 
 // InstallPlugin installs a plugin from the given repository.
-// If serverName is empty(""), only consider standalone plugins
-func InstallPlugin(serverName, pluginName, version string) error {
-	availablePlugins, err := AvailablePlugins(serverName)
+func InstallPlugin(pluginName, version string, target cliv1alpha1.Target) error {
+	availablePlugins, err := AvailablePlugins()
 	if err != nil {
 		return err
 	}
+
+	var matchedPlugins []plugin.Discovered
 	for i := range availablePlugins {
 		if availablePlugins[i].Name == pluginName {
-			if availablePlugins[i].Scope == common.PluginScopeStandalone {
-				serverName = ""
-			}
-			return installOrUpgradePlugin(serverName, &availablePlugins[i], version, false)
+			matchedPlugins = append(matchedPlugins, availablePlugins[i])
+		}
+	}
+	if len(matchedPlugins) == 0 {
+		return errors.Errorf("unable to find plugin '%v'", pluginName)
+	}
+
+	if len(matchedPlugins) == 1 {
+		return installOrUpgradePlugin(&matchedPlugins[0], version, false)
+	}
+
+	for i := range matchedPlugins {
+		if matchedPlugins[i].Target == target {
+			return installOrUpgradePlugin(&matchedPlugins[i], version, false)
 		}
 	}
 
-	return errors.Errorf("unable to find plugin '%v'", pluginName)
+	return errors.Errorf("unable to uniquely identify plugin '%v'. Please specify Target of the plugin", pluginName)
 }
 
 // UpgradePlugin upgrades a plugin from the given repository.
-// If serverName is empty(""), only consider standalone plugins
-func UpgradePlugin(serverName, pluginName, version string) error {
-	availablePlugins, err := AvailablePlugins(serverName)
-	if err != nil {
-		return err
-	}
-	for i := range availablePlugins {
-		if availablePlugins[i].Name == pluginName {
-			if availablePlugins[i].Scope == common.PluginScopeStandalone {
-				serverName = ""
-			}
-			return installOrUpgradePlugin(serverName, &availablePlugins[i], version, false)
-		}
-	}
-
-	return errors.Errorf("unable to find plugin '%v'", pluginName)
+func UpgradePlugin(pluginName, version string, target cliv1alpha1.Target) error {
+	return InstallPlugin(pluginName, version, target)
 }
 
 // GetRecommendedVersionOfPlugin returns recommended version of the plugin
-// If serverName is empty(""), only consider standalone plugins
-func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error) {
-	availablePlugins, err := AvailablePlugins(serverName)
+func GetRecommendedVersionOfPlugin(pluginName string, target cliv1alpha1.Target) (string, error) {
+	availablePlugins, err := AvailablePlugins()
 	if err != nil {
 		return "", err
 	}
+
+	var matchedPlugins []plugin.Discovered
 	for i := range availablePlugins {
 		if availablePlugins[i].Name == pluginName {
-			return availablePlugins[i].RecommendedVersion, nil
+			matchedPlugins = append(matchedPlugins, availablePlugins[i])
 		}
 	}
-	return "", errors.Errorf("unable to find plugin '%v'", pluginName)
+	if len(matchedPlugins) == 0 {
+		return "", errors.Errorf("unable to find plugin '%v'", pluginName)
+	}
+
+	if len(matchedPlugins) == 1 {
+		return matchedPlugins[0].RecommendedVersion, nil
+	}
+
+	for i := range matchedPlugins {
+		if matchedPlugins[i].Target == target {
+			return matchedPlugins[i].RecommendedVersion, nil
+		}
+	}
+	return "", errors.Errorf("unable to uniquely identify plugin '%v'. Please specify Target of the plugin", pluginName)
 }
 
-func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string, installTestPlugin bool) error {
-	log.Infof("Installing plugin '%v:%v'", p.Name, version)
+func installOrUpgradePlugin(p *plugin.Discovered, version string, installTestPlugin bool) error {
+	if p.Target == "" {
+		log.Infof("Installing plugin '%v:%v'", p.Name, version)
+	} else {
+		log.Infof("Installing plugin '%v:%v' with target '%v'", p.Name, version, p.Target)
+	}
 
 	binary, err := fetchAndVerifyPlugin(p, version)
 	if err != nil {
@@ -457,7 +514,7 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 		}
 	}
 
-	return updateDescriptorAndInitializePlugin(serverName, p, descriptor)
+	return updateDescriptorAndInitializePlugin(p, descriptor)
 }
 
 func fetchAndVerifyPlugin(p *plugin.Discovered, version string) ([]byte, error) {
@@ -469,7 +526,7 @@ func fetchAndVerifyPlugin(p *plugin.Discovered, version string) ([]byte, error) 
 
 	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "unable to fetch the plugin metadata for plugin %q", p.Name)
 	}
 
 	// verify plugin after download but before installation
@@ -485,8 +542,8 @@ func fetchAndVerifyPlugin(p *plugin.Discovered, version string) ([]byte, error) 
 }
 
 func installAndDescribePlugin(p *plugin.Discovered, version string, binary []byte) (*cliapi.PluginDescriptor, error) {
-	versionWithChecksum := fmt.Sprintf("%s_%x", version, sha256.Sum256(binary))
-	pluginPath := filepath.Join(common.DefaultPluginRoot, p.Name, versionWithChecksum)
+	pluginFileName := fmt.Sprintf("%s_%x_%s", version, sha256.Sum256(binary), p.Target)
+	pluginPath := filepath.Join(common.DefaultPluginRoot, p.Name, pluginFileName)
 
 	if err := os.MkdirAll(filepath.Dir(pluginPath), os.ModePerm); err != nil {
 		return nil, err
@@ -511,7 +568,7 @@ func installAndDescribePlugin(p *plugin.Discovered, version string, binary []byt
 	descriptor.InstallationPath = pluginPath
 	descriptor.Discovery = p.Source
 	descriptor.DiscoveredRecommendedVersion = p.RecommendedVersion
-	descriptor.ContextType = string(p.ContextType)
+	descriptor.Target = p.Target
 
 	return &descriptor, nil
 }
@@ -530,15 +587,15 @@ func doInstallTestPlugin(p *plugin.Discovered, version string) error {
 	return nil
 }
 
-func updateDescriptorAndInitializePlugin(serverName string, p *plugin.Discovered, descriptor *cliapi.PluginDescriptor) error {
-	c, err := catalog.NewContextCatalog(serverName)
+func updateDescriptorAndInitializePlugin(p *plugin.Discovered, descriptor *cliapi.PluginDescriptor) error {
+	c, err := catalog.NewContextCatalog(p.ServerName)
 	if err != nil {
 		return err
 	}
 	if err := c.Upsert(descriptor); err != nil {
 		log.Info("Plugin descriptor could not be updated in cache")
 	}
-	if err := InitializePlugin(serverName, p.Name); err != nil {
+	if err := InitializePlugin(descriptor); err != nil {
 		log.Infof("could not initialize plugin after installing: %v", err.Error())
 	}
 	if err := config.ConfigureDefaultFeatureFlagsIfMissing(descriptor.DefaultFeatureFlags); err != nil {
@@ -548,14 +605,29 @@ func updateDescriptorAndInitializePlugin(serverName string, p *plugin.Discovered
 }
 
 // DeletePlugin deletes a plugin.
-// If serverName is empty(""), only consider standalone plugins
 func DeletePlugin(options DeletePluginOptions) error {
-	c, err := catalog.NewContextCatalog(options.ServerName)
+	serverNames, err := configlib.GetAllCurrentContextsList()
 	if err != nil {
 		return err
 	}
-	_, ok := c.Get(options.PluginName)
-	if !ok {
+
+	// Add empty serverName for standalone plugins
+	serverNames = append(serverNames, "")
+	var catalogContainingPlugin *catalog.ContextCatalog
+
+	for _, serverName := range serverNames {
+		c, err := catalog.NewContextCatalog(serverName)
+		if err != nil {
+			continue
+		}
+		_, ok := c.Get(catalog.PluginNameTarget(options.PluginName, options.Target))
+		if ok {
+			catalogContainingPlugin = c
+			break
+		}
+	}
+
+	if catalogContainingPlugin == nil {
 		return fmt.Errorf("could not get plugin path for plugin %q", options.PluginName)
 	}
 
@@ -564,7 +636,7 @@ func DeletePlugin(options DeletePluginOptions) error {
 			return err
 		}
 	}
-	err = c.Delete(options.PluginName)
+	err = catalogContainingPlugin.Delete(catalog.PluginNameTarget(options.PluginName, options.Target))
 	if err != nil {
 		return fmt.Errorf("plugin %q could not be deleted from cache", options.PluginName)
 	}
@@ -575,10 +647,9 @@ func DeletePlugin(options DeletePluginOptions) error {
 }
 
 // SyncPlugins automatically downloads all available plugins to users machine
-// If serverName is empty(""), only sync standalone plugins
-func SyncPlugins(serverName string) error {
+func SyncPlugins() error {
 	log.Info("Checking for required plugins...")
-	plugins, err := AvailablePlugins(serverName)
+	plugins, err := AvailablePlugins()
 	if err != nil {
 		return err
 	}
@@ -589,7 +660,7 @@ func SyncPlugins(serverName string) error {
 	for idx := range plugins {
 		if plugins[idx].Status != common.PluginStatusInstalled {
 			installed = true
-			err = InstallPlugin(serverName, plugins[idx].Name, plugins[idx].RecommendedVersion)
+			err = InstallPlugin(plugins[idx].Name, plugins[idx].RecommendedVersion, plugins[idx].Target)
 			if err != nil {
 				errList = append(errList, err)
 			}
@@ -609,35 +680,47 @@ func SyncPlugins(serverName string) error {
 }
 
 // InstallPluginsFromLocalSource installs plugin from local source directory
-func InstallPluginsFromLocalSource(pluginName, version, localPath string, installTestPlugin bool) error {
-	// Set default local plugin distro to localpath as while installing the plugin
+func InstallPluginsFromLocalSource(pluginName, version string, target cliv1alpha1.Target, localPath string, installTestPlugin bool) error {
+	// Set default local plugin distro to local-path as while installing the plugin
 	// from local source we should take t
 	common.DefaultLocalPluginDistroDir = localPath
 
-	plugins, err := DiscoverPluginsFromLocalSource(localPath)
+	availablePlugins, err := DiscoverPluginsFromLocalSource(localPath)
 	if err != nil {
 		return errors.Wrap(err, "unable to discover plugins")
 	}
 
-	found := false
+	var errList []error
 
-	errList := make([]error, 0)
-	for idx := range plugins {
-		if pluginName == cli.AllPlugins || pluginName == plugins[idx].Name {
-			found = true
-			err := installOrUpgradePlugin("", &plugins[idx], plugins[idx].RecommendedVersion, installTestPlugin)
+	var matchedPlugins []plugin.Discovered
+	for i := range availablePlugins {
+		if pluginName == cli.AllPlugins || availablePlugins[i].Name == pluginName {
+			matchedPlugins = append(matchedPlugins, availablePlugins[i])
+		}
+	}
+	if len(matchedPlugins) == 0 {
+		return errors.Errorf("unable to find plugin '%v'", pluginName)
+	}
+
+	if len(matchedPlugins) == 1 {
+		return installOrUpgradePlugin(&matchedPlugins[0], FindVersion(matchedPlugins[0].RecommendedVersion, version), installTestPlugin)
+	}
+
+	for i := range matchedPlugins {
+		// If target is not specified, install all plugins otherwise include all matching plugins
+		if target == "" || matchedPlugins[i].Target == target {
+			err = installOrUpgradePlugin(&matchedPlugins[i], FindVersion(matchedPlugins[i].RecommendedVersion, version), installTestPlugin)
 			if err != nil {
 				errList = append(errList, err)
 			}
 		}
 	}
+
 	err = kerrors.NewAggregate(errList)
 	if err != nil {
 		return err
 	}
-	if !found {
-		return errors.Errorf("unable to find plugin '%v'", pluginName)
-	}
+
 	return nil
 }
 
@@ -895,4 +978,11 @@ func verifyPluginPostDownload(p *plugin.Discovered, srcDigest string, b []byte) 
 	}
 
 	return nil
+}
+
+func FindVersion(recommendedPluginVersion, requestedVersion string) string {
+	if requestedVersion == "" || requestedVersion == cli.VersionLatest {
+		return recommendedPluginVersion
+	}
+	return requestedVersion
 }

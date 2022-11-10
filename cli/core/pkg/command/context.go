@@ -125,7 +125,7 @@ func createCtx(_ *cobra.Command, _ []string) (err error) {
 
 	// Sync all required plugins if the "features.global.context-aware-cli-for-plugins" feature is enabled
 	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-		if err = pluginmanager.SyncPlugins(ctx.Name); err != nil {
+		if err = pluginmanager.SyncPlugins(); err != nil {
 			log.Warning("unable to automatically sync the plugins from target context. Please run 'tanzu plugin sync' command to sync plugins manually")
 		}
 	}

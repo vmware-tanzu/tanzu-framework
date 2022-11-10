@@ -10,11 +10,9 @@ import (
 	"github.com/pkg/errors"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/distribution"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
-
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
 )
 
@@ -123,7 +121,7 @@ func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) (plugin.Discovered, err
 		Description:        p.Spec.Description,
 		RecommendedVersion: p.Spec.RecommendedVersion,
 		Optional:           p.Spec.Optional,
-		ContextType:        v1alpha1.ContextType(p.Spec.ContextType),
+		Target:             p.Spec.Target,
 	}
 	dp.SupportedVersions = make([]string, 0)
 	for v := range p.Spec.Artifacts {

@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+
 	"github.com/aunum/log"
 	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
@@ -18,7 +20,6 @@ import (
 	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -73,10 +74,11 @@ func NewRootCmd() (*cobra.Command, error) {
 			k8sCmd,
 			tmcCmd,
 		)
-		if err := addCtxPlugins(k8sCmd, configapi.CtxTypeK8s); err != nil {
-			return nil, err
+		mapCtxTypeToCmd := map[cliv1alpha1.Target]*cobra.Command{
+			cliv1alpha1.TargetK8s: k8sCmd,
+			cliv1alpha1.TargetTMC: tmcCmd,
 		}
-		if err := addCtxPlugins(tmcCmd, configapi.CtxTypeTMC); err != nil {
+		if err := addPluginsToCtxType(mapCtxTypeToCmd); err != nil {
 			return nil, err
 		}
 	}
@@ -129,32 +131,33 @@ var tmcCmd = &cobra.Command{
 	},
 }
 
-func addCtxPlugins(cmd *cobra.Command, ctxType configapi.ContextType) error {
-	var ctxName string
-	if ctx, _ := config.GetCurrentContext(ctxType); ctx != nil {
-		ctxName = ctx.Name
-	}
-
-	ctxPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins(ctxName)
+func addPluginsToCtxType(mapCtxTypeToCmd map[cliv1alpha1.Target]*cobra.Command) error {
+	installedPlugins, err := getInstalledPlugins()
 	if err != nil {
 		return fmt.Errorf("unable to find installed plugins: %w", err)
 	}
 
-	if ctxType == configapi.CtxTypeK8s {
-		// Standalone plugins exist only for K8s context type.
-		for i := range standalonePlugins {
-			if standalonePlugins[i].Group == cliapi.SystemCmdGroup || standalonePlugins[i].Group == cliapi.AdminCmdGroup {
-				// Do not include plugins from the system command group.
-				continue
-			}
-			cmd.AddCommand(cli.GetCmd(&standalonePlugins[i]))
+	for i := range installedPlugins {
+		if cmd, exists := mapCtxTypeToCmd[installedPlugins[i].Target]; exists {
+			cmd.AddCommand(cli.GetCmd(&installedPlugins[i]))
 		}
 	}
-
-	for i := range ctxPlugins {
-		cmd.AddCommand(cli.GetCmd(&ctxPlugins[i]))
-	}
 	return nil
+}
+
+func getInstalledPlugins() ([]cliapi.PluginDescriptor, error) {
+	plugins, err := pluginmanager.InstalledStandalonePlugins()
+	if err != nil {
+		return nil, err
+	}
+
+	serverPlugins, err := pluginmanager.InstalledServerPlugins()
+	if err != nil {
+		return nil, err
+	}
+	plugins = append(plugins, serverPlugins...)
+
+	return plugins, nil
 }
 
 func getAvailablePlugins() ([]*cliapi.PluginDescriptor, error) {
@@ -162,19 +165,12 @@ func getAvailablePlugins() ([]*cliapi.PluginDescriptor, error) {
 	var err error
 
 	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-		currentServerName := ""
-
-		server, err := config.GetCurrentServer()
-		if err == nil && server != nil {
-			currentServerName = server.Name
-		}
-
-		serverPlugin, standalonePlugins, err := pluginmanager.InstalledPlugins(currentServerName)
+		serverPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins()
 		if err != nil {
 			return nil, fmt.Errorf("find installed plugins: %w", err)
 		}
 
-		allPlugins := serverPlugin
+		allPlugins := serverPlugins
 		allPlugins = append(allPlugins, standalonePlugins...)
 		for i := range allPlugins {
 			plugins = append(plugins, &allPlugins[i])

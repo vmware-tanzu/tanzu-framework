@@ -33,6 +33,11 @@ const (
 	CtxTypeTMC ContextType = "tmc"
 )
 
+var (
+	// SupportedCtxTypes is a list of all supported Context Types
+	SupportedCtxTypes = []ContextType{CtxTypeK8s, CtxTypeTMC}
+)
+
 // Server connection.
 // Deprecation targeted for a future version. Superseded by Context.
 type Server struct {

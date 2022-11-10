@@ -72,12 +72,7 @@ var listDiscoverySourceCmd = &cobra.Command{
 		// Get context scoped discoveries
 		server, err := configlib.GetCurrentServer()
 		if err == nil && server != nil {
-			var serverDiscoverySources []configapi.PluginDiscovery
-			if server.DiscoverySources == nil {
-				serverDiscoverySources = configlib.GetDiscoverySources(server.Name)
-			} else {
-				serverDiscoverySources = server.DiscoverySources
-			}
+			serverDiscoverySources := server.DiscoverySources
 			outputFromDiscoverySources(serverDiscoverySources, common.PluginScopeContext, output)
 		}
 		output.Render()

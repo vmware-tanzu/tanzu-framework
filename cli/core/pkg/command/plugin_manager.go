@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strings"
 
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
@@ -30,6 +32,7 @@ var (
 	local       string
 	version     string
 	forceDelete bool
+	target      string
 )
 
 func init() {
@@ -51,6 +54,13 @@ func init() {
 	installPluginCmd.Flags().StringVarP(&version, "version", "v", cli.VersionLatest, "version of the plugin")
 	deletePluginCmd.Flags().BoolVarP(&forceDelete, "yes", "y", false, "delete the plugin without asking for confirmation")
 
+	if config.IsFeatureActivated(cliconfig.FeatureContextCommand) {
+		installPluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin")
+		upgradePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin")
+		deletePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin")
+		describePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin")
+	}
+
 	command.DeprecateCommand(repoCmd, "")
 }
 
@@ -67,12 +77,7 @@ var listPluginCmd = &cobra.Command{
 	Short: "List available plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-
+			var err error
 			var availablePlugins []plugin.Discovered
 			if local != "" {
 				// get absolute local path
@@ -82,19 +87,31 @@ var listPluginCmd = &cobra.Command{
 				}
 				availablePlugins, err = pluginmanager.AvailablePluginsFromLocalSource(local)
 			} else {
-				availablePlugins, err = pluginmanager.AvailablePlugins(serverName)
+				availablePlugins, err = pluginmanager.AvailablePlugins()
 			}
+			sort.Sort(plugin.DiscoveredSorter(availablePlugins))
+
 			if err != nil {
 				return err
 			}
 
-			data := [][]string{}
-			for index := range availablePlugins {
-				data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
-					availablePlugins[index].Source, string(availablePlugins[index].ContextType), getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
+			var data [][]string
+			var output component.OutputWriter
+
+			if config.IsFeatureActivated(cliconfig.FeatureContextCommand) {
+				for index := range availablePlugins {
+					data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
+						availablePlugins[index].Source, string(availablePlugins[index].Target), getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
+				}
+				output = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Target", "Version", "Status")
+			} else {
+				for index := range availablePlugins {
+					data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
+						availablePlugins[index].Source, getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
+				}
+				output = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
 			}
 
-			output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Target", "Version", "Status")
 			for _, row := range data {
 				vals := make([]interface{}, len(row))
 				for i, val := range row {
@@ -197,12 +214,7 @@ var describePluginCmd = &cobra.Command{
 		pluginName := args[0]
 
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-			pd, err := pluginmanager.DescribePlugin(serverName, pluginName)
+			pd, err := pluginmanager.DescribePlugin(pluginName, cliv1alpha1.Target(target))
 			if err != nil {
 				return err
 			}
@@ -255,7 +267,7 @@ var installPluginCmd = &cobra.Command{
 				if err != nil {
 					return err
 				}
-				err = pluginmanager.InstallPluginsFromLocalSource(pluginName, version, local, false)
+				err = pluginmanager.InstallPluginsFromLocalSource(pluginName, version, cliv1alpha1.Target(target), local, false)
 				if err != nil {
 					return err
 				}
@@ -267,15 +279,9 @@ var installPluginCmd = &cobra.Command{
 				return nil
 			}
 
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-
 			// Invoke plugin sync if install all plugins is mentioned
 			if pluginName == cli.AllPlugins {
-				err = pluginmanager.SyncPlugins(serverName)
+				err = pluginmanager.SyncPlugins()
 				if err != nil {
 					return err
 				}
@@ -285,13 +291,13 @@ var installPluginCmd = &cobra.Command{
 
 			pluginVersion := version
 			if pluginVersion == cli.VersionLatest {
-				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(serverName, pluginName)
+				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(pluginName, cliv1alpha1.Target(target))
 				if err != nil {
 					return err
 				}
 			}
 
-			err = pluginmanager.InstallPlugin(serverName, pluginName, pluginVersion)
+			err = pluginmanager.InstallPlugin(pluginName, pluginVersion, cliv1alpha1.Target(target))
 			if err != nil {
 				return err
 			}
@@ -335,18 +341,12 @@ var upgradePluginCmd = &cobra.Command{
 		pluginName := args[0]
 
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-
-			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(serverName, pluginName)
+			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(pluginName, cliv1alpha1.Target(target))
 			if err != nil {
 				return err
 			}
 
-			err = pluginmanager.UpgradePlugin(serverName, pluginName, pluginVersion)
+			err = pluginmanager.UpgradePlugin(pluginName, pluginVersion, cliv1alpha1.Target(target))
 			if err != nil {
 				return err
 			}
@@ -385,15 +385,9 @@ var deletePluginCmd = &cobra.Command{
 		pluginName := args[0]
 
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-
 			deletePluginOptions := pluginmanager.DeletePluginOptions{
 				PluginName:  pluginName,
-				ServerName:  serverName,
+				Target:      cliv1alpha1.Target(target),
 				ForceDelete: forceDelete,
 			}
 
@@ -442,12 +436,7 @@ var syncPluginCmd = &cobra.Command{
 	Short: "Sync the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-			err = pluginmanager.SyncPlugins(serverName)
+			err = pluginmanager.SyncPlugins()
 			if err != nil {
 				return err
 			}

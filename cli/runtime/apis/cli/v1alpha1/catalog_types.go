@@ -6,7 +6,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 )
 
 // Distro is the Schema for the catalogs API
@@ -154,8 +154,8 @@ type PluginDescriptor struct {
 	// DiscoveredRecommendedVersion specifies the recommended version of the plugin that was discovered
 	DiscoveredRecommendedVersion string `json:"discoveredRecommendedVersion"`
 
-	// ContextType specifies the context/target type of the plugin
-	ContextType string `json:"contextType"`
+	// Target specifies the target of the plugin
+	Target cliv1alpha1.Target `json:"target"`
 
 	// PostInstallHook is function to be run post install of a plugin.
 	PostInstallHook Hook `json:"-" yaml:"-"`
@@ -181,8 +181,6 @@ type Catalog struct {
 	// StandAlonePlugins is a set of stand-alone plugin installations aggregated across all context types.
 	// Note: Shall be reduced to only those stand-alone plugins that are common to all context types.
 	StandAlonePlugins PluginAssociation `json:"standAlonePlugins,omitempty"`
-	// StandAlonePluginsByContextType is a set of stand-alone plugin installations grouped by the context type.
-	StandAlonePluginsByContextType map[configapi.ContextType]PluginAssociation `json:"standAlonePluginsByContextType,omitempty"`
 	// ServerPlugins links a server and a set of associated plugin installations.
 	ServerPlugins map[string]PluginAssociation `json:"serverPlugins,omitempty"`
 }

@@ -20,10 +20,8 @@ func setupStoreClientConfigData() (string, string, *configapi.ClientConfig) {
           name: default
           image: "/:"
           unknown: cli-unknown
-        contextType: k8s
       - local:
           name: default-local
-        contextType: k8s
       - local:
           name: admin-local
           path: admin
@@ -43,7 +41,6 @@ servers:
           manifestPath: updated-test-manifest-path
           annotation: one
           required: true
-        contextType: tmc
 current: test-mc
 contexts:
   - name: test-mc
@@ -65,7 +62,6 @@ contexts:
           manifestPath: test-manifest-path
           annotation: one
           required: true
-        contextType: tmc
 currentContext:
   k8s: test-mc
 `
@@ -76,10 +72,8 @@ currentContext:
                 name: default
                 image: "/:"
                 unknown: cli-unknown
-              contextType: k8s
             - local:
                 name: default-local
-              contextType: k8s
             - local:
                 name: admin-local
                 path: admin
@@ -87,7 +81,6 @@ currentContext:
                 name: test
                 bucket: ctx-test-bucket
                 manifestPath: ctx-test-manifest-path
-              contextType: k8s
         repositories:
             - gcpPluginRepository:
                 name: test
@@ -113,7 +106,6 @@ servers:
             manifestPath: test-manifest-path
             annotation: one
             required: true
-          contextType: tmc
 current: test-mc
 contexts:
     - name: test-mc
@@ -135,7 +127,6 @@ contexts:
             manifestPath: ctx-test-manifest-path
             annotation: one
             required: true
-          contextType: tmc
 currentContext:
     k8s: test-mc
 `
@@ -156,7 +147,6 @@ currentContext:
 							Bucket:       "test-bucket",
 							ManifestPath: "test-manifest-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 			},
@@ -179,7 +169,6 @@ currentContext:
 							Bucket:       "ctx-test-bucket",
 							ManifestPath: "ctx-test-manifest-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 			},
@@ -205,7 +194,6 @@ currentContext:
 							Bucket:       "ctx-test-bucket",
 							ManifestPath: "ctx-test-manifest-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 				UnstableVersionSelector: configapi.VersionSelectorLevel("unstable-version"),

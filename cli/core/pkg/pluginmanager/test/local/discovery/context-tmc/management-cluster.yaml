@@ -1,25 +1,26 @@
 apiVersion: cli.tanzu.vmware.com/v1alpha1
 kind: CLIPlugin
 metadata:
-  name: login
+  name: management-cluster
 spec:
-  description: Login to clusters
+  description: Management Cluster Operations
   artifacts:
     v0.2.0:
-      - uri: v0.2.0/tanzu-login
+      - uri: v0.2.0/tanzu-management-cluster
         os: darwin
         arch: amd64
         type: local
-      - uri: v0.2.0/tanzu-login
+      - uri: v0.2.0/tanzu-management-cluster
         os: linux
         arch: amd64
         type: local
-      - uri: v0.2.0/tanzu-login
+      - uri: v0.2.0/tanzu-management-cluster
         os: windows
         arch: amd64
         type: local
-      - uri: v0.2.0/tanzu-login
+      - uri: v0.2.0/tanzu-management-cluster
         os: darwin
         arch: arm64
         type: local
   recommendedVersion: v0.2.0
+  target: tmc
