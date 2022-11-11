@@ -73,7 +73,15 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 
 	managementPackageVersion = strings.TrimLeft(managementPackageVersion, "v")
 
-	addonsManagerPackageVersion, err := c.GetAddonsManagerPackageversion(managementPackageVersion)
+	var addonsManagerPackageVersion string
+	if upgrade {
+		addonsManagerPackageVersion, err = c.GetAddonsManagerPackageversion(managementPackageVersion)
+		if err != nil {
+			return err
+		}
+	} else {
+		addonsManagerPackageVersion = managementPackageVersion
+	}
 
 	// Get TKG package's values file
 	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(managementPackageVersion, addonsManagerPackageVersion, kubeconfig, kubecontext, upgrade)
