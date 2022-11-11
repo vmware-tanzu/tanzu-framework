@@ -11,6 +11,11 @@ import (
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	kerrors "k8s.io/apimachinery/pkg/util/errors"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/carvelhelpers"
@@ -45,6 +50,69 @@ func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext strin
 		os.Remove(kappControllerConfigFile)
 	}
 	return err
+}
+
+// RemoveObsoleteManagementComponents lists and removes management cluster components that are obsoleted by new
+// management packages, e.g. the tkr-controller-manager deployment in tkr-system namespace.
+func RemoveObsoleteManagementComponents(kubeconfig, kubecontext string, upgrade bool) error {
+	if !upgrade {
+		return nil
+	}
+
+	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
+	if err != nil {
+		return errors.Wrap(err, "unable to get management cluster client")
+	}
+
+	return removeObsoleteManagementComponents(clusterClient)
+}
+
+func removeObsoleteManagementComponents(clusterClient clusterclient.Client) error {
+	objectsToDelete, err := listObjectsToDelete(clusterClient)
+	if err != nil {
+		return err
+	}
+
+	for _, object := range objectsToDelete {
+		err := clusterClient.DeleteResource(object)
+		if kerrors.FilterOut(err, apierrors.IsNotFound) != nil {
+			return errors.Wrapf(err, "unable to delete resource %s: '%s/%s'",
+				object.GetObjectKind().GroupVersionKind(), object.GetNamespace(), object.GetName())
+		}
+	}
+	return nil
+}
+
+func listObjectsToDelete(clusterClient clusterclient.Client) ([]client.Object, error) {
+	var objectsToDelete []client.Object
+
+	kindsOfObjectsToDelete := map[schema.GroupVersionKind][]client.ListOption{
+		{
+			Group:   "addons.cluster.x-k8s.io",
+			Version: "v1beta1",
+			Kind:    "ClusterResourceSet",
+		}: {client.InNamespace("tkr-system")},
+		{
+			Group:   "apps",
+			Version: "v1",
+			Kind:    "Deployment",
+		}: {client.InNamespace("tkr-system")},
+	}
+
+	for gvk, listOptions := range kindsOfObjectsToDelete {
+		objectList := &unstructured.UnstructuredList{}
+		objectList.SetGroupVersionKind(gvk)
+
+		if err := clusterClient.ListResources(objectList, listOptions...); err != nil {
+			return nil, errors.Wrapf(err, "unable to list resources: %s", gvk.String())
+		}
+
+		for i := range objectList.Items {
+			objectsToDelete = append(objectsToDelete, &objectList.Items[i])
+		}
+	}
+
+	return objectsToDelete, nil
 }
 
 // InstallOrUpgradeManagementComponents install management components to the cluster

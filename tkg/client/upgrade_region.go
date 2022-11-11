@@ -143,6 +143,10 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		if err = c.InstallOrUpgradeKappController(currentRegion.SourceFilePath, currentRegion.ContextName, constants.OperationTypeUpgrade); err != nil {
 			return errors.Wrap(err, "unable to upgrade kapp-controller")
 		}
+		log.Info("Removing old management components...")
+		if err := RemoveObsoleteManagementComponents(currentRegion.SourceFilePath, currentRegion.ContextName, true); err != nil {
+			return errors.Wrap(err, "unable to remove obsolete management components")
+		}
 		log.Info("Upgrading management components...")
 		if err = c.InstallOrUpgradeManagementComponents(currentRegion.SourceFilePath, currentRegion.ContextName, true); err != nil {
 			return errors.Wrap(err, "unable to upgrade management components")
