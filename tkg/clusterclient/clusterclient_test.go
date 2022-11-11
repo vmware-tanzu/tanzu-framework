@@ -25,7 +25,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -925,7 +924,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("If autoscaler deployment was not found", func() {
 			JustBeforeEach(func() {
-				clientset.GetReturns(k8serrors.NewNotFound(schema.GroupResource{Group: "apps", Resource: "Deployment"}, "autoscaler"))
+				clientset.GetReturns(apierrors.NewNotFound(schema.GroupResource{Group: "apps", Resource: "Deployment"}, "autoscaler"))
 				err = clstClient.ApplyPatchForAutoScalerDeployment(bomClient, "fake-clusterName", "v1.23.8_vmware.1", "default")
 			})
 			It("should not return an error", func() {
@@ -3797,7 +3796,7 @@ func getDummyMachine(name, currentK8sVersion string, isCP bool) capi.Machine {
 	return machine
 }
 
-func getv1alpha3DummyMachine(name, currentK8sVersion string, isCP bool) capiv1alpha3.Machine { //nolint:unparam
+func getv1alpha3DummyMachine(name, currentK8sVersion string, isCP bool) capiv1alpha3.Machine {
 	// TODO: Add test cases where isCP is true, currently there are no such tests
 	machine := capiv1alpha3.Machine{}
 	machine.Name = name

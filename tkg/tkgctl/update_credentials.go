@@ -12,15 +12,14 @@ import (
 
 // UpdateCredentialsClusterOptions options that can be passed while updating cluster credentials
 type UpdateCredentialsClusterOptions struct {
-	ClusterName         string
-	Namespace           string
-	VSphereUsername     string
-	VSpherePassword     string
-	AzureTenantID       string
-	AzureSubscriptionID string
-	AzureClientID       string
-	AzureClientSecret   string
-	Timeout             time.Duration
+	ClusterName       string
+	Namespace         string
+	VSphereUsername   string
+	VSpherePassword   string
+	AzureTenantID     string
+	AzureClientID     string
+	AzureClientSecret string
+	Timeout           time.Duration
 }
 
 // UpdateCredentialsCluster updates credentials used to access a cluster

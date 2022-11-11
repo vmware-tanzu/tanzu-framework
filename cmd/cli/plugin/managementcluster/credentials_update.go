@@ -4,6 +4,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -86,6 +87,7 @@ func updateClusterCredentials(clusterName string) error {
 		err := component.Prompt(
 			&component.PromptConfig{
 				Message: fmt.Sprintf("Specify provider %q or %q", vsphereProvider, azureProvider),
+				Default: "vsphere",
 			},
 			&provider,
 			promptOpts...,
@@ -96,72 +98,45 @@ func updateClusterCredentials(clusterName string) error {
 	}
 
 	if provider == vsphereProvider {
-		if updateCredentialsOpts.vSphereUser == "" {
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message: "Enter vSphere username",
-				},
-				&updateCredentialsOpts.vSphereUser,
-				promptOpts...,
-			)
-			if err != nil {
-				return err
-			}
-		}
-
-		if updateCredentialsOpts.vSpherePassword == "" {
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message:   "Enter vSphere password",
-					Sensitive: true,
-				},
-				&updateCredentialsOpts.vSpherePassword,
-				promptOpts...,
-			)
-			if err != nil {
-				return err
+		vsphereVariables := [2]*string{&updateCredentialsOpts.vSphereUser, &updateCredentialsOpts.vSpherePassword}
+		vsphereMessages := [2]string{"Enter vSphere username", "Enter vSphere password"}
+		vsphereSensitive := [2]bool{false, true}
+		for i := 0; i < 2; i++ {
+			if *vsphereVariables[i] == "" {
+				err = component.Prompt(
+					&component.PromptConfig{
+						Message:   vsphereMessages[i],
+						Sensitive: vsphereSensitive[i],
+					},
+					vsphereVariables[i],
+					promptOpts...,
+				)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	} else if provider == azureProvider {
-		if updateCredentialsOpts.azureClientID == "" {
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message: "Enter azure client id",
-				},
-				&updateCredentialsOpts.azureClientID,
-				promptOpts...,
-			)
-			if err != nil {
-				return err
+		azureVariables := [3]*string{&updateCredentialsOpts.azureTenantID, &updateCredentialsOpts.azureClientID, &updateCredentialsOpts.azureClientSecret}
+		azureMessages := [3]string{"Enter azure tenant id", "Enter azure client id", "Enter azure client secret"}
+		azureSensitive := [3]bool{false, false, true}
+		for i := 0; i < 3; i++ {
+			if *azureVariables[i] == "" {
+				err = component.Prompt(
+					&component.PromptConfig{
+						Message:   azureMessages[i],
+						Sensitive: azureSensitive[i],
+					},
+					azureVariables[i],
+					promptOpts...,
+				)
+				if err != nil {
+					return err
+				}
 			}
 		}
-
-		if updateCredentialsOpts.azureClientSecret == "" {
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message:   "Enter azure client secret",
-					Sensitive: true,
-				},
-				&updateCredentialsOpts.azureClientSecret,
-				promptOpts...,
-			)
-			if err != nil {
-				return err
-			}
-		}
-
-		if updateCredentialsOpts.azureTenantID == "" {
-			err = component.Prompt(
-				&component.PromptConfig{
-					Message: "Enter azure tenant id",
-				},
-				&updateCredentialsOpts.azureTenantID,
-				promptOpts...,
-			)
-			if err != nil {
-				return err
-			}
-		}
+	} else {
+		return errors.New("please specify supported provider name: vsphere or azure")
 	}
 
 	options := tkgctl.UpdateCredentialsRegionOptions{

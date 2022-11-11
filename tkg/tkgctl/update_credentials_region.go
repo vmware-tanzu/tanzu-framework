@@ -11,15 +11,14 @@ import (
 
 // UpdateCredentialsRegionOptions options that can passed while updating credentials of a management-cluster
 type UpdateCredentialsRegionOptions struct {
-	ClusterName         string
-	VSphereUsername     string
-	VSpherePassword     string
-	AzureTenantID       string
-	AzureSubscriptionID string
-	AzureClientID       string
-	AzureClientSecret   string
-	IsCascading         bool
-	Timeout             time.Duration
+	ClusterName       string
+	VSphereUsername   string
+	VSpherePassword   string
+	AzureTenantID     string
+	AzureClientID     string
+	AzureClientSecret string
+	IsCascading       bool
+	Timeout           time.Duration
 }
 
 // UpdateCredentialsRegion updates credentials used to login to a management-cluster

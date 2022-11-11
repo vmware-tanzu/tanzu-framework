@@ -582,10 +582,7 @@ func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, cl
 			return errors.Wrapf(err, "unable to retrieve AzureClusterIdentity Secret %s", secretName)
 		}
 
-		// update secret
-		var clientSecretBytes []byte
-
-		clientSecretBytes = []byte(clientSecret)
+		clientSecretBytes := []byte(clientSecret)
 		clientSecretBytesB64 := make([]byte, base64.StdEncoding.EncodedLen(len(clientSecretBytes)))
 		base64.StdEncoding.Encode(clientSecretBytesB64, clientSecretBytes)
 
@@ -607,7 +604,7 @@ func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, cl
 	return nil
 }
 
-func (c *client) UpdateAzureKCP(clusterName, namespace string) error { // nolint:dupl
+func (c *client) UpdateAzureKCP(clusterName, namespace string) error {
 	kcp := &controlplanev1.KubeadmControlPlane{}
 	azureKCPName := fmt.Sprintf("%s-control-plane", clusterName)
 	curTime := time.Now()
@@ -617,7 +614,7 @@ func (c *client) UpdateAzureKCP(clusterName, namespace string) error { // nolint
 			"path": "/spec/rolloutAfter",
 			"value": "%s"
 		}
-	]`, string(curTime.Format(time.RFC3339)))
+	]`, curTime.Format(time.RFC3339))
 
 	log.V(4).Info("Recycling azure KCP for secret updating")
 

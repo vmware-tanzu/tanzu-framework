@@ -32,10 +32,9 @@ type VSphereUpdateClusterOptions struct {
 
 // AzureUpdateClusterOptions azure credential options
 type AzureUpdateClusterOptions struct {
-	AzureTenantID       string
-	AzureSubscriptionID string
-	AzureClientID       string
-	AzureClientSecret   string
+	AzureTenantID     string
+	AzureClientID     string
+	AzureClientSecret string
 }
 
 // UpdateCredentialsRegion update management cluster credentials
@@ -70,7 +69,7 @@ func (c *TkgClient) UpdateCredentialsRegion(options *UpdateCredentialsOptions) e
 
 	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
 	if err != nil {
-		return errors.Wrap(err, "failed to get cluster provider information.")
+		return errors.Wrap(err, "failed to get cluster provider information")
 	}
 	infraProviderName, _, err := ParseProviderName(infraProvider)
 	if err != nil {
@@ -82,17 +81,12 @@ func (c *TkgClient) UpdateCredentialsRegion(options *UpdateCredentialsOptions) e
 		if err := c.UpdateVSphereClusterCredentials(regionalClusterClient, options); err != nil {
 			return err
 		}
-	}
-
-	if infraProviderName == AzureProviderName {
+	} else if infraProviderName == AzureProviderName {
 		log.Infof("Updating credentials for azure provider")
 		if err := c.UpdateAzureClusterCredentials(regionalClusterClient, options); err != nil {
 			return err
 		}
-	}
-
-	// update operation is supported only on vsphere and azure clusters for now
-	if infraProviderName != VSphereProviderName && infraProviderName != AzureProviderName {
+	} else {
 		return errors.New("Updating '" + infraProviderName + "' cluster is not yet supported")
 	}
 
@@ -124,7 +118,7 @@ func (c *TkgClient) UpdateCredentialsCluster(options *UpdateCredentialsOptions) 
 
 	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
 	if err != nil {
-		return errors.Wrap(err, "failed to get cluster provider information.")
+		return errors.Wrap(err, "failed to get cluster provider information")
 	}
 	infraProviderName, _, err := ParseProviderName(infraProvider)
 	if err != nil {
