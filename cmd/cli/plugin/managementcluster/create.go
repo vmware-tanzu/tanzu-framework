@@ -27,6 +27,7 @@ type initRegionOptions struct {
 	dryRun                      bool
 	forceConfigUpdate           bool
 	clusterConfigFile           string
+	additionalTKGManifests      string
 	plan                        string
 	clusterName                 string
 	coreProvider                string
@@ -85,6 +86,7 @@ func init() {
 	createCmd.Flags().BoolVarP(&iro.unattended, "yes", "y", false, "Create management cluster without asking for confirmation")
 
 	createCmd.Flags().BoolVarP(&iro.useExistingCluster, "use-existing-bootstrap-cluster", "e", false, "Use an existing bootstrap cluster to deploy the management cluster")
+
 	createCmd.Flags().DurationVarP(&iro.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
 
 	createCmd.Flags().StringVarP(&iro.infrastructureProvider, "infrastructure", "i", "", "Infrastructure to deploy the management cluster on ['aws', 'vsphere', 'azure']")
@@ -136,6 +138,8 @@ func init() {
 	createCmd.Flags().BoolVar(&iro.forceConfigUpdate, "force-config-update", false, "Force an update of all configuration files in ${HOME}/.config/tanzu/tkg/bom and ${HOME}/.tanzu/tkg/compatibility")
 
 	createCmd.Flags().SetNormalizeFunc(aliasNormalizeFunc)
+
+	createCmd.Flags().StringVarP(&iro.additionalTKGManifests, "additional-tkg-system-manifests", "", "", "Additional manifests to be applied to the bootstrap cluster in the tkg-system namespace")
 }
 
 func aliasNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
@@ -184,6 +188,7 @@ func runInit() error {
 		Timeout:                     iro.timeout,
 		Edition:                     edition,
 		GenerateOnly:                iro.dryRun,
+		AdditionalTKGManifests:      iro.additionalTKGManifests,
 	}
 
 	err = tkgClient.Init(options)
