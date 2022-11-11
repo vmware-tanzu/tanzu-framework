@@ -8,6 +8,8 @@ directories:
   - manual: {}
     path: rbac.yaml
   - manual: {}
+    path: default-serviceaccount.yaml
+  - manual: {}
     path: tanzu-capabilities-controller-manager.yaml
   path: bundle/config/upstream
 - contents:
