@@ -13,8 +13,8 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-func setUpRepositoriesData() (string, string) {
-	tanzuConfig := `clientOptions:
+func setUpRepositoriesData() (string, string, string, string) {
+	cfg := `clientOptions:
   cli:
     discoverySources:
       - oci:
@@ -54,38 +54,8 @@ servers:
           required: true
         contextType: tmc
 current: test-mc
-contexts:
-  - name: test-mc
-    type: k8s
-    group: one
-    clusterOpts:
-      isManagementCluster: true
-      annotation: one
-      required: true
-      annotationStruct:
-        one: one
-      endpoint: updated-test-endpoint
-      path: updated-test-path
-      context: updated-test-context
-    discoverySources:
-      - gcp:
-          name: test
-          bucket: updated-test-bucket
-          manifestPath: updated-test-manifest-path
-          annotation: one
-          required: true
-        contextType: tmc
-      - gcp:
-          name: test-two
-          bucket: updated-test-bucket
-          manifestPath: updated-test-manifest-path
-          annotation: two
-          required: true
-        contextType: tmc
-currentContext:
-  k8s: test-mc
 `
-	expectedConfig := `clientOptions:
+	expectedCfg := `clientOptions:
     cli:
         discoverySources:
             - oci:
@@ -130,7 +100,42 @@ servers:
             required: true
           contextType: tmc
 current: test-mc
-contexts:
+contexts: []
+currentContext: {}
+`
+
+	cfg2 := `contexts:
+  - name: test-mc
+    type: k8s
+    group: one
+    clusterOpts:
+      isManagementCluster: true
+      annotation: one
+      required: true
+      annotationStruct:
+        one: one
+      endpoint: updated-test-endpoint
+      path: updated-test-path
+      context: updated-test-context
+    discoverySources:
+      - gcp:
+          name: test
+          bucket: updated-test-bucket
+          manifestPath: updated-test-manifest-path
+          annotation: one
+          required: true
+        contextType: tmc
+      - gcp:
+          name: test-two
+          bucket: updated-test-bucket
+          manifestPath: updated-test-manifest-path
+          annotation: two
+          required: true
+        contextType: tmc
+currentContext:
+  k8s: test-mc
+`
+	expectedCfg2 := `contexts:
     - name: test-mc
       type: k8s
       group: one
@@ -161,22 +166,55 @@ contexts:
 currentContext:
     k8s: test-mc
 `
-	return tanzuConfig, expectedConfig
+
+	return cfg, expectedCfg, cfg2, expectedCfg2
 }
 
 func TestCLIRepositoriesIntegration(t *testing.T) {
-	//Setup data and test config file
-	tanzuConfig, expectedConfig := setUpRepositoriesData()
-	f, err := os.CreateTemp("", "tanzu_config")
+	// Setup config data
+	cfg, expectedCfg, cfg2, expectedCfg2 := setUpRepositoriesData()
+
+	f1, err := os.CreateTemp("", "tanzu_config")
 	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(tanzuConfig), 0644)
+	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
 	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigKey, f1.Name())
+	assert.NoError(t, err)
+
+	f2, err := os.CreateTemp("", "tanzu_config_ng")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(cfg2), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
+	assert.NoError(t, err)
+
+	//Setup metadata
+	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
+	assert.Nil(t, err)
+	err = os.WriteFile(fMeta.Name(), []byte(""), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
+	assert.NoError(t, err)
+
+	// Cleanup
 	defer func(name string) {
 		err = os.Remove(name)
 		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
+	}(f1.Name())
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f2.Name())
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(fMeta.Name())
+
 	// Get CLI Repositories
 	repos, err := GetCLIRepositories()
 	assert.Nil(t, err)
@@ -214,9 +252,15 @@ func TestCLIRepositoriesIntegration(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, repo)
 	assert.Equal(t, existingRepo.GCPPluginRepository, repo.GCPPluginRepository)
-	file, err := os.ReadFile(f.Name())
+
+	file, err := os.ReadFile(f1.Name())
 	assert.NoError(t, err)
-	assert.Equal(t, []byte(expectedConfig), file)
+	assert.Equal(t, expectedCfg, string(file))
+
+	file, err = os.ReadFile(f2.Name())
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCfg2, string(file))
+
 	// Delete CLI Repository
 	err = DeleteCLIRepository("core")
 	assert.NoError(t, err)

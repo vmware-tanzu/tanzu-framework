@@ -4,8 +4,6 @@
 package nodeutils
 
 import (
-	"reflect"
-
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
@@ -14,14 +12,6 @@ var (
 	ErrDifferentArgumentsTypes = errors.New("src and dst must be of same type")
 	ErrNonPointerArgument      = errors.New("dst must be a pointer")
 )
-
-// equalScalars returns true if two scalar nodes has same value
-func equalScalars(left, right *yaml.Node) (bool, error) {
-	if left.Kind == yaml.ScalarNode && right.Kind == yaml.ScalarNode {
-		return left.Value == right.Value, nil
-	}
-	return false, errors.New("equals on non-scalars not implemented")
-}
 
 // MergeNodes to merge two yaml nodes src(source) to dst(destination) node
 func MergeNodes(src, dst *yaml.Node) (bool, error) {
@@ -49,7 +39,7 @@ func mergeNodes(src, dst *yaml.Node) error {
 				if ok, _ := equalScalars(src.Content[i], dst.Content[j]); ok {
 					found = true
 					if err := mergeNodes(src.Content[i+1], dst.Content[j+1]); err != nil {
-						return errors.New("merge at key " + src.Content[i].Value + ": " + err.Error())
+						return errors.Wrap(err, "merge at key "+src.Content[i].Value)
 					}
 					break
 				}
@@ -63,10 +53,12 @@ func mergeNodes(src, dst *yaml.Node) error {
 	case yaml.DocumentNode:
 		err := mergeNodes(src.Content[0], dst.Content[0])
 		if err != nil {
-			return errors.New("merge at key " + src.Content[0].Value + ": " + err.Error())
+			return errors.Wrap(err, "merge at key "+src.Content[0].Value)
 		}
 	case yaml.ScalarNode:
-		setScalarNode(src, dst)
+		if dst.Value != src.Value {
+			dst.Value = src.Value
+		}
 	default:
 		return errors.New("can only merge mapping and sequence nodes")
 	}
@@ -79,20 +71,4 @@ func setSeqNode(src, dst *yaml.Node) {
 		dst.Content = append(dst.Content, src.Content...)
 		dst.Content = UniqNodes(dst.Content)
 	}
-}
-
-func setScalarNode(src, dst *yaml.Node) {
-	if dst.Value != src.Value {
-		dst.Value = src.Value
-	}
-}
-
-func checkErrors(src, dst *yaml.Node) error {
-	if src.Kind != dst.Kind {
-		return ErrDifferentArgumentsTypes
-	}
-	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Ptr {
-		return ErrNonPointerArgument
-	}
-	return nil
 }

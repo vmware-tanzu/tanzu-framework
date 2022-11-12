@@ -12,8 +12,8 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-func setupData() (string, string) {
-	tanzuConfigBytes := `clientOptions:
+func setupData() (string, string, string, string) {
+	CFG := `clientOptions:
   cli:
     discoverySources:
       - oci:
@@ -28,21 +28,23 @@ servers:
   - name: test-mc
     type: managementcluster
     managementClusterOpts:
-      endpoint: updated-test-endpoint
-      path: updated-test-path
-      context: updated-test-context
+      endpoint: test-endpoint
+      path: test-path
+      context: test-context
       annotation: one
       required: true
     discoverySources:
       - gcp:
           name: test
-          bucket: updated-test-bucket
-          manifestPath: updated-test-manifest-path
+          bucket: test-bucket
+          manifestPath: test-manifest-path
           annotation: one
           required: true
         contextType: tmc
 current: test-mc
-contexts:
+`
+
+	CFG2 := `contexts:
   - name: test-mc
     type: k8s
     group: one
@@ -52,33 +54,34 @@ contexts:
       required: true
       annotationStruct:
         one: one
-      endpoint: updated-test-endpoint
-      path: updated-test-path
-      context: updated-test-context
+      endpoint: test-endpoint
+      path: test-path
+      context: test-context
     discoverySources:
       - gcp:
           name: test
-          bucket: updated-test-bucket
-          manifestPath: updated-test-manifest-path
+          bucket: test-bucket
+          manifestPath: test-manifest-path
           annotation: one
           required: true
         contextType: tmc
       - gcp:
           name: test-two
-          bucket: updated-test-bucket
-          manifestPath: updated-test-manifest-path
+          bucket: test-bucket
+          manifestPath: test-manifest-path
           annotation: two
           required: true
         contextType: tmc
 currentContext:
   k8s: test-mc
 `
-	expectedConfig := `clientOptions:
+
+	expectedCFG := `clientOptions:
     cli:
         discoverySources:
             - oci:
                 name: default
-                image: "update-default-image"
+                image: "default-image"
                 unknown: cli-unknown
               contextType: k8s
             - local:
@@ -91,21 +94,25 @@ servers:
     - name: test-mc
       type: managementcluster
       managementClusterOpts:
-        endpoint: updated-test-endpoint
-        path: updated-test-path
-        context: updated-test-context
+        endpoint: test-endpoint
+        path: test-path
+        context: test-context
         annotation: one
         required: true
       discoverySources:
         - gcp:
             name: test
-            bucket: updated-test-bucket
-            manifestPath: updated-test-manifest-path
+            bucket: test-bucket
+            manifestPath: test-manifest-path
             annotation: one
             required: true
           contextType: tmc
 current: test-mc
-contexts:
+contexts: []
+currentContext: {}
+`
+	//nolint:goconst
+	expectedCFG2 := `contexts:
     - name: test-mc
       type: k8s
       group: one
@@ -115,43 +122,75 @@ contexts:
         required: true
         annotationStruct:
             one: one
-        endpoint: updated-test-endpoint
-        path: updated-test-path
-        context: updated-test-context
+        endpoint: test-endpoint
+        path: test-path
+        context: test-context
       discoverySources:
         - gcp:
             name: test
-            bucket: updated-test-bucket
-            manifestPath: updated-test-manifest-path
+            bucket: test-bucket
+            manifestPath: test-manifest-path
             annotation: one
             required: true
           contextType: tmc
         - gcp:
             name: test-two
-            bucket: updated-test-bucket
-            manifestPath: updated-test-manifest-path
+            bucket: test-bucket
+            manifestPath: test-manifest-path
             annotation: two
             required: true
           contextType: tmc
 currentContext:
     k8s: test-mc
 `
-	return tanzuConfigBytes, expectedConfig
+
+	return CFG, expectedCFG, CFG2, expectedCFG2
 }
 
 func TestCLIDiscoverySourceIntegration(t *testing.T) {
-	// Setup Data and Test config file
-	tanzuConfigBytes, expectedConfig := setupData()
-	f, err := os.CreateTemp("", "tanzu_config")
+	// Setup config data
+	cfg, expectedCfg, cfg2, expectedCfg2 := setupData()
+
+	f1, err := os.CreateTemp("", "tanzu_config")
 	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(tanzuConfigBytes), 0644)
+	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
 	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigKey, f1.Name())
+	assert.NoError(t, err)
+
+	f2, err := os.CreateTemp("", "tanzu_config_ng")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(cfg2), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
+	assert.NoError(t, err)
+
+	//Setup metadata
+	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
+	assert.Nil(t, err)
+	err = os.WriteFile(fMeta.Name(), []byte(""), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
+	assert.NoError(t, err)
+
+	// Cleanup
 	defer func(name string) {
 		err = os.Remove(name)
 		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
+	}(f1.Name())
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f2.Name())
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(fMeta.Name())
 
 	// Get CLI DiscoverySources
 	sources, err := GetCLIDiscoverySources()
@@ -181,7 +220,7 @@ func TestCLIDiscoverySourceIntegration(t *testing.T) {
 	ds = &configapi.PluginDiscovery{
 		OCI: &configapi.OCIDiscovery{
 			Name:  "default",
-			Image: "update-default-image",
+			Image: "default-image",
 		},
 	}
 	err = SetCLIDiscoverySource(*ds)
@@ -190,9 +229,14 @@ func TestCLIDiscoverySourceIntegration(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, source)
 	assert.Equal(t, ds.OCI, source.OCI)
-	file, err := os.ReadFile(f.Name())
+
+	file, err := os.ReadFile(f1.Name())
 	assert.NoError(t, err)
-	assert.Equal(t, []byte(expectedConfig), file)
+	assert.Equal(t, expectedCfg, string(file))
+
+	file, err = os.ReadFile(f2.Name())
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCfg2, string(file))
 
 	// Delete existing DiscoverySource
 	err = DeleteCLIDiscoverySource("new-default")
@@ -202,8 +246,8 @@ func TestCLIDiscoverySourceIntegration(t *testing.T) {
 	assert.Equal(t, 2, len(sources))
 }
 
-func setupDataWithPatchStrategy() (string, string) {
-	tanzuConfigBytes := `clientOptions:
+func setupDataWithPatchStrategy() (string, string, string, string) {
+	cfg := `clientOptions:
   cli:
     discoverySources:
       - oci:
@@ -216,7 +260,7 @@ func setupDataWithPatchStrategy() (string, string) {
           name: admin-local
           path: admin
 `
-	expectedConfig := `clientOptions:
+	expectedCfg := `clientOptions:
     cli:
         discoverySources:
             - oci:
@@ -230,38 +274,64 @@ func setupDataWithPatchStrategy() (string, string) {
             - oci:
                 name: new-default
                 image: new-default-image
+contexts: []
+currentContext: {}
 `
-	return tanzuConfigBytes, expectedConfig
+
+	expectedCfg2 := `contexts: []
+currentContext: {}
+`
+
+	return cfg, expectedCfg, "", expectedCfg2
 }
 
 func TestCLIDiscoverySourceIntegrationWithPatchStrategy(t *testing.T) {
 	// Setup Data and Test config file
-	tanzuConfigBytes, expectedConfig := setupDataWithPatchStrategy()
+	cfg, expectedCfg, cfg2, expectedCfg2 := setupDataWithPatchStrategy()
+
 	f1, err := os.CreateTemp("", "tanzu_config")
 	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(tanzuConfigBytes), 0644)
+	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
 	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-	err = os.Setenv("TANZU_CONFIG", f1.Name())
+
+	err = os.Setenv(EnvConfigKey, f1.Name())
+	assert.NoError(t, err)
+
+	f2, err := os.CreateTemp("", "tanzu_config_ng")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(cfg2), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
 	assert.NoError(t, err)
 
 	//Setup metadata
 	metadata := `configMetadata:
   patchStrategy:
     clientOptions.cli.discoverySources.oci.annotation: replace`
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
+	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
 	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(metadata), 0644)
+	err = os.WriteFile(fMeta.Name(), []byte(metadata), 0644)
 	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
+	assert.NoError(t, err)
+
+	// Cleanup
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f1.Name())
+
 	defer func(name string) {
 		err = os.Remove(name)
 		assert.NoError(t, err)
 	}(f2.Name())
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(fMeta.Name())
 
 	// Get CLI DiscoverySources
 	sources, err := GetCLIDiscoverySources()
@@ -300,7 +370,12 @@ func TestCLIDiscoverySourceIntegrationWithPatchStrategy(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, source)
 	assert.Equal(t, ds.OCI, source.OCI)
+
 	file, err := os.ReadFile(f1.Name())
 	assert.NoError(t, err)
-	assert.Equal(t, []byte(expectedConfig), file)
+	assert.Equal(t, expectedCfg, string(file))
+
+	file, err = os.ReadFile(f2.Name())
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCfg2, string(file))
 }

@@ -3,7 +3,12 @@
 
 package nodeutils
 
-import "gopkg.in/yaml.v3"
+import (
+	"reflect"
+
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
+)
 
 func UniqNodes(nodes []*yaml.Node) []*yaml.Node {
 	uniq := make([]*yaml.Node, 0, len(nodes))
@@ -17,4 +22,22 @@ func UniqNodes(nodes []*yaml.Node) []*yaml.Node {
 	}
 
 	return uniq
+}
+
+// equalScalars returns true if two scalar nodes has same value
+func equalScalars(left, right *yaml.Node) (bool, error) {
+	if left.Kind == yaml.ScalarNode && right.Kind == yaml.ScalarNode {
+		return left.Value == right.Value, nil
+	}
+	return false, errors.New("equals on non-scalars not implemented")
+}
+
+func checkErrors(src, dst *yaml.Node) error {
+	if src.Kind != dst.Kind {
+		return ErrDifferentArgumentsTypes
+	}
+	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Ptr {
+		return ErrNonPointerArgument
+	}
+	return nil
 }

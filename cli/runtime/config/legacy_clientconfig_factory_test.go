@@ -12,16 +12,76 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-func setupStoreClientConfigData() (string, string, *configapi.ClientConfig) {
-	tanzuConfig := `clientOptions:
+func TestStoreClientConfig(t *testing.T) {
+	cfg, expectedCfg, cfg2, expectedCfg2, c := setupStoreClientConfigData()
+
+	// Setup config data
+	f1, err := os.CreateTemp("", "tanzu_config")
+	assert.Nil(t, err)
+	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigKey, f1.Name())
+	assert.NoError(t, err)
+
+	f2, err := os.CreateTemp("", "tanzu_config_ng")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(cfg2), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
+	assert.NoError(t, err)
+
+	//Setup metadata
+	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
+	assert.Nil(t, err)
+	err = os.WriteFile(fMeta.Name(), []byte(""), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
+	assert.NoError(t, err)
+
+	// Cleanup
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f1.Name())
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f2.Name())
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(fMeta.Name())
+
+	// Action
+	err = StoreClientConfig(c)
+	assert.NoError(t, err)
+
+	file, err := os.ReadFile(f1.Name())
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCfg, string(file))
+
+	file, err = os.ReadFile(f2.Name())
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCfg2, string(file))
+}
+
+func setupStoreClientConfigData() (string, string, string, string, *configapi.ClientConfig) {
+	cfg := `clientOptions:
   cli:
     discoverySources:
       - oci:
           name: default
           image: "/:"
           unknown: cli-unknown
+        contextType: k8s
       - local:
           name: default-local
+        contextType: k8s
       - local:
           name: admin-local
           path: admin
@@ -41,8 +101,10 @@ servers:
           manifestPath: updated-test-manifest-path
           annotation: one
           required: true
+        contextType: tmc
 current: test-mc
-contexts:
+`
+	cfg2 := `contexts:
   - name: test-mc
     type: k8s
     group: one
@@ -62,18 +124,21 @@ contexts:
           manifestPath: test-manifest-path
           annotation: one
           required: true
+        contextType: tmc
 currentContext:
   k8s: test-mc
 `
-	expectedConfig := `clientOptions:
+	expectedCfg := `clientOptions:
     cli:
         discoverySources:
             - oci:
                 name: default
                 image: "/:"
                 unknown: cli-unknown
+              contextType: k8s
             - local:
                 name: default-local
+              contextType: k8s
             - local:
                 name: admin-local
                 path: admin
@@ -81,6 +146,7 @@ currentContext:
                 name: test
                 bucket: ctx-test-bucket
                 manifestPath: ctx-test-manifest-path
+              contextType: k8s
         repositories:
             - gcpPluginRepository:
                 name: test
@@ -106,8 +172,13 @@ servers:
             manifestPath: test-manifest-path
             annotation: one
             required: true
+          contextType: tmc
 current: test-mc
-contexts:
+contexts: []
+currentContext: {}
+`
+
+	expectedCfg2 := `contexts:
     - name: test-mc
       type: k8s
       group: one
@@ -121,16 +192,20 @@ contexts:
         path: test-context-path
         context: test-context
       discoverySources:
-        - gcp:
+        - local:
             name: test
+            path: test-local-path
+          contextType: tmc
+        - gcp:
+            name: test2
             bucket: ctx-test-bucket
             manifestPath: ctx-test-manifest-path
-            annotation: one
-            required: true
+          contextType: tmc
 currentContext:
     k8s: test-mc
 `
-	cfg := &configapi.ClientConfig{
+
+	c := &configapi.ClientConfig{
 		KnownServers: []*configapi.Server{
 			{
 				Name: "test-mc",
@@ -147,6 +222,7 @@ currentContext:
 							Bucket:       "test-bucket",
 							ManifestPath: "test-manifest-path",
 						},
+						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 			},
@@ -165,10 +241,18 @@ currentContext:
 				DiscoverySources: []configapi.PluginDiscovery{
 					{
 						GCP: &configapi.GCPDiscovery{
-							Name:         "test",
+							Name:         "test2",
 							Bucket:       "ctx-test-bucket",
 							ManifestPath: "ctx-test-manifest-path",
 						},
+						ContextType: configapi.CtxTypeTMC,
+					},
+					{
+						Local: &configapi.LocalDiscovery{
+							Name: "test",
+							Path: "test-local-path",
+						},
+						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 			},
@@ -194,6 +278,7 @@ currentContext:
 							Bucket:       "ctx-test-bucket",
 							ManifestPath: "ctx-test-manifest-path",
 						},
+						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 				UnstableVersionSelector: configapi.VersionSelectorLevel("unstable-version"),
@@ -203,24 +288,5 @@ currentContext:
 			},
 		},
 	}
-	return tanzuConfig, expectedConfig, cfg
-}
-
-func TestStoreClientConfig(t *testing.T) {
-	tanzuConfig, expectedConfig, cfg := setupStoreClientConfigData()
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(tanzuConfig), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-	err = StoreClientConfig(cfg)
-	assert.NoError(t, err)
-	file, err := os.ReadFile(f.Name())
-	assert.NoError(t, err)
-	assert.Equal(t, []byte(expectedConfig), file)
+	return cfg, expectedCfg, cfg2, expectedCfg2, c
 }

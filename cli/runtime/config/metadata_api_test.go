@@ -53,17 +53,47 @@ func TestGetMetadata(t *testing.T) {
 	}
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
-			// Setup Input Data
-			f, err := os.CreateTemp("", "tanzu_config")
+			// Setup config data
+			f1, err := os.CreateTemp("", "tanzu_config")
 			assert.Nil(t, err)
-			err = os.WriteFile(f.Name(), []byte(spec.in), 0644)
+			err = os.WriteFile(f1.Name(), []byte(""), 0644)
 			assert.Nil(t, err)
+
+			err = os.Setenv(EnvConfigKey, f1.Name())
+			assert.NoError(t, err)
+
+			f2, err := os.CreateTemp("", "tanzu_config_ng")
+			assert.Nil(t, err)
+			err = os.WriteFile(f2.Name(), []byte(""), 0644)
+			assert.Nil(t, err)
+
+			err = os.Setenv(EnvConfigNextGenKey, f2.Name())
+			assert.NoError(t, err)
+
+			//Setup metadata
+			fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
+			assert.Nil(t, err)
+			err = os.WriteFile(fMeta.Name(), []byte(spec.in), 0644)
+			assert.Nil(t, err)
+
+			err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
+			assert.NoError(t, err)
+
+			// Cleanup
 			defer func(name string) {
 				err = os.Remove(name)
 				assert.NoError(t, err)
-			}(f.Name())
-			err = os.Setenv(EnvConfigMetadataKey, f.Name())
-			assert.NoError(t, err)
+			}(f1.Name())
+
+			defer func(name string) {
+				err = os.Remove(name)
+				assert.NoError(t, err)
+			}(f2.Name())
+
+			defer func(name string) {
+				err = os.Remove(name)
+				assert.NoError(t, err)
+			}(fMeta.Name())
 
 			//Test case
 			c, err := GetMetadata()
@@ -113,17 +143,47 @@ func TestGetConfigMetadata(t *testing.T) {
 	}
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
-			// Setup Input Data
-			f, err := os.CreateTemp("", "tanzu_config")
+			// Setup config data
+			f1, err := os.CreateTemp("", "tanzu_config")
 			assert.Nil(t, err)
-			err = os.WriteFile(f.Name(), []byte(spec.in), 0644)
+			err = os.WriteFile(f1.Name(), []byte(""), 0644)
 			assert.Nil(t, err)
+
+			err = os.Setenv(EnvConfigKey, f1.Name())
+			assert.NoError(t, err)
+
+			f2, err := os.CreateTemp("", "tanzu_config_ng")
+			assert.Nil(t, err)
+			err = os.WriteFile(f2.Name(), []byte(""), 0644)
+			assert.Nil(t, err)
+
+			err = os.Setenv(EnvConfigNextGenKey, f2.Name())
+			assert.NoError(t, err)
+
+			//Setup metadata
+			fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
+			assert.Nil(t, err)
+			err = os.WriteFile(fMeta.Name(), []byte(spec.in), 0644)
+			assert.Nil(t, err)
+
+			err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
+			assert.NoError(t, err)
+
+			// Cleanup
 			defer func(name string) {
 				err = os.Remove(name)
 				assert.NoError(t, err)
-			}(f.Name())
-			err = os.Setenv(EnvConfigMetadataKey, f.Name())
-			assert.NoError(t, err)
+			}(f1.Name())
+
+			defer func(name string) {
+				err = os.Remove(name)
+				assert.NoError(t, err)
+			}(f2.Name())
+
+			defer func(name string) {
+				err = os.Remove(name)
+				assert.NoError(t, err)
+			}(fMeta.Name())
 
 			//Test case
 			c, err := GetConfigMetadata()
@@ -138,15 +198,47 @@ func TestGetConfigMetadata(t *testing.T) {
 }
 
 func TestSetConfigMetadataPatchStrategy(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config data
+	f1, err := os.CreateTemp("", "tanzu_config")
+	assert.Nil(t, err)
+	err = os.WriteFile(f1.Name(), []byte(""), 0644)
+	assert.Nil(t, err)
 
-	defer func() {
-		cleanupDir(LocalDirName)
-	}()
+	err = os.Setenv(EnvConfigKey, f1.Name())
+	assert.NoError(t, err)
 
+	f2, err := os.CreateTemp("", "tanzu_config_ng")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(""), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
+	assert.NoError(t, err)
+
+	//Setup metadata
+	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
+	assert.Nil(t, err)
+	err = os.WriteFile(fMeta.Name(), []byte(""), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
+	assert.NoError(t, err)
+
+	// Cleanup
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f1.Name())
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f2.Name())
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(fMeta.Name())
 	tests := []struct {
 		name   string
 		key    string

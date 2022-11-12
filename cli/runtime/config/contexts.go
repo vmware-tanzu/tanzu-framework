@@ -217,13 +217,11 @@ func RemoveCurrentContext(ctxType configapi.ContextType) error {
 	if err != nil {
 		return err
 	}
-
-	ctx := &configapi.Context{Type: ctxType}
-	err = removeCurrentContext(node, ctx)
+	c, err := getCurrentContext(node, ctxType)
 	if err != nil {
 		return err
 	}
-	c, err := getCurrentContext(node, ctxType)
+	err = removeCurrentContext(node, &configapi.Context{Type: ctxType})
 	if err != nil {
 		return err
 	}
@@ -376,19 +374,25 @@ func removeCurrentContext(node *yaml.Node, ctx *configapi.Context) error {
 	// Find current context node in the yaml node
 	keys := []nodeutils.Key{
 		{Name: KeyCurrentContext},
-		{Name: string(ctx.Type)},
 	}
+
 	currentContextNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if currentContextNode == nil {
 		return nil
 	}
-	if currentContextNode.Value == ctx.Name || ctx.Name == "" {
-		currentContextNode.Value = ""
-		currentContextNode.Style = 0
+	ctxTypeNodeIndex := nodeutils.GetNodeIndex(currentContextNode.Content, string(ctx.Type))
+	if ctxTypeNodeIndex == -1 {
+		return nil
+	}
+	if currentContextNode.Content[ctxTypeNodeIndex].Value == ctx.Name || ctx.Name == "" {
+		ctxTypeNodeIndex--
+		currentContextNode.Content = append(currentContextNode.Content[:ctxTypeNodeIndex], currentContextNode.Content[ctxTypeNodeIndex+1:]...)
+		currentContextNode.Content = append(currentContextNode.Content[:ctxTypeNodeIndex], currentContextNode.Content[ctxTypeNodeIndex+1:]...)
 	}
 	return nil
 }
 
+//nolint:dupl
 func removeContext(node *yaml.Node, name string) error {
 	// Find the contexts node in the yaml node
 	keys := []nodeutils.Key{

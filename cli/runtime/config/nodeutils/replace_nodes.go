@@ -58,7 +58,7 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 				}
 
 				if err := replaceNodes(src.Content[j+1], dst.Content[i+1], key, patchStrategies); err != nil {
-					return errors.New("replace at key " + src.Content[i].Value + ": " + err.Error())
+					return errors.Wrap(err, " replace at key "+src.Content[i].Value)
 				}
 				key = patchStrategyKey
 				break
@@ -79,10 +79,10 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 	case yaml.DocumentNode:
 		err := replaceNodes(src.Content[0], dst.Content[0], patchStrategyKey, patchStrategies)
 		if err != nil {
-			return errors.New("replace at key " + src.Content[0].Value + ": " + err.Error())
+			return errors.Wrap(err, "replace at key "+src.Content[0].Value)
 		}
 	default:
-		return errors.New("can only merge mapping nodes")
+		return errors.New("unknown node type: can only replace know node types")
 	}
 	return nil
 }

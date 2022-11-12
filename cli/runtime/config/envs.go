@@ -122,6 +122,7 @@ func SetEnv(key, value string) (err error) {
 	return err
 }
 
+//nolint:dupl
 func setEnv(node *yaml.Node, key, value string) (persist bool, err error) {
 	// find env node
 	keys := []nodeutils.Key{

@@ -7,10 +7,12 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
+
 	"gopkg.in/yaml.v3"
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
 )
 
 // GetMetadata retrieves Metadata
@@ -94,6 +96,14 @@ func getConfigMetadata(node *yaml.Node) (*configapi.ConfigMetadata, error) {
 	return nil, errors.New("config metadata not found")
 }
 
+func getMetadata(node *yaml.Node) (*configapi.Metadata, error) {
+	metadata, err := convertNodeToMetadata(node)
+	if err != nil {
+		return nil, err
+	}
+	return metadata, nil
+}
+
 func getConfigMetadataPatchStrategy(node *yaml.Node) (map[string]string, error) {
 	metadata, err := convertNodeToMetadata(node)
 	if err != nil {
@@ -104,14 +114,6 @@ func getConfigMetadataPatchStrategy(node *yaml.Node) (map[string]string, error) 
 		return metadata.ConfigMetadata.PatchStrategy, nil
 	}
 	return nil, errors.New("config metadata patch strategy not found")
-}
-
-func getMetadata(node *yaml.Node) (*configapi.Metadata, error) {
-	metadata, err := convertNodeToMetadata(node)
-	if err != nil {
-		return nil, err
-	}
-	return metadata, nil
 }
 
 func setConfigMetadataPatchStrategies(node *yaml.Node, patchStrategies map[string]string) error {

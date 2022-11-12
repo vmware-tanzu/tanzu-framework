@@ -14,27 +14,30 @@ import (
 
 // GetClientConfig retrieves the config from the local directory with file lock
 func GetClientConfig() (cfg *configapi.ClientConfig, err error) {
-	// Acquire tanzu config lock
-	AcquireTanzuConfigLock()
-	defer ReleaseTanzuConfigLock()
-	return GetClientConfigNoLock()
+	// Retrieve client config node
+	node, err := getClientConfigNode()
+	if err != nil {
+		return nil, err
+	}
+
+	cfg, err = convertNodeToClientConfig(node)
+	if err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
 }
 
 // GetClientConfigNoLock retrieves the config from the local directory without acquiring the lock
 func GetClientConfigNoLock() (cfg *configapi.ClientConfig, err error) {
-	cfgPath, err := ClientConfigPath()
+	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return nil, err
 	}
-	b, err := os.ReadFile(cfgPath)
-	if err != nil || len(b) == 0 {
-		cfg = &configapi.ClientConfig{}
-		return cfg, nil
-	}
-	// Logging
-	err = yaml.Unmarshal(b, &cfg)
+
+	cfg, err = convertNodeToClientConfig(node)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to construct struct from config data")
+		return nil, err
 	}
 	return cfg, nil
 }
@@ -210,6 +213,19 @@ func DeleteClientConfig() error {
 	err = os.Remove(cfgPath)
 	if err != nil {
 		return errors.Wrap(err, "could not remove config")
+	}
+	return nil
+}
+
+// DeleteClientConfigNextGen deletes the config from the local directory.
+func DeleteClientConfigNextGen() error {
+	cfgPath, err := ClientConfigNextGenPath()
+	if err != nil {
+		return err
+	}
+	err = os.Remove(cfgPath)
+	if err != nil {
+		return errors.Wrap(err, "could not remove config-alt")
 	}
 	return nil
 }
