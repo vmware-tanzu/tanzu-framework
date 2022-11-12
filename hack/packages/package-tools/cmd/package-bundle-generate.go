@@ -202,6 +202,7 @@ func generatePackageBundle(pkg *Package, projectRootDir, toolsBinDir, packageNam
 	return nil
 }
 
+//nolint: funlen
 func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 	pkgVals, err := readPackageValues(projectRootDir)
 	if err != nil {

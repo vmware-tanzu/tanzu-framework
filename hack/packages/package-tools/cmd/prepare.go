@@ -105,6 +105,7 @@ func downloadCarvelBinaries() error {
 		if err != nil {
 			return fmt.Errorf("couldn't download %s binary: %w", tool.Name, err)
 		}
+		//nolint: gocritic
 		defer resp.Body.Close()
 
 		// Create the binary file
@@ -112,6 +113,7 @@ func downloadCarvelBinaries() error {
 		if err != nil {
 			return err
 		}
+		//nolint: gocritic
 		defer out.Close()
 
 		// Write the body to file

@@ -65,7 +65,7 @@ func ParseClusterVariableInterfaceArray(cluster *clusterapiv1beta1.Cluster, vari
 				aString[i] = v.(string)
 			}
 			return aString, err
-		} else {
+		} else { //nolint: revive
 			return nil, fmt.Errorf("failed to parse the value %v to target type []interface{}", valueName)
 		}
 	}

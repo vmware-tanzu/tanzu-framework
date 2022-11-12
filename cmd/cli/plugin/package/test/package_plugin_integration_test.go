@@ -121,6 +121,8 @@ var (
 	testPkgName                    = "pkg.test.carvel.dev"
 	testPkgVersion                 = "2.0.0"
 	testPkgVersionUpdate           = "3.0.0-rc.1"
+	configValuesYaml               = "config/values.yaml"
+	configValuesUpdateYaml         = "config/values_update.yaml"
 	imgPullSecretOptions           packagedatamodel.RegistrySecretOptions
 	pkgAvailableOptions            packagedatamodel.PackageAvailableOptions
 	pkgOptions                     packagedatamodel.PackageOptions
@@ -749,7 +751,7 @@ func testHelper() {
 	pkgOptions.PollTimeout = pollTimeout
 	pkgOptions.Version = config.PackageVersion
 	if config.WithValueFile {
-		pkgOptions.ValuesFile = "config/values.yaml"
+		pkgOptions.ValuesFile = configValuesYaml
 	}
 	result = packagePlugin.CreateInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
@@ -766,7 +768,7 @@ func testHelper() {
 	By("update package install")
 	pkgOptions.Version = config.PackageVersionUpdate
 	if config.WithValueFile {
-		pkgOptions.ValuesFile = "config/values_update.yaml"
+		pkgOptions.ValuesFile = configValuesUpdateYaml
 	}
 	result = packagePlugin.UpdateInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
@@ -928,7 +930,7 @@ func testHelperKctrlDisabled() {
 	pkgOptions.PollTimeout = pollTimeout
 	pkgOptions.Version = config.PackageVersion
 	if config.WithValueFile {
-		pkgOptions.ValuesFile = "config/values.yaml"
+		pkgOptions.ValuesFile = configValuesYaml
 	}
 	result = packagePlugin.CreateInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
@@ -945,7 +947,7 @@ func testHelperKctrlDisabled() {
 	By("update package install")
 	pkgOptions.Version = config.PackageVersionUpdate
 	if config.WithValueFile {
-		pkgOptions.ValuesFile = "config/values_update.yaml"
+		pkgOptions.ValuesFile = configValuesUpdateYaml
 	}
 	result = packagePlugin.UpdateInstalledPackage(&pkgOptions)
 	Expect(result.Error).ToNot(HaveOccurred())

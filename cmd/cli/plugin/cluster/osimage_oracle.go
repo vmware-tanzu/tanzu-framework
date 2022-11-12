@@ -108,6 +108,7 @@ func OSImagePath(name string) string {
 	return filepath.Join(outputDirectory, "config", fmt.Sprintf("OSImage-%s.yaml", name))
 }
 
+//nolint: gocyclo
 func ociPopulateCmdInitRun(_ *cobra.Command, _ []string) {
 	var err error
 

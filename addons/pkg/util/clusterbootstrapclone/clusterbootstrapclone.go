@@ -442,7 +442,6 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 	return clusterBootstrap, nil
 }
 func (h *Helper) verifyProvidersFromRefExist(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*unstructured.Unstructured, error) {
-
 	providers := []*unstructured.Unstructured{}
 	cbPkgs, err := h.getListOfPkgsWithProviderRefNames(clusterBootstrap)
 	if err != nil {
@@ -466,7 +465,6 @@ func (h *Helper) verifyProvidersFromRefExist(clusterBootstrap *runtanzuv1alpha3.
 }
 
 func (h *Helper) getListOfPkgsWithProviderRefNames(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*runtanzuv1alpha3.ClusterBootstrapPackage, error) {
-
 	cbPkgs := []*runtanzuv1alpha3.ClusterBootstrapPackage{}
 
 	possiblePackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
@@ -924,12 +922,11 @@ func (h *Helper) getListOfExistingProviders(clusterBootstrap *runtanzuv1alpha3.C
 }
 
 func (h *Helper) AddClusterOwnerRefToExistingProviders(cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
-
 	exsitingProviders, err := h.getListOfExistingProviders(clusterBootstrap)
 	if err != nil {
 		return err
 	}
-	if err = h.AddClusterOwnerRef(cluster, exsitingProviders, nil, nil); err != nil {
+	if err := h.AddClusterOwnerRef(cluster, exsitingProviders, nil, nil); err != nil {
 		return err
 	}
 	return nil

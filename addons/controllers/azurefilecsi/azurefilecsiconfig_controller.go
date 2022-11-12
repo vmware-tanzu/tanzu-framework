@@ -1,6 +1,7 @@
-// Copyright YEAR VMware, Inc. All Rights Reserved.
+// Copyright 2021-2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package controllers azure file csi
 package controllers
 
 import (
@@ -60,7 +61,7 @@ func (r *AzureFileCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.R
 	azurefileCSIConfig = azurefileCSIConfig.DeepCopy()
 	cluster, err := r.getOwnerCluster(ctx, azurefileCSIConfig)
 	if cluster == nil {
-		return ctrl.Result{}, err //cluster is not found
+		return ctrl.Result{}, err // cluster is not found
 	}
 
 	return r.reconcileAzureFileCSIConfig(ctx, azurefileCSIConfig, cluster)
@@ -101,9 +102,7 @@ func (r *AzureFileCSIConfigReconciler) reconcileAzureFileCSIConfig(ctx context.C
 	return result, nil
 }
 
-func (r *AzureFileCSIConfigReconciler) reconcileAzureFileCSIConfigNormal(ctx context.Context,
-	csiCfg *csiv1alpha1.AzureFileCSIConfig,
-	cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
+func (r *AzureFileCSIConfigReconciler) reconcileAzureFileCSIConfigNormal(ctx context.Context, csiCfg *csiv1alpha1.AzureFileCSIConfig, cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
 	ownerRef := metav1.OwnerReference{
@@ -157,6 +156,7 @@ func (r *AzureFileCSIConfigReconciler) reconcileAzureFileCSIConfigNormal(ctx con
 // SetupWithManager sets up the controller with the Manager.
 func (r *AzureFileCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager,
 	options controller.Options) error {
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&csiv1alpha1.AzureFileCSIConfig{}).
 		WithOptions(options).

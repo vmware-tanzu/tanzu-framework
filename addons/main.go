@@ -264,6 +264,7 @@ func setupChecks(mgr ctrl.Manager) {
 	}
 }
 
+//nolint: funlen
 func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 	if err := (&calicocontroller.CalicoConfigReconciler{
 		Client: mgr.GetClient(),

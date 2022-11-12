@@ -40,7 +40,7 @@ paths:
 	return openapi_v2.ParseDocument([]byte(schema))
 }
 
-// NewFakeClusterQueryClient returns a fake ClusterQueryClient for use in tests.
+// NewFakeClusterQueryClientWithSchema returns a fake ClusterQueryClient for use in tests.
 func NewFakeClusterQueryClientWithSchema(resources []*metav1.APIResourceList, scheme *runtime.Scheme, objs []runtime.Object) (*ClusterQueryClient, error) {
 	fakeDynamicClient := dynamicFake.NewSimpleDynamicClient(scheme, objs...)
 
