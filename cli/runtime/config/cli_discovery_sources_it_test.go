@@ -4,7 +4,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -21,9 +20,6 @@ func setupData() (string, string) {
           name: default
           image: "/:"
           unknown: cli-unknown
-        contextType: k8s
-      - local:
-          name: default-local
         contextType: k8s
       - local:
           name: admin-local
@@ -84,9 +80,6 @@ currentContext:
                 name: default
                 image: "update-default-image"
                 unknown: cli-unknown
-              contextType: k8s
-            - local:
-                name: default-local
               contextType: k8s
             - local:
                 name: admin-local
@@ -151,7 +144,6 @@ func TestCLIDiscoverySourceIntegration(t *testing.T) {
 	tanzuConfigBytes, expectedConfig := setupData()
 	f, err := os.CreateTemp("", "tanzu_config")
 	assert.Nil(t, err)
-	fmt.Println(f.Name())
 	err = os.WriteFile(f.Name(), []byte(tanzuConfigBytes), 0644)
 	assert.Nil(t, err)
 	defer func(name string) {
@@ -160,10 +152,12 @@ func TestCLIDiscoverySourceIntegration(t *testing.T) {
 	}(f.Name())
 	err = os.Setenv("TANZU_CONFIG", f.Name())
 	assert.NoError(t, err)
+
 	// Get CLI DiscoverySources
 	sources, err := GetCLIDiscoverySources()
 	assert.Nil(t, err)
-	assert.Equal(t, 3, len(sources))
+	assert.Equal(t, 2, len(sources))
+
 	// Add new OCI CLI DiscoverySource
 	ds := &configapi.PluginDiscovery{
 		OCI: &configapi.OCIDiscovery{
@@ -175,13 +169,14 @@ func TestCLIDiscoverySourceIntegration(t *testing.T) {
 	assert.NoError(t, err)
 	sources, err = GetCLIDiscoverySources()
 	assert.Nil(t, err)
-	assert.Equal(t, 4, len(sources))
+	assert.Equal(t, 3, len(sources))
 	// Should not persist on Adding same OCI CLI DiscoverySource
 	err = SetCLIDiscoverySource(*ds)
 	assert.NoError(t, err)
 	sources, err = GetCLIDiscoverySources()
 	assert.Nil(t, err)
-	assert.Equal(t, 4, len(sources))
+	assert.Equal(t, 3, len(sources))
+
 	// Update existing OCI CLI DiscoverySource
 	ds = &configapi.PluginDiscovery{
 		OCI: &configapi.OCIDiscovery{
@@ -198,10 +193,114 @@ func TestCLIDiscoverySourceIntegration(t *testing.T) {
 	file, err := os.ReadFile(f.Name())
 	assert.NoError(t, err)
 	assert.Equal(t, []byte(expectedConfig), file)
+
 	// Delete existing DiscoverySource
-	err = DeleteCLIDiscoverySource("default-local")
+	err = DeleteCLIDiscoverySource("new-default")
+	assert.NoError(t, err)
+	sources, err = GetCLIDiscoverySources()
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(sources))
+}
+
+func setupDataWithPatchStrategy() (string, string) {
+	tanzuConfigBytes := `clientOptions:
+  cli:
+    discoverySources:
+      - oci:
+          name: default
+          image: "/:"
+          unknown: cli-unknown
+          annotation: new-annotation
+        contextType: k8s
+      - local:
+          name: admin-local
+          path: admin
+`
+	expectedConfig := `clientOptions:
+    cli:
+        discoverySources:
+            - oci:
+                name: default
+                image: "update-default-image"
+                unknown: cli-unknown
+              contextType: k8s
+            - local:
+                name: admin-local
+                path: admin
+            - oci:
+                name: new-default
+                image: new-default-image
+`
+	return tanzuConfigBytes, expectedConfig
+}
+
+func TestCLIDiscoverySourceIntegrationWithPatchStrategy(t *testing.T) {
+	// Setup Data and Test config file
+	tanzuConfigBytes, expectedConfig := setupDataWithPatchStrategy()
+	f1, err := os.CreateTemp("", "tanzu_config")
+	assert.Nil(t, err)
+	err = os.WriteFile(f1.Name(), []byte(tanzuConfigBytes), 0644)
+	assert.Nil(t, err)
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f1.Name())
+	err = os.Setenv("TANZU_CONFIG", f1.Name())
+	assert.NoError(t, err)
+
+	//Setup metadata
+	metadata := `configMetadata:
+  patchStrategy:
+    clientOptions.cli.discoverySources.oci.annotation: replace`
+	f2, err := os.CreateTemp("", "tanzu_config_metadata")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(metadata), 0644)
+	assert.Nil(t, err)
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f2.Name())
+	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
+	assert.NoError(t, err)
+
+	// Get CLI DiscoverySources
+	sources, err := GetCLIDiscoverySources()
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(sources))
+	// Add new OCI CLI DiscoverySource
+	ds := &configapi.PluginDiscovery{
+		OCI: &configapi.OCIDiscovery{
+			Name:  "new-default",
+			Image: "new-default-image",
+		},
+	}
+	err = SetCLIDiscoverySource(*ds)
 	assert.NoError(t, err)
 	sources, err = GetCLIDiscoverySources()
 	assert.Nil(t, err)
 	assert.Equal(t, 3, len(sources))
+
+	// Should not persist on Adding same OCI CLI DiscoverySource
+	err = SetCLIDiscoverySource(*ds)
+	assert.NoError(t, err)
+	sources, err = GetCLIDiscoverySources()
+	assert.Nil(t, err)
+	assert.Equal(t, 3, len(sources))
+
+	// Update existing OCI CLI DiscoverySource
+	ds = &configapi.PluginDiscovery{
+		OCI: &configapi.OCIDiscovery{
+			Name:  "default",
+			Image: "update-default-image",
+		},
+	}
+	err = SetCLIDiscoverySource(*ds)
+	assert.NoError(t, err)
+	source, err := GetCLIDiscoverySource("default")
+	assert.Nil(t, err)
+	assert.NotNil(t, source)
+	assert.Equal(t, ds.OCI, source.OCI)
+	file, err := os.ReadFile(f1.Name())
+	assert.NoError(t, err)
+	assert.Equal(t, []byte(expectedConfig), file)
 }

@@ -4,7 +4,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -14,6 +13,112 @@ import (
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
+
+func TestSetGetDeleteContext(t *testing.T) {
+	// Setup config data
+	f, err := os.CreateTemp("", "tanzu_config")
+	assert.Nil(t, err)
+	err = os.WriteFile(f.Name(), []byte(""), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv("TANZU_CONFIG", f.Name())
+	assert.NoError(t, err)
+
+	//Setup metadata
+	f2, err := os.CreateTemp("", "tanzu_config_metadata")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(""), 0644)
+	assert.Nil(t, err)
+
+	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
+	assert.NoError(t, err)
+
+	// Cleanup
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f.Name())
+
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f2.Name())
+
+	ctx1 := &configapi.Context{
+		Name: "test1",
+		Type: "k8s",
+		ClusterOpts: &configapi.ClusterServer{
+			Path:                "test-path",
+			Context:             "test-context",
+			IsManagementCluster: true,
+		},
+		DiscoverySources: []configapi.PluginDiscovery{
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test",
+					Bucket:       "updated-test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+				ContextType: configapi.CtxTypeTMC,
+			},
+		},
+	}
+
+	ctx2 := &configapi.Context{
+		Name: "test2",
+		Type: configapi.CtxTypeK8s,
+		ClusterOpts: &configapi.ClusterServer{
+			Path:                "test-path",
+			Context:             "test-context",
+			IsManagementCluster: true,
+		},
+		DiscoverySources: []configapi.PluginDiscovery{
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test",
+					Bucket:       "updated-test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+				ContextType: configapi.CtxTypeTMC,
+			},
+		},
+	}
+
+	ctx, err := GetContext("test1")
+	assert.Equal(t, "context test1 not found", err.Error())
+	assert.Nil(t, ctx)
+
+	err = SetContext(ctx1, true)
+	assert.NoError(t, err)
+
+	ctx, err = GetContext("test1")
+	assert.Nil(t, err)
+	assert.Equal(t, ctx1, ctx)
+
+	ctx, err = GetCurrentContext(configapi.CtxTypeK8s)
+	assert.Nil(t, err)
+	assert.Equal(t, ctx1, ctx)
+
+	err = SetContext(ctx2, false)
+	assert.NoError(t, err)
+
+	ctx, err = GetContext("test2")
+	assert.Nil(t, err)
+	assert.Equal(t, ctx2, ctx)
+
+	ctx, err = GetCurrentContext(configapi.CtxTypeK8s)
+	assert.Nil(t, err)
+	assert.Equal(t, ctx1, ctx)
+
+	err = DeleteContext("test")
+
+	err = DeleteContext("test1")
+	assert.Nil(t, err)
+
+	ctx, err = GetContext("test1")
+	assert.Nil(t, ctx)
+	assert.Equal(t, "context test1 not found", err.Error())
+}
 
 func TestSetContextWithOldVersion(t *testing.T) {
 	tanzuConfigBytes := `
@@ -81,10 +186,7 @@ contexts:
 	assert.NoError(t, err)
 
 	c, err := GetContext(ctx.Name)
-	if err != nil {
-		fmt.Printf("errors: %v\n", err)
-	}
-
+	assert.NoError(t, err)
 	assert.Equal(t, c.Name, ctx.Name)
 	assert.Equal(t, c.ClusterOpts.Endpoint, "old-test-endpoint")
 	assert.Equal(t, c.ClusterOpts.Path, ctx.ClusterOpts.Path)
@@ -343,12 +445,6 @@ func TestSetContextWithDiscoverySource(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			// setup data
-			// node, err := nodeutils.ConvertToNode(tc.src)
-			// assert.NoError(t, err)
-			// err = persistNode(node)
-			// assert.NoError(t, err)
-
 			err := SetContext(tc.ctx, tc.current)
 			if tc.errStr == "" {
 				assert.NoError(t, err)
@@ -427,9 +523,6 @@ func TestGetContext(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			c, err := GetContext(tc.ctxName)
-			if err != nil {
-				fmt.Printf("errors: %v\n", err)
-			}
 			if tc.errStr == "" {
 				assert.Equal(t, tc.ctxName, c.Name)
 				assert.NoError(t, err)
@@ -491,7 +584,7 @@ func TestSetContext(t *testing.T) {
 				},
 			},
 		}
-		err := persistNode(node)
+		err := persistConfig(node)
 		assert.NoError(t, err)
 	}()
 	defer func() {
@@ -696,7 +789,7 @@ func TestSetCurrentContext(t *testing.T) {
 	}
 }
 
-func TestSetContextWithReplaceStrategy(t *testing.T) {
+func TestSetSingleContext(t *testing.T) {
 	// setup
 	func() {
 		LocalDirName = TestLocalDirName
@@ -728,7 +821,6 @@ func TestSetContextWithReplaceStrategy(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			err := SetContext(tc.ctx, tc.current)
-			fmt.Printf("eeeeee %v\n", err)
 			if tc.errStr == "" {
 				assert.NoError(t, err)
 			} else {

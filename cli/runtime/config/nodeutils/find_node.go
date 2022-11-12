@@ -9,7 +9,7 @@ import (
 
 // FindNode parse the yaml node and return the matched node based on Config Options passed
 func FindNode(node *yaml.Node, opts ...Options) *yaml.Node {
-	nodeConfig := &Config{}
+	nodeConfig := &CfgNode{}
 	for _, opt := range opts {
 		opt(nodeConfig)
 	}

@@ -4,7 +4,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -223,10 +222,12 @@ func TestStoreClientConfig(t *testing.T) {
 	tanzuConfig, expectedConfig, cfg := setupStoreClientConfigData()
 	f, err := os.CreateTemp("", "tanzu_config")
 	assert.Nil(t, err)
-	fmt.Println(f.Name())
 	err = os.WriteFile(f.Name(), []byte(tanzuConfig), 0644)
 	assert.Nil(t, err)
-	// defer os.Remove(f.Name())
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f.Name())
 	err = os.Setenv("TANZU_CONFIG", f.Name())
 	assert.NoError(t, err)
 	err = StoreClientConfig(cfg)

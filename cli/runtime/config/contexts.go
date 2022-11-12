@@ -14,6 +14,7 @@ import (
 
 // GetContext retrieves the context by name
 func GetContext(name string) (*configapi.Context, error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return nil, err
@@ -30,54 +31,61 @@ func AddContext(c *configapi.Context, setCurrent bool) error {
 //
 //nolint:gocyclo
 func SetContext(c *configapi.Context, setCurrent bool) error {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return err
 	}
+	// Add or update the context
 	persist, err := setContext(node, c)
 	if err != nil {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
 	}
+	// Set current context
 	if setCurrent {
 		persist, err = setCurrentContext(node, c)
 		if err != nil {
 			return err
 		}
-
 		if persist {
-			err = persistNode(node)
+			err = persistConfig(node)
 			if err != nil {
 				return err
 			}
 		}
 	}
+
+	// Back-fill servers based on contexts
 	s := convertContextToServer(c)
+
+	// Add or update server
 	persist, err = setServer(node, s)
 	if err != nil {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
 	}
+
+	// Set current server
 	if setCurrent {
 		persist, err = setCurrentServer(node, s.Name)
 		if err != nil {
 			return err
 		}
-
 		if persist {
-			err = persistNode(node)
+			err = persistConfig(node)
 			if err != nil {
 				return err
 			}
@@ -93,6 +101,7 @@ func DeleteContext(name string) error {
 
 // RemoveContext delete a context by name
 func RemoveContext(name string) error {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
@@ -119,7 +128,7 @@ func RemoveContext(name string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 // ContextExists checks if context by name already exists
@@ -130,6 +139,7 @@ func ContextExists(name string) (bool, error) {
 
 // GetCurrentContext retrieves the current context for the specified context type
 func GetCurrentContext(ctxType configapi.ContextType) (c *configapi.Context, err error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return nil, err
@@ -139,12 +149,14 @@ func GetCurrentContext(ctxType configapi.ContextType) (c *configapi.Context, err
 
 // SetCurrentContext sets the current context to the specified name if context is present
 func SetCurrentContext(name string) error {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return err
 	}
+
 	ctx, err := getContext(node, name)
 	if err != nil {
 		return err
@@ -154,7 +166,7 @@ func SetCurrentContext(name string) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -164,7 +176,7 @@ func SetCurrentContext(name string) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -174,12 +186,14 @@ func SetCurrentContext(name string) error {
 
 // RemoveCurrentContext removed the current context of specified context type
 func RemoveCurrentContext(ctxType configapi.ContextType) error {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return err
 	}
+
 	ctx := &configapi.Context{Type: ctxType}
 	err = removeCurrentContext(node, ctx)
 	if err != nil {
@@ -193,7 +207,7 @@ func RemoveCurrentContext(ctxType configapi.ContextType) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 // EndpointFromContext retrieved the endpoint from the specified context
@@ -239,29 +253,35 @@ func setContexts(node *yaml.Node, contexts []*configapi.Context) (err error) {
 	return err
 }
 
-//nolint:dupl
+//nolint:gocyclo
 func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err error) {
+	// Get Patch Strategies from config metadata
+	patchStrategies, err := GetConfigMetadataPatchStrategy()
+	if err != nil {
+		patchStrategies = make(map[string]string)
+	}
+
 	var persistDiscoverySources bool
-	// convert context to node
+
+	// Convert context to node
 	newContextNode, err := convertContextToNode(ctx)
 	if err != nil {
 		return persist, err
 	}
 
-	// config options to retrieve the contexts stanza from config file
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = true
-		c.Keys = []nodeutils.Key{
-			{Name: KeyContexts, Type: yaml.SequenceNode},
-		}
+	// Find the contexts node from the root node
+	keys := []nodeutils.Key{
+		{Name: KeyContexts, Type: yaml.SequenceNode},
 	}
-	// find the contexts node from the root node
-	contextsNode := nodeutils.FindNode(node.Content[0], configOptions)
+	contextsNode := nodeutils.FindNode(node.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys(keys))
 	if contextsNode == nil {
 		return persist, err
 	}
+
 	exists := false
 	var result []*yaml.Node
+	// Skip duplicate for context and server similar logic
+	//nolint:dupl
 	for _, contextNode := range contextsNode.Content {
 		if index := nodeutils.GetNodeIndex(contextNode.Content, "name"); index != -1 &&
 			contextNode.Content[index].Value == ctx.Name {
@@ -271,22 +291,27 @@ func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err erro
 			if err != nil {
 				return persist, err
 			}
-			// merge the nodes only if the nodes are not equal
+			// replace and merge the nodes only if the nodes are not equal
 			if persist {
+				// replace the nodes as per patch strategy
+				err = nodeutils.ReplaceNodes(newContextNode.Content[0], contextNode, nodeutils.WithPatchStrategyKey(KeyContexts), nodeutils.WithPatchStrategies(patchStrategies))
+				if err != nil {
+					return false, err
+				}
 				err = nodeutils.MergeNodes(newContextNode.Content[0], contextNode)
 				if err != nil {
-					return persist, err
+					return false, err
 				}
 			}
-			persistDiscoverySources, err = setDiscoverySources(contextNode, ctx.DiscoverySources)
+			persistDiscoverySources, err = setDiscoverySources(contextNode, ctx.DiscoverySources, nodeutils.WithPatchStrategyKey(fmt.Sprintf("%v.%v", KeyContexts, KeyDiscoverySources)), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
-				return persistDiscoverySources, err
+				return false, err
 			}
 			// merge the discovery sources to context
 			if persistDiscoverySources {
 				err = nodeutils.MergeNodes(newContextNode.Content[0], contextNode)
 				if err != nil {
-					return persistDiscoverySources, err
+					return false, err
 				}
 			}
 			result = append(result, contextNode)
@@ -303,19 +328,18 @@ func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err erro
 }
 
 func setCurrentContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err error) {
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = true
-		c.Keys = []nodeutils.Key{
-			{Name: KeyCurrentContext, Type: yaml.MappingNode},
-		}
+	// Find current context node in the yaml node
+	keys := []nodeutils.Key{
+		{Name: KeyCurrentContext, Type: yaml.MappingNode},
 	}
-	currentContextNode := nodeutils.FindNode(node.Content[0], configOptions)
+	currentContextNode := nodeutils.FindNode(node.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys(keys))
 	if currentContextNode == nil {
 		return persist, nodeutils.ErrNodeNotFound
 	}
 	if index := nodeutils.GetNodeIndex(currentContextNode.Content, string(ctx.Type)); index != -1 {
 		if currentContextNode.Content[index].Value != ctx.Name {
 			currentContextNode.Content[index].Value = ctx.Name
+			currentContextNode.Content[index].Style = 0
 			persist = true
 		}
 	} else {
@@ -326,29 +350,28 @@ func setCurrentContext(node *yaml.Node, ctx *configapi.Context) (persist bool, e
 }
 
 func removeCurrentContext(node *yaml.Node, ctx *configapi.Context) error {
-	configOptions := func(c *nodeutils.Config) {
-		c.Keys = []nodeutils.Key{
-			{Name: KeyCurrentContext},
-			{Name: string(ctx.Type)},
-		}
+	// Find current context node in the yaml node
+	keys := []nodeutils.Key{
+		{Name: KeyCurrentContext},
+		{Name: string(ctx.Type)},
 	}
-	currentContextNode := nodeutils.FindNode(node.Content[0], configOptions)
+	currentContextNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if currentContextNode == nil {
 		return nil
 	}
 	if currentContextNode.Value == ctx.Name || ctx.Name == "" {
 		currentContextNode.Value = ""
+		currentContextNode.Style = 0
 	}
 	return nil
 }
 
 func removeContext(node *yaml.Node, name string) error {
-	configOptions := func(c *nodeutils.Config) {
-		c.Keys = []nodeutils.Key{
-			{Name: KeyContexts},
-		}
+	// Find the contexts node in the yaml node
+	keys := []nodeutils.Key{
+		{Name: KeyContexts},
 	}
-	contextsNode := nodeutils.FindNode(node.Content[0], configOptions)
+	contextsNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if contextsNode == nil {
 		return nil
 	}
