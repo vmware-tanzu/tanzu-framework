@@ -4,6 +4,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
@@ -13,53 +15,95 @@ import (
 
 // GetCLIDiscoverySources retrieves cli discovery sources
 func GetCLIDiscoverySources() ([]configapi.PluginDiscovery, error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return nil, err
 	}
+
 	return getCLIDiscoverySources(node)
 }
 
 // GetCLIDiscoverySource retrieves cli discovery source by name
 func GetCLIDiscoverySource(name string) (*configapi.PluginDiscovery, error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return nil, err
 	}
+
 	return getCLIDiscoverySource(node, name)
 }
 
-// SetCLIDiscoverySource add or update a cli discoverySource
-func SetCLIDiscoverySource(discoverySource configapi.PluginDiscovery) (err error) {
+// SetCLIDiscoverySources Add/Update array of cli discovery sources to the yaml node
+func SetCLIDiscoverySources(discoverySources []configapi.PluginDiscovery) (err error) {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return err
 	}
+
+	// Loop through each discovery source and add or update existing node
+	for _, discoverySource := range discoverySources {
+		persist, err := setCLIDiscoverySource(node, discoverySource)
+		if err != nil {
+			return err
+		}
+		// Persist the config node to the file
+		if persist {
+			err = persistConfig(node)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// SetCLIDiscoverySource add or update a cli discoverySource
+func SetCLIDiscoverySource(discoverySource configapi.PluginDiscovery) (err error) {
+	// Retrieve client config node
+	AcquireTanzuConfigLock()
+	defer ReleaseTanzuConfigLock()
+	node, err := getClientConfigNodeNoLock()
+	if err != nil {
+		return err
+	}
+
+	// Add/Update cli discovery source in the yaml node
 	persist, err := setCLIDiscoverySource(node, discoverySource)
 	if err != nil {
 		return err
 	}
+
+	// Persist the config node to the file
 	if persist {
-		return persistNode(node)
+		return persistConfig(node)
 	}
+
 	return err
 }
 
 // DeleteCLIDiscoverySource delete cli discoverySource by name
 func DeleteCLIDiscoverySource(name string) error {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return err
 	}
+
+	// Delete the matching cli discovery source from the yaml node
 	err = deleteCLIDiscoverySource(node, name)
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+
+	// Persist the config node to the file
+	return persistConfig(node)
 }
 
 func getCLIDiscoverySources(node *yaml.Node) ([]configapi.PluginDiscovery, error) {
@@ -89,6 +133,7 @@ func getCLIDiscoverySource(node *yaml.Node, name string) (*configapi.PluginDisco
 	return nil, errors.New("cli discovery source not found")
 }
 
+// setCLIDiscoverySources Add/Update array of cli discovery sources to the yaml node
 func setCLIDiscoverySources(node *yaml.Node, discoverySources []configapi.PluginDiscovery) (err error) {
 	for _, discoverySource := range discoverySources {
 		_, err = setCLIDiscoverySource(node, discoverySource)
@@ -99,42 +144,43 @@ func setCLIDiscoverySources(node *yaml.Node, discoverySources []configapi.Plugin
 	return err
 }
 
+// setCLIDiscoverySource Add/Update cli discovery source in the yaml node
 func setCLIDiscoverySource(node *yaml.Node, discoverySource configapi.PluginDiscovery) (persist bool, err error) {
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = true
-		c.Keys = []nodeutils.Key{
-			{Name: KeyClientOptions, Type: yaml.MappingNode},
-			{Name: KeyCLI, Type: yaml.MappingNode},
-			{Name: KeyDiscoverySources, Type: yaml.SequenceNode},
-		}
+	// Retrieve the patch strategies from config metadata
+	patchStrategies, err := GetConfigMetadataPatchStrategy()
+	if err != nil {
+		patchStrategies = make(map[string]string)
 	}
-	discoverySourcesNode := nodeutils.FindNode(node.Content[0], configOptions)
+
+	// Find the cli discovery sources node
+	keys := []nodeutils.Key{
+		{Name: KeyClientOptions, Type: yaml.MappingNode},
+		{Name: KeyCLI, Type: yaml.MappingNode},
+		{Name: KeyDiscoverySources, Type: yaml.SequenceNode},
+	}
+	discoverySourcesNode := nodeutils.FindNode(node.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys(keys))
 	if discoverySourcesNode == nil {
 		return persist, nodeutils.ErrNodeNotFound
 	}
-	persist, err = setDiscoverySource(discoverySourcesNode, discoverySource)
-	if err != nil {
-		return persist, err
-	}
-	return persist, err
+
+	// Add or Update cli discovery source to discovery sources node based on patch strategy
+	key := fmt.Sprintf("%v.%v.%v", KeyClientOptions, KeyCLI, KeyDiscoverySources)
+	return setDiscoverySource(discoverySourcesNode, discoverySource, nodeutils.WithPatchStrategyKey(key), nodeutils.WithPatchStrategies(patchStrategies))
 }
 
-// Skip duplicate lint to merge delete cli discovery source and cli repository code into one.
-//
-//nolint:dupl
 func deleteCLIDiscoverySource(node *yaml.Node, name string) error {
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = false
-		c.Keys = []nodeutils.Key{
-			{Name: KeyClientOptions},
-			{Name: KeyCLI},
-			{Name: KeyDiscoverySources},
-		}
+	// Find cli discovery sources node in the yaml node
+	keys := []nodeutils.Key{
+		{Name: KeyClientOptions},
+		{Name: KeyCLI},
+		{Name: KeyDiscoverySources},
 	}
-	cliDiscoverySourcesNode := nodeutils.FindNode(node.Content[0], configOptions)
+	cliDiscoverySourcesNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if cliDiscoverySourcesNode == nil {
 		return nil
 	}
+
+	// Get matching cli discovery source from the yaml node
 	discoverySource, err := getCLIDiscoverySource(node, name)
 	if err != nil {
 		return err
@@ -142,7 +188,9 @@ func deleteCLIDiscoverySource(node *yaml.Node, name string) error {
 	discoverySourceType, discoverySourceName := getDiscoverySourceTypeAndName(*discoverySource)
 	var result []*yaml.Node
 	for _, discoverySourceNode := range cliDiscoverySourcesNode.Content {
+		// Find discovery source matched by discoverySourceType
 		if discoverySourceIndex := nodeutils.GetNodeIndex(discoverySourceNode.Content, discoverySourceType); discoverySourceIndex != -1 {
+			// Find matching discovery source
 			if discoverySourceFieldIndex := nodeutils.GetNodeIndex(discoverySourceNode.Content[discoverySourceIndex].Content, "name"); discoverySourceFieldIndex != -1 && discoverySourceNode.Content[discoverySourceIndex].Content[discoverySourceFieldIndex].Value == discoverySourceName {
 				continue
 			}

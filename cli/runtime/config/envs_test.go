@@ -4,7 +4,6 @@
 package config
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -43,13 +42,9 @@ func TestGetAllEnvs(t *testing.T) {
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
 			err := StoreClientConfig(spec.in)
-			if err != nil {
-				fmt.Printf("StoreClientConfig errors: %v\n", err)
-			}
+			assert.NoError(t, err)
 			c, err := GetAllEnvs()
-			if err != nil {
-				fmt.Printf("errors: %v\n", err)
-			}
+			assert.NoError(t, err)
 			assert.Equal(t, spec.out, c)
 			assert.NoError(t, err)
 		})
@@ -85,13 +80,9 @@ func TestGetEnv(t *testing.T) {
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
 			err := StoreClientConfig(spec.in)
-			if err != nil {
-				fmt.Printf("StoreClientConfig errors: %v\n", err)
-			}
+			assert.NoError(t, err)
 			c, err := GetEnv("test")
-			if err != nil {
-				fmt.Printf("errors: %v\n", err)
-			}
+			assert.NoError(t, err)
 			assert.Equal(t, spec.out, c)
 			assert.NoError(t, err)
 		})

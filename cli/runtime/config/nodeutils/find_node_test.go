@@ -77,7 +77,7 @@ func TestFindNode(t *testing.T) {
 					},
 				},
 			},
-			opts: func(config *Config) {
+			opts: func(config *CfgNode) {
 				config.ForceCreate = true
 				config.Keys =
 					[]Key{
@@ -93,7 +93,7 @@ func TestFindNode(t *testing.T) {
 			out: &yaml.Node{
 				Content: nil,
 			},
-			opts: func(config *Config) {
+			opts: func(config *CfgNode) {
 				config.ForceCreate = true
 				config.Keys =
 					[]Key{
@@ -108,7 +108,7 @@ func TestFindNode(t *testing.T) {
 			in:        &yaml.Node{},
 			out:       nil,
 			nullValue: true,
-			opts: func(config *Config) {
+			opts: func(config *CfgNode) {
 				config.ForceCreate = false
 				config.Keys =
 					[]Key{
@@ -189,7 +189,7 @@ func TestFindNode(t *testing.T) {
 					},
 				},
 			},
-			opts: func(config *Config) {
+			opts: func(config *CfgNode) {
 				config.ForceCreate = true
 				config.Keys =
 					[]Key{
@@ -261,7 +261,7 @@ func TestFindNode(t *testing.T) {
 					},
 				},
 			},
-			opts: func(config *Config) {
+			opts: func(config *CfgNode) {
 				config.ForceCreate = true
 				config.Keys =
 					[]Key{

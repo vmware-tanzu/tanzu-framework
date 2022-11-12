@@ -12,14 +12,13 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-func setupContextsData() (string, string) {
-	//nolint:goconst
+func setupConfigData() (string, string) {
 	tanzuConfigBytes := `clientOptions:
   cli:
     discoverySources:
       - oci:
           name: default
-          image: "/:"
+          image: '/:'
           unknown: cli-unknown
         contextType: k8s
       - local:
@@ -32,16 +31,16 @@ servers:
   - name: test-mc
     type: managementcluster
     managementClusterOpts:
-      endpoint: updated-test-endpoint
-      path: updated-test-path
-      context: updated-test-context
+      endpoint: test-endpoint
+      path: test-path
+      context: test-context
       annotation: one
       required: true
     discoverySources:
       - gcp:
           name: test
-          bucket: updated-test-bucket
-          manifestPath: updated-test-manifest-path
+          bucket: test-bucket
+          manifestPath: test-manifest-path
           annotation: one
           required: true
         contextType: tmc
@@ -67,6 +66,13 @@ contexts:
           annotation: one
           required: true
         contextType: tmc
+      - gcp:
+          name: test2
+          bucket: test-bucket2
+          manifestPath: test-manifest-path2
+          annotation: one
+          required: true
+        contextType: tmc
 currentContext:
   k8s: test-mc
 `
@@ -75,7 +81,7 @@ currentContext:
         discoverySources:
             - oci:
                 name: default
-                image: "/:"
+                image: '/:'
                 unknown: cli-unknown
               contextType: k8s
             - local:
@@ -88,7 +94,7 @@ servers:
     - name: test-mc
       type: managementcluster
       managementClusterOpts:
-        endpoint: updated-test-endpoint
+        endpoint: test-endpoint
         path: updated-test-path
         context: updated-test-context
         annotation: one
@@ -101,69 +107,76 @@ servers:
             annotation: one
             required: true
           contextType: tmc
-    - name: test-mc2
-      type: managementcluster
-      managementClusterOpts:
-        path: test-path-updated
-        context: test-context-updated
-      discoverySources:
-        - gcp:
-            name: test
-            bucket: test-bucket-updated
-            manifestPath: test-manifest-path-updated
-          contextType: tmc
-current: test-mc2
+current: test-mc
 contexts:
     - name: test-mc
       type: k8s
-      group: one
       clusterOpts:
         isManagementCluster: true
-        annotation: one
         required: true
         annotationStruct:
             one: one
-        endpoint: test-endpoint
-        path: test-path
-        context: test-context
+        path: updated-test-path
+        context: updated-test-context
       discoverySources:
         - gcp:
             name: test
-            bucket: test-bucket
-            manifestPath: test-manifest-path
+            bucket: updated-test-bucket
+            manifestPath: updated-test-manifest-path
+            annotation: one
+          contextType: tmc
+        - gcp:
+            name: test2
+            bucket: test-bucket2
+            manifestPath: test-manifest-path2
             annotation: one
             required: true
           contextType: tmc
-    - name: test-mc2
-      type: k8s
-      clusterOpts:
-        path: test-path-updated
-        context: test-context-updated
-        isManagementCluster: true
-      discoverySources:
-        - gcp:
-            name: test
-            bucket: test-bucket-updated
-            manifestPath: test-manifest-path-updated
-          contextType: tmc
 currentContext:
-    k8s: test-mc2
+    k8s: test-mc
 `
 	return tanzuConfigBytes, expectedConfig
 }
-func TestContextsIntegration(t *testing.T) {
-	//Setup data and test config file
-	tanzuConfigBytes, expectedConfig := setupContextsData()
-	f, err := os.CreateTemp("", "tanzu_config")
+func setupConfigMetadata() string {
+	metadata := `configMetadata:
+  patchStrategy:
+    contexts.group: replace
+    contexts.clusterOpts.endpoint: replace
+    contexts.clusterOpts.annotation: replace
+    contexts.discoverySources.gcp.required: replace
+`
+	return metadata
+}
+
+func TestContextsIntegrationWithPatchStrategy(t *testing.T) {
+	//Setup data
+	tanzuConfigBytes, expectedConfig := setupConfigData()
+	metadata := setupConfigMetadata()
+
+	// create temp config file
+	f1, err := os.CreateTemp("", "tanzu_config")
 	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(tanzuConfigBytes), 0644)
+	err = os.WriteFile(f1.Name(), []byte(tanzuConfigBytes), 0644)
 	assert.Nil(t, err)
 	defer func(name string) {
 		err = os.Remove(name)
 		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
+	}(f1.Name())
+	err = os.Setenv("TANZU_CONFIG", f1.Name())
 	assert.NoError(t, err)
+
+	//create temp config metadata file
+	f2, err := os.CreateTemp("", "tanzu_config")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(metadata), 0644)
+	assert.Nil(t, err)
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f2.Name())
+	err = os.Setenv("TANZU_CONFIG_METADATA", f2.Name())
+	assert.NoError(t, err)
+
 	// Get Context
 	context, err := GetContext("test-mc")
 	expected := &configapi.Context{
@@ -184,50 +197,34 @@ func TestContextsIntegration(t *testing.T) {
 				},
 				ContextType: configapi.CtxTypeTMC,
 			},
-		},
-	}
-	assert.Nil(t, err)
-	assert.Equal(t, expected, context)
-	// Add new Context
-	newCtx := &configapi.Context{
-		Name: "test-mc2",
-		Type: "k8s",
-		ClusterOpts: &configapi.ClusterServer{
-			Path:                "test-path",
-			Context:             "test-context",
-			IsManagementCluster: true,
-		},
-		DiscoverySources: []configapi.PluginDiscovery{
 			{
 				GCP: &configapi.GCPDiscovery{
-					Name:         "test",
-					Bucket:       "test-bucket",
-					ManifestPath: "test-manifest-path",
+					Name:         "test2",
+					Bucket:       "test-bucket2",
+					ManifestPath: "test-manifest-path2",
 				},
 				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
-	err = SetContext(newCtx, true)
-	assert.NoError(t, err)
-	ctx, err := GetContext("test-mc2")
 	assert.Nil(t, err)
-	assert.Equal(t, newCtx, ctx)
+	assert.Equal(t, expected, context)
+
 	// Update existing Context
 	updatedCtx := &configapi.Context{
-		Name: "test-mc2",
+		Name: "test-mc",
 		Type: "k8s",
 		ClusterOpts: &configapi.ClusterServer{
-			Path:                "test-path-updated",
-			Context:             "test-context-updated",
+			Path:                "updated-test-path",
+			Context:             "updated-test-context",
 			IsManagementCluster: true,
 		},
 		DiscoverySources: []configapi.PluginDiscovery{
 			{
 				GCP: &configapi.GCPDiscovery{
 					Name:         "test",
-					Bucket:       "test-bucket-updated",
-					ManifestPath: "test-manifest-path-updated",
+					Bucket:       "updated-test-bucket",
+					ManifestPath: "updated-test-manifest-path",
 				},
 				ContextType: configapi.CtxTypeTMC,
 			},
@@ -235,16 +232,9 @@ func TestContextsIntegration(t *testing.T) {
 	}
 	err = SetContext(updatedCtx, true)
 	assert.NoError(t, err)
-	ctx, err = GetContext("test-mc2")
-	assert.Nil(t, err)
-	assert.Equal(t, updatedCtx, ctx)
-	file, err := os.ReadFile(f.Name())
+
+	//Expectations on file content
+	file, err := os.ReadFile(f1.Name())
 	assert.NoError(t, err)
 	assert.Equal(t, []byte(expectedConfig), file)
-	// Delete context
-	err = DeleteContext("test-mc2")
-	assert.NoError(t, err)
-	ctx, err = GetContext("test-mc2")
-	assert.Equal(t, "context test-mc2 not found", err.Error())
-	assert.Nil(t, ctx)
 }

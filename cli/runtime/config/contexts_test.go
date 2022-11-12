@@ -4,7 +4,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -81,10 +80,7 @@ contexts:
 	assert.NoError(t, err)
 
 	c, err := GetContext(ctx.Name)
-	if err != nil {
-		fmt.Printf("errors: %v\n", err)
-	}
-
+	assert.NoError(t, err)
 	assert.Equal(t, c.Name, ctx.Name)
 	assert.Equal(t, c.ClusterOpts.Endpoint, "old-test-endpoint")
 	assert.Equal(t, c.ClusterOpts.Path, ctx.ClusterOpts.Path)
@@ -343,12 +339,6 @@ func TestSetContextWithDiscoverySource(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			// setup data
-			// node, err := nodeutils.ConvertToNode(tc.src)
-			// assert.NoError(t, err)
-			// err = persistNode(node)
-			// assert.NoError(t, err)
-
 			err := SetContext(tc.ctx, tc.current)
 			if tc.errStr == "" {
 				assert.NoError(t, err)
@@ -427,9 +417,6 @@ func TestGetContext(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			c, err := GetContext(tc.ctxName)
-			if err != nil {
-				fmt.Printf("errors: %v\n", err)
-			}
 			if tc.errStr == "" {
 				assert.Equal(t, tc.ctxName, c.Name)
 				assert.NoError(t, err)
@@ -491,7 +478,7 @@ func TestSetContext(t *testing.T) {
 				},
 			},
 		}
-		err := persistNode(node)
+		err := persistConfig(node)
 		assert.NoError(t, err)
 	}()
 	defer func() {
@@ -728,7 +715,6 @@ func TestSetContextWithReplaceStrategy(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			err := SetContext(tc.ctx, tc.current)
-			fmt.Printf("eeeeee %v\n", err)
 			if tc.errStr == "" {
 				assert.NoError(t, err)
 			} else {

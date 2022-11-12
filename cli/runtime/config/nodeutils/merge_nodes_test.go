@@ -296,7 +296,7 @@ func TestMergeNode(t *testing.T) {
 					},
 				},
 			},
-			opts: func(config *Config) {
+			opts: func(config *CfgNode) {
 				config.ForceCreate = true
 				config.Keys =
 					[]Key{

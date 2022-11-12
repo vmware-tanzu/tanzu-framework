@@ -17,6 +17,7 @@ import (
 
 // GetServer retrieves server by name
 func GetServer(name string) (*configapi.Server, error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return nil, err
@@ -32,6 +33,7 @@ func ServerExists(name string) (bool, error) {
 
 // GetCurrentServer retrieves the current server
 func GetCurrentServer() (*configapi.Server, error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return nil, err
@@ -41,6 +43,7 @@ func GetCurrentServer() (*configapi.Server, error) {
 
 // SetCurrentServer add or update current server
 func SetCurrentServer(name string) error {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
@@ -56,7 +59,7 @@ func SetCurrentServer(name string) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -68,7 +71,7 @@ func SetCurrentServer(name string) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -78,6 +81,7 @@ func SetCurrentServer(name string) error {
 
 // RemoveCurrentServer removes the current server if server exists by specified name
 func RemoveCurrentServer(name string) error {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
@@ -92,6 +96,7 @@ func RemoveCurrentServer(name string) error {
 	if err != nil {
 		return err
 	}
+
 	// Front fill Context and CurrentContext
 	c, err := getContext(node, name)
 	if err != nil {
@@ -101,7 +106,7 @@ func RemoveCurrentServer(name string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 // PutServer add or update server and currentServer
@@ -128,7 +133,7 @@ func SetServer(s *configapi.Server, setCurrent bool) error {
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -139,7 +144,7 @@ func SetServer(s *configapi.Server, setCurrent bool) error {
 			return err
 		}
 		if persist {
-			err = persistNode(node)
+			err = persistConfig(node)
 			if err != nil {
 				return err
 			}
@@ -162,7 +167,7 @@ func frontFillContexts(s *configapi.Server, setCurrent bool, node *yaml.Node) er
 		return err
 	}
 	if persist {
-		err = persistNode(node)
+		err = persistConfig(node)
 		if err != nil {
 			return err
 		}
@@ -173,7 +178,7 @@ func frontFillContexts(s *configapi.Server, setCurrent bool, node *yaml.Node) er
 			return err
 		}
 		if persist {
-			err = persistNode(node)
+			err = persistConfig(node)
 			if err != nil {
 				return err
 			}
@@ -220,7 +225,7 @@ func RemoveServer(name string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 // GetDiscoverySources returns all discovery sources
@@ -272,13 +277,11 @@ func appendURLScheme(endpoint string) string {
 }
 
 func setCurrentServer(node *yaml.Node, name string) (persist bool, err error) {
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = true
-		c.Keys = []nodeutils.Key{
-			{Name: KeyCurrentServer, Type: yaml.ScalarNode, Value: ""},
-		}
+	// find current server node
+	keys := []nodeutils.Key{
+		{Name: KeyCurrentServer, Type: yaml.ScalarNode, Value: ""},
 	}
-	currentServerNode := nodeutils.FindNode(node.Content[0], configOptions)
+	currentServerNode := nodeutils.FindNode(node.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys(keys))
 	if currentServerNode == nil {
 		return persist, nodeutils.ErrNodeNotFound
 	}
@@ -316,12 +319,11 @@ func getCurrentServer(node *yaml.Node) (s *configapi.Server, err error) {
 }
 
 func removeCurrentServer(node *yaml.Node, name string) error {
-	configOptions := func(c *nodeutils.Config) {
-		c.Keys = []nodeutils.Key{
-			{Name: KeyCurrentServer},
-		}
+	// find current server node
+	keys := []nodeutils.Key{
+		{Name: KeyCurrentServer},
 	}
-	currentServerNode := nodeutils.FindNode(node.Content[0], configOptions)
+	currentServerNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if currentServerNode == nil {
 		return nil
 	}
@@ -332,12 +334,11 @@ func removeCurrentServer(node *yaml.Node, name string) error {
 }
 
 func removeServer(node *yaml.Node, name string) error {
-	configOptions := func(c *nodeutils.Config) {
-		c.Keys = []nodeutils.Key{
-			{Name: KeyServers},
-		}
+	// find servers node
+	keys := []nodeutils.Key{
+		{Name: KeyServers},
 	}
-	serversNode := nodeutils.FindNode(node.Content[0], configOptions)
+	serversNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if serversNode == nil {
 		return nodeutils.ErrNodeNotFound
 	}
@@ -362,52 +363,61 @@ func setServers(node *yaml.Node, servers []*configapi.Server) error {
 	return nil
 }
 
-//nolint:dupl
+//nolint:gocyclo
 func setServer(node *yaml.Node, s *configapi.Server) (persist bool, err error) {
+	// Get Patch Strategies
+	patchStrategies, err := GetConfigMetadataPatchStrategy()
+	if err != nil {
+		patchStrategies = make(map[string]string)
+	}
 	var persistDiscoverySources bool
+
 	// convert server to node
 	newServerNode, err := convertServerToNode(s)
 	if err != nil {
 		return persist, err
 	}
-	// config options to retrieve servers stanza from config
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = true
-		c.Keys = []nodeutils.Key{
-			{Name: KeyServers, Type: yaml.SequenceNode},
-		}
-	}
+
 	// find servers node
-	serversNode := nodeutils.FindNode(node.Content[0], configOptions)
+	keys := []nodeutils.Key{
+		{Name: KeyServers, Type: yaml.SequenceNode},
+	}
+	serversNode := nodeutils.FindNode(node.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys(keys))
 	if serversNode == nil {
 		return persist, nodeutils.ErrNodeNotFound
 	}
 	exists := false
 	var result []*yaml.Node
+	//nolint: dupl
 	for _, serverNode := range serversNode.Content {
 		if index := nodeutils.GetNodeIndex(serverNode.Content, "name"); index != -1 &&
 			serverNode.Content[index].Value == s.Name {
 			exists = true
-			// merge only if updated server is not equal to as existing server
+			// merge only if updated server is not equal to an existing server
 			persist, err = nodeutils.NotEqual(newServerNode.Content[0], serverNode)
 			if err != nil {
-				return persist, err
+				return false, err
 			}
+			// replace and merge the nodes based on patch strategy
 			if persist {
+				err = nodeutils.ReplaceNodes(newServerNode.Content[0], serverNode, nodeutils.WithPatchStrategyKey(KeyServers), nodeutils.WithPatchStrategies(patchStrategies))
+				if err != nil {
+					return false, err
+				}
 				err = nodeutils.MergeNodes(newServerNode.Content[0], serverNode)
 				if err != nil {
 					return false, err
 				}
 			}
 			// add or update discovery sources of server
-			persistDiscoverySources, err = setDiscoverySources(serverNode, s.DiscoverySources)
+			persistDiscoverySources, err = setDiscoverySources(serverNode, s.DiscoverySources, nodeutils.WithPatchStrategyKey(fmt.Sprintf("%v.%v", KeyServers, KeyDiscoverySources)), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
-				return persistDiscoverySources, err
+				return false, err
 			}
 			if persistDiscoverySources {
 				err = nodeutils.MergeNodes(newServerNode.Content[0], serverNode)
 				if err != nil {
-					return persistDiscoverySources, err
+					return false, err
 				}
 			}
 			result = append(result, serverNode)

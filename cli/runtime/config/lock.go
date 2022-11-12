@@ -67,13 +67,6 @@ func ReleaseTanzuConfigLock() {
 	mutex.Unlock()
 }
 
-// IsTanzuConfigLockAcquired checks the lock status and returns
-// true if the lock is acquired by the current process or returns
-// false otherwise
-func IsTanzuConfigLockAcquired() bool {
-	return tanzuConfigLock != nil
-}
-
 // getFileLockWithTimeOut returns a file lock with timeout
 func getFileLockWithTimeOut(lockPath string, lockDuration time.Duration) (*fslock.Lock, error) {
 	dir := filepath.Dir(lockPath)

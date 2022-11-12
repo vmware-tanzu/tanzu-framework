@@ -1,7 +1,11 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Skip duplicate that matching with metadata config file
+
 // Package config Provide API methods to Read/Write specific stanza of config file
+//
+//nolint:dupl
 package config
 
 import (
@@ -55,33 +59,10 @@ func newClientConfigNode() (*yaml.Node, error) {
 	return node, nil
 }
 
-// persistNode stores/writes the yaml node to config.yaml
-func persistNode(node *yaml.Node) error {
-	cfgPath, err := ClientConfigPath()
+func persistConfig(node *yaml.Node) error {
+	path, err := ClientConfigPath()
 	if err != nil {
 		return errors.Wrap(err, "could not find config path")
 	}
-	cfgPathExists, err := fileExists(cfgPath)
-	if err != nil {
-		return errors.Wrap(err, "failed to check config path existence")
-	}
-	if !cfgPathExists {
-		localDir, err := LocalDir()
-		if err != nil {
-			return errors.Wrap(err, "could not find local tanzu dir for OS")
-		}
-		if err := os.MkdirAll(localDir, 0755); err != nil {
-			return errors.Wrap(err, "could not make local tanzu directory")
-		}
-	}
-	data, err := yaml.Marshal(node)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal nodeutils")
-	}
-	err = os.WriteFile(cfgPath, data, 0644)
-	if err != nil {
-		return errors.Wrap(err, "failed to write the config to file")
-	}
-	storeConfigToLegacyDir(data)
-	return nil
+	return persistNode(node, WithCfgPath(path))
 }

@@ -166,6 +166,18 @@ func convertNodeToClientConfig(node *yaml.Node) (obj *configapi.ClientConfig, er
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert node to ClientConfig")
 	}
+	if obj == nil {
+		return &configapi.ClientConfig{}, err
+	}
+	return obj, err
+}
+
+// convertNodeToMetadata converts yaml node to client config type
+func convertNodeToMetadata(node *yaml.Node) (obj *configapi.Metadata, err error) {
+	err = node.Decode(&obj)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert node to Metadata")
+	}
 	return obj, err
 }
 
@@ -174,6 +186,20 @@ func convertClientConfigToNode(obj *configapi.ClientConfig) (*yaml.Node, error) 
 	bytes, err := yaml.Marshal(obj)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert obj to node")
+	}
+	var node yaml.Node
+	err = yaml.Unmarshal(bytes, &node)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal bytes to node")
+	}
+	return &node, nil
+}
+
+// convertMetadataToNode converts client config type to yaml node
+func convertMetadataToNode(metadata *configapi.Metadata) (*yaml.Node, error) {
+	bytes, err := yaml.Marshal(metadata)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert metadata obj to node")
 	}
 	var node yaml.Node
 	err = yaml.Unmarshal(bytes, &node)
