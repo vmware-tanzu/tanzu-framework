@@ -382,11 +382,10 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(vs
 	}
 }
 
+//nolint:unused
 // getOwnerCluster verifies that the VSphereCPIConfig has a cluster as its owner reference,
 // and returns the cluster. It tries to read the cluster name from the VSphereCPIConfig's owner reference objects.
 // If not there, we assume the owner cluster and VSphereCPIConfig always has the same name.
-//
-//nolint:unused
 func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig) (*clusterapiv1beta1.Cluster, error) {
 	cluster := &clusterapiv1beta1.Cluster{}
 	clusterName := cpiConfig.Name

@@ -124,7 +124,7 @@ type TanzuAuthPackageValues struct {
 type AkoOperatorPackageValues struct {
 	AviEnable         bool              `yaml:"avi_enable,omitempty"`
 	ClusterName       string            `yaml:"cluster_name,omitempty"`
-	AviOperatorConfig AviOperatorConfig `yaml:"config,omitempty"`
+	AkoOperatorConfig AkoOperatorConfig `yaml:"config,omitempty"`
 }
 
 // LoadBalancerAndIngressServicePackageValues
@@ -134,8 +134,8 @@ type LoadBalancerAndIngressServicePackageValues struct {
 	LoadBalancerAndIngressServiceConfig LoadBalancerAndIngressServiceConfig `yaml:"config,omitempty"`
 }
 
-// AviOperatorConfig
-type AviOperatorConfig struct {
+// AkoOperatorConfig
+type AkoOperatorConfig struct {
 	AviControllerAddress                           string `yaml:"avi_controller,omitempty"`
 	AviControllerVersion                           string `yaml:"avi_controller_version,omitempty"`
 	AviControllerUsername                          string `yaml:"avi_username,omitempty"`

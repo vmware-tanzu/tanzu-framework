@@ -390,6 +390,9 @@ func WaitForManagementPackages(clusterClient clusterclient.Client, packageInstal
 
 	for _, packageName := range packageInstallNames {
 		pn := packageName
+		if pn == "load-balancer-and-ingress-service" {
+			continue
+		}
 		log.V(3).Warningf("waiting for package: %s", pn)
 		group.Go(
 			func() error {

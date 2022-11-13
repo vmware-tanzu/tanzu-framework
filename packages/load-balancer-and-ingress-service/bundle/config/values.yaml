@@ -24,6 +24,8 @@ loadBalancerAndIngressService:
       istio_enabled: ""
       vip_per_namespace: ""
       enable_events:
+      blocked_namespace_list: "[]"
+      ip_family: ""
       namespace_selector:
           label_key: ""
           label_value: ""
