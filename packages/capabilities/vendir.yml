@@ -13,6 +13,8 @@ directories:
           - core.tanzu.vmware.com_capabilities.yaml
       - path: rbac.yaml
         manual: {}
+      - path: default-serviceaccount.yaml
+        manual: {}
       - path: tanzu-capabilities-controller-manager.yaml
         manual: {}
   - path: bundle/config/overlays

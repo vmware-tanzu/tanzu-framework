@@ -77,6 +77,18 @@ type ClusterClient struct {
 	applyFileReturnsOnCall map[int]struct {
 		result1 error
 	}
+	ApplyFileRecursivelyStub        func(string, string) error
+	applyFileRecursivelyMutex       sync.RWMutex
+	applyFileRecursivelyArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	applyFileRecursivelyReturns struct {
+		result1 error
+	}
+	applyFileRecursivelyReturnsOnCall map[int]struct {
+		result1 error
+	}
 	ApplyPatchForAutoScalerDeploymentStub        func(tkgconfigbom.Client, string, string, string) error
 	applyPatchForAutoScalerDeploymentMutex       sync.RWMutex
 	applyPatchForAutoScalerDeploymentArgsForCall []struct {
@@ -1630,6 +1642,68 @@ func (fake *ClusterClient) ApplyFileReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.applyFileReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) ApplyFileRecursively(arg1 string, arg2 string) error {
+	fake.applyFileRecursivelyMutex.Lock()
+	ret, specificReturn := fake.applyFileRecursivelyReturnsOnCall[len(fake.applyFileRecursivelyArgsForCall)]
+	fake.applyFileRecursivelyArgsForCall = append(fake.applyFileRecursivelyArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.ApplyFileRecursivelyStub
+	fakeReturns := fake.applyFileRecursivelyReturns
+	fake.recordInvocation("ApplyFileRecursively", []interface{}{arg1, arg2})
+	fake.applyFileRecursivelyMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) ApplyFileRecursivelyCallCount() int {
+	fake.applyFileRecursivelyMutex.RLock()
+	defer fake.applyFileRecursivelyMutex.RUnlock()
+	return len(fake.applyFileRecursivelyArgsForCall)
+}
+
+func (fake *ClusterClient) ApplyFileRecursivelyCalls(stub func(string, string) error) {
+	fake.applyFileRecursivelyMutex.Lock()
+	defer fake.applyFileRecursivelyMutex.Unlock()
+	fake.ApplyFileRecursivelyStub = stub
+}
+
+func (fake *ClusterClient) ApplyFileRecursivelyArgsForCall(i int) (string, string) {
+	fake.applyFileRecursivelyMutex.RLock()
+	defer fake.applyFileRecursivelyMutex.RUnlock()
+	argsForCall := fake.applyFileRecursivelyArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) ApplyFileRecursivelyReturns(result1 error) {
+	fake.applyFileRecursivelyMutex.Lock()
+	defer fake.applyFileRecursivelyMutex.Unlock()
+	fake.ApplyFileRecursivelyStub = nil
+	fake.applyFileRecursivelyReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) ApplyFileRecursivelyReturnsOnCall(i int, result1 error) {
+	fake.applyFileRecursivelyMutex.Lock()
+	defer fake.applyFileRecursivelyMutex.Unlock()
+	fake.ApplyFileRecursivelyStub = nil
+	if fake.applyFileRecursivelyReturnsOnCall == nil {
+		fake.applyFileRecursivelyReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.applyFileRecursivelyReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -7893,6 +7967,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.applyMutex.RUnlock()
 	fake.applyFileMutex.RLock()
 	defer fake.applyFileMutex.RUnlock()
+	fake.applyFileRecursivelyMutex.RLock()
+	defer fake.applyFileRecursivelyMutex.RUnlock()
 	fake.applyPatchForAutoScalerDeploymentMutex.RLock()
 	defer fake.applyPatchForAutoScalerDeploymentMutex.RUnlock()
 	fake.cloneWithTimeoutMutex.RLock()

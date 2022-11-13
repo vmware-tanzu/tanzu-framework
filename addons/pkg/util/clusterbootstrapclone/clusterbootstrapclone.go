@@ -278,6 +278,26 @@ func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) 
 						updatedSlice = append(updatedSlice, copiedVal)
 					}
 				}
+				// there might be packages thats there in CB but not in CBT. We need to add those.
+				// The below loop is to figure out those packages and add it as it is in CB
+				for _, sliceItemInTarget := range sliceInTarget {
+					foundMatch := false
+					itemMapInTarget := sliceItemInTarget.(map[string]interface{})
+					for _, sliceItemInFrom := range sliceInFrom {
+						itemMapInFrom := sliceItemInFrom.(map[string]interface{})
+						if itemMapInFrom["refName"].(string) == itemMapInTarget["refName"].(string) {
+							foundMatch = true
+							break
+						}
+					}
+					if !foundMatch {
+						copiedVal, _, copyErr := unstructured.NestedFieldCopy(itemMapInTarget)
+						if copyErr != nil {
+							return copyErr
+						}
+						updatedSlice = append(updatedSlice, copiedVal)
+					}
+				}
 				destination[keyInFrom] = updatedSlice
 			}
 		}

@@ -68,29 +68,10 @@ rules:
       - list
       - watch
   - apiGroups:
-      - run.tanzu.vmware.com
-    resources:
-      - tanzukubernetesclusters
-      - tanzukubernetesclusters/status
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - clusterctl.cluster.x-k8s.io
-    resources:
-      - providers
-      - providers/status
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
       - ""
     resources:
-      - configmaps
-      - namespaces
-      - nodes
+      - serviceaccounts
+      - secrets
     verbs:
       - get
       - list

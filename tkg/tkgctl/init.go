@@ -38,6 +38,7 @@ type InitRegionOptions struct {
 	Browser                     string
 	VsphereControlPlaneEndpoint string
 	Edition                     string
+	AdditionalTKGManifests      string
 	FeatureFlags                map[string]string
 	Timeout                     time.Duration
 	UI                          bool
@@ -356,6 +357,7 @@ func (t *tkgctl) populateClientInitRegionOptions(options *InitRegionOptions, nod
 		FeatureFlags:                options.FeatureFlags,
 		VsphereControlPlaneEndpoint: options.VsphereControlPlaneEndpoint,
 		Edition:                     options.Edition,
+		AdditionalTKGManifests:      options.AdditionalTKGManifests,
 	}
 }
 

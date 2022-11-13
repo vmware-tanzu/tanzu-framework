@@ -228,6 +228,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
+	if options.AdditionalTKGManifests != "" {
+		log.Infof("Apply additional manifests %s for the bootstrap cluster in tkg-system", options.AdditionalTKGManifests)
+		if err = bootStrapClusterClient.ApplyFileRecursively(options.AdditionalTKGManifests, "tkg-system"); err != nil {
+			return errors.Wrap(err, "unable to apply additional manifests")
+		}
+	}
+
 	// Obtain management cluster configuration of a provided flavor
 	if regionalConfigBytes, options.ClusterName, configFilePath, err = c.BuildRegionalClusterConfiguration(options); err != nil {
 		return errors.Wrap(err, "unable to build management cluster configuration")
@@ -346,6 +353,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		waitForCNI:            true,
 	}); err != nil {
 		return errors.Wrap(err, "error waiting for addons to get installed")
+	}
+
+	if options.AdditionalTKGManifests != "" {
+		log.Infof("Apply additional manifests %s for the management cluster in %s", options.AdditionalTKGManifests, defaultTkgNamespace)
+		if err = regionalClusterClient.ApplyFileRecursively(options.AdditionalTKGManifests, defaultTkgNamespace); err != nil {
+			return errors.Wrap(err, "unable to apply additional manifests")
+		}
 	}
 
 	log.SendProgressUpdate(statusRunning, StepMoveClusterAPIObjects, InitRegionSteps)
