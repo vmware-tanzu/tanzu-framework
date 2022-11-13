@@ -4,9 +4,9 @@ kind: AKODeploymentConfig
 metadata:
   name: install-ako-for-all
 spec:
-  cloudName: Default-Cloud
-  serviceEngineGroup: Default-Group
-  controller: 10.0.0.1
+  cloudName: ""
+  serviceEngineGroup: ""
+  controller: ""
   adminCredentialRef:
     name: controller-credentials
     namespace: default
@@ -14,11 +14,11 @@ spec:
     name: controller-ca
     namespace: default
   dataNetwork:
-    name: VM Network
-    cidr: 10.0.0.0/20
+    name: ""
+    cidr: ""
   controlPlaneNetwork:
-    name: VM Network 2
-    cidr: 10.1.0.0/20
+    name: ""
+    cidr: ""
   extraConfigs:
     disableStaticRouteSync: false
     ingress:
@@ -34,9 +34,9 @@ spec:
   clusterSelector:
     matchLabels:
       cluster-role.tkg.tanzu.vmware.com/management: ""
-  cloudName: Default-Cloud
-  serviceEngineGroup: MC-SEG
-  controller: 10.0.0.1
+  cloudName: ""
+  serviceEngineGroup: ""
+  controller: ""
   adminCredentialRef:
     name: controller-credentials
     namespace: default
@@ -44,11 +44,11 @@ spec:
     name: controller-ca
     namespace: default
   dataNetwork:
-    name: VM Network
-    cidr: 10.0.0.0/20
+    name: ""
+    cidr: ""
   controlPlaneNetwork:
-    name: VM Network 2
-    cidr: 10.1.0.0/20
+    name: ""
+    cidr: ""
   extraConfigs:
     disableStaticRouteSync: false
     ingress:

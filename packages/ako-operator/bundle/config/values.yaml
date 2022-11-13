@@ -13,8 +13,8 @@ akoOperator:
     avi_username: ""
     avi_password: ""
     avi_ca_data_b64: ""
-    avi_cloud_name: "Default-Cloud"
-    avi_service_engine_group: "Default-Group"
+    avi_cloud_name: ""
+    avi_service_engine_group: ""
     avi_management_cluster_service_engine_group: null
     avi_data_network: ""
     avi_data_network_cidr: ""

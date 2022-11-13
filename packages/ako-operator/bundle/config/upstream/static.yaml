@@ -148,7 +148,8 @@ spec:
                   type: string
                 controllerVersion:
                   description: ControllerVersion is the AVI Controller version which
-                    AKO Operator and AKO talks to. If not set, default version is 20.1.3
+                    AKO Operator and AKO talks to. this value can be auto detected and
+                    corrected.
                   type: string
                 dataNetwork:
                   description: DataNetworks describes the Data Networks the AKO will
@@ -193,6 +194,12 @@ spec:
                         server for the liveness probe of the AKO pod default port is
                         8080
                       type: integer
+                    blockedNamespaceList:
+                      description: This is the list of system namespaces from which
+                        AKO will not listen any Kubernetes object event.
+                      items:
+                        type: string
+                      type: array
                     cniPlugin:
                       description: 'CniPlugin describes which cni plugin cluster is
                       using. default value is antrea, set this string if cluster cni
@@ -294,6 +301,17 @@ spec:
                             - DEDICATED
                           type: string
                       type: object
+                    ipFamily:
+                      description: This flag can take values V4 or V6 (default V4) default
+                        value is V4
+                      enum:
+                        - V4
+                        - V6
+                      type: string
+                    istioEnabled:
+                      description: This flag needs to be enabled when AKO is be to brought
+                        up in an Istio environment default value is false
+                      type: boolean
                     l4Config:
                       description: IngressConfigs specifies L4 load balancer configuration
                         for ako
@@ -648,7 +666,7 @@ rules:
       - patch
       - update
   - apiGroups:
-      - "ako.vmware.com"
+      - ako.vmware.com
     resources:
       - aviinfrasettings
     verbs:
@@ -660,7 +678,7 @@ rules:
       - patch
       - delete
   - apiGroups:
-      - "run.tanzu.vmware.com"
+      - run.tanzu.vmware.com
     resources:
       - clusterbootstraps
       - clusterbootstraps/status

@@ -37,8 +37,6 @@ spec:
               value: "False"
             - name: avi_control_plane_ha_provider
               value: "False"
-            - name: tkg_management_cluster_name
-              value: "default-cluster"
             - name: control_plane_endpoint_port
               value: "6443"
           volumeMounts:
