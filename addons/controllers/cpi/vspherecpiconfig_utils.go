@@ -11,6 +11,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -36,7 +37,7 @@ type CPIConfigAction func(client.Object)
 
 // forClusterMappedByCPIConfig performs the specified action for the cluster owns the CPIConfig
 // For a CPIConfig to be owned by a Cluster, it should
-// 	1. in the same namespace as the cluster
+//  1. in the same namespace as the cluster
 //  2. not a template CPIConfig, a.k.a. has annotation tkg.tanzu.vmware.com/template-config
 //  3. has the Cluster as its OwnerReference
 func forClusterMappedByCPIConfig(cpiConfig client.Object, cluster *clusterapiv1beta1.Cluster,
