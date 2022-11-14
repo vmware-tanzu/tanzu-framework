@@ -1379,14 +1379,6 @@ spec:
         preKubeadmCommands:
         #! Ensure a non-empty preKubeadmCommands array is present to facilitate patching
         - echo "running preKubeadmCommands…"
-      machineTemplate:
-        infrastructureRef:
-          apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-          kind: AzureMachineTemplate
-          name: tkg-control-plane
-      replicas: ${CONTROL_PLANE_MACHINE_COUNT}
-      version: ${KUBERNETES_VERSION}
-
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AzureMachineTemplate
@@ -1406,7 +1398,7 @@ spec:
           storageAccountType: Premium_LRS
         osType: Linux
       sshPublicKey: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBQkl3QUFBUUVBdXR2WGhHWFhzN0t5cFV3c1F1dmc3MCtHclVJUXg1YS9QOFBROGhPbWVzZFAwb1hFMElSKzNuN0NGRzhpK0IwV08rdkhCYnc2b3VkSnR6bmNLaE5hU2N3ZFllT1JVbFVLcVN1QXJtU0NjQnpaZDFTTlVSY2NPRWlocjBEUVg5NXk0YjFUS3QxNjl3eVlzZ0JQeDNHcmprc2xJalRDblZKZmdoWlZOZFdKWWJrRVNuck9ySW05KzFsL3JLT09UOWpsR1NER3M1RW5mM2sxTEY3WThTUVVwdXVOZlNKTU9GRlVHTlVxNjY5L0Fod1FJSDJJYjhPQjY5cmV4ajdwQmdCWjFpd3l6eFlWUGZ3aUZSWXR0eFNDRVJiNk82alh4U21KS3FhTkdNcS9QdlJrTVUzTndxNDV1anN1M3l2NmVFSTVLZGpIV0pFdGd3ZWhXa0ZGL2NGcWd3PT0gd2p1bkB2bXdhcmUuY29t
-      vmSize: ${AZURE_CONTROL_PLANE_MACHINE_TYPE}
+      vmSize: #@ data.values.AZURE_CONTROL_PLANE_MACHINE_TYPE
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AzureMachineTemplate
@@ -1422,7 +1414,7 @@ spec:
           storageAccountType: Premium_LRS
         osType: Linux
       sshPublicKey: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBQkl3QUFBUUVBdXR2WGhHWFhzN0t5cFV3c1F1dmc3MCtHclVJUXg1YS9QOFBROGhPbWVzZFAwb1hFMElSKzNuN0NGRzhpK0IwV08rdkhCYnc2b3VkSnR6bmNLaE5hU2N3ZFllT1JVbFVLcVN1QXJtU0NjQnpaZDFTTlVSY2NPRWlocjBEUVg5NXk0YjFUS3QxNjl3eVlzZ0JQeDNHcmprc2xJalRDblZKZmdoWlZOZFdKWWJrRVNuck9ySW05KzFsL3JLT09UOWpsR1NER3M1RW5mM2sxTEY3WThTUVVwdXVOZlNKTU9GRlVHTlVxNjY5L0Fod1FJSDJJYjhPQjY5cmV4ajdwQmdCWjFpd3l6eFlWUGZ3aUZSWXR0eFNDRVJiNk82alh4U21KS3FhTkdNcS9QdlJrTVUzTndxNDV1anN1M3l2NmVFSTVLZGpIV0pFdGd3ZWhXa0ZGL2NGcWd3PT0gd2p1bkB2bXdhcmUuY29t
-      vmSize: ${AZURE_NODE_MACHINE_TYPE}
+      vmSize: #@ data.values.AZURE_NODE_MACHINE_TYPE
 
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1

@@ -1024,17 +1024,17 @@ metadata:
 spec:
   template:
     spec:
-      region: "${AWS_REGION}"
-      sshKeyName: "${AWS_SSH_KEY_NAME}"
+      region: #@ data.values.AWS_REGION
+      sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
       bastion:
         enabled: true
       network:
         vpc:
           cidrBlock:
         subnets:
-        - availabilityZone: '${AWS_NODE_AZ}'
-          cidrBlock: '${AWS_PRIVATE_NODE_CIDR}'
-          id: '${AWS_PRIVATE_SUBNET_ID}'
+        - availabilityZone: #@ data.values.AWS_NODE_AZ
+          cidrBlock: #@ data.values.AWS_PRIVATE_NODE_CIDR
+          id: #@ data.values.AWS_PRIVATE_SUBNET_ID
         cni:
           cniIngressRules:
           - description: kapp-controller
@@ -1113,11 +1113,11 @@ metadata:
 spec:
   template:
     spec:
-      instanceType: "${CONTROL_PLANE_MACHINE_TYPE}"
+      instanceType: #@ data.values.CONTROL_PLANE_MACHINE_TYPE
       iamInstanceProfile: "control-plane.tkg.cloud.vmware.com"
-      sshKeyName: ${AWS_SSH_KEY_NAME}
+      sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
       ami:
-        id: "${AWS_AMI_ID}"
+        id: #@ data.values.AWS_AMI_ID
       rootVolume:
         size: 80
 ---
@@ -1129,11 +1129,11 @@ metadata:
 spec:
   template:
     spec:
-      instanceType: "${NODE_MACHINE_TYPE}"
+      instanceType: #@ data.values.NODE_MACHINE_TYPE
       iamInstanceProfile: "nodes.tkg.cloud.vmware.com"
-      sshKeyName: "${AWS_SSH_KEY_NAME}"
+      sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
       ami:
-        id: "${AWS_AMI_ID}"
+        id: #@ data.values.AWS_AMI_ID
       rootVolume:
         size: 80
 ---
