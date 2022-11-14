@@ -5,14 +5,13 @@ package managementcomponents
 
 // TKGPackageConfig defines TKG package configuration
 type TKGPackageConfig struct {
-	Metadata                             Metadata                             `yaml:"metadata"`
-	ConfigValues                         map[string]interface{}               `yaml:"configvalues"`
-	FrameworkPackage                     FrameworkPackage                     `yaml:"frameworkPackage"`
-	ClusterClassPackage                  ClusterClassPackage                  `yaml:"clusterclassPackage"`
-	TKRSourceControllerPackage           TKRSourceControllerPackage           `yaml:"tkrSourceControllerPackage"`
-	CoreManagementPluginsPackage         CoreManagementPluginsPackage         `yaml:"coreManagementPluginsPackage"`
-	AkoOperatorPackage                   AkoOperatorPackage                   `yaml:"akoOperatorPackage"`
-	LoadBalancerAndIngressServicePackage LoadBalancerAndIngressServicePackage `yaml:"loadBalancerAndIngressServicePackage"`
+	Metadata                     Metadata                     `yaml:"metadata"`
+	ConfigValues                 map[string]interface{}       `yaml:"configvalues"`
+	FrameworkPackage             FrameworkPackage             `yaml:"frameworkPackage"`
+	ClusterClassPackage          ClusterClassPackage          `yaml:"clusterclassPackage"`
+	TKRSourceControllerPackage   TKRSourceControllerPackage   `yaml:"tkrSourceControllerPackage"`
+	CoreManagementPluginsPackage CoreManagementPluginsPackage `yaml:"coreManagementPluginsPackage"`
+	AkoOperatorPackage           AkoOperatorPackage           `yaml:"akoOperatorPackage"`
 }
 
 // Metadata specifies metadata as part of TKG package config
@@ -61,10 +60,6 @@ type ClusterClassPackage struct {
 
 type AkoOperatorPackage struct {
 	AkoOperatorPackageValues AkoOperatorPackageValues `yaml:"akoOperator,omitempty"`
-}
-
-type LoadBalancerAndIngressServicePackage struct {
-	LoadBalancerAndIngressServicePackageValues LoadBalancerAndIngressServicePackageValues `yaml:"loadBalancerAndIngressService,omitempty"`
 }
 
 type AddonsFeatureGates struct {
@@ -127,13 +122,6 @@ type AkoOperatorPackageValues struct {
 	AkoOperatorConfig AkoOperatorConfig `yaml:"config,omitempty"`
 }
 
-// LoadBalancerAndIngressServicePackageValues
-type LoadBalancerAndIngressServicePackageValues struct {
-	Name                                string                              `yaml:"name,omitempty"`
-	Namespace                           string                              `yaml:"namespace,omitempty"`
-	LoadBalancerAndIngressServiceConfig LoadBalancerAndIngressServiceConfig `yaml:"config,omitempty"`
-}
-
 // AkoOperatorConfig
 type AkoOperatorConfig struct {
 	AviControllerAddress                           string `yaml:"avi_controller,omitempty"`
@@ -153,38 +141,4 @@ type AkoOperatorConfig struct {
 	AviManagementClusterControlPlaneVipNetworkName string `yaml:"avi_management_cluster_control_plane_vip_network_name,omitempty"`
 	AviManagementClusterControlPlaneVipNetworkCIDR string `yaml:"avi_management_cluster_control_plane_vip_network_cidr,omitempty"`
 	AviControlPlaneHaProvider                      bool   `yaml:"avi_control_plane_ha_provider,omitempty"`
-}
-
-// NetworkSettings
-type NetworkSettings struct {
-	VipNetworkList string `yaml:"vip_network_list,omitempty"`
-}
-
-// ControllerSettings
-type ControllerSettings struct {
-	ServiceEngineGroupName string `yaml:"service_engine_group_name,omitempty"`
-	CloudName              string `yaml:"cloud_name,omitempty"`
-	ControllerIp           string `yaml:"controller_ip,omitempty"`
-}
-
-// AviCredentials
-type AviCredentials struct {
-	Username                 string `yaml:"username,omitempty"`
-	Password                 string `yaml:"password,omitempty"`
-	CertificateAuthorityData string `yaml:"certificate_authority_data,omitempty"`
-}
-
-// AkoSettings
-type AkoSettings struct {
-	ClusterName            string `yaml:"cluster_name,omitempty"`
-	DisableStaticRouteSync string `yaml:"disable_static_route_sync,omitempty"`
-	CniPlugin              string `yaml:"cni_plugin,omitempty"`
-}
-
-// LoadBalancerAndIngressServiceConfig
-type LoadBalancerAndIngressServiceConfig struct {
-	NetworkSettings    NetworkSettings    `yaml:"network_settings,omitempty"`
-	ControllerSettings ControllerSettings `yaml:"controller_settings,omitempty"`
-	AviCredentials     AviCredentials     `yaml:"avi_credentials,omitempty"`
-	AkoSettings        AkoSettings        `yaml:"ako_settings,omitempty"`
 }

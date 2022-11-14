@@ -20,10 +20,8 @@ import (
 )
 
 const (
-	packagePollInterval           = 5 * time.Second
-	packagePollTimeout            = 10 * time.Minute
-	aviNamespace                  = "avi-system"
-	defaultServiceEngineGroupName = "Default-Group"
+	packagePollInterval = 5 * time.Second
+	packagePollTimeout  = 10 * time.Minute
 )
 
 // GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
@@ -45,10 +43,6 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.VSphereNonparavirt)
 	default:
 		return "", errors.Errorf("unknown provider type %q", providerType)
-	}
-	clusterNamespace := convertToString(userProviderConfigValues[constants.ConfigVariableNamespace])
-	if clusterNamespace == "" {
-		clusterNamespace = "default"
 	}
 
 	tkgPackageConfig := TKGPackageConfig{
@@ -151,8 +145,6 @@ func convertToString(config interface{}) string {
 	default:
 		return ""
 	}
-
-	return ""
 }
 
 //convertToBool converts config into bool type, and return false if config is not set
@@ -163,8 +155,6 @@ func convertToBool(config interface{}) bool {
 	default:
 		return false
 	}
-
-	return false
 }
 
 //autofillAkoOperatorConfig autofills empty fields in AkoOperatorConfig
