@@ -1,7 +1,10 @@
 #@ load("@ytt:assert", "assert")
 #@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:ip", "ip")
-#@ load("lib/helpers.star", "get_tkr_version_from_tkr_name")
+
+#@ load("pinniped_addon_secret.lib.yaml", "getPinnipedDataValues")
+#@ load("/lib/helpers.star", "ValuesFormatStr")
 
 #@ vsphereControlPlaneEndpointAsCidr = ""
 #@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
@@ -14,6 +17,33 @@
 #@       vsphereControlPlaneEndpointAsCidr = vsphereControlPlaneEndpoint.string() + "/128"
 #@     end
 #@   end
+#@ end
+
+#@ def pinniped_configs_exist():
+#@   return (data.values.IDENTITY_MANAGEMENT_TYPE != "none" and
+#@           (data.values.OIDC_IDENTITY_PROVIDER_CLIENT_ID or
+#@           data.values.OIDC_IDENTITY_PROVIDER_CLIENT_SECRET or
+#@           data.values.OIDC_IDENTITY_PROVIDER_GROUPS_CLAIM or
+#@           data.values.OIDC_IDENTITY_PROVIDER_ISSUER_URL or
+#@           data.values.OIDC_IDENTITY_PROVIDER_SCOPES or
+#@           data.values.OIDC_IDENTITY_PROVIDER_USERNAME_CLAIM or
+#@           data.values.SUPERVISOR_ISSUER_URL or
+#@           data.values.SUPERVISOR_ISSUER_CA_BUNDLE_DATA_B64 or
+#@           data.values.LDAP_BIND_DN or
+#@           data.values.LDAP_BIND_PASSWORD or
+#@           data.values.LDAP_GROUP_SEARCH_BASE_DN or
+#@           data.values.LDAP_GROUP_SEARCH_FILTER or
+#@           data.values.LDAP_GROUP_SEARCH_GROUP_ATTRIBUTE or
+#@           data.values.LDAP_GROUP_SEARCH_NAME_ATTRIBUTE or
+#@           data.values.LDAP_GROUP_SEARCH_USER_ATTRIBUTE or
+#@           data.values.LDAP_HOST or
+#@           data.values.LDAP_ROOT_CA_DATA_B64 or
+#@           data.values.LDAP_USER_SEARCH_BASE_DN or
+#@           data.values.LDAP_USER_SEARCH_EMAIL_ATTRIBUTE or
+#@           data.values.LDAP_USER_SEARCH_FILTER or
+#@           data.values.LDAP_USER_SEARCH_ID_ATTRIBUTE or
+#@           data.values.LDAP_USER_SEARCH_NAME_ATTRIBUTE or
+#@           data.values.LDAP_USER_SEARCH_USERNAME))
 #@ end
 
 #@ def split_comma_values(value):
@@ -75,9 +105,26 @@
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_configs_exist() or azurediskcsi_configs_exist() or azurefilecsi_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or azurefilecsi_configs_exist() or azurediskcsi_configs_exist() or storage_class_configs_exist() or pinniped_configs_exist()
 #@ end
 
+#@ if pinniped_configs_exist():
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-pinniped-addon".format(data.values.CLUSTER_NAME)
+  namespace: #@ data.values.NAMESPACE
+  labels:
+    tkg.tanzu.vmware.com/addon-name: pinniped
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    clusterctl.cluster.x-k8s.io/move: ""
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "authentication/pinniped"
+type: tkg.tanzu.vmware.com/addon
+stringData:
+  values.yaml: #@ ValuesFormatStr.format(yaml.encode(getPinnipedDataValues()))
+#@ end
 #@ if antrea_configs_exist():
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
@@ -398,7 +445,11 @@ spec:
   additionalPackages:
     - refName: metrics-server*
     - refName: secretgen-controller*
+    #@ if pinniped_configs_exist():
     - refName: pinniped*
+      valuesFrom:
+        secretRef: #@ "{}-pinniped-addon".format(data.values.CLUSTER_NAME)
+    #@ end
     #@ if storage_class_configs_exist():
     - refName: tkg-storageclass*
       valuesFrom:
