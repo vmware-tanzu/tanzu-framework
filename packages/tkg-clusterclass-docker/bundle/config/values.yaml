@@ -5,3 +5,4 @@
 
 #! User configurable values for tkg-clusterclass-docker
 NAMESPACE: tkg-system
+DOCKER_CLUSTER_CLASS_VERSION: v1.0.0

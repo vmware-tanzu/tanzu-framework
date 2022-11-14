@@ -7,24 +7,27 @@ kind: ClusterClass
 metadata:
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
-  name: tkg-docker-default
+  name: #@ "tkg-docker-default-{}".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   controlPlane:
     ref:
       apiVersion: controlplane.cluster.x-k8s.io/v1beta1
       kind: KubeadmControlPlaneTemplate
-      name: quick-start-control-plane
+      name: #@ "tkg-docker-default-{}-kcp".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
+      namespace: #@ data.values.NAMESPACE
     machineInfrastructure:
       ref:
         kind: DockerMachineTemplate
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        name: quick-start-control-plane
+        name: #@ "tkg-docker-default-{}-control-plane".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
+        namespace: #@ data.values.NAMESPACE
   infrastructure:
     ref:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: DockerClusterTemplate
-      name: quick-start-cluster
+      name: #@ "tkg-docker-default-{}-cluster".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
+      namespace: #@ data.values.NAMESPACE
   workers:
     machineDeployments:
       - class: default-worker
@@ -33,12 +36,14 @@ spec:
             ref:
               apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
               kind: KubeadmConfigTemplate
-              name: quick-start-default-worker-bootstraptemplate
+              name: #@ "tkg-docker-default-{}-md-config".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
+              namespace: #@ data.values.NAMESPACE
           infrastructure:
             ref:
               apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
               kind: DockerMachineTemplate
-              name: quick-start-default-worker-machinetemplate
+              name: #@ "tkg-docker-default-{}-worker".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
+              namespace: #@ data.values.NAMESPACE
   variables:
     - name: TKR_DATA
       required: false
@@ -262,7 +267,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerClusterTemplate
 metadata:
-  name: quick-start-cluster
+  name: #@ "tkg-docker-default-{}-cluster".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -271,7 +276,7 @@ spec:
 kind: KubeadmControlPlaneTemplate
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 metadata:
-  name: quick-start-control-plane
+  name: #@ "tkg-docker-default-{}-kcp".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -309,7 +314,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerMachineTemplate
 metadata:
-  name: quick-start-control-plane
+  name: #@ "tkg-docker-default-{}-control-plane".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -321,7 +326,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerMachineTemplate
 metadata:
-  name: quick-start-default-worker-machinetemplate
+  name: #@ "tkg-docker-default-{}-worker".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -333,7 +338,7 @@ spec:
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: quick-start-default-worker-bootstraptemplate
+  name: #@ "tkg-docker-default-{}-md-config".format(data.values.DOCKER_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:

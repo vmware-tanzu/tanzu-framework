@@ -13,6 +13,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/config"
 	"github.com/onsi/ginkgo/reporters"
@@ -145,7 +147,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		clusterInfo := mcClusterClient.GetClusterStatusInfo(e2eConfig.ManagementClusterName, "tkg-system", nil)
 		Expect(clusterInfo.ClusterObject).NotTo(BeNil())
 		Expect(clusterInfo.ClusterObject.Spec.Topology).NotTo(BeNil())
-		Expect(clusterInfo.ClusterObject.Spec.Topology.Class).To(Equal("tkg-" + e2eConfig.InfrastructureName + "-default"))
+		Expect(clusterInfo.ClusterObject.Spec.Topology.Class).To(Equal("tkg-" + e2eConfig.InfrastructureName + "-default-" + constants.DefaultClusterClassVersion))
 
 		// Should verify all management packages are deployed and reconciled successfully
 		err = managementcomponents.WaitForManagementPackages(mcClusterClient, 2*time.Minute)

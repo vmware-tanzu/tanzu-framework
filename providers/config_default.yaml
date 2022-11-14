@@ -693,6 +693,10 @@ CORE_DNS_IP:
 FEATURE_FLAG_PACKAGE_BASED_LCM:
 #! Used for testing clusterclasses only
 TKR_DATA:
+VSPHERE_CLUSTER_CLASS_VERSION: v1.0.0
+AZURE_CLUSTER_CLASS_VERSION: v1.0.0
+AWS_CLUSTER_CLASS_VERSION: v1.0.0
+DOCKER_CLUSTER_CLASS_VERSION: v1.0.0
 
 #! ---------------------------------------------------------------------
 #! Settings for OCI infrastructure provider

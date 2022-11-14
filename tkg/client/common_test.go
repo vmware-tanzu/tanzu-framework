@@ -3,8 +3,12 @@
 package client_test
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
@@ -46,7 +50,8 @@ var _ = Describe("SetClusterClass", func() {
 			Expect(config.SetCallCount()).To(Equal(1))
 			varName, varValue := config.SetArgsForCall(0)
 			Expect(varName).To(Equal("CLUSTER_CLASS"))
-			Expect(varValue).To(Equal("tkg-vsphere-default"))
+			// TODO: fix below with TKG-13296.
+			Expect(varValue).To(Equal(fmt.Sprintf("tkg-vsphere-default-%s", constants.DefaultClusterClassVersion)))
 		})
 	})
 })

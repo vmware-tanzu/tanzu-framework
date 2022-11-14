@@ -5,22 +5,23 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
-  name: tkg-azure-default
+  name: #@ "tkg-azure-default-{}".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
   annotations:
-    identifier.cc.vmware.com: tanzu-azure-default-0.0.2
     run.tanzu.vmware.com/resolve-tkr: ""
 spec:
   controlPlane:
     ref:
       apiVersion: controlplane.cluster.x-k8s.io/v1beta1
       kind: KubeadmControlPlaneTemplate
-      name: tkg-kcp
+      name: #@ "tkg-azure-default-{}-kcp".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
+      namespace: #@ data.values.NAMESPACE
     machineInfrastructure:
       ref:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: AzureMachineTemplate
-        name: tkg-controlplane-azure-template
+        name: #@ "tkg-azure-default-{}-control-plane".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
+        namespace: #@ data.values.NAMESPACE
   workers:
     machineDeployments:
     - class: tkg-worker
@@ -29,17 +30,20 @@ spec:
           ref:
             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
             kind: KubeadmConfigTemplate
-            name: tkg-bootstrap-template
+            name: #@ "tkg-azure-default-{}-md-config".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
+            namespace: #@ data.values.NAMESPACE
         infrastructure:
           ref:
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
             kind: AzureMachineTemplate
-            name: tkg-azure-template
+            name: #@ "tkg-azure-default-{}-worker".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
+            namespace: #@ data.values.NAMESPACE
   infrastructure:
     ref:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: AzureClusterTemplate
-      name: azure-cluster-template
+      name: #@ "tkg-azure-default-{}-cluster".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
+      namespace: #@ data.values.NAMESPACE
   variables:
   - name: location
     required: true
@@ -1265,7 +1269,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AzureClusterTemplate
 metadata:
-  name: azure-cluster-template
+  name: #@ "tkg-azure-default-{}-cluster".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -1287,7 +1291,7 @@ spec:
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
 metadata:
-  name: tkg-kcp
+  name: #@ "tkg-azure-default-{}-kcp".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -1387,7 +1391,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AzureMachineTemplate
 metadata:
-  name: tkg-controlplane-azure-template
+  name: #@ "tkg-azure-default-{}-control-plane".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -1407,7 +1411,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AzureMachineTemplate
 metadata:
-  name: tkg-azure-template
+  name: #@ "tkg-azure-default-{}-worker".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -1424,7 +1428,7 @@ spec:
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: tkg-bootstrap-template
+  name: #@ "tkg-azure-default-{}-md-config".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:

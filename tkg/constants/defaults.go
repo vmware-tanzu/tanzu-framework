@@ -46,4 +46,6 @@ const (
 	DefaultQPS = 200
 	// Default maximum burst for throttle for the rest config
 	DefaultBurst = 200
+	// Default ClusterClass version
+	DefaultClusterClassVersion = "v1.0.0"
 )
