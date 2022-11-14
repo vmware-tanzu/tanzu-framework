@@ -5,7 +5,7 @@
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereClusterTemplate
 metadata:
-  name: 'tkg-vsphere-infrastructure'
+  name: #@ "tkg-vsphere-default-{}-cluster".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -16,7 +16,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: 'tkg-vsphere-control-plane'
+  name: #@ "tkg-vsphere-default-{}-control-plane".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -40,7 +40,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: 'tkg-vsphere-worker'
+  name: #@ "tkg-vsphere-default-{}-worker".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -64,7 +64,7 @@ spec:
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
 metadata:
-  name: 'tkg-vsphere-kcp'
+  name: #@ "tkg-vsphere-default-{}-kcp".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -131,7 +131,7 @@ spec:
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: 'tkg-vsphere-md-0'
+  name: #@ "tkg-vsphere-default-{}-md-config".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -167,27 +167,28 @@ spec:
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
-  name: tkg-vsphere-default
+  name: #@ "tkg-vsphere-default-{}".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
-    identifier.cc.vmware.com: tanzu-vsphere-default-0.0.3
 spec:
   controlPlane:
     ref:
       apiVersion: controlplane.cluster.x-k8s.io/v1beta1
       kind: KubeadmControlPlaneTemplate
-      name: 'tkg-vsphere-kcp'
+      name: #@ "tkg-vsphere-default-{}-kcp".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
+      namespace: #@ data.values.NAMESPACE
     machineInfrastructure:
       ref:
         kind: VSphereMachineTemplate
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        name: 'tkg-vsphere-control-plane'
+        name: #@ "tkg-vsphere-default-{}-control-plane".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
+        namespace: #@ data.values.NAMESPACE
   infrastructure:
     ref:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: VSphereClusterTemplate
-      name: 'tkg-vsphere-infrastructure'
+      name: #@ "tkg-vsphere-default-{}-cluster".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
       namespace: #@ data.values.NAMESPACE
   workers:
     machineDeployments:
@@ -197,13 +198,13 @@ spec:
           ref:
             kind: KubeadmConfigTemplate
             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-            name: 'tkg-vsphere-md-0'
+            name: #@ "tkg-vsphere-default-{}-md-config".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
             namespace: #@ data.values.NAMESPACE
         infrastructure:
           ref:
             kind: VSphereMachineTemplate
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-            name: 'tkg-vsphere-worker'
+            name: #@ "tkg-vsphere-default-{}-worker".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
             namespace: #@ data.values.NAMESPACE
     - class: tkg-worker-windows
       template:
@@ -211,13 +212,13 @@ spec:
           ref:
             kind: KubeadmConfigTemplate
             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-            name: tkg-vsphere-md-0-worker
+            name: #@ "tkg-vsphere-default-{}-md-config".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
             namespace: #@ data.values.NAMESPACE
         infrastructure:
           ref:
             kind: VSphereMachineTemplate
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-            name: tkg-vsphere-worker
+            name: #@ "tkg-vsphere-default-{}-worker".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
             namespace: #@ data.values.NAMESPACE
   variables:
   - name: vcenter

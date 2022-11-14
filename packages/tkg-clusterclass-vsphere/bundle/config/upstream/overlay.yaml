@@ -9,11 +9,6 @@ metadata:
   namespace: #@ data.values.NAMESPACE
 spec:
   controlPlane:
-    ref:
-      name: tkg-vsphere-kcp
-    machineInfrastructure:
-      ref:
-        name: tkg-vsphere-control-plane
     #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_CONTROL_PLANE:
     #@overlay/match missing_ok=True
     machineHealthCheck:
@@ -26,10 +21,6 @@ spec:
         status: "False"
         timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
     #@ end
-  infrastructure:
-    ref:
-      name: tkg-vsphere-infrastructure
-      namespace: #@ data.values.NAMESPACE
   workers:
     machineDeployments:
     #@overlay/match by="class"
@@ -46,15 +37,6 @@ spec:
           status: "False"
           timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
       #@ end
-      template:
-        bootstrap:
-          ref:
-            name: tkg-vsphere-md-0
-            namespace: #@ data.values.NAMESPACE
-        infrastructure:
-          ref:
-            name: tkg-vsphere-worker
-            namespace: #@ data.values.NAMESPACE
 
     #@overlay/match by="class", missing_ok=True
     - class: tkg-worker-windows
@@ -70,13 +52,3 @@ spec:
           status: "False"
           timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
       #@ end
-      template:
-        bootstrap:
-          ref:
-            name: tkg-vsphere-md-0
-            namespace: #@ data.values.NAMESPACE
-        infrastructure:
-          ref:
-            name: tkg-vsphere-worker
-            namespace: #@ data.values.NAMESPACE
-
