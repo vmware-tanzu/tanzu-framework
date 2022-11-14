@@ -23,6 +23,7 @@ var _ = Describe("OracleCPIConfig Reconciler", func() {
 	var (
 		key                     client.ObjectKey
 		clusterName             string
+		clusterNamespace        string
 		clusterResourceFilePath string
 	)
 
@@ -59,6 +60,7 @@ var _ = Describe("OracleCPIConfig Reconciler", func() {
 
 		BeforeEach(func() {
 			clusterName = "test-cluster-cpi"
+			clusterNamespace = "default"
 			clusterResourceFilePath = "testdata/test-oracle-cpi.yaml"
 		})
 
