@@ -147,6 +147,11 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		if err = c.InstallOrUpgradeManagementComponents(currentRegion.SourceFilePath, currentRegion.ContextName, true); err != nil {
 			return errors.Wrap(err, "unable to upgrade management components")
 		}
+
+		log.Info("Cleanup core packages repository...")
+		if err = c.CleanupCorePackageRepo(regionalClusterClient); err != nil {
+			return errors.Wrap(err, "unable to cleanup core package repository")
+		}
 	}
 
 	log.Info("Upgrading management cluster kubernetes version...")

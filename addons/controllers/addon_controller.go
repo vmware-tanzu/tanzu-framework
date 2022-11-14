@@ -280,12 +280,19 @@ func (r *AddonReconciler) reconcileNormal(
 		errors []error
 		result ctrl.Result
 	)
-	// Reconcile core package repository in the cluster
-	pkgReconciler := &PackageReconciler{ctx: ctx, log: log, clusterClient: remoteClient, Config: r.Config}
-	err = pkgReconciler.reconcileCorePackageRepository(imageRepository, bom)
-	if err != nil {
-		log.Error(err, "Error reconciling core package repository")
-		errors = append(errors, err)
+	// Skip reconcile core package repository in the management cluster if the package based lcm is enabled.
+	// Because in the package based lcm cluster, the core packages are managed by the tkr
+	_, isMgmtCluster := cluster.ObjectMeta.Labels[constants.ManagementClusterRoleLabel]
+	if isMgmtCluster && r.Config.FeatureGateClusterBootstrap {
+		log.Info("skip reconciling the core package repository on the management cluster when the package based lcm is enabled")
+	} else {
+		// Reconcile core package repository in the cluster
+		pkgReconciler := &PackageReconciler{ctx: ctx, log: log, clusterClient: remoteClient, Config: r.Config}
+		err = pkgReconciler.reconcileCorePackageRepository(imageRepository, bom)
+		if err != nil {
+			log.Error(err, "Error reconciling core package repository")
+			errors = append(errors, err)
+		}
 	}
 
 	for i := range addonSecrets.Items {

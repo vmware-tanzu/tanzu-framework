@@ -10,14 +10,15 @@ import (
 
 // AddonControllerConfig contains addons controller configuration information.
 type AddonControllerConfig struct {
-	AppSyncPeriod           time.Duration
-	AppWaitTimeout          time.Duration
-	AddonNamespace          string
-	AddonServiceAccount     string
-	AddonClusterRole        string
-	AddonClusterRoleBinding string
-	AddonImagePullPolicy    string
-	CorePackageRepoName     string
+	AppSyncPeriod               time.Duration
+	AppWaitTimeout              time.Duration
+	AddonNamespace              string
+	AddonServiceAccount         string
+	AddonClusterRole            string
+	AddonClusterRoleBinding     string
+	AddonImagePullPolicy        string
+	CorePackageRepoName         string
+	FeatureGateClusterBootstrap bool
 }
 
 // ClusterBootstrapControllerConfig contains configuration information related to ClusterBootstrap
