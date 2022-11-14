@@ -168,7 +168,6 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 		})
 
 		It("should complete to the partial filled fields when the ClusterBootstrap CR has the predefined annotation", func() {
-			kvcpAPIGroup := "cpi.tanzu.vmware.com"
 			// Create a ClusterBootstrap with empty spec
 			clusterBootstrap := &runv1alpha3.ClusterBootstrap{
 				ObjectMeta: metav1.ObjectMeta{
@@ -184,12 +183,13 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 					},
 					AdditionalPackages: []*runv1alpha3.ClusterBootstrapPackage{
 						{RefName: "pinniped*", ValuesFrom: &runv1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "ldap"}}},
-						{RefName: "kube-vip-cloud-provider*", ValuesFrom: &runv1alpha3.ValuesFrom{
-							ProviderRef: &corev1.TypedLocalObjectReference{
-								Kind:     "KubevipCPIConfig",
-								APIGroup: &kvcpAPIGroup,
-								Name:     "foo",
-							}}},
+						{RefName: "kube-vip-cloud-provider*",
+							ValuesFrom: &runv1alpha3.ValuesFrom{
+								Inline: map[string]interface{}{
+									"foo": "bar",
+								},
+							},
+						},
 					},
 				},
 			}
@@ -203,7 +203,8 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(clusterBootstrap.Spec.CNI.RefName).NotTo(Equal("antrea*"))
 			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.CNI.RefName)
 			// clusterBootstrap.Spec.AdditionalPackages[x].RefName should be complete by the webhook
-			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(clusterBootstrapTemplate.Spec.AdditionalPackages)))
+			// extra additionalPackage not in CBT
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(clusterBootstrapTemplate.Spec.AdditionalPackages) + 1))
 			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).NotTo(Equal("pinniped*"))
 			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.AdditionalPackages[0].RefName)
 			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.AdditionalPackages[1].RefName)
@@ -360,6 +361,5 @@ func assertFindKubeVipInClusterBootstrap(clusterBootstrap *runv1alpha3.ClusterBo
 	}
 	Expect(match).To(BeTrue())
 	Expect(kubevipPackage.RefName).To(Equal(fmt.Sprintf("%s.%s", fakeKubevipcloudproviderCarvelPackageRefName, fakeCarvelPackageVersion)))
-	Expect(kubevipPackage.ValuesFrom.ProviderRef.Kind).To(Equal("KubevipCPIConfig"))
-	Expect(kubevipPackage.ValuesFrom.ProviderRef.Name).To(Equal("foo"))
+	Expect(kubevipPackage.ValuesFrom.Inline["foo"]).To(Equal("bar"))
 }
