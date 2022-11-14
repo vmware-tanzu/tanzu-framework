@@ -114,11 +114,13 @@ func (c *PinnipedV3Controller) reconcileSecret(ctx context.Context, secret *core
 	cluster, err := getClusterFromSecret(ctx, c.client, secret)
 	if err != nil {
 		if k8serror.IsNotFound(err) {
-			// when cluster is deleted, secret will get deleted since it has an owner ref
-			log.V(1).Info("cluster is getting deleted, skipping secret reconcile")
+			// When cluster is deleted, secret will get deleted since it has an owner ref.
+			// Or it could be the case that the Secret was created just moments before its
+			// corresponding Cluster was created.
+			log.V(1).Info("cluster for secret was not found, skipping secret reconcile")
 			return nil
 		}
-		log.Error(err, "error getting cluster, skipping reconciliation")
+		log.Error(err, "error getting cluster for secret, skipping reconciliation")
 		return nil
 	}
 
