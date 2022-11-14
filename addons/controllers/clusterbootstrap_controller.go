@@ -544,9 +544,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 	// Meaning the users will not be able to customize the packageRefName
 	// Find all the corresponding pairs in ClusterBootstrap and new ClusterBootstrapTemplate to update
 	// Add the additional package if it's only present in the new ClusterBootstrapTemplate
-	// Leave the package as it is if it's only present in ClusterBootstrap but not in the new Template
 	additionalPackageMap := map[string]*runtanzuv1alpha3.ClusterBootstrapPackage{}
-
 	for _, pkg := range updatedClusterBootstrap.Spec.AdditionalPackages {
 		packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, pkg.RefName, cluster.Namespace)
 		if err != nil || packageRefName == "" {
@@ -557,6 +555,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 		additionalPackageMap[packageRefName] = pkg
 	}
 
+	additionalPackageTemplateMap := map[string]*runtanzuv1alpha3.ClusterBootstrapPackage{}
 	for _, templatePkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
 		// use the refName in package CR, since the package CR hasn't been cloned at this point, use SystemNamespace to fetch packageCR
 		packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, templatePkg.RefName, r.Config.SystemNamespace)
@@ -574,6 +573,21 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 			newPkg := templatePkg.DeepCopy()
 			updatedClusterBootstrap.Spec.AdditionalPackages = append(updatedClusterBootstrap.Spec.AdditionalPackages, newPkg)
 			packages = append(packages, newPkg)
+		}
+		additionalPackageTemplateMap[packageRefName] = templatePkg
+	}
+
+	// There might be packages in clusterbootstrap but not in clusterboostraptemplate.
+	// The below loop tries to find those packages and updates the RefName if it is found in tkr's spec.bootstrapPackages.
+	// If its not there in tkr's spec.bootstrappackages then user has to update the version of it in clusterbootstrap.
+	for additionalPkgRefName, additionalPkg := range additionalPackageMap {
+		if _, ok := additionalPackageTemplateMap[additionalPkgRefName]; !ok {
+			additionalPkgFromTKr, additionalPkgNamePrefix, err := util.GetBootstrapPackageNameFromTKR(r.context, r.Client, additionalPkg.RefName, cluster)
+			if err != nil {
+				log.Info(fmt.Sprintf("unable to find any additional bootstrap package prefixed with '%s' for ClusterBootstrap %s/%s in TKR", additionalPkgNamePrefix, cluster.Name, cluster.Namespace))
+			} else {
+				additionalPkg.RefName = additionalPkgFromTKr
+			}
 		}
 	}
 

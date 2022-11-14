@@ -12,7 +12,6 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -27,16 +26,16 @@ import (
 
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/builder"
 	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 	kvcpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	"github.com/vmware-tanzu/tanzu-framework/addons/test/builder"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 )
 
@@ -1368,7 +1367,132 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 					return controllerutil.ContainsFinalizer(clusterBootstrap, addontypes.AddonFinalizer)
 				}, waitTimeout, pollingInterval).Should(BeFalse())
+			})
+		})
+	})
 
+	When("cluster with custom clusterboostrap and add-missing-fields-from-tkr annotation", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-9"
+			clusterNamespace = "cluster-namespace-9"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-9.yaml"
+		})
+
+		Context("cluster with custom ClusterBootstrap with add-missing-fields-from-tkr annotation is being used", func() {
+			It("should work with custom ClusterBoostrap", func() {
+
+				By("filling custom ClusterBootstrap correctly", func() {
+					Eventually(func(g Gomega) {
+						clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+						err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, clusterBootstrap)
+						g.Expect(err).ShouldNot(HaveOccurred())
+						g.Expect(clusterBootstrap.Spec.CNI.RefName).To(BeEquivalentTo("calico.tanzu.vmware.com.1.3.5--vmware.1-tkg.1"))
+						g.Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+						g.Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal("CalicoConfig"))
+						g.Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal("calico-custom-config"))
+
+						// Validate Kapp
+						g.Expect(clusterBootstrap.Spec.Kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.32.9"))
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom).NotTo(BeNil())
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller-package", clusterName)))
+
+						// Validate additional packages
+						g.Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(3))
+
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).To(BeEquivalentTo("pinniped.tanzu.vmware.com.0.13.1--vmware.1-tkg.1"))
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom).NotTo(BeNil())
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.SecretRef).To(BeEquivalentTo(fmt.Sprintf("%s-pinniped-package", clusterName)))
+
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[1].RefName).To(BeEquivalentTo("foobar.tanzu.vmware.com.0.2.2--vmware.1-tkg.1"))
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom).NotTo(BeNil())
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*clusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.APIGroup).To(BeEquivalentTo("run.tanzu.vmware.com"))
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.Kind).To(BeEquivalentTo("FooBar"))
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.Name).To(BeEquivalentTo("foobar-custom-config"))
+
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[2].RefName).To(BeEquivalentTo("barfoo.tanzu.vmware.com.1.0.0--vmware.1-tkg.1"))
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[2].ValuesFrom).NotTo(BeNil())
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[2].ValuesFrom.Inline).NotTo(BeNil())
+					}, waitTimeout, pollingInterval).Should(Succeed())
+				})
+
+				By("setting cluster phase to provisioned", func() {
+					cluster := &clusterapiv1beta1.Cluster{}
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+					cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+					Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+				})
+
+				By("upgrading Cluster to newer TKR", func() {
+					cluster := &clusterapiv1beta1.Cluster{}
+					newTKRVersion := "v1.25.3-custom"
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+					cluster.Labels[constants.TKRLabelClassyClusters] = newTKRVersion
+
+					// Mock cluster pause mutating webhook
+					cluster.Spec.Paused = true
+					if cluster.Annotations == nil {
+						cluster.Annotations = map[string]string{}
+					}
+					cluster.Annotations[constants.ClusterPauseLabel] = newTKRVersion
+					Expect(k8sClient.Update(ctx, cluster)).To(Succeed())
+
+					Eventually(func(g Gomega) {
+						upgradedClusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), upgradedClusterBootstrap)
+
+						g.Expect(err).To(BeNil())
+						g.Expect(upgradedClusterBootstrap.Status.ResolvedTKR).To(BeEquivalentTo(newTKRVersion))
+
+						// Validate CNI
+						cni := upgradedClusterBootstrap.Spec.CNI
+						// Note: The value of CNI has been bumped to the one in TKR after cluster upgrade
+						g.Expect(cni.RefName).To(Equal("calico.tanzu.vmware.com.1.3.6--vmware.1-tkg.1"))
+						g.Expect(cni.ValuesFrom).NotTo(BeNil())
+						g.Expect(cni.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+						g.Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("CalicoConfig"))
+						g.Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal("calico-custom-config"))
+
+						// Validate Kapp
+						kapp := upgradedClusterBootstrap.Spec.Kapp
+						g.Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.32.10"))
+						g.Expect(kapp.ValuesFrom).NotTo(BeNil())
+						g.Expect(kapp.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
+						g.Expect(kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
+						g.Expect(kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller-package", clusterName)))
+
+						// Validate additional packages
+						g.Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(3))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[0].RefName).To(BeEquivalentTo("pinniped.tanzu.vmware.com.0.13.2--vmware.1-tkg.1"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom).NotTo(BeNil())
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.SecretRef).To(BeEquivalentTo(fmt.Sprintf("%s-pinniped-package", clusterName)))
+
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].RefName).To(BeEquivalentTo("foobar.tanzu.vmware.com.0.2.3--vmware.1-tkg.1"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom).NotTo(BeNil())
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.APIGroup).To(BeEquivalentTo("run.tanzu.vmware.com"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.Kind).To(BeEquivalentTo("FooBar"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.ProviderRef.Name).To(BeEquivalentTo("foobar-custom-config"))
+
+						// This package is not there in Clusterboostrap so expect the RefName not to be changed and no errors in controller
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[2].RefName).To(BeEquivalentTo("barfoo.tanzu.vmware.com.1.0.0--vmware.1-tkg.1"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[2].ValuesFrom).NotTo(BeNil())
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[2].ValuesFrom.Inline).NotTo(BeNil())
+
+						g.Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+						g.Expect(cluster.Spec.Paused).ToNot(BeTrue())
+						if cluster.Annotations != nil {
+							_, ok := cluster.Annotations[constants.ClusterPauseLabel]
+							g.Expect(ok).ToNot(BeTrue())
+						}
+					}, waitTimeout, pollingInterval).Should(Succeed())
+				})
 			})
 		})
 	})
