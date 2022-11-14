@@ -252,13 +252,14 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 	}
 
 	cmd.Args = append(cmd.Args, "info")
-	b, err := cmd.CombinedOutput()
+	b, err := cmd.Output()
 
 	if err != nil {
 		log.Errorf("%s - error: %v", id, err)
 		log.Errorf("%s - output: %v", id, string(b))
 		return plugin{}, err
 	}
+
 	var desc cliapi.PluginDescriptor
 	err = json.Unmarshal(b, &desc)
 	if err != nil {
