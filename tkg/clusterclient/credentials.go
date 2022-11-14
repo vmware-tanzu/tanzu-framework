@@ -530,6 +530,20 @@ func (c *client) UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) e
 	return nil
 }
 
+func (c *client) CheckUnifiedAzureClusterIdentity(clusterName, namespace string) (bool, error) {
+	azureCluster := &capzv1beta1.AzureCluster{}
+	err := c.GetResource(azureCluster, clusterName, namespace, nil, nil)
+	if err != nil {
+		return false, errors.Wrapf(err, "unable to retrieve azure cluster %s", clusterName)
+	}
+
+	if azureCluster.Spec.IdentityRef != nil {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, clientID, clientSecret string) error {
 	azureCluster := &capzv1beta1.AzureCluster{}
 	err := c.GetResource(azureCluster, clusterName, namespace, nil, nil)
@@ -597,8 +611,6 @@ func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, cl
 		if err := c.PatchResource(&corev1.Secret{}, secretName, secretNamespace, patchString, types.JSONPatchType, pollOptions); err != nil {
 			return errors.Wrapf(err, "unable to save secret %s", secretName)
 		}
-	} else {
-		log.Warningf("AzureCluster %s use the same AzureClusterIdentity with Management Cluster. It cannot be updated separately.", clusterName)
 	}
 
 	return nil

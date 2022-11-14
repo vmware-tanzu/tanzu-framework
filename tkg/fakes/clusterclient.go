@@ -103,6 +103,20 @@ type ClusterClient struct {
 	applyPatchForAutoScalerDeploymentReturnsOnCall map[int]struct {
 		result1 error
 	}
+	CheckUnifiedAzureClusterIdentityStub        func(string, string) (bool, error)
+	checkUnifiedAzureClusterIdentityMutex       sync.RWMutex
+	checkUnifiedAzureClusterIdentityArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	checkUnifiedAzureClusterIdentityReturns struct {
+		result1 bool
+		result2 error
+	}
+	checkUnifiedAzureClusterIdentityReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
 	CloneWithTimeoutStub        func(time.Duration) clusterclient.Client
 	cloneWithTimeoutMutex       sync.RWMutex
 	cloneWithTimeoutArgsForCall []struct {
@@ -1770,6 +1784,71 @@ func (fake *ClusterClient) ApplyPatchForAutoScalerDeploymentReturnsOnCall(i int,
 	fake.applyPatchForAutoScalerDeploymentReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentity(arg1 string, arg2 string) (bool, error) {
+	fake.checkUnifiedAzureClusterIdentityMutex.Lock()
+	ret, specificReturn := fake.checkUnifiedAzureClusterIdentityReturnsOnCall[len(fake.checkUnifiedAzureClusterIdentityArgsForCall)]
+	fake.checkUnifiedAzureClusterIdentityArgsForCall = append(fake.checkUnifiedAzureClusterIdentityArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.CheckUnifiedAzureClusterIdentityStub
+	fakeReturns := fake.checkUnifiedAzureClusterIdentityReturns
+	fake.recordInvocation("CheckUnifiedAzureClusterIdentity", []interface{}{arg1, arg2})
+	fake.checkUnifiedAzureClusterIdentityMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityCallCount() int {
+	fake.checkUnifiedAzureClusterIdentityMutex.RLock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.RUnlock()
+	return len(fake.checkUnifiedAzureClusterIdentityArgsForCall)
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityCalls(stub func(string, string) (bool, error)) {
+	fake.checkUnifiedAzureClusterIdentityMutex.Lock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.Unlock()
+	fake.CheckUnifiedAzureClusterIdentityStub = stub
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityArgsForCall(i int) (string, string) {
+	fake.checkUnifiedAzureClusterIdentityMutex.RLock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.RUnlock()
+	argsForCall := fake.checkUnifiedAzureClusterIdentityArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityReturns(result1 bool, result2 error) {
+	fake.checkUnifiedAzureClusterIdentityMutex.Lock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.Unlock()
+	fake.CheckUnifiedAzureClusterIdentityStub = nil
+	fake.checkUnifiedAzureClusterIdentityReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.checkUnifiedAzureClusterIdentityMutex.Lock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.Unlock()
+	fake.CheckUnifiedAzureClusterIdentityStub = nil
+	if fake.checkUnifiedAzureClusterIdentityReturnsOnCall == nil {
+		fake.checkUnifiedAzureClusterIdentityReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.checkUnifiedAzureClusterIdentityReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *ClusterClient) CloneWithTimeout(arg1 time.Duration) clusterclient.Client {
@@ -7971,6 +8050,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.applyFileRecursivelyMutex.RUnlock()
 	fake.applyPatchForAutoScalerDeploymentMutex.RLock()
 	defer fake.applyPatchForAutoScalerDeploymentMutex.RUnlock()
+	fake.checkUnifiedAzureClusterIdentityMutex.RLock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.RUnlock()
 	fake.cloneWithTimeoutMutex.RLock()
 	defer fake.cloneWithTimeoutMutex.RUnlock()
 	fake.createNamespaceMutex.RLock()

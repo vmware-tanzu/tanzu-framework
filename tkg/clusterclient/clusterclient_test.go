@@ -2511,6 +2511,59 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 
+		Context("CheckUnifiedAzureClusterIdentity", func() {
+			It("should return true using different identity", func() {
+				clientset.GetReturns(nil)
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, identityName)
+					case *capzv1beta1.AzureClusterIdentity:
+						*o = getDummyAzureClusterIdentity(identityName, identitySecretName, tenantID, clientID)
+					}
+					return nil
+				})
+
+				unified, err := clstClient.CheckUnifiedAzureClusterIdentity(clusterName, constants.DefaultNamespace)
+				Expect(unified).ToNot(BeTrue())
+				Expect(err).To(BeNil())
+			})
+
+			It("should return false using the same identity", func() {
+				clientset.GetReturns(nil)
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, "")
+					}
+					return nil
+				})
+
+				unified, err := clstClient.CheckUnifiedAzureClusterIdentity(clusterName, constants.DefaultNamespace)
+				Expect(unified).To(BeTrue())
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if clientset get returns error", func() {
+				clientset.GetReturns(errors.New("dummy"))
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o.(type) {
+					case *capzv1beta1.AzureCluster:
+						return errors.New("dummy")
+					}
+					return nil
+				})
+
+				unified, err := clstClient.CheckUnifiedAzureClusterIdentity(clusterName, constants.DefaultNamespace)
+				Expect(unified).ToNot(BeTrue())
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring(fmt.Sprintf("unable to retrieve azure cluster %s", clusterName))))
+			})
+		})
+
 		Context("UpdateAzureClusterIdentity", func() {
 			It("should not return an error", func() {
 				clientset.GetReturns(nil)
