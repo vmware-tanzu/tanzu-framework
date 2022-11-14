@@ -4,8 +4,12 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
+	"fmt"
+	cliflag "k8s.io/component-base/cli/flag"
 	"os"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -35,8 +39,10 @@ func init() {
 func main() {
 	var webhookServerPort int
 	var tlsMinVersion string
+	var tlsCipherSuites string
 	flag.IntVar(&webhookServerPort, "webhook-server-port", 9443, "The port that the webhook server serves at.")
 	flag.StringVar(&tlsMinVersion, "tls-min-version", "1.2", "minimum TLS version in use by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
+	flag.StringVar(&tlsCipherSuites, "tls-cipher-suites", "", "Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be used.\n"+fmt.Sprintf("Possible values are %s.", strings.Join(cliflag.TLSCipherPossibleValues(), ", ")))
 
 	opts := zap.Options{
 		Development: true,
@@ -56,6 +62,14 @@ func main() {
 	}
 
 	mgr.GetWebhookServer().TLSMinVersion = tlsMinVersion
+	if tlsCipherSuites != "" {
+		cipherSuitesSetFunc, err := setCipherSuiteFunc(tlsCipherSuites)
+		if err != nil {
+			setupLog.Error(err, "unable to set TLS Cipher suites")
+			os.Exit(1)
+		}
+		mgr.GetWebhookServer().TLSOpts = append(mgr.GetWebhookServer().TLSOpts, cipherSuitesSetFunc)
+	}
 	if err = (&featuregate.FeatureGateReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("FeatureGate"),
@@ -86,4 +100,15 @@ func main() {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+}
+
+func setCipherSuiteFunc(cipherSuiteString string) (func(cfg *tls.Config), error) {
+	cipherSuites := strings.Split(cipherSuiteString, ",")
+	suites, err := cliflag.TLSCipherSuites(cipherSuites)
+	if err != nil {
+		return nil, err
+	}
+	return func(cfg *tls.Config) {
+		cfg.CipherSuites = suites
+	}, nil
 }

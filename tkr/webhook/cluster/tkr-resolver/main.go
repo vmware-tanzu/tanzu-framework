@@ -4,8 +4,12 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
+	"fmt"
+	cliflag "k8s.io/component-base/cli/flag"
 	"os"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -40,11 +44,13 @@ func main() {
 	var webhookServerPort int
 	var customImageRepositoryCCVar string
 	var tlsMinVersion string
+	var tlsCipherSuites string
 	flag.StringVar(&webhookCertDir, "webhook-cert-dir", "/tmp/k8s-webhook-server/serving-certs/", "Webhook cert directory.")
 	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&customImageRepositoryCCVar, "custom-image-repository-cc-var", "imageRepository", "Custom imageRepository ClusterClass variable")
 	flag.IntVar(&webhookServerPort, "webhook-server-port", 9443, "The port that the webhook server serves at.")
 	flag.StringVar(&tlsMinVersion, "tls-min-version", "1.2", "minimum TLS version in use by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
+	flag.StringVar(&tlsCipherSuites, "tls-cipher-suites", "", "Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be used.\n"+fmt.Sprintf("Possible values are %s.", strings.Join(cliflag.TLSCipherPossibleValues(), ", ")))
 
 	opts := zap.Options{
 		Development: true,
@@ -70,6 +76,14 @@ func main() {
 	}
 
 	mgr.GetWebhookServer().TLSMinVersion = tlsMinVersion
+	if tlsCipherSuites != "" {
+		cipherSuitesSetFunc, err := setCipherSuiteFunc(tlsCipherSuites)
+		if err != nil {
+			setupLog.Error(err, "unable to set TLS Cipher suites")
+			os.Exit(1)
+		}
+		mgr.GetWebhookServer().TLSOpts = append(mgr.GetWebhookServer().TLSOpts, cipherSuitesSetFunc)
+	}
 	tkrResolver := resolver.New()
 
 	if err := (&cache.Reconciler{
@@ -113,4 +127,15 @@ func main() {
 		setupLog.Error(err, "unable to run manager")
 		os.Exit(1)
 	}
+}
+
+func setCipherSuiteFunc(cipherSuiteString string) (func(cfg *tls.Config), error) {
+	cipherSuites := strings.Split(cipherSuiteString, ",")
+	suites, err := cliflag.TLSCipherSuites(cipherSuites)
+	if err != nil {
+		return nil, err
+	}
+	return func(cfg *tls.Config) {
+		cfg.CipherSuites = suites
+	}, nil
 }

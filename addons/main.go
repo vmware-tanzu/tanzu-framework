@@ -5,10 +5,13 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -18,6 +21,7 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/util/workqueue"
+	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
@@ -110,6 +114,7 @@ type addonFlags struct {
 	enablePprof                     bool
 	pprofBindAddress                string
 	tlsMinVersion                   string
+	tlsCipherSuites                 string
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -153,7 +158,7 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.BoolVar(&addonFlags.enablePprof, "enable-pprof", false, "Enable pprof web server")
 	flag.StringVar(&addonFlags.pprofBindAddress, "pprof-bind-addr", ":18318", "Bind address of pprof web server if enabled")
 	flag.StringVar(&addonFlags.tlsMinVersion, "tls-min-version", "1.2", "minimum TLS version in use by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
-
+	flag.StringVar(&addonFlags.tlsCipherSuites, "tls-cipher-suites", "", "Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be used.\n"+fmt.Sprintf("Possible values are %s.", strings.Join(cliflag.TLSCipherPossibleValues(), ", ")))
 	flag.Parse()
 }
 
@@ -404,8 +409,29 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 	}
 }
 
+func setCipherSuiteFunc(cipherSuiteString string) (func(cfg *tls.Config), error) {
+	cipherSuites := strings.Split(cipherSuiteString, ",")
+	suites, err := cliflag.TLSCipherSuites(cipherSuites)
+	if err != nil {
+		return nil, err
+	}
+	return func(cfg *tls.Config) {
+		cfg.CipherSuites = suites
+	}, nil
+}
+
 func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 	mgr.GetWebhookServer().TLSMinVersion = flags.tlsMinVersion
+
+	if flags.tlsCipherSuites != "" {
+		cipherSuitesSetFunc, err := setCipherSuiteFunc(flags.tlsCipherSuites)
+		if err != nil {
+			setupLog.Error(err, "unable to set TLS Cipher suites")
+			os.Exit(1)
+		}
+		mgr.GetWebhookServer().TLSOpts = append(mgr.GetWebhookServer().TLSOpts, cipherSuitesSetFunc)
+	}
+
 	certPath := path.Join(constants.WebhookCertDir, "tls.crt")
 	keyPath := path.Join(constants.WebhookCertDir, "tls.key")
 	webhookTLS := webhooks.WebhookTLS{

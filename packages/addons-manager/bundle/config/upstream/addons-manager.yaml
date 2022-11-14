@@ -354,6 +354,7 @@ spec:
         - --feature-gate-cluster-bootstrap=true
         #@ if/end data.values.tanzuAddonsManager.featureGates.packageInstallStatus:
         - --feature-gate-package-install-status=true
+        - --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         image: addons-controller:latest
         imagePullPolicy: IfNotPresent
         name: tanzu-addons-controller
