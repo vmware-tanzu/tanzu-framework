@@ -1,5 +1,12 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
+#@ load("../../../../providers/ytt/lib/helpers.star", "get_default_tkr_bom_data", "tkg_image_repo")
+
+#@ akooRepo = get_default_tkr_bom_data().components["ako-operator"][0]
+
+#@ def ako_operator_image():
+#@   return "{}/{}:{}".format(tkg_image_repo(), akooRepo.images.akoOperatorImage.imagePath, akooRepo.images.akoOperatorImage.tag)
+#@ end
 
 #@ def labels():
 app: tanzu-ako-operator
@@ -40,7 +47,7 @@ spec:
             - --metrics-addr=:8080
           command:
             - /manager
-          image: harbor-repo.vmware.com/tanzu_ako_operator_dev/tkg-networking/tanzu-ako-operator:v1.7.0_dev7
+          image: #@ ako_operator_image()
           name: manager
           ports:
             - containerPort: 9443

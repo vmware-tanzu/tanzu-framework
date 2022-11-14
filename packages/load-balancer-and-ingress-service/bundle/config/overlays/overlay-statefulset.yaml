@@ -1,5 +1,12 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
+#@ load("../../../../providers/ytt/lib/helpers.star", "get_default_tkr_bom_data", "tkg_image_repo")
+
+#@ akoRepo = get_default_tkr_bom_data().components["load-balancer-and-ingress-service"][0]
+
+#@ def ako_image_with_tag():
+#@  return "{}/{}:{}".format(tkg_image_repo(), akoRepo.images.loadBalancerAndIngressServiceImage.imagePath, akoRepo.images.loadBalancerAndIngressServiceImage.tag)
+#@ end
 
 #@overlay/match by=overlay.subset({"kind": "Namespace"})
 ---
@@ -45,6 +52,7 @@ spec:
       containers:
 #@overlay/match by=overlay.index(0)
         - name: #@ values.loadBalancerAndIngressService.name
+          image: #@ ako_image_with_tag()
 #@ if values.loadBalancerAndIngressService.config.persistent_volume_claim:
 #@overlay/match missing_ok=True
           volumeMounts:
