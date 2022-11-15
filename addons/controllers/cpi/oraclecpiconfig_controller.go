@@ -122,6 +122,10 @@ func (r *OracleCPIConfigReconciler) reconcileOracleCPIConfig(ctx context.Context
 		r.Log.Info("Successfully patched OracleCPIConfig")
 	}()
 
+	if !cpiConfig.GetDeletionTimestamp().IsZero() {
+		return ctrl.Result{}, nil
+	}
+
 	fingerprint, ok := auth.Data["fingerprint"]
 	if !ok {
 		r.Log.Info("Cannot extract fingerprint", "name", authenticationSecretName, "namespace", authenticationSecretNamespace)
