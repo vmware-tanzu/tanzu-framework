@@ -46,16 +46,16 @@ type OracleCPIConfigReconciler struct {
 // Reconcile the OracleCPIConfig CRD
 func (r *OracleCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 
-	r.Log = r.Log.WithValues("OracleCPIConfig", req.NamespacedName)
+	logger := r.Log.WithValues("OracleCPIConfig", req.NamespacedName)
 
 	// fetch OracleCPIConfig resource
 	cpiConfig := &cpiv1alpha1.OracleCPIConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cpiConfig); err != nil {
 		if apierrors.IsNotFound(err) {
-			r.Log.Info("OracleCPIConfig resource not found")
+			logger.Info("OracleCPIConfig resource not found")
 			return ctrl.Result{}, nil
 		}
-		r.Log.Error(err, "Unable to fetch OracleCPIConfig resource")
+		logger.Error(err, "Unable to fetch OracleCPIConfig resource")
 		return ctrl.Result{}, err
 	}
 
@@ -65,22 +65,22 @@ func (r *OracleCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	cluster, err := cutil.GetOwnerCluster(ctx, r.Client, cpiConfig, req.Namespace, constants.OracleCPIDefaultRefName)
 	if err != nil {
 		if apierrors.IsNotFound(err) && cluster != nil {
-			r.Log.Info(fmt.Sprintf("'%s/%s' is listed as owner reference but could not be found",
+			logger.Info(fmt.Sprintf("'%s/%s' is listed as owner reference but could not be found",
 				cluster.Namespace, cluster.Name))
 			return ctrl.Result{}, nil
 		}
-		r.Log.Error(err, "could not determine owner cluster")
+		logger.Error(err, "could not determine owner cluster")
 		return ctrl.Result{}, err
 	}
 
 	authSecret, err := r.getOracleAuthSecret(ctx, r.Client)
 	if err != nil {
-		r.Log.Error(err, "Failed to get authentication secret", "name", authenticationSecretName, "namespace", authenticationSecretNamespace)
+		logger.Error(err, "Failed to get authentication secret", "name", authenticationSecretName, "namespace", authenticationSecretNamespace)
 		return ctrl.Result{}, err
 	}
 
 	if res, err := r.reconcileOracleCPIConfig(ctx, cpiConfig, cluster, authSecret); err != nil {
-		r.Log.Error(err, "Failed to reconcile VSphereCPIConfig")
+		logger.Error(err, "Failed to reconcile OracleCPIConfig")
 		return res, err
 	}
 
