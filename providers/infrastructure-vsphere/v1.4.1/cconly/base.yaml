@@ -803,6 +803,29 @@ spec:
               {{- end }}
               {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
               {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+  - name: ipv6localhost
+    enabledIf: '{{ list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: echo "::1         localhost" >> /etc/hosts
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: echo "::1         localhost" >> /etc/hosts
   - name: clusterApiServerPort
     enabledIf: '{{ not (empty .apiServerPort) }}'
     definitions:
