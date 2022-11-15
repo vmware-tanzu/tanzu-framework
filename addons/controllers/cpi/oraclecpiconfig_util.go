@@ -32,7 +32,7 @@ func (r *OracleCPIConfigReconciler) ClusterToOracleCPIConfig(o client.Object) []
 	var requests []ctrl.Request
 
 	for _, cpiConfig := range cs.Items {
-		requests = forClusterMappedByCPIConfigEnqueueRequest(&cpiConfig, cluster, r.Config.ConfigControllerConfig, r.Log, requests)
+		requests = performEnqueueForCPIConfigIfOwnedByCluster(&cpiConfig, cluster, r.Config.ConfigControllerConfig, r.Log, requests)
 	}
 
 	return requests
