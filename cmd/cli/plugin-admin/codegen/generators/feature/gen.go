@@ -8,7 +8,7 @@ import (
 	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 )
 
 const markerName = "tanzu:feature"
@@ -27,14 +27,8 @@ type Rule struct {
 	Name string
 	// Description of the feature.
 	Description string `marker:",optional"`
-	// Activated defines the default state of the feature activation.
-	Activated bool `marker:",optional"`
-	// Immutable indicates this feature cannot be toggled once set
-	Immutable bool `marker:",optional"`
-	// Discoverable defines API clients should present or hide this feature from user-facing results.
-	Discoverable bool `marker:",optional"`
-	// Maturity indicates maturity level of this feature.
-	Maturity string
+	// Stability indicates stability level of this feature.
+	Stability corev1alpha2.StabilityLevel
 }
 
 // Generate generates artifacts produced by feature marker.
@@ -45,7 +39,7 @@ func (g Generator) Generate(ctx *genall.GenerationContext) error {
 		return nil
 	}
 	for _, obj := range objs {
-		if err := ctx.WriteYAML(obj.(configv1alpha1.Feature).Name+".yaml", obj); err != nil {
+		if err := ctx.WriteYAML(obj.(corev1alpha2.Feature).Name+".yaml", obj); err != nil {
 			return err
 		}
 	}
@@ -72,20 +66,8 @@ func (Generator) RegisterMarkers(reg *markers.Registry) error {
 				Summary: "specifies description of the feature.",
 				Details: "",
 			},
-			"Activated": {
-				Summary: "defines the default state of the feature activation.",
-				Details: "",
-			},
-			"Immutable": {
-				Summary: "indicates this feature cannot be toggled once set",
-				Details: "",
-			},
-			"Discoverable": {
-				Summary: "defines API clients should present or hide this feature from user-facing results.",
-				Details: "",
-			},
-			"Maturity": {
-				Summary: "indicates maturity level of this feature.",
+			"Stability": {
+				Summary: "indicates stability level of this feature.",
 				Details: "",
 			},
 		},
@@ -100,22 +82,19 @@ func generateFeatures(ctx *genall.GenerationContext) []interface{} {
 			markerValues := getMarkerValues(markerName, info.Markers)
 			for _, markerValue := range markerValues {
 				val := markerValue.(Rule)
-				objs = append(objs, configv1alpha1.Feature{
+				objs = append(objs, corev1alpha2.Feature{
 					TypeMeta: metav1.TypeMeta{
 						Kind:       "Feature",
-						APIVersion: configv1alpha1.GroupVersion.String(),
+						APIVersion: corev1alpha2.GroupVersion.String(),
 					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name: val.Name,
 					},
-					Spec: configv1alpha1.FeatureSpec{
-						Description:  val.Description,
-						Activated:    val.Activated,
-						Immutable:    val.Immutable,
-						Discoverable: val.Discoverable,
-						Maturity:     val.Maturity,
+					Spec: corev1alpha2.FeatureSpec{
+						Description: val.Description,
+						Stability:   val.Stability,
 					},
-					Status: configv1alpha1.FeatureStatus{},
+					Status: corev1alpha2.FeatureStatus{},
 				})
 			}
 		}); err != nil {

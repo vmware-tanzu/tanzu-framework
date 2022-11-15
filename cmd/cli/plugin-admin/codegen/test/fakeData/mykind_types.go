@@ -14,7 +14,7 @@ type MyKindSpec struct {
 type MyKindStatus struct {
 }
 
-//+tanzu:feature:name=foo,immutable=false,activated=false,discoverable=false,maturity=dev
+//+tanzu:feature:name=foo,stability=Stable
 
 // MyKind is the Schema for the mykinds API
 type MyKind struct {

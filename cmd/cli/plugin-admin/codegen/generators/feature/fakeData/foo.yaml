@@ -1,13 +1,9 @@
 
 ---
-apiVersion: config.tanzu.vmware.com/v1alpha1
+apiVersion: core.tanzu.vmware.com/v1alpha2
 kind: Feature
 metadata:
-  creationTimestamp: null
   name: foo
 spec:
-  activated: false
-  discoverable: false
-  immutable: false
-  maturity: dev
+  stability: Technical Preview
 status: {}

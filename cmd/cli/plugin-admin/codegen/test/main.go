@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/yaml"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
 )
@@ -50,16 +50,13 @@ func initialize() error {
 			return err
 		}
 
-		var actualFooFeature configv1alpha1.Feature
+		var actualFooFeature corev1alpha2.Feature
 		if err := yaml.Unmarshal(fooFeatureCRBytes, &actualFooFeature); err != nil {
 			return err
 		}
 
 		if actualFooFeature.Name != "foo" ||
-			actualFooFeature.Spec.Activated ||
-			actualFooFeature.Spec.Discoverable ||
-			actualFooFeature.Spec.Immutable ||
-			actualFooFeature.Spec.Maturity != "dev" {
+			actualFooFeature.Spec.Stability != "Stable" {
 			return fmt.Errorf("feature generation was not successful")
 		}
 		return nil
