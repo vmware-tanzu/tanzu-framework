@@ -32,6 +32,8 @@ type TKRSourceControllerPackageValues struct {
 	BomMetadataImagePath string                                     `yaml:"bomMetadataImagePath,omitempty"`
 	TKRRepoImagePath     string                                     `yaml:"tkrRepoImagePath,omitempty"`
 	DefaultCompatibleTKR string                                     `yaml:"defaultCompatibleTKR,omitempty"`
+	CaCerts              string                                     `yaml:"caCerts,omitempty"`
+	ImageRepo            string                                     `yaml:"imageRepository,omitempty"`
 	Deployment           TKRSourceControllerPackageValuesDeployment `yaml:"deployment,omitempty"`
 }
 
