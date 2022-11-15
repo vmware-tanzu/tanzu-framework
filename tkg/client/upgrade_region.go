@@ -166,6 +166,13 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		return err
 	}
 
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+		log.Info("Creating tkg-bom versioned ConfigMaps...")
+		if err := c.CreateOrUpdateVerisionedTKGBom(regionalClusterClient); err != nil {
+			log.Warningf("Warning: Management cluster is created successfully, but the tkg-bom versioned ConfigMaps creation is failing. %v", err)
+		}
+	}
+
 	return nil
 }
 

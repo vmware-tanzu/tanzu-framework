@@ -421,6 +421,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+		log.Info("Creating tkg-bom versioned ConfigMaps...")
+		if err := c.CreateOrUpdateVerisionedTKGBom(regionalClusterClient); err != nil {
+			log.Warningf("Warning: Management cluster is created successfully, but the tkg-bom versioned ConfigMaps creation is failing. %v", err)
+		}
+	}
+
 	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
 	isSuccessful = true
 	return nil
