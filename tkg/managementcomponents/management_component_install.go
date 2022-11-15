@@ -223,11 +223,7 @@ func AddonSecretExists(clusterClient clusterclient.Client, clusterName, addonNam
 }
 
 // InstallManagementComponents installs the management component to cluster
-func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error {
-	clusterClient, err := clusterclient.NewClient(mcip.ClusterOptions.Kubeconfig, mcip.ClusterOptions.Kubecontext, clusterclient.Options{})
-	if err != nil {
-		return errors.Wrap(err, "unable to get cluster client")
-	}
+func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient packageclient.PackageClient, mcip *ManagementComponentsInstallOptions) error {
 	clusterName, err := clusterClient.GetCurrentClusterName(mcip.ClusterOptions.Kubecontext)
 	if err != nil {
 		return errors.Wrap(err, "unable to get cluster name")
@@ -251,11 +247,6 @@ func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error
 		}
 	}
 
-	// create package client
-	pkgClient, err := packageclient.NewPackageClientForContext(mcip.ClusterOptions.Kubeconfig, mcip.ClusterOptions.Kubecontext)
-	if err != nil {
-		return err
-	}
 	if err = InstallManagementPackages(pkgClient, mcip.ManagementPackageRepositoryOptions); err != nil {
 		// instead of throwing error here, wait for some additional time for packages to get reconciled successfully
 		// error will be thrown at the next step if packages are not reconciled after timeout value

@@ -17,6 +17,7 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/carvelhelpers"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
@@ -27,16 +28,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
-func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext string, operationType constants.OperationType) error {
+func (c *TkgClient) InstallOrUpgradeKappController(clusterClient clusterclient.Client, operationType constants.OperationType) error {
 	// Get kapp-controller configuration file
 	kappControllerConfigFile, err := c.getKappControllerConfigFile()
 	if err != nil {
 		return err
-	}
-
-	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
-	if err != nil {
-		return errors.Wrap(err, "unable to get cluster client")
 	}
 
 	kappControllerOptions := managementcomponents.KappControllerOptions{
@@ -54,20 +50,7 @@ func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext strin
 
 // RemoveObsoleteManagementComponents lists and removes management cluster components that are obsoleted by new
 // management packages, e.g. the tkr-controller-manager deployment in tkr-system namespace.
-func RemoveObsoleteManagementComponents(kubeconfig, kubecontext string, upgrade bool) error {
-	if !upgrade {
-		return nil
-	}
-
-	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
-	if err != nil {
-		return errors.Wrap(err, "unable to get management cluster client")
-	}
-
-	return removeObsoleteManagementComponents(clusterClient)
-}
-
-func removeObsoleteManagementComponents(clusterClient clusterclient.Client) error {
+func RemoveObsoleteManagementComponents(clusterClient clusterclient.Client) error {
 	objectsToDelete, err := listObjectsToDelete(clusterClient)
 	if err != nil {
 		return err
@@ -91,12 +74,12 @@ func listObjectsToDelete(clusterClient clusterclient.Client) ([]client.Object, e
 			Group:   "addons.cluster.x-k8s.io",
 			Version: "v1beta1",
 			Kind:    "ClusterResourceSet",
-		}: {client.InNamespace("tkr-system")},
+		}: {client.InNamespace(constants.TkrNamespace)},
 		{
 			Group:   "apps",
 			Version: "v1",
 			Kind:    "Deployment",
-		}: {client.InNamespace("tkr-system")},
+		}: {client.InNamespace(constants.TkrNamespace)},
 	}
 
 	for gvk, listOptions := range kindsOfObjectsToDelete {
@@ -116,7 +99,7 @@ func listObjectsToDelete(clusterClient clusterclient.Client) ([]client.Object, e
 }
 
 // InstallOrUpgradeManagementComponents install management components to the cluster
-func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext string, upgrade bool) error {
+func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.Client, pkgClient packageclient.PackageClient, kubecontext string, upgrade bool) error {
 	managementPackageRepoImage, err := c.tkgBomClient.GetManagementPackageRepositoryImage()
 	if err != nil {
 		return errors.Wrap(err, "unable to get management package repository image")
@@ -141,14 +124,13 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 	managementPackageVersion = strings.TrimLeft(managementPackageVersion, "v")
 
 	// Get TKG package's values file
-	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(managementPackageVersion, kubeconfig, kubecontext, upgrade)
+	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(mcClient, managementPackageVersion, upgrade)
 	if err != nil {
 		return err
 	}
 
 	managementcomponentsInstallOptions := managementcomponents.ManagementComponentsInstallOptions{
 		ClusterOptions: managementcomponents.ClusterOptions{
-			Kubeconfig:  kubeconfig,
 			Kubecontext: kubecontext,
 		},
 		ManagementPackageRepositoryOptions: managementcomponents.ManagementPackageRepositoryOptions{
@@ -159,7 +141,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 		},
 	}
 
-	err = managementcomponents.InstallManagementComponents(&managementcomponentsInstallOptions)
+	err = managementcomponents.InstallManagementComponents(mcClient, pkgClient, &managementcomponentsInstallOptions)
 
 	// Remove intermediate config files if err is empty
 	if err == nil {
@@ -169,12 +151,12 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 	return err
 }
 
-func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kubeconfig, kubecontext string, upgrade bool) (string, error) {
+func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client, managementPackageVersion string, upgrade bool) (string, error) {
 	var userProviderConfigValues map[string]interface{}
 	var err error
 
 	if upgrade {
-		userProviderConfigValues, err = c.getUserConfigVariableValueMapFromSecret(kubeconfig, kubecontext)
+		userProviderConfigValues, err = c.getUserConfigVariableValueMapFromSecret(mcClient)
 	} else {
 		userProviderConfigValues, err = c.getUserConfigVariableValueMap()
 	}
@@ -205,12 +187,7 @@ func (c *TkgClient) getUserConfigVariableValueMap() (map[string]interface{}, err
 	return c.GetUserConfigVariableValueMap(path, c.TKGConfigReaderWriter())
 }
 
-func (c *TkgClient) getUserConfigVariableValueMapFromSecret(kubeconfig, kubecontext string) (map[string]interface{}, error) {
-	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to get cluster client")
-	}
-
+func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient clusterclient.Client) (map[string]interface{}, error) {
 	var tkgPackageConfig managementcomponents.TKGPackageConfig
 
 	// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
