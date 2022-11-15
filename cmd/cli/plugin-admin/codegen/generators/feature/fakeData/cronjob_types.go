@@ -14,8 +14,8 @@ type CronjobSpec struct {
 type CronjobStatus struct {
 }
 
-//+tanzu:feature:name=bar,immutable=false,activated=false,discoverable=false,maturity=dev
-//+tanzu:feature:name=baz,immutable=false,activated=false,discoverable=false,maturity=dev
+//+tanzu:feature:name=bar,stability=Stable
+//+tanzu:feature:name=baz,stability=Stable
 
 // Cronjob is the Schema for the cronjobs API
 type Cronjob struct {
