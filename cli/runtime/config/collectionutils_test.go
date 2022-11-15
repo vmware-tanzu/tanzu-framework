@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 func TestSomeWithBoolType(t *testing.T) {
@@ -38,66 +36,7 @@ func TestSomeWithBoolType(t *testing.T) {
 
 	for _, tc := range boolTests {
 		t.Run(tc.name, func(t *testing.T) {
-			ans := Some(tc.input, tc.condition)
-			assert.Equal(t, ans, tc.out)
-		})
-	}
-}
-
-func TestSomeWithContext(t *testing.T) {
-	contextTests := []struct {
-		name      string
-		input     []configapi.Context
-		condition func(c configapi.Context) bool
-		out       bool
-	}{
-		{
-			name: "should return true",
-			input: []configapi.Context{
-				{
-					Name: "test-mc",
-					Type: "k8s",
-				},
-				{
-					Name: "test-mc1",
-					Type: "k8s",
-				},
-				{
-					Name: "test-mc2",
-					Type: "k8s",
-				},
-			},
-			condition: func(c configapi.Context) bool {
-				return c.Name == "test-mc"
-			},
-			out: true,
-		},
-		{
-			name: "should return true",
-			input: []configapi.Context{
-				{
-					Name: "test-mc",
-					Type: "k8s",
-				},
-				{
-					Name: "test-mc1",
-					Type: "k8s",
-				},
-				{
-					Name: "test-mc2",
-					Type: "k8s",
-				},
-			},
-			condition: func(c configapi.Context) bool {
-				return c.Name == "test-mc4"
-			},
-			out: false,
-		},
-	}
-
-	for _, tc := range contextTests {
-		t.Run(tc.name, func(t *testing.T) {
-			ans := Some[configapi.Context](tc.input, tc.condition)
+			ans := SomeBool(tc.input, tc.condition)
 			assert.Equal(t, ans, tc.out)
 		})
 	}

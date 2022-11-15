@@ -4,26 +4,10 @@
 package config
 
 import (
-	"gopkg.in/yaml.v3"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
-)
 
-//nolint:all
-// Disable unused lint
-// setTypeMeta add or update typemeta stanza in the node config
-func setTypeMeta(node *yaml.Node, typeMeta metav1.TypeMeta) (persist bool, err error) {
-	persist, err = setKind(node, typeMeta.Kind)
-	if err != nil {
-		return persist, err
-	}
-	persist, err = setAPIVersion(node, typeMeta.APIVersion)
-	if err != nil {
-		return persist, err
-	}
-	return persist, err
-}
+	"gopkg.in/yaml.v3"
+)
 
 func setKind(node *yaml.Node, kind string) (persist bool, err error) {
 	return setScalarNode(node, KeyKind, kind)

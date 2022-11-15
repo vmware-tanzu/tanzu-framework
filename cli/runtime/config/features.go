@@ -9,7 +9,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
 
 	"gopkg.in/yaml.v3"
@@ -32,7 +31,7 @@ func IsFeatureEnabled(plugin, key string) (bool, error) {
 }
 
 func getFeature(node *yaml.Node, plugin, key string) (string, error) {
-	cfg, err := nodeutils.ConvertFromNode[configapi.ClientConfig](node)
+	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return "", err
 	}

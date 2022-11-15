@@ -5,31 +5,9 @@ package nodeutils
 
 import (
 	"github.com/pkg/errors"
+
 	"gopkg.in/yaml.v3"
 )
-
-// ConvertFromNode converts yaml node to generic type
-func ConvertFromNode[T any](node *yaml.Node) (obj *T, err error) {
-	err = node.Decode(&obj)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert node to obj")
-	}
-	return obj, err
-}
-
-// ConvertToNode converts generic type to yaml node
-func ConvertToNode[T any](obj *T) (*yaml.Node, error) {
-	bytes, err := yaml.Marshal(obj)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert obj to node")
-	}
-	var node yaml.Node
-	err = yaml.Unmarshal(bytes, &node)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal bytes to node")
-	}
-	return &node, nil
-}
 
 // ConvertNodeToMap converts yaml node to map[string]string
 func ConvertNodeToMap(node *yaml.Node) (envs map[string]string, err error) {

@@ -13,23 +13,6 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-func NewClientConfig() *configapi.ClientConfig {
-	c := newClientConfig()
-	return c
-}
-
-func newClientConfig() *configapi.ClientConfig {
-	c := &configapi.ClientConfig{}
-	// Check if the lock is acquired by the current process or not
-	// If not try to acquire the lock before Storing the client config
-	// and release the lock after updating the config
-	if !IsTanzuConfigLockAcquired() {
-		AcquireTanzuConfigLock()
-		defer ReleaseTanzuConfigLock()
-	}
-	return c
-}
-
 // GetClientConfig retrieves the config from the local directory with file lock
 func GetClientConfig() (cfg *configapi.ClientConfig, err error) {
 	// Acquire tanzu config lock
@@ -47,7 +30,7 @@ func GetClientConfigNoLock() (cfg *configapi.ClientConfig, err error) {
 	b, err := os.ReadFile(cfgPath)
 	if err != nil || len(b) == 0 {
 		_ = fmt.Errorf("failed to read in config: %v", err)
-		cfg = NewClientConfig()
+		cfg = &configapi.ClientConfig{}
 		return cfg, nil
 	}
 	// Logging
@@ -139,17 +122,17 @@ func clientConfigSetCLI(cfg *configapi.ClientConfig, node *yaml.Node) (err error
 		if cfg.ClientOptions.CLI.UnstableVersionSelector != "" {
 			setUnstableVersionSelector(node, string(cfg.ClientOptions.CLI.UnstableVersionSelector))
 		}
-		//nolint
+		//nolint:staticcheck
 		// Disable deprecated lint warning
 		if cfg.ClientOptions.CLI.Edition != "" {
 			setEdition(node, string(cfg.ClientOptions.CLI.Edition))
 		}
-		//nolint
+		//nolint:staticcheck
 		// Disable deprecated lint warning
 		if cfg.ClientOptions.CLI.BOMRepo != "" {
 			setBomRepo(node, cfg.ClientOptions.CLI.BOMRepo)
 		}
-		//nolint
+		//nolint:staticcheck
 		// Disable deprecated lint warning
 		if cfg.ClientOptions.CLI.CompatibilityFilePath != "" {
 			setCompatibilityFilePath(node, cfg.ClientOptions.CLI.CompatibilityFilePath)

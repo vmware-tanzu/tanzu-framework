@@ -66,7 +66,7 @@ func DeleteCLIRepository(name string) error {
 }
 
 func getCLIRepositories(node *yaml.Node) ([]configapi.PluginRepository, error) {
-	cfg, err := nodeutils.ConvertFromNode[configapi.ClientConfig](node)
+	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +76,8 @@ func getCLIRepositories(node *yaml.Node) ([]configapi.PluginRepository, error) {
 	return nil, errors.New("cli repositories not found")
 }
 
-//nolint: dupl
 func getCLIRepository(node *yaml.Node, name string) (*configapi.PluginRepository, error) {
-	cfg, err := nodeutils.ConvertFromNode[configapi.ClientConfig](node)
+	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +118,7 @@ func setCLIRepository(node *yaml.Node, repository configapi.PluginRepository) (p
 	return setRepository(repositoriesNode, repository)
 }
 
-//nolint: dupl
+//nolint:dupl
 func deleteCLIRepository(node *yaml.Node, name string) error {
 	configOptions := func(c *nodeutils.Config) {
 		c.ForceCreate = false
@@ -153,7 +152,7 @@ func deleteCLIRepository(node *yaml.Node, name string) error {
 }
 
 func setRepository(repositoriesNode *yaml.Node, repository configapi.PluginRepository) (persist bool, err error) {
-	newNode, err := nodeutils.ConvertToNode[configapi.PluginRepository](&repository)
+	newNode, err := convertPluginRepositoryToNode(&repository)
 	if err != nil {
 		return persist, err
 	}

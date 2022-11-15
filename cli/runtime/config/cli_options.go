@@ -7,7 +7,6 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
 )
 
@@ -45,12 +44,12 @@ func setEdition(node *yaml.Node, val string) (persist bool) {
 }
 
 func getEdition(node *yaml.Node) (string, error) {
-	cfg, err := nodeutils.ConvertFromNode[configapi.ClientConfig](node)
+	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return "", err
 	}
 	if cfg != nil && cfg.ClientOptions != nil && cfg.ClientOptions.CLI != nil {
-		//nolint
+		//nolint:staticcheck
 		return string(cfg.ClientOptions.CLI.Edition), nil
 	}
 	return "", errors.New("edition not found")

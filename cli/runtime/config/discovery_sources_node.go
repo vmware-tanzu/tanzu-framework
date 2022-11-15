@@ -42,13 +42,13 @@ func setDiscoverySources(node *yaml.Node, discoverySources []configapi.PluginDis
 			return persist, err
 		}
 	}
-	persist = Some[bool](anyPersists, isTrue)
+	persist = SomeBool(anyPersists, isTrue)
 	return persist, err
 }
 
 func setDiscoverySource(discoverySourcesNode *yaml.Node, discoverySource configapi.PluginDiscovery) (persist bool, err error) {
 	// convert the discoverySource change obj to yaml node
-	newNode, err := nodeutils.ConvertToNode[configapi.PluginDiscovery](&discoverySource)
+	newNode, err := convertPluginDiscoveryToNode(&discoverySource)
 	if err != nil {
 		return persist, err
 	}

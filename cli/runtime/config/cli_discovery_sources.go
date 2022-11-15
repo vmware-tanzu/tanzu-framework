@@ -63,7 +63,7 @@ func DeleteCLIDiscoverySource(name string) error {
 }
 
 func getCLIDiscoverySources(node *yaml.Node) ([]configapi.PluginDiscovery, error) {
-	cfg, err := nodeutils.ConvertFromNode[configapi.ClientConfig](node)
+	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return nil, err
 	}
@@ -73,10 +73,8 @@ func getCLIDiscoverySources(node *yaml.Node) ([]configapi.PluginDiscovery, error
 	return nil, errors.New("cli discovery sources not found")
 }
 
-//nolint:dupl
-// Skip duplicate lint to merge get cli discovery source and cli repository code into one.
 func getCLIDiscoverySource(node *yaml.Node, name string) (*configapi.PluginDiscovery, error) {
-	cfg, err := nodeutils.ConvertFromNode[configapi.ClientConfig](node)
+	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return nil, err
 	}
@@ -121,8 +119,9 @@ func setCLIDiscoverySource(node *yaml.Node, discoverySource configapi.PluginDisc
 	return persist, err
 }
 
-//nolint:dupl
 // Skip duplicate lint to merge delete cli discovery source and cli repository code into one.
+//
+//nolint:dupl
 func deleteCLIDiscoverySource(node *yaml.Node, name string) error {
 	configOptions := func(c *nodeutils.Config) {
 		c.ForceCreate = false

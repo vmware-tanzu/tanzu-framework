@@ -12,7 +12,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
 )
 
 // getClientConfigNode retrieves the config from the local directory with file lock
@@ -49,8 +48,8 @@ func getClientConfigNodeNoLock() (*yaml.Node, error) {
 
 // newClientConfigNode create and return new client config node
 func newClientConfigNode() (*yaml.Node, error) {
-	c := newClientConfig()
-	node, err := nodeutils.ConvertToNode[configapi.ClientConfig](c)
+	c := &configapi.ClientConfig{}
+	node, err := convertClientConfigToNode(c)
 	node.Content[0].Style = 0
 	if err != nil {
 		return nil, err

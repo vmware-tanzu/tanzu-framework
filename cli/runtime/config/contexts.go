@@ -27,7 +27,8 @@ func AddContext(c *configapi.Context, setCurrent bool) error {
 }
 
 // SetContext add or update context and currentContext
-//nolint:all
+//
+//nolint:gocyclo
 func SetContext(c *configapi.Context, setCurrent bool) error {
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
@@ -208,7 +209,7 @@ func EndpointFromContext(s *configapi.Context) (endpoint string, err error) {
 }
 
 func getContext(node *yaml.Node, name string) (*configapi.Context, error) {
-	cfg, err := nodeutils.ConvertFromNode[configapi.ClientConfig](node)
+	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +222,7 @@ func getContext(node *yaml.Node, name string) (*configapi.Context, error) {
 }
 
 func getCurrentContext(node *yaml.Node, ctxType configapi.ContextType) (*configapi.Context, error) {
-	cfg, err := nodeutils.ConvertFromNode[configapi.ClientConfig](node)
+	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +243,7 @@ func setContexts(node *yaml.Node, contexts []*configapi.Context) (err error) {
 func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err error) {
 	var persistDiscoverySources bool
 	// convert context to node
-	newContextNode, err := nodeutils.ConvertToNode[configapi.Context](ctx)
+	newContextNode, err := convertContextToNode(ctx)
 	if err != nil {
 		return persist, err
 	}

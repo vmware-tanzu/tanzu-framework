@@ -277,6 +277,35 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 			deleted: true,
 		},
 		{
+			name: "should return true on deleting existing item2",
+			src: &configapi.ClientConfig{
+				ClientOptions: &configapi.ClientOptions{
+					CLI: &configapi.CLIOptions{
+						DiscoverySources: []configapi.PluginDiscovery{
+							{
+								GCP: &configapi.GCPDiscovery{
+									Name:         "test",
+									Bucket:       "test-bucket",
+									ManifestPath: "test-manifest-path",
+								},
+								ContextType: configapi.CtxTypeTMC,
+							},
+							{
+								GCP: &configapi.GCPDiscovery{
+									Name:         "test2",
+									Bucket:       "test-bucket2",
+									ManifestPath: "test-manifest-path2",
+								},
+								ContextType: configapi.CtxTypeTMC,
+							},
+						},
+					},
+				},
+			},
+			input:   "test",
+			deleted: true,
+		},
+		{
 			name: "should return true on deleting non existing item",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
