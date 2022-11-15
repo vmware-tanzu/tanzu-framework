@@ -532,11 +532,11 @@ func getClusterNameAndType(inspector inspect.Inspector) (clusterName, clusterTyp
 		return foundMetadata.Cluster.Name, foundMetadata.Cluster.Type, nil
 	}
 	// tkg-metadata was not found. in a TKGs scenerio we may still be able to recover.
-	if len(vars.JWTAuthenticatorAudience) != 0 {
+	if vars.JWTAuthenticatorAudience != "" {
 		// This is a TKGs workload cluster fallback use case.
 		// TKGs will pass audience via the flag --jwtauthenticator-audience=<cluster.name>-<cluster.id>
 		// If so, it will be used as an override to cluster.name (and we know the cluster.type is workload)
-		// NOTE: if anyone besides TKGs is using this flag, they may still run into unexpected behaviour not
+		// NOTE: if anyone besides TKGs is using this flag, they may still run into unexpected behavior not
 		// knowing that this inference is made.
 		return "", constants.TKGWorkloadClusterType, nil
 	}

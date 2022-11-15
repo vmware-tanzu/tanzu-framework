@@ -89,9 +89,8 @@ func (parser *PackageValuesSchemaParser) walkOnValueSchemaProperties(docMap map[
 	case map[string]interface{}:
 		propertiesMap = properties.(map[string]interface{})
 	default:
-		errMsg := fmt.Sprintf("unable to parse the value schema, the value of key named 'properties' has unsupported"+
+		return fmt.Errorf("unable to parse the value schema, the value of key named 'properties' has unsupported"+
 			" type %v. Expected types are: [map[string]interface{}, json.RawMessage]", t)
-		return fmt.Errorf(errMsg)
 	}
 
 	// Base case two: if current level does have properties field but that interface is an empty map, we do not need to

@@ -576,7 +576,7 @@ yamllint:
 
 # These are the modules that still contain issues reported by golangci-lint.
 # Once a module is updated to be lint-free, remove from list to catch lint regressions.
-MODULES_NEEDING_LINT_FIX=./cmd/cli/plugin/cluster ./cmd/cli/plugin/login ./cmd/cli/plugin/package ./cmd/cli/plugin-admin/builder . ./apis/core ./apis/addonconfigs ./capabilities/client ./addons ./hack/packages/package-tools ./packageclients ./tkg ./tkr ./pinniped-components/post-deploy ./pkg/v1/tkr
+MODULES_NEEDING_LINT_FIX=./cmd/cli/plugin/cluster ./cmd/cli/plugin/package ./cmd/cli/plugin-admin/builder . ./apis/core ./apis/addonconfigs ./capabilities/client ./addons ./hack/packages/package-tools ./tkg ./tkr ./pinniped-components/post-deploy ./pkg/v1/tkr
 
 go-lint: tools ## Run linting of go source
 	@for i in $(GO_MODULES); do \
