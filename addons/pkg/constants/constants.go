@@ -49,6 +49,9 @@ const (
 	// AzureFileCSIAddonName is name of the azurefile-csi addon
 	AzureFileCSIAddonName = "azurefile-csi"
 
+	// KubevipCloudProvider is name of the kube-vip-cloud-provider addon
+	KubevipCloudProviderAddonName = "kube-vip-cloud-provider"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
@@ -325,4 +328,7 @@ var (
 
 	// AwsEbsCSIConfigKind is the Kind for csi AwsEbsCSIConfig object
 	AwsEbsCSIConfigKind = reflect.TypeOf(csiv1alpha1.AwsEbsCSIConfig{}).Name()
+
+	// KubevipCPIConfigKind is the Kind for KubevipCPIConfigConfig object
+	KubevipCPIConfigKind = reflect.TypeOf(cpiv1alpha1.KubevipCPIConfig{}).Name()
 )

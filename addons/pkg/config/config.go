@@ -83,3 +83,8 @@ type AwsEbsCSIConfigControllerConfig struct {
 type AzureFileCSIConfigControllerConfig struct {
 	ConfigControllerConfig
 }
+
+// KubevipCPIConfigControllerConfig contains configuration information of KubevipLBConfig controller
+type KubevipCPIConfigControllerConfig struct {
+	ConfigControllerConfig
+}

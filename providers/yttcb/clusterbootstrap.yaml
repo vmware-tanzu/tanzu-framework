@@ -64,6 +64,10 @@
 #@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or azurefilecsi_configs_exist() or storage_class_configs_exist()
 #@ end
 
+#@ def kubevipcpiconfig_exist():
+#@   return data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE == "workload" and data.values.KUBEVIP_LOADBALANCER_ENABLE and (data.values.KUBEVIP_LOADBALANCER_CIDRs != "" or data.values.KUBEVIP_LOADBALANCER_IP_RANGES != "")
+#@ end
+
 #@ if antrea_configs_exist():
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
@@ -256,6 +260,23 @@ spec:
     httpsProxy: #@ data.values.TKG_HTTPS_PROXY
     noProxy: #@ data.values.TKG_NO_PROXY
 #@ end
+
+---
+#@ if kubevipcpiconfig_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: KubevipCPIConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+spec:
+  #@ if data.values.KUBEVIP_LOADBALANCER_CIDRs != "":
+  loadbalancerCIDRs: #@ data.values.KUBEVIP_LOADBALANCER_CIDRs
+  #@ end
+  #@ if data.values.KUBEVIP_LOADBALANCER_IP_RANGES != "":
+  loadbalancerIPRanges: #@ data.values.KUBEVIP_LOADBALANCER_IP_RANGES
+  #@ end
+#@ end
+
 ---
 #@ if should_create_clusterbootstrap():
 apiVersion: run.tanzu.vmware.com/v1alpha3
@@ -333,6 +354,14 @@ spec:
         providerRef:
           apiGroup: csi.tanzu.vmware.com
           kind: AzureFileCSIConfig
+          name: #@ data.values.CLUSTER_NAME
+    #@ end
+    #@ if kubevipcpiconfig_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+    - refName: kube-vip-cloud-provider*
+      valuesFrom:
+        providerRef:
+          apiGroup: cpi.tanzu.vmware.com
+          kind: KubevipCPIConfig
           name: #@ data.values.CLUSTER_NAME
     #@ end
 #@ end
