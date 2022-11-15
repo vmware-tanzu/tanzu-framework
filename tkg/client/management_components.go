@@ -81,6 +81,10 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 		}
 	} else {
 		addonsManagerPackageVersion = managementPackageVersion
+		envDefinedVersion := os.Getenv("_ADDONS_MANAGER_PACKAGE_VERSION")
+		if envDefinedVersion != "" {
+			addonsManagerPackageVersion = strings.TrimLeft(envDefinedVersion, "v")
+		}
 	}
 
 	// Get TKG package's values file
@@ -116,7 +120,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 func (c *TkgClient) GetAddonsManagerPackageversion(managementPackageVersion string) (string, error) {
 	envDefinedVersion := os.Getenv("_ADDONS_MANAGER_PACKAGE_VERSION")
 	if envDefinedVersion != "" {
-		return envDefinedVersion, nil
+		return strings.TrimLeft(envDefinedVersion, "v"), nil
 	}
 	packageVersion := managementPackageVersion
 	var err error
@@ -126,7 +130,8 @@ func (c *TkgClient) GetAddonsManagerPackageversion(managementPackageVersion stri
 			return "", err
 		}
 	}
-	//TODO (adduarte) add issue number here once opened in github.com
+	packageVersion = strings.TrimLeft(packageVersion, "v")
+	// the following is done to address https://github.com/vmware-tanzu/tanzu-framework/issues/3894
 	match, _ := regexp.MatchString("\\+vmware.\\d+$", packageVersion)
 	if !match {
 		packageVersion = packageVersion + "+vmware.1"
