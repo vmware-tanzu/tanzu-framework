@@ -175,6 +175,8 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 	if isClusterClassBased {
 		return c.DoClassyClusterUpgrade(regionalClusterClient, currentClusterClient, options)
 	}
+
+	log.Warning(constants.YTTBasedClusterWarning)
 	return c.DoLegacyClusterUpgrade(regionalClusterClient, currentClusterClient, options)
 }
 
