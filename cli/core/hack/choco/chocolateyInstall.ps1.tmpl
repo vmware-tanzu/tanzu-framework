@@ -1,0 +1,35 @@
+# Copyright 2022 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+$ErrorActionPreference = 'Stop';
+$releaseVersion = '__CLI_VERSION__'
+$packageName = 'tanzu-cli'
+$packagePath = "${releaseVersion}"
+$scriptsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
+$url64 = "https://github.com/vmware-tanzu/tanzu-framework/releases/download/${releaseVersion}/tanzu-cli-windows-amd64.zip"
+$checksum64 = '__CLI_SHA__'
+$checksumType64 = 'sha256'
+
+$packageArgs = @{
+    packageName    = $packageName
+    unzipLocation  = $scriptsDir
+    url64bit       = $url64
+
+    softwareName   = 'tanzu-cli'
+
+    checksum64     = $checksum64
+    checksumType64 = $checksumType64
+}
+
+function Install-TanzuEnvironment {
+    # Rename CLI
+    # Note that we use the scriptsDir path because chocolatey doesn't put
+    # binaries on the $PATH until _after_ the install script runs.
+    $tanzuExe = "${scriptsDir}\${packagePath}\tanzu.exe"
+    Move-Item "${scriptsDir}\${packagePath}\tanzu-core-windows_amd64.exe" "${tanzuExe}"
+}
+
+# this is a built-in function, read https://docs.chocolatey.org/en-us/create/functions/install-chocolateyzippackage
+Install-ChocolateyZipPackage @packageArgs
+
+Install-TanzuEnvironment
