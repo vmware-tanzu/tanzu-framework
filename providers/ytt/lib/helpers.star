@@ -367,6 +367,14 @@ def enable_csi_driver():
   return False
 end
 
+def disable_cgroupdriver_cgroupfs():
+  tkrVersion = get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE)
+  if compare_semver_versions(tkrVersion, "v1.24.0") >= 0:
+     return True
+  end
+  return False
+end
+
 def map(f, list):
     return [f(x) for x in list]
 end
