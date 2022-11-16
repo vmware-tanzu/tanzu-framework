@@ -50,6 +50,11 @@ spec:
         pollInterval: "5s"
         activeFlowTimeout: "30s"
         idleFlowTimeout: "15s"
+      multicluster:
+        enable: false
+        namespace: null
+      multicast:
+        igmpQueryInterval: "125s"
       kubeAPIServerOverride: null
       transportInterface: null
       transportInterfaceCIDRs: []
@@ -65,6 +70,9 @@ spec:
       noSNAT: false
       disableUdpTunnelOffload: false
       defaultMTU: ""
+      dnsServerOverride: null
+      disableTXChecksumOffload: false
+      enableBridgingMode: false
       tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
       featureGates:
         AntreaProxy: true
@@ -78,3 +86,6 @@ spec:
         AntreaIPAM: false
         ServiceExternalIP: false
         Multicast: false
+        Multicluster: false
+        SecondaryNetwork: false
+        TrafficControl: false

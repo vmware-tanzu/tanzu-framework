@@ -67,9 +67,6 @@ antrea:
     #@schema/desc "The network CIDRs of the interface on Node which is used for tunneling or routing the traffic."
     transportInterfaceCIDRs:
       - ""
-    #@schema/desc "The names of the interfaces on Nodes that are used to forward multicast traffic."
-    multicastInterfaces:
-      - ""
     #@schema/desc "Tunnel protocols used for encapsulating traffic across Nodes. One of the following options => geneve, vxlan, gre, stt"
     tunnelType: none
     #@schema/desc "Determines how tunnel traffic is encrypted. One of the following options => none, ipsec, wireGuard"
@@ -97,6 +94,27 @@ antrea:
     defaultMTU: ""
     #@schema/desc "List of allowed cipher suites. If omitted, the default Go Cipher Suites will be used"
     tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+    #@schema/desc "Enable bridging mode of Pod network on Nodes."
+    enableBridgingMode: false
+    #@schema/desc "Disable TX checksum offloading for container network interfaces"
+    disableTXChecksumOffload: false
+    #@schema/desc "Provide the address of DNS server, to override the kube-dns service"
+    #@schema/nullable
+    dnsServerOverride: ""
+    #@schema/desc "The names of the interfaces on Nodes that are used to forward multicast traffic."
+    multicastInterfaces:
+      - ""
+    #@schema/desc "Multicast related configuration options"
+    multicast:
+      #@schema/desc "The interval at which the antrea-agent sends IGMP queries to Pods."
+      igmpQueryInterval: "125s"
+    #@schema/desc "Multicluster related configurations"
+    multicluster:
+      #@schema/desc "Enable Antrea Multi-cluster Gateway to support cross-cluster traffic."
+      enable: false
+      #@schema/desc "The Namespace where Antrea Multi-cluster Controller is running.Default is antrea-agent's Namespace"
+      #@schema/nullable
+      namespace: ""
     #@schema/desc "FeatureGates is a map of feature names to flags that enable or disable experimental features"
     featureGates:
       #@schema/desc "Flag to enable/disable antrea proxy"
@@ -121,6 +139,12 @@ antrea:
       ServiceExternalIP: false
       #@schema/desc "Flag to enable/disable multicast traffic"
       Multicast: false
+      #@schema/desc "Enable Antrea Multi-cluster Gateway to support cross-cluster traffic.This feature is supported only with encap mode."
+      Multicluster: false
+      #@schema/desc "Enable support for provisioning secondary network interfaces for Pods (using Pod annotations)."
+      SecondaryNetwork: false
+      #@schema/desc "Enable mirroring or redirecting the traffic Pods send or receive."
+      TrafficControl: false
   #! Deprecated. Kept for backward compatibility
   image:
     #@schema/desc "The repository of antrea image"
