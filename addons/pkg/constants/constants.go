@@ -35,6 +35,12 @@ const (
 	// CPIDefaultRefName is default refname for cloud-provider-vsphere addon addon
 	CPIDefaultRefName = CPIAddonName + ".tanzu.vmware.com"
 
+	// OracleCPIAddonName is name of the Oracle CPI & CSI addon
+	OracleCPIAddonName = "oracle-cpi"
+
+	// OracleCPIDefaultRefName is default refname for cloud-provider-oracle addon addon
+	OracleCPIDefaultRefName = OracleCPIAddonName + ".tanzu.vmware.com"
+
 	// PVCSIAddonName is name of the vsphere-pv-csi addon
 	PVCSIAddonName = "vsphere-pv-csi"
 
@@ -282,6 +288,9 @@ const (
 	// InfrastructureProviderDocker is the key for docker infrastructure
 	InfrastructureProviderDocker = "docker"
 
+	// InfrastructureProviderOCI is the key for Oracle Cloud Infrastructure
+	InfrastructureProviderOCI = "oci"
+
 	// InfrastructureRefVSphere is the vSphere infrastructure
 	InfrastructureRefVSphere = "VSphereCluster"
 
@@ -296,6 +305,9 @@ const (
 
 	// InfrastructureRefDocker is the docker infrastructure
 	InfrastructureRefDocker = "DockerCluster"
+
+	// InfrastructureRefOCI is the Oracle Cloud infrastructure
+	InfrastructureRefOCI = "OCICluster"
 
 	// CAPVClusterSelectorKey is the selector key used by capv
 	CAPVClusterSelectorKey = "capv.vmware.com/cluster.name"
@@ -319,6 +331,9 @@ var (
 
 	// VSphereCPIConfigKind is the Kind for cpi VSphereCPIConfig object
 	VSphereCPIConfigKind = reflect.TypeOf(cpiv1alpha1.VSphereCPIConfig{}).Name()
+
+	// OracleCPIConfigKind is the Kind for cpi OracleCPIConfig object
+	OracleCPIConfigKind = reflect.TypeOf(cpiv1alpha1.OracleCPIConfig{}).Name()
 
 	// KappControllerConfigKind is the Kind for KappControllerConfig object
 	KappControllerConfigKind = reflect.TypeOf(runv1alpha3.KappControllerConfig{}).Name()

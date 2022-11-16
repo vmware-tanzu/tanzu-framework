@@ -182,6 +182,8 @@ func GetInfraProvider(cluster *clusterv1beta1.Cluster) (string, error) {
 			return constants.InfrastructureProviderAzure, nil
 		case constants.InfrastructureRefDocker:
 			return constants.InfrastructureProviderDocker, nil
+		case constants.InfrastructureRefOCI:
+			return constants.InfrastructureProviderOCI, nil
 		}
 	}
 
