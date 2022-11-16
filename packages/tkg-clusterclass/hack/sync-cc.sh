@@ -10,7 +10,7 @@ PROVIDERS_DIR=${SCRIPT_DIR}/../../../providers
 PKGS_DIR=${SCRIPT_DIR}/../..
 BINNAME="$( basename "${BASH_SOURCE[0]}" )"
 
-infras="aws vsphere azure docker"
+infras="aws vsphere azure docker oci"
 
 for infra in $infras; do
    ls ${PROVIDERS_DIR}/infrastructure-${infra}/v*/cconly/*

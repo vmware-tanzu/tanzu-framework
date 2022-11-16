@@ -30,5 +30,6 @@ tkrSourceControllerPackage:
         bomMetadataImagePath: fake.custom.repo/fake-path/tkr-compatibility
         tkrRepoImagePath: fake.custom.repo/tkr-repository-aws
         defaultCompatibleTKR: v1.23.5+vmware.1-tkg.1-fake
+        imageRepository: fake.custom.repo
 coreManagementPluginsPackage:
     versionConstraints: v0.21.0

@@ -87,7 +87,7 @@ func (r *impl) configure(ctx context.Context) error {
 	configMap := &corev1.ConfigMap{}
 	if err := r.Client.Get(ctx,
 		types.NamespacedName{Namespace: r.Config.TKRNamespace, Name: configMapName},
-		configMap); !k8serr.IsNotFound(err) {
+		configMap); err != nil && !k8serr.IsNotFound(err) {
 		return errors.Wrapf(err, "unable to get the ConfigMap %s", configMapName)
 	}
 

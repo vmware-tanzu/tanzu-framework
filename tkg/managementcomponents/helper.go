@@ -25,7 +25,7 @@ const (
 )
 
 // GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
-func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration) (string, error) {
+func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration) (string, error) {
 	// TODO: Temporary hack(hard coded values) to configure TKR source controller package values. This should be replaced with the logic
 	// that fetches these values from tkg-bom(for bom related urls) and set the TKR source controller package values
 	var tkrRepoImagePath string
@@ -45,6 +45,9 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 		return "", errors.Errorf("unknown provider type %q", providerType)
 	}
 
+	// get cacert cal from user input for tkr-controller-config cm
+	caCerts, imageRepo := getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues, tkgBomConfig)
+
 	tkgPackageConfig := TKGPackageConfig{
 		Metadata: Metadata{
 			InfraProvider: userProviderConfigValues[constants.ConfigVariableProviderType].(string),
@@ -62,7 +65,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 				VersionConstraints: managementPackageVersion,
 			},
 			AddonsManagerPackageValues: AddonsManagerPackageValues{
-				VersionConstraints: managementPackageVersion,
+				VersionConstraints: addonsManagerPackageVersion,
 				TanzuAddonsManager: TanzuAddonsManager{
 					FeatureGates: AddonsFeatureGates{
 						ClusterBootstrapController: true,
@@ -88,6 +91,8 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 				BomMetadataImagePath: fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRCompatibility.ImagePath),
 				TKRRepoImagePath:     tkrRepoImagePath,
 				DefaultCompatibleTKR: tkgBomConfig.Default.TKRVersion,
+				CaCerts:              caCerts,
+				ImageRepo:            imageRepo,
 			},
 		},
 		CoreManagementPluginsPackage: CoreManagementPluginsPackage{
@@ -137,4 +142,21 @@ func setProxyInTKRSourceControllerPackage(tkgPackageConfig *TKGPackageConfig, ht
 			HttpsProxy: httpsProxy,
 			NoProxy:    noProxy,
 		}
+}
+
+func getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues map[string]interface{}, bomConfig *tkgconfigbom.BOMConfiguration) (string, string) {
+	caCert := ""
+	imageRepo := bomConfig.ImageConfig.ImageRepository
+	// implement the same logic as legacy func tkg_image_repo_ca_cert() in providers/ytt/lib/helpers.star
+	if val, ok := userProviderConfigValues[constants.TKGProxyCACert]; ok {
+		caCert = val.(string)
+	} else if val, ok := userProviderConfigValues[constants.ConfigVariableCustomImageRepositoryCaCertificate]; ok {
+		caCert = val.(string)
+	}
+
+	// implement the same logic as legacy func tkg_image_repo() in providers/ytt/lib/helpers.star
+	if val, ok := userProviderConfigValues[constants.ConfigVariableCustomImageRepository]; ok {
+		imageRepo = val.(string)
+	}
+	return caCert, imageRepo
 }

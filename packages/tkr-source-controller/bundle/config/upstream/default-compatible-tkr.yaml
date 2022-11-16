@@ -15,3 +15,13 @@ metadata:
   namespace: #@ data.values.namespace
 data:
   tkrVersions: #@ yaml.encode(getCompatibleTKRs())
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tkr-controller-config
+  namespace: #@ data.values.namespace
+data:
+  caCerts: ""
+  imageRepository: #@ data.values.imageRepository

@@ -392,5 +392,4 @@ var _ = Describe("Addon Reconciler", func() {
 		})
 
 	})
-
 })

@@ -1,0 +1,17 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "capoci-controller-manager"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name": "manager"})
+      - env:
+        - name: HTTP_PROXY
+          value: ${TKG_HTTP_PROXY}
+        - name: HTTPS_PROXY
+          value: ${TKG_HTTPS_PROXY}
+        - name: NO_PROXY
+          value: ${TKG_NO_PROXY}

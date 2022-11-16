@@ -23,6 +23,10 @@ required_variable_list_azure = [
   "AZURE_LOCATION",
   "AZURE_SSH_PUBLIC_KEY_B64"]
 
+required_variable_list_oci = [
+  "OCI_COMPARTMENT_ID",
+  "OCI_IMAGE_ID"]
+
 required_variable_list_tkgs = [
   "CONTROL_PLANE_STORAGE_CLASS",
   "CONTROL_PLANE_VM_CLASS",
@@ -53,6 +57,8 @@ def validate_configuration(provider):
     flag_missing_variable_error(required_variable_list_aws)
   elif provider == "azure":
     flag_missing_variable_error(required_variable_list_azure)
+  elif provider == "oci":
+    flag_missing_variable_error(required_variable_list_oci)
   elif provider == "tkgs":
     flag_missing_variable_error(required_variable_list_tkgs)
   end

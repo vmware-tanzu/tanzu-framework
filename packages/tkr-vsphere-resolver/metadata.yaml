@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkr-vsphere-resolver.tanzu.vmware.com
+  namespace: tkr-vsphere-resolver
+spec:
+  displayName: "tkr-vsphere-resolver"
+  longDescription: "vSphere Template Resolver finds VM template based on OS version and arch for vSphere provider"
+  shortDescription: "vSphere VM template resolver"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "tkr resolution"

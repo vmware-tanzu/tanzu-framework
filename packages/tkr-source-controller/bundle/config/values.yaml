@@ -10,6 +10,8 @@ defaultCompatibleTKR:
 skipVerifyRegistryCert: false
 initialDiscoverFrequency: 60
 continuousDiscoverFrequency: 600
+caCerts: ""
+imageRepository: ""
 deployment:
   hostNetwork: false
   nodeSelector: null

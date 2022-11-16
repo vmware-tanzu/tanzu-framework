@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkg-clusterclass-oci.tanzu.vmware.com
+  namespace: tkg-clusterclass-oci
+spec:
+  displayName: "tkg-clusterclass-oci"
+  longDescription: "ClusterClass for OCI defines the default set of OCI ClusterClass resources for Tanzu"
+  shortDescription: "Defines the OCI ClusterClass resources for Tanzu"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "clusterclass"

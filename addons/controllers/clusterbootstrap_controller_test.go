@@ -28,6 +28,7 @@ import (
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
+	kvcpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -1158,6 +1159,87 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 				Expect(err).Should(HaveOccurred())
 				Expect(strings.Contains(err.Error(), fmt.Sprintf("clusterbootstraps.run.tanzu.vmware.com \"%s\" not found", clusterName))).To(BeTrue())
+			})
+		})
+	})
+
+	// This test case is for ensuring that controller is watching providerRef for additional packages.
+	// 1. create kubevip-cloudprovider with foobar cr as provider, packageinstall gets generated with a given secret
+	// 2. replace secret in .status.secretRef of foobar cr provider
+	When("Cluster with kubevipcloudprovider", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-7"
+			clusterNamespace = "cluster-namespace-7"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-7.yaml"
+			ns := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: clusterNamespace,
+				},
+			}
+			Expect(k8sClient.Create(ctx, ns)).To(Succeed())
+		})
+
+		Context("from a ClusterBootstrap", func() {
+			It("should perform ClusterBootstrap reconciliation", func() {
+
+				By("verifying CAPI cluster is created properly")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+
+				By("patching kubevip cloudprovider with ownerRef as ClusterBootstrapController would do")
+				// the kvcp config object should be deployed
+				config := &kvcpiv1alpha1.KubevipCPIConfig{}
+				key := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      clusterName,
+				}
+				Eventually(func() bool {
+					if err := k8sClient.Get(ctx, key, config); err != nil {
+						return false
+					}
+
+					if len(config.OwnerReferences) > 0 {
+						return false
+					}
+
+					Expect(len(config.OwnerReferences)).Should(Equal(0))
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				// patch the KubevipCPIConfig with ownerRef
+				patchedKubevipCPIConfig := config.DeepCopy()
+				ownerRef := metav1.OwnerReference{
+					APIVersion: clusterapiv1beta1.GroupVersion.String(),
+					Kind:       cluster.Kind,
+					Name:       cluster.Name,
+					UID:        cluster.UID,
+				}
+
+				ownerRef.Kind = "Cluster"
+				patchedKubevipCPIConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedKubevipCPIConfig.OwnerReferences, ownerRef)
+				Expect(k8sClient.Patch(ctx, patchedKubevipCPIConfig, client.MergeFrom(config))).ShouldNot(HaveOccurred())
+
+				By("Should have remote secret value created for kubevip cloud provider")
+				remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(remoteClient).NotTo(BeNil())
+				remoteSecret := &corev1.Secret{}
+				Eventually(func() bool {
+					err = remoteClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: util.GenerateDataValueSecretName(clusterName, constants.KubevipCloudProviderAddonName)}, remoteSecret)
+					if err != nil {
+						return false
+					}
+					Expect(remoteSecret.Data).To(HaveKey("values.yaml"))
+					valueTexts, ok := remoteSecret.Data["values.yaml"]
+					if !ok {
+						return false
+					}
+					Expect(strings.Contains(string(valueTexts), "loadbalancerCIDRs: 10.0.0.1/24")).Should(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "loadbalancerIPRanges: 10.0.0.1-10.0.0.2")).Should(BeTrue())
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
 			})
 		})
 	})

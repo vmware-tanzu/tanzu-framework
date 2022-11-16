@@ -35,6 +35,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20221114124829-a8c2eac58dbf
 	github.com/vmware-tanzu/tanzu-framework/tkg v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/tkr v0.0.0-00010101000000-000000000000
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
@@ -102,6 +103,7 @@ require (
 	github.com/docker/docker-credential-helpers v0.6.4 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
+	github.com/dprotaso/go-yit v0.0.0-20191028211022-135eb7262960 // indirect
 	github.com/drone/envsubst/v2 v2.0.0-20210730161058-179042472c46 // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
@@ -202,6 +204,7 @@ require (
 	github.com/valyala/fastjson v1.6.3 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
 	github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec // indirect
+	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
 	github.com/vmware-tanzu/carvel-imgpkg v0.23.1 // indirect
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0 // indirect
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0 // indirect

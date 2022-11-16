@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -123,8 +124,22 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 
 	managementPackageVersion = strings.TrimLeft(managementPackageVersion, "v")
 
+	var addonsManagerPackageVersion string
+	if upgrade {
+		addonsManagerPackageVersion, err = c.GetAddonsManagerPackageversion(managementPackageVersion)
+		if err != nil {
+			return err
+		}
+	} else {
+		addonsManagerPackageVersion = managementPackageVersion
+		envDefinedVersion := os.Getenv("_ADDONS_MANAGER_PACKAGE_VERSION")
+		if envDefinedVersion != "" {
+			addonsManagerPackageVersion = strings.TrimLeft(envDefinedVersion, "v")
+		}
+	}
+
 	// Get TKG package's values file
-	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(mcClient, managementPackageVersion, upgrade)
+	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(mcClient, managementPackageVersion, addonsManagerPackageVersion, upgrade)
 	if err != nil {
 		return err
 	}
@@ -151,7 +166,30 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 	return err
 }
 
-func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client, managementPackageVersion string, upgrade bool) (string, error) {
+// GetAddonsManagerPackageversion returns a addons manager package version
+func (c *TkgClient) GetAddonsManagerPackageversion(managementPackageVersion string) (string, error) {
+	envDefinedVersion := os.Getenv("_ADDONS_MANAGER_PACKAGE_VERSION")
+	if envDefinedVersion != "" {
+		return strings.TrimLeft(envDefinedVersion, "v"), nil
+	}
+	packageVersion := managementPackageVersion
+	var err error
+	if packageVersion == "" {
+		packageVersion, err = c.tkgBomClient.GetManagementPackagesVersion()
+		if err != nil {
+			return "", err
+		}
+	}
+	packageVersion = strings.TrimLeft(packageVersion, "v")
+	// the following is done to address https://github.com/vmware-tanzu/tanzu-framework/issues/3894
+	match, _ := regexp.MatchString("\\+vmware.\\d+$", packageVersion)
+	if !match {
+		packageVersion = packageVersion + "+vmware.1"
+	}
+	return packageVersion, nil
+}
+
+func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client, managementPackageVersion, addonsManagerPackageVersion string, upgrade bool) (string, error) {
 	var userProviderConfigValues map[string]interface{}
 	var err error
 
@@ -170,7 +208,7 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client,
 		return "", err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues, tkgBomConfig)
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig)
 	if err != nil {
 		return "", err
 	}
