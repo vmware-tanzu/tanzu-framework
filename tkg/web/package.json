@@ -5,7 +5,7 @@
     "ng": "ng",
     "clean": "rimraf ./dist",
     "lint": "ng lint",
-    "generate-api-client": "rimraf ./src/app/swagger/ && api-client-generator -s ./api/spec.yaml -o ./src/app/swagger",
+    "generate-api-client": "rimraf ./src/app/swagger/ && api-client-generator -s ./api/spec.yaml -o ./src/app/swagger/",
     "start": "ng lint && npm run build-index && npm run generate-api-client && ng serve",
     "build": " ng lint && npm run generate-api-client && ng build",
     "build:prod": "rimraf ./dist && npm run clean && npm run generate-api-client && ng build --configuration production",
