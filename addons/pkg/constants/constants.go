@@ -64,6 +64,9 @@ const (
 	// TKRLabel is the TKR label.
 	TKRLabel = "tanzuKubernetesRelease"
 
+	// TKGVersionLabel is the TKG version label.
+	TKGVersionLabel = "tkg.tanzu.vmware.com/version"
+
 	// TKRLabelClassyClusters is the TKR label for the clusters created using cluster-class
 	TKRLabelClassyClusters = "run.tanzu.vmware.com/tkr"
 
@@ -73,8 +76,29 @@ const (
 	// TKGAnnotationTemplateConfig is the TKG annotation for addon config CRs used by ClusterBootstrapTemplate
 	TKGAnnotationTemplateConfig = "tkg.tanzu.vmware.com/template-config"
 
+	// TKRBomContent is the TKR BOM content.
+	TKRBomContent = "bomContent"
+
 	// TKGBomContent is the TKG BOM content.
-	TKGBomContent = "bomContent"
+	TKGBomContent = "bom.yaml"
+
+	// ClusterMetadataNamespace is the namespace for ClusterMetadata
+	ClusterMetadataNamespace = "tkg-system-public"
+
+	// TkgBomConfigMapName is the name of TkgBomConfigMap
+	TkgBomConfigMapName = "tkg-bom"
+
+	// TkgMetadataConfigMapName is the name of TkgMetadataConfigMap
+	TkgMetadataConfigMapName = "tkg-metadata"
+
+	// ClusterMetadataNamespaceRoleName is the role name of ClusterMetadata
+	ClusterMetadataNamespaceRoleName = "tkg-metadata-reader"
+
+	// ClusterMetadataRolebindingSubjectName is the subjectName of ClusterMetadataRolebinding
+	ClusterMetadataRolebindingSubjectName = "system:authenticated"
+
+	// TKGCompatibility is the TKG compatibility content.
+	TKGCompatibility = "compatibility"
 
 	// TKRConfigmapName is the name of TKR config map
 	TKRConfigmapName = "tkr-controller-config"
@@ -179,6 +203,9 @@ const (
 
 	// TKGSystemNS is the TKG system namespace.
 	TKGSystemNS = "tkg-system"
+
+	// TKGbomMetadataConfigmapName is the confimap of bom-metadata
+	TKGbomMetadataConfigmapName = "bom-metadata"
 
 	// DiscoveryCacheInvalidateInterval is the interval for invalidating cache
 	DiscoveryCacheInvalidateInterval = time.Minute * 10
@@ -314,6 +341,9 @@ const (
 
 	// CAPVClusterSelectorKey is the selector key used by capv
 	CAPVClusterSelectorKey = "capv.vmware.com/cluster.name"
+
+	// KindTanzuKubernetesCluster is the owner name of cluster
+	KindTanzuKubernetesCluster = "TanzuKubernetesCluster"
 )
 
 var (

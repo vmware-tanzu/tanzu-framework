@@ -1,0 +1,627 @@
+---
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: TanzuKubernetesRelease
+metadata:
+  name: v1.23.8---vmware.2-tkg.2
+  namespace: tkr-system
+spec:
+  version: v1.23.8---vmware.2-tkg.2
+  kubernetesVersion: v1.23.8+vmware.2
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-metadata
+  namespace: default
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-metadata
+    run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.2
+  annotations:
+    tkg/plan: dev
+spec:
+  infrastructureRef:
+    kind: VSphereCluster
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    name: test-cluster-metadata
+    namespace: default
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+    services:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: test-cluster-metadata-plane
+    namespace: default
+  topology:
+    class: test-clusterclass-tcbt
+    version: v1.22.3
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: tkg-system-public
+  name: tkg-system-public
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  tkg-bom-v1.7.0
+  namespace: tkg-system-public
+data:
+  bom.yaml: |
+    apiVersion: run.tanzu.vmware.com/v1alpha2
+    default:
+      k8sVersion: v1.23.8+vmware.2-tkg.2
+    release:
+      version: v1.7.0
+    components:
+      aad-pod-identity:
+      - version: v1.8.0+vmware.1
+        images:
+          micImage:
+            imagePath: cluster-api/mic
+            tag: v1.8.0_vmware.1
+          nmiImage:
+            imagePath: cluster-api/nmi
+            tag: v1.8.0_vmware.1
+      alertmanager:
+      - version: v0.24.0+vmware.1
+        images:
+          alertmanagerImage:
+            imagePath: prometheus/alertmanager
+            tag: v0.24.0_vmware.1
+      cloud-provider-azure:
+      - version: v0.7.4+vmware.1
+        images:
+          ccmAzureControllerImage:
+            imagePath: azure-cloud-controller-manager
+            tag: v0.7.4_vmware.1
+          ccmAzureNodeImage:
+            imagePath: azure-cloud-node-manager
+            tag: v0.7.4_vmware.1
+      cluster-api-provider-azure:
+      - version: v1.5.3+vmware.1
+        images:
+          capzControllerImage:
+            imagePath: cluster-api/cluster-api-azure-controller
+            tag: v1.5.3_vmware.1
+      cluster-api-provider-bringyourownhost:
+      - version: v0.2.0+vmware.4
+        images:
+          byohControllerImage:
+            imagePath: cluster-api/cluster-api-byoh-controller
+            tag: v0.2.0_vmware.4
+      cluster-api-provider-oci:
+      - version: v0.4.0+vmware.2
+        images:
+          capociControllerImage:
+            imagePath: cluster-api/cluster-api-oci-controller
+            tag: v0.4.0_vmware.2
+      cluster_api:
+      - version: v1.2.4+vmware.1
+        images:
+          cabpkControllerImage:
+            imagePath: cluster-api/kubeadm-bootstrap-controller
+            tag: v1.2.4_vmware.1
+          capdManagerImage:
+            imagePath: cluster-api/capd-manager
+            tag: v1.2.4_vmware.1
+          capiControllerImage:
+            imagePath: cluster-api/cluster-api-controller
+            tag: v1.2.4_vmware.1
+          kcpControllerImage:
+            imagePath: cluster-api/kubeadm-control-plane-controller
+            tag: v1.2.4_vmware.1
+      cluster_api_aws:
+      - version: v2.0.0-beta.1+vmware.1
+        images:
+          capaControllerImage:
+            imagePath: cluster-api/cluster-api-aws-controller
+            tag: v2.0.0-beta.1_vmware.1
+      cluster_api_vsphere:
+      - version: v1.4.1+vmware.1
+        images:
+          capvControllerImage:
+            imagePath: cluster-api/cluster-api-vsphere-controller
+            tag: v1.4.1_vmware.1
+      configmap-reload:
+      - version: v0.7.1+vmware.1
+        images:
+          configmapReloadImage:
+            imagePath: prometheus/configmap-reload
+            tag: v0.7.1_vmware.1
+      contour:
+      - version: v1.17.2+vmware.1
+        images:
+          contourImage:
+            imagePath: contour
+            tag: v1.17.2_vmware.1
+      - version: v1.18.2+vmware.1
+        images:
+          contourImage:
+            imagePath: contour
+            tag: v1.18.2_vmware.1
+      - version: v1.20.2+vmware.1
+        images:
+          contourImage:
+            imagePath: contour
+            tag: v1.20.2_vmware.1
+      - version: v1.22.0+vmware.1
+        images:
+          contourImage:
+            imagePath: contour
+            tag: v1.22.0_vmware.1
+      crash-diagnostics:
+      - version: v0.3.7+vmware.6
+      envoy:
+      - version: v1.18.4+vmware.1
+        images:
+          envoyImage:
+            imagePath: envoy
+            tag: v1.18.4_vmware.1
+      - version: v1.19.1+vmware.1
+        images:
+          envoyImage:
+            imagePath: envoy
+            tag: v1.19.1_vmware.1
+      - version: v1.21.3+vmware.1
+        images:
+          envoyImage:
+            imagePath: envoy
+            tag: v1.21.3_vmware.1
+      - version: v1.23.0+vmware.1
+        images:
+          envoyImage:
+            imagePath: envoy
+            tag: v1.23.0_vmware.1
+      external-dns:
+      - version: v0.12.2+vmware.1
+        images:
+          externalDNSImage:
+            imagePath: external-dns
+            tag: v0.12.2_vmware.1
+      fluent-bit:
+      - version: v1.8.15+vmware.1
+        images:
+          fluentBitImage:
+            imagePath: fluent-bit
+            tag: v1.8.15_vmware.1
+      grafana:
+      - version: v7.5.16+vmware.1
+        images:
+          grafanaImage:
+            imagePath: grafana/grafana
+            tag: v7.5.16_vmware.1
+      harbor:
+      - version: v2.6.1+vmware.1
+        images:
+          harborChartMuseumImage:
+            imagePath: harbor/chartmuseum-photon
+            tag: v2.6.1_vmware.1
+          harborCoreImage:
+            imagePath: harbor/harbor-core
+            tag: v2.6.1_vmware.1
+          harborDatabaseImage:
+            imagePath: harbor/harbor-db
+            tag: v2.6.1_vmware.1
+          harborExporterImage:
+            imagePath: harbor/harbor-exporter
+            tag: v2.6.1_vmware.1
+          harborJobServiceImage:
+            imagePath: harbor/harbor-jobservice
+            tag: v2.6.1_vmware.1
+          harborLogImage:
+            imagePath: harbor/harbor-log
+            tag: v2.6.1_vmware.1
+          harborNginxImage:
+            imagePath: harbor/nginx-photon
+            tag: v2.6.1_vmware.1
+          harborNotaryServerImage:
+            imagePath: harbor/notary-server-photon
+            tag: v2.6.1_vmware.1
+          harborNotarySignerImage:
+            imagePath: harbor/notary-signer-photon
+            tag: v2.6.1_vmware.1
+          harborPortalImage:
+            imagePath: harbor/harbor-portal
+            tag: v2.6.1_vmware.1
+          harborPrepareImage:
+            imagePath: harbor/prepare
+            tag: v2.6.1_vmware.1
+          harborRedisImage:
+            imagePath: harbor/redis-photon
+            tag: v2.6.1_vmware.1
+          harborRegistryCtlImage:
+            imagePath: harbor/harbor-registryctl
+            tag: v2.6.1_vmware.1
+          harborRegistryImage:
+            imagePath: harbor/registry-photon
+            tag: v2.6.1_vmware.1
+          harborTrivyAdapterImage:
+            imagePath: harbor/trivy-adapter-photon
+            tag: v2.6.1_vmware.1
+      image-builder:
+      - version: v0.1.12+vmware.2
+        images:
+          imagebuilder-tar:
+            imagePath: image-builder
+            tag: v0.1.12_vmware.2
+      imgpkg:
+      - version: v0.31.0+vmware.1
+      jetstack_cert-manager:
+      - version: v1.9.1+vmware.1
+        images:
+          certMgrControllerImage:
+            imagePath: cert-manager-controller
+            tag: v1.9.1_vmware.1
+          certMgrInjectorImage:
+            imagePath: cert-manager-cainjector
+            tag: v1.9.1_vmware.1
+          certMgrWebhookImage:
+            imagePath: cert-manager-webhook
+            tag: v1.9.1_vmware.1
+      k8s-sidecar:
+      - version: v1.12.1+vmware.3
+        images:
+          k8sSidecarImage:
+            imagePath: grafana/k8s-sidecar
+            tag: v1.12.1_vmware.3
+      - version: v1.15.6+vmware.2
+        images:
+          k8sSidecarImage:
+            imagePath: grafana/k8s-sidecar
+            tag: v1.15.6_vmware.2
+      k14s_kapp:
+      - version: v0.53.0+vmware.1
+      k14s_ytt:
+      - version: v0.43.0+vmware.1
+      kbld:
+      - version: v0.35.0+vmware.1
+      kube-state-metrics:
+      - version: v2.5.0+vmware.1
+        images:
+          kubeStateMetricsImage:
+            imagePath: prometheus/kube-state-metrics
+            tag: v2.5.0_vmware.1
+      kube-vip:
+      - version: v0.5.5+vmware.1
+        images:
+          kubeVipImage:
+            imagePath: kube-vip
+            tag: v0.5.5_vmware.1
+      kube-vip-cloud-provider:
+      - version: v0.0.4+vmware.1
+        images:
+          kubevipcloudproviderControllerImage:
+            imagePath: kube-vip/kube-vip-cloud-provider
+            tag: v0.0.4_vmware.1
+      kube_rbac_proxy:
+      - version: v0.11.0+vmware.2
+        images:
+          kubeRbacProxyControllerImage:
+            imagePath: kube-rbac-proxy
+            tag: v0.11.0_vmware.2
+          kubeRbacProxyControllerImageCapi:
+            imagePath: cluster-api/kube-rbac-proxy
+            tag: v0.11.0_vmware.2
+      kubernetes-sigs_kind:
+      - version: v1.23.8+vmware.2-tkg.1_v0.11.1
+        images:
+          kindNodeImage:
+            imagePath: kind/node
+            tag: v1.23.8_vmware.2-tkg.1_v0.11.1
+      kubernetes_autoscaler:
+      - version: v1.23.0+vmware.1
+        images:
+          kubernetesAutoscalerImage:
+            imagePath: cluster-autoscaler
+            tag: v1.23.0_vmware.1
+        metadata:
+          k8sversion: v1.23.3+vmware.1
+      - version: v1.22.0+vmware.1
+        images:
+          kubernetesAutoscalerImage:
+            imagePath: cluster-autoscaler
+            tag: v1.22.0_vmware.1
+        metadata:
+          k8sversion: v1.22.3+vmware.1
+      - version: v1.21.0+vmware.1
+        images:
+          kubernetesAutoscalerImage:
+            imagePath: cluster-autoscaler
+            tag: v1.21.0_vmware.1
+        metadata:
+          k8sversion: v1.21.1+vmware.1
+      multus-cni:
+      - version: v3.8.0+vmware.1
+        images:
+          multusCniImage:
+            imagePath: multus-cni
+            tag: v3.8.0_vmware.1
+      prometheus:
+      - version: v2.36.2+vmware.1
+        images:
+          prometheusImage:
+            imagePath: prometheus/prometheus
+            tag: v2.36.2_vmware.1
+      prometheus_node_exporter:
+      - version: v1.3.1+vmware.1
+        images:
+          prometheusNodeExporterImage:
+            imagePath: prometheus/prometheus_node_exporter
+            tag: v1.3.1_vmware.1
+      pushgateway:
+      - version: v1.4.3+vmware.1
+        images:
+          pushgatewayImage:
+            imagePath: prometheus/pushgateway
+            tag: v1.4.3_vmware.1
+      sonobuoy:
+      - version: v0.56.6+vmware.1
+        images:
+          sonobuoyImage:
+            imagePath: sonobuoy
+            tag: v0.56.6_vmware.1
+      standalone-plugins-package:
+      - version: v0.28.0-dev-104-g36b89720-standalone-plugins
+        images:
+          standalone-plugins.tanzu.vmware.com:
+            imagePath: packages/standalone-plugins
+            tag: v0.28.0-dev-104-g36b89720_vmware.1
+      tanzu-framework:
+      - version: v0.28.0-dev-104-g36b89720
+        images:
+          capabilitiesImage:
+            imagePath: tanzu_core/capabilities/capabilities-controller-manager-tf
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsClusterDarwinAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/cluster-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsClusterDarwinAmd64StaticImage:
+            imagePath: tanzu_core/tanzu-cli-plugins/cluster-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsClusterLinuxAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/cluster-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsClusterLinuxAmd64StaticImage:
+            imagePath: tanzu_core/tanzu-cli-plugins/cluster-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsClusterWindowsAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/cluster-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsClusterWindowsAmd64StaticImage:
+            imagePath: tanzu_core/tanzu-cli-plugins/cluster-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsFeatureDarwinAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/feature-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsFeatureDarwinAmd64StaticImage:
+            imagePath: tanzu_core/tanzu-cli-plugins/feature-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsFeatureLinuxAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/feature-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsFeatureLinuxAmd64StaticImage:
+            imagePath: tanzu_core/tanzu-cli-plugins/feature-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsFeatureWindowsAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/feature-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsFeatureWindowsAmd64StaticImage:
+            imagePath: tanzu_core/tanzu-cli-plugins/feature-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsKubernetesReleaseDarwinAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/kubernetes-release-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsKubernetesReleaseDarwinAmd64StaticImage:
+            imagePath: tanzu_core/tanzu-cli-plugins/kubernetes-release-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsKubernetesReleaseLinuxAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/kubernetes-release-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsKubernetesReleaseLinuxAmd64StaticImage:
+            imagePath: tanzu_core/tanzu-cli-plugins/kubernetes-release-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsKubernetesReleaseWindowsAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/kubernetes-release-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsKubernetesReleaseWindowsAmd64StaticImage:
+            imagePath: tanzu_core/tanzu-cli-plugins/kubernetes-release-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsLoginDarwinAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/login-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsLoginLinuxAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/login-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsLoginWindowsAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/login-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsManagementClusterDarwinAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/management-cluster-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsManagementClusterLinuxAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/management-cluster-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsManagementClusterWindowsAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/management-cluster-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsPackageDarwinAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/package-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsPackageLinuxAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/package-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsPackageWindowsAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/package-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsPinnipedAuthDarwinAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/pinniped-auth-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsPinnipedAuthLinuxAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/pinniped-auth-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsPinnipedAuthWindowsAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/pinniped-auth-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsSecretDarwinAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/secret-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsSecretLinuxAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/secret-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsSecretWindowsAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/secret-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsTelemetryDarwinAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/telemetry-darwin-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsTelemetryLinuxAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/telemetry-linux-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          clipluginsTelemetryWindowsAmd64Image:
+            imagePath: tanzu_core/tanzu-cli-plugins/telemetry-windows-amd64
+            tag: v0.28.0-dev-104-g36b89720
+          featuregatesImage:
+            imagePath: tanzu_core/featuregates/featuregates-controller-manager
+            tag: v0.28.0-dev-104-g36b89720
+          objectPropagationControllerImage:
+            imagePath: tanzu_core/objectpropogation/object-propagation-controller
+            tag: v0.28.0-dev-104-g36b89720
+          providerTemplateImage:
+            imagePath: tanzu_core/provider/provider-templates
+            tag: v0.28.0-dev-104-g36b89720
+          tkrConversionWebhookImage:
+            imagePath: tanzu_core/tkr/tkr-conversion-webhook
+            tag: v0.28.0-dev-104-g36b89720
+          tkrImage:
+            imagePath: tanzu_core/tkr/tkr-controller-manager
+            tag: v0.28.0-dev-104-g36b89720
+          tkrResolverImage:
+            imagePath: tanzu_core/tkr/tkr-resolver-cluster-webhook
+            tag: v0.28.0-dev-104-g36b89720
+          tkrSourceControllerImage:
+            imagePath: tanzu_core/tkr/tkr-source-controller
+            tag: v0.28.0-dev-104-g36b89720
+          tkrStatusControllerImage:
+            imagePath: tanzu_core/tkr/tkr-status-controller
+            tag: v0.28.0-dev-104-g36b89720
+          tkrVsphereResolverImage:
+            imagePath: tanzu_core/tkr/tkr-vsphere-cluster-webhook
+            tag: v0.28.0-dev-104-g36b89720
+      tanzu-framework-management-packages:
+      - version: v0.28.0-dev-104-g36b89720
+        images:
+          tanzuFrameworkManagementPackageRepositoryImage:
+            imagePath: packages/management/repo
+            tag: v0.28.0-dev-104-g36b89720
+          tanzuFrameworkManagementPackageRepositoryImageUTKG:
+            imagePath: packages/management/repo
+            tag: v0.28.0-dev-104-g36b89720-utkg
+      tkg-bom:
+      - version: v1.7.0
+        images:
+          tkgBomImage:
+            imagePath: tkg-bom
+            tag: v1.7.0
+      tkg-standard-packages:
+      - version: v1.7.0
+        images:
+          tanzuStandardPackageRepositoryImage:
+            imagePath: packages/standard/repo
+            tag: v1.7.0
+      tkg_telemetry:
+      - version: v1.6.0+vmware.1
+        images:
+          tkgTelemetryImage:
+            imagePath: tkg-telemetry
+            tag: v1.6.0_vmware.1
+      velero:
+      - version: v1.9.2+vmware.1
+        images:
+          veleroImage:
+            imagePath: velero/velero
+            tag: v1.9.2_vmware.1
+          veleroResticRestoreHelperImage:
+            imagePath: velero/velero-restic-restore-helper
+            tag: v1.9.2_vmware.1
+      velero-plugin-for-aws:
+      - version: v1.5.1+vmware.1
+        images:
+          veleroPluginForAwsImage:
+            imagePath: velero/velero-plugin-for-aws
+            tag: v1.5.1_vmware.1
+      velero-plugin-for-csi:
+      - version: v0.3.1+vmware.1
+        images:
+          veleroPluginForCsiImage:
+            imagePath: velero/velero-plugin-for-csi
+            tag: v0.3.1_vmware.1
+      velero-plugin-for-microsoft-azure:
+      - version: v1.5.1+vmware.1
+        images:
+          veleroPluginForMicrosoftAzureImage:
+            imagePath: velero/velero-plugin-for-microsoft-azure
+            tag: v1.5.1_vmware.1
+      velero-plugin-for-vsphere:
+      - version: v1.4.0+vmware.1
+        images:
+          veleroBackupDriverImage:
+            imagePath: velero/backup-driver
+            tag: v1.4.0_vmware.1
+          veleroDataManagerForPluginImage:
+            imagePath: velero/data-manager-for-plugin
+            tag: v1.4.0_vmware.1
+          veleroPluginForVsphereImage:
+            imagePath: velero/velero-plugin-for-vsphere
+            tag: v1.4.0_vmware.1
+      vendir:
+      - version: v0.30.0+vmware.1
+      whereabouts:
+      - version: v0.5.4+vmware.1
+        images:
+          whereaboutsImage:
+            imagePath: whereabouts
+            tag: v0.5.4_vmware.1
+    kindKubeadmConfigSpec:
+    - 'kind: Cluster'
+    - 'apiVersion: kind.x-k8s.io/v1alpha4'
+    - 'kubeadmConfigPatches:'
+    - '- |'
+    - '  apiVersion: kubeadm.k8s.io/v1beta2'
+    - '  kind: ClusterConfiguration'
+    - '  imageRepository: projects.registry.vmware.com/tkg'
+    - '  etcd:'
+    - '    local:'
+    - '      imageRepository: projects.registry.vmware.com/tkg'
+    - '      imageTag: v3.5.4_vmware.6'
+    - '  dns:'
+    - '    type: CoreDNS'
+    - '    imageRepository: projects.registry.vmware.com/tkg'
+    - '    imageTag: v1.8.6_vmware.7'
+    imageConfig:
+      imageRepository: projects-stg.registry.vmware.com/tkg
+    tkr-bom:
+      imagePath: tkr-bom
+    tkr-compatibility:
+      imagePath: v20-v1.7.0/tkr-compatibility
+    tkr-package-repo:
+      aws: tkr-repository-aws
+      azure: tkr-repository-azure
+      vsphere-nonparavirt: tkr-repository-vsphere-nonparavirt
+    tkr-package:
+      aws: tkr-aws
+      azure: tkr-azure
+      vsphere-nonparavirt: tkr-vsphere-nonparavirt
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bom-metadata
+  namespace: tkg-system
+binaryData:
+  compatibility: bWFuYWdlbWVudENsdXN0ZXJWZXJzaW9uczoKLSBzdXBwb3J0ZWRLdWJlcm5ldGVzVmVyc2lvbnM6CiAgLSB2MS4yMC40K3Ztd2FyZS4xLXRrZy4xCiAgLSB2MS4xOS44K3Ztd2FyZS4xLXRrZy4xCiAgLSB2MS4xOC4xNit2bXdhcmUuMS10a2cuMQogIC0gdjEuMTcuMTYrdm13YXJlLjItdGtnLjEKICB2ZXJzaW9uOiB2MS4zLjAKLSBzdXBwb3J0ZWRLdWJlcm5ldGVzVmVyc2lvbnM6CiAgLSB2MS4xOS44K3Ztd2FyZS4zLXRrZy4xCiAgLSB2MS4yMC41K3Ztd2FyZS4yLXRrZy4xCiAgLSB2MS4xOC4xNyt2bXdhcmUuMi10a2cuMQogIC0gdjEuMjAuNCt2bXdhcmUuMy10a2cuMQogIC0gdjEuMTkuOSt2bXdhcmUuMi10a2cuMQogIC0gdjEuMTguMTYrdm13YXJlLjMtdGtnLjEKICAtIHYxLjE3LjE2K3Ztd2FyZS4zLXRrZy4xCiAgdmVyc2lvbjogdjEuMy4xCi0gc3VwcG9ydGVkS3ViZXJuZXRlc1ZlcnNpb25zOgogIC0gdjEuMjAuNSt2bXdhcmUuMi1maXBzLjEtdGtnLjEKICB2ZXJzaW9uOiB2MS4zLjEtZmlwcy4xCi0gc3VwcG9ydGVkS3ViZXJuZXRlc1ZlcnNpb25zOgogIC0gdjEuMTkuOCt2bXdhcmUuMy10a2cuMQogIC0gdjEuMjAuNSt2bXdhcmUuMi10a2cuMQogIC0gdjEuMTguMTcrdm13YXJlLjItdGtnLjEKICAtIHYxLjIwLjQrdm13YXJlLjMtdGtnLjEKICAtIHYxLjE5Ljkrdm13YXJlLjItdGtnLjEKICAtIHYxLjE4LjE2K3Ztd2FyZS4zLXRrZy4xCiAgLSB2MS4xNy4xNit2bXdhcmUuMy10a2cuMQogIHZlcnNpb246IHYxLjMuMS1wYXRjaDEKLSBzdXBwb3J0ZWRLdWJlcm5ldGVzVmVyc2lvbnM6CiAgLSB2MS4xOS4xMit2bXdhcmUuMS10a2cuMQogIC0gdjEuMjEuMit2bXdhcmUuMS10a2cuMQogIC0gdjEuMjAuOCt2bXdhcmUuMS10a2cuMgogIHZlcnNpb246IHYxLjQuMAotIHN1cHBvcnRlZEt1YmVybmV0ZXNWZXJzaW9uczoKICAtIHYxLjIxLjIrdm13YXJlLjEtZmlwcy4xLXRrZy4xCiAgLSB2MS4yMC44K3Ztd2FyZS4xLWZpcHMuMS10a2cuMgogIHZlcnNpb246IHYxLjQuMC1maXBzLjEKLSBzdXBwb3J0ZWRLdWJlcm5ldGVzVmVyc2lvbnM6CiAgLSB2MS4yMS4yK3Ztd2FyZS4xLXRrZy4yCiAgLSB2MS4yMC44K3Ztd2FyZS4xLXRrZy4zCiAgLSB2MS4xOS4xMit2bXdhcmUuMS10a2cuMgogIHZlcnNpb246IHYxLjQuMQotIHN1cHBvcnRlZEt1YmVybmV0ZXNWZXJzaW9uczoKICAtIHYxLjIxLjgrdm13YXJlLjEtdGtnLjIKICAtIHYxLjE5LjE2K3Ztd2FyZS4xLXRrZy4xCiAgLSB2MS4yMC4xNCt2bXdhcmUuMS10a2cuMgogIHZlcnNpb246IHYxLjQuMgotIHN1cHBvcnRlZEt1YmVybmV0ZXNWZXJzaW9uczoKICAtIHYxLjIwLjE0K3Ztd2FyZS4xLXRrZy43CiAgLSB2MS4xOS4xNit2bXdhcmUuMS10a2cuMgogIC0gdjEuMjEuOCt2bXdhcmUuMS10a2cuNwogIHZlcnNpb246IHYxLjQuMwotIHN1cHBvcnRlZEt1YmVybmV0ZXNWZXJzaW9uczoKICAtIHYxLjIyLjUrdm13YXJlLjEtdGtnLjEKICAtIHYxLjIxLjgrdm13YXJlLjEtdGtnLjEKICAtIHYxLjIwLjE0K3Ztd2FyZS4xLXRrZy4xCiAgdmVyc2lvbjogdjEuNS4wCi0gc3VwcG9ydGVkS3ViZXJuZXRlc1ZlcnNpb25zOgogIC0gdjEuMjIuNSt2bXdhcmUuMS10a2cuMwogIC0gdjEuMjEuOCt2bXdhcmUuMS10a2cuNAogIC0gdjEuMjAuMTQrdm13YXJlLjEtdGtnLjQKICB2ZXJzaW9uOiB2MS41LjEKLSBzdXBwb3J0ZWRLdWJlcm5ldGVzVmVyc2lvbnM6CiAgLSB2MS4yMi41K3Ztd2FyZS4xLXRrZy40CiAgLSB2MS4yMC4xNCt2bXdhcmUuMS10a2cuNQogIC0gdjEuMjEuOCt2bXdhcmUuMS10a2cuNQogIHZlcnNpb246IHYxLjUuMgotIHN1cHBvcnRlZEt1YmVybmV0ZXNWZXJzaW9uczoKICAtIHYxLjIwLjE1K3Ztd2FyZS4xLXRrZy4xCiAgLSB2MS4yMi44K3Ztd2FyZS4xLXRrZy4xCiAgLSB2MS4yMS4xMSt2bXdhcmUuMS10a2cuMQogIHZlcnNpb246IHYxLjUuMwotIHN1cHBvcnRlZEt1YmVybmV0ZXNWZXJzaW9uczoKICAtIHYxLjIwLjE1K3Ztd2FyZS4xLWZpcHMuMS10a2cuMQogIC0gdjEuMjIuOCt2bXdhcmUuMS1maXBzLjEtdGtnLjEKICAtIHYxLjIxLjExK3Ztd2FyZS4xLWZpcHMuMS10a2cuMQogIHZlcnNpb246IHYxLjUuMy1maXBzLjEKLSBzdXBwb3J0ZWRLdWJlcm5ldGVzVmVyc2lvbnM6CiAgLSB2MS4yMC4xNSt2bXdhcmUuMS10a2cuMgogIC0gdjEuMjIuOSt2bXdhcmUuMS10a2cuMQogIC0gdjEuMjEuMTErdm13YXJlLjEtdGtnLjMKICB2ZXJzaW9uOiB2MS41LjQKLSBzdXBwb3J0ZWRLdWJlcm5ldGVzVmVyc2lvbnM6CiAgLSB2MS4yMC4xNSt2bXdhcmUuMi1maXBzLXRrZy4xCiAgLSB2MS4yMS4xMSt2bXdhcmUuMi1maXBzLXRrZy4xCiAgLSB2MS4yMi45K3Ztd2FyZS4xLWZpcHMtdGtnLjEKICB2ZXJzaW9uOiB2MS41LjQtZmlwcy4xCi0gc3VwcG9ydGVkS3ViZXJuZXRlc1ZlcnNpb25zOgogIC0gdjEuMjMuOCt2bXdhcmUuMi10a2cuMQogIC0gdjEuMjEuMTQrdm13YXJlLjItdGtnLjEKICAtIHYxLjIyLjExK3Ztd2FyZS4yLXRrZy4xCiAgdmVyc2lvbjogdjEuNi4wCi0gc3VwcG9ydGVkS3ViZXJuZXRlc1ZlcnNpb25zOgogIC0gdjEuMjMuOCt2bXdhcmUuMi1maXBzLjEtdGtnLjEKICAtIHYxLjIyLjExK3Ztd2FyZS4yLWZpcHMuMS10a2cuMQogIC0gdjEuMjEuMTQrdm13YXJlLjItZmlwcy4xLXRrZy4xCiAgdmVyc2lvbjogdjEuNi4wLWZpcHMuMQotIHN1cHBvcnRlZEt1YmVybmV0ZXNWZXJzaW9uczoKICAtIHYxLjI0LjYrdm13YXJlLjEtdGtnLjEKICAtIHYxLjIzLjgrdm13YXJlLjItdGtnLjIKICAtIHYxLjIyLjExK3Ztd2FyZS4yLXRrZy4yCiAgdmVyc2lvbjogdjEuNy4wCg==
