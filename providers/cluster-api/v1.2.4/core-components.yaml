@@ -41,7 +41,7 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - description: Time duration since creation of ClusterClass
+    - description: pingtest+Time duration since creation of ClusterClass
       jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
@@ -279,7 +279,7 @@ spec:
     storage: false
     subresources: {}
   - additionalPrinterColumns:
-    - description: Time duration since creation of ClusterClass
+    - description: pingtest+Time duration since creation of ClusterClass
       jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
