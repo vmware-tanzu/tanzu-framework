@@ -1,0 +1,15 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "DaemonSet", "metadata": {"name": "capz-nmi"}})
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+      
