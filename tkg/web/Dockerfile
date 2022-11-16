@@ -3,7 +3,7 @@
 
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
-ARG BUILDER_BASE_IMAGE=node:16-alpine
+ARG BUILDER_BASE_IMAGE=node:16
 
 # Build the manager binary
 FROM $BUILDER_BASE_IMAGE as builder
