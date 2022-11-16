@@ -221,14 +221,15 @@ func main() {
 		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
 		Scheme: mgr.GetScheme(),
 		Config: addonconfig.AddonControllerConfig{
-			AppSyncPeriod:           flags.appSyncPeriod,
-			AppWaitTimeout:          flags.appWaitTimeout,
-			AddonNamespace:          flags.addonNamespace,
-			AddonServiceAccount:     flags.addonServiceAccount,
-			AddonClusterRole:        flags.addonClusterRole,
-			AddonClusterRoleBinding: flags.addonClusterRoleBinding,
-			AddonImagePullPolicy:    flags.addonImagePullPolicy,
-			CorePackageRepoName:     flags.corePackageRepoName,
+			AppSyncPeriod:               flags.appSyncPeriod,
+			AppWaitTimeout:              flags.appWaitTimeout,
+			AddonNamespace:              flags.addonNamespace,
+			AddonServiceAccount:         flags.addonServiceAccount,
+			AddonClusterRole:            flags.addonClusterRole,
+			AddonClusterRoleBinding:     flags.addonClusterRoleBinding,
+			AddonImagePullPolicy:        flags.addonImagePullPolicy,
+			CorePackageRepoName:         flags.corePackageRepoName,
+			FeatureGateClusterBootstrap: flags.featureGateClusterBootstrap,
 		},
 	}
 	if err = addonReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
