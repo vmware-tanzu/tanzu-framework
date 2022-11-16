@@ -11,9 +11,8 @@ FROM $BUILDER_BASE_IMAGE as builder
 WORKDIR /workspace
 
 COPY api/spec.yaml /workspace/api/spec.yaml
-COPY package.json package-lock.json /workspace/
+COPY angular.json package.json package-lock.json tsconfig.app.json tsconfig.json tsconfig.spec.json tslint.json /workspace/
 COPY src /workspace/src/
-COPY angular.json tsconfig.app.json tsconfig.json tsconfig.spec.json tslint.json /workspace/
 
 RUN npm ci --legacy-peer-deps
 RUN npm run build:prod
