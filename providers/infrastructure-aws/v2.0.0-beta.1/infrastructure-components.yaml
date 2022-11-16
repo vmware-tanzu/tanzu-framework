@@ -8440,7 +8440,7 @@ spec:
           value: ${TKG_HTTPS_PROXY}
         - name: NO_PROXY
           value: ${TKG_NO_PROXY}
-        image: registry.tkg.vmware.run/cluster-api-aws/cluster-api-aws-controller:${CAPA_CONTROLLER_IMAGE_TAG}
+        image: registry.k8s.io/cluster-api-aws/cluster-api-aws-controller:v2.0.0-beta.0
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3

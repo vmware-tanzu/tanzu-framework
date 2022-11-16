@@ -287,6 +287,7 @@ jobs:
           TKG_CUSTOM_IMAGE_REPOSITORY: "projects-stg.registry.vmware.com/tkg"
           _PROVIDER_TEMPLATE_IMAGE: ${{ needs.build-and-publish-packages.outputs.registry }}/tanzu_framework/github-actions/${{ needs.build-and-publish-packages.outputs.regdir }}/provider-templates:v0.21.0
           _PROVIDER_TEMPLATE_TAG: "0.21.0"
+          SKIP_PROVIDER_IMAGE_OVERWRITE: true
 
 
   integ-tests-aws-cc:
@@ -392,3 +393,4 @@ jobs:
           tkg/test/scripts/aws_cleanup.sh ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
         env:
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
+
