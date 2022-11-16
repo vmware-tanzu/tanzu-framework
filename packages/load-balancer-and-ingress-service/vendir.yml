@@ -1,3 +1,22 @@
 apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
 minimumRequiredVersion: 0.12.0
+directories:
+  - path: bundle/config
+    contents:
+      - path: .
+        git:
+          url: git@github.com:vmware-tanzu/tce.git
+          ref: 109e78c04e4c6a4666c9aa145289dd56efc46c7e
+        newRootPath: addons/packages/load-balancer-and-ingress-service/1.7.3/bundle/config
+        includePaths:
+          - addons/packages/load-balancer-and-ingress-service/1.7.3/bundle/config/**/*
+  - path: package.yaml
+    contents:
+      - path: .
+        git:
+          url: git@github.com:vmware-tanzu/tce.git
+          ref: 109e78c04e4c6a4666c9aa145289dd56efc46c7e
+        newRootPath: addons/packages/load-balancer-and-ingress-service/1.7.3/package.yaml
+        includePaths:
+          - addons/packages/load-balancer-and-ingress-service/1.7.3/package.yaml

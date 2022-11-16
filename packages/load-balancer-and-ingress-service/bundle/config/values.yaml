@@ -15,7 +15,7 @@ loadBalancerAndIngressService:
       api_server_port: 8080
       delete_config: "false"
       disable_static_route_sync: "true"
-      cluster_name: ""
+      cluster_name: default-wc-1
       cni_plugin: antrea
       sync_namespace:
       enable_EVH:
@@ -24,16 +24,14 @@ loadBalancerAndIngressService:
       istio_enabled: ""
       vip_per_namespace: ""
       enable_events:
-      blocked_namespace_list: "[]"
-      ip_family: ""
       namespace_selector:
           label_key: ""
           label_value: ""
     network_settings:
       subnet_ip: 10.193.32.0
       subnet_prefix: 19
-      network_name: ""
-      control_plane_network_name: ""
+      network_name: VM Network
+      control_plane_network_name: VM Network 2
       node_network_list: ""
       vip_network_list: "[]"
       enable_rhi: ""
@@ -54,13 +52,20 @@ loadBalancerAndIngressService:
       auto_fqdn: ""
     controller_settings:
       tenant_name:
-      service_engine_group_name: ""
+      service_engine_group_name: Default-Group
       controller_version:
-      cloud_name: ""
-      controller_ip: ""
+      cloud_name: Default-Cloud
+      controller_ip: 10.1.1.1
     nodeport_selector:
       key: ""
       value: ""
+    resources:
+      limits:
+        cpu: 350m
+        memory: 400Mi
+      request:
+        cpu: 200m
+        memory: 300Mi
     rbac:
       psp_enabled: false
       psp_policy_api_version:

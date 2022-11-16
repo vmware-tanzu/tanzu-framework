@@ -45,7 +45,6 @@ spec:
       containers:
 #@overlay/match by=overlay.index(0)
         - name: #@ values.loadBalancerAndIngressService.name
-          image: harbor-repo.vmware.com/tanzu_ako_operator_dev/tkg-networking/tanzu-ako-operator:v1.7.0_dev7
 #@ if values.loadBalancerAndIngressService.config.persistent_volume_claim:
 #@overlay/match missing_ok=True
           volumeMounts:
@@ -100,30 +99,6 @@ spec:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: passthroughShardSize
-#@ end
-#@ if values.loadBalancerAndIngressService.config.ako_settings.istio_enabled:
-#@overlay/append
-            - name: ISTIO_ENABLED
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: istioEnabled
-#@ end
-#@ if values.loadBalancerAndIngressService.config.ako_settings.blocked_namespace_list:
-#@overlay/append
-            - name: BLOCKED_NAMESPACE_LIST
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: blockedNamespaceList
-#@ end
-#@ if values.loadBalancerAndIngressService.config.ako_settings.ip_family:
-#@overlay/append
-            - name: IP_FAMILY
-              valueFrom:
-                configMapKeyRef:
-                  name: avi-k8s-config
-                  key: ipFamily
 #@ end
 #@ if values.loadBalancerAndIngressService.config.ako_settings.primary_instance:
 #@overlay/append
@@ -270,6 +245,13 @@ spec:
                   name: avi-k8s-config
                   key: enableMCI
 #@ end
+          resources:
+            limits:
+              cpu: #@ values.loadBalancerAndIngressService.config.resources.limits.cpu
+              memory: #@ values.loadBalancerAndIngressService.config.resources.limits.memory
+            requests:
+              cpu: #@ values.loadBalancerAndIngressService.config.resources.request.cpu
+              memory: #@ values.loadBalancerAndIngressService.config.resources.request.memory
           livenessProbe:
             httpGet:
               port:  #@ values.loadBalancerAndIngressService.config.ako_settings.api_server_port

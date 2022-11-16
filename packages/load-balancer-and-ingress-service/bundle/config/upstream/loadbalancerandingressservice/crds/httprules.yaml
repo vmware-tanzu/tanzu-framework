@@ -69,6 +69,11 @@ spec:
                           enum:
                           - reencrypt
                           type: string
+                      oneOf:
+                        - required:
+                          - destinationCA
+                        - required:
+                          - pkiProfile
                       required:
                       - type
                       type: object

@@ -1,3 +1,19 @@
 apiVersion: vendir.k14s.io/v1alpha1
-directories: null
+directories:
+- contents:
+  - git:
+      commitTitle: auto-generated - update daily build in README (#5539)...
+      sha: 109e78c04e4c6a4666c9aa145289dd56efc46c7e
+      tags:
+      - v0.13.0-dev.2-469-g109e78c0
+    path: .
+  path: bundle/config
+- contents:
+  - git:
+      commitTitle: auto-generated - update daily build in README (#5539)...
+      sha: 109e78c04e4c6a4666c9aa145289dd56efc46c7e
+      tags:
+      - v0.13.0-dev.2-469-g109e78c0
+    path: .
+  path: package.yaml
 kind: LockConfig

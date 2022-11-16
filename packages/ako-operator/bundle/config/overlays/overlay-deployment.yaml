@@ -1,7 +1,6 @@
 #@ load("/values.star", "values")
 #@ load("@ytt:overlay", "overlay")
 
-
 #@ def labels():
 app: tanzu-ako-operator
 #@ end
@@ -41,7 +40,7 @@ spec:
             - --metrics-addr=:8080
           command:
             - /manager
-          image: harbor-repo.vmware.com/tanzu_ako_operator_dev/tkg-networking/tanzu-ako-operator:v1.7.0_dev7
+          image: projects-stg.registry.vmware.com/tkg/ako-operator:v1.6.0_vmware.1
           name: manager
           ports:
             - containerPort: 9443

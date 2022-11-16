@@ -26,7 +26,7 @@ spec:
             - --metrics-addr=:8080
           command:
             - /manager
-          image: harbor-repo.vmware.com/tanzu_ako_operator_dev/tkg-networking/tanzu-ako-operator:v1.7.0_dev7
+          image: projects-stg.registry.vmware.com/tkg/ako-operator:v1.6.0_vmware.1
           name: manager
           ports:
             - containerPort: 9443
@@ -52,17 +52,17 @@ spec:
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 10
-              preference:
-                matchExpressions:
-                  - key: node-role.kubernetes.io/control-plane
-                    operator: Exists
-            #! remove once usage of node-role.kubernetes.io/master is removed from Kubernetes
-            - weight: 10
-              preference:
-                matchExpressions:
-                  - key: node-role.kubernetes.io/master
-                    operator: Exists
+          - weight: 10
+            preference:
+              matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+          #! remove once usage of node-role.kubernetes.io/master is removed from Kubernetes
+          - weight: 10
+            preference:
+              matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
       volumes:
         - name: cert
           secret:
