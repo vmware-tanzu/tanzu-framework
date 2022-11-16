@@ -644,18 +644,13 @@ ifneq ($(strip $(CUSTOM_NPM_REGISTRY)),)
 	npm config set registry $(CUSTOM_NPM_REGISTRY) web
 endif
 
-.PHONY: ui-dependencies
-ui-dependencies: update-npm-registry  ## install UI dependencies (node modules)
-	cd $(UI_DIR); NG_CLI_ANALYTICS=ci npm ci --legacy-peer-deps; cd ../
+.PHONY: ui-build-image
+ui-build-image: ## Builds image with npm dependencies and compiled Angular app
+	cd $(UI_DIR); docker build -t "ui-build-image:latest" .
 
 .PHONY: ui-build
-ui-build: ui-dependencies ## Install dependencies, then compile client UI for production
-	cd $(UI_DIR); npm run build:prod; cd ../
-	$(MAKE) generate-ui-bindata
-
-.PHONY: ui-build-and-test
-ui-build-and-test: ui-dependencies ## Compile client UI for production and run tests
-	cd $(UI_DIR); npm run build:ci; cd ../
+ui-build: ui-build-image ## Creates temp docker container and copies prod Angular assets to host UI_DIR
+	docker cp $$(docker create --name ui-build-container ui-build-image:latest):/workspace/dist $(UI_DIR) && docker rm ui-build-container && docker rmi ui-build-image
 	$(MAKE) generate-ui-bindata
 
 .PHONY: verify-ui-bindata
