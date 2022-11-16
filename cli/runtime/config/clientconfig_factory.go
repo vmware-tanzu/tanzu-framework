@@ -5,7 +5,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/pkg/errors"
@@ -30,7 +29,6 @@ func getClientConfigNodeNoLock() (*yaml.Node, error) {
 	}
 	bytes, err := os.ReadFile(cfgPath)
 	if err != nil || len(bytes) == 0 {
-		_ = fmt.Errorf("failed to read in config: %v", err)
 		node, err := newClientConfigNode()
 		if err != nil {
 			return nil, errors.Wrap(err, "getClientConfigNodeNoLock: failed to create new client config")

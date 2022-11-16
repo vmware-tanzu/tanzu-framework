@@ -4,7 +4,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/pkg/errors"
@@ -29,7 +28,6 @@ func GetClientConfigNoLock() (cfg *configapi.ClientConfig, err error) {
 	}
 	b, err := os.ReadFile(cfgPath)
 	if err != nil || len(b) == 0 {
-		_ = fmt.Errorf("failed to read in config: %v", err)
 		cfg = &configapi.ClientConfig{}
 		return cfg, nil
 	}
