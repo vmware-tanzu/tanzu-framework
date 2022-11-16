@@ -17,6 +17,7 @@ directories:
         includePaths:
           - cni.tanzu.vmware.com_antreaconfigs.yaml
           - cni.tanzu.vmware.com_calicoconfigs.yaml
+          - cpi.tanzu.vmware.com_oraclecpiconfigs.yaml
           - cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
           - csi.tanzu.vmware.com_vspherecsiconfigs.yaml
           - csi.tanzu.vmware.com_awsebscsiconfigs.yaml

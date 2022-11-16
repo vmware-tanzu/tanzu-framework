@@ -2,9 +2,11 @@ metadata:
     infraProvider: vsphere
 configvalues:
     PROVIDER_TYPE: vsphere
+    TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE: fake-ca
     TKG_HTTP_PROXY: http://192.168.116.1:3128
     TKG_HTTPS_PROXY: http://192.168.116.1:3128
     TKG_NO_PROXY: .svc,100.64.0.0/13,192.168.118.0/24,192.168.119.0/24,192.168.120.0/24
+    TKG_PROXY_CA_CERT: dGVzdDE=
 frameworkPackage:
     versionConstraints: v0.21.0
     featureGatesPackageValues:
@@ -33,6 +35,8 @@ tkrSourceControllerPackage:
         bomMetadataImagePath: fake.custom.repo/fake-path/tkr-compatibility
         tkrRepoImagePath: fake.custom.repo/tkr-repository-vsphere-nonparavirt
         defaultCompatibleTKR: v1.23.5+vmware.1-tkg.1-fake
+        caCerts: dGVzdDE=
+        imageRepository: fake.custom.repo
         deployment:
             httpProxy: http://192.168.116.1:3128
             httpsProxy: http://192.168.116.1:3128

@@ -1,5 +1,6 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
 
 #@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "tkr-source-controller-manager"}})
 ---
@@ -33,3 +34,10 @@ spec:
       #@overlay/match missing_ok=True
       nodeSelector: #@ data.values.deployment.nodeSelector
       #@ end
+
+#@ if data.values.caCerts:
+#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "tkr-controller-config"}})
+---
+data:
+  caCerts: #@ base64.decode(data.values.caCerts)
+#@ end

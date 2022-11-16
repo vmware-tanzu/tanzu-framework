@@ -397,10 +397,13 @@ spec:
     #! the primary IP family, set --node-ip on kubelet so that host network pods
     #! do not get the kube-vip address as their pod IP.
     #! See: https://github.com/vmware-tanzu/tanzu-framework/issues/2098
-    #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER and data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"] and compare_semver_versions(tkrVersion, "v1.22.8") >= 0:
+    #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
     preKubeadmCommands:
+    - echo "::1         localhost" >> /etc/hosts
+    #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER and compare_semver_versions(tkrVersion, "v1.22.8") >= 0:
     #@overlay/append
     - echo "KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)" >> /etc/sysconfig/kubelet
+    #@ end
     #@ end
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
   version: #@ data.values.KUBERNETES_VERSION
@@ -428,6 +431,10 @@ spec:
         sshAuthorizedKeys:
         - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
         sudo: ALL=(ALL) NOPASSWD:ALL
+          #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
+      preKubeadmCommands:
+      - echo "::1         localhost" >> /etc/hosts
+      #@ end
 
 #@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${ CLUSTER_NAME }-md-0"}})
 ---
