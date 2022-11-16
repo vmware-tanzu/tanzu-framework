@@ -1,9 +1,10 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package tkgconfigupdater
 
 import (
+	"os"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -102,7 +103,12 @@ func (c *client) getImageMapForConfigFile() (map[string]imageForConfigFile, erro
 	defaultBaseRepositoryForClusterAPI := baseImageRepository + "/cluster-api"
 
 	images := map[string]imageForConfigFile{}
-	images["all"] = imageForConfigFile{Repository: defaultBaseRepositoryForClusterAPI}
+
+	// Set SKIP_PROVIDER_IMAGE_OVERWRITE to use images speicifed in the yaml directly
+	skip := os.Getenv("SKIP_PROVIDER_IMAGE_OVERWRITE")
+	if skip == "false" || skip == "" {
+		images["all"] = imageForConfigFile{Repository: defaultBaseRepositoryForClusterAPI}
+	}
 
 	for configKey, bomImageComponent := range configKeyTObomImageKeyMap {
 		imageInfoFromBOM, exists := bomConfig.Components[bomImageComponent.ComponentName][0].Images[bomImageComponent.ImageName]
