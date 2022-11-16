@@ -10,14 +10,15 @@ import (
 
 // AddonControllerConfig contains addons controller configuration information.
 type AddonControllerConfig struct {
-	AppSyncPeriod           time.Duration
-	AppWaitTimeout          time.Duration
-	AddonNamespace          string
-	AddonServiceAccount     string
-	AddonClusterRole        string
-	AddonClusterRoleBinding string
-	AddonImagePullPolicy    string
-	CorePackageRepoName     string
+	AppSyncPeriod               time.Duration
+	AppWaitTimeout              time.Duration
+	AddonNamespace              string
+	AddonServiceAccount         string
+	AddonClusterRole            string
+	AddonClusterRoleBinding     string
+	AddonImagePullPolicy        string
+	CorePackageRepoName         string
+	FeatureGateClusterBootstrap bool
 }
 
 // ClusterBootstrapControllerConfig contains configuration information related to ClusterBootstrap
@@ -69,6 +70,11 @@ type VSphereCPIConfigControllerConfig struct {
 	ConfigControllerConfig
 }
 
+// OracleCPIConfigControllerConfig contains configuration information of OracleCPIConfig controller
+type OracleCPIConfigControllerConfig struct {
+	ConfigControllerConfig
+}
+
 // VSphereCSIConfigControllerConfig contains configuration information of VSphereCSIConfig controller
 type VSphereCSIConfigControllerConfig struct {
 	ConfigControllerConfig
@@ -81,5 +87,10 @@ type AwsEbsCSIConfigControllerConfig struct {
 
 // AzureFileCSIConfigControllerConfig contains configuration information of AzureFileCSIConfig controller
 type AzureFileCSIConfigControllerConfig struct {
+	ConfigControllerConfig
+}
+
+// KubevipCPIConfigControllerConfig contains configuration information of KubevipLBConfig controller
+type KubevipCPIConfigControllerConfig struct {
 	ConfigControllerConfig
 }

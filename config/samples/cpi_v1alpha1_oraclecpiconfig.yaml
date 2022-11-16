@@ -1,0 +1,11 @@
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: OracleCPIConfig
+metadata:
+  name: oraclecpiconfig-sample
+spec:
+  compartment: test-compartment
+  vcn: test-vcn
+  loadBalancer:
+    subnet1: ocid1.subnet.oc1.phx.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    subnet2: ocid1.subnet.oc1.phx.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    securityListManagementMode: Frontend

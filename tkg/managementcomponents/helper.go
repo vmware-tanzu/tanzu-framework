@@ -25,7 +25,7 @@ const (
 )
 
 // GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
-func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration) (string, error) {
+func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration) (string, error) {
 	// TODO: Temporary hack(hard coded values) to configure TKR source controller package values. This should be replaced with the logic
 	// that fetches these values from tkg-bom(for bom related urls) and set the TKR source controller package values
 	var tkrRepoImagePath string
@@ -65,7 +65,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 				VersionConstraints: managementPackageVersion,
 			},
 			AddonsManagerPackageValues: AddonsManagerPackageValues{
-				VersionConstraints: managementPackageVersion,
+				VersionConstraints: addonsManagerPackageVersion,
 				TanzuAddonsManager: TanzuAddonsManager{
 					FeatureGates: AddonsFeatureGates{
 						ClusterBootstrapController: true,

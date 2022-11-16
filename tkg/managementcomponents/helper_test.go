@@ -62,8 +62,8 @@ tkr-package:
 			"PROVIDER_TYPE": providerType,
 		}
 
-		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing
-		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues, tkgBomConfig)
+		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
+		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig)
 	})
 
 	Context("When provider type is AWS", func() {
@@ -188,8 +188,8 @@ tkr-package:
 		tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
 		err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
 		Expect(err).NotTo(HaveOccurred())
-		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing
-		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues, tkgBomConfig)
+		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
+		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig)
 	})
 
 	Context("when proxy is set", func() {
@@ -254,8 +254,8 @@ tkr-package:
 		tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
 		err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
 		Expect(err).NotTo(HaveOccurred())
-		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing
-		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues, tkgBomConfig)
+		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
+		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig)
 	})
 
 	Context("when proxy is set", func() {

@@ -16,6 +16,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	capociv1beta1 "github.com/oracle/cluster-api-provider-oci/api/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -49,6 +50,7 @@ import (
 	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	csi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
 	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
+	kubevipcpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kubevipcpi"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
@@ -129,6 +131,7 @@ var _ = BeforeSuite(func(done Done) {
 			"controlplane/kubeadm/config/crd/bases"},
 		"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1": {"config/crds.yml"},
 		"sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1":                      {"config/default/crd/bases", "config/supervisor/crd"},
+		"github.com/oracle/cluster-api-provider-oci":                                 {"config/crd/bases"},
 	}
 
 	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
@@ -214,6 +217,9 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).NotTo(HaveOccurred())
 
 	err = capvvmwarev1beta1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = capociv1beta1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	err = vmoperatorv1alpha1.AddToScheme(scheme)
@@ -315,6 +321,14 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
+	Expect((&cpi.OracleCPIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("OracleCPIConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.OracleCPIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: constants.TKGSystemNS}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
 	Expect((&antrea.AntreaConfigReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("AntreaConfig"),
@@ -358,6 +372,14 @@ var _ = BeforeSuite(func(done Done) {
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(context.Background(), mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&kubevipcpi.KubevipCPIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("KubevipCPIConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.KubevipCPIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: constants.TKGSystemNS}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
 	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")

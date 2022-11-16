@@ -40,6 +40,7 @@ import (
 	cpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	csicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
 	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
+	kvcpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kubevipcpi"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/buildinfo"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -221,14 +222,15 @@ func main() {
 		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
 		Scheme: mgr.GetScheme(),
 		Config: addonconfig.AddonControllerConfig{
-			AppSyncPeriod:           flags.appSyncPeriod,
-			AppWaitTimeout:          flags.appWaitTimeout,
-			AddonNamespace:          flags.addonNamespace,
-			AddonServiceAccount:     flags.addonServiceAccount,
-			AddonClusterRole:        flags.addonClusterRole,
-			AddonClusterRoleBinding: flags.addonClusterRoleBinding,
-			AddonImagePullPolicy:    flags.addonImagePullPolicy,
-			CorePackageRepoName:     flags.corePackageRepoName,
+			AppSyncPeriod:               flags.appSyncPeriod,
+			AppWaitTimeout:              flags.appWaitTimeout,
+			AddonNamespace:              flags.addonNamespace,
+			AddonServiceAccount:         flags.addonServiceAccount,
+			AddonClusterRole:            flags.addonClusterRole,
+			AddonClusterRoleBinding:     flags.addonClusterRoleBinding,
+			AddonImagePullPolicy:        flags.addonImagePullPolicy,
+			CorePackageRepoName:         flags.corePackageRepoName,
+			FeatureGateClusterBootstrap: flags.featureGateClusterBootstrap,
 		},
 	}
 	if err = addonReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
@@ -306,6 +308,16 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")
 		os.Exit(1)
 	}
+	if err := (&cpicontroller.OracleCPIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("OracleCPIConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.OracleCPIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create CPIConfigController", "controller", "oraclecpi")
+		os.Exit(1)
+	}
 
 	if err := (&csicontroller.VSphereCSIConfigReconciler{
 		Client: mgr.GetClient(),
@@ -337,6 +349,17 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CSIConfigController", "controller", "azurefilecsi")
+		os.Exit(1)
+	}
+
+	if err := (&kvcpicontroller.KubevipCPIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("KubevipCPIConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.KubevipCPIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create KubevipCPIConfigController", "controller", "kubevipcloudprovider")
 		os.Exit(1)
 	}
 

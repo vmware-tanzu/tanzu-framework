@@ -1,0 +1,7 @@
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: KubevipCPIConfig
+metadata:
+  name: kubevipcpiconfig-sample
+spec:
+  loadbalancerCIDRs: 10.0.0.2/24
+  loadbalancerIPRanges: 10.0.0.1-10.0.0.2

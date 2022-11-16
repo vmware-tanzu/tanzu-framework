@@ -35,6 +35,12 @@ const (
 	// CPIDefaultRefName is default refname for cloud-provider-vsphere addon addon
 	CPIDefaultRefName = CPIAddonName + ".tanzu.vmware.com"
 
+	// OracleCPIAddonName is name of the Oracle CPI & CSI addon
+	OracleCPIAddonName = "oracle-cpi"
+
+	// OracleCPIDefaultRefName is default refname for cloud-provider-oracle addon addon
+	OracleCPIDefaultRefName = OracleCPIAddonName + ".tanzu.vmware.com"
+
 	// PVCSIAddonName is name of the vsphere-pv-csi addon
 	PVCSIAddonName = "vsphere-pv-csi"
 
@@ -48,6 +54,9 @@ const (
 	AwsEbsCSIAddonName = "aws-ebs-csi"
 	// AzureFileCSIAddonName is name of the azurefile-csi addon
 	AzureFileCSIAddonName = "azurefile-csi"
+
+	// KubevipCloudProvider is name of the kube-vip-cloud-provider addon
+	KubevipCloudProviderAddonName = "kube-vip-cloud-provider"
 
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
@@ -282,6 +291,9 @@ const (
 	// InfrastructureProviderDocker is the key for docker infrastructure
 	InfrastructureProviderDocker = "docker"
 
+	// InfrastructureProviderOCI is the key for Oracle Cloud Infrastructure
+	InfrastructureProviderOCI = "oci"
+
 	// InfrastructureRefVSphere is the vSphere infrastructure
 	InfrastructureRefVSphere = "VSphereCluster"
 
@@ -296,6 +308,9 @@ const (
 
 	// InfrastructureRefDocker is the docker infrastructure
 	InfrastructureRefDocker = "DockerCluster"
+
+	// InfrastructureRefOCI is the Oracle Cloud infrastructure
+	InfrastructureRefOCI = "OCICluster"
 
 	// CAPVClusterSelectorKey is the selector key used by capv
 	CAPVClusterSelectorKey = "capv.vmware.com/cluster.name"
@@ -320,9 +335,15 @@ var (
 	// VSphereCPIConfigKind is the Kind for cpi VSphereCPIConfig object
 	VSphereCPIConfigKind = reflect.TypeOf(cpiv1alpha1.VSphereCPIConfig{}).Name()
 
+	// OracleCPIConfigKind is the Kind for cpi OracleCPIConfig object
+	OracleCPIConfigKind = reflect.TypeOf(cpiv1alpha1.OracleCPIConfig{}).Name()
+
 	// KappControllerConfigKind is the Kind for KappControllerConfig object
 	KappControllerConfigKind = reflect.TypeOf(runv1alpha3.KappControllerConfig{}).Name()
 
 	// AwsEbsCSIConfigKind is the Kind for csi AwsEbsCSIConfig object
 	AwsEbsCSIConfigKind = reflect.TypeOf(csiv1alpha1.AwsEbsCSIConfig{}).Name()
+
+	// KubevipCPIConfigKind is the Kind for KubevipCPIConfigConfig object
+	KubevipCPIConfigKind = reflect.TypeOf(cpiv1alpha1.KubevipCPIConfig{}).Name()
 )

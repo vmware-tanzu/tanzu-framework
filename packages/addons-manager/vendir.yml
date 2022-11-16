@@ -22,6 +22,7 @@ directories:
           - csi.tanzu.vmware.com_vspherecsiconfigs.yaml
           - csi.tanzu.vmware.com_awsebscsiconfigs.yaml
           - csi.tanzu.vmware.com_azurefilecsiconfigs.yaml
+          - cpi.tanzu.vmware.com_kubevipcpiconfigs.yaml
       - path: addons-manager.yaml
         manual: {}
       - path: webhook-manifests.lib.yaml
