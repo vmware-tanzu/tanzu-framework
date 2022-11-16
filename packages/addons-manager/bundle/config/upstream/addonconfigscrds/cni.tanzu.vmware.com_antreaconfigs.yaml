@@ -87,11 +87,21 @@ spec:
                           and the network interface of each Pod. If omitted, antrea-agent
                           will discover the MTU of the Node's primary interface
                         type: string
+                      disableTXChecksumOffload:
+                        default: false
+                        description: Disable TX checksum offloading for container
+                          network interfaces
+                        type: boolean
                       disableUdpTunnelOffload:
                         default: false
                         description: Disable UDP tunnel offload feature on default
                           NIC
                         type: boolean
+                      dnsServerOverride:
+                        default: ""
+                        description: Provide the address of DNS server, to override
+                          the kube-dns service
+                        type: string
                       egress:
                         description: Specifies Egress related configuration.
                         properties:
@@ -100,6 +110,10 @@ spec:
                               type: string
                             type: array
                         type: object
+                      enableBridgingMode:
+                        default: false
+                        description: Enable bridging mode of Pod network on Nodes
+                        type: boolean
                       enableUsageReporting:
                         default: false
                         description: Enable usage reporting (telemetry) to VMware.
@@ -143,6 +157,11 @@ spec:
                             default: false
                             description: Flag to enable/disable multicast
                             type: boolean
+                          Multicluster:
+                            default: false
+                            description: Enable Antrea Multi-cluster Gateway to support
+                              cross-cluster traffic.
+                            type: boolean
                           NetworkPolicyStats:
                             default: false
                             description: Flag to enable/disable network policy stats
@@ -152,9 +171,19 @@ spec:
                             description: Flag to enable/disable NodePortLocal feature
                               to make the pods reachable externally through NodePort
                             type: boolean
+                          SecondaryNetwork:
+                            default: false
+                            description: Enable support for provisioning secondary
+                              network interfaces for Pods (using Pod annotations).
+                            type: boolean
                           ServiceExternalIP:
                             default: false
                             description: Flag to enable/disable service external IP
+                            type: boolean
+                          TrafficControl:
+                            default: false
+                            description: Enable mirroring or redirecting the traffic
+                              Pods send or receive.
                             type: boolean
                         type: object
                       flowExporter:
@@ -173,12 +202,26 @@ spec:
                         description: Provide the address of Kubernetes apiserver,
                           to override any value provided in kubeconfig or InClusterConfig.
                         type: string
+                      multicast:
+                        description: Multicast related configuration.
+                        properties:
+                          igmpQueryInterval:
+                            type: string
+                        type: object
                       multicastInterfaces:
                         description: The names of the interfaces on Nodes that are
                           used to forward multicast traffic.
                         items:
                           type: string
                         type: array
+                      multicluster:
+                        description: MultiCluster realted configuration.
+                        properties:
+                          enable:
+                            type: boolean
+                          namespace:
+                            type: string
+                        type: object
                       noSNAT:
                         default: false
                         description: Flag to enable/disable SNAT for the egress traffic

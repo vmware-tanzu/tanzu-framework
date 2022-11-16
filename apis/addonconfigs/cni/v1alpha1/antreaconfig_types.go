@@ -64,6 +64,18 @@ type AntreaWireGuard struct {
 	Port int `json:"port,omitempty"`
 }
 
+type AntreaMultiCluster struct {
+	//+ kubebuilder:validation:Optional
+	Enable bool `json:"enable,omitempty"`
+	//+ kubebuilder:validation:Optional
+	Namespace string `json:"namespace,omitempty"`
+}
+
+type AntreaMulticast struct {
+	//+ kubebuilder:validation:Optional
+	IGMPQueryInterval string `json:"igmpQueryInterval,omitempty"`
+}
+
 type AntreaConfigDataValue struct {
 	// Specifies Egress related configuration.
 	// +kubebuilder:validation:Optional
@@ -84,6 +96,14 @@ type AntreaConfigDataValue struct {
 	// Provide the address of Kubernetes apiserver, to override any value provided in kubeconfig or InClusterConfig.
 	// +kubebuilder:validation:Optional
 	KubeAPIServerOverride string `json:"kubeAPIServerOverride,omitempty"`
+
+	// Multicast related configuration.
+	// +kubebuilder:validation:Optional
+	Multicast AntreaMulticast `json:"multicast,omitempty"`
+
+	// MultiCluster realted configuration.
+	// +kubebuilder:validation:Optional
+	MultiCluster AntreaMultiCluster `json:"multicluster,omitempty"`
 
 	// The name of the interface on Node which is used for tunneling or routing.
 	// +kubebuilder:validation:Optional
@@ -129,11 +149,6 @@ type AntreaConfigDataValue struct {
 	// +kubebuilder:default:=false
 	NoSNAT bool `json:"noSNAT,omitempty"`
 
-	// List of allowed cipher suites. If omitted, the default Go Cipher Suites will be used
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384"
-	TLSCipherSuites string `json:"tlsCipherSuites,omitempty"`
-
 	// Disable UDP tunnel offload feature on default NIC
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
@@ -143,6 +158,26 @@ type AntreaConfigDataValue struct {
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=""
 	DefaultMTU string `json:"defaultMTU,omitempty"`
+
+	// List of allowed cipher suites. If omitted, the default Go Cipher Suites will be used
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384"
+	TLSCipherSuites string `json:"tlsCipherSuites,omitempty"`
+
+	// Enable bridging mode of Pod network on Nodes
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	EnableBridgingMode bool `json:"enableBridgingMode,omitempty"`
+
+	// Disable TX checksum offloading for container network interfaces
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	DisableTXChecksumOffload bool `json:"disableTXChecksumOffload,omitempty"`
+
+	// Provide the address of DNS server, to override the kube-dns service
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=""
+	DNSServerOverride string `json:"dnsServerOverride,omitempty"`
 
 	// FeatureGates is a map of feature names to flags that enable or disable experimental features
 	// +kubebuilder:validation:Optional
@@ -204,6 +239,21 @@ type AntreaFeatureGates struct {
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
 	Multicast bool `json:"Multicast,omitempty"`
+
+	// Enable Antrea Multi-cluster Gateway to support cross-cluster traffic.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	MultiCluster bool `json:"Multicluster,omitempty"`
+
+	// Enable support for provisioning secondary network interfaces for Pods (using Pod annotations).
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	SecondaryNetwork bool `json:"SecondaryNetwork,omitempty"`
+
+	// Enable mirroring or redirecting the traffic Pods send or receive.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	TrafficControl bool `json:"TrafficControl,omitempty"`
 }
 
 // AntreaConfigStatus defines the observed state of AntreaConfig

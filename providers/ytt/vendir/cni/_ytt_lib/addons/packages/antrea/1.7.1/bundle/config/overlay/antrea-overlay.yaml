@@ -46,8 +46,19 @@ featureGates:
   #! Enable multicast traffic. This feature is supported only with noEncap mode.
   Multicast: #@ values.antrea.config.featureGates.Multicast
 
+  #! Enable Antrea Multi-cluster Gateway to support cross-cluster traffic.
+  #! This feature is supported only with encap mode.
+  Multicluster: #@ values.antrea.config.featureGates.Multicluster
+
+  #! Enable support for provisioning secondary network interfaces for Pods (using Pod annotations).
+  #! At the moment, Antrea can only create secondary network interfaces using SR-IOV VFs on baremetal Nodes.
+  SecondaryNetwork: #@ values.antrea.config.featureGates.SecondaryNetwork
+
   #! Enable managing external IPs of Services of LoadBalancer type.
   ServiceExternalIP: #@ values.antrea.config.featureGates.ServiceExternalIP
+
+  #! Enable mirroring or redirecting the traffic Pods send or receive.
+  TrafficControl: #@ values.antrea.config.featureGates.TrafficControl
 
 #! Name of the OpenVSwitch bridge antrea-agent will create and use.
 #! Make sure it doesn't conflict with your existing OpenVSwitch bridges.
@@ -101,6 +112,21 @@ tunnelType: #@ values.antrea.config.tunnelType
 #!                    variable: ANTREA_IPSEC_PSK.
 #! - wireGuard:       Enable WireGuard for tunnel traffic encryption.
 trafficEncryptionMode: #@ values.antrea.config.trafficEncryptionMode
+
+#! Enable bridging mode of Pod network on Nodes, in which the Node's transport interface is connected
+#! to the OVS bridge, and cross-Node/VLAN traffic of AntreaIPAM Pods (Pods whose IP addresses are
+#! allocated by AntreaIPAM from IPPools) is sent to the underlay network, and forwarded/routed by the
+#! underlay network.
+#! This option requires the `AntreaIPAM` feature gate to be enabled. At this moment, it supports only
+#! IPv4 and Linux Nodes, and can be enabled only when `ovsDatapathType` is `system`,
+#! `trafficEncapMode` is `noEncap`, and `noSNAT` is true.
+enableBridgingMode: #@ values.antrea.config.enableBridgingMode
+
+#! Disable TX checksum offloading for container network interfaces. It's supposed to be set to true when the
+#! datapath doesn't support TX checksum offloading, which causes packets to be dropped due to bad checksum.
+#! It affects Pods running on Linux Nodes only.
+disableTXChecksumOffload: #@ values.antrea.config.disableTXChecksumOffload
+
 
 #! Default MTU to use for the host gateway interface and the network interface of each Pod.
 #! If omitted, antrea-agent will discover the MTU of the Node's primary interface and
@@ -192,6 +218,13 @@ nodePortLocal:
 #@ if/end values.antrea.config.kubeAPIServerOverride:
 kubeAPIServerOverride: #@ values.antrea.config.kubeAPIServerOverride
 
+#! Provide the address of DNS server, to override the kube-dns service. It's used to resolve hostname in FQDN policy.
+#! Defaults to "". It must be a host string or a host:port pair of the DNS server (e.g. 10.96.0.10, 10.96.0.10:53,
+#! [fd00:10:96::a]:53).
+#@ if/end values.antrea.config.dnsServerOverride:
+dnsServerOverride: #@ values.antrea.config.dnsServerOverride
+
+
 #! Comma-separated list of Cipher Suites. If omitted, the default Go Cipher Suites will be used.
 #! https://golang.org/pkg/crypto/tls/#pkg-constants
 #! Note that TLS1.3 Cipher Suites cannot be added to the list. But the apiserver will always
@@ -211,10 +244,17 @@ tlsCipherSuites: #@ values.antrea.config.tlsCipherSuites
 #@ if/end values.antrea.config.transportInterface:
 transportInterface: #@ values.antrea.config.transportInterface
 
-#! The names of the interfaces on Nodes that are used to forward multicast traffic.
-#! Defaults to transport interface if not set.
-#@ if/end values.antrea.config.multicastInterfaces:
-multicastInterfaces: #@ values.antrea.config.multicastInterfaces
+multicast:
+#@ if values.antrea.config.featureGates.Multicast:
+  #! The names of the interfaces on Nodes that are used to forward multicast traffic.
+  #! Defaults to transport interface if not set.
+  #@ if/end values.antrea.config.multicastInterfaces:
+  multicastInterfaces: #@ values.antrea.config.multicastInterfaces
+
+  #! The interval at which the antrea-agent sends IGMP queries to Pods.
+  #! Valid time units are "ns", "us" (or "Âµs"), "ms", "s", "m", "h".
+  igmpQueryInterval: #@ values.antrea.config.multicast.igmpQueryInterval
+#@ end
 
 #! The network CIDRs of the interface on Node which is used for tunneling or routing the traffic across
 #! Nodes. If there are multiple interfaces configured the same network CIDR, the first one is used. The
@@ -252,6 +292,18 @@ antreaProxy:
   proxyLoadBalancerIPs: #@ values.antrea.config.antreaProxy.proxyLoadBalancerIPs
 #@ end
 
+
+multicluster:
+#@ if values.antrea.config.featureGates.Multicluster:
+  #! Enable Antrea Multi-cluster Gateway to support cross-cluster traffic.
+  #! This feature is supported only with encap mode.
+  enable: #@ values.antrea.config.multicluster.enable
+  #! The Namespace where Antrea Multi-cluster Controller is running.
+  #! The default is antrea-agent's Namespace.
+  #@ if/end values.antrea.config.multicluster.namespace:
+  namespace: #@ values.antrea.config.multicluster.namespace
+#@ end
+
 #@ end
 
 
@@ -269,6 +321,9 @@ featureGates:
 
   #! Enable collecting and exposing NetworkPolicy statistics.
   NetworkPolicyStats: #@ values.antrea.config.featureGates.NetworkPolicyStats
+
+  #! Enable multicast traffic. This feature is supported only with noEncap mode.
+  Multicast: #@ values.antrea.config.featureGates.Multicast
 
   #! Enable controlling SNAT IPs of Pod egress traffic.
   Egress: #@ values.antrea.config.featureGates.Egress
@@ -337,15 +392,15 @@ nodeIPAM:
 #! Mask size for IPv6 Node CIDR in IPv6 or dual-stack cluster. Value ignored when enableNodeIPAM is false
 #! or when IPv6 Pod CIDR is not configured. Valid range is 64 to 126.
 #!  nodeCIDRMaskSizeIPv6: 64
+
+
 #! Enable usage reporting (telemetry) to VMware.
 #@ if/end values.antrea.config.enableUsageReporting:
 enableUsageReporting: #@ values.antrea.config.enableUsageReporting
-
 #@ end
 
 
 #@ def antrea_agent_tweaker_conf():
-
 #! Enable disableUdpTunnelOffload will disable udp tunnel offloading feature on kubernetes node's default interface.
 #! By default, no actions will be taken.
 disableUdpTunnelOffload: #@ values.antrea.config.disableUdpTunnelOffload
@@ -353,7 +408,7 @@ disableUdpTunnelOffload: #@ values.antrea.config.disableUdpTunnelOffload
 
 
 #! Antrea agent and controller configuration
-#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "antrea-config-f5d8g47b88"}})
+#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "antrea-config"}})
 ---
 kind: ConfigMap
 data:
@@ -362,7 +417,7 @@ data:
 
 
 #! Antrea agent tweaker configuration
-#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "antrea-agent-tweaker-g56hc6fh8t"}})
+#@overlay/match by=overlay.subset({"kind":"ConfigMap","metadata":{"name": "antrea-agent-tweaker"}})
 ---
 kind: ConfigMap
 data:
