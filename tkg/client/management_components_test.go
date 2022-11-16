@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
@@ -150,6 +151,59 @@ var _ = Describe("Unit tests for GetKappControllerConfigValuesFile", func() {
 		})
 		It("should match the output file", func() {
 			validateResult()
+		})
+	})
+
+})
+
+var _ = Describe("Unit test for GetAddonsManagerPackageversion", func() {
+	var testClient TkgClient
+	const EXPECTEDPACKAGEVERSION = "someRandome Version string"
+	When("_ADDONS_MANAGER_PACKAGE_VERSION is set", func() {
+		It("should return the value of _ADDONS_MANAGER_PACKAGE_VERSION, and nil error regardless of managementPackageVersion", func() {
+
+			os.Setenv("_ADDONS_MANAGER_PACKAGE_VERSION", EXPECTEDPACKAGEVERSION)
+			foundPackageVersion, err := testClient.GetAddonsManagerPackageversion("any string")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(foundPackageVersion).To(Equal(EXPECTEDPACKAGEVERSION))
+		})
+	})
+	When("_ADDONS_MANAGER_PACKAGE_VERSION is not set", func() {
+		const (
+			BADBOMCLIENTVERSION  = "someversion-here"
+			GOODBOMCLIENTVERSION = "something-here.+vmware.1"
+		)
+
+		BeforeEach(func() {
+			os.Unsetenv("_ADDONS_MANAGER_PACKAGE_VERSION")
+		})
+		It("returns value based on bomclient", func() {
+			fakeBomClient := fakes.TKGConfigBomClient{}
+			fakeBomClient.GetManagementPackagesVersionReturns(BADBOMCLIENTVERSION, nil)
+			fakeTKGConfigUpdater := fakes.TKGConfigUpdaterClient{}
+			options := Options{
+				TKGBomClient:     &fakeBomClient,
+				TKGConfigUpdater: &fakeTKGConfigUpdater,
+			}
+			testClient, err := New(options)
+			Expect(err).ToNot(HaveOccurred())
+			packageVersion, err := testClient.GetAddonsManagerPackageversion("")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(packageVersion).To(Equal(BADBOMCLIENTVERSION + "+vmware.1"))
+
+			fakeBomClient.GetManagementPackagesVersionReturns(GOODBOMCLIENTVERSION, nil)
+			options.TKGConfigUpdater = &fakeTKGConfigUpdater
+			testClient, err = New(options)
+			packageVersion, err = testClient.GetAddonsManagerPackageversion("")
+			Expect(packageVersion).To(Equal(GOODBOMCLIENTVERSION))
+
+		})
+		It("returns value based on managementPackageVersion ", func() {
+			managementPackageVersion := "management_package_version"
+			addonsManagerPackageVersion, err := testClient.GetAddonsManagerPackageversion(managementPackageVersion)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(addonsManagerPackageVersion).To(Equal(managementPackageVersion + "+vmware.1"))
+
 		})
 	})
 
