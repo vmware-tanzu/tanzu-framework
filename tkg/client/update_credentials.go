@@ -175,7 +175,8 @@ func (c *TkgClient) UpdateVSphereClusterCredentials(clusterClient clusterclient.
 					VSphereUpdateClusterOptions: options.VSphereUpdateClusterOptions,
 				})
 				if err != nil {
-					return err
+					log.Error(err, "unable to update credentials for workload cluster")
+					continue
 				}
 			}
 		}
@@ -243,8 +244,7 @@ func (c *TkgClient) UpdateAzureClusterCredentials(clusterClient clusterclient.Cl
 			}
 			unifiedIdentity, err := clusterClient.CheckUnifiedAzureClusterIdentity(clusters[i].Name, clusters[i].Namespace)
 			if err != nil {
-				log.Error(err, "unable to update credentials for workload cluster")
-				continue
+				return err
 			}
 			if options.IsCascading || unifiedIdentity {
 				log.V(4).Infof("Updating credentials for workload cluster %q ...", clusters[i].Name)
@@ -255,8 +255,7 @@ func (c *TkgClient) UpdateAzureClusterCredentials(clusterClient clusterclient.Cl
 					AzureUpdateClusterOptions: options.AzureUpdateClusterOptions,
 				}, unifiedIdentity)
 				if err != nil {
-					log.Error(err, "unable to update credentials for workload cluster")
-					continue
+					return err
 				}
 			}
 		}
@@ -292,7 +291,7 @@ func (c *TkgClient) UpdateAzureCredentialsForCluster(clusterClient clusterclient
 				return err
 			}
 		} else {
-			log.Warningf("AzureCluster %s use the same AzureClusterIdentity from its management cluster. It cannot be updated separately.", options.ClusterName)
+			log.Warningf("AzureCluster %s use the same AzureClusterIdentity from its management cluster. It must be updated together.", options.ClusterName)
 		}
 	}
 	// Recycle all KCP in the cluster

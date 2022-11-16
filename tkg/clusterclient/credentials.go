@@ -527,6 +527,10 @@ func (c *client) UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) e
 		return errors.Wrap(err, "unable to rollback capz-controller-manager deployment replicas")
 	}
 
+	if err := c.WaitForAutoscalerDeployment(AzureControllerManagerDeploy, CapzNamespace); err != nil {
+		return errors.Wrap(err, "fail to update capz-controller-manager deployment replicas")
+	}
+
 	return nil
 }
 

@@ -261,6 +261,42 @@ var _ = Describe("", func() {
 			Expect(err).To(MatchError(ContainSubstring("either tenantId, clientId or clientSecret should not be empty")))
 		})
 
+		It("Returns error when failing to check cluster identity", func() {
+			clusterClient.CheckUnifiedAzureClusterIdentityReturnsOnCall(0, false, errors.New("fake query identity error"))
+			err := tkgClient.UpdateAzureClusterCredentials(clusterClient, &UpdateCredentialsOptions{
+				ClusterName: clusterName,
+				Kubeconfig:  kubeconfig,
+				AzureUpdateClusterOptions: &AzureUpdateClusterOptions{
+					AzureTenantID:     "azureTenantID",
+					AzureClientID:     "azureClientID",
+					AzureClientSecret: "azureClientSecret",
+				},
+				IsRegionalCluster: true,
+			})
+			Expect(err).ToNot(BeNil())
+			Expect(err).To(MatchError(ContainSubstring("fake query identity error")))
+			Expect(clusterClient.CheckUnifiedAzureClusterIdentityCallCount()).To(Equal(1))
+		})
+
+		It("Returns error when failing to update cluster identity", func() {
+			clusterClient.CheckUnifiedAzureClusterIdentityReturnsOnCall(0, true, nil)
+			clusterClient.CheckUnifiedAzureClusterIdentityReturnsOnCall(1, true, nil)
+			clusterClient.UpdateAzureKCPReturnsOnCall(1, errors.New("fake update identity error"))
+			err := tkgClient.UpdateAzureClusterCredentials(clusterClient, &UpdateCredentialsOptions{
+				ClusterName: clusterName,
+				Kubeconfig:  kubeconfig,
+				AzureUpdateClusterOptions: &AzureUpdateClusterOptions{
+					AzureTenantID:     "azureTenantID",
+					AzureClientID:     "azureClientID",
+					AzureClientSecret: "azureClientSecret",
+				},
+				IsRegionalCluster: true,
+			})
+			Expect(err).ToNot(BeNil())
+			Expect(err).To(MatchError(ContainSubstring("fake update identity error")))
+			Expect(clusterClient.UpdateAzureKCPCallCount()).To(Equal(2))
+		})
+
 		It("Should successfully update management cluster credentials with cascading", func() {
 			clusterClient.GetCAPZControllerManagerDeploymentsReplicasReturnsOnCall(0, int32(2), nil)
 			clusterClient.CheckUnifiedAzureClusterIdentityReturnsOnCall(0, true, nil)

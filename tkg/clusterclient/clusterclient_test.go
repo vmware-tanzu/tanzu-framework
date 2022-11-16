@@ -2475,7 +2475,7 @@ var _ = Describe("Cluster Client", func() {
 				clientset.GetReturns(nil)
 				clientset.PatchReturns(nil)
 
-				dReplicas := Replicas{SpecReplica: 4, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+				dReplicas := Replicas{SpecReplica: 4, Replicas: 4, ReadyReplicas: 4, UpdatedReplicas: 4}
 				capzDeploy := getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas)
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
@@ -2492,22 +2492,71 @@ var _ = Describe("Cluster Client", func() {
 				Expect(err).To(BeNil())
 			})
 
-			It("should return an error if clientset patch returns error", func() {
-				clientset.GetReturns(nil)
-				clientset.PatchReturns(errors.New("dummy"))
+			It("should return an error if clientset get returns not found error", func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o.(type) {
+					case *appsv1.Deployment:
+						return apierrors.NewNotFound(schema.GroupResource{Group: "apps", Resource: "Deployment"}, "replicas")
+					}
+					return nil
+				})
 
-				dReplicas := Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0))
+				Expect(err).To(BeNil())
+			})
 
-				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, option ...crtclient.ListOption) error {
-					switch o := o.(type) {
-					case *appsv1.DeploymentList:
-						o.Items = append(o.Items, getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas))
+			It("should return an error if clientset get returns error", func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o.(type) {
+					case *appsv1.Deployment:
+						return errors.New("dummy")
 					}
 					return nil
 				})
 
 				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0))
 				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("failed to look up")))
+			})
+
+			It("should return an error if clientset patch returns error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(errors.New("dummy"))
+
+				dReplicas := Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+
+				capzDeploy := getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas)
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *appsv1.Deployment:
+						*o = capzDeploy
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0))
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("unable to rollback capz-controller-manager deployment replicas")))
+			})
+
+			It("should return an error if failing to scale deployment", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				dReplicas := Replicas{SpecReplica: 4, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+
+				capzDeploy := getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas)
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *appsv1.Deployment:
+						*o = capzDeploy
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0))
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("fail to update capz-controller-manager deployment replicas")))
 			})
 		})
 
@@ -3790,6 +3839,7 @@ func getDummyCAPZDeployment(specReplica, replicas, readyReplicas, updatedReplica
 	capzDeploy.Name = "capz-controller-manager"
 	capzDeploy.Namespace = "capz-system"
 	capzDeploy.Spec.Replicas = swag.Int32(specReplica)
+	capzDeploy.Status.AvailableReplicas = readyReplicas
 	capzDeploy.Status.Replicas = replicas
 	capzDeploy.Status.ReadyReplicas = readyReplicas
 	capzDeploy.Status.UpdatedReplicas = updatedReplicas
