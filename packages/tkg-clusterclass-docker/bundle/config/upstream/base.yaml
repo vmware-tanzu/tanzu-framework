@@ -148,10 +148,10 @@ spec:
           jsonPatches:
             - op: add
               path: "/spec/template/spec/kubeadmConfigSpec/initConfiguration/nodeRegistration/kubeletExtraArgs/cgroup-driver"
-              value: cgroupfs
+              value: systemd
             - op: add
               path: "/spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs/cgroup-driver"
-              value: cgroupfs
+              value: systemd
     - name: antrea-prekubeadm
       definitions:
         - selector:
@@ -188,7 +188,7 @@ spec:
           jsonPatches:
             - op: add
               path: "/spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/cgroup-driver"
-              value: cgroupfs
+              value: systemd
     - name: customImage
       description: "Sets the container image that is used for running dockerMachines for the controlPlane and default-worker machineDeployments."
       definitions:
