@@ -1,0 +1,15 @@
+#@data/values
+
+#@overlay/match-child-defaults missing_ok=True
+---
+
+#! User configurable values for tkr-vsphere-resolver
+
+NAMESPACE: tkg-system
+
+deployment:
+  hostNetwork: false
+  nodeSelector: null
+  tolerations: []
+  #! If hostNetwork is set to true the below two ports should be different
+  tkrVsphereResolverWebhookServerPort: 9443

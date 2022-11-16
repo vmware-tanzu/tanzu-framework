@@ -1,0 +1,43 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+#@ if data.values.metadata.infraProvider == "vsphere":
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tkr-vsphere-resolver
+  namespace: #@ data.values.tkrSourceControllerPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting framework-packageinstall/tanzu-framework"
+    kapp.k14s.io/change-rule.1: "upsert after upserting tkr-vsphere-resolver-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.2: "delete before deleting tkr-vsphere-resolver-packageinstall/serviceaccount"
+
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
+spec:
+  serviceAccountName: tkr-vsphere-resolver-package-sa
+  packageRef:
+    refName: tkr-vsphere-resolver.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+      #@ if data.values.tkrSourceControllerPackage.versionConstraints:
+      constraints: #@ data.values.tkrSourceControllerPackage.versionConstraints
+      #@ end
+  values:
+    - secretRef:
+        name: tkr-vsphere-resolver-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tkr-vsphere-resolver-values
+  namespace: #@ data.values.tkrSourceControllerPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-vsphere-resolver-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-vsphere-resolver-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.tkrSourceControllerPackage.tkrSourceControllerPackageValues)
+
+#@ end

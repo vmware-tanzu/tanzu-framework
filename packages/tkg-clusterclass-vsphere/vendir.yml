@@ -8,13 +8,3 @@ directories:
         manual: {}
       - path: overlay.yaml
         manual: {}
-      - path: certificates.yaml
-        manual: {}
-      - path: rbac.yaml
-        manual: {}
-      - path: service.yaml
-        manual: {}
-      - path: vsphere-template-resolver-cluster-webhook-deployment.yaml
-        manual: {}
-      - path: webhook.yaml
-        manual: {}
