@@ -4,13 +4,21 @@
 package client_test
 
 import (
+	"context"
 	"os"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/rand"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
@@ -207,6 +215,78 @@ var _ = Describe("Unit test for GetAddonsManagerPackageversion", func() {
 		})
 	})
 
+})
+
+var _ = Describe("RemoveObsoleteManagementComponents()", func() {
+	var (
+		clusterClient *fakes.ClusterClient
+		fakeClient    client.Client
+		objects       []client.Object
+	)
+
+	JustBeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+	})
+
+	When("there is stuff to clean up", func() {
+		BeforeEach(func() {
+			objects = []client.Object{
+				&unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "addons.cluster.x-k8s.io/v1beta1",
+						"kind":       "ClusterResourceSet",
+						"metadata": map[string]interface{}{
+							"namespace": constants.TkrNamespace,
+							"name":      rand.String(10),
+						},
+					},
+				},
+				&unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "apps/v1",
+						"kind":       "Deployment",
+						"metadata": map[string]interface{}{
+							"namespace": constants.TkrNamespace,
+							"name":      constants.TkrControllerDeploymentName,
+						},
+					},
+				},
+			}
+		})
+
+		JustBeforeEach(func() {
+			clusterClient.ListResourcesStub = func(o interface{}, listOptions ...client.ListOption) error {
+				return fakeClient.List(context.Background(), o.(client.ObjectList), listOptions...)
+			}
+			clusterClient.DeleteResourceStub = func(o interface{}) error {
+				return fakeClient.Delete(context.Background(), o.(client.Object))
+			}
+		})
+
+		It("should clean it up", func() {
+			deployment := &unstructured.Unstructured{
+				Object: map[string]interface{}{
+					"apiVersion": "apps/v1",
+					"kind":       "Deployment",
+				},
+			}
+
+			Expect(fakeClient.Get(context.Background(), types.NamespacedName{
+				Namespace: constants.TkrNamespace,
+				Name:      constants.TkrControllerDeploymentName,
+			}, deployment)).To(Succeed())
+
+			Expect(RemoveObsoleteManagementComponents(clusterClient)).To(Succeed())
+
+			err := fakeClient.Get(context.Background(), types.NamespacedName{
+				Namespace: constants.TkrNamespace,
+				Name:      constants.TkrControllerDeploymentName,
+			}, deployment)
+			Expect(err).To(HaveOccurred())
+			Expect(apierrors.IsNotFound(err)).To(BeTrue())
+		})
+	})
 })
 
 func writeConfigFileData(configconfigFileData string) string {
