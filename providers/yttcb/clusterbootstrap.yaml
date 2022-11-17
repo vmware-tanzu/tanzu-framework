@@ -121,7 +121,7 @@ metadata:
     clusterctl.cluster.x-k8s.io/move: ""
   annotations:
     tkg.tanzu.vmware.com/addon-type: "authentication/pinniped"
-type: tkg.tanzu.vmware.com/addon
+type: clusterbootstrap-secret
 stringData:
   values.yaml: #@ ValuesFormatStr.format(yaml.encode(getPinnipedDataValues()))
 #@ end
