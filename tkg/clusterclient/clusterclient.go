@@ -965,6 +965,7 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 	var err error
 	var curClusterInfo ClusterStatusInfo
 	var lastClusterInfo ClusterStatusInfo
+	clusterErrorCounter := 0
 	unchangedCounter := 0
 	interval := 15 * time.Second
 	timeout := c.operationTimeout
@@ -978,9 +979,8 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 		// If cluster's ReadyCondition is False and severity is Error, it implies non-retriable error, so return error
 		if conditions.IsFalse(curClusterInfo.ClusterObject, capi.ReadyCondition) &&
 			(*conditions.GetSeverity(curClusterInfo.ClusterObject, capi.ReadyCondition) == capi.ConditionSeverityError) {
-			return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s' ",
-				conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition),
-				conditions.GetMessage(curClusterInfo.ClusterObject, capi.ReadyCondition))
+			clusterErrorCounter++
+			return false, nil
 		}
 		err = verifyKubernetesUpgradeFunc(&curClusterInfo, newK8sVersion)
 		if err == nil {
@@ -1009,6 +1009,12 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 		if (interval*time.Duration(unchangedCounter) > timeout) ||
 			(interval*time.Duration(maxTimeoutCounter) > maxTimeout) {
 			return true, errors.New("timed out waiting for upgrade to complete")
+		}
+
+		if interval*time.Duration(clusterErrorCounter) > timeout {
+			return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s' ",
+				conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition),
+				conditions.GetMessage(curClusterInfo.ClusterObject, capi.ReadyCondition))
 		}
 
 		return false, err
