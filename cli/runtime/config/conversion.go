@@ -5,6 +5,8 @@ package config
 
 import (
 	"github.com/aunum/log"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
@@ -156,4 +158,83 @@ func convertClusterOptsToMgmtClusterOpts(o *configapi.ClusterServer) *configapi.
 		Path:     o.Path,
 		Context:  o.Context,
 	}
+}
+
+// convertNodeToClientConfig converts yaml node to client config type
+func convertNodeToClientConfig(node *yaml.Node) (obj *configapi.ClientConfig, err error) {
+	err = node.Decode(&obj)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert node to ClientConfig")
+	}
+	return obj, err
+}
+
+// convertClientConfigToNode converts client config type to yaml node
+func convertClientConfigToNode(obj *configapi.ClientConfig) (*yaml.Node, error) {
+	bytes, err := yaml.Marshal(obj)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert obj to node")
+	}
+	var node yaml.Node
+	err = yaml.Unmarshal(bytes, &node)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal bytes to node")
+	}
+	return &node, nil
+}
+
+// convertServerToNode converts server to yaml node
+func convertServerToNode(obj *configapi.Server) (*yaml.Node, error) {
+	bytes, err := yaml.Marshal(obj)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert obj to node")
+	}
+	var node yaml.Node
+	err = yaml.Unmarshal(bytes, &node)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal bytes to node")
+	}
+	return &node, nil
+}
+
+// convertPluginRepositoryToNode converts PluginRepository to yaml node
+func convertPluginRepositoryToNode(obj *configapi.PluginRepository) (*yaml.Node, error) {
+	bytes, err := yaml.Marshal(obj)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert obj to node")
+	}
+	var node yaml.Node
+	err = yaml.Unmarshal(bytes, &node)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal bytes to node")
+	}
+	return &node, nil
+}
+
+// convertContextToNode converts context to yaml node
+func convertContextToNode(obj *configapi.Context) (*yaml.Node, error) {
+	bytes, err := yaml.Marshal(obj)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert obj to node")
+	}
+	var node yaml.Node
+	err = yaml.Unmarshal(bytes, &node)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal bytes to node")
+	}
+	return &node, nil
+}
+
+// convertPluginDiscoveryToNode converts PluginDiscovery to yaml node
+func convertPluginDiscoveryToNode(obj *configapi.PluginDiscovery) (*yaml.Node, error) {
+	bytes, err := yaml.Marshal(obj)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert obj to node")
+	}
+	var node yaml.Node
+	err = yaml.Unmarshal(bytes, &node)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal bytes to node")
+	}
+	return &node, nil
 }

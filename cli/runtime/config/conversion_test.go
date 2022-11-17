@@ -198,7 +198,6 @@ func TestPopulateContexts(t *testing.T) {
 			delta: true,
 		},
 	}
-
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			delta := PopulateContexts(tc.ip)
@@ -400,7 +399,6 @@ func TestPopulateServers(t *testing.T) {
 			},
 		},
 	}
-
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			populateServers(tc.ip)
