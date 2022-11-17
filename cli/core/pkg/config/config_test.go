@@ -21,7 +21,7 @@ const envVar = "test-conf-env"
 var _ = Describe("config env variables", func() {
 	Context("get env from config", func() {
 		BeforeEach(func() {
-			cc := &fakes.FakeConfigClient{}
+			cc := &fakes.FakeConfigClientWrapper{}
 			configClient = cc
 			prevValue = os.Getenv(envVar)
 			confEnvMap := map[string]string{envVar: envVar}
@@ -35,7 +35,7 @@ var _ = Describe("config env variables", func() {
 	})
 	Context("config return nil map", func() {
 		BeforeEach(func() {
-			cc := &fakes.FakeConfigClient{}
+			cc := &fakes.FakeConfigClientWrapper{}
 			configClient = cc
 			cc.GetEnvConfigurationsReturns(nil)
 		})

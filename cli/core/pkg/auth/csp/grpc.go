@@ -15,6 +15,7 @@ import (
 	grpc_oauth "google.golang.org/grpc/credentials/oauth"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/interfaces"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -25,6 +26,14 @@ const (
 	mdKeyAuthIDToken = "X-User-Id"
 	apiToken         = "api-token"
 )
+
+var (
+	configClientWrapper interfaces.ConfigClientWrapper
+)
+
+func init() {
+	configClientWrapper = interfaces.NewConfigClient()
+}
 
 // WithCredentialDiscovery returns a grpc.CallOption that adds credentials into gRPC calls.
 // The credentials are loaded from the auth context found on the machine.
@@ -83,12 +92,12 @@ func (c *configSource) Token() (*oauth2.Token, error) {
 	g.GlobalOpts.Auth.IDToken = token.IDToken
 
 	// Acquire tanzu config lock
-	config.AcquireTanzuConfigLock()
-	defer config.ReleaseTanzuConfigLock()
+	configClientWrapper.AcquireTanzuConfigLock()
+	defer configClientWrapper.ReleaseTanzuConfigLock()
 
 	// TODO: Add Read/Write locking mechanism before updating the configuration
 	// Currently we are only acquiring the lock while updating the configuration
-	if err := config.StoreClientConfig(c.ClientConfig); err != nil {
+	if err := configClientWrapper.StoreClientConfig(c.ClientConfig); err != nil {
 		return nil, err
 	}
 
