@@ -500,7 +500,10 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 				actual, ok := clusterInterface.(*capi.Cluster)
 				Expect(ok).To(BeTrue())
 				Expect(len(actual.Spec.Topology.Variables)).To(Equal(2))
+
+				emptyArr, _ := json.Marshal([]interface{}{})
 				Expect(actual.Spec.Topology.Variables[1].Name).To(Equal("nodePoolLabels"))
+				Expect(actual.Spec.Topology.Variables[1].Value.Raw).To(Equal(emptyArr))
 				Expect(len(actual.Spec.Topology.Workers.MachineDeployments)).To(Equal(3))
 				Expect(actual.Spec.Topology.Workers.MachineDeployments[2].Variables.Overrides[0].Value.Raw).To(Equal(expected))
 			})
