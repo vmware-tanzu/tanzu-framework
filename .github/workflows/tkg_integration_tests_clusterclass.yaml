@@ -194,6 +194,7 @@ jobs:
         make clean-registry
 
   integ-tests-docker-cc:
+    if: false
     name: TKG Integration Tests CAPD (ClusterClass)
     runs-on: tkg
     needs: build-and-publish-packages
