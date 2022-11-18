@@ -61,6 +61,10 @@ const (
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
+	// TKGBomNamespaceClassyClusters is the TKG add on BOM namespace for ClusterClass or
+	// ClusterClass capable management clusters.
+	TKGBomNamespaceClassyClusters = "tkg-system"
+
 	// TKRLabel is the TKR label.
 	TKRLabel = "tanzuKubernetesRelease"
 

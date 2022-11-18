@@ -50,13 +50,25 @@ func GetTKRNameFromBOMConfigMap(bomConfigMap *corev1.ConfigMap) string {
 	return bomConfigMap.Labels[constants.TKRLabel]
 }
 
-// GetAddonImageRepository returns imageRepository from configMap `tkr-controller-config` in namespace `tkr-system` if exists else use BOM
+// GetAddonImageRepository returns imageRepository from configMap `tkr-controller-config` in namespace `tkg-system`.
+// If not found, try the legacy `tkr-system`, else use BOM
 func GetAddonImageRepository(ctx context.Context, c client.Client, bom *tkrv1.Bom) (string, error) {
 	bomConfigMap := &corev1.ConfigMap{}
+	// Todo: temporary workaround for getting addon image repo. Because in legacy mgmt cluster
+	// the tkr-controller-config configmap is stored in `tkr-system`, and in clusterclass or clusterclass
+	// capable mgmt cluster, it is stored in `tkg-system`.
+	// Getting from `tkr-system` should be removed once no legacy management cluster exists.
 	err := c.Get(ctx, client.ObjectKey{
-		Namespace: constants.TKGBomNamespace,
+		Namespace: constants.TKGBomNamespaceClassyClusters,
 		Name:      constants.TKRConfigmapName,
 	}, bomConfigMap)
+
+	if err != nil && errors.IsNotFound(err) {
+		err = c.Get(ctx, client.ObjectKey{
+			Namespace: constants.TKGBomNamespace,
+			Name:      constants.TKRConfigmapName,
+		}, bomConfigMap)
+	}
 
 	// if the configmap exists, try get repository from the config map
 	if err == nil {
