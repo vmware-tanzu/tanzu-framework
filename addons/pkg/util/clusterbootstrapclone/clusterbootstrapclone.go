@@ -462,7 +462,6 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 	return clusterBootstrap, nil
 }
 func (h *Helper) verifyProvidersFromRefExist(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*unstructured.Unstructured, error) {
-
 	providers := []*unstructured.Unstructured{}
 	cbPkgs, err := h.getListOfPkgsWithProviderRefNames(clusterBootstrap)
 	if err != nil {
@@ -486,7 +485,6 @@ func (h *Helper) verifyProvidersFromRefExist(clusterBootstrap *runtanzuv1alpha3.
 }
 
 func (h *Helper) getListOfPkgsWithProviderRefNames(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) ([]*runtanzuv1alpha3.ClusterBootstrapPackage, error) {
-
 	cbPkgs := []*runtanzuv1alpha3.ClusterBootstrapPackage{}
 
 	possiblePackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
@@ -714,17 +712,32 @@ func (h *Helper) cloneSecretRef(
 		return nil, nil
 	}
 
-	secret := &corev1.Secret{}
-	key := client.ObjectKey{Namespace: sourceNamespace, Name: cbPkg.ValuesFrom.SecretRef}
-	if err := h.K8sClient.Get(h.Ctx, key, secret); err != nil {
-		h.Logger.Error(err, "unable to fetch secret", "objectkey", key)
+	var newSecret *corev1.Secret
+	// lets first check if the secret already exists in the cluster namespace
+	localSecret := &corev1.Secret{}
+	localKey := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
+	err := h.K8sClient.Get(h.Ctx, localKey, localSecret)
+	if err != nil && !apierrors.IsNotFound(err) {
+		h.Logger.Error(err, "unable to fetch secret", "objectkey", localKey)
 		return nil, err
 	}
 
-	newSecret := secret.DeepCopy()
-	newSecret.ObjectMeta.Reset()
-	newSecret.Name = util.GeneratePackageSecretName(cluster.Name, carvelPkgRefName)
-	newSecret.Namespace = cluster.Namespace
+	if err == nil {
+		// we found the secret already created in the cluster namespace, so we use it's contents
+		newSecret = localSecret.DeepCopy()
+	} else {
+		// we did not find the secret in the cluster namespace, so we use the content from the template
+		secret := &corev1.Secret{}
+		key := client.ObjectKey{Namespace: sourceNamespace, Name: cbPkg.ValuesFrom.SecretRef}
+		if err := h.K8sClient.Get(h.Ctx, key, secret); err != nil {
+			h.Logger.Error(err, "unable to fetch secret", "objectkey", key)
+			return nil, err
+		}
+		newSecret = secret.DeepCopy()
+		newSecret.ObjectMeta.Reset()
+		newSecret.Name = util.GeneratePackageSecretName(cluster.Name, carvelPkgRefName)
+		newSecret.Namespace = cluster.Namespace
+	}
 
 	opResult, createOrPatchErr := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, newSecret, func() error {
 		newSecret.OwnerReferences = []metav1.OwnerReference{
@@ -944,12 +957,11 @@ func (h *Helper) getListOfExistingProviders(clusterBootstrap *runtanzuv1alpha3.C
 }
 
 func (h *Helper) AddClusterOwnerRefToExistingProviders(cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
-
 	exsitingProviders, err := h.getListOfExistingProviders(clusterBootstrap)
 	if err != nil {
 		return err
 	}
-	if err = h.AddClusterOwnerRef(cluster, exsitingProviders, nil, nil); err != nil {
+	if err := h.AddClusterOwnerRef(cluster, exsitingProviders, nil, nil); err != nil {
 		return err
 	}
 	return nil
