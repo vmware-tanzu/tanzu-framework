@@ -22,3 +22,5 @@ function render_upstream_package_file() {
 render_upstream_package_file "cluster-api/v1.2.4" ${1} "core-components"
 render_upstream_package_file "bootstrap-kubeadm/v1.2.4" ${1} "bootstrap-components"
 render_upstream_package_file "infrastructure-aws/v2.0.0-beta.1" ${1} "infrastructure-components"
+render_upstream_package_file "infrastructure-azure/v1.5.3" ${1} "infrastructure-components"
+render_upstream_package_file "infrastructure-vsphere/v1.4.1" ${1} "infrastructure-components"
