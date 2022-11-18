@@ -1,0 +1,11 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "capz-controller-manager"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name": "manager"})
+        - image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:${CAPZ_CONTROLLER_IMAGE_TAG}
