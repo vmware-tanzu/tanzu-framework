@@ -473,6 +473,12 @@ spec:
       openAPIV3Schema:
         type: boolean
         default: true
+  - name: controlPlaneCertificateRotationDaysBeforeExpiry
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: integer
+        default: 90
   patches:
   - name: vsphereClusterTemplate
     definitions:
@@ -1456,6 +1462,18 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/taints
         value: []
+  - name: kcptCertificateRotation
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/rolloutBefore/certificatesExpiryDays
+        valueFrom:
+          variable: controlPlaneCertificateRotationDaysBeforeExpiry  
   - name: windows
     definitions:
     - selector:

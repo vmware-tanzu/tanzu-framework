@@ -90,6 +90,10 @@ metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
 spec:
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+  #@overlay/match missing_ok=True
+  rolloutBefore:
+    #@overlay/match missing_ok=True
+    certificatesExpiryDays:  #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE
   machineTemplate:
     infrastructureRef:
       kind: AWSMachineTemplate

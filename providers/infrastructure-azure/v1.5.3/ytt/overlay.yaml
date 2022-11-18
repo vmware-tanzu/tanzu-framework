@@ -215,6 +215,10 @@ spec:
         path: /etc/kubernetes/azure.json
         permissions: "0644"
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+  #@overlay/match missing_ok=True
+  rolloutBefore:
+    #@overlay/match missing_ok=True
+    certificatesExpiryDays:  #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE
   version: #@ data.values.KUBERNETES_VERSION
 
 #@overlay/match by=overlay.subset({"kind": "AzureMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-control-plane"}})
