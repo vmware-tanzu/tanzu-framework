@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2023 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package framework
@@ -30,8 +30,14 @@ func NewDocker() Docker {
 
 // StartContainerRuntime starts docker daemon if not already running
 func (dc *docker) StartContainerRuntime() (output string, err error) {
-	// TODO: need to implement
-	return "", nil
+	if status, err := dc.ContainerRuntimeStatus(); err == nil {
+		return status, nil
+	}
+	stdOut, stdErr, err := dc.Exec(StartDockerUbuntu)
+	if err != nil {
+		return stdOut.String(), fmt.Errorf(stdErr.String(), err)
+	}
+	return stdOut.String(), err
 }
 
 // ContainerRuntimeStatus returns docker daemon daemon status
@@ -45,6 +51,9 @@ func (dc *docker) ContainerRuntimeStatus() (status string, err error) {
 
 // StopContainerRuntime returns docker daemon daemon status
 func (dc *docker) StopContainerRuntime() (output string, err error) {
-	// TODO: need to implement
-	return "", nil
+	stdOut, stdErr, err := dc.Exec(StopDockerUbuntu)
+	if err != nil {
+		return stdOut.String(), fmt.Errorf(stdErr.String(), err)
+	}
+	return stdOut.String(), err
 }

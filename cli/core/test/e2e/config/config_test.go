@@ -21,17 +21,17 @@ var _ = framework.CLICoreDescribe("[Tests:E2E][Feature:Command-Config]", func() 
 				randomFlagName := "e2e-test-" + framework.RandomString(4)
 				randomFeatureFlagPath := "features.global." + randomFlagName
 				flagVal := "true"
-				err := tf.ConfigSetFeatureFlag(randomFeatureFlagPath, flagVal)
+				err := tf.Config.ConfigSetFeatureFlag(randomFeatureFlagPath, flagVal)
 				Expect(err).To(BeNil())
 
-				val, err := tf.ConfigGetFeatureFlag(randomFeatureFlagPath)
+				val, err := tf.Config.ConfigGetFeatureFlag(randomFeatureFlagPath)
 				Expect(err).To(BeNil())
 				Expect(val).Should(Equal("true"))
 
-				err = tf.ConfigUnsetFeature(randomFeatureFlagPath)
+				err = tf.Config.ConfigUnsetFeature(randomFeatureFlagPath)
 				Expect(err).To(BeNil())
 
-				val, err = tf.ConfigGetFeatureFlag(randomFeatureFlagPath)
+				val, err = tf.Config.ConfigGetFeatureFlag(randomFeatureFlagPath)
 				Expect(err).To(BeNil())
 				Expect(val).Should(Equal(""))
 			})
@@ -39,35 +39,35 @@ var _ = framework.CLICoreDescribe("[Tests:E2E][Feature:Command-Config]", func() 
 		When("config init called when config files not exists", func() {
 			It("should initialize configuration successfully", func() {
 				// delete config files
-				err := tf.DeleteCLIConfigurationFiles()
+				err := tf.Config.DeleteCLIConfigurationFiles()
 				Expect(err).To(BeNil())
 				// call init
-				err = tf.ConfigInit()
+				err = tf.Config.ConfigInit()
 				Expect(err).To(BeNil())
 				// should create config files
-				Expect(tf.IsCLIConfigurationFilesExists()).To(BeTrue())
+				Expect(tf.Config.IsCLIConfigurationFilesExists()).To(BeTrue())
 
 				// set feature flag
 				randomFlagName := "e2e-test-" + framework.RandomString(4)
 				randomFeatureFlagPath := "features.global." + randomFlagName
 				flagVal := "true"
-				err = tf.ConfigSetFeatureFlag(randomFeatureFlagPath, flagVal)
+				err = tf.Config.ConfigSetFeatureFlag(randomFeatureFlagPath, flagVal)
 				Expect(err).To(BeNil())
 
-				val, err := tf.ConfigGetFeatureFlag(randomFeatureFlagPath)
+				val, err := tf.Config.ConfigGetFeatureFlag(randomFeatureFlagPath)
 				Expect(err).To(BeNil())
 				Expect(val).Should(Equal("true"))
 
 				// call init
-				err = tf.ConfigInit()
+				err = tf.Config.ConfigInit()
 				Expect(err).To(BeNil())
 				// second run of init should not remove the existing feature flag
-				val, err = tf.ConfigGetFeatureFlag(randomFeatureFlagPath)
+				val, err = tf.Config.ConfigGetFeatureFlag(randomFeatureFlagPath)
 				Expect(err).To(BeNil())
 				Expect(val).Should(Equal("true"))
 
 				// unset the feature flag
-				err = tf.ConfigUnsetFeature(randomFeatureFlagPath)
+				err = tf.Config.ConfigUnsetFeature(randomFeatureFlagPath)
 				Expect(err).To(BeNil())
 			})
 		})

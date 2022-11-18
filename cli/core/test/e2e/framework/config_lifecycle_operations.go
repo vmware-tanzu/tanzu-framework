@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2023 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package framework
@@ -20,8 +20,8 @@ const (
 	ConfigFileDir    = ".config/tanzu/"
 )
 
-// ConfigOps performs "tanzu config" command operations
-type ConfigOps interface {
+// ConfigLifecycleOps performs "tanzu config" command operations
+type ConfigLifecycleOps interface {
 	ConfigSetFeatureFlag(path, value string) error
 	ConfigGetFeatureFlag(path string) (string, error)
 	ConfigUnsetFeature(path string) error
@@ -37,7 +37,7 @@ type configOps struct {
 	CmdOps
 }
 
-func NewConfOps() ConfigOps {
+func NewConfOps() ConfigLifecycleOps {
 	return &configOps{
 		CmdOps: NewCmdOps(),
 	}

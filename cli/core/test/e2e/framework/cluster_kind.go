@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2023 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package framework
@@ -16,13 +16,13 @@ type KindCluster interface {
 // kindCluster implements ClusterOps interface
 type kindCluster struct {
 	CmdOps
-	ContainerRuntime
+	Docker
 }
 
-func NewKindCluster(runtime ContainerRuntime) KindCluster {
+func NewKindCluster(docker Docker) KindCluster {
 	return &kindCluster{
-		CmdOps:           NewCmdOps(),
-		ContainerRuntime: runtime,
+		CmdOps: NewCmdOps(),
+		Docker: docker,
 	}
 }
 

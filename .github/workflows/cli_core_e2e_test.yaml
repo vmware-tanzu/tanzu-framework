@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Tanzu CLI Core E2E Tests
-    runs-on: ubuntu-latest
+    runs-on: tkg
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
@@ -30,9 +30,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - name: Setup dependencies
+        run: make tools
+
       - name: Build Core CLI
         run: |
           make install-tanzu-core-cli -C cli/core
+
+      - name: Start local OCI registry
+        run: |
+          make local-registry
 
       - name: Tests
         run: |

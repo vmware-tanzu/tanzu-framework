@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2023 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package framework
@@ -42,9 +42,9 @@ func (co *cmdOps) Exec(command string) (stdOut, stdErr *bytes.Buffer, err error)
 	cmd.Stderr = &stderr
 	err = cmd.Run()
 	if err != nil {
-		return nil, nil, fmt.Errorf(fmt.Sprintf("error while running %s", command), err)
+		return &stdout, &stderr, fmt.Errorf(fmt.Sprintf("error while running '%s', stdOut: %s, stdErr: %s", command, stdout.String(), stderr.String()), err)
 	}
-	return &stdout, &stderr, nil
+	return &stdout, &stderr, err
 }
 
 // ExecContainsString checks that the given command output contains the string.
