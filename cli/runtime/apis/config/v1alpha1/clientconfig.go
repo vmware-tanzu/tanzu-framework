@@ -24,7 +24,7 @@ const (
 const (
 	// FeatureCli allows a feature to be set at the CLI level (globally) rather than for a single plugin
 	FeatureCli string = "cli"
-	// Edition value (in config) affects branding and cluster creation
+	// EditionStandard Edition value (in config) affects branding and cluster creation
 	EditionStandard  = "tkg"
 	EditionCommunity = "tce"
 )
@@ -48,7 +48,7 @@ func (s *Server) IsManagementCluster() bool {
 }
 
 // GetCurrentServer returns the current server.
-// Deprecation targeted for a a future version. Use GetCurrentContext() instead.
+// Deprecation targeted for a future version. Use GetCurrentContext() instead.
 func (c *ClientConfig) GetCurrentServer() (*Server, error) {
 	for _, server := range c.KnownServers {
 		if server.Name == c.CurrentServer {

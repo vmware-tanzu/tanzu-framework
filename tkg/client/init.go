@@ -29,6 +29,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/kind"
@@ -200,6 +201,10 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	if err != nil {
 		return errors.Wrap(err, "unable to get bootstrap cluster client")
 	}
+	bootstrapPkgClient, err := packageclient.NewPackageClientForContext(bootstrapClusterKubeconfigPath, "")
+	if err != nil {
+		return errors.Wrap(err, "unable to get a PackageClient")
+	}
 
 	// configure variables required to deploy providers
 	if err := c.configureVariablesForProvidersInstallation(nil); err != nil {
@@ -209,7 +214,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	// If clusterclass feature flag is enabled then deploy kapp-controller
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		log.Info("Installing kapp-controller on bootstrap cluster...")
-		if err = c.InstallOrUpgradeKappController(bootstrapClusterKubeconfigPath, "", constants.OperationTypeInstall); err != nil {
+		if err = c.InstallOrUpgradeKappController(bootStrapClusterClient, constants.OperationTypeInstall); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
 		}
 	}
@@ -223,7 +228,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	// If clusterclass feature flag is enabled then deploy management components
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		if err = c.InstallOrUpgradeManagementComponents(bootstrapClusterKubeconfigPath, "", false); err != nil {
+		if err = c.InstallOrUpgradeManagementComponents(bootStrapClusterClient, bootstrapPkgClient, "", false); err != nil {
 			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
 		}
 	}
@@ -308,11 +313,15 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	if err != nil {
 		return errors.Wrap(err, "unable to get management cluster client")
 	}
+	regionalPkgClient, err := packageclient.NewPackageClientForContext(regionalClusterKubeconfigPath, kubeContext)
+	if err != nil {
+		return errors.Wrap(err, "unable to get a PackageClient")
+	}
 
 	// If clusterclass feature flag is enabled then deploy kapp-controller
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		log.Info("Installing kapp-controller on management cluster...")
-		if err = c.InstallOrUpgradeKappController(regionalClusterKubeconfigPath, kubeContext, constants.OperationTypeInstall); err != nil {
+		if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeInstall); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
 		}
 	}
@@ -334,7 +343,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	// If clusterclass feature flag is enabled then deploy management components to the cluster
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		if err = c.InstallOrUpgradeManagementComponents(regionalClusterKubeconfigPath, kubeContext, false); err != nil {
+		if err = c.InstallOrUpgradeManagementComponents(regionalClusterClient, regionalPkgClient, kubeContext, false); err != nil {
 			return errors.Wrap(err, "unable to install management components to management cluster")
 		}
 	}
