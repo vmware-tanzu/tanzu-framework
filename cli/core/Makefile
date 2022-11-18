@@ -202,7 +202,7 @@ choco-package: ## Build a Chocolatey package
 
 .PHONY: test
 test: fmt vet ## Run Tests
-	${GO} test ./... -timeout 60m -race -coverprofile coverage.txt -v
+	${GO} test `go list ./... | grep -v test/e2e` -timeout 60m -race -coverprofile coverage.txt -v
 
 .PHONY: vet
 vet: ## Vet codebase
@@ -216,6 +216,11 @@ fmt: $(GOIMPORTS) ## Run goimports
 generate-fakes: ## Generate fakes for writing unit tests
 	$(GO) generate ./...
 	$(MAKE) fmt
+
+.PHONY: test-e2e
+test-e2e: fmt vet ## Run CLI Core E2E Tests
+	${GO} test ./test/e2e/... -timeout 60m -race -coverprofile coverage.txt -v
+
 ## --------------------------------------
 ## Tooling Binaries
 ## --------------------------------------
