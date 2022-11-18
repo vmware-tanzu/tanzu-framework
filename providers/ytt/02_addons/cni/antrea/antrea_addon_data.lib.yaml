@@ -82,6 +82,14 @@ antrea:
     #@ end
     tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
     disableUdpTunnelOffload: #@ data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD
+    enableBridgingMode: #@ data.values.ANTREA_ENABLE_BRIDGING_MODE
+    disableTXChecksumOffload: #@ data.values.ANTREA_DISABLE_TXCHECKSUM_OFFLOAD
+    dnsServerOverride: #@ data.values.ANTREA_DNS_SERVER_OVERRIDE
+    multicast:
+      igmpQueryInterval: #@ data.values.ANTREA_MULTICAST_IGMPQUERY_INTERVAL
+    multicluster:
+      enable: #@ data.values.ANTREA_MULTICLUSTER_ENABLE
+      namespace: #@ data.values.ANTREA_MULTICLUSTER_NAMESPACE
     featureGates:
       #@ if data.values.NSXT_POD_ROUTING_ENABLED:
       AntreaProxy: true
@@ -98,6 +106,11 @@ antrea:
       FlowExporter: #@ data.values.ANTREA_FLOWEXPORTER
       ServiceExternalIP: #@ data.values.ANTREA_SERVICE_EXTERNALIP
       Multicast: #@ data.values.ANTREA_MULTICAST
+      Multicluster: #@ data.values.ANTREA_MULTICLUSTER
+      SecondaryNetwork: #@ data.values.ANTREA_SECONDARY_NETWORK
+      TrafficControl: #@ data.values.ANTREA_TRAFFIC_CONTROL
+
+
 
 
 #@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.

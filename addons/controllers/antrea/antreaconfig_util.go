@@ -52,31 +52,45 @@ type antreaFlowExporter struct {
 	IdleFlowTimeout   string `yaml:"idleFlowTimeout,omitempty"`
 }
 
+type antreaMultiCluster struct {
+	Enable    bool   `yaml:"enable,omitempty"`
+	Namespace string `yaml:"namespace,omitempty"`
+}
+
+type antreaMulticast struct {
+	IGMPQueryInterval string `yaml:"igmpQueryInterval,omitempty"`
+}
+
 type antreaWireGuard struct {
 	Port int `yaml:"port,omitempty"`
 }
 
 type antreaConfigDataValue struct {
-	Egress                  antreaEgress        `yaml:"egress,omitempty"`
-	NodePortLocal           antreaNodePortLocal `yaml:"nodePortLocal,omitempty"`
-	AntreaProxy             antreaProxy         `yaml:"antreaProxy,omitempty"`
-	FlowExporter            antreaFlowExporter  `yaml:"flowExporter,omitempty"`
-	KubeAPIServerOverride   string              `yaml:"kubeAPIServerOverride,omitempty"`
-	transportInterface      string              `yaml:"transportInterface,omitempty"`
-	transportInterfaceCIDRs []string            `yaml:"transportInterfaceCIDRs,omitempty"`
-	multicastInterfaces     []string            `yaml:"multicastInterfaces,omitempty"`
-	TunnelType              string              `yaml:"tunnelType,omitempty"`
-	TrafficEncryptionMode   string              `yaml:"trafficEncryptionMode,omitempty"`
-	EnableUsageReporting    bool                `yaml:"enableUsageReporting,omitempty"`
-	WireGuard               antreaWireGuard     `yaml:"wireGuard,omitempty"`
-	ServiceCIDR             string              `yaml:"serviceCIDR,omitempty"`
-	ServiceCIDRv6           string              `yaml:"serviceCIDRv6,omitempty"`
-	TrafficEncapMode        string              `yaml:"trafficEncapMode,omitempty"`
-	NoSNAT                  bool                `yaml:"noSNAT,omitempty"`
-	TLSCipherSuites         string              `yaml:"tlsCipherSuites,omitempty"`
-	DisableUDPTunnelOffload bool                `yaml:"disableUdpTunnelOffload"`
-	DefaultMTU              string              `yaml:"defaultMTU,omitempty"`
-	FeatureGates            antreaFeatureGates  `yaml:"featureGates,omitempty"`
+	Egress                   antreaEgress        `yaml:"egress,omitempty"`
+	NodePortLocal            antreaNodePortLocal `yaml:"nodePortLocal,omitempty"`
+	AntreaProxy              antreaProxy         `yaml:"antreaProxy,omitempty"`
+	FlowExporter             antreaFlowExporter  `yaml:"flowExporter,omitempty"`
+	Multicast                antreaMulticast     `yaml:"multicast,omitempty"`
+	MultiCluster             antreaMultiCluster  `yaml:"multicluster,omitempty"`
+	KubeAPIServerOverride    string              `yaml:"kubeAPIServerOverride,omitempty"`
+	transportInterface       string              `yaml:"transportInterface,omitempty"`
+	transportInterfaceCIDRs  []string            `yaml:"transportInterfaceCIDRs,omitempty"`
+	multicastInterfaces      []string            `yaml:"multicastInterfaces,omitempty"`
+	TunnelType               string              `yaml:"tunnelType,omitempty"`
+	TrafficEncryptionMode    string              `yaml:"trafficEncryptionMode,omitempty"`
+	EnableUsageReporting     bool                `yaml:"enableUsageReporting,omitempty"`
+	WireGuard                antreaWireGuard     `yaml:"wireGuard,omitempty"`
+	ServiceCIDR              string              `yaml:"serviceCIDR,omitempty"`
+	ServiceCIDRv6            string              `yaml:"serviceCIDRv6,omitempty"`
+	TrafficEncapMode         string              `yaml:"trafficEncapMode,omitempty"`
+	NoSNAT                   bool                `yaml:"noSNAT,omitempty"`
+	TLSCipherSuites          string              `yaml:"tlsCipherSuites,omitempty"`
+	DisableUDPTunnelOffload  bool                `yaml:"disableUdpTunnelOffload"`
+	DefaultMTU               string              `yaml:"defaultMTU,omitempty"`
+	EnableBridgingMode       bool                `yaml:"enableBridgingMode,omitempty"`
+	DisableTXChecksumOffload bool                `yaml:"disableTXChecksumOffload,omitempty"`
+	DNSServerOverride        string              `yaml:"dnsServerOverride,omitempty"`
+	FeatureGates             antreaFeatureGates  `yaml:"featureGates,omitempty"`
 }
 
 type antreaFeatureGates struct {
@@ -91,6 +105,9 @@ type antreaFeatureGates struct {
 	AntreaIPAM         bool `yaml:"AntreaIPAM"`
 	ServiceExternalIP  bool `yaml:"ServiceExternalIP"`
 	Multicast          bool `yaml:"Multicast"`
+	MultiCluster       bool `yaml:"Multicluster"`
+	SecondaryNetwork   bool `yaml:"SecondaryNetwork"`
+	TrafficControl     bool `yaml:"TrafficControl"`
 }
 
 // ClusterToAntreaConfig returns a list of Requests with AntreaConfig ObjectKey
@@ -175,6 +192,9 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.An
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.PollInterval = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.PollInterval
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.ActiveFlowTimeout = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.ActiveFlowTimeout
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.IdleFlowTimeout = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.IdleFlowTimeout
+	configSpec.Antrea.AntreaConfigDataValue.Multicast.IGMPQueryInterval = config.Spec.Antrea.AntreaConfigDataValue.Multicast.IGMPQueryInterval
+	configSpec.Antrea.AntreaConfigDataValue.MultiCluster.Enable = config.Spec.Antrea.AntreaConfigDataValue.MultiCluster.Enable
+	configSpec.Antrea.AntreaConfigDataValue.MultiCluster.Namespace = config.Spec.Antrea.AntreaConfigDataValue.MultiCluster.Namespace
 	configSpec.Antrea.AntreaConfigDataValue.KubeAPIServerOverride = config.Spec.Antrea.AntreaConfigDataValue.KubeAPIServerOverride
 	configSpec.Antrea.AntreaConfigDataValue.transportInterface = config.Spec.Antrea.AntreaConfigDataValue.TransportInterface
 	configSpec.Antrea.AntreaConfigDataValue.transportInterfaceCIDRs = config.Spec.Antrea.AntreaConfigDataValue.TransportInterfaceCIDRs
@@ -187,6 +207,9 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.An
 	configSpec.Antrea.AntreaConfigDataValue.TLSCipherSuites = config.Spec.Antrea.AntreaConfigDataValue.TLSCipherSuites
 	configSpec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload = config.Spec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload
 	configSpec.Antrea.AntreaConfigDataValue.DefaultMTU = config.Spec.Antrea.AntreaConfigDataValue.DefaultMTU
+	configSpec.Antrea.AntreaConfigDataValue.DNSServerOverride = config.Spec.Antrea.AntreaConfigDataValue.DNSServerOverride
+	configSpec.Antrea.AntreaConfigDataValue.DisableTXChecksumOffload = config.Spec.Antrea.AntreaConfigDataValue.DisableTXChecksumOffload
+	configSpec.Antrea.AntreaConfigDataValue.EnableBridgingMode = config.Spec.Antrea.AntreaConfigDataValue.EnableBridgingMode
 
 	// FeatureGates
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy
@@ -200,6 +223,8 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.An
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaIPAM = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaIPAM
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.ServiceExternalIP = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.ServiceExternalIP
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.Multicast = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.Multicast
-
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl
 	return configSpec, nil
 }

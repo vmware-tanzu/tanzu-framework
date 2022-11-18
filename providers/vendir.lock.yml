@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add calico v3.24.1 (#5431)...
-      sha: 9715f65cb72e03a9a1e24283d95a5251d1225bd1
+      commitTitle: Update fields for antrea 1.7.1 (#5544)...
+      sha: 8fa1eddbee7864510faf26e545b01e29ac966be5
       tags:
-      - v0.13.0-dev.2-402-g9715f65c
+      - v0.13.0-dev.2-472-g8fa1eddb
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
