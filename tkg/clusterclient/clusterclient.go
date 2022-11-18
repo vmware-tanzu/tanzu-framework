@@ -323,6 +323,18 @@ type Client interface {
 	UpdateVsphereCloudProviderCredentialsSecret(clusterName string, namespace string, username string, password string) error
 	// UpdateVsphereCsiConfigSecret updates the vsphere csi config secret
 	UpdateVsphereCsiConfigSecret(clusterName string, namespace string, username string, password string) error
+	// UpdateCapzManagerBootstrapCredentialsSecret updates the azure creds used by the capz provider
+	UpdateCapzManagerBootstrapCredentialsSecret(tenantID string, clientID string, clientSecret string) error
+	// UpdateAzureClusterIdentity returns whether the cluster used the same azure cluster identityRef with the management cluster
+	CheckUnifiedAzureClusterIdentity(clusterName string, namespace string) (bool, error)
+	// UpdateAzureClusterIdentity updates the azure cluster identityRef used by the capz provider
+	UpdateAzureClusterIdentity(clusterName string, namespace string, tenantID string, clientID string, clientSecret string) error
+	// GetCAPZControllerManagerDeploymentsReplicas gets current replicas for the capz-controller-manager deployment
+	GetCAPZControllerManagerDeploymentsReplicas() (int32, error)
+	// UpdateCAPZControllerManagerDeploymentReplicas update the capz-controller-manager deployment replicas
+	UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) error
+	// UpdateAzureKCP recycles KCP for the azure cloud provider
+	UpdateAzureKCP(clusterName string, namespace string) error
 	// GetClientSet gets one clientset used to generate objects list
 	GetClientSet() CrtClient
 	// GetPinnipedIssuerURLAndCA fetches Pinniped supervisor IssuerURL and IssuerCA data from management cluster

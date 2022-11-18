@@ -103,6 +103,20 @@ type ClusterClient struct {
 	applyPatchForAutoScalerDeploymentReturnsOnCall map[int]struct {
 		result1 error
 	}
+	CheckUnifiedAzureClusterIdentityStub        func(string, string) (bool, error)
+	checkUnifiedAzureClusterIdentityMutex       sync.RWMutex
+	checkUnifiedAzureClusterIdentityArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	checkUnifiedAzureClusterIdentityReturns struct {
+		result1 bool
+		result2 error
+	}
+	checkUnifiedAzureClusterIdentityReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
 	CloneWithTimeoutStub        func(time.Duration) clusterclient.Client
 	cloneWithTimeoutMutex       sync.RWMutex
 	cloneWithTimeoutArgsForCall []struct {
@@ -230,6 +244,18 @@ type ClusterClient struct {
 	}
 	getBomConfigMapReturnsOnCall map[int]struct {
 		result1 v1.ConfigMap
+		result2 error
+	}
+	GetCAPZControllerManagerDeploymentsReplicasStub        func() (int32, error)
+	getCAPZControllerManagerDeploymentsReplicasMutex       sync.RWMutex
+	getCAPZControllerManagerDeploymentsReplicasArgsForCall []struct {
+	}
+	getCAPZControllerManagerDeploymentsReplicasReturns struct {
+		result1 int32
+		result2 error
+	}
+	getCAPZControllerManagerDeploymentsReplicasReturnsOnCall map[int]struct {
+		result1 int32
 		result2 error
 	}
 	GetCLIPluginImageRepositoryOverrideStub        func() (map[string]string, error)
@@ -1043,6 +1069,44 @@ type ClusterClient struct {
 	updateAWSCNIIngressRulesReturnsOnCall map[int]struct {
 		result1 error
 	}
+	UpdateAzureClusterIdentityStub        func(string, string, string, string, string) error
+	updateAzureClusterIdentityMutex       sync.RWMutex
+	updateAzureClusterIdentityArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+		arg5 string
+	}
+	updateAzureClusterIdentityReturns struct {
+		result1 error
+	}
+	updateAzureClusterIdentityReturnsOnCall map[int]struct {
+		result1 error
+	}
+	UpdateAzureKCPStub        func(string, string) error
+	updateAzureKCPMutex       sync.RWMutex
+	updateAzureKCPArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	updateAzureKCPReturns struct {
+		result1 error
+	}
+	updateAzureKCPReturnsOnCall map[int]struct {
+		result1 error
+	}
+	UpdateCAPZControllerManagerDeploymentReplicasStub        func(int32) error
+	updateCAPZControllerManagerDeploymentReplicasMutex       sync.RWMutex
+	updateCAPZControllerManagerDeploymentReplicasArgsForCall []struct {
+		arg1 int32
+	}
+	updateCAPZControllerManagerDeploymentReplicasReturns struct {
+		result1 error
+	}
+	updateCAPZControllerManagerDeploymentReplicasReturnsOnCall map[int]struct {
+		result1 error
+	}
 	UpdateCapvManagerBootstrapCredentialsSecretStub        func(string, string) error
 	updateCapvManagerBootstrapCredentialsSecretMutex       sync.RWMutex
 	updateCapvManagerBootstrapCredentialsSecretArgsForCall []struct {
@@ -1053,6 +1117,19 @@ type ClusterClient struct {
 		result1 error
 	}
 	updateCapvManagerBootstrapCredentialsSecretReturnsOnCall map[int]struct {
+		result1 error
+	}
+	UpdateCapzManagerBootstrapCredentialsSecretStub        func(string, string, string) error
+	updateCapzManagerBootstrapCredentialsSecretMutex       sync.RWMutex
+	updateCapzManagerBootstrapCredentialsSecretArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 string
+	}
+	updateCapzManagerBootstrapCredentialsSecretReturns struct {
+		result1 error
+	}
+	updateCapzManagerBootstrapCredentialsSecretReturnsOnCall map[int]struct {
 		result1 error
 	}
 	UpdateReplicasStub        func(interface{}, string, string, int32) error
@@ -1709,6 +1786,71 @@ func (fake *ClusterClient) ApplyPatchForAutoScalerDeploymentReturnsOnCall(i int,
 	}{result1}
 }
 
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentity(arg1 string, arg2 string) (bool, error) {
+	fake.checkUnifiedAzureClusterIdentityMutex.Lock()
+	ret, specificReturn := fake.checkUnifiedAzureClusterIdentityReturnsOnCall[len(fake.checkUnifiedAzureClusterIdentityArgsForCall)]
+	fake.checkUnifiedAzureClusterIdentityArgsForCall = append(fake.checkUnifiedAzureClusterIdentityArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.CheckUnifiedAzureClusterIdentityStub
+	fakeReturns := fake.checkUnifiedAzureClusterIdentityReturns
+	fake.recordInvocation("CheckUnifiedAzureClusterIdentity", []interface{}{arg1, arg2})
+	fake.checkUnifiedAzureClusterIdentityMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityCallCount() int {
+	fake.checkUnifiedAzureClusterIdentityMutex.RLock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.RUnlock()
+	return len(fake.checkUnifiedAzureClusterIdentityArgsForCall)
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityCalls(stub func(string, string) (bool, error)) {
+	fake.checkUnifiedAzureClusterIdentityMutex.Lock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.Unlock()
+	fake.CheckUnifiedAzureClusterIdentityStub = stub
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityArgsForCall(i int) (string, string) {
+	fake.checkUnifiedAzureClusterIdentityMutex.RLock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.RUnlock()
+	argsForCall := fake.checkUnifiedAzureClusterIdentityArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityReturns(result1 bool, result2 error) {
+	fake.checkUnifiedAzureClusterIdentityMutex.Lock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.Unlock()
+	fake.CheckUnifiedAzureClusterIdentityStub = nil
+	fake.checkUnifiedAzureClusterIdentityReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) CheckUnifiedAzureClusterIdentityReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.checkUnifiedAzureClusterIdentityMutex.Lock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.Unlock()
+	fake.CheckUnifiedAzureClusterIdentityStub = nil
+	if fake.checkUnifiedAzureClusterIdentityReturnsOnCall == nil {
+		fake.checkUnifiedAzureClusterIdentityReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.checkUnifiedAzureClusterIdentityReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) CloneWithTimeout(arg1 time.Duration) clusterclient.Client {
 	fake.cloneWithTimeoutMutex.Lock()
 	ret, specificReturn := fake.cloneWithTimeoutReturnsOnCall[len(fake.cloneWithTimeoutArgsForCall)]
@@ -2360,6 +2502,62 @@ func (fake *ClusterClient) GetBomConfigMapReturnsOnCall(i int, result1 v1.Config
 	}
 	fake.getBomConfigMapReturnsOnCall[i] = struct {
 		result1 v1.ConfigMap
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetCAPZControllerManagerDeploymentsReplicas() (int32, error) {
+	fake.getCAPZControllerManagerDeploymentsReplicasMutex.Lock()
+	ret, specificReturn := fake.getCAPZControllerManagerDeploymentsReplicasReturnsOnCall[len(fake.getCAPZControllerManagerDeploymentsReplicasArgsForCall)]
+	fake.getCAPZControllerManagerDeploymentsReplicasArgsForCall = append(fake.getCAPZControllerManagerDeploymentsReplicasArgsForCall, struct {
+	}{})
+	stub := fake.GetCAPZControllerManagerDeploymentsReplicasStub
+	fakeReturns := fake.getCAPZControllerManagerDeploymentsReplicasReturns
+	fake.recordInvocation("GetCAPZControllerManagerDeploymentsReplicas", []interface{}{})
+	fake.getCAPZControllerManagerDeploymentsReplicasMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) GetCAPZControllerManagerDeploymentsReplicasCallCount() int {
+	fake.getCAPZControllerManagerDeploymentsReplicasMutex.RLock()
+	defer fake.getCAPZControllerManagerDeploymentsReplicasMutex.RUnlock()
+	return len(fake.getCAPZControllerManagerDeploymentsReplicasArgsForCall)
+}
+
+func (fake *ClusterClient) GetCAPZControllerManagerDeploymentsReplicasCalls(stub func() (int32, error)) {
+	fake.getCAPZControllerManagerDeploymentsReplicasMutex.Lock()
+	defer fake.getCAPZControllerManagerDeploymentsReplicasMutex.Unlock()
+	fake.GetCAPZControllerManagerDeploymentsReplicasStub = stub
+}
+
+func (fake *ClusterClient) GetCAPZControllerManagerDeploymentsReplicasReturns(result1 int32, result2 error) {
+	fake.getCAPZControllerManagerDeploymentsReplicasMutex.Lock()
+	defer fake.getCAPZControllerManagerDeploymentsReplicasMutex.Unlock()
+	fake.GetCAPZControllerManagerDeploymentsReplicasStub = nil
+	fake.getCAPZControllerManagerDeploymentsReplicasReturns = struct {
+		result1 int32
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetCAPZControllerManagerDeploymentsReplicasReturnsOnCall(i int, result1 int32, result2 error) {
+	fake.getCAPZControllerManagerDeploymentsReplicasMutex.Lock()
+	defer fake.getCAPZControllerManagerDeploymentsReplicasMutex.Unlock()
+	fake.GetCAPZControllerManagerDeploymentsReplicasStub = nil
+	if fake.getCAPZControllerManagerDeploymentsReplicasReturnsOnCall == nil {
+		fake.getCAPZControllerManagerDeploymentsReplicasReturnsOnCall = make(map[int]struct {
+			result1 int32
+			result2 error
+		})
+	}
+	fake.getCAPZControllerManagerDeploymentsReplicasReturnsOnCall[i] = struct {
+		result1 int32
 		result2 error
 	}{result1, result2}
 }
@@ -6206,6 +6404,194 @@ func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturnsOnCall(i int, result1 
 	}{result1}
 }
 
+func (fake *ClusterClient) UpdateAzureClusterIdentity(arg1 string, arg2 string, arg3 string, arg4 string, arg5 string) error {
+	fake.updateAzureClusterIdentityMutex.Lock()
+	ret, specificReturn := fake.updateAzureClusterIdentityReturnsOnCall[len(fake.updateAzureClusterIdentityArgsForCall)]
+	fake.updateAzureClusterIdentityArgsForCall = append(fake.updateAzureClusterIdentityArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+		arg5 string
+	}{arg1, arg2, arg3, arg4, arg5})
+	stub := fake.UpdateAzureClusterIdentityStub
+	fakeReturns := fake.updateAzureClusterIdentityReturns
+	fake.recordInvocation("UpdateAzureClusterIdentity", []interface{}{arg1, arg2, arg3, arg4, arg5})
+	fake.updateAzureClusterIdentityMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4, arg5)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateAzureClusterIdentityCallCount() int {
+	fake.updateAzureClusterIdentityMutex.RLock()
+	defer fake.updateAzureClusterIdentityMutex.RUnlock()
+	return len(fake.updateAzureClusterIdentityArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateAzureClusterIdentityCalls(stub func(string, string, string, string, string) error) {
+	fake.updateAzureClusterIdentityMutex.Lock()
+	defer fake.updateAzureClusterIdentityMutex.Unlock()
+	fake.UpdateAzureClusterIdentityStub = stub
+}
+
+func (fake *ClusterClient) UpdateAzureClusterIdentityArgsForCall(i int) (string, string, string, string, string) {
+	fake.updateAzureClusterIdentityMutex.RLock()
+	defer fake.updateAzureClusterIdentityMutex.RUnlock()
+	argsForCall := fake.updateAzureClusterIdentityArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5
+}
+
+func (fake *ClusterClient) UpdateAzureClusterIdentityReturns(result1 error) {
+	fake.updateAzureClusterIdentityMutex.Lock()
+	defer fake.updateAzureClusterIdentityMutex.Unlock()
+	fake.UpdateAzureClusterIdentityStub = nil
+	fake.updateAzureClusterIdentityReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateAzureClusterIdentityReturnsOnCall(i int, result1 error) {
+	fake.updateAzureClusterIdentityMutex.Lock()
+	defer fake.updateAzureClusterIdentityMutex.Unlock()
+	fake.UpdateAzureClusterIdentityStub = nil
+	if fake.updateAzureClusterIdentityReturnsOnCall == nil {
+		fake.updateAzureClusterIdentityReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateAzureClusterIdentityReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateAzureKCP(arg1 string, arg2 string) error {
+	fake.updateAzureKCPMutex.Lock()
+	ret, specificReturn := fake.updateAzureKCPReturnsOnCall[len(fake.updateAzureKCPArgsForCall)]
+	fake.updateAzureKCPArgsForCall = append(fake.updateAzureKCPArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.UpdateAzureKCPStub
+	fakeReturns := fake.updateAzureKCPReturns
+	fake.recordInvocation("UpdateAzureKCP", []interface{}{arg1, arg2})
+	fake.updateAzureKCPMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateAzureKCPCallCount() int {
+	fake.updateAzureKCPMutex.RLock()
+	defer fake.updateAzureKCPMutex.RUnlock()
+	return len(fake.updateAzureKCPArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateAzureKCPCalls(stub func(string, string) error) {
+	fake.updateAzureKCPMutex.Lock()
+	defer fake.updateAzureKCPMutex.Unlock()
+	fake.UpdateAzureKCPStub = stub
+}
+
+func (fake *ClusterClient) UpdateAzureKCPArgsForCall(i int) (string, string) {
+	fake.updateAzureKCPMutex.RLock()
+	defer fake.updateAzureKCPMutex.RUnlock()
+	argsForCall := fake.updateAzureKCPArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) UpdateAzureKCPReturns(result1 error) {
+	fake.updateAzureKCPMutex.Lock()
+	defer fake.updateAzureKCPMutex.Unlock()
+	fake.UpdateAzureKCPStub = nil
+	fake.updateAzureKCPReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateAzureKCPReturnsOnCall(i int, result1 error) {
+	fake.updateAzureKCPMutex.Lock()
+	defer fake.updateAzureKCPMutex.Unlock()
+	fake.UpdateAzureKCPStub = nil
+	if fake.updateAzureKCPReturnsOnCall == nil {
+		fake.updateAzureKCPReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateAzureKCPReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateCAPZControllerManagerDeploymentReplicas(arg1 int32) error {
+	fake.updateCAPZControllerManagerDeploymentReplicasMutex.Lock()
+	ret, specificReturn := fake.updateCAPZControllerManagerDeploymentReplicasReturnsOnCall[len(fake.updateCAPZControllerManagerDeploymentReplicasArgsForCall)]
+	fake.updateCAPZControllerManagerDeploymentReplicasArgsForCall = append(fake.updateCAPZControllerManagerDeploymentReplicasArgsForCall, struct {
+		arg1 int32
+	}{arg1})
+	stub := fake.UpdateCAPZControllerManagerDeploymentReplicasStub
+	fakeReturns := fake.updateCAPZControllerManagerDeploymentReplicasReturns
+	fake.recordInvocation("UpdateCAPZControllerManagerDeploymentReplicas", []interface{}{arg1})
+	fake.updateCAPZControllerManagerDeploymentReplicasMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateCAPZControllerManagerDeploymentReplicasCallCount() int {
+	fake.updateCAPZControllerManagerDeploymentReplicasMutex.RLock()
+	defer fake.updateCAPZControllerManagerDeploymentReplicasMutex.RUnlock()
+	return len(fake.updateCAPZControllerManagerDeploymentReplicasArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateCAPZControllerManagerDeploymentReplicasCalls(stub func(int32) error) {
+	fake.updateCAPZControllerManagerDeploymentReplicasMutex.Lock()
+	defer fake.updateCAPZControllerManagerDeploymentReplicasMutex.Unlock()
+	fake.UpdateCAPZControllerManagerDeploymentReplicasStub = stub
+}
+
+func (fake *ClusterClient) UpdateCAPZControllerManagerDeploymentReplicasArgsForCall(i int) int32 {
+	fake.updateCAPZControllerManagerDeploymentReplicasMutex.RLock()
+	defer fake.updateCAPZControllerManagerDeploymentReplicasMutex.RUnlock()
+	argsForCall := fake.updateCAPZControllerManagerDeploymentReplicasArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *ClusterClient) UpdateCAPZControllerManagerDeploymentReplicasReturns(result1 error) {
+	fake.updateCAPZControllerManagerDeploymentReplicasMutex.Lock()
+	defer fake.updateCAPZControllerManagerDeploymentReplicasMutex.Unlock()
+	fake.UpdateCAPZControllerManagerDeploymentReplicasStub = nil
+	fake.updateCAPZControllerManagerDeploymentReplicasReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateCAPZControllerManagerDeploymentReplicasReturnsOnCall(i int, result1 error) {
+	fake.updateCAPZControllerManagerDeploymentReplicasMutex.Lock()
+	defer fake.updateCAPZControllerManagerDeploymentReplicasMutex.Unlock()
+	fake.UpdateCAPZControllerManagerDeploymentReplicasStub = nil
+	if fake.updateCAPZControllerManagerDeploymentReplicasReturnsOnCall == nil {
+		fake.updateCAPZControllerManagerDeploymentReplicasReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateCAPZControllerManagerDeploymentReplicasReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) UpdateCapvManagerBootstrapCredentialsSecret(arg1 string, arg2 string) error {
 	fake.updateCapvManagerBootstrapCredentialsSecretMutex.Lock()
 	ret, specificReturn := fake.updateCapvManagerBootstrapCredentialsSecretReturnsOnCall[len(fake.updateCapvManagerBootstrapCredentialsSecretArgsForCall)]
@@ -6264,6 +6650,69 @@ func (fake *ClusterClient) UpdateCapvManagerBootstrapCredentialsSecretReturnsOnC
 		})
 	}
 	fake.updateCapvManagerBootstrapCredentialsSecretReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecret(arg1 string, arg2 string, arg3 string) error {
+	fake.updateCapzManagerBootstrapCredentialsSecretMutex.Lock()
+	ret, specificReturn := fake.updateCapzManagerBootstrapCredentialsSecretReturnsOnCall[len(fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall)]
+	fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall = append(fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 string
+	}{arg1, arg2, arg3})
+	stub := fake.UpdateCapzManagerBootstrapCredentialsSecretStub
+	fakeReturns := fake.updateCapzManagerBootstrapCredentialsSecretReturns
+	fake.recordInvocation("UpdateCapzManagerBootstrapCredentialsSecret", []interface{}{arg1, arg2, arg3})
+	fake.updateCapzManagerBootstrapCredentialsSecretMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretCallCount() int {
+	fake.updateCapzManagerBootstrapCredentialsSecretMutex.RLock()
+	defer fake.updateCapzManagerBootstrapCredentialsSecretMutex.RUnlock()
+	return len(fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall)
+}
+
+func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretCalls(stub func(string, string, string) error) {
+	fake.updateCapzManagerBootstrapCredentialsSecretMutex.Lock()
+	defer fake.updateCapzManagerBootstrapCredentialsSecretMutex.Unlock()
+	fake.UpdateCapzManagerBootstrapCredentialsSecretStub = stub
+}
+
+func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretArgsForCall(i int) (string, string, string) {
+	fake.updateCapzManagerBootstrapCredentialsSecretMutex.RLock()
+	defer fake.updateCapzManagerBootstrapCredentialsSecretMutex.RUnlock()
+	argsForCall := fake.updateCapzManagerBootstrapCredentialsSecretArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretReturns(result1 error) {
+	fake.updateCapzManagerBootstrapCredentialsSecretMutex.Lock()
+	defer fake.updateCapzManagerBootstrapCredentialsSecretMutex.Unlock()
+	fake.UpdateCapzManagerBootstrapCredentialsSecretStub = nil
+	fake.updateCapzManagerBootstrapCredentialsSecretReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) UpdateCapzManagerBootstrapCredentialsSecretReturnsOnCall(i int, result1 error) {
+	fake.updateCapzManagerBootstrapCredentialsSecretMutex.Lock()
+	defer fake.updateCapzManagerBootstrapCredentialsSecretMutex.Unlock()
+	fake.UpdateCapzManagerBootstrapCredentialsSecretStub = nil
+	if fake.updateCapzManagerBootstrapCredentialsSecretReturnsOnCall == nil {
+		fake.updateCapzManagerBootstrapCredentialsSecretReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateCapzManagerBootstrapCredentialsSecretReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -7601,6 +8050,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.applyFileRecursivelyMutex.RUnlock()
 	fake.applyPatchForAutoScalerDeploymentMutex.RLock()
 	defer fake.applyPatchForAutoScalerDeploymentMutex.RUnlock()
+	fake.checkUnifiedAzureClusterIdentityMutex.RLock()
+	defer fake.checkUnifiedAzureClusterIdentityMutex.RUnlock()
 	fake.cloneWithTimeoutMutex.RLock()
 	defer fake.cloneWithTimeoutMutex.RUnlock()
 	fake.createNamespaceMutex.RLock()
@@ -7623,6 +8074,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getAzureCredentialsFromSecretMutex.RUnlock()
 	fake.getBomConfigMapMutex.RLock()
 	defer fake.getBomConfigMapMutex.RUnlock()
+	fake.getCAPZControllerManagerDeploymentsReplicasMutex.RLock()
+	defer fake.getCAPZControllerManagerDeploymentsReplicasMutex.RUnlock()
 	fake.getCLIPluginImageRepositoryOverrideMutex.RLock()
 	defer fake.getCLIPluginImageRepositoryOverrideMutex.RUnlock()
 	fake.getClientSetMutex.RLock()
@@ -7747,8 +8200,16 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.scalePacificClusterWorkerNodesMutex.RUnlock()
 	fake.updateAWSCNIIngressRulesMutex.RLock()
 	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
+	fake.updateAzureClusterIdentityMutex.RLock()
+	defer fake.updateAzureClusterIdentityMutex.RUnlock()
+	fake.updateAzureKCPMutex.RLock()
+	defer fake.updateAzureKCPMutex.RUnlock()
+	fake.updateCAPZControllerManagerDeploymentReplicasMutex.RLock()
+	defer fake.updateCAPZControllerManagerDeploymentReplicasMutex.RUnlock()
 	fake.updateCapvManagerBootstrapCredentialsSecretMutex.RLock()
 	defer fake.updateCapvManagerBootstrapCredentialsSecretMutex.RUnlock()
+	fake.updateCapzManagerBootstrapCredentialsSecretMutex.RLock()
+	defer fake.updateCapzManagerBootstrapCredentialsSecretMutex.RUnlock()
 	fake.updateReplicasMutex.RLock()
 	defer fake.updateReplicasMutex.RUnlock()
 	fake.updateResourceMutex.RLock()
