@@ -272,6 +272,24 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(createdOrUpdatedSecret).NotTo(BeNil())
 			Expect(createdOrUpdatedSecret.Namespace).To(Equal(cluster.Namespace))
 		})
+		It("should not over write contents of secret already found in cluster namespace", func() {
+			initSecret := constructFakeSecret()
+			err := fakeClient.Create(context.TODO(), initSecret)
+			Expect(err).NotTo(HaveOccurred())
+			string_data := map[string]string{"localkey": "localValue"}
+			localSecret := constructFakeSecretInNamespace(cluster.Namespace, string_data)
+			err = fakeClient.Create(context.TODO(), localSecret)
+			Expect(err).NotTo(HaveOccurred())
+			createdOrUpdatedSecret, err := helper.cloneSecretRef(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(createdOrUpdatedSecret.StringData).To(Equal(string_data))
+		})
+		It("should return error if fails to fetch local secret", func() {
+			scheme = runtime.NewScheme() // using an empty scheme will cause a runtime.NotRegisterError which is enough for this test
+			helper.K8sClient = controllreruntimefake.NewClientBuilder().WithScheme(scheme).Build()
+			_, err := helper.cloneSecretRef(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
 	Context("Verify createSecretFromInline()", func() {
@@ -994,6 +1012,16 @@ func constructFakeSecret() *corev1.Secret {
 			Namespace: "fake-ns",
 		},
 		StringData: map[string]string{"key": "value"},
+	}
+}
+
+func constructFakeSecretInNamespace(namespace string, string_data map[string]string) *corev1.Secret {
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "fake-secret",
+			Namespace: namespace,
+		},
+		StringData: string_data,
 	}
 }
 
