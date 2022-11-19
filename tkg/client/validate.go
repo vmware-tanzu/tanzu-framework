@@ -116,8 +116,8 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 	}
 
 	namespace := constants.TkrNamespace
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		//TODO: After CLI fully support package based LCM, "constants.TkrNamespace" should be updated to "tkg-system"
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
+		//TODO: After CLI fully support cluster class, "constants.TkrNamespace" should be updated to "tkg-system"
 		namespace = "tkg-system"
 	}
 

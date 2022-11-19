@@ -197,9 +197,9 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 	// The addons should upgrade prior to cluster upgrade to account for forward compatibility
 	// i.e. some old addons may not run on the nodes with new k8s version
 	// We will ensure backward compatibility when shipping packages going forward
-	// With package-package-lcm approach addons will be upgraded as part of management package upgrade
+	// With cluster class approach addons will be upgraded as part of management package upgrade
 	// and we do not need to upgrade addons with below function
-	if !options.SkipAddonUpgrade && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if !options.SkipAddonUpgrade && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		err = c.upgradeAddonPreNodeUpgrade(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
 		if err != nil {
 			return err
@@ -212,7 +212,7 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 	}
 
 	// Upgrade addon metadata configmaps after the nodes are upgraded
-	if !options.SkipAddonUpgrade && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if !options.SkipAddonUpgrade && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		err = c.upgradeAddonPostNodeUpgrade(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
 		if err != nil {
 			return err
@@ -228,7 +228,7 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 	}
 
 	if options.IsRegionalCluster {
-		if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+		if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 			log.Info("Waiting for additional components to be up and running...")
 			if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
 				return err

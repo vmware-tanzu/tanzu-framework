@@ -24,6 +24,16 @@ const (
 	FeatureContextCommand = "features.global.context-target-v2"
 )
 
+// This block is used to set the default value for management-cluster and workload-cluster
+const (
+	// PackageBasedCC feature flag determines whether to use package based lifecycle management of management component
+	// or legacy way of managing management components. This is also used for clusterclass based management cluster provisioning
+	FeatureFlagPackageBasedCC = "features.management-cluster.package-based-cc"
+	// FeatureFlagAllowLegacyCluster is used to decide the workload cluster is clusterclass based or legayc based.
+	// By default, it's false. If it's true, then workload cluster is legacy based.
+	FeatureFlagAllowLegacyCluster = "features.cluster.allow-legacy-cluster"
+)
+
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
 // The keys MUST be in the format "features.global.<feature>" or initialization will fail
 //
@@ -39,6 +49,8 @@ var (
 	DefaultCliFeatureFlags = map[string]bool{
 		FeatureContextAwareCLIForPlugins: contextAwareDiscoveryEnabled(),
 		FeatureContextCommand:            true,
+		FeatureFlagPackageBasedCC:        true,
+		FeatureFlagAllowLegacyCluster:    false,
 	}
 )
 

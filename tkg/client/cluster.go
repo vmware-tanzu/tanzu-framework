@@ -159,7 +159,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+		if !config.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
 			clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
 			if err != nil {
 				return false, err
@@ -178,16 +178,6 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 				log.Warningf("\nTo create a cluster with it, use")
 				log.Warningf("    tanzu cluster create --file %v", configFilePath)
 				return false, nil
-			}
-
-			// if both FeatureFlagPackageBasedLCM and FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration enabled
-			// customization ytt overlay will cause create legacy cluster
-			iscustomoverlaypresent, err := c.isCustomOverlayPresent()
-			if err != nil {
-				return false, errors.Wrap(err, "fail to get iscustomoverlaypresent")
-			}
-			if iscustomoverlaypresent && !isManagementCluster {
-				log.Warning(constants.YTTBasedClusterWarning)
 			}
 
 			log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)

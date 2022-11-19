@@ -730,8 +730,8 @@ VSPHERE_VERSION:
 #! CORE_DNS_IP is the IP of core DNS service, supports both IPv4 and IPv6
 #! It is the 10th index of SERVICE_CIDR subnet
 CORE_DNS_IP:
-#! This defines feature flag package-based-lcm is enabled or not
-FEATURE_FLAG_PACKAGE_BASED_LCM:
+#! This defines feature flag package-based-cc is enabled or not
+FEATURE_FLAG_PACKAGE_BASED_CC:
 #! Used for testing clusterclasses only
 TKR_DATA:
 VSPHERE_CLUSTER_CLASS_VERSION: v1.0.0

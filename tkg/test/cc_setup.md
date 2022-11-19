@@ -10,11 +10,13 @@ export _MANAGEMENT_PACKAGE_REPO_IMAGE=gcr.io/eminent-nation-87317/tanzu_framewor
 export _MANAGEMENT_PACKAGE_VERSION=0.21.0
 ```
 
-- Make sure to enable the feature-flag for `package-based-lcm`
+- Make sure to enable the feature-flag for `package-based-cc`
 
 ```bash
-tanzu config set features.global.package-based-lcm-beta true
+tanzu config set features.management-cluster.package-based-cc true
 ```
+
+By default, it's true. You can check it use `tanzu config get`
 
 - Create aws management-cluster using existing VPC.
 

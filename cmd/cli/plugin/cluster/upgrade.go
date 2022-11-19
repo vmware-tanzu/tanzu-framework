@@ -164,8 +164,8 @@ func getValidTkrVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 		return "", err
 	}
 
-	// TODO: update this condition after CLI fully support the package based LCM.
-	// Since CLI should support the pre package-based-lcm where the updatesAvailable condition was part of
+	// TODO: update this condition after CLI fully support the package based cc.
+	// Since CLI should support the pre package-based-cc where the updatesAvailable condition was part of
 	// TKRs, code checking the TKRs for available upgrade should remain.
 	cluster, err := getClusterResource(clusterClient, clusterName, uc.namespace)
 	if err == nil && capiconditions.Has(cluster, runv1.ConditionUpdatesAvailable) {

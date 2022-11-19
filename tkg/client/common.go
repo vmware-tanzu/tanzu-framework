@@ -307,27 +307,72 @@ func (c *TkgClient) isCustomOverlayPresent() (bool, error) {
 	return providersChecksum == "" || providersChecksum != prePopulatedChecksumFromFile, nil
 }
 
+// Sets the appropriate AllowLegacyCluster configuration unless it has been explicitly overridden
+func (c *TkgClient) SetAllowLegacyClusterConfiguration() string {
+	var allowLegacyCluster string
+	value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+	if err != nil {
+		// ALLOW_LEGACY_CLUSTER doesn't be explicitly set in cluster config file
+		if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
+			// FeatureFlagAllowLegacyCluster disabled causes a cluster class cluster is created
+			allowLegacyCluster = "false"
+		} else {
+			// FeatureFlagAllowLegacyCluster enabled causes a legacy cluster is created
+			allowLegacyCluster = "true"
+		}
+		log.V(6).Infof("Setting %v to %q", constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
+		c.TKGConfigReaderWriter().Set(constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
+	} else {
+		log.V(6).Infof("Info: %v configuration already set to %q", constants.ConfigVariableAllowLegacyCluster, value)
+		// ALLOW_LEGACY_CLUSTER is explicitly set in cluster config file
+		allowLegacyCluster = value
+	}
+
+	return allowLegacyCluster
+}
+
 func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster bool) (bool, error) {
 	var isCustomOverlayPresent bool
+	var allowLegacyClusterCreated string
 	var err error
 
 	if isCustomOverlayPresent, err = c.isCustomOverlayPresent(); err != nil {
 		return false, err
 	}
 
-	featureFlagPackageBasedLCMEnabled := config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM)
-
-	// If `package-based-lcm` featureflag is enabled and deploying management cluster
+	// If deploying management cluster and `package-based-cc` featureflag is enabled
 	// Always use ClusterClass based Cluster deployment
-	if featureFlagPackageBasedLCMEnabled && isManagementCluster {
+	if isManagementCluster {
 		if isCustomOverlayPresent {
 			log.Warning("Warning: It seems like you have done some customizations to the template overlays. However, CLI might ignore those customizations when creating management-cluster.")
+		}
+		if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
+			return false, nil
 		}
 		return true, nil
 	}
 
-	deployClusterClassBasedCluster := config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) &&
-		(config.IsFeatureActivated(constants.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayPresent)
+	allowLegacyClusterCreated = c.SetAllowLegacyClusterConfiguration()
+	if allowLegacyClusterCreated == "false" {
+		// Return error if user has customized template overlays
+		// but the feature gate FeatureFlagAllowLegacyCluster or ALLOW_LEGACY_CLUSTER parameter is disabled for workload cluster
+		if isCustomOverlayPresent {
+			return false, errors.Errorf("It seems like you have done some customizations to the template overlays. However, the feature gate %v is %v. Please enabe it and try again", constants.FeatureFlagAllowLegacyCluster, allowLegacyClusterCreated)
+		} else {
+			// Deploy clusterclass based workload cluster when template overlays don't be customized
+			// and feature gate FeatureFlagAllowLegacyCluster or ALLOW_LEGACY_CLUSTER parameter is disabled
+			return true, nil
+		}
+	} else {
+		// Remind users the legacy mode will be deprecated in the feature,
+		// although we can create legacy based cluster, now.
+		log.Warning(constants.YTTBasedClusterWarning)
+	}
 
-	return deployClusterClassBasedCluster, nil
+	if config.IsFeatureActivated(constants.FeatureFlagForceDeployClusterWithClusterClass) {
+		return true, nil
+	} else {
+		return false, nil
+	}
+
 }

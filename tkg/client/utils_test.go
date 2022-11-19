@@ -198,7 +198,7 @@ var _ = Describe("Utils", func() {
 
 		Context("when feature flag is set to enable CC use", func() {
 			BeforeEach(func() {
-				featureFlagClient.FeatureValues[constants.FeatureFlagPackageBasedLCM] = true
+				featureFlagClient.FeatureValues[constants.FeatureFlagPackageBasedCC] = true
 			})
 
 			It("The cluster topology configuration is always set to true", func() {
@@ -223,7 +223,7 @@ var _ = Describe("Utils", func() {
 
 		Context("when feature flag is set to not enable CC use", func() {
 			BeforeEach(func() {
-				featureFlagClient.FeatureValues[constants.FeatureFlagPackageBasedLCM] = false
+				featureFlagClient.FeatureValues[constants.FeatureFlagPackageBasedCC] = false
 			})
 
 			Context("when CLUSTER_TOPOLOGY is explicitly overridden", func() {

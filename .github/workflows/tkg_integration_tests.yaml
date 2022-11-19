@@ -96,6 +96,10 @@ jobs:
     - name: Cleanup
       run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
 
+    - name: Build CLI
+      run: |
+        make install-cli
+
     - name: Run TKG integration tests
       run: |
         if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
@@ -184,6 +188,10 @@ jobs:
 
     - name: Cleanup
       run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
+
+    - name: Build CLI
+      run: |
+        make install-cli
 
     - name: Generate cluster prefix
       if: ${{ env.azure_client_id != '' }}

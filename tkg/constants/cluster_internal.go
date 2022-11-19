@@ -18,7 +18,7 @@ const (
 	ErrorMsgClusterExistsAlready    = "cluster with name %s already exists, please specify another name"
 	ErrorMsgClusterListError        = "unable to get list of workload clusters managed by current management cluster"
 
-	ErrorMsgCClassInputFeatureFlagDisabled = "input file is cluster class based but CLI feature flag '%v' is disabled, make sure its enabled to create cluster class based cluster"
+	ErrorMsgCClassInputFeatureFlagEnabled = "input file is cluster class based but CLI feature flag '%v' is enabled, make sure its disabled to create cluster class based cluster"
 
 	PacificGCMControllerDeployment = "vmware-system-tkg-controller-manager"
 	PacificGCMControllerNamespace  = "vmware-system-tkg"
