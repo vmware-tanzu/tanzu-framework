@@ -15,6 +15,7 @@ import (
 type ServerType string
 
 // ContextType is the type of the context (control plane).
+// TODO(anuj): Rename to Target
 type ContextType string
 
 const (
