@@ -110,3 +110,4 @@ stringData:
   value: #@ yaml.encode(core_management_plugins_package_install_definition())
 #@ end
 #@ end
+
