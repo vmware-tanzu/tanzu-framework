@@ -363,7 +363,6 @@ func setServers(node *yaml.Node, servers []*configapi.Server) error {
 	return nil
 }
 
-//nolint:gocyclo
 func setServer(node *yaml.Node, s *configapi.Server) (persist bool, err error) {
 	// Get Patch Strategies
 	patchStrategies, err := GetConfigMetadataPatchStrategy()
@@ -393,21 +392,13 @@ func setServer(node *yaml.Node, s *configapi.Server) (persist bool, err error) {
 		if index := nodeutils.GetNodeIndex(serverNode.Content, "name"); index != -1 &&
 			serverNode.Content[index].Value == s.Name {
 			exists = true
-			// merge only if updated server is not equal to an existing server
-			persist, err = nodeutils.NotEqual(newServerNode.Content[0], serverNode)
+			_, err = nodeutils.ReplaceNodes(newServerNode.Content[0], serverNode, nodeutils.WithPatchStrategyKey(KeyServers), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
 				return false, err
 			}
-			// replace and merge the nodes based on patch strategy
-			if persist {
-				err = nodeutils.ReplaceNodes(newServerNode.Content[0], serverNode, nodeutils.WithPatchStrategyKey(KeyServers), nodeutils.WithPatchStrategies(patchStrategies))
-				if err != nil {
-					return false, err
-				}
-				err = nodeutils.MergeNodes(newServerNode.Content[0], serverNode)
-				if err != nil {
-					return false, err
-				}
+			persist, err = nodeutils.MergeNodes(newServerNode.Content[0], serverNode)
+			if err != nil {
+				return false, err
 			}
 			// add or update discovery sources of server
 			persistDiscoverySources, err = setDiscoverySources(serverNode, s.DiscoverySources, nodeutils.WithPatchStrategyKey(fmt.Sprintf("%v.%v", KeyServers, KeyDiscoverySources)), nodeutils.WithPatchStrategies(patchStrategies))
@@ -415,7 +406,7 @@ func setServer(node *yaml.Node, s *configapi.Server) (persist bool, err error) {
 				return false, err
 			}
 			if persistDiscoverySources {
-				err = nodeutils.MergeNodes(newServerNode.Content[0], serverNode)
+				_, err = nodeutils.MergeNodes(newServerNode.Content[0], serverNode)
 				if err != nil {
 					return false, err
 				}

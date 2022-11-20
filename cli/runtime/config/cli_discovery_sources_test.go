@@ -222,7 +222,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			total: 2,
+			total: 3,
 		},
 		{
 			name: "success add default-local local",
@@ -235,7 +235,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			total: 2,
+			total: 3,
 		},
 	}
 	for _, spec := range tests {
@@ -579,7 +579,7 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 				},
 			},
 
-			totalSources: 2,
+			totalSources: 3,
 		},
 		{
 			name: "success update default",
@@ -594,7 +594,7 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 				},
 			},
 
-			totalSources: 2,
+			totalSources: 3,
 		},
 		{
 			name: "success update default-local",
@@ -609,7 +609,7 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 				},
 			},
 
-			totalSources: 2,
+			totalSources: 3,
 		},
 		{
 			name: "success add default",
@@ -667,7 +667,7 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			totalSources: 4,
+			totalSources: 5,
 		},
 	}
 	for _, spec := range tests {
@@ -680,7 +680,7 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 			if spec.totalSources != 0 {
 				sources, err := GetCLIDiscoverySources()
 				assert.NoError(t, err)
-				assert.Equal(t, len(sources), spec.totalSources)
+				assert.Equal(t, spec.totalSources, len(sources))
 			}
 		})
 	}
@@ -781,7 +781,7 @@ func TestSetCLIDiscoverySourceMultiTypes(t *testing.T) {
 					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			totalSources: 4,
+			totalSources: 5,
 		},
 	}
 	for _, spec := range tests {

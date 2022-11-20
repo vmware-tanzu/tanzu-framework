@@ -253,7 +253,6 @@ func setContexts(node *yaml.Node, contexts []*configapi.Context) (err error) {
 	return err
 }
 
-//nolint:gocyclo
 func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err error) {
 	// Get Patch Strategies from config metadata
 	patchStrategies, err := GetConfigMetadataPatchStrategy()
@@ -286,22 +285,14 @@ func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err erro
 		if index := nodeutils.GetNodeIndex(contextNode.Content, "name"); index != -1 &&
 			contextNode.Content[index].Value == ctx.Name {
 			exists = true
-			// check if the updated context is not same as exisiting context
-			persist, err = nodeutils.NotEqual(newContextNode.Content[0], contextNode)
+			// replace the nodes as per patch strategy
+			_, err = nodeutils.ReplaceNodes(newContextNode.Content[0], contextNode, nodeutils.WithPatchStrategyKey(KeyContexts), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
-				return persist, err
+				return false, err
 			}
-			// replace and merge the nodes only if the nodes are not equal
-			if persist {
-				// replace the nodes as per patch strategy
-				err = nodeutils.ReplaceNodes(newContextNode.Content[0], contextNode, nodeutils.WithPatchStrategyKey(KeyContexts), nodeutils.WithPatchStrategies(patchStrategies))
-				if err != nil {
-					return false, err
-				}
-				err = nodeutils.MergeNodes(newContextNode.Content[0], contextNode)
-				if err != nil {
-					return false, err
-				}
+			persist, err = nodeutils.MergeNodes(newContextNode.Content[0], contextNode)
+			if err != nil {
+				return false, err
 			}
 			persistDiscoverySources, err = setDiscoverySources(contextNode, ctx.DiscoverySources, nodeutils.WithPatchStrategyKey(fmt.Sprintf("%v.%v", KeyContexts, KeyDiscoverySources)), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
@@ -309,7 +300,7 @@ func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err erro
 			}
 			// merge the discovery sources to context
 			if persistDiscoverySources {
-				err = nodeutils.MergeNodes(newContextNode.Content[0], contextNode)
+				_, err = nodeutils.MergeNodes(newContextNode.Content[0], contextNode)
 				if err != nil {
 					return false, err
 				}

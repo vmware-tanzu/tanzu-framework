@@ -266,7 +266,7 @@ discoverySources:
 			assert.NoError(t, err)
 
 			// Perform action
-			err = ReplaceNodes(&src, &dst, WithPatchStrategyKey("contexts"), WithPatchStrategies(spec.metadata))
+			_, err = ReplaceNodes(&src, &dst, WithPatchStrategyKey("contexts"), WithPatchStrategies(spec.metadata))
 			assert.NoError(t, err)
 
 			// Assert outcome

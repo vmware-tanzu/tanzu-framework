@@ -308,7 +308,7 @@ func TestMergeNode(t *testing.T) {
 
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
-			err := MergeNodes(spec.src, spec.dst)
+			_, err := MergeNodes(spec.src, spec.dst)
 			assert.NoError(t, err)
 			node := FindNode(spec.dst.Content[0], spec.opts)
 			assert.NotNil(t, node)

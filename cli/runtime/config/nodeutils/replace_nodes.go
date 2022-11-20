@@ -12,12 +12,21 @@ import (
 )
 
 // ReplaceNodes replace nodes in dst as per patchStrategy prior performing merge
-func ReplaceNodes(src, dst *yaml.Node, opts ...PatchStrategyOpts) error {
+func ReplaceNodes(src, dst *yaml.Node, opts ...PatchStrategyOpts) (bool, error) {
+	// only replace if the change is not equal to existing
+	replaceUnequalObjects, err := NotEqual(src, dst)
+	if err != nil {
+		return false, err
+	}
+	if !replaceUnequalObjects {
+		return replaceUnequalObjects, nil
+	}
+
 	options := &PatchStrategyOptions{}
 	for _, opt := range opts {
 		opt(options)
 	}
-	return replaceNodes(src, dst, options.Key, options.PatchStrategies)
+	return replaceUnequalObjects, replaceNodes(src, dst, options.Key, options.PatchStrategies)
 }
 
 func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies map[string]string) error {
@@ -49,7 +58,7 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 				}
 
 				if err := replaceNodes(src.Content[j+1], dst.Content[i+1], key, patchStrategies); err != nil {
-					return errors.New("at key " + src.Content[i].Value + ": " + err.Error())
+					return errors.New("replace at key " + src.Content[i].Value + ": " + err.Error())
 				}
 				key = patchStrategyKey
 				break
@@ -70,7 +79,7 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 	case yaml.DocumentNode:
 		err := replaceNodes(src.Content[0], dst.Content[0], patchStrategyKey, patchStrategies)
 		if err != nil {
-			return errors.New("at key " + src.Content[0].Value + ": " + err.Error())
+			return errors.New("replace at key " + src.Content[0].Value + ": " + err.Error())
 		}
 	default:
 		return errors.New("can only merge mapping nodes")
