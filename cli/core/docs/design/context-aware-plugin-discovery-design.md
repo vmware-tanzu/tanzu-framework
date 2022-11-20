@@ -1,4 +1,4 @@
-# Context-aware API-driven Plugin Discovery
+# Contexts, Targets and Plugin Discovery
 
 ## Abstract
 
@@ -10,6 +10,7 @@ The Tanzu CLI is an amalgamation of all the Tanzu infrastructure elements under 
 - Service - Any tanzu service, user-managed or SaaS. E.g., TKG, TCE, TMC, etc
 - Server - An instance of service. E.g., A single TKG management-cluster, a specific TMC endpoint, etc.
 - Context - an isolated scope of relevant client-side configurations for a combination of user identity and server identity. There can be multiple contexts for the same combination of {user, server}. This is currently referred to as `Server` in the Tanzu CLI, which can also mean an instance of a service. Hence, we shall use `Context` to avoid confusion.
+- Target - a top level entity used to make the control plane, that a user is interacting against, more explicit in command invocations.
 - Plugin - A scoped piece of functionality that can be used to extend the CLI. Usually refers to a single binary that is invoked by the root Tanzu CLI.
 - Scope - the context association level of a plugin
 - standalone - independent of the CLI context
@@ -163,6 +164,16 @@ type Discovered struct {
     // discovered.
     Source string
 
+    // ServerName is the name of the server from where the plugin was discovered.
+    ServerName string
+
+    // DiscoveryType defines the type of the discovery. Possible values are
+    // oci, local or kubernetes
+    DiscoveryType string
+
+    // Target defines the target to which this plugin is applicable to
+    Target cliv1alpha1.Target
+
     // Status is the installed/uninstalled status of the plugin.
     Status string
 }
@@ -170,9 +181,9 @@ type Discovered struct {
 
 ### Installation Directory Structure
 
-The plugin installations shall be organized similar to the structure of the Golang modules cache. The installation path is, ${InstallationRoot}/${PluginName}/${Version}@${Digest}. This has the following advantages,
+The plugin installations shall be organized similar to the structure of the Golang modules cache.
+The installation path is, ${InstallationRoot}/${PluginName}/${Version}_${sha256}_${target}. This has the following advantages,
 
-- If the same plugin binary is available for different contexts/services, it need not be re-downloaded as long as they have the same version. E.g., package-v0.3.1 for TCE and TKG
 - Local or development plugins can be handled similar to downloaded ones because the digest shall be different.
 - In case a plugin image is copied to a new repository, the binary need not be re-downloaded, since the digest will be the same.
 - Easy to look-up all the installed versions for a given plugin.
@@ -184,22 +195,20 @@ $ tree $HOME/Library/ApplicationSupport/tanzu-cli/
 
 /Users/anujc/Library/ApplicationSupport/tanzu-cli/
 ├── builder
-│   ├── dev@sha256:...
-│   └── v1.4.0@sha256:...
+│   ├── dev_6682658a8c08dc2c6228d74cd6cca9e3e539d32c8a00a7a33ea15f6bdeb3ded2_
+│   └── v1.4.0_<sha256...>_<target>
 ├── cluster
-│   ├── v0.3.1@sha256:...
-│   ├── v1.3.1@sha256:...
-│   └── v1.4.0@sha256:...
+│   ├── v0.3.1_e9af6d713c611128dce411dd44541a95a73688592edb6eba2f4ecff7c7a7ca97_k8s
+│   ├── v1.3.1_a9af6d713c611128dce411dd44541a95a73688592edb6eba2f4ecff7c7a7ca97_k8s
+│   └── v1.4.0_b9af6d713c611128dce411dd44541a95a73688592edb6eba2f4ecff7c7a7ca97_tmc
 ├── login
-│   └── v1.3.1@sha256:...
+│   └── v1.3.1_c9af6d713c611128dce411dd44541a95a73688592edb6eba2f4ecff7c7a7ca97_
 ├── management-cluster
-│   └── v0.3.2@sha256:...
+│   └── v0.3.2_d9af6d713c611128dce411dd44541a95a73688592edb6eba2f4ecff7c7a7ca97_k8s
 └── package
-    ├── v1.4.0@sha256:...
-    └── v0.4.1-pre@sha256:...
+    ├── v1.4.0_f9af6d713c611128dce411dd44541a95a73688592edb6eba2f4ecff7c7a7ca97_k8s
+    └── v0.4.1-pre_g9af6d713c611128dce411dd44541a95a73688592edb6eba2f4ecff7c7a7ca97_k8s
 ```
-
-Note: For MVP we will not be having sha256 digest and binary will look like `v0.3.0`.
 
 ### Installed Plugin
 
@@ -220,7 +229,8 @@ type PluginDescriptor struct {
 
 ### Context-mapping
 
-The plugin descriptors are stored in the catalog cache, ${HOME}/.cache/tanzu/catalog.yaml, which is looked up on invocation of every tanzu CLI command. Currently, this is a plain list with one entry for each installed plugin. To build a well-defined context aware CLI solution this object needs the following changes,
+The plugin descriptors are stored in the catalog cache, ${HOME}/.cache/tanzu/catalog.yaml, which is looked up on invocation of every tanzu CLI command.
+Catalog contains following information for the installed plugins.
 
 - Index the installations by path to easily look up the PluginDescriptors
 - Map the set of relevant plugin installations to a specific context or to be standalone to display only available plugins for a context (in case of a name conflict between standalone and context-scoped plugins the context-scoped plugin takes precedence)
@@ -228,7 +238,7 @@ The plugin descriptors are stored in the catalog cache, ${HOME}/.cache/tanzu/cat
 Note: Similar to the go modules we propose to set only read and executable permissions on the installations to discourage the user from deleting an installation which can break the index.
 
 ```go
-// PluginAssociation is a set of plugin names and their associated installation paths.
+// PluginAssociation is a set of plugin names-target and their associated installation paths.
 type PluginAssociation map[string]string
 
 // Catalog denotes a collection of installed Tanzu CLI plugins.
@@ -293,12 +303,12 @@ Plugin list will display plugins from the default discovery source.
 
 ```sh
 $ tanzu plugin list
-  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY             VERSION      STATUS
-  login               Login to the platform                                              Standalone  default               v0.11.0-dev  not installed
-  management-cluster  Kubernetes management-cluster operations                           Standalone  default               v0.11.0-dev  not installed
-  package             Tanzu package management                                           Standalone  default               v0.11.0-dev  not installed
-  pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default               v0.11.0-dev  not installed
-  secret              Tanzu secret management                                            Standalone  default               v0.11.0-dev  not installed
+  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY   TARGET  VERSION      STATUS
+  login               Login to the platform                                              Standalone  default             v0.11.0-dev  not installed
+  management-cluster  Kubernetes management-cluster operations                           Standalone  default     k8s     v0.11.0-dev  not installed
+  package             Tanzu package management                                           Standalone  default     k8s     v0.11.0-dev  not installed
+  pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default             v0.11.0-dev  not installed
+  secret              Tanzu secret management                                            Standalone  default     k8s     v0.11.0-dev  not installed
 ```
 
 Run sync command to download the latest version of all plugins
@@ -316,21 +326,23 @@ Installing plugin 'secret' ...
 
 ```sh
 $ tanzu plugin list
-  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY             VERSION      STATUS
-  login               Login to the platform                                              Standalone  default               v0.11.0-dev  installed
-  management-cluster  Kubernetes management-cluster operations                           Standalone  default               v0.11.0-dev  installed
-  package             Tanzu package management                                           Standalone  default               v0.11.0-dev  installed
-  secret              Tanzu secret management                                            Standalone  default               v0.11.0-dev  installed
+  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY   TARGET  VERSION      STATUS
+  login               Login to the platform                                              Standalone  default             v0.11.0-dev  installed
+  management-cluster  Kubernetes management-cluster operations                           Standalone  default     k8s     v0.11.0-dev  installed
+  package             Tanzu package management                                           Standalone  default     k8s     v0.11.0-dev  installed
+  secret              Tanzu secret management                                            Standalone  default     k8s     v0.11.0-dev  installed
 ```
 
 ### Context Creation
 
 #### With new install
 
-Creating a new server context will discover all available plugins from the default source for the server and will download only the required plugins.
+Creating a new context will discover all available plugins from the context and will download them.
 
 ```sh
-$ tanzu login --context ~/.kube/vsphere-mc-1 --name vsphere-mc-1
+tanzu login --kubeconfig path/to/kubeconfig --context context-name --name vsphere-mc-1
+# or
+$ tanzu context create --management-cluster --kubeconfig path/to/kubeconfig --context path/to/context --name vsphere-mc-1
 ✓ Successfully logged into the management cluster vsphere-mc-1
 
 Checking for required plugins ...
@@ -340,25 +352,38 @@ Downloading plugin 'kubernetes-release' ...
 ✓ Done
 ```
 
-Plugin list will display plugins from standalone as well context-scoped discovery sources.
+`tanzu plugin list` will display all standalone plugins as well as context-scoped plugins from all active contexts.
+There can be one active context per target.
+
+Assume below configuration as part of the config file where there is one active context for both the supported targets.
+`tanzu plugin list` should discover and show plugins from both the contexts.
+
+```yaml
+currentContext:
+  k8s: vsphere-mc-1
+  tmc: tmc-unstable
+```
 
 ```sh
 $ tanzu plugin list
-  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY             VERSION      STATUS
-  cluster             Kubernetes cluster operations                                      Context     default-vsphere-mc-1  v0.11.0-dev  installed
-  kubernetes-release  Kubernetes release operations                                      Context     default-vsphere-mc-1  v0.11.0-dev  installed
-  login               Login to the platform                                              Standalone  default               v0.11.0-dev  installed
-  management-cluster  Kubernetes management-cluster operations                           Standalone  default               v0.11.0-dev  installed
-  package             Tanzu package management                                           Standalone  default               v0.11.0-dev  installed
-  secret              Tanzu secret management                                            Standalone  default               v0.11.0-dev  installed
+  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY              TARGET  VERSION      STATUS
+  cluster             Kubernetes cluster operations                                      Context     default-vsphere-mc-1   k8s     v0.11.0-dev  installed
+  kubernetes-release  Kubernetes release operations                                      Context     default-vsphere-mc-1   k8s     v0.11.0-dev  installed
+  login               Login to the platform                                              Standalone  default                        v0.11.0-dev  installed
+  management-cluster  Kubernetes management-cluster operations                           Standalone  default                k8s     v0.11.0-dev  installed
+  package             Tanzu package management                                           Standalone  default                k8s     v0.11.0-dev  installed
+  secret              Tanzu secret management                                            Standalone  default                k8s     v0.11.0-dev  installed
+  iam                 Identity management operations                                     Context     default-tmc-unstable   tmc     v0.1.0       installed
 ```
 
 #### No new install
 
-Creating a new similar server context will discover all available plugins from the default source for the server and will download only the required plugins that are not already installed.
+Creating a new similar context will discover all available plugins from new context and will download them that are not already installed.
 
 ```sh
-$ tanzu login --context ~/.kube/vsphere-mc-2 --name vsphere-mc-2
+tanzu login --kubeconfig path/to/kubeconfig --context context-name --name vsphere-mc-2
+# or
+$ tanzu context create --management-cluster --kubeconfig path/to/kubeconfig --context path/to/context --name vsphere-mc-2
 ✓ Successfully logged into the management cluster vsphere-mc-2
 
 Checking for required plugins ...
@@ -402,14 +427,15 @@ Downloading ‘cluster’ plugin ...
 
 ```sh
 $ tanzu plugin list
-  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY             VERSION      STATUS
-  cluster             Kubernetes cluster operations                                      Context     default-vsphere-mc-1  v0.11.0-dev  installed
-  kubernetes-release  Kubernetes release operations                                      Context     default-vsphere-mc-1  v0.11.0-dev  installed
-  login               Login to the platform                                              Standalone  default               v0.11.0-dev  installed
-  management-cluster  Kubernetes management-cluster operations                           Standalone  default               v0.11.0-dev  installed
-  package             Tanzu package management                                           Standalone  default               v0.11.0-dev  installed
-  pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default               v0.11.0-dev  installed
-  secret              Tanzu secret management                                            Standalone  default               v0.11.0-dev  installed
+  NAME                DESCRIPTION                                                        SCOPE       DISCOVERY             TARGET  VERSION      STATUS
+  cluster             Kubernetes cluster operations                                      Context     default-vsphere-mc-1  k8s     v0.11.0-dev  installed
+  kubernetes-release  Kubernetes release operations                                      Context     default-vsphere-mc-1  k8s     v0.11.0-dev  installed
+  login               Login to the platform                                              Standalone  default                       v0.11.0-dev  installed
+  management-cluster  Kubernetes management-cluster operations                           Standalone  default               k8s     v0.11.0-dev  installed
+  package             Tanzu package management                                           Standalone  default               k8s     v0.11.0-dev  installed
+  pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default                       v0.11.0-dev  installed
+  secret              Tanzu secret management                                            Standalone  default               k8s     v0.11.0-dev  installed
+  iam                 Identity management operations                                     Context     default-tmc-unstable  tmc     v0.1.0       installed
 ```
 
 ### Development Plugins
@@ -426,22 +452,22 @@ To install the plugin with local source, download the plugin `tar.gz` from the r
 
   ```sh
   $ tanzu plugin list
-    NAME                DESCRIPTION                                                        SCOPE       DISCOVERY  VERSION      STATUS
-    login               Login to the platform                                              Standalone  default    v0.13.0-dev  not installed
-    management-cluster  Kubernetes management-cluster operations                           Standalone  default    v0.13.0-dev  not installed
-    package             Tanzu package management                                           Standalone  default    v0.13.0-dev  not installed
-    pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default    v0.13.0-dev  not installed
-    secret              Tanzu secret management                                            Standalone  default    v0.13.0-dev  not installed
+    NAME                DESCRIPTION                                                        SCOPE       DISCOVERY  TARGET  VERSION      STATUS
+    login               Login to the platform                                              Standalone  default            v0.13.0-dev  not installed
+    management-cluster  Kubernetes management-cluster operations                           Standalone  default    k8s     v0.13.0-dev  not installed
+    package             Tanzu package management                                           Standalone  default    k8s     v0.13.0-dev  not installed
+    pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default            v0.13.0-dev  not installed
+    secret              Tanzu secret management                                            Standalone  default    k8s     v0.13.0-dev  not installed
   ```
 
 - List the plugins with `--local` pointing to local plugin directory: Lists only available plugins from given local file path
 
   ```sh
   $ tanzu plugin list --local /tmp/admin/tanzu-plugins/
-    NAME     DESCRIPTION                 SCOPE       DISCOVERY  VERSION      STATUS
-    builder  Build Tanzu components      Standalone             v0.13.0-dev  not installed
-    codegen  Tanzu code generation tool  Standalone             v0.13.0-dev  not installed
-    test     Test the CLI                Standalone             v0.13.0-dev  not installed
+    NAME     DESCRIPTION                 SCOPE       DISCOVERY  TARGET  VERSION      STATUS
+    builder  Build Tanzu components      Standalone                     v0.13.0-dev  not installed
+    codegen  Tanzu code generation tool  Standalone                     v0.13.0-dev  not installed
+    test     Test the CLI                Standalone                     v0.13.0-dev  not installed
   ```
 
 - Install plugins `--local` flag: Only installs plugins from given local file path and doesn't install plugins from default OCI registry
@@ -459,15 +485,15 @@ To install the plugin with local source, download the plugin `tar.gz` from the r
 
   ```sh
   $ tanzu plugin list
-    NAME                DESCRIPTION                                                        SCOPE       DISCOVERY  VERSION      STATUS
-    login               Login to the platform                                              Standalone  default    v0.13.0-dev  not installed
-    management-cluster  Kubernetes management-cluster operations                           Standalone  default    v0.13.0-dev  not installed
-    package             Tanzu package management                                           Standalone  default    v0.13.0-dev  not installed
-    pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default    v0.13.0-dev  not installed
-    secret              Tanzu secret management                                            Standalone  default    v0.13.0-dev  not installed
-    builder             Build Tanzu components                                             Standalone             v0.13.0-dev  installed
-    codegen             Tanzu code generation tool                                         Standalone             v0.13.0-dev  installed
-    test                Test the CLI                                                       Standalone             v0.13.0-dev  installed
+    NAME                DESCRIPTION                                                        SCOPE       DISCOVERY  TARGET  VERSION      STATUS
+    login               Login to the platform                                              Standalone  default            v0.13.0-dev  not installed
+    management-cluster  Kubernetes management-cluster operations                           Standalone  default    k8s     v0.13.0-dev  not installed
+    package             Tanzu package management                                           Standalone  default    k8s     v0.13.0-dev  not installed
+    pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default            v0.13.0-dev  not installed
+    secret              Tanzu secret management                                            Standalone  default    k8s     v0.13.0-dev  not installed
+    builder             Build Tanzu components                                             Standalone                     v0.13.0-dev  installed
+    codegen             Tanzu code generation tool                                         Standalone                     v0.13.0-dev  installed
+    test                Test the CLI                                                       Standalone                     v0.13.0-dev  installed
   ```
 
 - List plugins with `--local` that are discovered with default discovery. Let's assume `/tmp/default-package-secret/tanzu-plugins/` contains `package` and `secret` plugins
@@ -494,15 +520,15 @@ To install the plugin with local source, download the plugin `tar.gz` from the r
 
   ```sh
   $ tanzu plugin list
-    NAME                DESCRIPTION                                                        SCOPE       DISCOVERY  VERSION      STATUS
-    login               Login to the platform                                              Standalone  default    v0.13.0-dev  not installed
-    management-cluster  Kubernetes management-cluster operations                           Standalone  default    v0.13.0-dev  not installed
-    package             Tanzu package management                                           Standalone  default    v0.12.0-dev  update available
-    pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default    v0.13.0-dev  not installed
-    secret              Tanzu secret management                                            Standalone  default    v0.13.0-dev  installed
-    builder             Build Tanzu components                                             Standalone             v0.13.0-dev  installed
-    codegen             Tanzu code generation tool                                         Standalone             v0.13.0-dev  installed
-    test                Test the CLI                                                       Standalone             v0.13.0-dev  installed
+    NAME                DESCRIPTION                                                        SCOPE       DISCOVERY  TARGET  VERSION      STATUS
+    login               Login to the platform                                              Standalone  default            v0.13.0-dev  not installed
+    management-cluster  Kubernetes management-cluster operations                           Standalone  default    k8s     v0.13.0-dev  not installed
+    package             Tanzu package management                                           Standalone  default    k8s     v0.12.0-dev  update available
+    pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default            v0.13.0-dev  not installed
+    secret              Tanzu secret management                                            Standalone  default    k8s     v0.13.0-dev  installed
+    builder             Build Tanzu components                                             Standalone                     v0.13.0-dev  installed
+    codegen             Tanzu code generation tool                                         Standalone                     v0.13.0-dev  installed
+    test                Test the CLI                                                       Standalone                     v0.13.0-dev  installed
   ```
 
 - Running `tanzu plugin sync` will sync all the plugins that can be discovered with the discovery. In this case, `login`, `management-cluster`, `pinniped-auth` will get installed. `package` plugin will get updated to newly available version. `secret` plugin installation will be skipped as no new version is available. And `builder`, `codegen`, `test` plugins will not get considered with sync command as there is no `discovery` source associated with this plugins
@@ -523,12 +549,12 @@ To install the plugin with local source, download the plugin `tar.gz` from the r
 
   ```sh
   $ tanzu plugin list
-    NAME                DESCRIPTION                                                        SCOPE       DISCOVERY  VERSION      STATUS
-    login               Login to the platform                                              Standalone  default    v0.13.0-dev  not installed
-    management-cluster  Kubernetes management-cluster operations                           Standalone  default    v0.13.0-dev  not installed
-    package             Tanzu package management                                           Standalone  default    v0.13.0-dev  not installed
-    pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default    v0.13.0-dev  not installed
-    secret              Tanzu secret management                                            Standalone  default    v0.13.0-dev  not installed
+    NAME                DESCRIPTION                                                        SCOPE       DISCOVERY  TARGET  VERSION      STATUS
+    login               Login to the platform                                              Standalone  default            v0.13.0-dev  not installed
+    management-cluster  Kubernetes management-cluster operations                           Standalone  default    k8s     v0.13.0-dev  not installed
+    package             Tanzu package management                                           Standalone  default    k8s     v0.13.0-dev  not installed
+    pinniped-auth       Pinniped authentication operations (usually not directly invoked)  Standalone  default            v0.13.0-dev  not installed
+    secret              Tanzu secret management                                            Standalone  default    k8s     v0.13.0-dev  not installed
   ```
 
 ### Image Repository Override for OCI distribution with K8s discovery

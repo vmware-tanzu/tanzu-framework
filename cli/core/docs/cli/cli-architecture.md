@@ -8,9 +8,7 @@ _Plugin_ - The CLI consists of plugins, each being a cmd developed in Go and con
 
 _Context_ - An isolated scope of relevant client-side configurations for a combination of user identity and server identity.
 
-_Target_ - Target is a top level entity used to make the control plane or the context type, that a user is interacting against, more explicit in command invocations.
-
-_Repository_ - Represents a group of plugin artifacts that are installable by the Tanzu CLI.
+_Target_ - Target is a top level entity used to make the control plane, that a user is interacting against, more explicit in command invocations.
 
 _DiscoverySource_ - Represents a group of plugin artifacts and their distribution details that are installable by the Tanzu CLI.
 
@@ -26,144 +24,23 @@ _Builder_ - Builder scaffolds CLI plugins repositories and new plugins. Builds C
 
 The CLI is based on a plugin architecture. This architecture enables teams to build, own, and release their own piece of functionality as well as enable external partners to integrate with the system.
 
-### Current implementations
+There are two category of plugins that are determined based on Plugin Discovery. Standalone Plugins and Context-Scoped Plugins
 
-* Main Tanzu Framework plugins
-  * Plugins required to provide the base functionality for the Tanzu CLI.
-* Admin plugins
-  * Plugins for creating, managing and testing plugins.
-* Non-core plugins
-  * Optional plugins developed by any non-TKG team.
+## Plugin Discovery
 
-## Plugin Repositories
+A plugin discovery points to a group of plugin artifacts that are installable by the Tanzu CLI. It uses an interface to fetch the list of available plugins, their supported versions and how to download them.
 
-NOTE: This is not applicable if [context-aware plugin discovery](../design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
+There are two types of plugin discovery: Standalone Discovery and Context-Scoped Discovery.
 
-A plugin repository represents a group of plugin artifacts that are installable by the Tanzu CLI. A repository is defined as an interface to be implemented by multiple backends like:
+Standalone Discovery: Independent of the CLI context. E.g. OCI based plugin discovery not associated with any context
 
-* Local filesystem: Your local filesystem can contain a plugin repository, which is particularly useful for development.
-* GCP bucket: Published plugins reside in a GCP bucket with a simple manifest.yaml to describe the contents and versions.
-* TKG Cluster: We are moving toward a model which will provide plugins as an API, packaged as [imgpkg](https://carvel.dev/imgpkg/) bundles.
+Context-Scoped Discovery - Associated with a context (generally active context) E.g., the CLIPlugin API in a kubernetes cluster
 
-Our production plugin artifacts currently come from GCP buckets and every commit to main will produce a set of dev tag plugin to GCP buckets.
+Standalone Plugins: Plugins that are discovered through standalone discovery source
 
-Developers of plugins will typically use the local filesystem repository in the creation and testing of their feature.
+Context-Scoped Plugins: Plugins that are discovered through context-scoped discovery source
 
-Releases of plugins are released as tarballs. *Users who installed a versioned tarball release of the CLI are discouraged from consuming plugins directly from buckets.*
-
-The CLI supports multiple repositories. Every plugin source repository produces one or more artifact repositories. During initialization, the CLI stores the known Tanzu repositories in the local config file.
-
-A user can execute to add a repository to the config:
-
-```sh
-tanzu plugin repo add -b mybucket -p mypath
-```
-
-Then when a user executes:
-
-```sh
-tanzu plugin list
-```
-
-It will list the plugins from all of the repositories found in the local config file.
-
-To describe a plugin in a repository use:
-
-```sh
-tanzu plugin describe <plugin-name>
-```
-
-To see specific plugin information:
-
-```sh
-tanzu <plugin> info
-```
-
-To remove a plugin:
-
-```sh
-tanzu plugin delete <plugin-name>
-```
-
-This will list all versions of the plugin along with its description.
-
-## Context
-
-Context is an isolated scope of relevant client-side configurations for a combination of user identity and server identity. There can be multiple contexts for the same combination of `(user, server)`. Previously, this was referred to as `Server` in the Tanzu CLI. Going forward we shall refer to them as `Context` to be explicit. Also, the context can be managed at one place using the `tanzu context` command. Earlier, this was distributed between the `tanzu login` command and `tanzu config server` command.
-
-Note: This is currently behind a feature flag. To enable the flag please run `tanzu config set features.global.context-target true`
-
-Create a new context:
-
-```sh
-# Deprecated: Login to TKG management cluster by using kubeconfig path and context for the management cluster
-tanzu login --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
-
-# New Command
-tanzu context create --management-cluster --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
-```
-
-List known contexts:
-
-```sh
-# Deprecated
-tanzu config server list
-
-# New Command
-tanzu context list
-```
-
-Delete a context:
-
-```sh
-# Deprecated
-tanzu config server delete demo-cluster
-
-# New Command
-tanzu context delete demo-cluster
-```
-
-Use a context:
-
-```sh
-# Deprecated
-tanzu login mgmt-cluster
-
-# New Command
-tanzu context use mgmt-cluster
-```
-
-## Target
-
-The Tanzu CLI supports two targets (context types): `kubernetes`, `mission-control`. This is currently backwards compatible, i.e., the plugins are still available at the root level. In addition to that, we also have contextual plugins grouped under the target.
-
-List TKG workload clusters:
-
-```sh
-# Without target grouping (a TKG management cluster is set as the current active server)
-tanzu cluster list
-
-# With target grouping
-tanzu kubernetes cluster list
-```
-
-List TMC workload clusters:
-
-```sh
-# Without target grouping (a TMC server is set as the current active server)
-tanzu cluster list
-
-# With target grouping
-tanzu mission-control cluster list
-```
-
-## Plugin Discovery Sources
-
-NOTE: This is applicable only if [context-aware plugin discovery](../design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
-
-Discovery is the interface to fetch the list of available plugins, their supported versions and how to download them either standalone or scoped to a context(server). E.g., the CLIPlugin API in a management cluster, OCI based plugin discovery for standalone plugins, a similar REST API and a manifest file in GCP based discovery, etc. (API is defined [here](../../../../apis/config/v1alpha1/clientconfig_types.go)) Unsupported plugins and plugin versions are not returned by the interface. Having a separate interface for discovery helps to decouple discovery (which is usually tied to a server or user identity) from distribution (which can be shared).
-
-The initial proposal of `tanzu plugin source` commands are global (applies for standalone plugin discovery), but if some point in the future (if we get a good use case) we can add a flag for scoping discovery source to a specific context as well.
+The `tanzu plugin source` command is applicable to standalone plugin discovery only.
 
 Adding discovery sources to tanzu configuration file:
 
@@ -214,9 +91,118 @@ clientOptions:
         image: projects.registry.vmware.com/tkg/tanzu-plugins/standalone:v1.0
 ```
 
+To list all the available plugin that are getting discovered:
+
+```sh
+tanzu plugin list
+```
+
+It will list the plugins from all the discoveries found in the local config file.
+
+To describe a plugin use:
+
+```sh
+tanzu plugin describe <plugin-name>
+```
+
+To see specific plugin information:
+
+```sh
+tanzu <plugin> info
+```
+
+To remove a plugin:
+
+```sh
+tanzu plugin delete <plugin-name>
+```
+
+## Context
+
+Context is an isolated scope of relevant client-side configurations for a combination of user identity and server identity.
+There can be multiple contexts for the same combination of `(user, server)`. Previously, this was referred to as `Server` in the Tanzu CLI.
+Going forward we shall refer to them as `Context` to be explicit. Also, the context can be managed at one place using the `tanzu context` command.
+Earlier, this was distributed between the `tanzu login` command and `tanzu config server` command.
+
+Each `Context` is associated with a `Target` which is used to determine which the control-plane(target) that context is applicable.
+More details regarding Target is available in next section.
+
+Note: This is currently behind a feature flag. To enable the flag please run `tanzu config set features.global.context-target true`
+
+Create a new context:
+
+```sh
+# Deprecated: Login to TKG management cluster by using kubeconfig path and context for the management cluster
+tanzu login --kubeconfig path/to/kubeconfig --context context-name --name mgmt-cluster
+
+# New Command
+tanzu context create --management-cluster --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
+```
+
+List known contexts:
+
+```sh
+# Deprecated
+tanzu config server list
+
+# New Command
+tanzu context list
+```
+
+Delete a context:
+
+```sh
+# Deprecated
+tanzu config server delete demo-cluster
+
+# New Command
+tanzu context delete demo-cluster
+```
+
+Use a context:
+
+```sh
+# Deprecated
+tanzu login mgmt-cluster
+
+# New Command
+tanzu context use mgmt-cluster
+```
+
+## Target
+
+Target is a top level entity used to make the control plane, that a user is interacting against, more explicit in command invocations.
+This is done by creating a separate target specific command under root level command for Tanzu CLI. e.g. `tanzu <target>`
+
+The Tanzu CLI supports two targets: `kubernetes`, `mission-control`. This is currently backwards compatible, i.e., the plugins are still available at the root level.
+
+Target of a plugin is determined differently for Standalone Plugins and Context-Scoped plugins.
+
+For Standalone Plugins, the target is determined based on `target` field defined in `CLIPlugin` CR as part of the discovery API.
+
+For Context-scoped Plugins, the target is determined based on the `target` associated with Context itself.
+E.g. all plugins discovered through the Context `test-context` will have the same target that is associated with the `test-context`.
+
+List TKG workload clusters using `cluster` plugin associated with `kubernetes` target:
+
+```sh
+# Without target grouping (a TKG management cluster is set as the current active server)
+tanzu cluster list
+
+# With target grouping
+tanzu kubernetes cluster list
+```
+
+List TMC workload clusters using `cluster` plugin associated with `tmc` target:
+
+```sh
+# With target grouping
+tanzu mission-control cluster list
+```
+
 ## Catalog
 
-A catalog holds the information of all currently installed plugins on a host OS. Plugins are currently stored in $XDG_DATA_HOME/tanzu-cli. Plugins are self-describing and every plugin automatically implements a set of hidden commands.
+A catalog holds the information of all currently installed plugins on a host OS. Plugins are currently stored in $XDG_DATA_HOME/tanzu-cli. Plugins are self-describing and every plugin automatically implements a set of default hidden commands.
 
 ```sh
 tanzu cluster info
@@ -228,42 +214,17 @@ Will output the descriptor for that plugin in json format, eg:
 {"name":"cluster","description":"Kubernetes cluster operations","version":"v0.0.1","buildSHA":"7e9e562-dirty","group":"Run"}
 ```
 
-The catalog builds itself by executing the info command on all of the binaries found in the configured XDG directory. This data is cached and this cache is managed by the CLI machinery.
-
-Catalogs offer the ability to install a plugin for any given repo or set of repos. As well as updating any plugin for any given a repository.
-
-```sh
-tanzu plugin install serverless
-```
-
-```sh
-tanzu plugin update serverless
-```
-
-Catalogs also contain the notion of a set of plugins called a distribution. A distribution is simply a set of plugins that may exist across multiple repositories. The CLI currently contains a default distribution which is the default set of plugins that should be installed on initialization. This is done so that the CLI can be easily tailored to specific company or persona needs.
-
-The above initialization process can be bypassed by setting `TANZU_CLI_NO_INIT=true` during runtime or with a linker flag during build time.
-
-## Components
-
-CLI components aim to be the [Clarity of CLIs](https://clarity.design/), providing a common set of reusable functionality for plugin implementations. By standardizing on these components we ensure consistent UX throughout the product and make it easy to make changes to the experience across all plugins.
-
-Currently implemented components:
-
-* Prompt
-* Select
-* Table printing
-* Question
+The catalog gets built while installing or upgrading any plugins by executing the info command on the binaries.
 
 ## Execution
 
-When the root command is executed it gathers the plugin descriptors from all the binaries in the plugin directory and builds cobra commands for each one. For installation, for each configured repository the plugin manifest is consumed to provide install and version information. Once installed, the plugins are saved to a local PluginDescriptor cache. This cache is what is referenced during tanzu plugin list, as well.
+When the root `tanzu` command is executed it gathers the plugin descriptors from the catalog for all the installed plugins and builds cobra commands for each one.
 
-Those commands are added to the root command alongside any commands in the core binary. Each cobra command simply executes the binary its associated with and passes along stdout/in/err and any environment variables.
+When this plugin specific commands are invoked, Core CLI simply executes the plugin binary for the associated plugins and passes along stdout/in/err and any environment variables.
 
 ## Versioning
 
-By default versioning is handled by the git tags for the repo in which the plugins are located. If no tag is present the version defaults to ‘dev’, versions can be overridden by setting the version field in the plugin descriptor.
+By default, versioning is handled by the git tags for the repo in which the plugins are located. Versions can be overridden by setting the version field in the plugin descriptor.
 
 All versions for a given plugin can be found by running:
 
@@ -277,26 +238,11 @@ When installing or updating plugins a specific version can be supplied:
 tanzu plugin install <name> --version v1.2.3
 ```
 
-Or a version selection algorithm can be used:
-
-```sh
-tanzu update --include-unstable
-```
-
-A version selector is simply an interface which finds a version in a set of versions. The current implementations are:
-
-* LatestStable -- find the latest stable version
-* LatestAny -- find the latest version including any unstable versions
-
-An unstable version is “dev” or a semver string containing a -suffix after the vMajor.Minor.Patch (e.g. v1.3.0-rc.1, v1.3.0-latest)
-
-Conversely, a stable version is one that does not contain such a suffix.
-
 ## Groups
 
-Plugins are displayed within groups. This enables the user to easily identify what functionality they may be looking for as plugins proliferate.
+With `tanzu --help` command, Plugins are displayed within groups. This enables the user to easily identify what functionality they may be looking for as plugins proliferate.
 
-Currently updating plugin groups is not available to end users as new groups must be added to Framework directly. This was done to improve consistency but may want to be revisited in the future.
+Currently, updating plugin groups is not available to end users as new groups must be added to Core CLI directly. This was done to improve consistency but may want to be revisited in the future.
 
 ## Testing
 
@@ -318,7 +264,7 @@ In the future, we should have every plugin implement a `docs` command which outp
 
 ## Builder
 
-The builder admin plugin is a means to build Tanzu products. Builder provides a set of commands to bootstrap plugin repositories, add commands to them and compile them into an artifacts repository
+The builder admin plugin is a means to build Tanzu CLI plugins. Builder provides a set of commands to bootstrap plugin repositories, add commands to them and compile them into an artifacts directory
 
 Initialize a plugin repo:
 
@@ -332,7 +278,7 @@ Add a cli command:
 tanzu builder cli add-plugin <name>
 ```
 
-Compile into an artifact repository.
+Compile into an artifact directory.
 
 ```sh
 tanzu builder cli compile ./cmd/plugins
@@ -340,11 +286,7 @@ tanzu builder cli compile ./cmd/plugins
 
 ## Release
 
-Plugins are first compiled into an artifact repository using the builder plugin and then pushed up to their production repository (currently GCP buckets) using the repos CI mechanism.
-
-The CI is triggered when a tag is created which pushes up a production release for that tag, as well as on merges to main a release is triggered which pushes the artifacts to the ‘dev’ path.
-
-For air gapped releases the Cayman build system is used to produce tarballs which contain the artifacts repositories as well as a script which installs the needed plugins from these local repos.
+Plugins are first compiled into an artifact directory (local discovery source) using the builder plugin and then pushed up to their production discovery source.
 
 ## Default Plugin Commands
 
