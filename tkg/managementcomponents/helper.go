@@ -16,6 +16,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
@@ -25,7 +26,7 @@ const (
 )
 
 // GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
-func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration) (string, error) {
+func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration, readerWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (string, error) {
 	// TODO: Temporary hack(hard coded values) to configure TKR source controller package values. This should be replaced with the logic
 	// that fetches these values from tkg-bom(for bom related urls) and set the TKR source controller package values
 	var tkrRepoImagePath string
@@ -45,8 +46,8 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 		return "", errors.Errorf("unknown provider type %q", providerType)
 	}
 
-	// get cacert cal from user input for tkr-controller-config cm
-	caCerts, imageRepo := getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues, tkgBomConfig)
+	// get cacert value from user input for tkr-controller-config cm
+	caCerts, imageRepo := getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues, tkgBomConfig, readerWriter)
 
 	tkgPackageConfig := TKGPackageConfig{
 		Metadata: Metadata{
@@ -144,7 +145,8 @@ func setProxyInTKRSourceControllerPackage(tkgPackageConfig *TKGPackageConfig, ht
 		}
 }
 
-func getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues map[string]interface{}, bomConfig *tkgconfigbom.BOMConfiguration) (string, string) {
+func getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues map[string]interface{}, bomConfig *tkgconfigbom.BOMConfiguration,
+	readerWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (string, string) {
 	caCert := ""
 	imageRepo := bomConfig.ImageConfig.ImageRepository
 	// implement the same logic as legacy func tkg_image_repo_ca_cert() in providers/ytt/lib/helpers.star
@@ -158,5 +160,19 @@ func getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues 
 	if val, ok := userProviderConfigValues[constants.ConfigVariableCustomImageRepository]; ok {
 		imageRepo = val.(string)
 	}
+
+	// override the values with tkgconfig readerwriter if exists
+	if readerWriter != nil {
+		repo, err := readerWriter.Get(constants.ConfigVariableCustomImageRepository)
+		if err == nil && repo != "" {
+			imageRepo = repo
+		}
+		if ca, err := readerWriter.Get(constants.TKGProxyCACert); err == nil && ca != "" {
+			caCert = ca
+		} else if ca, err := readerWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate); err == nil && ca != "" {
+			caCert = ca
+		}
+	}
+
 	return caCert, imageRepo
 }
