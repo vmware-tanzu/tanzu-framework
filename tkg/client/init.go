@@ -30,6 +30,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/carvelhelpers"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/kind"
@@ -371,6 +372,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
+	// Applying ClusterBootstrap and its associated resources on the management cluster
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+		log.Infof("Applying ClusterBootstrap and its associated resources on management cluster")
+		if err := c.ApplyClusterBootstrapObjects(bootStrapClusterClient, regionalClusterClient); err != nil {
+			return errors.Wrap(err, "Unable to apply ClusterBootstarp and its associated resources on management cluster")
+		}
+	}
+
 	log.SendProgressUpdate(statusRunning, StepMoveClusterAPIObjects, InitRegionSteps)
 	log.Info("Moving all Cluster API objects from bootstrap cluster to management cluster...")
 	// Move all Cluster API objects from bootstrap cluster to created to management cluster for all namespaces
@@ -479,6 +488,59 @@ func (c *TkgClient) MoveObjects(fromKubeconfigPath, toKubeconfigPath, namespace 
 		Namespace:      namespace,
 	}
 	return c.clusterctlClient.Move(moveOptions)
+}
+
+// ApplyClusterBootstrapObjects renders the ClusterBootstrap and its associated objects from templates and applies them to a target management cluster.
+func (c *TkgClient) ApplyClusterBootstrapObjects(fromClusterClient, toClusterClient clusterclient.Client) error {
+	path, err := c.tkgConfigPathsClient.GetTKGProvidersDirectory()
+	if err != nil {
+		return err
+	}
+	clusterBootstrapTemplatesDirPath := filepath.Join(path, "yttcb")
+
+	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile(true)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		// Remove intermediate config files if err is empty
+		if err == nil {
+			os.Remove(userConfigValuesFile)
+		}
+	}()
+
+	log.V(6).Infof("User ConfigValues File: %v", userConfigValuesFile)
+
+	clusterBootstrapBytes, err := carvelhelpers.ProcessYTTPackage(clusterBootstrapTemplatesDirPath, userConfigValuesFile)
+	if err != nil {
+		return err
+	}
+
+	clusterBootstrapString := string(clusterBootstrapBytes)
+	if len(clusterBootstrapString) > 0 {
+
+		// Before applying ClusterBootstrap need to check if TKR is available. Sometimes it takes some time for the
+		// TKr to be available. Hence checking for TKr availability before applying ClusterBootstrap
+		tkr, err := fromClusterClient.GetClusterResolvedTanzuKubernetesRelease()
+		if tkr == nil || err != nil {
+			return err // error occurs or management cluster does not have resolved TKR
+		}
+
+		var toClusterTKR v1alpha3.TanzuKubernetesRelease
+		pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: clusterclient.PackageInstallTimeout}
+		log.V(6).Infof("Checking if TKr %s is created on management cluster", tkr.Name)
+		if err := toClusterClient.GetResource(&toClusterTKR, tkr.Name, tkr.Namespace, nil, pollOptions); err != nil {
+			return err
+		}
+
+		log.V(6).Infof("Applying ClusterBootstrap: %v", clusterBootstrapString)
+		if err := toClusterClient.Apply(string(clusterBootstrapBytes)); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // CopyNeededTKRAndOSImages moves the resolved TKR and associated OSImage CR for a Cluster resource

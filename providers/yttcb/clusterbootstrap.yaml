@@ -7,7 +7,7 @@
 #@ load("/lib/helpers.star", "ValuesFormatStr")
 
 #@ vsphereControlPlaneEndpointAsCidr = ""
-#@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
+#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
 #@   vsphereControlPlaneEndpoint, err = assert.try_to(lambda : ip.parse_addr(data.values.VSPHERE_CONTROL_PLANE_ENDPOINT))
 #@   if err == None:
 #@     if vsphereControlPlaneEndpoint.is_ipv4():

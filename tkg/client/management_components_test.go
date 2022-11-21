@@ -33,6 +33,7 @@ var _ = Describe("Unit tests for GetUserConfigVariableValueMap", func() {
 		configFileData           string
 		userProviderConfigValues map[string]interface{}
 		rw                       tkgconfigreaderwriter.TKGConfigReaderWriter
+		withDefaults             bool
 	)
 
 	sampleConfigFileData1 := `
@@ -55,7 +56,7 @@ Test4:
 
 	JustBeforeEach(func() {
 		configFilePath = writeConfigFileData(configFileData)
-		userProviderConfigValues, err = tkgClient.GetUserConfigVariableValueMap(configFilePath, rw)
+		userProviderConfigValues, err = tkgClient.GetUserConfigVariableValueMap(configFilePath, rw, withDefaults)
 	})
 
 	Context("When only one data value is provided by user", func() {
@@ -66,6 +67,7 @@ Test4:
 			rw.Set("Test2", "null")
 			rw.Set("Test3", "1")
 			rw.Set("Test4", "1.2")
+			withDefaults = false
 		})
 		It("returns userProviderConfigValues with ABC", func() {
 			Expect(err).NotTo(HaveOccurred())
@@ -84,6 +86,7 @@ Test4:
 			rw.Set("ABC", "abc-value")
 			rw.Set("PQR", "pqr-value")
 			rw.Set("TEST", "test-value")
+			withDefaults = false
 		})
 		It("returns userProviderConfigValues with ABC and PQR", func() {
 			Expect(err).NotTo(HaveOccurred())
@@ -97,6 +100,61 @@ Test4:
 		BeforeEach(func() {
 			configFileData = sampleConfigFileData2
 			rw.Set("TEST", "test-value")
+			withDefaults = false
+		})
+		It("returns empty map", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(len(userProviderConfigValues)).To(Equal(0))
+		})
+	})
+
+	Context("When some data values are provided by user and are fetched along with defaults", func() {
+		BeforeEach(func() {
+			configFileData = sampleConfigFileData1
+			rw.Set("ABC", "abc-value")
+			rw.Set("Test1", "true")
+			rw.Set("Test2", "null")
+			rw.Set("Test3", "1")
+			rw.Set("Test4", "1.2")
+			withDefaults = true
+		})
+		It("returns userProviderConfigValues with ABC", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(len(userProviderConfigValues)).To(Equal(6))
+			Expect(userProviderConfigValues["ABC"]).To(Equal("abc-value"))
+			Expect(userProviderConfigValues["PQR"]).To(Equal(""))
+			Expect(userProviderConfigValues["Test1"]).To(Equal(true))
+			Expect(userProviderConfigValues["Test2"]).To(BeNil())
+			Expect(userProviderConfigValues["Test3"]).To(Equal(uint64(1)))
+			Expect(userProviderConfigValues["Test4"]).To(Equal(1.2))
+		})
+	})
+
+	Context("When few data value are provided by user and fetched along with defaults", func() {
+		BeforeEach(func() {
+			configFileData = sampleConfigFileData1
+			rw.Set("ABC", "abc-value")
+			rw.Set("PQR", "pqr-value")
+			rw.Set("TEST", "test-value")
+			withDefaults = true
+		})
+		It("returns userProviderConfigValues with ABC and PQR", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(len(userProviderConfigValues)).To(Equal(6))
+			Expect(userProviderConfigValues["ABC"]).To(Equal("abc-value"))
+			Expect(userProviderConfigValues["PQR"]).To(Equal("pqr-value"))
+			Expect(userProviderConfigValues["Test1"]).To(BeNil())
+			Expect(userProviderConfigValues["Test2"]).To(BeNil())
+			Expect(userProviderConfigValues["Test3"]).To(BeNil())
+			Expect(userProviderConfigValues["Test4"]).To(BeNil())
+		})
+	})
+
+	Context("When no config variables are defined in config default and fetched with defaults", func() {
+		BeforeEach(func() {
+			configFileData = sampleConfigFileData2
+			rw.Set("TEST", "test-value")
+			withDefaults = true
 		})
 		It("returns empty map", func() {
 			Expect(err).NotTo(HaveOccurred())
