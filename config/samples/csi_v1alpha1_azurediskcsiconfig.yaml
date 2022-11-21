@@ -1,0 +1,6 @@
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: AzureDiskCSIConfig
+metadata:
+  name: azurediskcsiconfig-sample
+spec:
+  # TODO(user): Add fields here

@@ -9,6 +9,7 @@ resources:
 - bases/cni.tanzu.vmware.com_antreaconfigs.yaml
 - bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
 - bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
+- bases/csi.tanzu.vmware.com_azurediskcsiconfigs.yaml
 - bases/csi.tanzu.vmware.com_awsebscsiconfigs.yaml
 - bases/csi.tanzu.vmware.com_azurefilecsiconfigs.yaml
 - bases/cpi.tanzu.vmware.com_kubevipcpiconfigs.yaml
@@ -27,6 +28,7 @@ patchesStrategicMerge:
 #- patches/webhook_in_clusterbootstraptemplates.yaml
 #- patches/webhook_in_awsebscsiconfigs.yaml
 #- patches/webhook_in_azurefilecsiconfigs.yaml
+#- patches/webhook_in_azurediskcsiconfigs.yaml
 #- patches/webhook_in_kubevipcpiconfigs.yaml
 # +kubebuilder:scaffold:crdkustomizewebhookpatch
 
@@ -40,6 +42,7 @@ patchesStrategicMerge:
 #- patches/cainjection_in_cpiconfigs.yaml
 #- patches/cainjection_in_clusterbootstraps.yaml
 #- patches/cainjection_in_clusterbootstraptemplates.yaml
+#- patches/cainjection_in_azurediskcsiconfigs.yaml
 #- patches/cainjection_in_awsebscsiconfigs.yaml
 #- patches/cainjection_in_azurefilecsiconfigs.yaml
 #- patches/cainjection_in_kubevipcpiconfigs.yaml
