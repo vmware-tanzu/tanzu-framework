@@ -60,6 +60,14 @@ rules:
   - list
   - watch
 - apiGroups:
+  - infrastructure.cluster.x-k8s.io
+  resources:
+  - vsphereclusteridentities
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - ""
   resources:
   - configmaps
