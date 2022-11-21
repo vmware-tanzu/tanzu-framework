@@ -240,7 +240,58 @@ func availablePlugins(discoveredServerPlugins, discoveredStandalonePlugins []plu
 	installedButNotDiscoveredPlugins := getInstalledButNotDiscoveredStandalonePlugins(availablePlugins, installedStandalonePluginDesc)
 	availablePlugins = append(availablePlugins, installedButNotDiscoveredPlugins...)
 
+	availablePlugins = combineDuplicatePlugins(availablePlugins)
+
 	return availablePlugins, nil
+}
+
+// combineDuplicatePlugins combines same plugins to eliminate duplicates
+// When there is a plugin name conflicts and target of both the plugins are same, remove one.
+//
+// Considering, we are adding `k8s` targeted plugins as root level commands as well for backward compatibility
+// A plugin 'foo' getting discovered/installed with `<none>` target and a plugin `foo` getting discovered
+// with `k8s` discovery (having `k8s` target) should be treated as same plugin.
+// This function takes this case into consideration and ignores `<none>` targeted plugin for above the mentioned scenario.
+func combineDuplicatePlugins(availablePlugins []plugin.Discovered) []plugin.Discovered {
+	mapOfSelectedPlugins := make(map[string]plugin.Discovered)
+
+	combinePluginInstallationStatus := func(plugin1, plugin2 plugin.Discovered) plugin.Discovered {
+		// Combine the installation status and installedVersion result when combining plugins
+		if plugin2.Status == common.PluginStatusInstalled {
+			plugin1.Status = common.PluginStatusInstalled
+		}
+		if plugin2.InstalledVersion != "" {
+			plugin1.InstalledVersion = plugin2.InstalledVersion
+		}
+		return plugin1
+	}
+
+	for i := range availablePlugins {
+		if availablePlugins[i].Target == "" {
+			key := fmt.Sprintf("%s_%s", availablePlugins[i].Name, cliv1alpha1.TargetK8s)
+			dp, exists := mapOfSelectedPlugins[key]
+			if !exists {
+				mapOfSelectedPlugins[key] = availablePlugins[i]
+			} else {
+				mapOfSelectedPlugins[key] = combinePluginInstallationStatus(dp, availablePlugins[i])
+			}
+		} else {
+			key := fmt.Sprintf("%s_%s", availablePlugins[i].Name, availablePlugins[i].Target)
+			dp, exists := mapOfSelectedPlugins[key]
+			if !exists {
+				mapOfSelectedPlugins[key] = availablePlugins[i]
+			} else if availablePlugins[i].Target == cliv1alpha1.TargetK8s || availablePlugins[i].Scope == common.PluginScopeContext {
+				mapOfSelectedPlugins[key] = combinePluginInstallationStatus(availablePlugins[i], dp)
+			}
+		}
+	}
+
+	var selectedPlugins []plugin.Discovered
+	for key := range mapOfSelectedPlugins {
+		selectedPlugins = append(selectedPlugins, mapOfSelectedPlugins[key])
+	}
+
+	return selectedPlugins
 }
 
 func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Discovered, installedPluginDesc []cliapi.PluginDescriptor) []plugin.Discovered {
@@ -263,6 +314,7 @@ func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Dis
 			p := DiscoveredFromPluginDescriptor(&installedPluginDesc[i])
 			p.Scope = common.PluginScopeStandalone
 			p.Status = common.PluginStatusInstalled
+			p.InstalledVersion = installedPluginDesc[i].Version
 			newPlugins = append(newPlugins, p)
 		}
 	}
@@ -707,8 +759,8 @@ func InstallPluginsFromLocalSource(pluginName, version string, target cliv1alpha
 	}
 
 	for i := range matchedPlugins {
-		// If target is not specified, install all plugins otherwise include all matching plugins
-		if target == "" || matchedPlugins[i].Target == target {
+		// Install all plugins otherwise include all matching plugins
+		if pluginName == cli.AllPlugins || matchedPlugins[i].Target == target {
 			err = installOrUpgradePlugin(&matchedPlugins[i], FindVersion(matchedPlugins[i].RecommendedVersion, version), installTestPlugin)
 			if err != nil {
 				errList = append(errList, err)

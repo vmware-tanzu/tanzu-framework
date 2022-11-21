@@ -102,6 +102,9 @@ func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
 		if err != nil {
 			return nil, err
 		}
+		if dp.Name == "" {
+			continue
+		}
 		dp.Source = l.name
 		dp.DiscoveryType = l.Type()
 		plugins = append(plugins, dp)

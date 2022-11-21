@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 
 	"github.com/aunum/log"
@@ -102,7 +104,21 @@ func NewRootCmd() (*cobra.Command, error) {
 	}
 
 	for _, plugin := range plugins {
-		RootCmd.AddCommand(cli.GetCmd(plugin))
+		// Only add plugins that should be available as root level command
+		if isPluginRootCmdTargeted(plugin) {
+			cmd := cli.GetCmd(plugin)
+			// check and find if same command already exists as part of root command
+			matchedCmd := findSubCommand(RootCmd, cmd)
+			if matchedCmd == nil { // If the subcommand for the plugin doesn't exist add the command
+				RootCmd.AddCommand(cmd)
+			} else if plugin.Scope == common.PluginScopeStandalone {
+				// If the subcommand already exists but plugin is `Context-Scoped` plugin
+				// then context-scoped plugin gets higher precedence, so, replace the existing command
+				// to point to new command by removing and adding new command.
+				RootCmd.RemoveCommand(matchedCmd)
+				RootCmd.AddCommand(cmd)
+			}
+		}
 	}
 
 	duplicateAliasWarning()
@@ -240,4 +256,20 @@ func Execute() error {
 		return err
 	}
 	return root.Execute()
+}
+
+func findSubCommand(rootCmd, subCmd *cobra.Command) *cobra.Command {
+	arrSubCmd := rootCmd.Commands()
+	var foundCmd *cobra.Command
+	for i := range arrSubCmd {
+		if arrSubCmd[i].Name() == subCmd.Name() {
+			foundCmd = arrSubCmd[i]
+		}
+	}
+	return foundCmd
+}
+
+func isPluginRootCmdTargeted(plugin *cliapi.PluginDescriptor) bool {
+	// Only '<none>' targeted and `k8s` targeted plugins are considered root cmd targeted plugins
+	return plugin != nil && (plugin.Target == "" || plugin.Target == cliv1alpha1.TargetK8s)
 }

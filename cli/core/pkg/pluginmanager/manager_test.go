@@ -5,6 +5,8 @@ package pluginmanager
 
 import (
 	"fmt"
+	"github.com/aunum/log"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -267,12 +269,122 @@ func Test_AvailablePlugins(t *testing.T) {
 			InstalledVersion: "",
 			Status:           common.PluginStatusNotInstalled,
 		},
+		{
+			Name:             "login",
+			Target:           "",
+			InstalledVersion: "v0.2.0",
+			Status:           common.PluginStatusInstalled,
+		},
 	}
 
 	// Get available plugin after install and verify installation status
 	discoveredPlugins, err = AvailablePlugins()
 	assertions.Nil(err)
 	assertions.Equal(len(expectedDiscoveredPlugins), len(discoveredPlugins))
+
+	for _, eisp := range expectedInstallationStatusOfPlugins {
+		p := findDiscoveredPlugin(discoveredPlugins, eisp.Name, eisp.Target)
+		assertions.NotNil(p)
+		assertions.Equal(eisp.Status, p.Status, eisp.Name)
+		assertions.Equal(eisp.InstalledVersion, p.InstalledVersion, eisp.Name)
+	}
+}
+
+func Test_AvailablePlugins_With_K8s_None_Target_Plugin_Name_Conflict_With_One_Installed_Getting_Discovered(t *testing.T) {
+	assertions := assert.New(t)
+
+	defer setupLocalDistoForTesting()()
+
+	expectedDiscoveredPlugins := append(expectedDiscoveredContextPlugins, expectedDiscoveredStandalonePlugins...)
+	discoveredPlugins, err := AvailablePlugins()
+	assertions.Nil(err)
+	assertions.Equal(len(expectedDiscoveredPlugins), len(discoveredPlugins))
+
+	// Install login, cluster plugins
+	mockInstallPlugin(assertions, "login", "v0.2.0", "")
+
+	// Considering `login` plugin with `<none>` target is already installed and
+	// getting discovered through some discoveries source
+	//
+	// if the same `login` plugin is now getting discovered with `k8s` target
+	// verify the result of AvailablePlugins
+
+	discoverySource := configapi.PluginDiscovery{
+		Local: &configapi.LocalDiscovery{
+			Name: "fake-with-k8s-target",
+			Path: "standalone-k8s-target",
+		},
+	}
+	err = configlib.SetCLIDiscoverySource(discoverySource)
+	assertions.Nil(err)
+
+	discoveredPlugins, err = AvailablePlugins()
+	assertions.Nil(err)
+	assertions.Equal(len(expectedDiscoveredPlugins), len(discoveredPlugins))
+
+	expectedInstallationStatusOfPlugins := []plugin.Discovered{
+		{
+			Name:             "login",
+			Target:           cliv1alpha1.TargetK8s,
+			InstalledVersion: "v0.2.0",
+			Status:           common.PluginStatusInstalled,
+		},
+	}
+
+	for i := range discoveredPlugins {
+		log.Infof("Discovered: %v, %v, %v, %v", discoveredPlugins[i].Name, discoveredPlugins[i].Target, discoveredPlugins[i].Status, discoveredPlugins[i].InstalledVersion)
+	}
+
+	for _, eisp := range expectedInstallationStatusOfPlugins {
+		p := findDiscoveredPlugin(discoveredPlugins, eisp.Name, eisp.Target)
+		assertions.NotNil(p)
+		assertions.Equal(eisp.Status, p.Status, eisp.Name)
+		assertions.Equal(eisp.InstalledVersion, p.InstalledVersion, eisp.Name)
+	}
+}
+
+func Test_AvailablePlugins_With_K8s_None_Target_Plugin_Name_Conflict_With_Plugin_Installed_But_Not_Getting_Discovered(t *testing.T) {
+	assertions := assert.New(t)
+
+	defer setupLocalDistoForTesting()()
+
+	expectedDiscoveredPlugins := append(expectedDiscoveredContextPlugins, expectedDiscoveredStandalonePlugins...)
+	discoveredPlugins, err := AvailablePlugins()
+	assertions.Nil(err)
+	assertions.Equal(len(expectedDiscoveredPlugins), len(discoveredPlugins))
+
+	// Install login, cluster plugins
+	mockInstallPlugin(assertions, "login", "v0.2.0", "")
+
+	// Considering `login` plugin with `<none>` target is already installed and
+	// getting discovered through some discoveries source
+	//
+	// if the same `login` plugin is now getting discovered with `k8s` target
+	// verify the result of AvailablePlugins
+
+	// Replace old discovery source to point to new standalone discovery where the same plugin is getting
+	// discovered through k8s target
+	discoverySource := configapi.PluginDiscovery{
+		Local: &configapi.LocalDiscovery{
+			Name: "fake",
+			Path: "standalone-k8s-target",
+		},
+	}
+	err = configlib.SetCLIDiscoverySource(discoverySource)
+	assertions.Nil(err)
+
+	discoveredPlugins, err = AvailablePlugins()
+	assertions.Nil(err)
+	assertions.Equal(len(expectedDiscoveredPlugins), len(discoveredPlugins))
+
+	expectedInstallationStatusOfPlugins := []plugin.Discovered{
+		{
+			Name:             "login",
+			Target:           cliv1alpha1.TargetK8s,
+			InstalledVersion: "v0.2.0",
+			Status:           common.PluginStatusInstalled,
+		},
+	}
 
 	for _, eisp := range expectedInstallationStatusOfPlugins {
 		p := findDiscoveredPlugin(discoveredPlugins, eisp.Name, eisp.Target)
@@ -313,7 +425,7 @@ func Test_AvailablePlugins_From_LocalSource(t *testing.T) {
 		{
 			Name:   "login",
 			Scope:  common.PluginScopeStandalone,
-			Target: "",
+			Target: cliv1alpha1.TargetK8s,
 			Status: common.PluginStatusNotInstalled,
 		},
 		{
@@ -328,9 +440,9 @@ func Test_AvailablePlugins_From_LocalSource(t *testing.T) {
 
 	for _, eisp := range expectedInstallationStatusOfPlugins {
 		p := findDiscoveredPlugin(discoveredPlugins, eisp.Name, eisp.Target)
-		assertions.NotNil(p, "plugin %q with context-type %q not found", eisp.Name, eisp.Target)
-		assertions.Equal(eisp.Status, p.Status, "status mismatch for plugin %q with context-type %q", eisp.Name, eisp.Target)
-		assertions.Equal(eisp.Scope, p.Scope, "scope mismatch for plugin %q with context-type %q", eisp.Name, eisp.Target)
+		assertions.NotNil(p, "plugin %q with target %q not found", eisp.Name, eisp.Target)
+		assertions.Equal(eisp.Status, p.Status, "status mismatch for plugin %q with target %q", eisp.Name, eisp.Target)
+		assertions.Equal(eisp.Scope, p.Scope, "scope mismatch for plugin %q with target %q", eisp.Name, eisp.Target)
 	}
 }
 
@@ -796,6 +908,141 @@ func TestVerifyPluginPostDownload(t *testing.T) {
 				assert.EqualError(t, err, tc.err)
 			} else {
 				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func Test_removeDuplicates(t *testing.T) {
+	assertions := assert.New(t)
+
+	tcs := []struct {
+		name           string
+		inputPlugins   []plugin.Discovered
+		expectedResult []plugin.Discovered
+	}{
+		{
+			name: "when plugin name-target conflict happens with '' and 'k8s' targeted plugins ",
+			inputPlugins: []plugin.Discovered{
+				{
+					Name:   "foo",
+					Target: "",
+					Scope:  common.PluginScopeStandalone,
+				},
+				{
+					Name:   "foo",
+					Target: "k8s",
+					Scope:  common.PluginScopeStandalone,
+				},
+				{
+					Name:   "bar",
+					Target: "k8s",
+					Scope:  common.PluginScopeStandalone,
+				},
+			},
+			expectedResult: []plugin.Discovered{
+				{
+					Name:   "foo",
+					Target: "k8s",
+					Scope:  common.PluginScopeStandalone,
+				},
+				{
+					Name:   "bar",
+					Target: "k8s",
+					Scope:  common.PluginScopeStandalone,
+				},
+			},
+		},
+		{
+			name: "when same plugin exists for '', 'k8s' and 'tmc' target as standalone plugin",
+			inputPlugins: []plugin.Discovered{
+				{
+					Name:   "foo",
+					Target: "",
+					Scope:  common.PluginScopeStandalone,
+				},
+				{
+					Name:   "foo",
+					Target: "k8s",
+					Scope:  common.PluginScopeStandalone,
+				},
+				{
+					Name:   "foo",
+					Target: "tmc",
+					Scope:  common.PluginScopeStandalone,
+				},
+			},
+			expectedResult: []plugin.Discovered{
+				{
+					Name:   "foo",
+					Target: "k8s",
+					Scope:  common.PluginScopeStandalone,
+				},
+				{
+					Name:   "foo",
+					Target: "tmc",
+					Scope:  common.PluginScopeStandalone,
+				},
+			},
+		},
+		{
+			name: "when foo standalone plugin is available with `k8s` and `` target and also available as context-scoped plugin with `k8s` target",
+			inputPlugins: []plugin.Discovered{
+				{
+					Name:   "foo",
+					Target: "",
+					Scope:  common.PluginScopeStandalone,
+				},
+				{
+					Name:   "foo",
+					Target: "k8s",
+					Scope:  common.PluginScopeStandalone,
+				},
+				{
+					Name:   "foo",
+					Target: "k8s",
+					Scope:  common.PluginScopeContext,
+				},
+			},
+			expectedResult: []plugin.Discovered{
+				{
+					Name:   "foo",
+					Target: "k8s",
+					Scope:  common.PluginScopeContext,
+				},
+			},
+		},
+		{
+			name: "when tmc targeted plugin exists as standalone as well as context-scope",
+			inputPlugins: []plugin.Discovered{
+				{
+					Name:   "foo",
+					Target: "tmc",
+					Scope:  common.PluginScopeStandalone,
+				},
+				{
+					Name:   "foo",
+					Target: "tmc",
+					Scope:  common.PluginScopeContext,
+				},
+			},
+			expectedResult: []plugin.Discovered{
+				{
+					Name:   "foo",
+					Target: "tmc",
+					Scope:  common.PluginScopeContext,
+				},
+			},
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			result := combineDuplicatePlugins(tc.inputPlugins)
+			assertions.Equal(len(result), len(tc.expectedResult))
+			for i := range tc.expectedResult {
+				p := findDiscoveredPlugin(result, tc.expectedResult[i].Name, tc.expectedResult[i].Target)
+				assertions.Equal(p.Scope, tc.expectedResult[i].Scope)
 			}
 		})
 	}
