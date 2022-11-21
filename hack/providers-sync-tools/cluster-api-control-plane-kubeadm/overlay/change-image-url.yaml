@@ -6,5 +6,5 @@ spec:
   template:
     spec:
       containers:
-      #@overlay/match by=overlay.subset({"name": "manager"})
+        #@overlay/match by=overlay.subset({"name": "manager"})
         - image: "registry.tkg.vmware.run/cluster-api/kubeadm-control-plane-controller:${KCP_CONTROLLER_IMAGE_TAG}"

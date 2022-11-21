@@ -12,7 +12,7 @@ function render_upstream_package_file() {
 	local provider_bundle_folder="${2}"
 	local component_file_prefix="${3}"
 	local infrastructure_components_file="${source_provider_folder}/${component_file_prefix}.yaml"
-	local overlay_file="${source_provider_folder}/${component_file_prefix}-overlay.yaml"
+	local overlay_file="${source_provider_folder}/change-image-url.yaml"
 	local output_file="${provider_bundle_folder}/${source_provider_folder}"
 	
 	${ROOT}/hack/tools/bin/ytt -f "${infrastructure_components_file}" \

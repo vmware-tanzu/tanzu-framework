@@ -7,5 +7,5 @@ spec:
   template:
     spec:
       containers:
-        #@overlay/match by=overlay.subset({"name": "manager"})
-        - image: registry.tkg.vmware.run/cluster-api-aws/cluster-api-aws-controller:${CAPA_CONTROLLER_IMAGE_TAG}
+      #@overlay/match by=overlay.subset({"name": "manager"})
+      - image: registry.tkg.vmware.run/cluster-api-aws/cluster-api-aws-controller:${CAPA_CONTROLLER_IMAGE_TAG}

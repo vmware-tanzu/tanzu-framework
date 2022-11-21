@@ -8586,7 +8586,7 @@ spec:
               fieldPath: spec.nodeName
         - name: LOG_LEVEL
           value: DEBUG
-        image: registry.tkg.vmware.run/cluster-api/nmi:${NMI_IMAGE_TAG}
+        image: mcr.microsoft.com/oss/azure/aad-pod-identity/nmi:v1.8.9
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
