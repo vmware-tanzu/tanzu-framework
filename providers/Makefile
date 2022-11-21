@@ -29,7 +29,7 @@ PROVIDER_TEMPLATE_IMG_NAME ?= provider-templates
 IMAGE_REPO ?= vmware.io
 PROVIDER_TEMPLATE_IMG_TAG ?= latest
 
-FILES_TO_IGNORE?=.env .idea .git .github hack .yamllint .gitlab Makefile provider-bundle tests README.md client go.mod go.sum providers.sha256sum Dockerfile.templates core-components-overlay.yaml control-plane-components-overlay.yaml infrastructure-components-overlay.yaml
+FILES_TO_IGNORE?=.env .idea .git .github hack .yamllint .gitlab Makefile provider-bundle tests README.md client go.mod go.sum providers.sha256sum Dockerfile.templates change-image-url.yaml
 ifeq ($(EXCLUDE_CLUSTER_CLASS_FILES), true)
 FILES_TO_IGNORE+=yttcc yttcb cconly cc.yaml
 endif

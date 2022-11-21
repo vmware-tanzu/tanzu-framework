@@ -5,6 +5,7 @@
 
 set -e
 set -o pipefail
+ROOT="$(cd "$(dirname ${0})/../.." &> /dev/null && pwd)"
 
 function validate_rendered_files() {
 	local source_package_name="${1}"
@@ -16,7 +17,7 @@ function validate_rendered_files() {
 	local rendered_files="$(find "${rendered_dir}/upstream" -type f)"
 	set +e
 	for rendered_file in ${rendered_files}; do
-	  diff -s "../../providers/${provider_name}/${version}/$(basename ${rendered_file})" "${rendered_file}"
+	  diff -s "${ROOT}/providers/provider-bundle/providers/${provider_name}/${version}/$(basename ${rendered_file})" "${rendered_file}"
 	  local exit_code="${?}"
 	  if [[ ${exit_code} -ne 0 ]]; then
 		echo "[Error] Files ${rendered_file} and ../../providers/${provider_name}/${version}/$(basename ${rendered_file}) are different."
@@ -26,6 +27,8 @@ function validate_rendered_files() {
 	done
 	set -e
 }
+
+make -C "${ROOT}/providers" setup-provider-for-generation "${ROOT}/providers/provider-bundle/providers"
 
 validate_rendered_files "cluster-api" "cluster-api"
 validate_rendered_files "cluster-api-control-plane-kubeadm" "control-plane-kubeadm"

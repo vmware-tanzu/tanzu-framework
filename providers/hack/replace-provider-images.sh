@@ -15,12 +15,24 @@ function render_upstream_package_file() {
 	local overlay_file="${source_provider_folder}/change-image-url.yaml"
 	local output_file="${provider_bundle_folder}/${source_provider_folder}"
 	
-	${ROOT}/hack/tools/bin/ytt -f "${infrastructure_components_file}" \
-		-f "${overlay_file}" --output-files "${output_file}"
+	if [ -z "$4" ]
+	then
+		${ROOT}/hack/tools/bin/ytt -f "${infrastructure_components_file}" \
+				-f "${overlay_file}" --output-files "${output_file}"
+	else
+		local infrastructure_components_file_2="${source_provider_folder}/${4}.yaml"
+		${ROOT}/hack/tools/bin/ytt \
+			-f "${infrastructure_components_file}" \
+			-f "${infrastructure_components_file_2}" \
+			-f "${overlay_file}" \
+			--output-files "${output_file}"
+	fi
 }
 
 render_upstream_package_file "cluster-api/v1.2.4" ${1} "core-components"
 render_upstream_package_file "bootstrap-kubeadm/v1.2.4" ${1} "bootstrap-components"
+render_upstream_package_file "control-plane-kubeadm/v1.2.4" ${1} "control-plane-components"
 render_upstream_package_file "infrastructure-aws/v2.0.0-beta.1" ${1} "infrastructure-components"
 render_upstream_package_file "infrastructure-azure/v1.5.3" ${1} "infrastructure-components"
-render_upstream_package_file "infrastructure-vsphere/v1.4.1" ${1} "infrastructure-components"
+render_upstream_package_file "infrastructure-docker/v1.2.4" ${1} "infrastructure-components"
+render_upstream_package_file "infrastructure-vsphere/v1.4.1" ${1} "infrastructure-components" "infrastructure-components-supervisor"
