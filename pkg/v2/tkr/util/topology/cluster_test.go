@@ -148,5 +148,47 @@ var _ = Describe("Cluster variable getters and setters", func() {
 				Expect(aData).To(Equal(aData1), "Cluster var should still be the same")
 			})
 		})
+		When("the Cluster variable of array type does not exist", func() {
+			It("should populate the Cluster variable with an empty array", func() {
+				var aData *AData
+
+				// The Cluster level variable named C should not exist
+				Expect(GetVariable(cluster, varC, &aData)).To(Succeed())
+				Expect(aData).To(BeNil())
+
+				testArr := []int{0, 1, 2}
+				// Set the MachinedDeployment variable override for the variable named C
+				Expect(SetMDVariable(cluster, 0, varC, testArr)).To(Succeed())
+
+				// The Cluster level variable named C should be populated with an empty array
+				var varArr []int
+				Expect(GetVariable(cluster, varC, &varArr)).To(Succeed())
+				Expect(varArr).To(BeEmpty())
+				Expect(varArr).ToNot(BeNil())
+			})
+		})
+		When("the Cluster variable of map type does not exist", func() {
+			FIt("should populate the Cluster variable with an empty map", func() {
+				var aData *AData
+
+				// The Cluster level variable named C should not exist
+				Expect(GetVariable(cluster, varC, &aData)).To(Succeed())
+				Expect(aData).To(BeNil())
+
+				testMap := map[string]int{
+					"first":  0,
+					"second": 1,
+					"third":  2,
+				}
+				// Set the MachinedDeployment variable override for the variable named C
+				Expect(SetMDVariable(cluster, 0, varC, testMap)).To(Succeed())
+
+				// The Cluster level variable named C should be populated with an empty map
+				var varMap map[string]int
+				Expect(GetVariable(cluster, varC, &varMap)).To(Succeed())
+				Expect(varMap).To(BeEmpty())
+				Expect(varMap).ToNot(BeNil())
+			})
+		})
 	})
 })
