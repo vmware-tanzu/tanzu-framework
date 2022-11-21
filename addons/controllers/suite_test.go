@@ -71,6 +71,7 @@ import (
 
 const (
 	waitTimeout                         = time.Second * 90
+	specialWaitTimeout                  = 5 * time.Minute
 	pollingInterval                     = time.Second * 2
 	appSyncPeriod                       = 5 * time.Minute
 	appWaitTimeout                      = 30 * time.Second

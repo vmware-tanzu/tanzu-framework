@@ -611,7 +611,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							return false
 						}
 						return !cluster.Spec.Paused
-					}, waitTimeout, pollingInterval).Should(BeTrue())
+					}, specialWaitTimeout, pollingInterval).Should(BeTrue())
 					if cluster.Annotations != nil {
 						_, ok := cluster.Annotations[constants.ClusterPauseLabel]
 						Expect(ok).ToNot(BeTrue())
