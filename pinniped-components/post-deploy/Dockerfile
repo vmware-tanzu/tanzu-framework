@@ -5,6 +5,11 @@
 # top of their own trusted images.
 ARG BUILDER_BASE_IMAGE=golang:1.18
 
+ARG CACHE_GOBUILD=type=cache,target=/root/.cache/go-build
+ARG CACHE_GOLANG=cache,target=/root/.local/share/golang
+ARG CACHE_GOMOD=type=cache,target=/go/pkg/mod
+ARG CACHE="--mount=${CACHE_GOLANG} --mount=${CACHE_GOBUILD} --mount=${CACHE_GOMOD}" 
+
 # Build the post-deploy binary
 FROM $BUILDER_BASE_IMAGE as builder
 
@@ -14,7 +19,7 @@ WORKDIR /workspace
 COPY tanzu-auth-controller-manager tanzu-auth-controller-manager
 COPY post-deploy/go.mod post-deploy/go.mod
 COPY post-deploy/go.sum post-deploy/go.sum
-RUN cd post-deploy && go mod download
+RUN $CACHE cd post-deploy && go mod download
 
 # Copy the source
 COPY post-deploy/cmd/ post-deploy/cmd/
@@ -22,7 +27,7 @@ COPY post-deploy/pkg/ post-deploy/pkg/
 COPY post-deploy/Makefile post-deploy/Makefile
 #COPY .git/ .git/
 
-RUN make native -C post-deploy
+RUN $CACHE make native -C post-deploy
 
 # Support older deployment YAMLs by providing symlink for the historic job name without -job.
 # The subdirectory here is to ensure that the docker COPY command does not follow the symlink

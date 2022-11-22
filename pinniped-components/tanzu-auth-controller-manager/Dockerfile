@@ -1,6 +1,13 @@
 # Copyright 2022 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Enable Buildkit
+# syntax=docker/dockerfile:1.4
+ARG CACHE_GOBUILD=type=cache,target=/root/.cache/go-build
+ARG CACHE_GOLANG=cache,target=/root/.local/share/golang
+ARG CACHE_GOMOD=type=cache,target=/go/pkg/mod
+ARG CACHE="--mount=${CACHE_GOLANG} --mount=${CACHE_GOBUILD} --mount=${CACHE_GOMOD}" 
+ 
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
 ARG BUILDER_BASE_IMAGE=golang:1.18
@@ -12,7 +19,7 @@ WORKDIR /workspace
 # Copy the Go Modules manifests
 COPY go.mod go.mod
 COPY go.sum go.sum
-RUN go mod download
+RUN  --mount=$CACHE_GOLANG --mount=$CACHE_GOMOD go mod download
 
 # Copy the source
 COPY main.go main.go
@@ -21,7 +28,7 @@ COPY controllers/ controllers/
 # Build
 ARG LD_FLAGS
 ENV LD_FLAGS="$LD_FLAGS "'-extldflags "-static"'
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o tanzu-auth-controller-manager .
+RUN $CACHE CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o tanzu-auth-controller-manager .
 
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /

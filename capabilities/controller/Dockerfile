@@ -4,7 +4,10 @@
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
 ARG BUILDER_BASE_IMAGE=golang:1.18
-
+ARG CACHE_GOBUILD=type=cache,target=/root/.cache/go-build
+ARG CACHE_GOLANG=cache,target=/root/.local/share/golang
+ARG CACHE_GOMOD=type=cache,target=/go/pkg/mod
+ARG CACHE="--mount=${CACHE_GOLANG} --mount=${CACHE_GOBUILD} --mount=${CACHE_GOMOD}" 
 # Build the manager binary
 FROM $BUILDER_BASE_IMAGE as builder
 
@@ -17,12 +20,12 @@ COPY apis/ apis/
 COPY cli/runtime cli/runtime
 
 WORKDIR capabilities/controller
-RUN  go mod download
+RUN $CACHE go mod download
 
 # Build
 ARG LD_FLAGS
 ENV LD_FLAGS="$LD_FLAGS "'-extldflags "-static"'
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -o manager main.go
+RUN $CACHE CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -o manager main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
