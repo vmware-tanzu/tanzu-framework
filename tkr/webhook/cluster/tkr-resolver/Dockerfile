@@ -25,7 +25,7 @@ COPY tkr/go.mod tkr/go.mod
 COPY tkr/go.sum tkr/go.sum
 
 WORKDIR /workspace/tkr
-RUN $CACHE go mod download
+RUN \${CACHE} go mod download
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
 

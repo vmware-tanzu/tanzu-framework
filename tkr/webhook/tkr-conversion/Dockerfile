@@ -5,7 +5,9 @@
 ARG CACHE_GOBUILD=type=cache,target=/root/.cache/go-build
 ARG CACHE_GOLANG=cache,target=/root/.local/share/golang
 ARG CACHE_GOMOD=type=cache,target=/go/pkg/mod
-ARG CACHE="--mount=${CACHE_GOLANG} --mount=${CACHE_GOBUILD} --mount=${CACHE_GOMOD}" # Copyright 2021 VMware, Inc. All Rights Reserved.
+ARG CACHE="--mount=${CACHE_GOLANG} --mount=${CACHE_GOBUILD} --mount=${CACHE_GOMOD}"
+
+# Copyright 2021 VMware, Inc. All Rights Reserved.
 
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
@@ -24,7 +26,7 @@ COPY tkr/go.mod tkr/go.mod
 COPY tkr/go.sum tkr/go.sum
 
 WORKDIR /workspace/tkr
-RUN $CACHE go mod download
+RUN \$CACHE go mod download
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
 
@@ -34,7 +36,7 @@ COPY tkr/ ./
 # Build
 ARG LD_FLAGS
 ENV LD_FLAGS="$LD_FLAGS "'-extldflags "-static"'
-RUN $CACHE CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o manager webhook/tkr-conversion/main.go
+RUN ${CACHE} CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o manager webhook/tkr-conversion/main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
