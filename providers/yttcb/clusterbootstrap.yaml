@@ -113,7 +113,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: #@ "{}-pinniped-addon".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-pinniped-package".format(data.values.CLUSTER_NAME)
   namespace: #@ data.values.NAMESPACE
   labels:
     tkg.tanzu.vmware.com/addon-name: pinniped
@@ -445,12 +445,11 @@ spec:
   additionalPackages:
     - refName: metrics-server*
     - refName: secretgen-controller*
+    #! TODO: fix this up.
     #@ if pinniped_configs_exist():
     - refName: pinniped*
       valuesFrom:
-        secretRef: #@ "{}-pinniped-addon".format(data.values.CLUSTER_NAME)
-    #@ else:
-    - refName: pinniped*
+        secretRef: #@ "{}-pinniped-package".format(data.values.CLUSTER_NAME)
     #@ end
     #@ if storage_class_configs_exist():
     - refName: tkg-storageclass*
