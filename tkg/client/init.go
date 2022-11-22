@@ -894,7 +894,7 @@ func (c *TkgClient) removeKappControllerLabelsFromClusterClassResources(regional
 		if exists, err := regionalClusterClient.VerifyExistenceOfCRD(resourceName, gvk.Group); err != nil || !exists {
 			continue
 		}
-		errList = append(errList, regionalClusterClient.RemoveMatchingLabelsFromResources(gvk, constants.TkgNamespace, labelsToBeDeleted))
+		errList = append(errList, regionalClusterClient.RemoveMatchingMetadataFromResources(gvk, constants.TkgNamespace, "labels", labelsToBeDeleted))
 	}
 
 	return kerrors.NewAggregate(errList)
