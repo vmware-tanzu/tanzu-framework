@@ -9,7 +9,7 @@ repositories:
     registry: registry
 
     packageSpec:
-      syncPeriod: 5m
+      syncPeriod: 1m
       deploy:
         kappWaitTimeout: 5m
         kubeAPIQPS: 20
@@ -193,7 +193,7 @@ repositories:
     domain: tanzu.vmware.com
 
     packageSpec:
-      syncPeriod: 5m
+      syncPeriod: 1m
       deploy:
         kappWaitTimeout: 5m
         kubeAPIQPS: 20
