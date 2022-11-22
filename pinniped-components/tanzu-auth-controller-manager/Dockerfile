@@ -19,7 +19,7 @@ WORKDIR /workspace
 # Copy the Go Modules manifests
 COPY go.mod go.mod
 COPY go.sum go.sum
-RUN  --mount=$CACHE_GOLANG --mount=$CACHE_GOMOD go mod download
+RUN  --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/root/.local/share/golang --mount=type=cache,target=/go/pkg/mod go mod download
 
 # Copy the source
 COPY main.go main.go
@@ -28,7 +28,7 @@ COPY controllers/ controllers/
 # Build
 ARG LD_FLAGS
 ENV LD_FLAGS="$LD_FLAGS "'-extldflags "-static"'
-RUN $CACHE CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o tanzu-auth-controller-manager .
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/root/.local/share/golang --mount=type=cache,target=/go/pkg/mod CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o tanzu-auth-controller-manager .
 
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
