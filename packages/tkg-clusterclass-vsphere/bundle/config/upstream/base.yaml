@@ -1503,6 +1503,12 @@ spec:
         path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/register-with-taints
         value: os=windows:NoSchedule
       - op: add
+        path: /spec/template/spec/files/-
+        value:
+          path: 'C:\k\prevent_windows_updates.ps1'
+          content: |
+            Set-Service -Name "wuauserv" -StartupType Disabled -Status Stopped
+      - op: add
         path: /spec/template/spec/postKubeadmCommands/-
         value: powershell c:/k/prevent_windows_updates.ps1 -ExecutionPolicy Bypass
       - op: replace
@@ -1609,7 +1615,7 @@ spec:
 
             # Install antrea-agent & OVS
             Import-Module C:\k\antrea\helper.psm1
-            & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea"
+            & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "1.7.1"
             New-KubeProxyServiceInterface
             & C:\k\antrea\Install-OVS.ps1 -ImportCertificate $false -LocalFile C:\k\antrea\ovs-win64.zip
             Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
