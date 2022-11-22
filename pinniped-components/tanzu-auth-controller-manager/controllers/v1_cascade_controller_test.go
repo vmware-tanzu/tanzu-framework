@@ -219,31 +219,6 @@ var _ = Describe("Controller", func() {
 			})
 		})
 
-		When("random values are added to the secret", func() {
-			var expectedSecret *corev1.Secret
-			BeforeEach(func() {
-				expectedSecret = secret.DeepCopy()
-				Eventually(func(g Gomega) {
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(expectedSecret), expectedSecret)
-					g.Expect(err).NotTo(HaveOccurred())
-					g.Expect(expectedSecret.Data).NotTo(BeNil())
-				}).Should(Succeed())
-				dataValues := expectedSecret.Data[tkgDataValueFieldName]
-				dataValues = append(dataValues, "sweetest_cat: lionel"...)
-				expectedSecret.Data[tkgDataValueFieldName] = dataValues
-				updateObject(ctx, expectedSecret)
-			})
-
-			XIt("they are preserved", func() {
-				Consistently(func(g Gomega) {
-					actualSecret := expectedSecret.DeepCopy()
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
-					g.Expect(err).NotTo(HaveOccurred())
-					g.Expect(actualSecret.Data).Should(Equal(expectedSecret.Data))
-				}).Should(Succeed())
-			})
-		})
-
 		When("the secret contains overlays", func() {
 			var expectedSecret *corev1.Secret
 			BeforeEach(func() {
