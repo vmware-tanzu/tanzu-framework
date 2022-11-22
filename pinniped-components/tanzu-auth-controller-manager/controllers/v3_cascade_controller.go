@@ -33,15 +33,22 @@ func NewV3Controller(c client.Client) *PinnipedV3Controller {
 }
 
 func (c *PinnipedV3Controller) SetupWithManager(manager ctrl.Manager) error {
+	// Note that this controller is not directly watching Clusters, unlike the v1 controller.
+	// It watches Secrets with a certain type and label, and also watches the pinniped-info configmap.
+	// This controller is not responsible for creating or deleting the pinniped clusterbootstrap-secrets,
+	// which are created elsewhere during cluster creation for classy clusters.
+	// Instead, it is only responsible for updating the content of the pinniped clusterbootstrap-secrets based on the
+	// content of the pinniped-info configmap. When the pinniped-info configmap does not exist, the pinniped
+	// clusterbootstrap-secrets will be updated by this controller to contain some defaults.
 	err := ctrl.
 		NewControllerManagedBy(manager).
 		For(
 			&corev1.Secret{},
-			c.withPackageName(pinnipedPackageLabel),
+			c.withPackageName(pinnipedPackageLabel), // type="clusterbootstrap-secret" and "tkg.tanzu.vmware.com/package-name" label has value containing "pinniped"
 		).
 		Watches(
 			&source.Kind{Type: &corev1.ConfigMap{}},
-			handler.EnqueueRequestsFromMapFunc(configMapHandler),
+			handler.EnqueueRequestsFromMapFunc(configMapHandler), // enqueues an empty ctrl.Request to indicate that the configmap changed
 			withNamespacedName(types.NamespacedName{Namespace: "kube-public", Name: "pinniped-info"}),
 		).
 		Complete(c)
@@ -66,8 +73,10 @@ func (c *PinnipedV3Controller) Reconcile(ctx context.Context, req ctrl.Request) 
 	}
 
 	if (req == ctrl.Request{}) {
+		// The pinniped-info configmap has changed. Find all the secrets and update their contents.
 		log.V(1).Info("empty request provided, checking all secrets")
 
+		// List secrets with same type and label as those secrets being watched by this controller.
 		secrets, err := listSecretsContainingPackageName(ctx, c.client, pinnipedPackageLabel)
 		if err != nil {
 			log.Error(err, "error retrieving secrets", "package name", pinnipedPackageLabel)
@@ -84,6 +93,7 @@ func (c *PinnipedV3Controller) Reconcile(ctx context.Context, req ctrl.Request) 
 		return reconcile.Result{}, nil
 	}
 
+	// A particular secret has changed. Update its contents.
 	secret := corev1.Secret{}
 	if err := c.client.Get(ctx, req.NamespacedName, &secret); err != nil {
 		if k8serror.IsNotFound(err) {
@@ -111,6 +121,9 @@ func (c *PinnipedV3Controller) reconcileSecret(ctx context.Context, secret *core
 		return nil
 	}
 
+	// Get the Cluster name from the Secret's ownerRefs or from its "tkg.tanzu.vmware.com/cluster-name" label,
+	// and use it to get the Cluster resource. While updating the Secret's contents below, the Cluster will be
+	// used to determine the infrastructure type.
 	cluster, err := getClusterFromSecret(ctx, c.client, secret)
 	if err != nil {
 		if k8serror.IsNotFound(err) {
@@ -121,6 +134,17 @@ func (c *PinnipedV3Controller) reconcileSecret(ctx context.Context, secret *core
 			return nil
 		}
 		log.Error(err, "error getting cluster for secret, skipping reconciliation")
+		return nil
+	}
+
+	// Check the Cluster's labels to determine if it is a management cluster. Do not update the pinniped
+	// clusterbootstrap-secret for the management cluster to avoid overwriting its contents. This controller
+	// is not responsible for configuring pinniped on management clusters. The user will provide the management
+	// cluster's pinniped configuration either during `tanzu management-cluster create`, or by following the
+	// documentation to update the pinniped addon secret for the management cluster on an existing management cluster.
+	// Either way, this controller should not interfere with the user's configuration for the management cluster.
+	if isManagementCluster(cluster) {
+		log.V(1).Info("skipping reconciliation of secret for management cluster")
 		return nil
 	}
 
