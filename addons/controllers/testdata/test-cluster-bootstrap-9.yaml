@@ -1,0 +1,1084 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cluster-namespace-9
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: TanzuKubernetesRelease
+metadata:
+  name: v1.25.2-custom
+spec:
+  version: v1.25.2
+  kubernetes:
+    version: v1.25.2
+    imageRepository: foo
+  osImages: []
+  bootstrapPackages:
+    - name: kapp-controller.tanzu.vmware.com.0.32.9
+    - name: antrea.tanzu.vmware.com.1.11.5--vmware.1-tkg.2
+    - name: calico.tanzu.vmware.com.1.3.5--vmware.1-tkg.1
+    - name: pinniped.tanzu.vmware.com.0.13.1--vmware.1-tkg.1
+    - name: foobar.tanzu.vmware.com.0.2.2--vmware.1-tkg.1
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrapTemplate
+metadata:
+  name: v1.25.2-custom
+  namespace: tkg-system
+spec:
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.32.9
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: kapp-config-custom
+  cni:
+    refName: antrea.tanzu.vmware.com.1.11.5--vmware.1-tkg.2
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: AntreaConfig
+        name: antrea-config-custom
+  additionalPackages:
+    - refName: pinniped.tanzu.vmware.com.0.13.1--vmware.1-tkg.1
+      valuesFrom:
+        secretRef: default-pinniped-config-v1.23.5---vmware.1-tkg.1
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: TanzuKubernetesRelease
+metadata:
+  name: v1.25.3-custom
+spec:
+  version: v1.25.3
+  kubernetes:
+    version: v1.25.3
+    imageRepository: foo
+  osImages: []
+  bootstrapPackages:
+    - name: kapp-controller.tanzu.vmware.com.0.32.10
+    - name: antrea.tanzu.vmware.com.1.11.6--vmware.1-tkg.2
+    - name: calico.tanzu.vmware.com.1.3.6--vmware.1-tkg.1
+    - name: pinniped.tanzu.vmware.com.0.13.2--vmware.1-tkg.1
+    - name: foobar.tanzu.vmware.com.0.2.3--vmware.1-tkg.1
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrapTemplate
+metadata:
+  name: v1.25.3-custom
+  namespace: tkg-system
+spec:
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.32.10
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: kapp-config-custom
+  cni:
+    refName: antrea.tanzu.vmware.com.1.11.6--vmware.1-tkg.2
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: AntreaConfig
+        name: antrea-config-custom
+  additionalPackages:
+    - refName: pinniped.tanzu.vmware.com.0.13.2--vmware.1-tkg.1
+      valuesFrom:
+        secretRef: default-pinniped-config-v1.23.6---vmware.1-tkg.1
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: kapp-controller.tanzu.vmware.com.0.32.9
+  namespace: tkg-system
+spec:
+  refName: kapp-controller.tanzu.vmware.com
+  version: 0.32.9
+  releaseNotes: kapp-controller 0.32.9 https://github.com/vmware-tanzu/carvel-kapp-controller
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.32.9_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-30T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: kapp-controller.tanzu.vmware.com.0.32.9+vmware.1-tkg.1 values schema
+---
+# manually sync package to required namespace (done by kapp-controller on a real cluster)
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: kapp-controller.tanzu.vmware.com.0.32.9
+  namespace: cluster-namespace-9
+spec:
+  refName: kapp-controller.tanzu.vmware.com
+  version: 0.32.9
+  releaseNotes: kapp-controller 0.32.9 https://github.com/vmware-tanzu/carvel-kapp-controller
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.32.9_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-30T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: kapp-controller.tanzu.vmware.com.0.32.9+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: kapp-controller.tanzu.vmware.com.0.32.10
+  namespace: tkg-system
+spec:
+  refName: kapp-controller.tanzu.vmware.com
+  version: 0.32.10
+  releaseNotes: kapp-controller 0.32.10 https://github.com/vmware-tanzu/carvel-kapp-controller
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.32.10_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-30T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: kapp-controller.tanzu.vmware.com.0.32.10+vmware.1-tkg.1 values schema
+---
+# manually sync package to required namespace (done by kapp-controller on a real cluster)
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: kapp-controller.tanzu.vmware.com.0.32.10
+  namespace: cluster-namespace-9
+spec:
+  refName: kapp-controller.tanzu.vmware.com
+  version: 0.32.10
+  releaseNotes: kapp-controller 0.32.10 https://github.com/vmware-tanzu/carvel-kapp-controller
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.32.10_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-30T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: kapp-controller.tanzu.vmware.com.0.32.10+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: antrea.tanzu.vmware.com.1.11.5--vmware.1-tkg.2
+  namespace: tkg-system
+spec:
+  refName: antrea.tanzu.vmware.com
+  version: 1.11.5+vmware.1-tkg.1
+  releaseNotes: antrea 1.11.5 https://github.com/antrea-io/antrea/releases/tag/v1.11.5
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/antrea:v1.11.5_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: antrea.tanzu.vmware.com.1.11.5+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: antrea.tanzu.vmware.com.1.11.5--vmware.1-tkg.2
+  namespace: cluster-namespace-9
+spec:
+  refName: antrea.tanzu.vmware.com
+  version: 1.11.5+vmware.1-tkg.1
+  releaseNotes: antrea 1.11.5 https://github.com/antrea-io/antrea/releases/tag/v1.11.5
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/antrea:v1.11.5_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: antrea.tanzu.vmware.com.1.11.5+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: antrea.tanzu.vmware.com.1.11.6--vmware.1-tkg.2
+  namespace: tkg-system
+spec:
+  refName: antrea.tanzu.vmware.com
+  version: 1.11.6+vmware.1-tkg.1
+  releaseNotes: antrea 1.11.6 https://github.com/antrea-io/antrea/releases/tag/v1.11.6
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/antrea:v1.11.6_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: antrea.tanzu.vmware.com.1.11.6+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: antrea.tanzu.vmware.com.1.11.6--vmware.1-tkg.2
+  namespace: cluster-namespace-9
+spec:
+  refName: antrea.tanzu.vmware.com
+  version: 1.11.6+vmware.1-tkg.1
+  releaseNotes: antrea 1.11.6 https://github.com/antrea-io/antrea/releases/tag/v1.11.6
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/antrea:v1.11.6_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: antrea.tanzu.vmware.com.1.11.6+vmware.1-tkg.1 values schema
+---
+# manually sync package to required namespace (done by kapp-controller on a real cluster)
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: calico.tanzu.vmware.com.1.3.5--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: calico.tanzu.vmware.com
+  version: 1.3.5+vmware.1-tkg.1
+  releaseNotes: calico 1.3.5 https://github.com/calico-io/calico/releases/tag/v1.3.5
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/calico:v1.3.5_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: calico.tanzu.vmware.com.1.3.5+vmware.1-tkg.1 values schema
+---
+# manually sync package to required namespace (done by kapp-controller on a real cluster)
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: calico.tanzu.vmware.com.1.3.5--vmware.1-tkg.1
+  namespace: cluster-namespace-9
+spec:
+  refName: calico.tanzu.vmware.com
+  version: 1.3.5+vmware.1-tkg.1
+  releaseNotes: calico 1.3.5 https://github.com/calico-io/calico/releases/tag/v1.3.5
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/calico:v1.3.5_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: calico.tanzu.vmware.com.1.3.5+vmware.1-tkg.1 values schema
+---
+# manually sync package to required namespace (done by kapp-controller on a real cluster)
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: calico.tanzu.vmware.com.1.3.6--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: calico.tanzu.vmware.com
+  version: 1.3.6+vmware.1-tkg.1
+  releaseNotes: calico 1.3.6 https://github.com/calico-io/calico/releases/tag/v1.3.6
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/calico:v1.3.6_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: calico.tanzu.vmware.com.1.3.6+vmware.1-tkg.1 values schema
+---
+# manually sync package to required namespace (done by kapp-controller on a real cluster)
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: calico.tanzu.vmware.com.1.3.6--vmware.1-tkg.1
+  namespace: cluster-namespace-9
+spec:
+  refName: calico.tanzu.vmware.com
+  version: 1.3.6+vmware.1-tkg.1
+  releaseNotes: calico 1.3.6 https://github.com/calico-io/calico/releases/tag/v1.3.6
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/calico:v1.3.6_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: calico.tanzu.vmware.com.1.3.6+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: pinniped.tanzu.vmware.com.0.13.1--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: pinniped.tanzu.vmware.com
+  version: 0.13.1+vmware.1-tkg.1
+  releaseNotes: pinniped 0.13.1 https://github.com/vmware-tanzu/pinniped/releases/tag/v0.13.1
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.13.1_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: pinniped.tanzu.vmware.com.0.13.1+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: pinniped.tanzu.vmware.com.0.13.1--vmware.1-tkg.1
+  namespace: cluster-namespace-9
+spec:
+  refName: pinniped.tanzu.vmware.com
+  version: 0.13.1+vmware.1-tkg.1
+  releaseNotes: pinniped 0.13.1 https://github.com/vmware-tanzu/pinniped/releases/tag/v0.13.1
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.13.1_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: pinniped.tanzu.vmware.com.0.13.1+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: pinniped.tanzu.vmware.com.0.13.2--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: pinniped.tanzu.vmware.com
+  version: 0.13.2+vmware.1-tkg.1
+  releaseNotes: pinniped 0.13.2 https://github.com/vmware-tanzu/pinniped/releases/tag/v0.13.2
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.13.2_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: pinniped.tanzu.vmware.com.0.13.2+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: pinniped.tanzu.vmware.com.0.13.2--vmware.1-tkg.1
+  namespace: cluster-namespace-9
+spec:
+  refName: pinniped.tanzu.vmware.com
+  version: 0.13.2+vmware.1-tkg.1
+  releaseNotes: pinniped 0.13.2 https://github.com/vmware-tanzu/pinniped/releases/tag/v0.13.2
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.13.2_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: pinniped.tanzu.vmware.com.0.13.2+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: foobar.tanzu.vmware.com.0.2.2--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: foobar.tanzu.vmware.com
+  version: 0.2.2+vmware.1-tkg.1
+  releaseNotes: foobar 0.2.2 https://github.com/vmware-tanzu/foobar/releases/tag/v0.2.2
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/foobar:v0.2.2_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: foobar.tanzu.vmware.com.0.2.2+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: foobar.tanzu.vmware.com.0.2.2--vmware.1-tkg.1
+  namespace: cluster-namespace-9
+spec:
+  refName: foobar.tanzu.vmware.com
+  version: 0.2.2+vmware.1-tkg.1
+  releaseNotes: foobar 0.2.2 https://github.com/vmware-tanzu/foobar/releases/tag/v0.2.2
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/foobar:v0.2.2_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: foobar.tanzu.vmware.com.0.2.2+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: foobar.tanzu.vmware.com.0.2.3--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: foobar.tanzu.vmware.com
+  version: 0.2.3+vmware.1-tkg.1
+  releaseNotes: foobar 0.2.3 https://github.com/vmware-tanzu/foobar/releases/tag/v0.2.3
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/foobar:v0.2.3_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: foobar.tanzu.vmware.com.0.2.3+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: foobar.tanzu.vmware.com.0.2.3--vmware.1-tkg.1
+  namespace: cluster-namespace-9
+spec:
+  refName: foobar.tanzu.vmware.com
+  version: 0.2.3+vmware.1-tkg.1
+  releaseNotes: foobar 0.2.3 https://github.com/vmware-tanzu/foobar/releases/tag/v0.2.3
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/foobar:v0.2.3_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: foobar.tanzu.vmware.com.0.2.3+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: barfoo.tanzu.vmware.com.1.0.0--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: barfoo.tanzu.vmware.com
+  version: 1.0.0+vmware.1-tkg.1
+  releaseNotes: barfoo 1.0.0 https://github.com/vmware-tanzu/foobar/releases/tag/v1.0.0
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/barfoo:v1.0.0_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: barfoo.tanzu.vmware.com.1.0.0+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: barfoo.tanzu.vmware.com.1.0.0--vmware.1-tkg.1
+  namespace: cluster-namespace-9
+spec:
+  refName: barfoo.tanzu.vmware.com
+  version: 1.0.0+vmware.1-tkg.1
+  releaseNotes: barfoo 1.0.0 https://github.com/vmware-tanzu/foobar/releases/tag/v1.0.0
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/barfoo:v1.0.0_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: barfoo.tanzu.vmware.com.1.0.0+vmware.1-tkg.1 values schema
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: antrea-config-custom
+  namespace: tkg-system
+spec:
+  antrea:
+    config:
+      trafficEncapMode: encap
+      noSNAT: false
+      tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+      disableUdpTunnelOffload: false
+      featureGates:
+        AntreaProxy: true
+        EndpointSlice: true
+        AntreaPolicy: true
+        NodePortLocal: false
+        AntreaTraceflow: true
+        Egress: false
+        FlowExporter: false
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
+metadata:
+  name: kapp-config-custom
+  namespace: tkg-system
+spec:
+  namespace: test-ns
+  kappController:
+    createNamespace: true
+    globalNamespace: tanzu-package-repo-global
+    deployment:
+      concurrency: 4
+      hostNetwork: true
+      priorityClassName: system-cluster-critical
+      apiPort: 10100
+      metricsBindAddress: "0"
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+        - effect: NoSchedule
+          key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: default-pinniped-config-v1.23.5---vmware.1-tkg.1
+  namespace: tkg-system
+stringData:
+  values.yaml: |
+    infrastructure_provider: vsphere
+    identity_management_type: none
+    tkg_cluster_role: workload
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: default-pinniped-config-v1.23.5---vmware.1-tkg.1
+  namespace: cluster-namespace-9
+stringData:
+  values.yaml: |
+    infrastructure_provider: vsphere
+    identity_management_type: none
+    tkg_cluster_role: workload
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: CalicoConfig
+metadata:
+  name: calico-custom-config
+  namespace: cluster-namespace-9
+spec:
+  calico:
+    config:
+      vethMTU: 1420
+      skipCNIBinaries: false
+---
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: FooBar
+metadata:
+  name: foobar-custom-config
+  namespace: cluster-namespace-9
+spec:
+  foo: bar
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  name: test-cluster-9
+  namespace: cluster-namespace-9
+  annotations:
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.25.2-custom
+spec:
+  kapp:
+    refName: kapp-controller*
+  cni:
+    refName: calico*
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: CalicoConfig
+        name: calico-custom-config
+  additionalPackages:
+    - refName: pinniped*
+    - refName: foobar*
+      valuesFrom:
+        providerRef:
+          apiGroup: run.tanzu.vmware.com
+          kind: FooBar
+          name: foobar-custom-config
+    - refName: barfoo.tanzu.vmware.com.1.0.0--vmware.1-tkg.1
+      valuesFrom:
+        inline:
+          key1: value1
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-9
+  namespace: cluster-namespace-9
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-9
+    run.tanzu.vmware.com/tkr: v1.25.2-custom
+spec:
+  infrastructureRef:
+    kind: VSphereCluster
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    name: test-cluster-9
+    namespace: cluster-namespace-9
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+    services:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  name: test-cluster-9
+  namespace: cluster-namespace-9
+spec:
+  identityRef:
+    kind: Secret
+    name: test-cluster-tcbt-5
+  thumbprint: test-thumbprint
+  server: vsphere-server.local
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: test-cluster-9
+  namespace: cluster-namespace-9
+spec:
+  template:
+    spec:
+      datacenter: dc0
+      template: /dc0/vm/photon-3-kube-v1.22.3+vmware.1-tkg.2
+      network:
+        devices:
+          - networkName: test-network
+            dhcp6: true
+            dhcp4: false
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-tcbt-5
+  namespace: cluster-namespace-9
+data:
+  password: QWRtaW4hMjM= # Admin!23
+  username: YWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2Fs # administrator@vsphere.local
