@@ -9,6 +9,8 @@ metadata:
     kapp.k14s.io/change-rule.1: "delete before deleting featuregates.config.tanzu.vmware.com/crd"
     kapp.k14s.io/change-rule.2: "upsert after upserting features.config.tanzu.vmware.com/crd"
     kapp.k14s.io/change-rule.3: "delete before deleting features.config.tanzu.vmware.com/crd"
+    kapp.k14s.io/change-rule.4: "upsert after upserting tanzu-featuregates-controller-manager/deployment"
+    kapp.k14s.io/change-rule.5: "delete before deleting tanzu-featuregates-controller-manager/deployment"
     kapp.k14s.io/update-strategy: skip
 spec:
   namespaceSelector: {}
