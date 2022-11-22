@@ -295,7 +295,7 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 // mutateUserConfigVariableValueMap get user config variables to overwrite the existing config variables that
 // retrieved from the cluster. This is mainly for mutating during cluster upgrading.
 func (c *TkgClient) mutateUserConfigVariableValueMap(configValues map[string]interface{}) error {
-	userProvidedConfigValues, err := c.getUserConfigVariableValueMap()
+	userProvidedConfigValues, err := c.getUserConfigVariableValueMap(false)
 	if err != nil {
 		return err
 	}
