@@ -171,7 +171,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("packageinstall should have been created for each additional package in the clusterBoostrap")
 				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-					clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
+					clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, setupLog)).To(BeTrue())
 
 				By("packageinstalls for core packages should not have owner references")
 				var corePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
@@ -742,10 +742,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("instacllpackages for additional packages should have been removed.")
 				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-					clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
+					clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, setupLog)).To(BeTrue())
 				Eventually(func() bool {
 					return hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-						clusterBootstrap.Spec.AdditionalPackages, setupLog)
+						clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, setupLog)
 				}, waitTimeout, pollingInterval).Should(BeFalse())
 
 				By("finalizer should be removed from clusterboostrap")
@@ -1244,6 +1244,131 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					Expect(strings.Contains(string(valueTexts), "loadbalancerIPRanges: 10.0.0.1-10.0.0.2")).Should(BeTrue())
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
+			})
+		})
+	})
+
+	// This test case is for ensuring that controller will skip deleting additional packages that's inside annotation run.tanzu.vmware.com/skip-packageinstall-deletion
+	When("Cluster with ako", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-8"
+			clusterNamespace = "cluster-namespace-8"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-8.yaml"
+			ns := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: clusterNamespace,
+				},
+			}
+			Expect(k8sClient.Create(ctx, ns)).To(Succeed())
+		})
+
+		Context("from a ClusterBootstrap", func() {
+			It("should perform ClusterBootstrap reconciliation", func() {
+
+				By("verifying CAPI cluster is created properly")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+
+				By("ClusterBootstrap CR is created with correct ownerReference added")
+				clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+				// Verify ownerReference for cluster in cloned object
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+					if err != nil {
+						return false
+					}
+					for _, ownerRef := range clusterBootstrap.OwnerReferences {
+						if ownerRef.UID == cluster.UID {
+							return true
+						}
+					}
+					return false
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+				By("patching secret of ako with ownerRef as ClusterBootstrapController would do")
+				config := &corev1.Secret{}
+				key := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      util.GenerateDataValueSecretName(clusterName, "load-balancer-and-ingress-service"),
+				}
+				Eventually(func() bool {
+					if err := k8sClient.Get(ctx, key, config); err != nil {
+						return false
+					}
+
+					if len(config.OwnerReferences) > 0 {
+						return false
+					}
+
+					Expect(len(config.OwnerReferences)).Should(Equal(0))
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				patchedSecret := config.DeepCopy()
+				ownerRef := metav1.OwnerReference{
+					APIVersion: clusterapiv1beta1.GroupVersion.String(),
+					Kind:       "Cluster",
+					Name:       cluster.Name,
+					UID:        cluster.UID,
+				}
+
+				patchedSecret.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedSecret.OwnerReferences, ownerRef)
+				Expect(k8sClient.Patch(ctx, patchedSecret, client.MergeFrom(config))).ShouldNot(HaveOccurred())
+
+				By("ClusterBootstrap CR is created with correct ownerReference added")
+				// Verify ownerReference for cluster in cloned object
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+					if err != nil {
+						return false
+					}
+					for _, ownerRef := range clusterBootstrap.OwnerReferences {
+						if ownerRef.UID == cluster.UID {
+							return true
+						}
+					}
+					return false
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("Should have remote packageinstall created for ako")
+				remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(remoteClient).NotTo(BeNil())
+
+				akoPackageInstallExist := func() bool {
+					pkgInstall := &kapppkgiv1alpha1.PackageInstall{}
+					if err := remoteClient.Get(ctx, client.ObjectKey{Name: util.GeneratePackageInstallName(clusterName, "load-balancer-and-ingress-service"), Namespace: "tkg-system"}, pkgInstall); err != nil {
+						return false
+					}
+					return true
+				}()
+
+				Eventually(akoPackageInstallExist, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("delete cluster with foreground propagation policy")
+				deletePropagation := metav1.DeletePropagationForeground
+				deleteOptions := client.DeleteOptions{PropagationPolicy: &deletePropagation}
+				Expect(k8sClient.Delete(ctx, cluster, &deleteOptions)).To(Succeed())
+
+				By("instacllpackages for additional packages should have been removed.")
+				Eventually(func() bool {
+					return hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
+						clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, setupLog)
+				}, waitTimeout, pollingInterval).Should(BeFalse())
+
+				By("Should have left ako packageInstall")
+				Eventually(akoPackageInstallExist, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("finalizer should be removed from clusterboostrap")
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+					if err != nil {
+						return false
+					}
+					return controllerutil.ContainsFinalizer(clusterBootstrap, addontypes.AddonFinalizer)
+				}, waitTimeout, pollingInterval).Should(BeFalse())
+
 			})
 		})
 	})

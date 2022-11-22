@@ -351,6 +351,11 @@ const (
 
 	// KindTanzuKubernetesCluster is the owner name of cluster
 	KindTanzuKubernetesCluster = "TanzuKubernetesCluster"
+
+	// SkipDeletePackageInstallAnnotation is the annotation that contains a list of comma separated packageInstalls to skip
+	// for example
+	// "run.tanzu.vmware.com/skip-packageinstall-deletion": "vsphere-cpi,antrea,load-balancer-and-ingress-service"
+	SkipDeletePackageInstallAnnotation = "run.tanzu.vmware.com/skip-packageinstall-deletion"
 )
 
 var (

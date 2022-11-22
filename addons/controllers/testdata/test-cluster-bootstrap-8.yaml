@@ -2,17 +2,17 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  name: test-cluster-7
-  namespace: cluster-namespace-7
+  name: test-cluster-8
+  namespace: cluster-namespace-8
   labels:
-    tkg.tanzu.vmware.com/cluster-name: test-cluster-7
-    run.tanzu.vmware.com/tkr: v1.22.5
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-8
+    run.tanzu.vmware.com/tkr: v1.22.22
 spec:
   infrastructureRef:
     kind: VSphereCluster
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-    name: test-cluster-7
-    namespace: cluster-namespace-7
+    name: test-cluster-8
+    namespace: cluster-namespace-8
   clusterNetwork:
     pods:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
@@ -22,25 +22,25 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereCluster
 metadata:
-  name: test-cluster-7
-  namespace: cluster-namespace-7
+  name: test-cluster-8
+  namespace: cluster-namespace-8
 spec:
   identityRef:
     kind: Secret
-    name: test-cluster-7
+    name: test-cluster-8
   thumbprint: test-thumbprint
   server: vsphere-server.local
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: test-cluster-7-control-plane
-  namespace: cluster-namespace-7
+  name: test-cluster-8-control-plane
+  namespace: cluster-namespace-8
 spec:
   template:
     spec:
       datacenter: dc0
-      template: /dc0/vm/photon-3-kube-v1.22.5+vmware.1-tkg.2
+      template: /dc0/vm/photon-3-kube-v1.22.22+vmware.1-tkg.2
       network:
         devices:
           - networkName: test-network
@@ -50,8 +50,8 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: test-cluster-7
-  namespace: cluster-namespace-7
+  name: test-cluster-8
+  namespace: cluster-namespace-8
 data:
   password: QWRtaW4hMjM= # Admin!23
   username: YWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2Fs # administrator@vsphere.local
@@ -59,17 +59,17 @@ data:
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: cpi.tanzu.vmware.com.0.0.4
-  namespace: cluster-namespace-7
+  name: load-balancer-and-ingress-service.tanzu.vmware.com.0.0.4
+  namespace: cluster-namespace-8
 spec:
-  refName: cpi.tanzu.vmware.com
+  refName: load-balancer-and-ingress-service.tanzu.vmware.com
   version: 0.0.4+vmware.1-tkg.1
   releasedAt: "2021-05-13T18:00:00Z"
   releaseNotes: lb 0.0.4
   capacityRequirementsDescription: Varies significantly based on cluster size. This should be tuned based on observed usage.
   valuesSchema:
     openAPIv3:
-      title: cpi.tanzu.vmware.com.0.0.4+vmware.1-tkg.1 values schema
+      title: load-balancer-and-ingress-service.tanzu.vmware.com.0.0.4+vmware.1-tkg.1 values schema
       properties:
         namespace:
           type: string
@@ -81,7 +81,7 @@ spec:
     spec:
       fetch:
         - imgpkgBundle:
-            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kube-vip-cloud-provider:v0.0.4_vmware.1-tkg.1
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/ako:v0.0.4_vmware.1-tkg.1
       template:
         - ytt:
             paths:
@@ -101,17 +101,17 @@ spec:
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: cpi.tanzu.vmware.com.0.0.4
+  name: load-balancer-and-ingress-service.tanzu.vmware.com.0.0.4
   namespace: tkg-system
 spec:
-  refName: cpi.tanzu.vmware.com
+  refName: load-balancer-and-ingress-service.tanzu.vmware.com
   version: 0.0.4+vmware.1-tkg.1
   releasedAt: "2021-05-13T18:00:00Z"
   releaseNotes: lb 0.0.4
   capacityRequirementsDescription: Varies significantly based on cluster size. This should be tuned based on observed usage.
   valuesSchema:
     openAPIv3:
-      title: cpi.tanzu.vmware.com.0.0.4+vmware.1-tkg.1 values schema
+      title: load-balancer-and-ingress-service.tanzu.vmware.com.0.0.4+vmware.1-tkg.1 values schema
       properties:
         namespace:
           type: string
@@ -123,7 +123,7 @@ spec:
     spec:
       fetch:
         - imgpkgBundle:
-            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kube-vip-cloud-provider:v0.0.4_vmware.1-tkg.1
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/ako:v0.0.4_vmware.1-tkg.1
       template:
         - ytt:
             paths:
@@ -143,19 +143,19 @@ spec:
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: kapp-controller.tanzu.vmware.com.0.30.23
-  namespace: cluster-namespace-7
+  name: kapp-controller.tanzu.vmware.com.0.30.24
+  namespace: cluster-namespace-8
 spec:
   refName: kapp-controller.tanzu.vmware.com
-  version: 0.30.23
-  releaseNotes: kapp-controller 0.30.23 https://github.com/vmware-tanzu/carvel-kapp-controller
+  version: 0.30.24
+  releaseNotes: kapp-controller 0.30.24 https://github.com/vmware-tanzu/carvel-kapp-controller
   licenses:
     - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
   template:
     spec:
       fetch:
         - imgpkgBundle:
-            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.23_vmware.1-tkg.1
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.24_vmware.1-tkg.1
       template:
         - ytt:
             paths:
@@ -174,13 +174,13 @@ spec:
   releasedAt: "2021-12-20T10:59:32Z"
   valuesSchema:
     openAPIv3:
-      title: kapp-controller.tanzu.vmware.com.0.30.23+vmware.1-tkg.1 values schema
+      title: kapp-controller.tanzu.vmware.com.0.30.24+vmware.1-tkg.1 values schema
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: calico.tanzu.vmware.com.3.19.1--vmware.1-tkg.1
-  namespace: cluster-namespace-7
+  namespace: cluster-namespace-8
 spec:
   refName: calico.tanzu.vmware.com
   version: 3.19.1+vmware.1-tkg.1
@@ -216,7 +216,7 @@ apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1
-  namespace: cluster-namespace-7
+  namespace: cluster-namespace-8
 spec:
   refName: antrea.tanzu.vmware.com
   version: 1.2.3+vmware.1-tkg.1
@@ -252,7 +252,7 @@ apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1
-  namespace: cluster-namespace-7
+  namespace: cluster-namespace-8
 spec:
   refName: vsphere-cpi.tanzu.vmware.com
   version: 1.22.3+vmware.1-tkg.1
@@ -287,31 +287,32 @@ spec:
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: TanzuKubernetesRelease
 metadata:
-  name: v1.22.5
+  name: v1.22.22
 spec:
-  version: v1.22.5
+  version: v1.22.22
   kubernetes:
-    version: v1.22.5
+    version: v1.22.22
     imageRepository: foo
   osImages: []
-  bootstrapPackages: []
+  bootstrapPackages:
+  - name: "load-balancer-and-ingress-service.tanzu.vmware.com.0.0.4"
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: kapp-controller.tanzu.vmware.com.0.30.23
+  name: kapp-controller.tanzu.vmware.com.0.30.24
   namespace: tkg-system
 spec:
   refName: kapp-controller.tanzu.vmware.com
-  version: 0.30.23
-  releaseNotes: kapp-controller 0.30.23 https://github.com/vmware-tanzu/carvel-kapp-controller
+  version: 0.30.24
+  releaseNotes: kapp-controller 0.30.24 https://github.com/vmware-tanzu/carvel-kapp-controller
   licenses:
     - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
   template:
     spec:
       fetch:
         - imgpkgBundle:
-            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.23_vmware.1-tkg.1
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.24_vmware.1-tkg.1
       template:
         - ytt:
             paths:
@@ -330,196 +331,141 @@ spec:
   releasedAt: "2021-12-20T10:59:32Z"
   valuesSchema:
     openAPIv3:
-      title: kapp-controller.tanzu.vmware.com.0.30.23+vmware.1-tkg.1 values schema
+      title: kapp-controller.tanzu.vmware.com.0.30.24+vmware.1-tkg.1 values schema
 
----
-apiVersion: cpi.tanzu.vmware.com/v1alpha1
-kind: KubevipCPIConfig
-metadata:
-  name: test-cluster-7
-  namespace: cluster-namespace-7
-spec:
-  loadbalancerIPRanges: 10.0.0.1-10.0.0.2
-  loadbalancerCIDRs: 10.0.0.1/24
-
----
-apiVersion: run.tanzu.vmware.com/v1alpha3
-kind: KappControllerConfig
-metadata:
-  name: test-cluster-7-kapp-controller-config
-  namespace: tkg-system
-spec:
-  namespace: test-ns
-  kappController:
-    createNamespace: true
-    globalNamespace: tanzu-package-repo-global
-    deployment:
-      concurrency: 4
-      hostNetwork: true
-      priorityClassName: system-cluster-critical
-      apiPort: 10100
-      metricsBindAddress: "0"
-      tolerations:
-        - key: CriticalAddonsOnly
-          operator: Exists
-        - effect: NoSchedule
-          key: node-role.kubernetes.io/control-plane
-        - effect: NoSchedule
-          key: node-role.kubernetes.io/master
-        - effect: NoSchedule
-          key: node.kubernetes.io/not-ready
-        - effect: NoSchedule
-          key: node.cloudprovider.kubernetes.io/uninitialized
-          value: "true"
----
-apiVersion: run.tanzu.vmware.com/v1alpha3
-kind: KappControllerConfig
-metadata:
-  name: test-cluster-7-kapp-controller-config
-  namespace: cluster-namespace-7
-spec:
-  namespace: test-ns
-  kappController:
-    createNamespace: true
-    globalNamespace: tanzu-package-repo-global
-    deployment:
-      concurrency: 4
-      hostNetwork: true
-      priorityClassName: system-cluster-critical
-      apiPort: 10100
-      metricsBindAddress: "0"
-      tolerations:
-        - key: CriticalAddonsOnly
-          operator: Exists
-        - effect: NoSchedule
-          key: node-role.kubernetes.io/control-plane
-        - effect: NoSchedule
-          key: node-role.kubernetes.io/master
-        - effect: NoSchedule
-          key: node.kubernetes.io/not-ready
-        - effect: NoSchedule
-          key: node.cloudprovider.kubernetes.io/uninitialized
-          value: "true"
----
-apiVersion: cni.tanzu.vmware.com/v1alpha1
-kind: AntreaConfig
-metadata:
-  name: test-cluster-7
-  namespace: tkg-system
-spec:
-  antrea:
-    config:
-      trafficEncapMode: encap
----
-apiVersion: cni.tanzu.vmware.com/v1alpha1
-kind: AntreaConfig
-metadata:
-  name: test-cluster-7
-  namespace: cluster-namespace-7
-spec:
-  antrea:
-    config:
-      trafficEncapMode: encap
 ---
 kind: Secret
 metadata:
-  name: foobar2secret
-  namespace: cluster-namespace-7
+  name: test-cluster-8-load-balancer-and-ingress-service-data-values
+  namespace: cluster-namespace-8
 stringData:
   values.yaml: |
     sample-key: sample-value
 ---
-apiVersion: data.packaging.carvel.dev/v1alpha1
-kind: Package
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
 metadata:
-  name: foobar1.example.com.1.17.2
-  namespace: cluster-namespace-7
+  name: test-cluster-8-kapp-controller-config
+  namespace: tkg-system
 spec:
-  refName: foobar1.example.com
-  version: 1.17.2
-  releasedAt: "2021-05-13T18:00:00Z"
-  releaseNotes: foobar1 1.17.2
-  capacityRequirementsDescription: Varies significantly based on cluster size. This should be tuned based on observed usage.
-  valuesSchema:
-    openAPIv3:
-      title: foobar1.example.com.1.17.2+vmware.1-tkg.1 values schema
-      properties:
-        namespace:
-          type: string
-          description: The namespace in which to deploy fluent-bit.
-          default: tanzu-system-logging
-  licenses:
-    - 'VMware''s End User License Agreement (Underlying OSS license: Apache License 2.0)'
-  template:
-    spec:
-      fetch:
-        - imgpkgBundle:
-            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/fluent-bit:v1.7.5_vmware.1-tkg.1
-      template:
-        - ytt:
-            paths:
-              - config/
-            ignoreUnknownComments: true
-        - kbld:
-            paths:
-              - '-'
-              - .imgpkg/images.yml
-      deploy:
-        - kapp:
-            rawOptions:
-              - --wait-timeout=5m
-              - --kube-api-qps=20
-              - --kube-api-burst=30
+  namespace: test-ns
+  kappController:
+    createNamespace: true
+    globalNamespace: tanzu-package-repo-global
+    deployment:
+      concurrency: 4
+      hostNetwork: true
+      priorityClassName: system-cluster-critical
+      apiPort: 10100
+      metricsBindAddress: "0"
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+        - effect: NoSchedule
+          key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
+metadata:
+  name: test-cluster-8-kapp-controller-config
+  namespace: cluster-namespace-8
+spec:
+  namespace: test-ns
+  kappController:
+    createNamespace: true
+    globalNamespace: tanzu-package-repo-global
+    deployment:
+      concurrency: 4
+      hostNetwork: true
+      priorityClassName: system-cluster-critical
+      apiPort: 10100
+      metricsBindAddress: "0"
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+        - effect: NoSchedule
+          key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: test-cluster-8
+  namespace: tkg-system
+spec:
+  antrea:
+    config:
+      trafficEncapMode: encap
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: test-cluster-8
+  namespace: cluster-namespace-8
+spec:
+  antrea:
+    config:
+      trafficEncapMode: encap
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrapTemplate
 metadata:
-  name: v1.22.5
+  name: v1.22.22
   namespace: tkg-system
 spec:
   kapp:
-    refName: kapp-controller.tanzu.vmware.com.0.30.23
+    refName: kapp-controller.tanzu.vmware.com.0.30.24
     valuesFrom:
       providerRef:
         apiGroup: run.tanzu.vmware.com
         kind: KappControllerConfig
-        name: test-cluster-7-kapp-controller-config
+        name: test-cluster-8-kapp-controller-config
   cni:
     refName: antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1
     valuesFrom:
       providerRef:
         apiGroup: cni.tanzu.vmware.com
         kind: AntreaConfig
-        name: test-cluster-7
+        name: test-cluster-8
 
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrap
 metadata:
-  name: test-cluster-7
-  namespace: cluster-namespace-7
+  name: test-cluster-8
+  namespace: cluster-namespace-8
+  annotations:
+    "tkg.tanzu.vmware.com/add-missing-fields-from-tkr": "v1.22.22"
+    "run.tanzu.vmware.com/skip-packageinstall-deletion": "load-balancer-and-ingress-service"
 spec:
   kapp:
-    refName: kapp-controller.tanzu.vmware.com.0.30.23
+    refName: kapp-controller.tanzu.vmware.com.0.30.24
     valuesFrom:
       providerRef:
         apiGroup: run.tanzu.vmware.com
         kind: KappControllerConfig
-        name: test-cluster-7-kapp-controller-config
+        name: test-cluster-8-kapp-controller-config
   cni:
     refName: antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1
     valuesFrom:
       providerRef:
         apiGroup: cni.tanzu.vmware.com
         kind: AntreaConfig
-        name: test-cluster-7
+        name: test-cluster-8
   additionalPackages:
-    - refName: foobar1.example.com.1.17.2
-      valuesFrom:
-        secretRef: foobar2secret
-    - refName: cpi.tanzu.vmware.com.0.0.4
-      valuesFrom:
-        providerRef:
-          apiGroup: cpi.tanzu.vmware.com
-          kind: KubevipCPIConfig
-          name: test-cluster-7
+  - refName: load-balancer-and-ingress-service.tanzu.vmware.com*
+    valuesFrom:
+      secretRef: test-cluster-8-load-balancer-and-ingress-service-data-values
