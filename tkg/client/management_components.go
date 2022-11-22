@@ -226,22 +226,61 @@ func (c *TkgClient) getUserConfigVariableValueMap() (map[string]interface{}, err
 }
 
 func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient clusterclient.Client) (map[string]interface{}, error) {
-	var tkgPackageConfig managementcomponents.TKGPackageConfig
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+	configValues := make(map[string]interface{})
+	// In ClusterClass based cluster, the user config variables can be retrieved from the tkg-pkg package data values secret directly
+	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(packagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, pollOptions)
+	if err == nil {
+		var tkgPackageConfig managementcomponents.TKGPackageConfig
 
-	// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
-	// legacy (non-package-based-lcm) management cluster will not have this secret defined
-	// on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
-	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(packagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, nil)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to get cluster client")
+		err = yaml.Unmarshal(bytes, &tkgPackageConfig)
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to unmarshal configuration from secret:  %v-%v-values, namespace: %v", constants.TKGManagementPackageInstallName, constants.TkgNamespace, constants.TkgNamespace)
+		}
+		configValues = tkgPackageConfig.ConfigValues
+
+	} else if err != nil && apierrors.IsNotFound(err) {
+		// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
+		// legacy (non-package-based-lcm) management cluster will not have the secret tkg-pkg-tkg-system-values
+		// defined on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
+		clusterName, _, err := c.getRegionalClusterNameAndNamespace(clusterClient)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get management cluster name and namespace")
+		}
+		// So we retrieve the user config variables from the <cluster-name>-config-values secret
+		// which was managed in legacy ytt template providers/ytt/09_miscellaneous
+		bytes, err := clusterClient.GetSecretValue(fmt.Sprintf("%s-config-values", clusterName), "value", constants.TkgNamespace, pollOptions)
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to get the %s-config-values secret", clusterName)
+		}
+
+		err = yaml.Unmarshal(bytes, &configValues)
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to yaml unmashal the data.value of %s-config-values secret", clusterName)
+		}
+	} else {
+		return nil, errors.Wrapf(err, "unable to get the secret %v-%v-values, namespace: %v", constants.TKGManagementPackageInstallName, constants.TkgNamespace, constants.TkgNamespace)
 	}
 
-	err = yaml.Unmarshal(bytes, &tkgPackageConfig)
+	err = c.mutateUserConfigVariableValueMap(configValues)
 	if err != nil {
-		return nil, errors.Wrapf(err, "unable to unmarshal configuration from secret: %v, namespace: %v", constants.TKGPackageValues, constants.TkgNamespace)
+		return nil, errors.Wrap(err, "unable to mapping the current configuration variables to the cluster's existing configuration")
 	}
 
-	return tkgPackageConfig.ConfigValues, nil
+	return configValues, nil
+}
+
+// mutateUserConfigVariableValueMap get user config variables to overwrite the existing config variables that
+// retrieved from the cluster. This is mainly for mutating during cluster upgrading.
+func (c *TkgClient) mutateUserConfigVariableValueMap(configValues map[string]interface{}) error {
+	userProvidedConfigValues, err := c.getUserConfigVariableValueMap()
+	if err != nil {
+		return err
+	}
+	for k, v := range userProvidedConfigValues {
+		configValues[k] = v
+	}
+	return nil
 }
 
 func (c *TkgClient) getUserConfigVariableValueMapFile() (string, error) {

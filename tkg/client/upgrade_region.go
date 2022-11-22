@@ -26,6 +26,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -195,6 +196,26 @@ func (c *TkgClient) validateAndconfigure(options *UpgradeClusterOptions, regiona
 	log.Infof("Validating for the required environment variables to be set")
 	if err := c.validateEnvVariables(regionalClusterClient); err != nil {
 		return errors.Wrap(err, "required env variables are not set")
+	}
+
+	log.Infof("Validating for the user configuration secret to be existed in the cluster")
+	clusterName, _, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "failed to get management cluster name and namespace")
+	}
+
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+	_, err = regionalClusterClient.GetSecretValue(fmt.Sprintf(packagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, pollOptions)
+	if err != nil && apierrors.IsNotFound(err) {
+		log.Infof("tkg-pkg-tkg-system-values secret in tkg-system namespace not found, trying to fetch %s-config-values secret instead...", clusterName)
+		// Todo: Management clusters upgraded from tkg 1.3 could be missing this secret。
+		// After the workaround doc is implemented, adding the doc link here.
+		_, err = regionalClusterClient.GetSecretValue(fmt.Sprintf("%s-config-values", clusterName), "value", constants.TkgNamespace, pollOptions)
+		if err != nil {
+			return errors.Wrapf(err, "unable to get the %s-config-values secret", clusterName)
+		}
+	} else if err != nil {
+		return errors.Wrapf(err, "unable to get the %s secret", fmt.Sprintf(packagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace))
 	}
 
 	if err := c.configureVariablesForProvidersInstallation(regionalClusterClient); err != nil {
@@ -418,7 +439,7 @@ func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient 
 	var packagesInstalled []kapppkgv1alpha1.Package
 
 	// Add tanzu-core-management-plugins packages to the list of packages to wait for management-cluster
-	if isRegionalCluster {
+	if isRegionalCluster && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		packagesInstalled = append(packagesInstalled, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: constants.CoreManagementPluginsPackageName, Namespace: constants.TkgNamespace}})
 	}
 
