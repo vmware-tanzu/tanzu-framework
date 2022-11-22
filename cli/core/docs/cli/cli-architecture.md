@@ -136,7 +136,7 @@ Create a new context:
 tanzu login --kubeconfig path/to/kubeconfig --context context-name --name mgmt-cluster
 
 # New Command
-tanzu context create --management-cluster --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
+tanzu context create --kubeconfig path/to/kubeconfig --kubecontext context-name --name mgmt-cluster
 ```
 
 List known contexts:
@@ -174,7 +174,7 @@ tanzu context use mgmt-cluster
 Target is a top level entity used to make the control plane, that a user is interacting against, more explicit in command invocations.
 This is done by creating a separate target specific command under root level command for Tanzu CLI. e.g. `tanzu <target>`
 
-The Tanzu CLI supports two targets: `kubernetes`, `mission-control`. This is currently backwards compatible, i.e., the plugins are still available at the root level.
+The Tanzu CLI supports two targets: `kubernetes`, `mission-control`. To respect backwards-compatibility, when no target command is specified, the kubernetes target is used automatically.
 
 Target of a plugin is determined differently for Standalone Plugins and Context-Scoped plugins.
 
@@ -183,7 +183,9 @@ For Standalone Plugins, the target is determined based on `target` field defined
 For Context-scoped Plugins, the target is determined based on the `target` associated with Context itself.
 E.g. all plugins discovered through the Context `test-context` will have the same target that is associated with the `test-context`.
 
-List TKG workload clusters using `cluster` plugin associated with `kubernetes` target:
+Using the target concept, we can differentiate between listing TKG workload clusters or TMC workload clusters.
+
+To list TKG workload clusters using the TKG cluster plugin which is associated with the kubernetes target:
 
 ```sh
 # Without target grouping (a TKG management cluster is set as the current active server)
@@ -193,7 +195,7 @@ tanzu cluster list
 tanzu kubernetes cluster list
 ```
 
-List TMC workload clusters using `cluster` plugin associated with `tmc` target:
+To list TMC workload clusters using the TMC cluster plugin which is associated with the tmc target:
 
 ```sh
 # With target grouping

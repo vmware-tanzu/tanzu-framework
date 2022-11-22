@@ -342,7 +342,7 @@ Creating a new context will discover all available plugins from the context and 
 ```sh
 tanzu login --kubeconfig path/to/kubeconfig --context context-name --name vsphere-mc-1
 # or
-$ tanzu context create --management-cluster --kubeconfig path/to/kubeconfig --context path/to/context --name vsphere-mc-1
+$ tanzu context create --kubeconfig path/to/kubeconfig --kubecontext context-name --name vsphere-mc-1
 ✓ Successfully logged into the management cluster vsphere-mc-1
 
 Checking for required plugins ...
@@ -383,7 +383,7 @@ Creating a new similar context will discover all available plugins from new cont
 ```sh
 tanzu login --kubeconfig path/to/kubeconfig --context context-name --name vsphere-mc-2
 # or
-$ tanzu context create --management-cluster --kubeconfig path/to/kubeconfig --context path/to/context --name vsphere-mc-2
+$ tanzu context create --kubeconfig path/to/kubeconfig --kubecontext context-name --name vsphere-mc-2
 ✓ Successfully logged into the management cluster vsphere-mc-2
 
 Checking for required plugins ...

@@ -53,7 +53,7 @@ type CLIPluginSpec struct {
 	// To view the list of plugin, user can use `tanzu plugin list` and
 	// to download a specific plugin run, `tanzu plugin install <plugin-name>`
 	Optional bool `json:"optional"`
-	// Target specifies the target of the plugin
+	// Target specifies the target of the plugin. Only needed for standalone plugins
 	Target Target `json:"target"`
 }
 
