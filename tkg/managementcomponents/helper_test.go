@@ -12,6 +12,7 @@ import (
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 )
 
 const (
@@ -63,7 +64,7 @@ tkr-package:
 		}
 
 		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
-		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig)
+		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, nil)
 	})
 
 	Context("When provider type is AWS", func() {
@@ -188,8 +189,9 @@ tkr-package:
 		tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
 		err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
 		Expect(err).NotTo(HaveOccurred())
+
 		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
-		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig)
+		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, nil)
 	})
 
 	Context("when proxy is set", func() {
@@ -249,20 +251,55 @@ tkr-package:
 		"TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE": "fake-ca",
 	}
 
-	JustBeforeEach(func() {
-		// Configure tkgBoMConfig
-		tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
-		err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
-		Expect(err).NotTo(HaveOccurred())
-		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
-		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig)
-	})
-
-	Context("when proxy is set", func() {
+	Context("when proxy is set from userconfig map", func() {
 		BeforeEach(func() {
 			managementPackageVersion = verStr
 			outputFile = "test/output_vsphere_with_custom_repo_ca.yaml"
 		})
+
+		JustBeforeEach(func() {
+			// Configure tkgBoMConfig
+			tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
+			err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
+			valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, nil)
+		})
+
+		It("should not return error", func() {
+			Expect(err).NotTo(HaveOccurred())
+			f1, err := os.ReadFile(valuesFile)
+			Expect(err).NotTo(HaveOccurred())
+			f2, err := os.ReadFile(outputFile)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(f1)).To(Equal(string(f2)))
+		})
+	})
+
+	Context("when proxy is set from readerWrtier", func() {
+		BeforeEach(func() {
+			managementPackageVersion = verStr
+			outputFile = "test/output_vsphere_with_custom_repo_ca_rw.yaml"
+
+		})
+
+		JustBeforeEach(func() {
+			// Configure tkgBoMConfig
+			tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
+			err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
+			Expect(err).NotTo(HaveOccurred())
+
+			rw, err := tkgconfigreaderwriter.New("test/config.yaml")
+			Expect(err).NotTo(HaveOccurred())
+
+			rw.TKGConfigReaderWriter().Set("TKG_CUSTOM_IMAGE_REPOSITORY", "fake-repo-2")
+			rw.TKGConfigReaderWriter().Set("TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE", "fake-ca-2")
+
+			// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
+			valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, rw.TKGConfigReaderWriter())
+		})
+
 		It("should not return error", func() {
 			Expect(err).NotTo(HaveOccurred())
 			f1, err := os.ReadFile(valuesFile)

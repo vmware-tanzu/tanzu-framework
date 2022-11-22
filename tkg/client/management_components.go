@@ -208,7 +208,7 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client,
 		return "", err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig)
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig, c.TKGConfigReaderWriter())
 	if err != nil {
 		return "", err
 	}
