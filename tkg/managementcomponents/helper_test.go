@@ -298,6 +298,7 @@ tkr-package:
 
 			// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
 			valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, rw.TKGConfigReaderWriter())
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("should not return error", func() {
