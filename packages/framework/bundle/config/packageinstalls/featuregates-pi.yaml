@@ -13,6 +13,7 @@ metadata:
   labels:
     tkg.tanzu.vmware.com/package-type: "management"
 spec:
+  syncPeriod: 1m
   serviceAccountName: tanzu-featuregates-package-sa
   packageRef:
     refName: featuregates.tanzu.vmware.com

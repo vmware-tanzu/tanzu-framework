@@ -14,6 +14,7 @@ metadata:
   labels:
     tkg.tanzu.vmware.com/package-type: "management"
 spec:
+  syncPeriod: 1m
   serviceAccountName: tanzu-framework-package-sa
   packageRef:
     refName: framework.tanzu.vmware.com
