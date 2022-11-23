@@ -12,24 +12,20 @@ import (
 
 // AzureFileCSIConfigSpec defines the desired state of AzureFileCSIConfig
 type AzureFileCSIConfigSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of AzureFileCSIConfig. Edit azurefilecsiconfig_types.go to remove/update
 	AzureFileCSI AzureFileCSI `json:"azureFileCSIDriver"`
 }
 
 // AzureFileCSIConfigStatus defines the observed state of AzureFileCSIConfig
 type AzureFileCSIConfigStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Name of the secret created by csi controller
+	//+ kubebuilder:validation:Optional
 	SecretRef *string `json:"secretRef,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// AzureFileCSIConfig is the Schema for the azurefilecsiconfigs API
+// AzureFileCSIConfig is the Schema for the azurefilecsiconfigs
 type AzureFileCSIConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -47,10 +43,10 @@ type AzureFileCSIConfigList struct {
 	Items           []AzureFileCSIConfig `json:"items"`
 }
 
-// AzureFileCSI is the Schema for the AzureFileCSIConfig API
+// AzureFileCSI is the Schema for the AzureFileCSIConfig
 type AzureFileCSI struct {
 	// The namespace csi components are to be deployed in
-	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:Required
 	Namespace string `json:"namespace"`
 
 	// +kubebuilder:validation:Optional
