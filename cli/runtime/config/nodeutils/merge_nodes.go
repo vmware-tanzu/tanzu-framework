@@ -64,6 +64,7 @@ func MergeNodes(src, dst *yaml.Node) error {
 func setSeqNode(src, dst *yaml.Node) {
 	if dst.Content[0].Kind == yaml.ScalarNode && src.Content[0].Kind == yaml.ScalarNode {
 		dst.Content = append(dst.Content, src.Content...)
+		dst.Content = UniqNodes(dst.Content)
 	}
 }
 

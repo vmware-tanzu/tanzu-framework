@@ -743,3 +743,93 @@ func TestSetContextWithReplaceStrategy(t *testing.T) {
 		})
 	}
 }
+
+func TestSetContextWithUniquePermissions(t *testing.T) {
+	// setup
+	func() {
+		LocalDirName = TestLocalDirName
+	}()
+
+	defer func() {
+		cleanupDir(LocalDirName)
+	}()
+
+	ctx := &configapi.Context{
+		Name: "test-mc",
+		Type: "tmc",
+		GlobalOpts: &configapi.GlobalServer{
+			Endpoint: "test-endpoint",
+			Auth: configapi.GlobalServerAuth{
+				IDToken: "",
+				Issuer:  "https://console-stg.cloud.vmware.com/csp/gateway/am/api",
+				Permissions: []string{
+					"external/25834195-19aa-4ffd-8933-f5f20094ab24/service:member",
+					"csp:org_owner",
+					"external/f52d39b0-c298-4adf-9c6f-0a4a07351cd7/service:admin",
+					"csp:org_member",
+					"external/f52d39b0-c298-4adf-9c6f-0a4a07351cd7/service:member",
+				},
+				RefreshToken: "XXX",
+				Type:         "api-token",
+				UserName:     "tanzu-core",
+			},
+		},
+	}
+
+	ctx2 := &configapi.Context{
+		Name: "test-mc",
+		Type: "tmc",
+		GlobalOpts: &configapi.GlobalServer{
+			Endpoint: "test-endpoint-updated",
+			Auth: configapi.GlobalServerAuth{
+				IDToken: "",
+				Issuer:  "https://console-stg.cloud.vmware.com/csp/gateway/am/api",
+				Permissions: []string{
+					"csp:org_member2",
+					"external/f52d39b0-c298-4adf-9c6f-0a4a07351cd7/service:member",
+				},
+				RefreshToken: "XXX",
+				Type:         "api-token",
+				UserName:     "tanzu-core",
+			},
+		},
+	}
+
+	ctx3 := &configapi.Context{
+		Name: "test-mc",
+		Type: "tmc",
+		GlobalOpts: &configapi.GlobalServer{
+			Endpoint: "test-endpoint-updated3",
+			Auth: configapi.GlobalServerAuth{
+				IDToken: "",
+				Issuer:  "https://console-stg.cloud.vmware.com/csp/gateway/am/api",
+				Permissions: []string{
+					"external/25834195-19aa-4ffd-8933-f5f20094ab24/service:member",
+					"csp:org_owner3",
+				},
+				RefreshToken: "XXX",
+				Type:         "api-token",
+				UserName:     "tanzu-core",
+			},
+		},
+	}
+
+	for i := 1; i <= 100; i++ {
+		err := SetContext(ctx, true)
+		assert.NoError(t, err)
+		err = SetContext(ctx2, true)
+		assert.NoError(t, err)
+		err = SetContext(ctx3, true)
+		assert.NoError(t, err)
+		err = SetContext(ctx, true)
+		assert.NoError(t, err)
+	}
+
+	c, err := GetContext("test-mc")
+	assert.NoError(t, err)
+	assert.Equal(t, 7, len(c.GlobalOpts.Auth.Permissions))
+
+	s, err := GetServer("test-mc")
+	assert.NoError(t, err)
+	assert.Equal(t, 7, len(s.GlobalOpts.Auth.Permissions))
+}
