@@ -1,14 +1,24 @@
 name: cluster_api
 managedComponents:
-- version: v2.0.0+vmware.1
-  upstreamTag: v1.1.5
-  gobuildBaseBranch: vmware-0.3.0+vmware.0~d7d37a8c6505e96e6d1c412b51424d0f1d26a7bb
-  mirrorCherryPicks:
-  - sha: b180d9bb87c7e3c4bff6887d97511d8da09a0f00
-    description: fix the dockerhub ratelimit error for CAPI
-  - sha: 100a9dd90e0adc6bbc124a800c45db63b4ed0f1e
-    description: fix the dockerhub ratelimit error for CAPD
-  dependencies:
-    gobuild.golangVersion: 1.17
-    gobuild.containerNamePrefix: vmware.io
-    gobuild.linux_hosttype: linux-centos8
+  - version: v2.0.0+vmware.1
+    upstreamTag: v1.2.4
+    gobuildBaseBranch: vmware-1.2.0+vmware.0~7eb2f369bb3704e5733f6bb4ded4e4146f4492ef
+    mirrorCherryPicks:
+      - sha: 66e7564699525ce37c3d6de1a56eb4720de09d85
+        description: |
+          Downstream cherry-pick to add kcp machine certificate renewal support.
+          Upstream PRs: 
+          - https://github.com/kubernetes-sigs/cluster-api/pull/6983
+          - https://github.com/kubernetes-sigs/cluster-api/pull/7355
+          - https://github.com/kubernetes-sigs/cluster-api/pull/7438
+          Downstream branch that holds the cherry-pick: topic/cherry-pick-cert-renewal-full
+      - sha: 304f74d143947a97b0f96e17c92baeaa987619d4
+        description: |
+          Downstream cherry-pick to add IPAM and runtime extension support to clusterctl.
+          Upstream commit: https://github.com/kubernetes-sigs/cluster-api/pull/7288/commits/aacbbc780a42363b28c232cccc87bfecd816df0b
+          Note: The upstream commit was introduces during the v1.3 release cycle.
+          Downstream branch that holds the cherry-pick: topic/cherry-pick-v1.2.2-support-ipam-and-runtime-extension-providers
+    dependencies:
+      gobuild.golangVersion: 1.18
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos8
