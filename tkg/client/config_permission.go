@@ -13,8 +13,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/cloudformation/bootstrap"
-	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
+	"sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/cloudformation/bootstrap"
+	"sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/credentials"
 )
 
 const awsCredentialError = "failed to gather credentials for operation that requires client-side access to AWS account. Provide credentials for the relevant AWS account using either AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN environment variables, configuration variables (not for delete) or set up a profile using the AWS CLI https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html and use the AWS_PROFILE environment variable when running this command."
