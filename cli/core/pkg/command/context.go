@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,6 +16,7 @@ import (
 	"time"
 
 	"github.com/aunum/log"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -475,29 +477,12 @@ func listCtx(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	op := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Type", "IsManagementCluster", "IsCurrent", "Endpoint", "KubeConfigPath", "KubeContext")
-	for _, ctx := range cfg.KnownContexts {
-		if ctxType != "" && ctx.Type != configapi.ContextType(ctxType) {
-			continue
-		}
-		isMgmtCluster := ctx.IsManagementCluster()
-		isCurrent := ctx.Name == cfg.CurrentContext[ctx.Type]
-		if onlyCurrent && !isCurrent {
-			continue
-		}
-
-		var endpoint, path, context string
-		switch ctx.Type {
-		case configapi.CtxTypeTMC:
-			endpoint = ctx.GlobalOpts.Endpoint
-		default:
-			endpoint = ctx.ClusterOpts.Endpoint
-			path = ctx.ClusterOpts.Path
-			context = ctx.ClusterOpts.Context
-		}
-		op.AddRow(ctx.Name, ctx.Type, isMgmtCluster, isCurrent, endpoint, path, context)
+	if outputFormat == "" || outputFormat == string(component.TableOutputType) {
+		displayContextListOutputSplitViewTarget(cfg, cmd.OutOrStdout())
+	} else {
+		displayContextListOutputListView(cfg, cmd.OutOrStdout())
 	}
-	op.Render()
+
 	return nil
 }
 
@@ -641,4 +626,64 @@ func useCtx(_ *cobra.Command, args []string) error {
 		return err
 	}
 	return nil
+}
+
+func displayContextListOutputListView(cfg *configapi.ClientConfig, writer io.Writer) {
+	op := component.NewOutputWriter(writer, outputFormat, "Name", "Type", "IsManagementCluster", "IsCurrent", "Endpoint", "KubeConfigPath", "KubeContext")
+	for _, ctx := range cfg.KnownContexts {
+		if ctxType != "" && ctx.Type != configapi.ContextType(ctxType) {
+			continue
+		}
+		isMgmtCluster := ctx.IsManagementCluster()
+		isCurrent := ctx.Name == cfg.CurrentContext[ctx.Type]
+		if onlyCurrent && !isCurrent {
+			continue
+		}
+
+		var endpoint, path, context string
+		switch ctx.Type {
+		case configapi.CtxTypeTMC:
+			endpoint = ctx.GlobalOpts.Endpoint
+		default:
+			endpoint = ctx.ClusterOpts.Endpoint
+			path = ctx.ClusterOpts.Path
+			context = ctx.ClusterOpts.Context
+		}
+		op.AddRow(ctx.Name, ctx.Type, isMgmtCluster, isCurrent, endpoint, path, context)
+	}
+	op.Render()
+}
+
+func displayContextListOutputSplitViewTarget(cfg *configapi.ClientConfig, writer io.Writer) {
+	outputWriterK8sTarget := component.NewOutputWriter(writer, outputFormat, "Name", "IsActive", "Endpoint", "KubeConfigPath", "KubeContext")
+	outputWriterTMCTarget := component.NewOutputWriter(writer, outputFormat, "Name", "IsActive", "Endpoint")
+	for _, ctx := range cfg.KnownContexts {
+		if ctxType != "" && ctx.Type != configapi.ContextType(ctxType) {
+			continue
+		}
+		isCurrent := ctx.Name == cfg.CurrentContext[ctx.Type]
+		if onlyCurrent && !isCurrent {
+			continue
+		}
+
+		var endpoint, path, context string
+		switch ctx.Type {
+		case configapi.CtxTypeTMC:
+			endpoint = ctx.GlobalOpts.Endpoint
+			outputWriterTMCTarget.AddRow(ctx.Name, isCurrent, endpoint)
+		default:
+			endpoint = ctx.ClusterOpts.Endpoint
+			path = ctx.ClusterOpts.Path
+			context = ctx.ClusterOpts.Context
+			outputWriterK8sTarget.AddRow(ctx.Name, isCurrent, endpoint, path, context)
+		}
+	}
+
+	cyanBold := color.New(color.FgCyan).Add(color.Bold)
+	cyanBoldItalic := color.New(color.FgCyan).Add(color.Bold, color.Italic)
+	_, _ = cyanBold.Println("Target: ", cyanBoldItalic.Sprintf("%s", configapi.CtxTypeK8s))
+	outputWriterK8sTarget.Render()
+
+	_, _ = cyanBold.Println("Target: ", cyanBoldItalic.Sprintf("%s", configapi.CtxTypeTMC))
+	outputWriterTMCTarget.Render()
 }
