@@ -474,6 +474,10 @@ spec:
       name: ControlPlaneEndpoint
       priority: 1
       type: string
+    - description: Time duration since creation of Machine
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha3
     schema:
       openAPIV3Schema:
@@ -859,6 +863,10 @@ spec:
       name: ControlPlaneEndpoint
       priority: 1
       type: string
+    - description: Time duration since creation of Machine
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha4
     schema:
       openAPIV3Schema:
@@ -1010,6 +1018,10 @@ spec:
       name: ControlPlaneEndpoint
       priority: 1
       type: string
+    - description: Time duration since creation of Machine
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1beta1
     schema:
       openAPIV3Schema:
@@ -2223,6 +2235,10 @@ spec:
       name: Machine
       priority: 1
       type: string
+    - description: Time duration since creation of Machine
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha3
     schema:
       openAPIV3Schema:
@@ -2614,6 +2630,10 @@ spec:
       name: Machine
       priority: 1
       type: string
+    - description: Time duration since creation of Machine
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1alpha4
     schema:
       openAPIV3Schema:
@@ -3005,6 +3025,10 @@ spec:
       name: Machine
       priority: 1
       type: string
+    - description: Time duration since creation of Machine
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1beta1
     schema:
       openAPIV3Schema:
@@ -3073,6 +3097,12 @@ spec:
                 description: Folder is the name or inventory path of the folder in
                   which the virtual machine is created/located.
                 type: string
+              hardwareVersion:
+                description: HardwareVersion is the hardware version of the virtual
+                  machine. Defaults to the eponymous property value in the template
+                  from which the virtual machine is cloned. Check the compatibility
+                  with the ESXi version before setting the value.
+                type: string
               memoryMiB:
                 description: MemoryMiB is the size of a virtual machine's memory,
                   in MiB. Defaults to the eponymous property value in the template
@@ -3091,6 +3121,33 @@ spec:
                       description: NetworkDeviceSpec defines the network configuration
                         for a virtual machine's network device.
                       properties:
+                        addressesFromPools:
+                          description: AddressesFromPools is a list of IPAddressPools
+                            that should be assigned to IPAddressClaims. The machine's
+                            cloud-init metadata will be populated with IPAddresses
+                            fulfilled by an IPAM provider.
+                          items:
+                            description: TypedLocalObjectReference contains enough
+                              information to let you locate the typed referenced object
+                              inside the same namespace.
+                            properties:
+                              apiGroup:
+                                description: APIGroup is the group for the resource
+                                  being referenced. If APIGroup is not specified,
+                                  the specified Kind must be in the core API group.
+                                  For any other third-party types, APIGroup is required.
+                                type: string
+                              kind:
+                                description: Kind is the type of resource being referenced
+                                type: string
+                              name:
+                                description: Name is the name of resource being referenced
+                                type: string
+                            required:
+                            - kind
+                            - name
+                            type: object
+                          type: array
                         deviceName:
                           description: DeviceName may be used to explicitly assign
                             a name to the network device as it exists in the guest
@@ -3101,11 +3158,117 @@ spec:
                             to use DHCP for IPv4 on this device. If true then IPAddrs
                             should not contain any IPv4 addresses.
                           type: boolean
+                        dhcp4Overrides:
+                          description: DHCP4Overrides allows for the control over
+                            several DHCP behaviors. Overrides will only be applied
+                            when the corresponding DHCP flag is set. Only configured
+                            values will be sent, omitted values will default to distribution
+                            defaults. Dependent on support in the network stack for
+                            your distribution. For more information see the netplan
+                            reference (https://netplan.io/reference#dhcp-overrides)
+                          properties:
+                            hostname:
+                              description: Hostname is the name which will be sent
+                                to the DHCP server instead of the machine's hostname.
+                              type: string
+                            routeMetric:
+                              description: RouteMetric is used to prioritize routes
+                                for devices. A lower metric for an interface will
+                                have a higher priority.
+                              type: integer
+                            sendHostname:
+                              description: SendHostname when `true`, the hostname
+                                of the machine will be sent to the DHCP server.
+                              type: boolean
+                            useDNS:
+                              description: UseDNS when `true`, the DNS servers in
+                                the DHCP server will be used and take precedence.
+                              type: boolean
+                            useDomains:
+                              description: UseDomains can take the values `true`,
+                                `false`, or `route`. When `true`, the domain name
+                                from the DHCP server will be used as the DNS search
+                                domain for this device. When `route`, the domain name
+                                from the DHCP response will be used for routing DNS
+                                only, not for searching.
+                              type: string
+                            useHostname:
+                              description: UseHostname when `true`, the hostname from
+                                the DHCP server will be set as the transient hostname
+                                of the machine.
+                              type: boolean
+                            useMTU:
+                              description: UseMTU when `true`, the MTU from the DHCP
+                                server will be set as the MTU of the device.
+                              type: boolean
+                            useNTP:
+                              description: UseNTP when `true`, the NTP servers from
+                                the DHCP server will be used by systemd-timesyncd
+                                and take precedence.
+                              type: boolean
+                            useRoutes:
+                              description: UseRoutes when `true`, the routes from
+                                the DHCP server will be installed in the routing table.
+                              type: string
+                          type: object
                         dhcp6:
                           description: DHCP6 is a flag that indicates whether or not
                             to use DHCP for IPv6 on this device. If true then IPAddrs
                             should not contain any IPv6 addresses.
                           type: boolean
+                        dhcp6Overrides:
+                          description: DHCP6Overrides allows for the control over
+                            several DHCP behaviors. Overrides will only be applied
+                            when the corresponding DHCP flag is set. Only configured
+                            values will be sent, omitted values will default to distribution
+                            defaults. Dependent on support in the network stack for
+                            your distribution. For more information see the netplan
+                            reference (https://netplan.io/reference#dhcp-overrides)
+                          properties:
+                            hostname:
+                              description: Hostname is the name which will be sent
+                                to the DHCP server instead of the machine's hostname.
+                              type: string
+                            routeMetric:
+                              description: RouteMetric is used to prioritize routes
+                                for devices. A lower metric for an interface will
+                                have a higher priority.
+                              type: integer
+                            sendHostname:
+                              description: SendHostname when `true`, the hostname
+                                of the machine will be sent to the DHCP server.
+                              type: boolean
+                            useDNS:
+                              description: UseDNS when `true`, the DNS servers in
+                                the DHCP server will be used and take precedence.
+                              type: boolean
+                            useDomains:
+                              description: UseDomains can take the values `true`,
+                                `false`, or `route`. When `true`, the domain name
+                                from the DHCP server will be used as the DNS search
+                                domain for this device. When `route`, the domain name
+                                from the DHCP response will be used for routing DNS
+                                only, not for searching.
+                              type: string
+                            useHostname:
+                              description: UseHostname when `true`, the hostname from
+                                the DHCP server will be set as the transient hostname
+                                of the machine.
+                              type: boolean
+                            useMTU:
+                              description: UseMTU when `true`, the MTU from the DHCP
+                                server will be set as the MTU of the device.
+                              type: boolean
+                            useNTP:
+                              description: UseNTP when `true`, the NTP servers from
+                                the DHCP server will be used by systemd-timesyncd
+                                and take precedence.
+                              type: boolean
+                            useRoutes:
+                              description: UseRoutes when `true`, the routes from
+                                the DHCP server will be installed in the routing table.
+                              type: string
+                          type: object
                         gateway4:
                           description: Gateway4 is the IPv4 gateway used by this device.
                             Required when DHCP4 is false.
@@ -4222,6 +4385,13 @@ spec:
                         description: Folder is the name or inventory path of the folder
                           in which the virtual machine is created/located.
                         type: string
+                      hardwareVersion:
+                        description: HardwareVersion is the hardware version of the
+                          virtual machine. Defaults to the eponymous property value
+                          in the template from which the virtual machine is cloned.
+                          Check the compatibility with the ESXi version before setting
+                          the value.
+                        type: string
                       memoryMiB:
                         description: MemoryMiB is the size of a virtual machine's
                           memory, in MiB. Defaults to the eponymous property value
@@ -4240,6 +4410,36 @@ spec:
                               description: NetworkDeviceSpec defines the network configuration
                                 for a virtual machine's network device.
                               properties:
+                                addressesFromPools:
+                                  description: AddressesFromPools is a list of IPAddressPools
+                                    that should be assigned to IPAddressClaims. The
+                                    machine's cloud-init metadata will be populated
+                                    with IPAddresses fulfilled by an IPAM provider.
+                                  items:
+                                    description: TypedLocalObjectReference contains
+                                      enough information to let you locate the typed
+                                      referenced object inside the same namespace.
+                                    properties:
+                                      apiGroup:
+                                        description: APIGroup is the group for the
+                                          resource being referenced. If APIGroup is
+                                          not specified, the specified Kind must be
+                                          in the core API group. For any other third-party
+                                          types, APIGroup is required.
+                                        type: string
+                                      kind:
+                                        description: Kind is the type of resource
+                                          being referenced
+                                        type: string
+                                      name:
+                                        description: Name is the name of resource
+                                          being referenced
+                                        type: string
+                                    required:
+                                    - kind
+                                    - name
+                                    type: object
+                                  type: array
                                 deviceName:
                                   description: DeviceName may be used to explicitly
                                     assign a name to the network device as it exists
@@ -4251,12 +4451,128 @@ spec:
                                     true then IPAddrs should not contain any IPv4
                                     addresses.
                                   type: boolean
+                                dhcp4Overrides:
+                                  description: DHCP4Overrides allows for the control
+                                    over several DHCP behaviors. Overrides will only
+                                    be applied when the corresponding DHCP flag is
+                                    set. Only configured values will be sent, omitted
+                                    values will default to distribution defaults.
+                                    Dependent on support in the network stack for
+                                    your distribution. For more information see the
+                                    netplan reference (https://netplan.io/reference#dhcp-overrides)
+                                  properties:
+                                    hostname:
+                                      description: Hostname is the name which will
+                                        be sent to the DHCP server instead of the
+                                        machine's hostname.
+                                      type: string
+                                    routeMetric:
+                                      description: RouteMetric is used to prioritize
+                                        routes for devices. A lower metric for an
+                                        interface will have a higher priority.
+                                      type: integer
+                                    sendHostname:
+                                      description: SendHostname when `true`, the hostname
+                                        of the machine will be sent to the DHCP server.
+                                      type: boolean
+                                    useDNS:
+                                      description: UseDNS when `true`, the DNS servers
+                                        in the DHCP server will be used and take precedence.
+                                      type: boolean
+                                    useDomains:
+                                      description: UseDomains can take the values
+                                        `true`, `false`, or `route`. When `true`,
+                                        the domain name from the DHCP server will
+                                        be used as the DNS search domain for this
+                                        device. When `route`, the domain name from
+                                        the DHCP response will be used for routing
+                                        DNS only, not for searching.
+                                      type: string
+                                    useHostname:
+                                      description: UseHostname when `true`, the hostname
+                                        from the DHCP server will be set as the transient
+                                        hostname of the machine.
+                                      type: boolean
+                                    useMTU:
+                                      description: UseMTU when `true`, the MTU from
+                                        the DHCP server will be set as the MTU of
+                                        the device.
+                                      type: boolean
+                                    useNTP:
+                                      description: UseNTP when `true`, the NTP servers
+                                        from the DHCP server will be used by systemd-timesyncd
+                                        and take precedence.
+                                      type: boolean
+                                    useRoutes:
+                                      description: UseRoutes when `true`, the routes
+                                        from the DHCP server will be installed in
+                                        the routing table.
+                                      type: string
+                                  type: object
                                 dhcp6:
                                   description: DHCP6 is a flag that indicates whether
                                     or not to use DHCP for IPv6 on this device. If
                                     true then IPAddrs should not contain any IPv6
                                     addresses.
                                   type: boolean
+                                dhcp6Overrides:
+                                  description: DHCP6Overrides allows for the control
+                                    over several DHCP behaviors. Overrides will only
+                                    be applied when the corresponding DHCP flag is
+                                    set. Only configured values will be sent, omitted
+                                    values will default to distribution defaults.
+                                    Dependent on support in the network stack for
+                                    your distribution. For more information see the
+                                    netplan reference (https://netplan.io/reference#dhcp-overrides)
+                                  properties:
+                                    hostname:
+                                      description: Hostname is the name which will
+                                        be sent to the DHCP server instead of the
+                                        machine's hostname.
+                                      type: string
+                                    routeMetric:
+                                      description: RouteMetric is used to prioritize
+                                        routes for devices. A lower metric for an
+                                        interface will have a higher priority.
+                                      type: integer
+                                    sendHostname:
+                                      description: SendHostname when `true`, the hostname
+                                        of the machine will be sent to the DHCP server.
+                                      type: boolean
+                                    useDNS:
+                                      description: UseDNS when `true`, the DNS servers
+                                        in the DHCP server will be used and take precedence.
+                                      type: boolean
+                                    useDomains:
+                                      description: UseDomains can take the values
+                                        `true`, `false`, or `route`. When `true`,
+                                        the domain name from the DHCP server will
+                                        be used as the DNS search domain for this
+                                        device. When `route`, the domain name from
+                                        the DHCP response will be used for routing
+                                        DNS only, not for searching.
+                                      type: string
+                                    useHostname:
+                                      description: UseHostname when `true`, the hostname
+                                        from the DHCP server will be set as the transient
+                                        hostname of the machine.
+                                      type: boolean
+                                    useMTU:
+                                      description: UseMTU when `true`, the MTU from
+                                        the DHCP server will be set as the MTU of
+                                        the device.
+                                      type: boolean
+                                    useNTP:
+                                      description: UseNTP when `true`, the NTP servers
+                                        from the DHCP server will be used by systemd-timesyncd
+                                        and take precedence.
+                                      type: boolean
+                                    useRoutes:
+                                      description: UseRoutes when `true`, the routes
+                                        from the DHCP server will be installed in
+                                        the routing table.
+                                      type: string
+                                  type: object
                                 gateway4:
                                   description: Gateway4 is the IPv4 gateway used by
                                     this device. Required when DHCP4 is false.
@@ -5418,6 +5734,12 @@ spec:
                 description: Folder is the name or inventory path of the folder in
                   which the virtual machine is created/located.
                 type: string
+              hardwareVersion:
+                description: HardwareVersion is the hardware version of the virtual
+                  machine. Defaults to the eponymous property value in the template
+                  from which the virtual machine is cloned. Check the compatibility
+                  with the ESXi version before setting the value.
+                type: string
               memoryMiB:
                 description: MemoryMiB is the size of a virtual machine's memory,
                   in MiB. Defaults to the eponymous property value in the template
@@ -5436,6 +5758,33 @@ spec:
                       description: NetworkDeviceSpec defines the network configuration
                         for a virtual machine's network device.
                       properties:
+                        addressesFromPools:
+                          description: AddressesFromPools is a list of IPAddressPools
+                            that should be assigned to IPAddressClaims. The machine's
+                            cloud-init metadata will be populated with IPAddresses
+                            fulfilled by an IPAM provider.
+                          items:
+                            description: TypedLocalObjectReference contains enough
+                              information to let you locate the typed referenced object
+                              inside the same namespace.
+                            properties:
+                              apiGroup:
+                                description: APIGroup is the group for the resource
+                                  being referenced. If APIGroup is not specified,
+                                  the specified Kind must be in the core API group.
+                                  For any other third-party types, APIGroup is required.
+                                type: string
+                              kind:
+                                description: Kind is the type of resource being referenced
+                                type: string
+                              name:
+                                description: Name is the name of resource being referenced
+                                type: string
+                            required:
+                            - kind
+                            - name
+                            type: object
+                          type: array
                         deviceName:
                           description: DeviceName may be used to explicitly assign
                             a name to the network device as it exists in the guest
@@ -5446,11 +5795,117 @@ spec:
                             to use DHCP for IPv4 on this device. If true then IPAddrs
                             should not contain any IPv4 addresses.
                           type: boolean
+                        dhcp4Overrides:
+                          description: DHCP4Overrides allows for the control over
+                            several DHCP behaviors. Overrides will only be applied
+                            when the corresponding DHCP flag is set. Only configured
+                            values will be sent, omitted values will default to distribution
+                            defaults. Dependent on support in the network stack for
+                            your distribution. For more information see the netplan
+                            reference (https://netplan.io/reference#dhcp-overrides)
+                          properties:
+                            hostname:
+                              description: Hostname is the name which will be sent
+                                to the DHCP server instead of the machine's hostname.
+                              type: string
+                            routeMetric:
+                              description: RouteMetric is used to prioritize routes
+                                for devices. A lower metric for an interface will
+                                have a higher priority.
+                              type: integer
+                            sendHostname:
+                              description: SendHostname when `true`, the hostname
+                                of the machine will be sent to the DHCP server.
+                              type: boolean
+                            useDNS:
+                              description: UseDNS when `true`, the DNS servers in
+                                the DHCP server will be used and take precedence.
+                              type: boolean
+                            useDomains:
+                              description: UseDomains can take the values `true`,
+                                `false`, or `route`. When `true`, the domain name
+                                from the DHCP server will be used as the DNS search
+                                domain for this device. When `route`, the domain name
+                                from the DHCP response will be used for routing DNS
+                                only, not for searching.
+                              type: string
+                            useHostname:
+                              description: UseHostname when `true`, the hostname from
+                                the DHCP server will be set as the transient hostname
+                                of the machine.
+                              type: boolean
+                            useMTU:
+                              description: UseMTU when `true`, the MTU from the DHCP
+                                server will be set as the MTU of the device.
+                              type: boolean
+                            useNTP:
+                              description: UseNTP when `true`, the NTP servers from
+                                the DHCP server will be used by systemd-timesyncd
+                                and take precedence.
+                              type: boolean
+                            useRoutes:
+                              description: UseRoutes when `true`, the routes from
+                                the DHCP server will be installed in the routing table.
+                              type: string
+                          type: object
                         dhcp6:
                           description: DHCP6 is a flag that indicates whether or not
                             to use DHCP for IPv6 on this device. If true then IPAddrs
                             should not contain any IPv6 addresses.
                           type: boolean
+                        dhcp6Overrides:
+                          description: DHCP6Overrides allows for the control over
+                            several DHCP behaviors. Overrides will only be applied
+                            when the corresponding DHCP flag is set. Only configured
+                            values will be sent, omitted values will default to distribution
+                            defaults. Dependent on support in the network stack for
+                            your distribution. For more information see the netplan
+                            reference (https://netplan.io/reference#dhcp-overrides)
+                          properties:
+                            hostname:
+                              description: Hostname is the name which will be sent
+                                to the DHCP server instead of the machine's hostname.
+                              type: string
+                            routeMetric:
+                              description: RouteMetric is used to prioritize routes
+                                for devices. A lower metric for an interface will
+                                have a higher priority.
+                              type: integer
+                            sendHostname:
+                              description: SendHostname when `true`, the hostname
+                                of the machine will be sent to the DHCP server.
+                              type: boolean
+                            useDNS:
+                              description: UseDNS when `true`, the DNS servers in
+                                the DHCP server will be used and take precedence.
+                              type: boolean
+                            useDomains:
+                              description: UseDomains can take the values `true`,
+                                `false`, or `route`. When `true`, the domain name
+                                from the DHCP server will be used as the DNS search
+                                domain for this device. When `route`, the domain name
+                                from the DHCP response will be used for routing DNS
+                                only, not for searching.
+                              type: string
+                            useHostname:
+                              description: UseHostname when `true`, the hostname from
+                                the DHCP server will be set as the transient hostname
+                                of the machine.
+                              type: boolean
+                            useMTU:
+                              description: UseMTU when `true`, the MTU from the DHCP
+                                server will be set as the MTU of the device.
+                              type: boolean
+                            useNTP:
+                              description: UseNTP when `true`, the NTP servers from
+                                the DHCP server will be used by systemd-timesyncd
+                                and take precedence.
+                              type: boolean
+                            useRoutes:
+                              description: UseRoutes when `true`, the routes from
+                                the DHCP server will be installed in the routing table.
+                              type: string
+                          type: object
                         gateway4:
                           description: Gateway4 is the IPv4 gateway used by this device.
                             Required when DHCP4 is false.
@@ -6152,6 +6607,24 @@ rules:
   - patch
   - update
 - apiGroups:
+  - ipam.cluster.x-k8s.io
+  resources:
+  - ipaddressclaims
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - ipam.cluster.x-k8s.io
+  resources:
+  - ipaddresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - netoperator.vmware.com
   resources:
   - networks
@@ -6425,7 +6898,7 @@ spec:
         - --logtostderr
         - --v=4
         - --feature-gates=NodeAntiAffinity=${EXP_NODE_ANTI_AFFINITY:=false},NodeLabeling=${EXP_NODE_LABELING:=false}
-        image: gcr.io/cluster-api-provider-vsphere/release/manager:v1.4.1
+        image: gcr.io/cluster-api-provider-vsphere/release/manager:v1.5.0
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
