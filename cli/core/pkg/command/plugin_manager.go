@@ -7,13 +7,11 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
-	"strings"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
-	"golang.org/x/mod/semver"
 	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/cobra"
@@ -76,122 +74,41 @@ var listPluginCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			var err error
-			var availablePlugins []plugin.Discovered
-			if local != "" {
-				// get absolute local path
-				local, err = filepath.Abs(local)
-				if err != nil {
-					return err
-				}
-				availablePlugins, err = pluginmanager.AvailablePluginsFromLocalSource(local)
-			} else {
-				availablePlugins, err = pluginmanager.AvailablePlugins()
-			}
-			sort.Sort(plugin.DiscoveredSorter(availablePlugins))
-
+		var err error
+		var availablePlugins []plugin.Discovered
+		if local != "" {
+			// get absolute local path
+			local, err = filepath.Abs(local)
 			if err != nil {
 				return err
 			}
-
-			var data [][]string
-			var output component.OutputWriter
-
-			if config.IsFeatureActivated(cliconfig.FeatureContextCommand) {
-				for index := range availablePlugins {
-					data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
-						availablePlugins[index].Source, string(availablePlugins[index].Target), getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
-				}
-				output = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Target", "Version", "Status")
-			} else {
-				for index := range availablePlugins {
-					data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
-						availablePlugins[index].Source, getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
-				}
-				output = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
-			}
-
-			for _, row := range data {
-				vals := make([]interface{}, len(row))
-				for i, val := range row {
-					vals[i] = val
-				}
-				output.AddRow(vals...)
-			}
-			output.Render()
-
-			return nil
+			availablePlugins, err = pluginmanager.AvailablePluginsFromLocalSource(local)
+		} else {
+			availablePlugins, err = pluginmanager.AvailablePlugins()
 		}
-		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		descriptors, err := cli.ListPlugins()
+		sort.Sort(plugin.DiscoveredSorter(availablePlugins))
+
 		if err != nil {
 			return err
 		}
 
-		repos := getRepositories()
-		plugins, err := repos.ListPlugins()
+		var data [][]string
+		var output component.OutputWriter
 
-		// Failure to query plugin metadata from remote repositories should not
-		// prevent display of information about plugins already installed.
-		if err != nil {
-			log.Warningf("Unable to query remote plugin repositories : %v", err)
+		if config.IsFeatureActivated(cliconfig.FeatureContextCommand) {
+			for index := range availablePlugins {
+				data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
+					availablePlugins[index].Source, string(availablePlugins[index].Target), getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
+			}
+			output = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Target", "Version", "Status")
+		} else {
+			for index := range availablePlugins {
+				data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
+					availablePlugins[index].Source, getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
+			}
+			output = component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
 		}
 
-		data := [][]string{}
-		for repoName, descs := range plugins {
-			for _, plugin := range descs {
-				if plugin.Name == cli.CoreName {
-					continue
-				}
-
-				status := "not installed"
-				var currentVersion string
-
-				repo, err := repos.GetRepository(repoName)
-				if err != nil {
-					return err
-				}
-
-				versionSelector := repo.VersionSelector()
-				latestVersion := plugin.FindVersion(versionSelector)
-				for _, desc := range descriptors {
-					if plugin.Name != desc.Name {
-						continue
-					}
-					status = "installed"
-					currentVersion = desc.Version
-					compared := semver.Compare(latestVersion, desc.Version)
-					if compared == 1 {
-						status = "upgrade available"
-					}
-				}
-				data = append(data, []string{plugin.Name, latestVersion, plugin.Description, repoName, currentVersion, status})
-			}
-		}
-
-		// show plugins installed locally but not found in repositories
-		// failure to query the remote repository will degenerate the plugin list
-		// to this view as well
-		for _, desc := range descriptors {
-			var exists bool
-			for _, d := range data {
-				if desc.Name == d[0] {
-					exists = true
-					break
-				}
-			}
-			if !exists {
-				data = append(data, []string{desc.Name, "", desc.Description, "", desc.Version, "installed"})
-			}
-		}
-
-		// sort plugins based on their names
-		sort.SliceStable(data, func(i, j int) bool {
-			return strings.ToLower(data[i][0]) < strings.ToLower(data[j][0])
-		})
-
-		output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Latest Version", "Description", "Repository", "Version", "Status")
 		for _, row := range data {
 			vals := make([]interface{}, len(row))
 			for i, val := range row {
@@ -200,7 +117,9 @@ var listPluginCmd = &cobra.Command{
 			output.AddRow(vals...)
 		}
 		output.Render()
+
 		return nil
+
 	},
 }
 

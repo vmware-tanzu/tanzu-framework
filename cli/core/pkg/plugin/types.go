@@ -50,8 +50,8 @@ type Discovered struct {
 	// discovered.
 	Source string
 
-	// ServerName is the name of the server from where the plugin was discovered.
-	ServerName string
+	// ContextName is the name of the context from where the plugin was discovered.
+	ContextName string
 
 	// DiscoveryType defines the type of the discovery. Possible values are
 	// oci, local or kubernetes
@@ -64,7 +64,7 @@ type Discovered struct {
 	Status string
 }
 
-// DiscoveredSorter sorts discovered by objects.
+// DiscoveredSorter sorts discovered objects.
 type DiscoveredSorter []Discovered
 
 func (d DiscoveredSorter) Len() int      { return len(d) }

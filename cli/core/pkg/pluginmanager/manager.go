@@ -121,7 +121,7 @@ func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
 	return
 }
 
-// DiscoverServerPlugins returns the available plugins associated with the given server
+// DiscoverServerPlugins returns the available plugins associated all the active contexts
 func DiscoverServerPlugins() ([]plugin.Discovered, error) {
 	// If the context and target feature is enabled, discover plugins from all currentContexts
 	// Else discover plugin based on current Server
@@ -133,6 +133,7 @@ func DiscoverServerPlugins() ([]plugin.Discovered, error) {
 
 func discoverServerPluginsBasedOnAllCurrentContexts() ([]plugin.Discovered, error) {
 	var plugins []plugin.Discovered
+	var errList []error
 
 	currentContextMap, err := configlib.GetAllCurrentContextsMap()
 	if err != nil {
@@ -148,12 +149,13 @@ func discoverServerPluginsBasedOnAllCurrentContexts() ([]plugin.Discovered, erro
 		discoverySources = append(discoverySources, defaultDiscoverySourceBasedOnContext(context)...)
 		discoveredPlugins, err := discoverPlugins(discoverySources)
 		if err != nil {
-			return discoveredPlugins, err
+			errList = append(errList, err)
+			continue
 		}
 		for i := range discoveredPlugins {
 			discoveredPlugins[i].Scope = common.PluginScopeContext
 			discoveredPlugins[i].Status = common.PluginStatusNotInstalled
-			discoveredPlugins[i].ServerName = context.Name
+			discoveredPlugins[i].ContextName = context.Name
 
 			// Associate Target of the plugin based on the Context Type of the Context
 			switch context.Type {
@@ -165,7 +167,7 @@ func discoverServerPluginsBasedOnAllCurrentContexts() ([]plugin.Discovered, erro
 		}
 		plugins = append(plugins, discoveredPlugins...)
 	}
-	return plugins, nil
+	return plugins, kerrors.NewAggregate(errList)
 }
 
 // discoverServerPluginsBasedOnCurrentServer returns the available plugins associated with the given server
@@ -193,8 +195,8 @@ func discoverServerPluginsBasedOnCurrentServer() ([]plugin.Discovered, error) {
 	return plugins, nil
 }
 
-// DiscoverPlugins returns the available plugins that can be used with the given server
-// If serverName is empty(""), return only standalone plugins
+// DiscoverPlugins returns all the discovered plugins including standalone and context-scoped plugins
+// Context scoped plugin discovery happens for all active contexts
 func DiscoverPlugins() ([]plugin.Discovered, []plugin.Discovered) {
 	serverPlugins, err := DiscoverServerPlugins()
 	if err != nil {
@@ -210,8 +212,8 @@ func DiscoverPlugins() ([]plugin.Discovered, []plugin.Discovered) {
 	return serverPlugins, standalonePlugins
 }
 
-// AvailablePlugins returns the list of available plugins including discovered and installed plugins
-// If serverName is empty(""), return only available standalone plugins
+// AvailablePlugins returns the list of available plugins including discovered and installed plugins.
+// Plugin discovery happens for all active contexts
 func AvailablePlugins() ([]plugin.Discovered, error) {
 	discoveredServerPlugins, discoveredStandalonePlugins := DiscoverPlugins()
 	return availablePlugins(discoveredServerPlugins, discoveredStandalonePlugins)
@@ -267,7 +269,11 @@ func combineDuplicatePlugins(availablePlugins []plugin.Discovered) []plugin.Disc
 	}
 
 	for i := range availablePlugins {
-		if availablePlugins[i].Target == "" {
+		if availablePlugins[i].Target == cliv1alpha1.TargetNone {
+			// As we are considering None targeted and k8s target plugin to be treated as same plugins
+			// in the case of plugin name conflicts, using `k8s` target to determine the plugin already
+			// exists or not.
+			// If plugin already exists in the map then combining the installation status for both the plugins
 			key := fmt.Sprintf("%s_%s", availablePlugins[i].Name, cliv1alpha1.TargetK8s)
 			dp, exists := mapOfSelectedPlugins[key]
 			if !exists {
@@ -276,6 +282,8 @@ func combineDuplicatePlugins(availablePlugins []plugin.Discovered) []plugin.Disc
 				mapOfSelectedPlugins[key] = combinePluginInstallationStatus(dp, availablePlugins[i])
 			}
 		} else {
+			// If plugin doesn't exist in the map then add the plugin to the map
+			// else combine the installation status for both the plugins
 			key := fmt.Sprintf("%s_%s", availablePlugins[i].Name, availablePlugins[i].Target)
 			dp, exists := mapOfSelectedPlugins[key]
 			if !exists {
@@ -384,8 +392,7 @@ func pluginIndexForName(availablePlugins []plugin.Discovered, p *plugin.Discover
 	return -1 // haven't found a match
 }
 
-// InstalledPlugins returns the installed plugins.
-// If serverName is empty(""), return only installed standalone plugins
+// InstalledPlugins returns the list of installed context-scoped and standalone plugins.
 func InstalledPlugins() (serverPlugins, standalonePlugins []cliapi.PluginDescriptor, err error) {
 	serverPlugins, err = InstalledServerPlugins()
 	if err != nil {
@@ -544,7 +551,7 @@ func GetRecommendedVersionOfPlugin(pluginName string, target cliv1alpha1.Target)
 }
 
 func installOrUpgradePlugin(p *plugin.Discovered, version string, installTestPlugin bool) error {
-	if p.Target == "" {
+	if p.Target == cliv1alpha1.TargetNone {
 		log.Infof("Installing plugin '%v:%v'", p.Name, version)
 	} else {
 		log.Infof("Installing plugin '%v:%v' with target '%v'", p.Name, version, p.Target)
@@ -640,7 +647,7 @@ func doInstallTestPlugin(p *plugin.Discovered, version string) error {
 }
 
 func updateDescriptorAndInitializePlugin(p *plugin.Discovered, descriptor *cliapi.PluginDescriptor) error {
-	c, err := catalog.NewContextCatalog(p.ServerName)
+	c, err := catalog.NewContextCatalog(p.ContextName)
 	if err != nil {
 		return err
 	}

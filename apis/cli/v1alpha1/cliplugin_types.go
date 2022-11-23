@@ -16,6 +16,9 @@ const (
 
 	// TargetTMC is a Tanzu Mission Control target of the CLI
 	TargetTMC Target = "tmc"
+
+	// TargetNone is used for plugins that are not associated with any target
+	TargetNone Target = ""
 )
 
 // ArtifactList contains an Artifact object for every supported platform of a version.

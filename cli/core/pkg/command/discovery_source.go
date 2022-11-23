@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
+
 	"github.com/aunum/log"
 
 	"github.com/pkg/errors"
@@ -69,12 +71,22 @@ var listDiscoverySourceCmd = &cobra.Command{
 			outputFromDiscoverySources(cfg.ClientOptions.CLI.DiscoverySources, common.PluginScopeStandalone, output)
 		}
 
-		// Get context scoped discoveries
-		server, err := configlib.GetCurrentServer()
-		if err == nil && server != nil {
-			serverDiscoverySources := server.DiscoverySources
-			outputFromDiscoverySources(serverDiscoverySources, common.PluginScopeContext, output)
+		// If context-target feature is activated, get discovery sources from all active context
+		// else get discovery sources from current server
+		if configlib.IsFeatureActivated(config.FeatureContextCommand) {
+			mapContexts, err := configlib.GetAllCurrentContextsMap()
+			if err == nil {
+				for _, context := range mapContexts {
+					outputFromDiscoverySources(context.DiscoverySources, common.PluginScopeContext, output)
+				}
+			}
+		} else {
+			server, err := configlib.GetCurrentServer()
+			if err == nil && server != nil {
+				outputFromDiscoverySources(server.DiscoverySources, common.PluginScopeContext, output)
+			}
 		}
+
 		output.Render()
 
 		return nil

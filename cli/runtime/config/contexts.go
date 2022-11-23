@@ -158,11 +158,7 @@ func GetAllCurrentContextsMap() (map[configapi.ContextType]*configapi.Context, e
 
 // GetAllCurrentContextsList returns all current context names as list
 func GetAllCurrentContextsList() ([]string, error) {
-	node, err := getClientConfigNode()
-	if err != nil {
-		return nil, err
-	}
-	currentContextsMap, err := getAllCurrentContextsMap(node)
+	currentContextsMap, err := GetAllCurrentContextsMap()
 	if err != nil {
 		return nil, err
 	}

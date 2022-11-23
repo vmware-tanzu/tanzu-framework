@@ -5,12 +5,14 @@ package pluginmanager
 
 import (
 	"fmt"
-	"github.com/aunum/log"
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"testing"
+
+	"github.com/aunum/log"
+
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 
 	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 
@@ -30,21 +32,21 @@ var expectedDiscoveredContextPlugins = []plugin.Discovered{
 		Name:               "cluster",
 		RecommendedVersion: "v1.6.0",
 		Scope:              "Context",
-		ServerName:         "mgmt",
+		ContextName:        "mgmt",
 		Target:             cliv1alpha1.TargetK8s,
 	},
 	{
 		Name:               "cluster",
 		RecommendedVersion: "v0.2.0",
 		Scope:              "Context",
-		ServerName:         "tmc-fake",
+		ContextName:        "tmc-fake",
 		Target:             cliv1alpha1.TargetTMC,
 	},
 	{
 		Name:               "management-cluster",
 		RecommendedVersion: "v0.2.0",
 		Scope:              "Context",
-		ServerName:         "tmc-fake",
+		ContextName:        "tmc-fake",
 		Target:             cliv1alpha1.TargetTMC,
 	},
 }
@@ -53,14 +55,14 @@ var expectedDiscoveredStandalonePlugins = []plugin.Discovered{
 		Name:               "login",
 		RecommendedVersion: "v0.2.0",
 		Scope:              "Standalone",
-		ServerName:         "",
-		Target:             "",
+		ContextName:        "",
+		Target:             cliv1alpha1.TargetNone,
 	},
 	{
 		Name:               "management-cluster",
 		RecommendedVersion: "v1.6.0",
 		Scope:              "Standalone",
-		ServerName:         "",
+		ContextName:        "",
 		Target:             cliv1alpha1.TargetK8s,
 	},
 }
@@ -101,12 +103,12 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	defer func() { execCommand = exec.Command }()
 
 	// Try installing nonexistent plugin
-	err := InstallPlugin("not-exists", "v0.2.0", "")
+	err := InstallPlugin("not-exists", "v0.2.0", cliv1alpha1.TargetNone)
 	assertions.NotNil(err)
 	assertions.Contains(err.Error(), "unable to find plugin 'not-exists'")
 
 	// Install login (standalone) plugin
-	err = InstallPlugin("login", "v0.2.0", "")
+	err = InstallPlugin("login", "v0.2.0", cliv1alpha1.TargetNone)
 	assertions.Nil(err)
 	// Verify installed plugin
 	installedServerPlugins, installedStandalonePlugins, err := InstalledPlugins()
@@ -116,7 +118,7 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	assertions.Equal("login", installedStandalonePlugins[0].Name)
 
 	// Try installing cluster plugin with no context-type
-	err = InstallPlugin("cluster", "v0.2.0", "")
+	err = InstallPlugin("cluster", "v0.2.0", cliv1alpha1.TargetNone)
 	assertions.NotNil(err)
 	assertions.Contains(err.Error(), "unable to uniquely identify plugin 'cluster'. Please specify Target of the plugin")
 
@@ -134,7 +136,7 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	assertions.Nil(err)
 
 	// Try installing management-cluster plugin from standalone discovery without context-type
-	err = InstallPlugin("management-cluster", "v1.6.0", "")
+	err = InstallPlugin("management-cluster", "v1.6.0", cliv1alpha1.TargetNone)
 	assertions.NotNil(err)
 	assertions.Contains(err.Error(), "unable to uniquely identify plugin 'management-cluster'. Please specify Target of the plugin")
 
@@ -167,7 +169,7 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 			Name:    "login",
 			Version: "v0.2.0",
 			Scope:   "Standalone",
-			Target:  "",
+			Target:  cliv1alpha1.TargetNone,
 		},
 		{
 			Name:    "management-cluster",
@@ -210,7 +212,7 @@ func Test_AvailablePlugins(t *testing.T) {
 	}
 
 	// Install login, cluster plugins
-	mockInstallPlugin(assertions, "login", "v0.2.0", "")
+	mockInstallPlugin(assertions, "login", "v0.2.0", cliv1alpha1.TargetNone)
 	mockInstallPlugin(assertions, "cluster", "v0.2.0", cliv1alpha1.TargetTMC)
 
 	expectedInstallationStatusOfPlugins := []plugin.Discovered{
@@ -228,7 +230,7 @@ func Test_AvailablePlugins(t *testing.T) {
 		},
 		{
 			Name:             "login",
-			Target:           "",
+			Target:           cliv1alpha1.TargetNone,
 			InstalledVersion: "v0.2.0",
 			Status:           common.PluginStatusInstalled,
 		},
@@ -271,7 +273,7 @@ func Test_AvailablePlugins(t *testing.T) {
 		},
 		{
 			Name:             "login",
-			Target:           "",
+			Target:           cliv1alpha1.TargetNone,
 			InstalledVersion: "v0.2.0",
 			Status:           common.PluginStatusInstalled,
 		},
@@ -301,7 +303,7 @@ func Test_AvailablePlugins_With_K8s_None_Target_Plugin_Name_Conflict_With_One_In
 	assertions.Equal(len(expectedDiscoveredPlugins), len(discoveredPlugins))
 
 	// Install login, cluster plugins
-	mockInstallPlugin(assertions, "login", "v0.2.0", "")
+	mockInstallPlugin(assertions, "login", "v0.2.0", cliv1alpha1.TargetNone)
 
 	// Considering `login` plugin with `<none>` target is already installed and
 	// getting discovered through some discoveries source
@@ -354,7 +356,7 @@ func Test_AvailablePlugins_With_K8s_None_Target_Plugin_Name_Conflict_With_Plugin
 	assertions.Equal(len(expectedDiscoveredPlugins), len(discoveredPlugins))
 
 	// Install login, cluster plugins
-	mockInstallPlugin(assertions, "login", "v0.2.0", "")
+	mockInstallPlugin(assertions, "login", "v0.2.0", cliv1alpha1.TargetNone)
 
 	// Considering `login` plugin with `<none>` target is already installed and
 	// getting discovered through some discoveries source
@@ -458,12 +460,12 @@ func Test_InstallPlugin_InstalledPlugins_From_LocalSource(t *testing.T) {
 	localPluginSourceDir := filepath.Join(currentDirAbsPath, "test", "local")
 
 	// Try installing nonexistent plugin
-	err := InstallPluginsFromLocalSource("not-exists", "v0.2.0", "", localPluginSourceDir, false)
+	err := InstallPluginsFromLocalSource("not-exists", "v0.2.0", cliv1alpha1.TargetNone, localPluginSourceDir, false)
 	assertions.NotNil(err)
 	assertions.Contains(err.Error(), "unable to find plugin 'not-exists'")
 
 	// Install login from local source directory
-	err = InstallPluginsFromLocalSource("login", "v0.2.0", "", localPluginSourceDir, false)
+	err = InstallPluginsFromLocalSource("login", "v0.2.0", cliv1alpha1.TargetNone, localPluginSourceDir, false)
 	assertions.Nil(err)
 	// Verify installed plugin
 	installedServerPlugins, installedStandalonePlugins, err := InstalledPlugins()
@@ -492,15 +494,15 @@ func Test_DescribePlugin(t *testing.T) {
 	defer setupLocalDistoForTesting()()
 
 	// Try to describe plugin when plugin is not installed
-	_, err := DescribePlugin("login", "")
+	_, err := DescribePlugin("login", cliv1alpha1.TargetNone)
 	assertions.NotNil(err)
 	assertions.Contains(err.Error(), "unable to find plugin 'login'")
 
 	// Install login (standalone) package
-	mockInstallPlugin(assertions, "login", "v0.2.0", "")
+	mockInstallPlugin(assertions, "login", "v0.2.0", cliv1alpha1.TargetNone)
 
 	// Try to describe plugin when plugin after installing plugin
-	pd, err := DescribePlugin("login", "")
+	pd, err := DescribePlugin("login", cliv1alpha1.TargetNone)
 	assertions.Nil(err)
 	assertions.Equal("login", pd.Name)
 	assertions.Equal("v0.2.0", pd.Version)
@@ -528,7 +530,7 @@ func Test_DeletePlugin(t *testing.T) {
 	// Try to delete plugin when plugin is not installed
 	loginPlugin := DeletePluginOptions{
 		PluginName:  "login",
-		Target:      "",
+		Target:      cliv1alpha1.TargetNone,
 		ForceDelete: true,
 	}
 	err := DeletePlugin(loginPlugin)
@@ -536,7 +538,7 @@ func Test_DeletePlugin(t *testing.T) {
 	assertions.Contains(err.Error(), "could not get plugin path for plugin \"login\"")
 
 	// Install login (standalone) package
-	mockInstallPlugin(assertions, "login", "v0.2.0", "")
+	mockInstallPlugin(assertions, "login", "v0.2.0", cliv1alpha1.TargetNone)
 
 	// Try to delete plugin when plugin is installed
 	clusterPlugin := DeletePluginOptions{
@@ -653,7 +655,7 @@ func Test_setAvailablePluginsStatus(t *testing.T) {
 	assertions := assert.New(t)
 
 	availablePlugins := []plugin.Discovered{{Name: "fake1", DiscoveryType: "oci", RecommendedVersion: "v1.0.0", Status: common.PluginStatusNotInstalled, Target: cliv1alpha1.TargetK8s}}
-	installedPluginDesc := []cliapi.PluginDescriptor{{Name: "fake2", Version: "v2.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v2.0.0", Target: ""}}
+	installedPluginDesc := []cliapi.PluginDescriptor{{Name: "fake2", Version: "v2.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v2.0.0", Target: cliv1alpha1.TargetNone}}
 
 	// If installed plugin is not part of available(discovered) plugins then
 	// installed version == ""
@@ -666,7 +668,7 @@ func Test_setAvailablePluginsStatus(t *testing.T) {
 	assertions.Equal(common.PluginStatusNotInstalled, availablePlugins[0].Status)
 
 	// If installed plugin is not part of available(discovered) plugins because of the Target mismatch
-	installedPluginDesc = []cliapi.PluginDescriptor{{Name: "fake1", Version: "v1.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v1.0.0", Target: ""}}
+	installedPluginDesc = []cliapi.PluginDescriptor{{Name: "fake1", Version: "v1.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v1.0.0", Target: cliv1alpha1.TargetNone}}
 	setAvailablePluginsStatus(availablePlugins, installedPluginDesc)
 	assertions.Equal(len(availablePlugins), 1)
 	assertions.Equal("fake1", availablePlugins[0].Name)
@@ -734,13 +736,13 @@ func Test_DiscoverPluginsFromLocalSourceWithLegacyDirectoryStructure(t *testing.
 	assertions.Equal("Foo plugin", discoveredPlugins[0].Description)
 	assertions.Equal("v0.12.0", discoveredPlugins[0].RecommendedVersion)
 	assertions.Equal(common.PluginScopeStandalone, discoveredPlugins[0].Scope)
-	assertions.Equal(cliv1alpha1.Target(""), discoveredPlugins[0].Target)
+	assertions.Equal(cliv1alpha1.TargetNone, discoveredPlugins[0].Target)
 
 	assertions.Equal("bar", discoveredPlugins[1].Name)
 	assertions.Equal("Bar plugin", discoveredPlugins[1].Description)
 	assertions.Equal("v0.10.0", discoveredPlugins[1].RecommendedVersion)
 	assertions.Equal(common.PluginScopeStandalone, discoveredPlugins[1].Scope)
-	assertions.Equal(cliv1alpha1.Target(""), discoveredPlugins[1].Target)
+	assertions.Equal(cliv1alpha1.TargetNone, discoveredPlugins[1].Target)
 }
 
 func Test_InstallPluginsFromLocalSourceWithLegacyDirectoryStructure(t *testing.T) {
@@ -751,7 +753,7 @@ func Test_InstallPluginsFromLocalSourceWithLegacyDirectoryStructure(t *testing.T
 
 	// Using generic InstallPluginsFromLocalSource to test the legacy directory install
 	// When passing legacy directory structure which contains manifest.yaml file
-	err := InstallPluginsFromLocalSource("all", "", "", filepath.Join("test", "legacy"), false)
+	err := InstallPluginsFromLocalSource("all", "", cliv1alpha1.TargetNone, filepath.Join("test", "legacy"), false)
 	assertions.Nil(err)
 
 	// Verify installed plugin
@@ -926,29 +928,29 @@ func Test_removeDuplicates(t *testing.T) {
 			inputPlugins: []plugin.Discovered{
 				{
 					Name:   "foo",
-					Target: "",
+					Target: cliv1alpha1.TargetNone,
 					Scope:  common.PluginScopeStandalone,
 				},
 				{
 					Name:   "foo",
-					Target: "k8s",
+					Target: cliv1alpha1.TargetK8s,
 					Scope:  common.PluginScopeStandalone,
 				},
 				{
 					Name:   "bar",
-					Target: "k8s",
+					Target: cliv1alpha1.TargetK8s,
 					Scope:  common.PluginScopeStandalone,
 				},
 			},
 			expectedResult: []plugin.Discovered{
 				{
 					Name:   "foo",
-					Target: "k8s",
+					Target: cliv1alpha1.TargetK8s,
 					Scope:  common.PluginScopeStandalone,
 				},
 				{
 					Name:   "bar",
-					Target: "k8s",
+					Target: cliv1alpha1.TargetK8s,
 					Scope:  common.PluginScopeStandalone,
 				},
 			},
@@ -958,29 +960,29 @@ func Test_removeDuplicates(t *testing.T) {
 			inputPlugins: []plugin.Discovered{
 				{
 					Name:   "foo",
-					Target: "",
+					Target: cliv1alpha1.TargetNone,
 					Scope:  common.PluginScopeStandalone,
 				},
 				{
 					Name:   "foo",
-					Target: "k8s",
+					Target: cliv1alpha1.TargetK8s,
 					Scope:  common.PluginScopeStandalone,
 				},
 				{
 					Name:   "foo",
-					Target: "tmc",
+					Target: cliv1alpha1.TargetTMC,
 					Scope:  common.PluginScopeStandalone,
 				},
 			},
 			expectedResult: []plugin.Discovered{
 				{
 					Name:   "foo",
-					Target: "k8s",
+					Target: cliv1alpha1.TargetK8s,
 					Scope:  common.PluginScopeStandalone,
 				},
 				{
 					Name:   "foo",
-					Target: "tmc",
+					Target: cliv1alpha1.TargetTMC,
 					Scope:  common.PluginScopeStandalone,
 				},
 			},
@@ -990,24 +992,24 @@ func Test_removeDuplicates(t *testing.T) {
 			inputPlugins: []plugin.Discovered{
 				{
 					Name:   "foo",
-					Target: "",
+					Target: cliv1alpha1.TargetNone,
 					Scope:  common.PluginScopeStandalone,
 				},
 				{
 					Name:   "foo",
-					Target: "k8s",
+					Target: cliv1alpha1.TargetK8s,
 					Scope:  common.PluginScopeStandalone,
 				},
 				{
 					Name:   "foo",
-					Target: "k8s",
+					Target: cliv1alpha1.TargetK8s,
 					Scope:  common.PluginScopeContext,
 				},
 			},
 			expectedResult: []plugin.Discovered{
 				{
 					Name:   "foo",
-					Target: "k8s",
+					Target: cliv1alpha1.TargetK8s,
 					Scope:  common.PluginScopeContext,
 				},
 			},
@@ -1017,19 +1019,19 @@ func Test_removeDuplicates(t *testing.T) {
 			inputPlugins: []plugin.Discovered{
 				{
 					Name:   "foo",
-					Target: "tmc",
+					Target: cliv1alpha1.TargetTMC,
 					Scope:  common.PluginScopeStandalone,
 				},
 				{
 					Name:   "foo",
-					Target: "tmc",
+					Target: cliv1alpha1.TargetTMC,
 					Scope:  common.PluginScopeContext,
 				},
 			},
 			expectedResult: []plugin.Discovered{
 				{
 					Name:   "foo",
-					Target: "tmc",
+					Target: cliv1alpha1.TargetTMC,
 					Scope:  common.PluginScopeContext,
 				},
 			},

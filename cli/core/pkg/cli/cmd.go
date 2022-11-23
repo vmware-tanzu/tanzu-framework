@@ -28,6 +28,7 @@ func GetCmd(p *cliapi.PluginDescriptor) *cobra.Command {
 		DisableFlagParsing: true,
 		Annotations: map[string]string{
 			"group": string(p.Group),
+			"scope": p.Scope,
 		},
 		Hidden:  p.Hidden,
 		Aliases: p.Aliases,
