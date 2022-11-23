@@ -1,25 +1,19 @@
-name: Main
+name: Unittests
 
 on:
   pull_request:
     branches: [ main, release-* ]
 
 jobs:
-
-  build:
-    name: Build
+  unittests:
+    name: unittests
     runs-on: ubuntu-latest
     steps:
     - name: Free some disk space on runner
       run: |
+        echo "free space before cleanup:"
         df -h
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
-        sudo rm -rf /usr/local/share/boost
-        sudo rm -rf /usr/lib/jvm
-        sudo rm -rf /usr/lib/firefox
-        sudo rm -rf /opt/microsoft/powershell
-        sudo rm -rf /opt/hostedtoolcache
+        sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /usr/lib/jvm /usr/lib/firefox /opt/microsoft/powershell /opt/hostedtoolcache
         echo "free space after cleanup:"
         df -h
 
@@ -90,73 +84,15 @@ jobs:
         echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
       id: extract_bom
 
-    - name: Build
-      run: |
-        if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
-          export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
-        fi
-        env | sort
-        make configure-bom
-        make all ENVS=linux-amd64
-
-    - name: Verify
-      run: |
-        make verify
-
-    - name: Test
+    - name: Run make test
       run: |
         if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
           export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
         fi
         make configure-bom
         make test ENVS=linux-amd64
+
     - name: Upload coverage reports to Codecov with GitHub Action
       uses: codecov/codecov-action@v3
       with:
         files: ./coverage1.txt,./coverage2.txt,./coverage3.txt,./addons/coverage.txt,./pinniped-components/post-deploy/coverage.txt,./pinniped-components/tanzu-auth-controller-manager/coverage.txt,./cli/core/coverage.txt,./cli/runtime/coverage.txt,./tkg/coverage.txt,./featuregates/client/cover.out,./featuregates/controller/cover.out,./capabilities/client/cover.out,./capabilities/controller/cover.out,./cmd/cli/plugin-admin/builder/cover.out,./cmd/cli/plugin-admin/codegen/cover.out,./cmd/cli/plugin-admin/test/cover.out,./apis/config/cover.out,./apis/run/cover.out,./packageclients/cover.out,./apis/addonconfigs/cover.out,./apis/cli/cover.out,./apis/core/cover.out,./cmd/cli/plugin/feature/cover.out,./cmd/cli/plugin/login/cover.out,./cmd/cli/plugin/package/cover.out,./cmd/cli/plugin/pinniped-auth/cover.out,./cmd/cli/plugin/secret/cover.out,./cmd/cli/plugin/cluster/coverage.txt,./cmd/cli/plugin/managementcluster/coverage.txt
-  check:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Free some disk space on runner
-      run: |
-        df -h
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
-        sudo rm -rf /usr/local/share/boost
-        sudo rm -rf /usr/lib/jvm
-        sudo rm -rf /usr/lib/firefox
-        sudo rm -rf /opt/microsoft/powershell
-        sudo rm -rf /opt/hostedtoolcache
-        echo "free space after cleanup:"
-        df -h
-
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
-      id: go
-
-    - name: go cache
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
-    - name: Cache linting
-      uses: actions/cache@v3
-      with:
-        path: ${{ runner.temp }}/lint_cache
-        key: ${{ runner.os }}-lint-cache-2
-
-    - name: Run lint checks
-      env:
-        GOLANGCI_LINT_CACHE: ${{ runner.temp }}/lint_cache
-      run: |
-        make lint
