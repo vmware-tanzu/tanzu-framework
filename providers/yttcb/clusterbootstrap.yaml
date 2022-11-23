@@ -1,7 +1,6 @@
 #@ load("@ytt:assert", "assert")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:ip", "ip")
-#@ load("lib/helpers.star", "get_tkr_version_from_tkr_name")
 
 #@ vsphereControlPlaneEndpointAsCidr = ""
 #@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
@@ -21,7 +20,6 @@
 #@ end
 
 #@ def antrea_config_customized():
-#@!  This function checks if default values were changed.
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED or
 #@           not data.values.ANTREA_PROXY or
 #@           not data.values.ANTREA_ENDPOINTSLICE or
@@ -41,18 +39,18 @@
 #@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD or
 #@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
 #@           data.values.ANTREA_EGRESS_EXCEPT_CIDRS != "" or
-#@           not data.values.not ANTREA_NODEPORTLOCAL_ENABLED or
-#@           data.values.ANTREA_NODEPORTLOCAL_PORTRANGE != 61000-62000 or
+#@           not data.values.ANTREA_NODEPORTLOCAL_ENABLED or
+#@           data.values.ANTREA_NODEPORTLOCAL_PORTRANGE != "61000-62000" or
 #@           data.values.ANTREA_PROXY_ALL or
 #@           data.values.ANTREA_PROXY_NODEPORT_ADDRS != "" or
 #@           data.values.ANTREA_PROXY_SKIP_SERVICES != "" or
-#@           not data.values.ANTREA_PROXY_LOAD_BALANCER_IPS or
+#@           data.values.ANTREA_PROXY_LOAD_BALANCER_IPS or
 #@           data.values.ANTREA_FLOWEXPORTER_COLLECTOR_ADDRESS != "flow-aggregator.flow-aggregator.svc:4739:tls" or
 #@           data.values.ANTREA_FLOWEXPORTER_POLL_INTERVAL != "5s" or
 #@           data.values.ANTREA_FLOWEXPORTER_ACTIVE_TIMEOUT != "30s" or
 #@           data.values.ANTREA_FLOWEXPORTER_IDLE_TIMEOUT != "15s" or
-#@           data.values.ANTREA_KUBE_APISERVER_OVERRIDE != "" or
-#@           data.values.ANTREA_TRANSPORT_INTERFACE != "" or
+#@           data.values.ANTREA_KUBE_APISERVER_OVERRIDE != None or
+#@           data.values.ANTREA_TRANSPORT_INTERFACE != None or
 #@           data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS != "" or
 #@           data.values.ANTREA_MULTICAST_INTERFACES != "" or
 #@           data.values.ANTREA_MULTICAST_IGMPQUERY_INTERVAL != "125s" or
@@ -63,7 +61,7 @@
 #@           data.values.ANTREA_ENABLE_BRIDGING_MODE or
 #@           data.values.ANTREA_DISABLE_TXCHECKSUM_OFFLOAD or
 #@           data.values.ANTREA_DNS_SERVER_OVERRIDE != "" or
-#@           not data.values.ANTREA_MULTICLUSTER_ENABLE or
+#@           data.values.ANTREA_MULTICLUSTER_ENABLE or
 #@           data.values.ANTREA_MULTICLUSTER_NAMESPACE != "")
 #@ end
 

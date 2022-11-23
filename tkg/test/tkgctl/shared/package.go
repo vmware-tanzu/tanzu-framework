@@ -33,15 +33,15 @@ import (
 	restclient "k8s.io/client-go/rest"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -194,6 +194,9 @@ func CheckClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName
 	}
 
 	By(fmt.Sprintf("Verify clusterbootstrap matches clusterbootstraptemplate"))
+	By(fmt.Sprintf("=== CB === %#v\n", clusterBootstrap.Spec.CNI))
+	By(fmt.Sprintf("=== CB === %#v\n", clusterBootstrap.Spec.CSI))
+
 	verifyClusterBootstrap(ctx, mccl, clusterBootstrap, clusterBootstrap.Status.ResolvedTKR, systemNamespace, isManagementCluster, isCustomCB)
 
 	packages, err := getPackagesFromCB(ctx, clusterBootstrap, mccl, wccl, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName, isManagementCluster)
@@ -244,6 +247,9 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 
 	clusterBootstrapTemplate := getClusterBootstrapTemplate(ctx, c, resolvedTKr, systemNamespace)
 
+	By(fmt.Sprintf("=== CBT === %#v", clusterBootstrapTemplate.Spec.CNI))
+	By(fmt.Sprintf("=== CBT === %#v", clusterBootstrapTemplate.Spec.CSI))
+
 	expectedClusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	expectedClusterBootstrap.Spec = clusterBootstrapTemplate.Spec.DeepCopy()
 
@@ -267,6 +273,7 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 				pkg.ValuesFrom.SecretRef = GeneratePackageSecretName(clusterBootstrap.Name, pkgShortName)
 			} else if pkg.ValuesFrom.ProviderRef != nil {
 				pkg.ValuesFrom.ProviderRef.Name = GeneratePackageSecretName(clusterBootstrap.Name, pkgShortName)
+				By(fmt.Sprintf("=== pkgVALUE === %#v", pkg.ValuesFrom.ProviderRef))
 			}
 		}
 
@@ -283,6 +290,7 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 		// any package specified in the custom CB manifest will have to be special-cased
 		// so, handling this currently for antrea for the custom CB test case
 		if !isManagementCluster && isCustomCB && (strings.Contains(pkg.RefName, "antrea") || strings.Contains(pkg.RefName, "aws-ebs-csi-driver")) {
+			By(fmt.Sprintf("== %v", pkg))
 			pkg.ValuesFrom.ProviderRef.Name = clusterBootstrap.Name
 		}
 
@@ -295,6 +303,8 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 			}
 		}
 	}
+	By(fmt.Sprintf("=== AFTER CBT CNI === %#v", clusterBootstrapTemplate.Spec.CNI))
+	By(fmt.Sprintf("=== AFTER CBT CSI === %#v", clusterBootstrapTemplate.Spec.CSI))
 
 	// Calico needs special handling
 	if strings.Contains(clusterBootstrap.Spec.CNI.RefName, "calico") {
