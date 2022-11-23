@@ -7,9 +7,6 @@
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
 ARG BUILDER_BASE_IMAGE=golang:1.18
-ARG CACHE_GOBUILD=type=cache,target=/root/.cache/go-build
-ARG CACHE_GOLANG=cache,target=/root/.local/share/golang
-ARG CACHE_GOMOD=type=cache,target=/go/pkg/mod
 
 # Build the manager binary
 FROM $BUILDER_BASE_IMAGE as builder

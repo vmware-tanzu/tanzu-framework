@@ -7,11 +7,6 @@
 # top of their own trusted images.
 ARG BUILDER_BASE_IMAGE=golang:1.18
 
-ARG CACHE_GOBUILD=type=cache,target=/root/.cache/go-build
-ARG CACHE_GOLANG=cache,target=/root/.local/share/golang
-ARG CACHE_GOMOD=type=cache,target=/go/pkg/mod
-ARG CACHE="--mount=${CACHE_GOLANG} --mount=${CACHE_GOBUILD} --mount=${CACHE_GOMOD}" # Copyright 2021 VMware, Inc. All Rights Reserved.
-
 # Build the manager binary
 FROM $BUILDER_BASE_IMAGE as builder
 
@@ -25,7 +20,7 @@ COPY tkr/go.mod tkr/go.mod
 COPY tkr/go.sum tkr/go.sum
 
 WORKDIR /workspace/tkr
-RUN aaa\${CACHE} go mod download
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/root/.local/share/golang --mount=type=cache,target=/go/pkg/mod go mod download
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
 

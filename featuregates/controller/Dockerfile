@@ -1,9 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Enable Buildkit
-ARG CACHE_GOBUILD=type=cache,target=/root/.cache/go-build
-ARG CACHE_GOLANG=cache,target=/root/.local/share/golang
-ARG CACHE_GOMOD=type=cache,target=/go/pkg/mod
-ARG CACHE="--mount=${CACHE_GOLANG} --mount=${CACHE_GOBUILD} --mount=${CACHE_GOMOD}" # Copyright 2021 VMware, Inc. All Rights Reserved.
 
 # syntax=docker/dockerfile:1.4
 

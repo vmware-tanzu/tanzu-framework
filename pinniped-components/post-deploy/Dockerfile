@@ -1,14 +1,10 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+# syntax=docker.io/docker/dockerfile:1.3.0
 
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
 ARG BUILDER_BASE_IMAGE=golang:1.18
-
-ARG CACHE_GOBUILD=type=cache,target=/root/.cache/go-build
-ARG CACHE_GOLANG=cache,target=/root/.local/share/golang
-ARG CACHE_GOMOD=type=cache,target=/go/pkg/mod
-ARG CACHE="--mount=${CACHE_GOLANG} --mount=${CACHE_GOBUILD} --mount=${CACHE_GOMOD}" 
 
 # Build the post-deploy binary
 FROM $BUILDER_BASE_IMAGE as builder
@@ -19,6 +15,7 @@ WORKDIR /workspace
 COPY tanzu-auth-controller-manager tanzu-auth-controller-manager
 COPY post-deploy/go.mod post-deploy/go.mod
 COPY post-deploy/go.sum post-deploy/go.sum
+
 RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/root/.local/share/golang --mount=type=cache,target=/go/pkg/mod cd post-deploy && go mod download
 
 # Copy the source

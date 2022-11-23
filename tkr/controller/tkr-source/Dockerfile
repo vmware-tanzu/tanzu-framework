@@ -18,13 +18,16 @@ COPY util/ util/
 COPY tkr/go.mod tkr/go.mod
 COPY tkr/go.sum tkr/go.sum
 
-#ENV CACHE_GOBUILD='--mount="type=cache,target=/root/.cache/go-build"'
-#ENV CACHE_GOLANG='--mount="type=cache,target=/root/.local/share/golang"'
-#ENV CACHE_GOMOD='--mount="type=cache,target=/go/pkg/mod"'
+# TODO: @jayunit100 ~ I Tried this but it didnt work, filed an upstream issue https://github.com/moby/buildkit/issues/3301 
+# ENV CACHE_GOBUILD='--mount="type=cache,target=/root/.cache/go-build"'
+# ENV CACHE_GOLANG='--mount="type=cache,target=/root/.local/share/golang"'
+# ENV CACHE_GOMOD='--mount="type=cache,target=/go/pkg/mod"'
+# ENV CACHE="$CACHE_GOMOD $CACHE_GOLANG $CACHE_GOBUILD"
+# RUN $CACHE go mod download
+# Since this failed, we copy paste 3 --mount commands explicitly on line 31 below.  Someday woudl be nice to generalize all of that into a interpolated call.
 
 WORKDIR /workspace/tkr
 
-########### RUN --mount="type=cache,target=/root/.local/share/golang" go mod download
 RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/root/.local/share/golang --mount=type=cache,target=/go/pkg/mod go mod download
 
 # cache deps before building and copying source so that we don't need to re-download as much
