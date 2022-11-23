@@ -28,9 +28,9 @@ func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*tkr
 	}
 
 	bomConfigMap = &configMapList.Items[0]
-	bomData, ok := bomConfigMap.BinaryData[constants.TKGBomContent]
+	bomData, ok := bomConfigMap.BinaryData[constants.TKRBomContent]
 	if !ok {
-		bomDataString, ok := bomConfigMap.Data[constants.TKGBomContent]
+		bomDataString, ok := bomConfigMap.Data[constants.TKRBomContent]
 		if !ok {
 			return nil, nil
 		}
@@ -43,6 +43,28 @@ func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*tkr
 	}
 
 	return &bom, nil
+}
+
+func GetTkgBomConfigMapByName(ctx context.Context, c client.Client, configmapName string) (*tkrv1.TkgBom, error) {
+	var bomConfigMap corev1.ConfigMap
+	objectKey := client.ObjectKey{Namespace: constants.ClusterMetadataNamespace, Name: configmapName}
+	if err := c.Get(ctx, objectKey, &bomConfigMap); err != nil {
+		return nil, err
+	}
+	bomData, ok := bomConfigMap.BinaryData[constants.TKGBomContent]
+	if !ok {
+		bomDataString, ok := bomConfigMap.Data[constants.TKGBomContent]
+		if !ok {
+			return nil, nil
+		}
+		bomData = []byte(bomDataString)
+	}
+
+	tkgBom, err := tkrv1.NewTkgBom(bomData)
+	if err != nil {
+		return nil, err
+	}
+	return &tkgBom, nil
 }
 
 // GetTKRNameFromBOMConfigMap returns tkr name given a bom configmap

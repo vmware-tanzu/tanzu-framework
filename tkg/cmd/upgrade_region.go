@@ -32,11 +32,11 @@ var upgradeRegionCmd = &cobra.Command{
 	tkg upgrade cluster mc-1 --os-name ubuntu --os-version 20.04 --os-arch amd64
 
 	[+] : Options available for: os-name, os-version, os-arch are as follows:
-	vSphere: 
+	vSphere:
 		--os-name ubuntu --os-version 20.04 --os-arch amd64
 		--os-name photon --os-version 3 --os-arch amd64
-		
-	aws: 
+
+	aws:
 		--os-name ubuntu --os-version 20.04 --os-arch amd64
 		--os-name amazon --os-version 2 --os-arch amd64
 

@@ -1,7 +1,7 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 
-#@ if data.values.CLUSTER_PLAN == "dev":
+#@ if data.values.CLUSTER_PLAN == "dev" or data.values.CLUSTER_PLAN == "devcc":
 #@overlay/match missing_ok=True,by=overlay.subset({"kind":"Cluster"})
 ---
 apiVersion: cluster.x-k8s.io/v1beta1

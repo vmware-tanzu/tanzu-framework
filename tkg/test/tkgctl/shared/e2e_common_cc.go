@@ -260,6 +260,9 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 			Expect(err).NotTo(HaveOccurred())
 		}
 
+		By(fmt.Sprintf("Validating the management cluster %q versioned tkg-bom", input.E2EConfig.ManagementClusterName))
+		verifyCCClusterVersionedTKGBOM(ctx, mngClient, getDefaultBomTKGVersion(input.E2EConfig.TkgConfigDir))
+
 		if input.CheckAdmissionWebhook {
 			checkAdmissionWebhooks(ctx, mngClient, admissionRegistrationClient)
 		}
@@ -289,6 +292,11 @@ func getAvailableTKRs(ctx context.Context, mcProxy *framework.ClusterProxy, tkgC
 	tkrVersions := getTKRVersions(tkrs)
 
 	return tkrVersions, oldTKR, defaultTKR
+}
+
+func getDefaultBomTKGVersion(tkgConfigDir string) string {
+	tkgBOMConfigClient := tkgconfigbom.New(tkgConfigDir, nil)
+	return tkgBOMConfigClient.GetCurrentTKGVersion()
 }
 
 func checkAdmissionWebhooks(ctx context.Context, mngClient client.Client, admissionRegistrationClient admissionregistrationv1.AdmissionregistrationV1Interface) {

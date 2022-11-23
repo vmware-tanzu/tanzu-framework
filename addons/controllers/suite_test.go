@@ -72,6 +72,7 @@ import (
 
 const (
 	waitTimeout                         = time.Second * 90
+	specialWaitTimeout                  = 5 * time.Minute
 	pollingInterval                     = time.Second * 2
 	appSyncPeriod                       = 5 * time.Minute
 	appWaitTimeout                      = 30 * time.Second
@@ -388,6 +389,13 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 		Config: addonconfig.KubevipCPIConfigControllerConfig{
 			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: constants.TKGSystemNS}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&ClusterMetadataReconciler{
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("controllers").WithName("ClusterMetadata"),
+		Scheme:  mgr.GetScheme(),
+		context: ctx,
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters

@@ -560,59 +560,63 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					Expect(k8sClient.Update(ctx, cluster)).To(Succeed())
 
 					// Wait for ClusterBootstrap upgrade reconciliation
+					upgradedClusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 					Eventually(func() bool {
-						upgradedClusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), upgradedClusterBootstrap)
 						if err != nil || upgradedClusterBootstrap.Status.ResolvedTKR != newTKRVersion {
 							return false
 						}
-						// Validate CNI
-						cni := upgradedClusterBootstrap.Spec.CNI
-						Expect(strings.HasPrefix(cni.RefName, "antrea")).To(BeTrue())
-						// Note: The value of CNI has been bumped to the one in TKR after cluster upgrade
-						Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.5.2--vmware.3-tkg.1-advanced-zshippable"))
-						Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
-						Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
-						Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea-package", clusterName)))
-
-						// Validate Kapp
-						kapp := upgradedClusterBootstrap.Spec.Kapp
-						Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.30.2"))
-						Expect(*kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
-						Expect(kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
-						Expect(kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller-package", clusterName)))
-
-						// Validate additional packages
-						// foobar3 should be added, while foobar should be kept even it was removed from the template
-						Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(4))
-						for _, pkg := range upgradedClusterBootstrap.Spec.AdditionalPackages {
-							if pkg.RefName == "foobar1.example.com.1.18.2" {
-								Expect(pkg.ValuesFrom.SecretRef).To(Equal(fmt.Sprintf("%s-foobar1-package", clusterName)))
-							} else if pkg.RefName == "foobar3.example.com.1.17.2" {
-								Expect(*pkg.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
-								Expect(pkg.ValuesFrom.ProviderRef.Kind).To(Equal("FooBar"))
-								Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar3-package", clusterName)))
-							} else if pkg.RefName == "foobar.example.com.1.17.2" {
-								Expect(*pkg.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
-								Expect(pkg.ValuesFrom.ProviderRef.Kind).To(Equal("FooBar"))
-								Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar-package", clusterName)))
-							} else if pkg.RefName == "foobar2.example.com.1.18.2" {
-								Expect(pkg.ValuesFrom.Inline).NotTo(BeNil())
-							} else {
-								return false
-							}
-						}
-
-						// The cluster should be unpaused
-						Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
-						Expect(cluster.Spec.Paused).ToNot(BeTrue())
-						if cluster.Annotations != nil {
-							_, ok := cluster.Annotations[constants.ClusterPauseLabel]
-							Expect(ok).ToNot(BeTrue())
-						}
-
 						return true
 					}, waitTimeout, pollingInterval).Should(BeTrue())
+
+					// Validate CNI
+					cni := upgradedClusterBootstrap.Spec.CNI
+					Expect(strings.HasPrefix(cni.RefName, "antrea")).To(BeTrue())
+					// Note: The value of CNI has been bumped to the one in TKR after cluster upgrade
+					Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.5.2--vmware.3-tkg.1-advanced-zshippable"))
+					Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+					Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
+					Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea-package", clusterName)))
+
+					// Validate Kapp
+					kapp := upgradedClusterBootstrap.Spec.Kapp
+					Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.30.2"))
+					Expect(*kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
+					Expect(kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
+					Expect(kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller-package", clusterName)))
+
+					// Validate additional packages
+					// foobar3 should be added, while foobar should be kept even it was removed from the template
+					Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(4))
+					for _, pkg := range upgradedClusterBootstrap.Spec.AdditionalPackages {
+						if pkg.RefName == "foobar1.example.com.1.18.2" {
+							Expect(pkg.ValuesFrom.SecretRef).To(Equal(fmt.Sprintf("%s-foobar1-package", clusterName)))
+						} else if pkg.RefName == "foobar3.example.com.1.17.2" {
+							Expect(*pkg.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
+							Expect(pkg.ValuesFrom.ProviderRef.Kind).To(Equal("FooBar"))
+							Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar3-package", clusterName)))
+						} else if pkg.RefName == "foobar.example.com.1.17.2" {
+							Expect(*pkg.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
+							Expect(pkg.ValuesFrom.ProviderRef.Kind).To(Equal("FooBar"))
+							Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar-package", clusterName)))
+						} else if pkg.RefName == "foobar2.example.com.1.18.2" {
+							Expect(pkg.ValuesFrom.Inline).NotTo(BeNil())
+						}
+					}
+
+					// The cluster should be unpaused
+					Eventually(func() bool {
+						err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)
+						if err != nil {
+							return false
+						}
+						return !cluster.Spec.Paused
+					}, specialWaitTimeout, pollingInterval).Should(BeTrue())
+					if cluster.Annotations != nil {
+						_, ok := cluster.Annotations[constants.ClusterPauseLabel]
+						Expect(ok).ToNot(BeTrue())
+					}
+
 				})
 
 				By("Test ClusterBootstrap webhook validateUpdate ", func() {
