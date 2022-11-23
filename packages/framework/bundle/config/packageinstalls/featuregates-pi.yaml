@@ -8,6 +8,7 @@ metadata:
   name: tanzu-featuregates
   namespace: #@ data.values.namespaceForPackageInstallation
   annotations:
+    kapp.k14s.io/change-group: "featuregates-packageinstall"
     kapp.k14s.io/change-rule.0: "upsert after upserting featuregates-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete before deleting featuregates-packageinstall/serviceaccount"
   labels:

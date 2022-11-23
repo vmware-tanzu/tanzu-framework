@@ -1,0 +1,12 @@
+#@ load("@ytt:data", "data")
+
+apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: FeatureGate
+metadata:
+  name: tkg-system
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting featuregates-packageinstall"
+    kapp.k14s.io/change-rule.1: "delete before deleting featuregates-packageinstall"
+    kapp.k14s.io/update-strategy: skip
+spec:
+  namespaceSelector: {}
