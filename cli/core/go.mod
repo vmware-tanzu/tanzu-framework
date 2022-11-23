@@ -17,6 +17,7 @@ require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/briandowns/spinner v1.19.0
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
+	github.com/fatih/color v1.13.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/gnostic v0.5.7-v3refs
 	github.com/google/go-containerregistry v0.7.0
@@ -73,7 +74,6 @@ require (
 	github.com/docker/docker-credential-helpers v0.6.4 // indirect
 	github.com/emicklei/go-restful v2.15.0+incompatible // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
-	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/logr v1.2.2 // indirect
