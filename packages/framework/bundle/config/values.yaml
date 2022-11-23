@@ -7,7 +7,8 @@ featureGatesPackageValues:
   versionConstraints:
   deployment:
     hostNetwork: true
-    nodeSelector: null
+    nodeSelector:
+      node-role.kubernetes.io/control-plane: ""
     tolerations: []
     webhookServerPort: 9443
 tkrServicePackageValues:
@@ -32,12 +33,12 @@ addonsManagerPackageValues:
       priorityClassName: system-cluster-critical
       nodeSelector: null
       tolerations:
-      - key: CriticalAddonsOnly
-        operator: Exists
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/control-plane
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
       webhookServerPort: 9865
       healthzPort: 18316
       clusterDeleteTimeout: "10m"
