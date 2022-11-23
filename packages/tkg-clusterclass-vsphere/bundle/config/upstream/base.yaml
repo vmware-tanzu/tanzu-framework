@@ -972,7 +972,9 @@ spec:
             {{- end }}
             {{- end }}
             {{- if .controlPlane.nodeLabels -}}
+              {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
               ,
+              {{- end -}}
               {{- $first := true }}
               {{- range .controlPlane.nodeLabels }}
                 {{- if $first }}
@@ -999,7 +1001,9 @@ spec:
             {{- end }}
             {{- end }}
             {{- if .controlPlane.nodeLabels -}}
+              {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
               ,
+              {{- end -}}
               {{- $first := true }}
               {{- range .controlPlane.nodeLabels }}
                 {{- if $first }}

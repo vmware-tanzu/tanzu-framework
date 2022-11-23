@@ -769,7 +769,9 @@ spec:
             {{- $key -}} = {{- $val }}
             {{- end }}
             {{- if .controlPlane.nodeLabels -}}
+              {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
               ,
+              {{- end -}}
               {{- $first := true }}
               {{- range .controlPlane.nodeLabels }}
                 {{- if $first }}
@@ -794,7 +796,9 @@ spec:
             {{- $key -}} = {{- $val }}
             {{- end }}
             {{- if .controlPlane.nodeLabels -}}
+              {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
               ,
+              {{- end -}}
               {{- $first := true }}
               {{- range .controlPlane.nodeLabels }}
                 {{- if $first }}
