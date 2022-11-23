@@ -95,31 +95,11 @@ func (p *pollerProxy) PollImmediateInfiniteWithGetter(interval time.Duration, ge
 		return true, nil
 	}
 
-	timeoutReached := false
-	ch := time.After(interval)
-	// dont return prematurely.  workaround to the fact that
-	// apimachinery will prematurely return if any errors, but
-	// we want to be forgiving of race conditions for looking up the vsphere secrets, for example.
-	go func() {
-		<- ch 
-		timeoutReached = true
+	errPoll := p.PollImmediateInfinite(interval, pollerFunc)
+	if errPoll != nil {
+		// note: this function will return actual error which is thrown by getterFunc
+		// and will not return error of the PollImmediateInfinite call
+		return err
 	}
-	for timeoutReached {
-		// note: APIMachinery will return immediately on failure, however, we don't want
-		// to always return immediately.
-		errPoll := p.PollImmediateInfinite(interval, pollerFunc)
-		if errPoll != nil {
-			// note: this function will return actual error which is thrown by getterFunc
-			// and will not return error of the PollImmediateInfinite call.
-			// note: caller shouldnt necessarily terminate on errors...
-			log.Info(errPoll.Error() + "underlying error:" + err.Error())
-			// not returning error yet...
-		} else {
-			log.V(6).Info("no errors, but not ready yet, retrying")
-		}
-
-
-	}
-
 	return nil
 }
