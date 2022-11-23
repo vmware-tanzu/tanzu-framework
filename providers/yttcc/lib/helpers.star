@@ -333,3 +333,19 @@ def get_labels_map_from_string(labelString):
    end
    return labelMap
 end
+
+# get_labels_array_from_string constructs an array from given string of the format "key1=label1,key2=label2"
+def get_labels_array_from_string(labelString):
+   labelArray = []
+   for val in labelString.split(','):
+    kv = val.split('=')
+    if len(kv) != 2:
+      assert.fail("given labels string \""+labelString+"\" must be in the  \"key1=label1,key2=label2\" format ")
+    end
+    labelMap = {}
+    labelMap["key"] = kv[0]
+    labelMap["value"] = kv[1]
+    labelArray.append(labelMap)
+   end
+   return labelArray
+end

@@ -2,6 +2,7 @@ load("@ytt:data", "data")
 load("@ytt:overlay", "overlay")
 load("@ytt:yaml", "yaml")
 load("/lib/helpers.star", "get_default_tkg_bom_data")
+load("/lib/helpers.star", "get_labels_array_from_string")
 
 #! This file contains function 'config_variable_association' which specifies all configuration variables
 #! mentioned in 'config_default.yaml' and describes association of each configuration variable with
@@ -118,6 +119,7 @@ return {
 "NODE_POOL_0_NAME": ["tkg-service-vsphere"],
 "NODE_POOL_0_LABELS": ["tkg-service-vsphere"],
 "NODE_POOL_0_TAINTS": ["tkg-service-vsphere"],
+"CONTROL_PLANE_NODE_LABELS": ["vsphere", "aws", "azure"],
 
 "AZURE_ENVIRONMENT": ["azure"],
 "AZURE_TENANT_ID": ["azure"],
@@ -572,6 +574,10 @@ def get_aws_vars():
         controlPlane["rootVolume"] = rootVolume
     end
 
+    if data.values["CONTROL_PLANE_NODE_LABELS"] != None:
+        controlPlane["nodeLabels"] = get_labels_array_from_string(data.values["CONTROL_PLANE_NODE_LABELS"])
+    end
+
     vars["controlPlane"] = controlPlane
 
     return vars
@@ -681,6 +687,10 @@ def get_azure_vars():
     end
     if outboundLB != {}:
         controlPlane["outboundLB"] = outboundLB
+    end
+
+    if data.values["CONTROL_PLANE_NODE_LABELS"] != None:
+        controlPlane["nodeLabels"] = get_labels_array_from_string(data.values["CONTROL_PLANE_NODE_LABELS"])
     end
 
     if controlPlane != {}:
@@ -814,6 +824,11 @@ def get_vsphere_vars():
     if network != {}:
         controlPlane["network"] = network
     end
+
+    if data.values["CONTROL_PLANE_NODE_LABELS"] != None:
+        controlPlane["nodeLabels"] = get_labels_array_from_string(data.values["CONTROL_PLANE_NODE_LABELS"])
+    end
+
     if controlPlane != {}:
         vars["controlPlane"] = controlPlane
     end
@@ -846,6 +861,7 @@ def get_vsphere_vars():
     if network != {}:
         worker["network"] = network
     end
+
     if worker != {}:
         vars["worker"] = worker
     end
