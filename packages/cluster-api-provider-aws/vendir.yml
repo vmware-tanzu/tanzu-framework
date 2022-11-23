@@ -7,7 +7,7 @@ directories:
       - path: .
         githubRelease:
           slug: kubernetes-sigs/cluster-api-provider-aws
-          tag: v2.0.0-beta.1
+          tag: v2.0.1
           disableAutoChecksumValidation: true
         includePaths:
           - infrastructure-components.yaml

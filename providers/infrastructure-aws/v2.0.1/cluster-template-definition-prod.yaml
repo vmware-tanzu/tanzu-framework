@@ -2,10 +2,9 @@ apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
-    - path: providers/yttcb
-    - path: providers/infrastructure-aws/v2.0.0-beta.1/yttcc
-    - path: providers/infrastructure-aws/yttcc
-    - path: providers/yttcc
+    - path: providers/infrastructure-aws/v2.0.1/ytt
+    - path: providers/infrastructure-aws/ytt
+    - path: providers/ytt
     - path: bom
       filemark: text-plain
     - path: providers/config_default.yaml
