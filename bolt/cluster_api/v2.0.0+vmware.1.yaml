@@ -1,6 +1,6 @@
 name: cluster_api
 managedComponents:
-- version: v1.1.5+vmware.1
+- version: v2.0.0+vmware.1
   upstreamTag: v1.1.5
   gobuildBaseBranch: vmware-0.3.0+vmware.0~d7d37a8c6505e96e6d1c412b51424d0f1d26a7bb
   mirrorCherryPicks:
