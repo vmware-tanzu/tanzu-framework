@@ -494,9 +494,13 @@ func (c *TkgClient) ValidateManagementClusterUpgradeVersionCompatibility(options
 	log.V(9).Infof("Management cluster SemVersion is %q and current TKG SemVersion(to be upgraded to) is %q",
 		mgmtClusterSemVersion.String(), currentTKGSemVersion.String())
 
+	if currentTKGSemVersion.Major() == uint(2) && (mgmtClusterSemVersion.Major() == uint(1) && mgmtClusterSemVersion.Minor() < uint(6)) {
+		return errors.Errorf("management cluster version must be 1.6.x to upgrade to 2.1.x")
+	}
+
 	// TODO: Update this condition when TKG major version is changed
-	if mgmtClusterSemVersion.Major() != currentTKGSemVersion.Major() {
-		return errors.Errorf("major version mismatch detected")
+	if currentTKGSemVersion.Major() > uint(2) {
+		return errors.Errorf("upgrading to beyond major version 2 is not yet supported.")
 	}
 	warningMsg := ""
 	minorGap := int(currentTKGSemVersion.Minor()) - int(mgmtClusterSemVersion.Minor())

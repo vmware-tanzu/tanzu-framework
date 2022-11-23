@@ -221,13 +221,26 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 					Expect(err.Error()).To(ContainSubstring("unable to parse management cluster version InvalidTKGSemanticVersion"))
 				})
 			})
-			Context("When TKG version user trying to upgrade has different major version", func() {
+			Context("When TKG version user trying to upgrade has major version greater than 2", func() {
 				BeforeEach(func() {
-					regionalClusterClient.GetManagementClusterTKGVersionReturns("v2.0.0-rc.1", nil)
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.5.4", nil)
+					tkgClient, err = CreateTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v3.0.0.yaml", 2*time.Millisecond)
+					Expect(err).NotTo(HaveOccurred())
 				})
 				It("should return an error", func() {
 					Expect(err).To(HaveOccurred())
-					Expect(err.Error()).To(ContainSubstring("major version mismatch detected"))
+					Expect(err.Error()).To(ContainSubstring("upgrading to beyond major version 2 is not yet supported."))
+				})
+			})
+			Context("When the management cluster version is less than 1.6.x during v2.1.0 upgrade", func() {
+				BeforeEach(func() {
+					tkgClient, err = CreateTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v2.1.0.yaml", 2*time.Millisecond)
+					Expect(err).NotTo(HaveOccurred())
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.5.4", nil)
+				})
+				It("should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("management cluster version must be 1.6.x to upgrade to 2.1.x"))
 				})
 			})
 			Context("When management cluster current TKG version greater than TKG version user trying to upgrade", func() {
