@@ -24,7 +24,7 @@ COPY tkr/go.sum tkr/go.sum
 # ENV CACHE_GOMOD='--mount="type=cache,target=/go/pkg/mod"'
 # ENV CACHE="$CACHE_GOMOD $CACHE_GOLANG $CACHE_GOBUILD"
 # RUN $CACHE go mod download
-# Since this failed, we copy paste 3 --mount commands explicitly on line 31 below.  Someday woudl be nice to generalize all of that into a interpolated call.
+# Since this failed, we copy paste 3 --mount commands explicitly on line 31 below.  Someday would be nice to generalize all of that into a interpolated call.
 
 WORKDIR /workspace/tkr
 
