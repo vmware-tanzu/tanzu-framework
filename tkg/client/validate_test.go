@@ -1226,22 +1226,6 @@ var _ = Describe("Validate", func() {
 					Expect(err).ShouldNot(HaveOccurred())
 				})
 			})
-			When("validate avi version", func() {
-				It("should use default version if not set AVI_CONTROLLER_VERSION", func() {
-					err := tkgClient.ValidateAviControllerVersion()
-					Expect(err).ShouldNot(HaveOccurred())
-				})
-				It("should throw error if version format is not correct", func() {
-					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerVersion, "test.version")
-					err := tkgClient.ValidateAviControllerVersion()
-					Expect(err).Should(HaveOccurred())
-				})
-				It("should pass if version format is correct", func() {
-					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerVersion, "20.1.7")
-					err := tkgClient.ValidateAviControllerVersion()
-					Expect(err).ShouldNot(HaveOccurred())
-				})
-			})
 			When("validate avi cloud", func() {
 				It("should throw error if not set AVI_CLOUD_NAME", func() {
 					err := tkgClient.ValidateAviCloud(mockClient)
