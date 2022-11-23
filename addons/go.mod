@@ -30,6 +30,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.24.6
 	k8s.io/apimachinery v0.24.6
 	k8s.io/client-go v0.24.6
+	k8s.io/component-base v0.24.6
 	k8s.io/klog/v2 v2.70.1
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
 	knative.dev/pkg v0.0.0-20220302134643-d2cdc682d974
@@ -74,6 +75,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/go-version v1.3.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/k14s/semver/v4 v4.0.1-0.20210701191048-266d47ac6115 // indirect
@@ -90,6 +92,7 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/sony/gobreaker v0.5.0 // indirect
+	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707 // indirect
 	github.com/vmware-tanzu/vm-operator/external/ncp v0.0.0-20211209213435-0f4ab286f64f // indirect
@@ -113,7 +116,6 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	k8s.io/cluster-bootstrap v0.24.6 // indirect
-	k8s.io/component-base v0.24.6 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803164354-a70c9af30aea // indirect
 	k8s.io/kubectl v0.24.6 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect

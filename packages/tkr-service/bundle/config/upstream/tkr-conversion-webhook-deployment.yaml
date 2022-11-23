@@ -29,6 +29,7 @@ spec:
         args:
         - --metrics-bind-addr=0
         - #@ "--webhook-server-port={}".format(data.values.deployment.tkrConversionWebhookServerPort)
+        - #@ "--tls-cipher-suites={}".format(data.values.deployment.tlsCipherSuites)
         resources:
           limits:
             cpu: 100m
