@@ -39,6 +39,9 @@ func (c *client) ListResources(resourceReference interface{}, option ...crtclien
 	if err := c.clientSet.List(context.TODO(), obj, option...); err != nil {
 		return errors.Wrapf(err, "failed to list %v", reflect.TypeOf(resourceReference))
 	}
+	if obj.GetObjectKind().GroupVersionKind().Kind == "PackageInstall" {
+		fmt.Println(obj)
+	}
 	return nil
 }
 
