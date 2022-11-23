@@ -1,0 +1,159 @@
+name: tkg-bom
+boms:
+  - version: v1.7.0-zshippable
+    type: tkg
+    imageRepository: projects-stg.registry.vmware.com/tkg
+    k8sVersion: v1.23.8+vmware.2-tkg.2-zshippable
+    dependencies:
+      apiVersion: run.tanzu.vmware.com/v1alpha2
+      componentTanzuCoreVersion: v0.28.0-dev-104-g36b89720
+    componentReferences:
+      - name: alertmanager
+        version:
+          - v0.24.0+vmware.1
+      - name: cloud-provider-azure
+        version:
+          - v0.7.4+vmware.1
+      - name: aad-pod-identity
+        version:
+          - v1.8.0+vmware.1
+      - name: cluster_api
+        version:
+          - v1.2.4+vmware.1
+      - name: cluster_api_aws
+        version:
+          - v2.0.0-beta.1+vmware.1
+      - name: cluster_api_vsphere
+        version:
+          - v1.4.1+vmware.1
+      - name: cluster-api-provider-azure
+        version:
+          - v1.5.3+vmware.1
+      - name: cluster-api-provider-bringyourownhost
+        version:
+          - v0.2.0+vmware.4
+      - name: cluster-api-provider-oci
+        version:
+          - v0.4.0+vmware.2
+      - name: configmap-reload
+        version:
+          - v0.7.1+vmware.1
+      - name: contour
+        version:
+          - v1.17.2+vmware.1
+          - v1.18.2+vmware.1
+          - v1.20.2+vmware.1
+          - v1.22.0+vmware.1
+      - name: crash-diagnostics
+        version:
+          - v0.3.7+vmware.6
+      - name: envoy
+        version:
+          - v1.18.4+vmware.1
+          - v1.19.1+vmware.1
+          - v1.21.3+vmware.1
+          - v1.23.0+vmware.1
+      - name: external-dns
+        version:
+          - v0.12.2+vmware.1
+      - name: fluent-bit
+        version:
+          - v1.8.15+vmware.1
+      - name: grafana
+        version:
+          - v7.5.16+vmware.1
+      - name: harbor
+        version:
+          - v2.6.1+vmware.1
+      - name: imgpkg
+        version:
+          - v0.31.0+vmware.1
+      - name: jetstack_cert-manager
+        version:
+          - v1.9.1+vmware.1
+      - name: k8s-sidecar
+        version:
+          - v1.12.1+vmware.3
+          - v1.15.6+vmware.2
+      - name: k14s_kapp
+        version:
+          - v0.53.0+vmware.1
+      - name: k14s_ytt
+        version:
+          - v0.43.0+vmware.1
+      - name: vendir
+        version:
+          - v0.30.0+vmware.1
+      - name: kbld
+        version:
+          - v0.35.0+vmware.1
+      - name: kube_rbac_proxy
+        version:
+          - v0.11.0+vmware.2
+      - name: kube-state-metrics
+        version:
+          - v2.5.0+vmware.1
+      - name: kube-vip
+        version:
+          - v0.5.5+vmware.1
+      - name: kube-vip-cloud-provider
+        version:
+          - v0.0.4+vmware.1
+      - name: kubernetes_autoscaler
+        version:
+          - v1.23.0+vmware.1
+          - v1.22.0+vmware.1
+          - v1.21.0+vmware.1
+      - name: kubernetes-sigs_kind
+        version:
+          - v1.23.8+vmware.2-tkg.1_v0.11.1
+      - name: prometheus
+        version:
+          - v2.36.2+vmware.1
+      - name: prometheus_node_exporter
+        version:
+          - v1.3.1+vmware.1
+      - name: pushgateway
+        version:
+          - v1.4.3+vmware.1
+      - name: sonobuoy
+        version:
+          - v0.56.6+vmware.1
+      - name: tkg-standard-packages
+        version:
+          - v1.7.0-zshippable
+      - name: tkg_telemetry
+        version:
+          - v1.6.0+vmware.1
+      - name: tkr-bom
+        version:
+          - v1.23.8+vmware.2-tkg.2-zshippable
+          - v1.21.14+vmware.2-tkg.2-zshippable
+          - v1.22.11+vmware.2-tkg.2-zshippable
+      - name: tkr-compatibility
+        version:
+          - v20-v1.7.0-zshippable
+      - name: velero
+        version:
+          - v1.9.2+vmware.1
+      - name: velero-plugin-for-aws
+        version:
+          - v1.5.1+vmware.1
+      - name: velero-plugin-for-microsoft-azure
+        version:
+          - v1.5.1+vmware.1
+      - name: velero-plugin-for-csi
+        version:
+          - v0.3.1+vmware.1
+      - name: velero-plugin-for-vsphere
+        version:
+          - v1.4.0+vmware.1
+      - name: multus-cni
+        version:
+          - v3.8.0+vmware.1
+      - name: image-builder
+        version:
+          - v0.1.12+vmware.2
+      - name: whereabouts
+        version:
+          - v0.5.4+vmware.1
