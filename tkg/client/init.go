@@ -515,8 +515,9 @@ func (c *TkgClient) ApplyClusterBootstrapObjects(fromClusterClient, toClusterCli
 		return err
 	}
 	clusterBootstrapTemplatesDirPath := filepath.Join(path, "yttcb")
+	configDefaultPath := filepath.Join(path, "config_default.yaml")
 
-	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile(true)
+	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile()
 	if err != nil {
 		return err
 	}
@@ -530,7 +531,7 @@ func (c *TkgClient) ApplyClusterBootstrapObjects(fromClusterClient, toClusterCli
 
 	log.V(6).Infof("User ConfigValues File: %v", userConfigValuesFile)
 
-	clusterBootstrapBytes, err := carvelhelpers.ProcessYTTPackage(clusterBootstrapTemplatesDirPath, userConfigValuesFile)
+	clusterBootstrapBytes, err := carvelhelpers.ProcessYTTPackage(clusterBootstrapTemplatesDirPath, configDefaultPath, userConfigValuesFile)
 	if err != nil {
 		return err
 	}

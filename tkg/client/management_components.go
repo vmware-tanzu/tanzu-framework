@@ -218,7 +218,7 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client,
 	if upgrade {
 		userProviderConfigValues, err = c.getUserConfigVariableValueMapFromSecret(mcClient)
 	} else {
-		userProviderConfigValues, err = c.getUserConfigVariableValueMap(false)
+		userProviderConfigValues, err = c.getUserConfigVariableValueMap()
 	}
 
 	if err != nil {
@@ -238,13 +238,13 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client,
 	return valuesFile, nil
 }
 
-func (c *TkgClient) getUserConfigVariableValueMap(withDefaults bool) (map[string]interface{}, error) {
+func (c *TkgClient) getUserConfigVariableValueMap() (map[string]interface{}, error) {
 	path, err := c.tkgConfigPathsClient.GetConfigDefaultsFilePath()
 	if err != nil {
 		return nil, err
 	}
 
-	return c.GetUserConfigVariableValueMap(path, c.TKGConfigReaderWriter(), withDefaults)
+	return c.GetUserConfigVariableValueMap(path, c.TKGConfigReaderWriter())
 }
 
 func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient clusterclient.Client) (map[string]interface{}, error) {
@@ -295,7 +295,7 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 // mutateUserConfigVariableValueMap get user config variables to overwrite the existing config variables that
 // retrieved from the cluster. This is mainly for mutating during cluster upgrading.
 func (c *TkgClient) mutateUserConfigVariableValueMap(configValues map[string]interface{}) error {
-	userProvidedConfigValues, err := c.getUserConfigVariableValueMap(false)
+	userProvidedConfigValues, err := c.getUserConfigVariableValueMap()
 	if err != nil {
 		return err
 	}
@@ -305,8 +305,8 @@ func (c *TkgClient) mutateUserConfigVariableValueMap(configValues map[string]int
 	return nil
 }
 
-func (c *TkgClient) getUserConfigVariableValueMapFile(withDefaults bool) (string, error) {
-	userConfigValues, err := c.getUserConfigVariableValueMap(withDefaults)
+func (c *TkgClient) getUserConfigVariableValueMapFile() (string, error) {
+	userConfigValues, err := c.getUserConfigVariableValueMap()
 	if err != nil {
 		return "", err
 	}
@@ -345,7 +345,7 @@ func (c *TkgClient) getKappControllerConfigFile() (string, error) {
 	}
 	kappControllerValuesDirPath := filepath.Join(path, "kapp-controller-values")
 
-	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile(false)
+	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile()
 	if err != nil {
 		return "", err
 	}
@@ -428,40 +428,40 @@ func GetKappControllerConfigValuesFile(userConfigValuesFile, kappControllerValue
 // file to provide a source of keys to filter for the valid user provided values.
 // For example, this function uses config_default.yaml filepath to find relevant config variables
 // and returns the config map of user provided variable among all applicable config variables
-func (c *TkgClient) GetUserConfigVariableValueMap(configDefaultFilePath string, rw tkgconfigreaderwriter.TKGConfigReaderWriter, withDefaults bool) (map[string]interface{}, error) {
+func (c *TkgClient) GetUserConfigVariableValueMap(configDefaultFilePath string, rw tkgconfigreaderwriter.TKGConfigReaderWriter) (map[string]interface{}, error) {
 	bytes, err := os.ReadFile(configDefaultFilePath)
 	if err != nil {
 		return nil, err
 	}
 
-	variablesMap, err := GetConfigVariableListFromYamlData(bytes)
+	variables, err := GetConfigVariableListFromYamlData(bytes)
 	if err != nil {
 		return nil, err
 	}
 
 	userProvidedConfigValues := map[string]interface{}{}
-	for key, value := range variablesMap {
-		v, e := rw.Get(key)
-		if e == nil {
-			userProvidedConfigValues[key] = utils.Convert(v)
-		} else {
-			if withDefaults {
-				userProvidedConfigValues[key] = value
-			}
+	for _, k := range variables {
+		if v, e := rw.Get(k); e == nil {
+			userProvidedConfigValues[k] = utils.Convert(v)
 		}
 	}
 
 	return userProvidedConfigValues, nil
 }
 
-func GetConfigVariableListFromYamlData(bytes []byte) (map[string]interface{}, error) {
+func GetConfigVariableListFromYamlData(bytes []byte) ([]string, error) {
 	configValues := map[string]interface{}{}
 	err := yaml.Unmarshal(bytes, &configValues)
 	if err != nil {
 		return nil, errors.Wrap(err, "error while unmarshaling")
 	}
 
-	return configValues, nil
+	keys := make([]string, 0, len(configValues))
+	for k := range configValues {
+		keys = append(keys, k)
+	}
+
+	return keys, nil
 }
 
 func (c *TkgClient) getAKOPackageInstallFile() (string, error) {
