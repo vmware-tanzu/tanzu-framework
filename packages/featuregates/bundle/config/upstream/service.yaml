@@ -5,6 +5,8 @@ kind: Service
 metadata:
   name: tanzu-featuregates-webhook-service
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-group: "tanzu-featuregates-controller-manager/service"
 spec:
   ports:
     - port: 443
