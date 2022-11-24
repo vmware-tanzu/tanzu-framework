@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	defaultDataValueNameSpace          = "tkg-system"
+	defaultDataValueNameSpace          = "kube-system"
 	defaultDataValueDeploymentReplicas = 3
 )
 
@@ -52,7 +52,6 @@ func (r *AzureDiskCSIConfigReconciler) getOwnerCluster(ctx context.Context,
 func (r *AzureDiskCSIConfigReconciler) mapAzureDiskCSIConfigToDataValues(ctx context.Context,
 	azureDiskCSIConfig *csiv1alpha1.AzureDiskCSIConfig,
 	cluster *clusterapiv1beta1.Cluster) (*DataValues, error) {
-
 	dvs := &DataValues{
 		AzureDiskCSI: &DataValuesAzureDiskCSI{
 			Namespace:          defaultDataValueNameSpace,
@@ -74,5 +73,12 @@ func (r *AzureDiskCSIConfigReconciler) mapAzureDiskCSIConfigToDataValues(ctx con
 		dvs.AzureDiskCSI.DeploymentReplicas = *azureDiskCSIConfig.Spec.AzureDiskCSI.DeploymentReplicas
 	}
 
+	if tkgPlan, ok := cluster.Annotations[constants.TKGPlanAnnotation]; ok {
+		// because there is no way to get the plan input by the customization, it is mandatory to set the replica of dev to 1
+		// todo: Looking for a way to better differentiate between customization and default values
+		if tkgPlan == constants.TKGDevPlan || tkgPlan == constants.TKGDevCCPan {
+			dvs.AzureDiskCSI.DeploymentReplicas = 1
+		}
+	}
 	return dvs, nil
 }
