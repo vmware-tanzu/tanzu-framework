@@ -622,8 +622,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 	done
 
 .PHONY: verify
-verify: modules ## Run all verification scripts
-verify: ## Run all verification scripts
+verify: tools modules ## Run all verification scripts
 	$(MAKE) smoke-build generate-go generate
 	./packages/tkg-clusterclass/hack/sync-cc.sh
 	./hack/verify-dirty.sh
