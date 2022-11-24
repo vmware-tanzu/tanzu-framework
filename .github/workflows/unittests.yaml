@@ -1,12 +1,12 @@
-name: Build
+name: Unittests
 
 on:
   pull_request:
     branches: [ pr/optimize-workflows ]
 
 jobs:
-  Build:
-    name: Build
+  Unittests:
+    name: Unittests
     runs-on: ubuntu-latest
     steps:
     - name: Free some disk space on runner
@@ -84,11 +84,15 @@ jobs:
         echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
       id: extract_bom
 
-    - name: run make all
+    - name: Run make test
       run: |
         if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
           export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
         fi
-        env | sort
         make configure-bom
-        make all ENVS=linux-amd64
+        make test ENVS=linux-amd64
+
+    - name: Upload coverage reports to Codecov with GitHub Action
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage1.txt,./coverage2.txt,./coverage3.txt,./addons/coverage.txt,./pinniped-components/post-deploy/coverage.txt,./pinniped-components/tanzu-auth-controller-manager/coverage.txt,./cli/core/coverage.txt,./cli/runtime/coverage.txt,./tkg/coverage.txt,./featuregates/client/cover.out,./featuregates/controller/cover.out,./capabilities/client/cover.out,./capabilities/controller/cover.out,./cmd/cli/plugin-admin/builder/cover.out,./cmd/cli/plugin-admin/codegen/cover.out,./cmd/cli/plugin-admin/test/cover.out,./apis/config/cover.out,./apis/run/cover.out,./packageclients/cover.out,./apis/addonconfigs/cover.out,./apis/cli/cover.out,./apis/core/cover.out,./cmd/cli/plugin/feature/cover.out,./cmd/cli/plugin/login/cover.out,./cmd/cli/plugin/package/cover.out,./cmd/cli/plugin/pinniped-auth/cover.out,./cmd/cli/plugin/secret/cover.out,./cmd/cli/plugin/cluster/coverage.txt,./cmd/cli/plugin/managementcluster/coverage.txt
