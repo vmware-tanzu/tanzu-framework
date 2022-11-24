@@ -143,27 +143,23 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 	return valuesFile, nil
 }
 
-//convertToString converts config into string type, and return "" if config is not set
+// convertToString converts config into string type, and return "" if config is not set
 func convertToString(config interface{}) string {
-	switch config.(type) {
-	case string:
+	if config != nil {
 		return config.(string)
-	default:
-		return ""
 	}
+	return ""
 }
 
-//convertToBool converts config into bool type, and return false if config is not set
+// convertToBool converts config into bool type, and return false if config is not set
 func convertToBool(config interface{}) bool {
-	switch config.(type) {
-	case bool:
+	if config != nil {
 		return config.(bool)
-	default:
-		return false
 	}
+	return false
 }
 
-//autofillAkoOperatorConfig autofills empty fields in AkoOperatorConfig
+// autofillAkoOperatorConfig autofills empty fields in AkoOperatorConfig
 func autofillAkoOperatorConfig(akoOperatorConfig *AkoOperatorConfig) {
 	if akoOperatorConfig.AviManagementClusterServiceEngineGroup == "" {
 		akoOperatorConfig.AviManagementClusterServiceEngineGroup = akoOperatorConfig.AviServiceEngineGroup

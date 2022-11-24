@@ -311,3 +311,129 @@ tkr-package:
 		})
 	})
 })
+
+var _ = Describe("Test AVI related settings", func() {
+	var (
+		managementPackageVersion string
+		userProviderConfigValues map[string]interface{}
+		tkgBomConfigData         string
+		tkgBomConfig             *tkgconfigbom.BOMConfiguration
+		valuesFile               string
+		outputFile               string
+		err                      error
+	)
+
+	tkgBomConfigData = `apiVersion: run.tanzu.vmware.com/v1alpha2
+default:
+  k8sVersion: v1.23.5+vmware.1-tkg.1-fake
+release:
+  version: v1.6.0-fake
+imageConfig:
+  imageRepository: fake.custom.repo
+tkr-bom:
+  imagePath: tkr-bom
+tkr-compatibility:
+  imagePath: fake-path/tkr-compatibility
+tkr-package-repo:
+  aws: tkr-repository-aws
+  azure: tkr-repository-azure
+  vsphere-nonparavirt: tkr-repository-vsphere-nonparavirt
+tkr-package:
+  aws: tkr-aws
+  azure: tkr-azure
+  vsphere-nonparavirt: tkr-vsphere-nonparavirt
+`
+	// Configure user provider configuration
+	userProviderConfigValues = map[string]interface{}{
+		"AVI_ENABLE":    false,
+		"PROVIDER_TYPE": "vsphere",
+	}
+
+	JustBeforeEach(func() {
+		// Configure tkgBoMConfig
+		tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
+		err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
+		Expect(err).NotTo(HaveOccurred())
+
+		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
+		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, nil)
+	})
+
+	Context("when AVI_ENABLE is set to false", func() {
+		BeforeEach(func() {
+			managementPackageVersion = verStr
+			outputFile = "test/output_vsphere_with_avi_disabled.yaml"
+		})
+		It("should not return error", func() {
+			Expect(err).NotTo(HaveOccurred())
+			f1, err := os.ReadFile(valuesFile)
+			Expect(err).NotTo(HaveOccurred())
+			f2, err := os.ReadFile(outputFile)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(f1)).To(Equal(string(f2)))
+		})
+	})
+})
+
+var _ = Describe("Test AVI related settings", func() {
+	var (
+		managementPackageVersion string
+		userProviderConfigValues map[string]interface{}
+		tkgBomConfigData         string
+		tkgBomConfig             *tkgconfigbom.BOMConfiguration
+		valuesFile               string
+		outputFile               string
+		err                      error
+	)
+
+	tkgBomConfigData = `apiVersion: run.tanzu.vmware.com/v1alpha2
+default:
+  k8sVersion: v1.23.5+vmware.1-tkg.1-fake
+release:
+  version: v1.6.0-fake
+imageConfig:
+  imageRepository: fake.custom.repo
+tkr-bom:
+  imagePath: tkr-bom
+tkr-compatibility:
+  imagePath: fake-path/tkr-compatibility
+tkr-package-repo:
+  aws: tkr-repository-aws
+  azure: tkr-repository-azure
+  vsphere-nonparavirt: tkr-repository-vsphere-nonparavirt
+tkr-package:
+  aws: tkr-aws
+  azure: tkr-azure
+  vsphere-nonparavirt: tkr-vsphere-nonparavirt
+`
+	// Configure user provider configuration
+	userProviderConfigValues = map[string]interface{}{
+		"AVI_ENABLE":    true,
+		"PROVIDER_TYPE": "vsphere",
+	}
+
+	JustBeforeEach(func() {
+		// Configure tkgBoMConfig
+		tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
+		err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
+		Expect(err).NotTo(HaveOccurred())
+
+		// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
+		valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, nil)
+	})
+
+	Context("when AVI_ENABLE is set to true", func() {
+		BeforeEach(func() {
+			managementPackageVersion = verStr
+			outputFile = "test/output_vsphere_with_avi_enabled.yaml"
+		})
+		It("should not return error", func() {
+			Expect(err).NotTo(HaveOccurred())
+			f1, err := os.ReadFile(valuesFile)
+			Expect(err).NotTo(HaveOccurred())
+			f2, err := os.ReadFile(outputFile)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(f1)).To(Equal(string(f2)))
+		})
+	})
+})
