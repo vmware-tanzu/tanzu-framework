@@ -251,6 +251,10 @@ spec:
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
+#@ if data.values.VSPHERE_CONTROL_PLANE_HARDWARE_VERSION != "" and data.values.VSPHERE_CONTROL_PLANE_HARDWARE_VERSION != None:
+      #@overlay/match missing_ok=True
+      hardwareVersion: #@ data.values.VSPHERE_CONTROL_PLANE_HARDWARE_VERSION
+#@ end
 
 #@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-worker"}})
 ---
@@ -299,6 +303,10 @@ spec:
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
+#@ if data.values.VSPHERE_WORKER_HARDWARE_VERSION != "" and data.values.VSPHERE_WORKER_HARDWARE_VERSION != None:
+      #@overlay/match missing_ok=True
+      hardwareVersion: #@ data.values.VSPHERE_WORKER_HARDWARE_VERSION
+#@ end
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
