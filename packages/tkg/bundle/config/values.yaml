@@ -104,7 +104,7 @@ coreManagementPluginsPackage:
 
 akoOperatorPackage:
   akoOperator:
-    avi_enable: true
+    avi_enable: false
     namespace: tkg-system-networking
     cluster_name: ""
     config:
