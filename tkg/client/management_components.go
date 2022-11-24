@@ -465,21 +465,18 @@ func GetConfigVariableListFromYamlData(bytes []byte) ([]string, error) {
 }
 
 func (c *TkgClient) getAKOPackageInstallFile() (string, error) {
-	akoPackageInstallTemplateFile, err := utils.CreateTempFile("", "*.yaml")
+	path, err := c.tkgConfigPathsClient.GetTKGProvidersDirectory()
 	if err != nil {
 		return "", err
 	}
-	err = utils.WriteToFile(akoPackageInstallTemplateFile, []byte(constants.AKOPackageInstall))
-	if err != nil {
-		return "", err
-	}
+	akoPackageInstallTemplateDir := filepath.Join(path, "ako")
 
 	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile()
 	if err != nil {
 		return "", err
 	}
 
-	akoPackageInstallFile, err := ProcessAKOPackageInstallFile(akoPackageInstallTemplateFile, userConfigValuesFile)
+	akoPackageInstallFile, err := ProcessAKOPackageInstallFile(akoPackageInstallTemplateDir, userConfigValuesFile)
 	if err != nil {
 		return "", err
 	}
@@ -487,8 +484,8 @@ func (c *TkgClient) getAKOPackageInstallFile() (string, error) {
 	return akoPackageInstallFile, nil
 }
 
-func ProcessAKOPackageInstallFile(akoPackageInstallTemplateFile, userConfigValuesFile string) (string, error) {
-	akoPackageInstallContent, err := carvelhelpers.ProcessYTTPackage(akoPackageInstallTemplateFile, userConfigValuesFile)
+func ProcessAKOPackageInstallFile(akoPackageInstallTemplateDir, userConfigValuesFile string) (string, error) {
+	akoPackageInstallContent, err := carvelhelpers.ProcessYTTPackage(akoPackageInstallTemplateDir, userConfigValuesFile)
 	if err != nil {
 		return "", err
 	}

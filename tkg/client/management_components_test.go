@@ -307,6 +307,7 @@ var _ = Describe("Unit tests for processAKOPackageInstallFile", func() {
 		processedAKOPackageInstallFile string
 		outputAKOPackageInstallFile    string
 		akoDir                         string
+		AKOPackageInstallTemplateDir   = "../../providers/ako"
 	)
 
 	validateResult := func() {
@@ -324,11 +325,7 @@ var _ = Describe("Unit tests for processAKOPackageInstallFile", func() {
 	}
 
 	JustBeforeEach(func() {
-		akoPackageInstallTemplateFile, err := utils.CreateTempFile("", "*.yaml")
-		Expect(err).NotTo(HaveOccurred())
-		err = utils.WriteToFile(akoPackageInstallTemplateFile, []byte(constants.AKOPackageInstall))
-		Expect(err).NotTo(HaveOccurred())
-		processedAKOPackageInstallFile, err = ProcessAKOPackageInstallFile(akoPackageInstallTemplateFile, inputDataValuesFile)
+		processedAKOPackageInstallFile, err = ProcessAKOPackageInstallFile(AKOPackageInstallTemplateDir, inputDataValuesFile)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
