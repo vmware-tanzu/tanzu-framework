@@ -6,8 +6,12 @@
 # Set language for consistent sorting across operating systems
 export LC_ALL := C
 
-GOOS ?= $(shell go env GOOS)
-GOARCH ?= $(shell go env GOARCH)
+# GOOS ?= $(shell go env GOOS)
+# GOARCH ?= $(shell go env GOARCH)
+# WA, finally will need to modify provider_template.sh in cayman_tanzu-framework to set these envs before calling make build-provider-template-image
+
+GOOS=linux
+GOARCH=amd64
 PROJECT_ROOT = $(shell pwd)
 
 CLI_REPO ?= ${PROJECT_ROOT}/..
@@ -16,6 +20,8 @@ TOOLS_BIN_DIR ?= ${TOOLS_DIR}/bin
 GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
 VENDIR := $(TOOLS_BIN_DIR)/vendir
 VENDIR_VERSION = v0.17.0
+YTTDIR := $(TOOLS_BIN_DIR)/ytt
+YTT_VERSION = v0.40.0
 CLUSTERGEN_OUTPUT_DIR ?= generated
 CLUSTERGEN_BASE ?= origin/main
 PROVIDER_DIR_NAME = providers
@@ -66,7 +72,7 @@ clean-providers: ## cleans provider-bundle
 	@rm -rf provider-bundle || true
 	@mkdir -p ${PROVIDER_BUNDLE_DIR}
 
-setup-provider-for-generation: clean-providers
+setup-provider-for-generation: clean-providers ytt
 	# using temporary directory to extract all files which needs to bundle
 	find . -type f | grep -v "${FILES_TO_IGNORE_REGEX}" | xargs tar cf - -T - | tar -C ${PROVIDER_BUNDLE_DIR} -x
 ifeq ($(SKIP_PROVIDER_IMAGE_OVERWRITE), false)
@@ -120,6 +126,13 @@ $(VENDIR):
 	mkdir -p hack/tools/bin
 	curl -LO https://github.com/vmware-tanzu/carvel-vendir/releases/download/$(VENDIR_VERSION)/vendir-$(GOOS)-$(GOARCH)
 	mv vendir-$(GOOS)-$(GOARCH) $(@)
+	chmod a+x $(@)
+
+ytt: $(YTTDIR) ## Install vendir
+$(YTTDIR):
+	mkdir -p ../hack/tools/bin
+	curl -LO https://github.com/vmware-tanzu/carvel-ytt/releases/download/$(YTT_VERSION)/ytt-$(GOOS)-$(GOARCH)
+	mv ytt-$(GOOS)-$(GOARCH) $(@)
 	chmod a+x $(@)
 
 ## --------------------------------------
