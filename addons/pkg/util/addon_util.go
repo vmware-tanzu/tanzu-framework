@@ -87,14 +87,6 @@ func GetPackageMetadata(ctx context.Context, c client.Client, carvelPkgName, car
 	return pkg.Spec.RefName, pkg.Spec.Version, nil
 }
 
-func GetPackageAnnotations(ctx context.Context, c client.Client, carvelPkgName, carvelPkgNamespace string) (map[string]string, error) {
-	pkg := &kapppkgv1alpha1.Package{}
-	if err := c.Get(ctx, client.ObjectKey{Name: carvelPkgName, Namespace: carvelPkgNamespace}, pkg); err != nil {
-		return nil, err
-	}
-	return pkg.Annotations, nil
-}
-
 // ParseStringForLabel parse the package ref name to make it valid for K8S object labels.
 // A package ref name could contain some characters that are not allowed as a label value.
 // Also the label should not end with any non-alphanumeric characters.
