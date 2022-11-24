@@ -151,17 +151,20 @@ spec:
       required: false
       schema:
         openAPIV3Schema:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              data:
-                type: string
-            required:
-              - name
-              - data
+          type: object
+          properties:
+            additionalTrustedCAs:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  data:
+                    type: string
+                required:
+                  - name
+                  - data
     - name: auditLogging
       required: false
       schema:

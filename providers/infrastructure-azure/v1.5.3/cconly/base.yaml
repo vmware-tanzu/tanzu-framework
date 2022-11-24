@@ -286,17 +286,20 @@ spec:
     required: false
     schema:
       openAPIV3Schema:
-        type: array
-        items:
-          type: object
-          properties:
-            name:
-              type: string
-            data:
-              type: string
-          required:
-          - name
-          - data
+        type: object
+        properties:
+          additionalTrustedCAs:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                data:
+                  type: string
+              required:
+              - name
+              - data
   - name: auditLogging
     required: false
     schema:
@@ -938,7 +941,7 @@ spec:
         valueFrom:
           template: *exportNoProxy
   - name: httpProxyCACert
-    enabledIf: '{{ $hasProxyCert := false }} {{- range .trust }} {{- if .name | eq "proxy" }} {{- $hasProxyCert = true }} {{- end }} {{- end }} {{- $hasProxyCert }}'
+    enabledIf: '{{ $hasProxyCert := false }} {{- range .trust.additionalTrustedCAs }} {{- if .name | eq "proxy" }} {{- $hasProxyCert = true }} {{- end }} {{- end }} {{- $hasProxyCert }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -964,7 +967,7 @@ spec:
           template: |
             path: /etc/ssl/certs/tkg-custom-ca.pem
             {{- $proxy := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -998,7 +1001,7 @@ spec:
           template: |
             path: /etc/ssl/certs/tkg-custom-ca.pem
             {{- $proxy := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -1034,7 +1037,7 @@ spec:
           template: |
             sed -i 's|".*/pause|" {{- or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository -}} /pause|' /etc/containerd/config.toml
   - name: registryCACert
-    enabledIf: '{{ not (empty .trust) }}'
+    enabledIf: '{{ not (empty .trust.additionalTrustedCAs) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -1073,7 +1076,7 @@ spec:
             path: /etc/containerd/ {{- index (or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository | splitList "/") 0 -}} .crt
             {{- $proxy := "" }}
             {{- $image := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -1123,7 +1126,7 @@ spec:
             path: /etc/containerd/{{ index (or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository | splitList "/") 0 }}.crt
             {{- $proxy := "" }}
             {{- $image := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}

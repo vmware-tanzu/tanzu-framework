@@ -381,13 +381,13 @@ def get_cluster_variables():
 
 
     additionalTrustedCAs = []
+    #! TKG_PROXY_CA_CERT has higher priority than TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
     if data.values["TKG_PROXY_CA_CERT"] != "":
         additionalTrustedCAs.append({
             "name": "proxy",
             "data": data.values["TKG_PROXY_CA_CERT"]
         })
-    end
-    if data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"] != "":
+    elif data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"] != "":
         additionalTrustedCAs.append({
             "name": "imageRepository",
             "data": data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"]
