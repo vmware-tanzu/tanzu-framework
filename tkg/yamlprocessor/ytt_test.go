@@ -40,6 +40,13 @@ var _ = Describe("YttProcessor", func() {
 
 			Expect(yp.GetClusterClassTemplateName("version", "foo")).To(Equal("clusterclass-foo.yaml"))
 		})
+		It("trim version suffix from the default clusterclass name", func() {
+			yp := yamlprocessor.NewYttProcessor()
+
+			Expect(yp.GetClusterClassTemplateName("version", "tkg-vsphere-default-v2.1.0")).To(Equal("clusterclass-tkg-vsphere-default.yaml"))
+			Expect(yp.GetClusterClassTemplateName("version", "tkg-aws-default-v2.1.0")).To(Equal("clusterclass-tkg-aws-default.yaml"))
+			Expect(yp.GetClusterClassTemplateName("version", "tkg-azure-default-v2.1.0")).To(Equal("clusterclass-tkg-azure-default.yaml"))
+		})
 	})
 
 	Context("GetVariables", func() {
