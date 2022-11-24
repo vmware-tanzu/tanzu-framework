@@ -17,7 +17,7 @@ providers:
     type: InfrastructureProvider
 
 # Values for environment variable substitution
-ANTREA_TRACEFLOW: false 
+ANTREA_TRACEFLOW: false
 CLUSTER_NAME: "test-cluster"
 NAMESPACE: "test-namespace"
 FOO: new-foo
