@@ -554,7 +554,7 @@ func (c *TkgClient) ApplyClusterBootstrapObjects(fromClusterClient, toClusterCli
 		}
 
 		log.V(6).Infof("Applying ClusterBootstrap: %v", clusterBootstrapString)
-		if err := toClusterClient.Apply(string(clusterBootstrapBytes)); err != nil {
+		if err := toClusterClient.Apply(clusterBootstrapString); err != nil {
 			return err
 		}
 	}
