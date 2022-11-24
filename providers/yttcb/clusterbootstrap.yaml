@@ -425,6 +425,8 @@ spec:
     - refName: metrics-server*
     - refName: secretgen-controller*
     - refName: pinniped*
+    #@ if/end data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+    - refName: tkg-windows*
     #@ if storage_class_configs_exist():
     - refName: tkg-storageclass*
       valuesFrom:
