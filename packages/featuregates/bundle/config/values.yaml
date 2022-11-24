@@ -1,9 +1,9 @@
 #@data/values
 ---
-
 namespace: tkg-system
 deployment:
   hostNetwork: true
-  nodeSelector: null
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: ""
   tolerations: []
   webhookServerPort: 9443
