@@ -237,9 +237,9 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 			return errors.Wrap(err, "unable to check whether avi ha is enabled")
 		}
 		if akoRequired {
-			log.Info("Installing AKO...")
+			log.Info("Installing AKO on bootstrapper...")
 			if err = c.InstallAKO(bootStrapClusterClient); err != nil {
-				return errors.Wrap(err, "unable to upgrade ako")
+				return errors.Wrap(err, "unable to install ako")
 			}
 		}
 	}
