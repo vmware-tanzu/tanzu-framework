@@ -8505,7 +8505,7 @@ spec:
           value: ${TKG_HTTPS_PROXY}
         - name: NO_PROXY
           value: ${TKG_NO_PROXY}
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-azure-controller:${CAPZ_CONTROLLER_IMAGE_TAG}
+        image: registry.k8s.io/cluster-api-azure/cluster-api-azure-controller:v1.5.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -8586,7 +8586,7 @@ spec:
               fieldPath: spec.nodeName
         - name: LOG_LEVEL
           value: DEBUG
-        image: registry.tkg.vmware.run/cluster-api/nmi:${NMI_IMAGE_TAG}
+        image: mcr.microsoft.com/oss/azure/aad-pod-identity/nmi:v1.8.9
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

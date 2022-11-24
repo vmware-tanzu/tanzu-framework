@@ -4,22 +4,41 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set -e
+set -x
 set -o pipefail
+ROOT="$(cd "$(dirname ${0})/../.." &> /dev/null && pwd)"
 
-function place_rendered_files() {
+function render_upstream_package_file_to_provider() {
 	local source_package_name="${1}"
-	local provider_name="${2}"
-	local rendered_dir="${source_package_name}/build/rendered"
-
+	local target_package_name="${2}"
 	local version=$(cat ../../packages/${source_package_name}/vendir.yml | grep tag | sed 's/^.*tag: //')
+	local build_dir="${source_package_name}/build"
+	local pkg_v1_providers_specific_overlays_dir="${source_package_name}/overlay"
+	local update_image_file="change-image-url.yaml"
+	local syncd_upstream_dir="${build_dir}/upstream"
+	local rendered_dir="../../providers/${target_package_name}/${version}/"
 
-	cp -r "${rendered_dir}/upstream/." "../../providers/${provider_name}/${version}/"
+	mkdir -p "${rendered_dir}"
+	mkdir -p "${pkg_v1_providers_specific_overlays_dir}"
+
+	${ROOT}/hack/tools/bin/ytt -f "${syncd_upstream_dir}" \
+		-f "${pkg_v1_providers_specific_overlays_dir}" \
+		--file-mark 'change-image-url.yaml:exclude=true' \
+		--output-files "${rendered_dir}"
+	cp -r "${pkg_v1_providers_specific_overlays_dir}/${update_image_file}" "${rendered_dir}"
+	mv "${rendered_dir}/upstream"/* "${rendered_dir}/upstream/../"
+	find "${rendered_dir}" -type f -exec chmod 664 {} \;
 }
 
-place_rendered_files "cluster-api" "cluster-api"
-place_rendered_files "cluster-api-control-plane-kubeadm" "control-plane-kubeadm"
-place_rendered_files "cluster-api-bootstrap-kubeadm" "bootstrap-kubeadm"
-place_rendered_files "cluster-api-provider-aws" "infrastructure-aws"
-place_rendered_files "cluster-api-provider-azure" "infrastructure-azure"
-place_rendered_files "cluster-api-provider-docker" "infrastructure-docker"
-place_rendered_files "cluster-api-provider-vsphere" "infrastructure-vsphere"
+render_upstream_package_file_to_provider "cluster-api-control-plane-kubeadm" "control-plane-kubeadm"
+render_upstream_package_file_to_provider "cluster-api" "cluster-api"
+render_upstream_package_file_to_provider "cluster-api-bootstrap-kubeadm" "bootstrap-kubeadm"
+render_upstream_package_file_to_provider "cluster-api-provider-aws" "infrastructure-aws"
+render_upstream_package_file_to_provider "cluster-api-provider-azure" "infrastructure-azure"
+render_upstream_package_file_to_provider "cluster-api-provider-docker" "infrastructure-docker"
+render_upstream_package_file_to_provider "cluster-api-provider-vsphere" "infrastructure-vsphere"
+
+# infrastructure-docker: The infrastructure-components.yaml is named
+# infrastructure-components-development.yaml upstream. Renaming it to
+# infrastructure-components.yaml here to match providers naming.
+mv ../../providers/infrastructure-docker/v1.2.4/infrastructure-components{-development,}.yaml

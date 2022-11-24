@@ -1887,7 +1887,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.uid
-        image: registry.tkg.vmware.run/cluster-api/capd-manager:${CAPD_CONTROLLER_IMAGE_TAG}
+        image: gcr.io/k8s-staging-cluster-api/capd-manager:v1.2.4
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

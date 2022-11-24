@@ -168,6 +168,15 @@ jobs:
         username: _json_key
         password: ${{ secrets.GCP_BUCKET_SA }}
 
+    - name: Build and Publish none-management images
+      env:
+        NUM: ${{ github.run_id }}
+        IMAGE_REPO: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
+        PROVIDER_TEMPLATE_IMG_TAG: "v0.21.0"
+      run: |
+        make -C providers build-provider-template-image
+        make -C providers push-provider-template-image
+
     - name: Build management packages
       env:
         NUM: ${{ github.run_id }}
@@ -276,6 +285,9 @@ jobs:
           _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ needs.build-and-publish-packages.outputs.registry }}/tanzu_framework/github-actions/${{ needs.build-and-publish-packages.outputs.regdir }}/management:v0.21.0
           _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
           TKG_CUSTOM_IMAGE_REPOSITORY: "projects-stg.registry.vmware.com/tkg"
+          _PROVIDER_TEMPLATE_IMAGE: ${{ needs.build-and-publish-packages.outputs.registry }}/tanzu_framework/github-actions/${{ needs.build-and-publish-packages.outputs.regdir }}/provider-templates:v0.21.0
+          _PROVIDER_TEMPLATE_TAG: "0.21.0"
+          SKIP_PROVIDER_IMAGE_OVERWRITE: true
 
 
   integ-tests-aws-cc:
@@ -381,3 +393,4 @@ jobs:
           tkg/test/scripts/aws_cleanup.sh ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
         env:
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
+

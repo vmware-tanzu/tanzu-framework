@@ -7283,7 +7283,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.uid
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-controller:${CAPI_CONTROLLER_IMAGE_TAG}
+        image: k8s.gcr.io/cluster-api/cluster-api-controller:v1.2.4
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

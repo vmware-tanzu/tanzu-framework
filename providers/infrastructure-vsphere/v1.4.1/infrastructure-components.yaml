@@ -4980,7 +4980,7 @@ spec:
         - --logtostderr
         - --v=4
         - --feature-gates=NodeAntiAffinity=${EXP_NODE_ANTI_AFFINITY:=true},NodeLabeling=${EXP_NODE_LABELING:=true}
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-vsphere-controller:${CAPV_CONTROLLER_IMAGE_TAG}
+        image: gcr.io/cluster-api-provider-vsphere/release/manager:v1.4.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

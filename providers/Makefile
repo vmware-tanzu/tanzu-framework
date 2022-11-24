@@ -22,14 +22,14 @@ PROVIDER_DIR_NAME = providers
 PROVIDER_BUNDLE_DIR = provider-bundle/${PROVIDER_DIR_NAME}
 PROVIDER_BUNDLE_ZIP = ${PROJECT_ROOT}/client/manifest/providers.zip
 TKG_PROVIDER_BUNDLE_ZIP = ${PROJECT_ROOT}/tkg/tkgctl/client/manifest/providers.zip
+SKIP_PROVIDER_IMAGE_OVERWRITE ?= false
 
 # Image URL to use building/pushing provider image
 PROVIDER_TEMPLATE_IMG_NAME ?= provider-templates
 IMAGE_REPO ?= vmware.io
 PROVIDER_TEMPLATE_IMG_TAG ?= latest
 
-
-FILES_TO_IGNORE?=.env .idea .git .github hack .yamllint .gitlab Makefile provider-bundle tests README.md client go.mod go.sum providers.sha256sum Dockerfile.templates
+FILES_TO_IGNORE?=.env .idea .git .github hack .yamllint .gitlab Makefile provider-bundle tests README.md client go.mod go.sum providers.sha256sum Dockerfile.templates change-image-url.yaml
 ifeq ($(EXCLUDE_CLUSTER_CLASS_FILES), true)
 FILES_TO_IGNORE+=yttcc yttcb cconly cc.yaml
 endif
@@ -69,6 +69,9 @@ clean-providers: ## cleans provider-bundle
 setup-provider-for-generation: clean-providers
 	# using temporary directory to extract all files which needs to bundle
 	find . -type f | grep -v "${FILES_TO_IGNORE_REGEX}" | xargs tar cf - -T - | tar -C ${PROVIDER_BUNDLE_DIR} -x
+ifeq ($(SKIP_PROVIDER_IMAGE_OVERWRITE), false)
+	./hack/replace-provider-images.sh "${PROVIDER_BUNDLE_DIR}"
+endif
 
 .PHONY: generate-provider-bundle-zip
 generate-provider-bundle-zip: setup-provider-for-generation ## generates provider zip bundle

@@ -1280,7 +1280,7 @@ spec:
           value: ${TKG_HTTPS_PROXY}
         - name: NO_PROXY
           value: ${TKG_NO_PROXY}
-        image: registry.tkg.vmware.run/cluster-api/cluster-api-vsphere-controller:${CAPV_CONTROLLER_IMAGE_TAG}
+        image: gcr.io/cluster-api-provider-vsphere/release/manager:v1.4.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
