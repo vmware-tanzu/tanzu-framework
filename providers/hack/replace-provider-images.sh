@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set -e
+set -x
 set -o pipefail
 ROOT="$(cd "$(dirname ${0})/../.." &> /dev/null && pwd)"
 
