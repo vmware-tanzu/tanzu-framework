@@ -1,0 +1,36 @@
+#! This overlay is adds a patch as first element in the patches to create an empty
+#! dict at the apiservers extraArgs definition.
+#! With this other patches are able to insert into the now existing dictionary.
+#! Otherwise the dict would not exist and the patches would fail.
+#! Empty dictionaries get dropped due to omitEmpty set at the CRD level.
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@overlay/match by=overlay.subset({"kind":"ClusterClass"})
+---
+spec:
+  patches:
+  #@overlay/match by=overlay.index(0)
+  #@overlay/insert before=True
+  - definitions:
+    - jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs
+        value: {}
+      selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+    name: CAPD_KCP_INIT_EMPTY_APISERVER_EXTRAARGS
+  - definitions:
+    - jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files
+        value: []
+      selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+    name: CAPD_KCP_INIT_EMPTY_FILES_ARRAY
