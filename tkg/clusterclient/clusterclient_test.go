@@ -3549,7 +3549,7 @@ prod.repo.com: prod.custom.repo.com`
 		})
 	})
 
-	Describe("Unit tests for RemoveMatchingLabelsFromResources", func() {
+	Describe("Unit tests for RemoveMatchingMetadataFromResources", func() {
 		var (
 			fakeClientSet     crtclient.Client
 			resources         []runtime.Object
@@ -3615,7 +3615,7 @@ prod.repo.com: prod.custom.repo.com`
 			Expect(err).NotTo(HaveOccurred())
 
 			clusterClassGVK := schema.GroupVersionKind{Group: capi.GroupVersion.Group, Version: capi.GroupVersion.Version, Kind: "ClusterClass"}
-			err = clstClient.RemoveMatchingLabelsFromResources(clusterClassGVK, "fake-namespace", labelsToBeDeleted)
+			err = clstClient.RemoveMatchingMetadataFromResources(clusterClassGVK, "fake-namespace", "labels", labelsToBeDeleted)
 		})
 
 		Context("When matching objects not found", func() {

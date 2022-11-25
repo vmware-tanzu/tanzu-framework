@@ -1018,17 +1018,18 @@ type ClusterClient struct {
 	removeCEIPTelemetryJobReturnsOnCall map[int]struct {
 		result1 error
 	}
-	RemoveMatchingLabelsFromResourcesStub        func(schema.GroupVersionKind, string, []string) error
-	removeMatchingLabelsFromResourcesMutex       sync.RWMutex
-	removeMatchingLabelsFromResourcesArgsForCall []struct {
+	RemoveMatchingMetadataFromResourcesStub        func(schema.GroupVersionKind, string, string, []string) error
+	removeMatchingMetadataFromResourcesMutex       sync.RWMutex
+	removeMatchingMetadataFromResourcesArgsForCall []struct {
 		arg1 schema.GroupVersionKind
 		arg2 string
-		arg3 []string
+		arg3 string
+		arg4 []string
 	}
-	removeMatchingLabelsFromResourcesReturns struct {
+	removeMatchingMetadataFromResourcesReturns struct {
 		result1 error
 	}
-	removeMatchingLabelsFromResourcesReturnsOnCall map[int]struct {
+	removeMatchingMetadataFromResourcesReturnsOnCall map[int]struct {
 		result1 error
 	}
 	ScalePacificClusterControlPlaneStub        func(string, string, int32) error
@@ -6148,25 +6149,26 @@ func (fake *ClusterClient) RemoveCEIPTelemetryJobReturnsOnCall(i int, result1 er
 	}{result1}
 }
 
-func (fake *ClusterClient) RemoveMatchingLabelsFromResources(arg1 schema.GroupVersionKind, arg2 string, arg3 []string) error {
-	var arg3Copy []string
-	if arg3 != nil {
-		arg3Copy = make([]string, len(arg3))
-		copy(arg3Copy, arg3)
+func (fake *ClusterClient) RemoveMatchingMetadataFromResources(arg1 schema.GroupVersionKind, arg2 string, arg3 string, arg4 []string) error {
+	var arg4Copy []string
+	if arg4 != nil {
+		arg4Copy = make([]string, len(arg4))
+		copy(arg4Copy, arg4)
 	}
-	fake.removeMatchingLabelsFromResourcesMutex.Lock()
-	ret, specificReturn := fake.removeMatchingLabelsFromResourcesReturnsOnCall[len(fake.removeMatchingLabelsFromResourcesArgsForCall)]
-	fake.removeMatchingLabelsFromResourcesArgsForCall = append(fake.removeMatchingLabelsFromResourcesArgsForCall, struct {
+	fake.removeMatchingMetadataFromResourcesMutex.Lock()
+	ret, specificReturn := fake.removeMatchingMetadataFromResourcesReturnsOnCall[len(fake.removeMatchingMetadataFromResourcesArgsForCall)]
+	fake.removeMatchingMetadataFromResourcesArgsForCall = append(fake.removeMatchingMetadataFromResourcesArgsForCall, struct {
 		arg1 schema.GroupVersionKind
 		arg2 string
-		arg3 []string
-	}{arg1, arg2, arg3Copy})
-	stub := fake.RemoveMatchingLabelsFromResourcesStub
-	fakeReturns := fake.removeMatchingLabelsFromResourcesReturns
-	fake.recordInvocation("RemoveMatchingLabelsFromResources", []interface{}{arg1, arg2, arg3Copy})
-	fake.removeMatchingLabelsFromResourcesMutex.Unlock()
+		arg3 string
+		arg4 []string
+	}{arg1, arg2, arg3, arg4Copy})
+	stub := fake.RemoveMatchingMetadataFromResourcesStub
+	fakeReturns := fake.removeMatchingMetadataFromResourcesReturns
+	fake.recordInvocation("RemoveMatchingMetadataFromResources", []interface{}{arg1, arg2, arg3, arg4Copy})
+	fake.removeMatchingMetadataFromResourcesMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -6174,44 +6176,44 @@ func (fake *ClusterClient) RemoveMatchingLabelsFromResources(arg1 schema.GroupVe
 	return fakeReturns.result1
 }
 
-func (fake *ClusterClient) RemoveMatchingLabelsFromResourcesCallCount() int {
-	fake.removeMatchingLabelsFromResourcesMutex.RLock()
-	defer fake.removeMatchingLabelsFromResourcesMutex.RUnlock()
-	return len(fake.removeMatchingLabelsFromResourcesArgsForCall)
+func (fake *ClusterClient) RemoveMatchingMetadataFromResourcesCallCount() int {
+	fake.removeMatchingMetadataFromResourcesMutex.RLock()
+	defer fake.removeMatchingMetadataFromResourcesMutex.RUnlock()
+	return len(fake.removeMatchingMetadataFromResourcesArgsForCall)
 }
 
-func (fake *ClusterClient) RemoveMatchingLabelsFromResourcesCalls(stub func(schema.GroupVersionKind, string, []string) error) {
-	fake.removeMatchingLabelsFromResourcesMutex.Lock()
-	defer fake.removeMatchingLabelsFromResourcesMutex.Unlock()
-	fake.RemoveMatchingLabelsFromResourcesStub = stub
+func (fake *ClusterClient) RemoveMatchingMetadataFromResourcesCalls(stub func(schema.GroupVersionKind, string, string, []string) error) {
+	fake.removeMatchingMetadataFromResourcesMutex.Lock()
+	defer fake.removeMatchingMetadataFromResourcesMutex.Unlock()
+	fake.RemoveMatchingMetadataFromResourcesStub = stub
 }
 
-func (fake *ClusterClient) RemoveMatchingLabelsFromResourcesArgsForCall(i int) (schema.GroupVersionKind, string, []string) {
-	fake.removeMatchingLabelsFromResourcesMutex.RLock()
-	defer fake.removeMatchingLabelsFromResourcesMutex.RUnlock()
-	argsForCall := fake.removeMatchingLabelsFromResourcesArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+func (fake *ClusterClient) RemoveMatchingMetadataFromResourcesArgsForCall(i int) (schema.GroupVersionKind, string, string, []string) {
+	fake.removeMatchingMetadataFromResourcesMutex.RLock()
+	defer fake.removeMatchingMetadataFromResourcesMutex.RUnlock()
+	argsForCall := fake.removeMatchingMetadataFromResourcesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
-func (fake *ClusterClient) RemoveMatchingLabelsFromResourcesReturns(result1 error) {
-	fake.removeMatchingLabelsFromResourcesMutex.Lock()
-	defer fake.removeMatchingLabelsFromResourcesMutex.Unlock()
-	fake.RemoveMatchingLabelsFromResourcesStub = nil
-	fake.removeMatchingLabelsFromResourcesReturns = struct {
+func (fake *ClusterClient) RemoveMatchingMetadataFromResourcesReturns(result1 error) {
+	fake.removeMatchingMetadataFromResourcesMutex.Lock()
+	defer fake.removeMatchingMetadataFromResourcesMutex.Unlock()
+	fake.RemoveMatchingMetadataFromResourcesStub = nil
+	fake.removeMatchingMetadataFromResourcesReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *ClusterClient) RemoveMatchingLabelsFromResourcesReturnsOnCall(i int, result1 error) {
-	fake.removeMatchingLabelsFromResourcesMutex.Lock()
-	defer fake.removeMatchingLabelsFromResourcesMutex.Unlock()
-	fake.RemoveMatchingLabelsFromResourcesStub = nil
-	if fake.removeMatchingLabelsFromResourcesReturnsOnCall == nil {
-		fake.removeMatchingLabelsFromResourcesReturnsOnCall = make(map[int]struct {
+func (fake *ClusterClient) RemoveMatchingMetadataFromResourcesReturnsOnCall(i int, result1 error) {
+	fake.removeMatchingMetadataFromResourcesMutex.Lock()
+	defer fake.removeMatchingMetadataFromResourcesMutex.Unlock()
+	fake.RemoveMatchingMetadataFromResourcesStub = nil
+	if fake.removeMatchingMetadataFromResourcesReturnsOnCall == nil {
+		fake.removeMatchingMetadataFromResourcesReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.removeMatchingLabelsFromResourcesReturnsOnCall[i] = struct {
+	fake.removeMatchingMetadataFromResourcesReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -8192,8 +8194,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.patchResourceMutex.RUnlock()
 	fake.removeCEIPTelemetryJobMutex.RLock()
 	defer fake.removeCEIPTelemetryJobMutex.RUnlock()
-	fake.removeMatchingLabelsFromResourcesMutex.RLock()
-	defer fake.removeMatchingLabelsFromResourcesMutex.RUnlock()
+	fake.removeMatchingMetadataFromResourcesMutex.RLock()
+	defer fake.removeMatchingMetadataFromResourcesMutex.RUnlock()
 	fake.scalePacificClusterControlPlaneMutex.RLock()
 	defer fake.scalePacificClusterControlPlaneMutex.RUnlock()
 	fake.scalePacificClusterWorkerNodesMutex.RLock()
