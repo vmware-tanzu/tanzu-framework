@@ -20,22 +20,50 @@
 #@  return value.split(",") if value else []
 #@ end
 
-#@ def antrea_configs_exist():
+#@ def antrea_config_customized():
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED or
-#@           data.values.ANTREA_PROXY or
-#@           data.values.ANTREA_ENDPOINTSLICE or
-#@           data.values.ANTREA_POLICY or
-#@           data.values.ANTREA_TRACEFLOW or
-#@           data.values.ANTREA_NODEPORTLOCAL or
+#@           not data.values.ANTREA_PROXY or
+#@           not data.values.ANTREA_ENDPOINTSLICE or
+#@           not data.values.ANTREA_POLICY or
+#@           not data.values.ANTREA_TRACEFLOW or
+#@           not data.values.ANTREA_NODEPORTLOCAL or
 #@           data.values.ANTREA_NETWORKPOLICY_STATS or
-#@           data.values.ANTREA_EGRESS or
+#@           not data.values.ANTREA_EGRESS or
 #@           data.values.ANTREA_IPAM or
 #@           data.values.ANTREA_FLOWEXPORTER or
 #@           data.values.ANTREA_SERVICE_EXTERNALIP or
 #@           data.values.ANTREA_MULTICLUSTER or
 #@           data.values.ANTREA_SECONDARY_NETWORK or
 #@           data.values.ANTREA_TRAFFIC_CONTROL or
-#@           data.values.ANTREA_MULTICAST)
+#@           data.values.ANTREA_MULTICAST or
+#@           data.values.ANTREA_NO_SNAT or
+#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD or
+#@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
+#@           data.values.ANTREA_EGRESS_EXCEPT_CIDRS != "" or
+#@           not data.values.ANTREA_NODEPORTLOCAL_ENABLED or
+#@           data.values.ANTREA_NODEPORTLOCAL_PORTRANGE != "61000-62000" or
+#@           data.values.ANTREA_PROXY_ALL or
+#@           data.values.ANTREA_PROXY_NODEPORT_ADDRS != "" or
+#@           data.values.ANTREA_PROXY_SKIP_SERVICES != "" or
+#@           data.values.ANTREA_PROXY_LOAD_BALANCER_IPS or
+#@           data.values.ANTREA_FLOWEXPORTER_COLLECTOR_ADDRESS != "flow-aggregator.flow-aggregator.svc:4739:tls" or
+#@           data.values.ANTREA_FLOWEXPORTER_POLL_INTERVAL != "5s" or
+#@           data.values.ANTREA_FLOWEXPORTER_ACTIVE_TIMEOUT != "30s" or
+#@           data.values.ANTREA_FLOWEXPORTER_IDLE_TIMEOUT != "15s" or
+#@           data.values.ANTREA_KUBE_APISERVER_OVERRIDE != None or
+#@           data.values.ANTREA_TRANSPORT_INTERFACE != None or
+#@           data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS != "" or
+#@           data.values.ANTREA_MULTICAST_INTERFACES != "" or
+#@           data.values.ANTREA_MULTICAST_IGMPQUERY_INTERVAL != "125s" or
+#@           data.values.ANTREA_TUNNEL_TYPE != "geneve" or
+#@           data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE != "none" or
+#@           data.values.ANTREA_WIREGUARD_PORT != 51820 or
+#@           data.values.ANTREA_ENABLE_USAGE_REPORTING or
+#@           data.values.ANTREA_ENABLE_BRIDGING_MODE or
+#@           data.values.ANTREA_DISABLE_TXCHECKSUM_OFFLOAD or
+#@           data.values.ANTREA_DNS_SERVER_OVERRIDE != "" or
+#@           data.values.ANTREA_MULTICLUSTER_ENABLE or
+#@           data.values.ANTREA_MULTICLUSTER_NAMESPACE != "")
 #@ end
 
 #@ def vspherecpi_configs_exist():
@@ -75,10 +103,10 @@
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_configs_exist() or azurediskcsi_configs_exist() or azurefilecsi_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_config_customized() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_configs_exist() or azurediskcsi_configs_exist() or azurefilecsi_configs_exist()
 #@ end
 
-#@ if antrea_configs_exist():
+#@ if antrea_config_customized():
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
@@ -339,7 +367,7 @@ metadata:
   annotations:
     tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
 spec:
-  #@ if data.values.CNI == "antrea" and antrea_configs_exist():
+  #@ if data.values.CNI == "antrea" and antrea_config_customized():
   cni:
     refName: antrea*
     valuesFrom:
