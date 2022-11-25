@@ -20,7 +20,7 @@ require (
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.4.0
 	k8s.io/api v0.24.2
 	k8s.io/apiextensions-apiserver v0.24.2
 	k8s.io/apimachinery v0.24.2
