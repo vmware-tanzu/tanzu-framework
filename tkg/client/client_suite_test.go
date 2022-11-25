@@ -8,9 +8,12 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 
 	azure "github.com/vmware-tanzu/tanzu-framework/tkg/azure/mocks"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
@@ -1671,11 +1674,93 @@ var _ = Describe("DistributeMachineDeploymentWorkers", func() {
 	})
 })
 
+var _ = Describe("ApplyClusterBootstrap()", func() {
+	var (
+		bootstrapClusterClient *fakes.ClusterClient
+		mgmtClusterClient      *fakes.ClusterClient
+
+		applyClusterBootstrapError error
+		tkgConfigPath              string
+		tkgClient                  *TkgClient
+		getResourceError           error
+		applyError                 error
+		tkrError                   error
+		tkr                        *v1alpha3.TanzuKubernetesRelease
+	)
+
+	BeforeEach(func() {
+		bootstrapClusterClient = &fakes.ClusterClient{}
+		mgmtClusterClient = &fakes.ClusterClient{}
+		tkgConfigPath = "../fakes/config/config_custom_clusterbootstrap.yaml"
+
+		tkr = &v1alpha3.TanzuKubernetesRelease{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "1.24",
+				Namespace: constants.TkrNamespace,
+			},
+		}
+		applyClusterBootstrapError = nil
+		tkrError = nil
+		getResourceError = nil
+		applyError = nil
+	})
+
+	JustBeforeEach(func() {
+		rw, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("", tkgConfigPath)
+		tkgClient, err = CreateTKGClientWithConfigReaderWriter(tkgConfigPath, testingDir, defaultTKGBoMFileForTesting, 2*time.Second, rw)
+		Expect(err).NotTo(HaveOccurred())
+
+		bootstrapClusterClient.GetClusterResolvedTanzuKubernetesReleaseReturns(tkr, tkrError)
+		mgmtClusterClient.GetResourceReturns(getResourceError)
+		mgmtClusterClient.ApplyReturns(applyError)
+
+		applyClusterBootstrapError = tkgClient.ApplyClusterBootstrapObjects(bootstrapClusterClient, mgmtClusterClient)
+	})
+
+	Describe("there is custom clusterbootstrap to apply on management cluster", func() {
+		Context("Apply clusterbootstrap without error", func() {
+			It("Should apply custom clusterbootstrap on mgmt cluster", func() {
+				Expect(applyClusterBootstrapError).NotTo(HaveOccurred())
+			})
+		})
+		Context("Apply clusterbootstrap with error", func() {
+			When("unable to determine tkr on bootstrap cluster", func() {
+				BeforeEach(func() {
+					tkrError = fmt.Errorf("Unable to determine tkr")
+				})
+				It("Fails to apply custom clusterbootstrap", func() {
+					Expect(applyClusterBootstrapError).To(HaveOccurred())
+				})
+			})
+			When("tkr is not available on mgmt cluster", func() {
+				BeforeEach(func() {
+					getResourceError = fmt.Errorf("Failed to get 1.24 tkr")
+				})
+				It("Fails to apply custom clusterbootstrap", func() {
+					Expect(applyClusterBootstrapError).To(HaveOccurred())
+				})
+			})
+			When("apply failed on mgmt cluster", func() {
+				BeforeEach(func() {
+					applyError = fmt.Errorf("Failed to apply clusterbootstrap")
+				})
+				It("Fails to apply custom clsuterbootstrap", func() {
+					Expect(applyClusterBootstrapError).To(HaveOccurred())
+				})
+			})
+		})
+	})
+})
+
 func CreateTKGClient(clusterConfigFile string, configDir string, defaultBomFile string, timeout time.Duration) (*TkgClient, error) {
-	return CreateTKGClientOpts(clusterConfigFile, configDir, defaultBomFile, timeout, func(options Options) Options { return options })
+	return CreateTKGClientOpts(clusterConfigFile, configDir, defaultBomFile, timeout, func(options Options) Options { return options }, nil)
 }
 
-func CreateTKGClientOpts(clusterConfigFile string, configDir string, defaultBomFile string, timeout time.Duration, optMutator func(options Options) Options) (*TkgClient, error) {
+func CreateTKGClientWithConfigReaderWriter(clusterConfigFile string, configDir string, defaultBomFile string, timeout time.Duration, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (*TkgClient, error) {
+	return CreateTKGClientOpts(clusterConfigFile, configDir, defaultBomFile, timeout, func(options Options) Options { return options }, tkgConfigReaderWriter)
+}
+
+func CreateTKGClientOpts(clusterConfigFile string, configDir string, defaultBomFile string, timeout time.Duration, optMutator func(options Options) Options, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (*TkgClient, error) {
 	setupTestingFiles(clusterConfigFile, configDir, defaultBomFile)
 	appConfig := types.AppConfig{
 		TKGConfigDir: configDir,
@@ -1683,7 +1768,7 @@ func CreateTKGClientOpts(clusterConfigFile string, configDir string, defaultBomF
 			RegionManagerFactory: region.NewFactory(),
 		},
 	}
-	allClients, err := clientcreator.CreateAllClients(appConfig, nil)
+	allClients, err := clientcreator.CreateAllClients(appConfig, tkgConfigReaderWriter)
 	if err != nil {
 		return nil, err
 	}
@@ -1739,6 +1824,13 @@ func setupTestingFiles(clusterConfigFile string, configDir string, defaultBomFil
 	Expect(err).ToNot(HaveOccurred())
 	err = os.WriteFile(compatibilityConfigFile, []byte(testTKGCompatabilityFileContent), constants.ConfigFilePermissions)
 	Expect(err).ToNot(HaveOccurred())
+
+	providersDir, err := tkgconfigpaths.New(configDir).GetTKGProvidersDirectory()
+	Expect(err).NotTo(HaveOccurred())
+	if _, err := os.Stat(providersDir); os.IsNotExist(err) {
+		err := exec.Command("cp", "-r", "../../providers", filepath.Dir(providersDir)).Run()
+		Expect(err).NotTo(HaveOccurred())
+	}
 }
 func updateDefaultBoMFileName(configDir string, defaultBomFile string) {
 	compatibilityDir, err := tkgconfigpaths.New(configDir).GetTKGCompatibilityDirectory()
