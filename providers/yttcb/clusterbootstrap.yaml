@@ -87,7 +87,9 @@
 #@ end
 
 #@ def storage_class_configs_exist():
-#@   return data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker"
+#@   return data.values.ENABLE_DEFAULT_STORAGE_CLASS and (data.values.PROVIDER_TYPE == "vsphere" or
+#@                                                      data.values.PROVIDER_TYPE == "aws" or
+#@                                                      data.values.PROVIDER_TYPE == "azure")
 #@ end
 
 #@ def azurefilecsi_configs_exist():
