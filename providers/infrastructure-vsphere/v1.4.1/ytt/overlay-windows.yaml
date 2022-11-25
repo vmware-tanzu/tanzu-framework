@@ -278,10 +278,12 @@ spec:
       - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
       sudo: ALL=(ALL) NOPASSWD:ALL
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+  #@ if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE:
   #@overlay/match missing_ok=True
   rolloutBefore:
     #@overlay/match missing_ok=True
     certificatesExpiryDays:  #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE
+  #@ end
   version: #@ data.values.KUBERNETES_VERSION
 
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-0"}})

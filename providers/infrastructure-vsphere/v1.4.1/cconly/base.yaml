@@ -473,12 +473,14 @@ spec:
       openAPIV3Schema:
         type: boolean
         default: true
-  - name: controlPlaneCertificateRotationDaysBeforeExpiry
+  - name: controlPlaneCertificateRotationBefore
     required: false
     schema:
       openAPIV3Schema:
         type: integer
-        default: 90
+        #@ if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE:
+        default: #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE
+        #@ end
   patches:
   - name: vsphereClusterTemplate
     definitions:
@@ -1463,6 +1465,7 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/taints
         value: []
   - name: kcptCertificateRotation
+    enabledIf: '{{ not (empty .controlPlaneCertificateRotationBefore) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -1473,7 +1476,7 @@ spec:
       - op: add
         path: /spec/template/spec/rolloutBefore/certificatesExpiryDays
         valueFrom:
-          variable: controlPlaneCertificateRotationDaysBeforeExpiry  
+          variable: controlPlaneCertificateRotationBefore  
   - name: windows
     definitions:
     - selector:

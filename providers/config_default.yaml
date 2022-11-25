@@ -45,7 +45,7 @@ CONTROLPLANE_SIZE:
 #! Specify size of the worker node
 WORKER_SIZE:
 #! Specify certificatesExpiryDays for the control plane node
-CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE: 90
+CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE:
 
 #! Management cluster creation specific configuration, does not apply to workload clusters
 

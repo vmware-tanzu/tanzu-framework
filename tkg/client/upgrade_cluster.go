@@ -4,6 +4,7 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -1106,9 +1107,13 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 	}
 
 	pollOptions := &clusterclient.PollOptions{Interval: upgradePatchInterval, Timeout: upgradePatchTimeout}
-	err = regionalClusterClient.UpdateResourceWithPolling(currentKCP, clusterUpgradeConfig.KCPObjectName, clusterUpgradeConfig.KCPObjectNamespace, pollOptions)
+	kcpBytes, err := json.Marshal(currentKCP)
 	if err != nil {
-		return errors.Wrap(err, "unable to update the kubernetes version for kubeadm control plane nodes")
+		return err
+	}
+	err = regionalClusterClient.PatchResource(&capikubeadmv1beta1.KubeadmControlPlane{}, clusterUpgradeConfig.KCPObjectName, clusterUpgradeConfig.KCPObjectNamespace, string(kcpBytes), types.MergePatchType, pollOptions)
+	if err != nil {
+		return errors.Wrap(err, "unable to patch the kubernetes version for kubeadm control plane nodes")
 	}
 
 	operationTimeout := 15 * time.Minute
