@@ -1382,7 +1382,7 @@ func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clus
 		return true, nil
 	}
 
-	if hasPackageInstalls(r.context, remoteClient, cluster, r.Config.SystemNamespace, clusterBootstrap.Spec.AdditionalPackages, log) {
+	if hasPackageInstalls(r.context, remoteClient, cluster, r.Config.SystemNamespace, clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, log) {
 		log.Info("cluster has additional packageInstalls that need to be deleted")
 		err = r.removeAdditionalPackageInstalls(remoteClient, cluster, clusterBootstrap, log)
 		if err != nil {
@@ -1482,14 +1482,34 @@ func (r *ClusterBootstrapReconciler) removeFinalizer(o, deepCopy client.Object) 
 }
 
 func hasPackageInstalls(ctx context.Context, remoteClient client.Client,
-	cluster *clusterapiv1beta1.Cluster, namespace string, packages []*runtanzuv1alpha3.ClusterBootstrapPackage,
+	cluster *clusterapiv1beta1.Cluster, namespace string, packages []*runtanzuv1alpha3.ClusterBootstrapPackage, cbAnnotations map[string]string,
 	log logr.Logger) bool {
 
 	for _, pkg := range packages {
-		pkgInstallName := util.GeneratePackageInstallName(cluster.Name, pkg.RefName)
-		if packageInstallExistsAndCanBeDeleted(ctx, pkgInstallName, namespace, remoteClient, log) {
-			log.Info("found " + pkgInstallName + " packageInstall on cluster")
-			return true
+		if !shouldSkipDeletePackageInstall(ctx, log, cbAnnotations, pkg.RefName) {
+			pkgInstallName := util.GeneratePackageInstallName(cluster.Name, pkg.RefName)
+			if packageInstallExistsAndCanBeDeleted(ctx, pkgInstallName, namespace, remoteClient, log) {
+				log.Info("found " + pkgInstallName + " packageInstall on cluster")
+				return true
+			}
+		}
+
+	}
+	return false
+}
+
+func shouldSkipDeletePackageInstall(ctx context.Context, log logr.Logger, cbAnnotations map[string]string, pkgName string) bool {
+	for k, v := range cbAnnotations {
+		if k == constants.SkipDeletePackageInstallAnnotation {
+			if len(v) != 0 {
+				packageNames := strings.Split(v, ",")
+				for _, p := range packageNames {
+					if strings.HasPrefix(pkgName, p) {
+						log.Info(fmt.Sprintf("skip deleting packageInstall for %s, since it's inside annotation %s", pkgName, constants.SkipDeletePackageInstallAnnotation))
+						return true
+					}
+				}
+			}
 		}
 	}
 	return false
@@ -1526,17 +1546,19 @@ func (r *ClusterBootstrapReconciler) removeAdditionalPackageInstalls(remoteClien
 		return nil
 	}
 	for _, additionalPkg := range clusterBootstrap.Spec.AdditionalPackages {
-		additionalPkgInstall := &kapppkgiv1alpha1.PackageInstall{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      util.GeneratePackageInstallName(cluster.Name, additionalPkg.RefName),
-				Namespace: r.Config.SystemNamespace,
-			},
-		}
-		err = remoteClient.Delete(r.context, additionalPkgInstall)
-		if err != nil && !apierrors.IsNotFound(err) {
-			log.Error(err, fmt.Sprintf("unable to delete package install for %s/%s",
-				additionalPkgInstall.Namespace, additionalPkg.RefName))
-			return err
+		if !shouldSkipDeletePackageInstall(r.context, log, clusterBootstrap.Annotations, additionalPkg.RefName) {
+			additionalPkgInstall := &kapppkgiv1alpha1.PackageInstall{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      util.GeneratePackageInstallName(cluster.Name, additionalPkg.RefName),
+					Namespace: r.Config.SystemNamespace,
+				},
+			}
+			err = remoteClient.Delete(r.context, additionalPkgInstall)
+			if err != nil && !apierrors.IsNotFound(err) {
+				log.Error(err, fmt.Sprintf("unable to delete package install for %s/%s",
+					additionalPkgInstall.Namespace, additionalPkg.RefName))
+				return err
+			}
 		}
 	}
 	return nil
