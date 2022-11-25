@@ -1250,7 +1250,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 	// This test case is for ensuring that controller will skip deleting additional packages that's inside annotation run.tanzu.vmware.com/skip-packageinstall-deletion
 	When("Cluster with ako", func() {
 		BeforeEach(func() {
-<<<<<<< HEAD
 			clusterName = "test-cluster-8"
 			clusterNamespace = "cluster-namespace-8"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-8.yaml"
@@ -1374,8 +1373,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 	When("cluster with custom clusterboostrap and add-missing-fields-from-tkr annotation", func() {
 		BeforeEach(func() {
-=======
->>>>>>> 609a8556 (Rebase change)
 			clusterName = "test-cluster-9"
 			clusterNamespace = "cluster-namespace-9"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-9.yaml"
