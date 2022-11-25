@@ -97,7 +97,7 @@ func runCompletion(out io.Writer, cmd *cobra.Command, args []string) error {
 
 	switch strings.ToLower(args[0]) {
 	case "bash":
-		return cmd.Root().GenBashCompletion(out)
+		return cmd.Root().GenBashCompletionV2(out, true)
 	case "zsh":
 		return cmd.Root().GenZshCompletion(out)
 	case "fish":

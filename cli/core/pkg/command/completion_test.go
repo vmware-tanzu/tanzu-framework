@@ -74,7 +74,7 @@ func Test_runCompletion_Bash(t *testing.T) {
 
 	// Check for a snippet of the bash completion output
 	// TODO make this test less brittle
-	if !strings.Contains(out.String(), "if [[ -z \"${BASH_VERSION:-}\" || \"${BASH_VERSINFO[0]:-}\" -gt 3 ]]; then") {
+	if !strings.Contains(out.String(), "# bash completion V2 for completion") {
 		t.Errorf("Unexpected output for the bash shell script: %s", out.String())
 	}
 }
