@@ -33,3 +33,4 @@ tkrSourceControllerPackage:
         imageRepository: fake.custom.repo
 coreManagementPluginsPackage:
     versionConstraints: v0.21.0
+akoOperatorPackage: {}

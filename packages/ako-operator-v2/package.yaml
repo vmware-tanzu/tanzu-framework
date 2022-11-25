@@ -1,0 +1,25 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: ako-operator-v2.tanzu.vmware.com
+  namespace: ako-operator-v2
+spec:
+  refName: ako-operator-v2.tanzu.vmware.com
+  version: latest
+  licenses:
+    - "Apache 2.0"
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: # Get this value by pushing to your OCI Registry
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - "-"
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}

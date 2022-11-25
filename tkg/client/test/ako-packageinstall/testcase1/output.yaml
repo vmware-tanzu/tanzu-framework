@@ -1,0 +1,57 @@
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: load-balancer-and-ingress-service
+  namespace: tkg-system
+  annotations:
+    kapp.k14s.io/disable-wait: ""
+  labels:
+    tkg.tanzu.vmware.com/package-type: management
+spec:
+  packageRef:
+    refName: load-balancer-and-ingress-service.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  serviceAccountName: load-balancer-and-ingress-service-package-sa
+  values:
+  - secretRef:
+      name: test-load-balancer-and-ingress-service-addon
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: load-balancer-and-ingress-service-package-sa
+  namespace: tkg-system
+  annotations:
+    kapp.k14s.io/change-group: load-balancer-and-ingress-service-packageinstall/serviceaccount-0
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: load-balancer-and-ingress-service-package-role
+  annotations:
+    kapp.k14s.io/change-group: load-balancer-and-ingress-service-packageinstall/serviceaccount-0
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: load-balancer-and-ingress-service-package-cluster-rolebinding
+  annotations:
+    kapp.k14s.io/change-group: load-balancer-and-ingress-service-packageinstall/serviceaccount
+    kapp.k14s.io/change-rule.0: upsert after upserting load-balancer-and-ingress-service-packageinstall/serviceaccount-0
+    kapp.k14s.io/change-rule.1: delete before deleting load-balancer-and-ingress-service-packageinstall/serviceaccount-0
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: load-balancer-and-ingress-service-package-role
+subjects:
+- kind: ServiceAccount
+  name: load-balancer-and-ingress-service-package-sa
+  namespace: tkg-system

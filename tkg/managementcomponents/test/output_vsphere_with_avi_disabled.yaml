@@ -1,6 +1,7 @@
 metadata:
     infraProvider: vsphere
 configvalues:
+    AVI_ENABLE: false
     PROVIDER_TYPE: vsphere
 frameworkPackage:
     versionConstraints: v0.21.0

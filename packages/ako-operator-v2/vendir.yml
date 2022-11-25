@@ -1,0 +1,25 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+minimumRequiredVersion: 0.12.0
+## There are local files we don't want to overwrite
+## But vendir sync will overwrite unless we separate files in different sub directories in below section, which is time consuming
+## Keep below for future update
+# directories:
+#   - path: bundle/config
+#     contents:
+#       - path: .
+#         git:
+#           url: git@github.com:vmware-tanzu/tce.git
+#           ref: 8fa1eddbee7864510faf26e545b01e29ac966be5
+#         newRootPath: addons/packages/ako-operator/1.7.0/bundle/config
+#         includePaths:
+#           - addons/packages/ako-operator/1.7.0/bundle/config/**/*
+#   - path: metadata.yaml
+#     contents:
+#       - path: .
+#         git:
+#           url: git@github.com:vmware-tanzu/tce.git
+#           ref: 8fa1eddbee7864510faf26e545b01e29ac966be5
+#         newRootPath: addons/packages/ako-operator/metadata.yaml
+#         includePaths:
+#           - addons/packages/ako-operator/metadata.yaml
