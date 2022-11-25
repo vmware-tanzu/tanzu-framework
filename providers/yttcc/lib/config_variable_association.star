@@ -300,6 +300,10 @@ return {
 "OCI_CONTROL_PLANE_MACHINE_TYPE_OCPUS": ["oci"],
 "OCI_CONTROL_PLANE_PV_TRANSIT_ENCRYPTION": ["oci"],
 
+"KUBEVIP_LOADBALANCER_ENABLE": ["vsphere"],
+"KUBEVIP_LOADBALANCER_CIDRs": ["vsphere"],
+"KUBEVIP_LOADBALANCER_IP_RANGES": ["vsphere"],
+
 "PROVIDER_TYPE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "TKG_CLUSTER_ROLE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "TKG_VERSION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
@@ -868,6 +872,10 @@ def get_vsphere_vars():
 
     if data.values["NTP_SERVERS"] != None:
         vars["ntpServers"] = data.values["NTP_SERVERS"].replace(" ", "").split(",")
+    end
+
+    if data.values["KUBEVIP_LOADBALANCER_ENABLE"] != "":
+        vars["kubeVipLoadBalancerProvider"] = True
     end
 
     return vars
