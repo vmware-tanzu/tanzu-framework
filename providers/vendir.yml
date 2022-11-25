@@ -14,7 +14,7 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/community-edition.git
-      ref: 8fa1eddbee7864510faf26e545b01e29ac966be5
+      ref: 639dfcff20d0edfd3a008e8a64018d5725c09ad8
     includePaths:
     - addons/packages/antrea/1.7.1/bundle/config/**/*
     - addons/packages/calico/3.24.1/bundle/config/**/*
