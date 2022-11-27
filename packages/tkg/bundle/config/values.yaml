@@ -16,8 +16,7 @@ frameworkPackage:
     versionConstraints:
     deployment:
       hostNetwork: true
-      nodeSelector:
-        node-role.kubernetes.io/control-plane: ""
+      nodeSelector: null
       tolerations: []
       webhookServerPort: 9443
   tkrServicePackageValues:

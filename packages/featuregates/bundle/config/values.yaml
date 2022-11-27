@@ -3,8 +3,7 @@
 namespace: tkg-system
 deployment:
   hostNetwork: true
-  nodeSelector:
-    node-role.kubernetes.io/control-plane: ""
+  nodeSelector: null
   tolerations: []
   webhookServerPort: 9443
   tlsCipherSuites: "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
