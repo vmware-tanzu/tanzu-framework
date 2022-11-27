@@ -36,8 +36,8 @@ var oraclePopulate = &cobra.Command{
 	Short: "populate public OS Image specified in TKR to private OCI compartment and region",
 	Example: `
 	# Import a public image to the specified OCI compartment and region
-	tanzu kubernetes-release osimage oracle populate --image https://objectstorage.us-sanjose-1.oraclecloud.com/n/axxxxxxxxxx8/b/exported-node-images/o/ubuntu-2004 \
-		--tkr-path projects-stg.registry.vmware.com/tkg/tkr-oci:v1.23.5 --compartment <compartment ocid>`,
+	tanzu kubernetes-release osimage oracle populate --tkr-path projects-stg.registry.vmware.com/tkg/tkr-oci:v1.23.5 \
+		--compartment <compartment ocid>`,
 	Run: ociPopulateCmdInitRun,
 }
 

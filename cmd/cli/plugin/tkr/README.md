@@ -35,18 +35,6 @@ Flags:
   -h, --help   help for get
 ```
 
-## Import your own os image to your cloud infrastructure
-
-Run `tanzu kubernetes-release osimage` to import your own Kubernetes node image to specific cloud infrastructure, and patched TKR
-to consume the imported image. For example,
-
-```sh
-tanzu kubernetes-release osimage oracle populate \
-  --image https://objectstorage.us-sanjose-1.oraclecloud.com/n/axxxxxxxxxx8/b/exported-node-images/o/ubuntu-2004 \
-  --tkr-path gcr.io/my-project-1527816345739/tkg/tkr/tkr-oci:latest \
-  --compartment ocid1.compartment.oc1..aaaaaaaawgxbth6afwfzkxxxxxxxxxxxxxxmrf2ouxqa6ifrfa
-```
-
 ### Sample command and output
 
 ```sh
@@ -54,6 +42,17 @@ tanzu kubernetes-release  available-upgrades get v1.18.6---vmware.1
  NAME                   VERSION
  v1.19.3---vmware.1     v1.19.3+vmware.1-tkg.1
  v1.19.3---vmware.2     v1.19.3+vmware.2-tkg.1
+```
+
+## Import your own os image to your cloud infrastructure
+
+Run `tanzu kubernetes-release osimage` to import your own Kubernetes node image to specific cloud infrastructure, and patched TKR
+to consume the imported image. For example,
+
+```sh
+tanzu kubernetes-release osimage oracle populate \
+  --tkr-path gcr.io/my-project-1527816345739/tkg/tkr/tkr-oci:latest \
+  --compartment ocid1.compartment.oc1..aaaaaaaawgxbth6afwfzkxxxxxxxxxxxxxxmrf2ouxqa6ifrfa
 ```
 
 ## Get supported OS info of a Tanzu Kubernetes release
