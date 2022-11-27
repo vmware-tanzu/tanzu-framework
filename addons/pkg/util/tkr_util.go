@@ -68,18 +68,18 @@ func GetBootstrapPackageNameFromTKR(ctx context.Context, clt client.Client, pkgR
 	// it is expected to have a label corresponding to the TKR name in the cluster object
 	tkrName := GetClusterLabel(cluster.Labels, constants.TKRLabelClassyClusters)
 	if tkrName == "" {
-		return "", "", fmt.Errorf("no '%s' label found in the cluster object", constants.TKRLabelClassyClusters)
+		return "", pkgNamePrefix, fmt.Errorf("no '%s' label found in the cluster object", constants.TKRLabelClassyClusters)
 	}
 
 	// get TKR object associated with the cluster
 	tkr, err := GetTKRByNameV1Alpha3(ctx, clt, tkrName)
 	if err != nil || tkr == nil {
-		return "", "", fmt.Errorf("unable to fetch TKR object '%s'", tkrName)
+		return "", pkgNamePrefix, fmt.Errorf("unable to fetch TKR object '%s'", tkrName)
 	}
 
 	tkrBootstrapPackages := tkr.Spec.BootstrapPackages
 	if len(tkrBootstrapPackages) == 0 {
-		return "", "", errors.New("unable to find any bootstrap packages in the TKR object")
+		return "", pkgNamePrefix, errors.New("unable to find any bootstrap packages in the TKR object")
 	}
 
 	for _, bootstrapPackage := range tkrBootstrapPackages {
@@ -88,5 +88,5 @@ func GetBootstrapPackageNameFromTKR(ctx context.Context, clt client.Client, pkgR
 		}
 	}
 
-	return "", "", fmt.Errorf("no bootstrap package prefixed with '%s' is found in the TKR object", pkgNamePrefix)
+	return "", pkgNamePrefix, fmt.Errorf("no bootstrap package prefixed with '%s' is found in the TKR object", pkgNamePrefix)
 }

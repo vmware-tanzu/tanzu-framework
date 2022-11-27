@@ -1493,6 +1493,34 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						}
 					}, waitTimeout, pollingInterval).Should(Succeed())
 				})
+
+				// barfoo package is not automatically upgraded since its not there in TKr spec.bootstrapPackages. This test case tests if user
+				// can upgrade barfoo package by updating package refname.
+				By("upgrading barfoo package in ClusterBootstrap", func() {
+					cluster := &clusterapiv1beta1.Cluster{}
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+
+					clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+					Expect(err).NotTo(HaveOccurred())
+
+					clusterBootstrapToUpdate := clusterBootstrap.DeepCopy()
+					clusterBootstrapToUpdate.Spec.AdditionalPackages[2].RefName = "barfoo.tanzu.vmware.com.1.0.1--vmware.1-tkg.1"
+					Expect(k8sClient.Patch(ctx, clusterBootstrapToUpdate, client.MergeFrom(clusterBootstrap))).To(Succeed())
+
+					Eventually(func(g Gomega) {
+						updatedClusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), updatedClusterBootstrap)
+						g.Expect(err).NotTo(HaveOccurred())
+						g.Expect(updatedClusterBootstrap.Spec.AdditionalPackages[2].RefName).To(BeEquivalentTo("barfoo.tanzu.vmware.com.1.0.1--vmware.1-tkg.1"))
+
+						pkgInstallName := util.GeneratePackageInstallName(cluster.Name, clusterBootstrap.Spec.AdditionalPackages[2].RefName)
+						pkgInstall := &kapppkgiv1alpha1.PackageInstall{}
+						err = k8sClient.Get(ctx, client.ObjectKey{Name: pkgInstallName, Namespace: constants.TKGSystemNS}, pkgInstall)
+						g.Expect(err).NotTo(HaveOccurred())
+						g.Expect(pkgInstall.Spec.PackageRef.VersionSelection.Constraints).To(BeEquivalentTo("1.0.1+vmware.1-tkg.1"))
+					}, waitTimeout, pollingInterval).Should(Succeed())
+				})
 			})
 		})
 	})

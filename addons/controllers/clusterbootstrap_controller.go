@@ -509,7 +509,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 		// ClusterBootstrap webhook will make sure the package RefName always match the original CNI
 		updatedCNI, cniNamePrefix, err := util.GetBootstrapPackageNameFromTKR(r.context, r.Client, updatedClusterBootstrap.Spec.CNI.RefName, cluster)
 		if err != nil {
-			errorMsg := fmt.Sprintf("unable to find any CNI bootstrap package prefixed with '%s' for ClusterBootstrap %s/%s in TKR", cniNamePrefix, cluster.Name, cluster.Namespace)
+			errorMsg := fmt.Sprintf("unable to find any CNI bootstrap package prefixed with '%s' for ClusterBootstrap %s/%s in TKR", cniNamePrefix, cluster.Namespace, cluster.Name)
 			return nil, errors.Wrap(err, errorMsg)
 		}
 		updatedClusterBootstrap.Spec.CNI.RefName = updatedCNI
@@ -584,7 +584,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 		if _, ok := additionalPackageTemplateMap[additionalPkgRefName]; !ok {
 			additionalPkgFromTKr, additionalPkgNamePrefix, err := util.GetBootstrapPackageNameFromTKR(r.context, r.Client, additionalPkg.RefName, cluster)
 			if err != nil {
-				log.Info(fmt.Sprintf("unable to find any additional bootstrap package prefixed with '%s' for ClusterBootstrap %s/%s in TKR", additionalPkgNamePrefix, cluster.Name, cluster.Namespace))
+				log.Info(fmt.Sprintf("unable to find any additional bootstrap package prefixed with '%s' for ClusterBootstrap %s/%s in TKR", additionalPkgNamePrefix, cluster.Namespace, cluster.Name))
 			} else {
 				additionalPkg.RefName = additionalPkgFromTKr
 			}

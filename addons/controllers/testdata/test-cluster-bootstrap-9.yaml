@@ -905,6 +905,82 @@ spec:
     openAPIv3:
       title: barfoo.tanzu.vmware.com.1.0.0+vmware.1-tkg.1 values schema
 ---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: barfoo.tanzu.vmware.com.1.0.1--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: barfoo.tanzu.vmware.com
+  version: 1.0.1+vmware.1-tkg.1
+  releaseNotes: barfoo 1.0.1 https://github.com/vmware-tanzu/foobar/releases/tag/v1.0.1
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/barfoo:v1.0.1_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: barfoo.tanzu.vmware.com.1.0.1+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: barfoo.tanzu.vmware.com.1.0.1--vmware.1-tkg.1
+  namespace: cluster-namespace-9
+spec:
+  refName: barfoo.tanzu.vmware.com
+  version: 1.0.1+vmware.1-tkg.1
+  releaseNotes: barfoo 1.0.1 https://github.com/vmware-tanzu/foobar/releases/tag/v1.0.1
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/packages/core/barfoo:v1.0.1_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - kbld-config.yaml
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2022-06-21T16:00:43Z"
+  valuesSchema:
+    openAPIv3:
+      title: barfoo.tanzu.vmware.com.1.0.1+vmware.1-tkg.1 values schema
+---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
