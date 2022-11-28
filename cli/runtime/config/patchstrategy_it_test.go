@@ -79,13 +79,9 @@ currentContext:
                 annotation: one
                 required: true
               contextType: tmc
-            - local:
+            - oci:
                 name: test-local
-                bucket: test-bucket2
-                manifestPath: test-manifest-path2
-                annotation: one
-                required: true
-                path: test-local-path
+                image: test-local-image-path
               contextType: tmc
 servers:
     - name: test-mc
@@ -213,9 +209,9 @@ func TestIntegrationWithReplacePatchStrategy(t *testing.T) {
 			ContextType: configapi.CtxTypeTMC,
 		},
 		{
-			Local: &configapi.LocalDiscovery{
-				Name: "test-local",
-				Path: "test-local-path",
+			OCI: &configapi.OCIDiscovery{
+				Name:  "test-local",
+				Image: "test-local-image-path",
 			},
 			ContextType: configapi.CtxTypeTMC,
 		},
