@@ -58,10 +58,10 @@ func init() {
 	deletePluginCmd.Flags().BoolVarP(&forceDelete, "yes", "y", false, "delete the plugin without asking for confirmation")
 
 	if config.IsFeatureActivated(cliconfig.FeatureContextCommand) {
-		installPluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin")
-		upgradePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin")
-		deletePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin")
-		describePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin")
+		installPluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin (kubernetes[k8s]/mission-control[tmc])")
+		upgradePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin (kubernetes[k8s]/mission-control[tmc])")
+		deletePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin (kubernetes[k8s]/mission-control[tmc])")
+		describePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin (kubernetes[k8s]/mission-control[tmc])")
 	}
 
 	command.DeprecateCommand(repoCmd, "")
@@ -118,7 +118,7 @@ var describePluginCmd = &cobra.Command{
 		pluginName := args[0]
 
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			pd, err := pluginmanager.DescribePlugin(pluginName, cliv1alpha1.Target(target))
+			pd, err := pluginmanager.DescribePlugin(pluginName, getTarget())
 			if err != nil {
 				return err
 			}
@@ -171,7 +171,7 @@ var installPluginCmd = &cobra.Command{
 				if err != nil {
 					return err
 				}
-				err = pluginmanager.InstallPluginsFromLocalSource(pluginName, version, cliv1alpha1.Target(target), local, false)
+				err = pluginmanager.InstallPluginsFromLocalSource(pluginName, version, getTarget(), local, false)
 				if err != nil {
 					return err
 				}
@@ -195,13 +195,13 @@ var installPluginCmd = &cobra.Command{
 
 			pluginVersion := version
 			if pluginVersion == cli.VersionLatest {
-				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(pluginName, cliv1alpha1.Target(target))
+				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(pluginName, getTarget())
 				if err != nil {
 					return err
 				}
 			}
 
-			err = pluginmanager.InstallPlugin(pluginName, pluginVersion, cliv1alpha1.Target(target))
+			err = pluginmanager.InstallPlugin(pluginName, pluginVersion, getTarget())
 			if err != nil {
 				return err
 			}
@@ -245,12 +245,12 @@ var upgradePluginCmd = &cobra.Command{
 		pluginName := args[0]
 
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(pluginName, cliv1alpha1.Target(target))
+			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(pluginName, getTarget())
 			if err != nil {
 				return err
 			}
 
-			err = pluginmanager.UpgradePlugin(pluginName, pluginVersion, cliv1alpha1.Target(target))
+			err = pluginmanager.UpgradePlugin(pluginName, pluginVersion, getTarget())
 			if err != nil {
 				return err
 			}
@@ -291,7 +291,7 @@ var deletePluginCmd = &cobra.Command{
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
 			deletePluginOptions := pluginmanager.DeletePluginOptions{
 				PluginName:  pluginName,
-				Target:      cliv1alpha1.Target(target),
+				Target:      getTarget(),
 				ForceDelete: forceDelete,
 			}
 
@@ -451,4 +451,8 @@ func displayPluginListOutputSplitViewContext(availablePlugins []plugin.Discovere
 		addDataToOutputWriter(writer, data)
 		writer.Render()
 	}
+}
+
+func getTarget() cliv1alpha1.Target {
+	return cliv1alpha1.StringToTarget(target)
 }

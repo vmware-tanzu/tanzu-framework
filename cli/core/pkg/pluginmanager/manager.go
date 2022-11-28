@@ -465,7 +465,7 @@ func DescribePlugin(pluginName string, target cliv1alpha1.Target) (desc *cliapi.
 		}
 	}
 
-	return nil, errors.Errorf("unable to uniquely identify plugin '%v'. Please specify Target of the plugin", pluginName)
+	return nil, errors.Errorf("unable to uniquely identify plugin '%v'. Please specify correct Target(kubernetes[k8s]/mission-control[tmc]) of the plugin with `--target` flag", pluginName)
 }
 
 // InitializePlugin initializes the plugin configuration
@@ -513,7 +513,7 @@ func InstallPlugin(pluginName, version string, target cliv1alpha1.Target) error 
 		}
 	}
 
-	return errors.Errorf("unable to uniquely identify plugin '%v'. Please specify Target of the plugin", pluginName)
+	return errors.Errorf("unable to uniquely identify plugin '%v'. Please specify correct Target(kubernetes[k8s]/mission-control[tmc]) of the plugin with `--target` flag", pluginName)
 }
 
 // UpgradePlugin upgrades a plugin from the given repository.
@@ -547,7 +547,7 @@ func GetRecommendedVersionOfPlugin(pluginName string, target cliv1alpha1.Target)
 			return matchedPlugins[i].RecommendedVersion, nil
 		}
 	}
-	return "", errors.Errorf("unable to uniquely identify plugin '%v'. Please specify Target of the plugin", pluginName)
+	return "", errors.Errorf("unable to uniquely identify plugin '%v'. Please specify correct Target(kubernetes[k8s]/mission-control[tmc]) of the plugin with `--target` flag", pluginName)
 }
 
 func installOrUpgradePlugin(p *plugin.Discovered, version string, installTestPlugin bool) error {

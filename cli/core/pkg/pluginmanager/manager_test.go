@@ -31,21 +31,21 @@ var expectedDiscoveredContextPlugins = []plugin.Discovered{
 	{
 		Name:               "cluster",
 		RecommendedVersion: "v1.6.0",
-		Scope:              "Context",
+		Scope:              common.PluginScopeContext,
 		ContextName:        "mgmt",
 		Target:             cliv1alpha1.TargetK8s,
 	},
 	{
 		Name:               "cluster",
 		RecommendedVersion: "v0.2.0",
-		Scope:              "Context",
+		Scope:              common.PluginScopeContext,
 		ContextName:        "tmc-fake",
 		Target:             cliv1alpha1.TargetTMC,
 	},
 	{
 		Name:               "management-cluster",
 		RecommendedVersion: "v0.2.0",
-		Scope:              "Context",
+		Scope:              common.PluginScopeContext,
 		ContextName:        "tmc-fake",
 		Target:             cliv1alpha1.TargetTMC,
 	},
@@ -54,14 +54,14 @@ var expectedDiscoveredStandalonePlugins = []plugin.Discovered{
 	{
 		Name:               "login",
 		RecommendedVersion: "v0.2.0",
-		Scope:              "Standalone",
+		Scope:              common.PluginScopeStandalone,
 		ContextName:        "",
 		Target:             cliv1alpha1.TargetNone,
 	},
 	{
 		Name:               "management-cluster",
 		RecommendedVersion: "v1.6.0",
-		Scope:              "Standalone",
+		Scope:              common.PluginScopeStandalone,
 		ContextName:        "",
 		Target:             cliv1alpha1.TargetK8s,
 	},
@@ -120,7 +120,7 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	// Try installing cluster plugin with no context-type
 	err = InstallPlugin("cluster", "v0.2.0", cliv1alpha1.TargetNone)
 	assertions.NotNil(err)
-	assertions.Contains(err.Error(), "unable to uniquely identify plugin 'cluster'. Please specify Target of the plugin")
+	assertions.Contains(err.Error(), "unable to uniquely identify plugin 'cluster'. Please specify correct Target(kubernetes[k8s]/mission-control[tmc]) of the plugin with `--target` flag")
 
 	// Try installing cluster plugin with context-type=tmc
 	err = InstallPlugin("cluster", "v0.2.0", cliv1alpha1.TargetTMC)
@@ -138,7 +138,7 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	// Try installing management-cluster plugin from standalone discovery without context-type
 	err = InstallPlugin("management-cluster", "v1.6.0", cliv1alpha1.TargetNone)
 	assertions.NotNil(err)
-	assertions.Contains(err.Error(), "unable to uniquely identify plugin 'management-cluster'. Please specify Target of the plugin")
+	assertions.Contains(err.Error(), "unable to uniquely identify plugin 'management-cluster'. Please specify correct Target(kubernetes[k8s]/mission-control[tmc]) of the plugin with `--target` flag")
 
 	// Try installing management-cluster plugin from standalone discovery
 	err = InstallPlugin("management-cluster", "v1.6.0", cliv1alpha1.TargetK8s)
@@ -154,13 +154,13 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 		{
 			Name:    "cluster",
 			Version: "v1.6.0",
-			Scope:   "Context",
+			Scope:   common.PluginScopeContext,
 			Target:  cliv1alpha1.TargetK8s,
 		},
 		{
 			Name:    "cluster",
 			Version: "v0.2.0",
-			Scope:   "Context",
+			Scope:   common.PluginScopeContext,
 			Target:  cliv1alpha1.TargetTMC,
 		},
 	}
@@ -168,13 +168,13 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 		{
 			Name:    "login",
 			Version: "v0.2.0",
-			Scope:   "Standalone",
+			Scope:   common.PluginScopeStandalone,
 			Target:  cliv1alpha1.TargetNone,
 		},
 		{
 			Name:    "management-cluster",
 			Version: "v1.6.0",
-			Scope:   "Standalone",
+			Scope:   common.PluginScopeStandalone,
 			Target:  cliv1alpha1.TargetK8s,
 		},
 	}

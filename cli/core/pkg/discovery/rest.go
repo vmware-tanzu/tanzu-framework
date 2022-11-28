@@ -173,7 +173,7 @@ func DiscoveredFromREST(p *Plugin) (plugin.Discovered, error) {
 		Description:        p.Description,
 		RecommendedVersion: p.RecommendedVersion,
 		Optional:           p.Optional,
-		Target:             p.Target,
+		Target:             cliv1alpha1.StringToTarget(string(p.Target)),
 	}
 	dp.SupportedVersions = make([]string, 0)
 	for v := range p.Artifacts {

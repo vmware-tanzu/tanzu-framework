@@ -124,7 +124,7 @@ func DiscoveredFromK8sV1alpha1(p *cliv1alpha1.CLIPlugin) (plugin.Discovered, err
 		Description:        p.Spec.Description,
 		RecommendedVersion: p.Spec.RecommendedVersion,
 		Optional:           p.Spec.Optional,
-		Target:             p.Spec.Target,
+		Target:             cliv1alpha1.StringToTarget(string(p.Spec.Target)),
 	}
 	dp.SupportedVersions = make([]string, 0)
 	for v := range p.Spec.Artifacts {

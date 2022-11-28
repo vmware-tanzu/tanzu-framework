@@ -67,7 +67,7 @@ func NewRootCmd() (*cobra.Command, error) {
 			cliv1alpha1.TargetK8s: k8sCmd,
 			cliv1alpha1.TargetTMC: tmcCmd,
 		}
-		if err := addPluginsToCtxType(mapCtxTypeToCmd); err != nil {
+		if err := addPluginsToTarget(mapCtxTypeToCmd); err != nil {
 			return nil, err
 		}
 	}
@@ -84,6 +84,8 @@ func NewRootCmd() (*cobra.Command, error) {
 		return nil, fmt.Errorf("failed to copy legacy configuration directory to new location: %w", err)
 	}
 
+	var maskedPlugins []string
+
 	for i := range plugins {
 		// Only add plugins that should be available as root level command
 		if isPluginRootCmdTargeted(&plugins[i]) {
@@ -96,10 +98,17 @@ func NewRootCmd() (*cobra.Command, error) {
 				// If the subcommand already exists but plugin is `Context-Scoped` plugin
 				// then context-scoped plugin gets higher precedence, so, replace the existing command
 				// to point to new command by removing and adding new command.
+				maskedPlugins = append(maskedPlugins, matchedCmd.Name())
 				RootCmd.RemoveCommand(matchedCmd)
 				RootCmd.AddCommand(cmd)
+			} else {
+				maskedPlugins = append(maskedPlugins, plugins[i].Name)
 			}
 		}
+	}
+
+	if len(maskedPlugins) > 0 {
+		fmt.Fprintf(os.Stderr, "Warning, Masking commands for plugins %q because a core command or other plugin with that name already exists. \n", strings.Join(maskedPlugins, ", "))
 	}
 
 	duplicateAliasWarning()
@@ -128,7 +137,7 @@ var tmcCmd = &cobra.Command{
 	},
 }
 
-func addPluginsToCtxType(mapCtxTypeToCmd map[cliv1alpha1.Target]*cobra.Command) error {
+func addPluginsToTarget(mapCtxTypeToCmd map[cliv1alpha1.Target]*cobra.Command) error {
 	installedPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins()
 	if err != nil {
 		return fmt.Errorf("unable to find installed plugins: %w", err)

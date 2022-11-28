@@ -27,4 +27,4 @@ spec:
   description: Configure cluster-wide telemetry settings
   optional: false
   recommendedVersion: #@ data.values.telemetry.version
-  target: k8s
+  target: kubernetes
