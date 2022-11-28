@@ -273,6 +273,11 @@ spec:
       openAPIV3Schema:
         type: object
         properties: {}
+  - name: controlPlaneCertificateRotationBefore
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: integer
   patches:
   - name: AWSCT_main
     definitions:
@@ -1066,6 +1071,19 @@ spec:
               - level: Metadata
                 omitStages:
                   - "RequestReceived"
+  - name: kcptCertificateRotation
+    enabledIf: '{{ not (empty .controlPlaneCertificateRotationBefore) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/rolloutBefore/certificatesExpiryDays
+        valueFrom:
+          variable: controlPlaneCertificateRotationBefore
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSClusterTemplate

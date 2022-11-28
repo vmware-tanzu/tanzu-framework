@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apitypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
@@ -549,7 +550,8 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		regionalClusterK8sVersion string
 		currentClusterK8sVersion  string
 
-		vcClient *fakes.VCClient
+		vcClient          *fakes.VCClient
+		fakeClusterClient *fakes.ClusterClient
 	)
 
 	getDiscoveryClient := func(k8sVersion string) *fakediscovery.FakeDiscovery {
@@ -573,6 +575,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 
 	configureTKGClient := func() {
 		vcClient = &fakes.VCClient{}
+		fakeClusterClient = &fakes.ClusterClient{}
 		vcClient.GetAndValidateVirtualMachineTemplateReturns(&types.VSphereVirtualMachine{}, nil)
 
 		kubeconfig = fakehelper.GetFakeKubeConfigFilePath(testingDir, "../fakes/config/kubeconfig/config1.yaml")
@@ -707,51 +710,72 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		// 	})
 		// })
 
-		// var _ = Describe("Test PatchKubernetesVersionToKubeadmControlPlane", func() {
-		// 	Context("Testing EtcdExtraArgs parameter configuration", func() {
-		// 		It("when EtcdExtraArgs is defined", func() {
-		// 			clusterUpgradeConfig := &ClusterUpgradeInfo{
-		// 				ClusterName:      "cluster-1",
-		// 				ClusterNamespace: constants.DefaultNamespace,
-		// 				UpgradeComponentInfo: ComponentInfo{
-		// 					EtcdExtraArgs:     map[string]string{"fake-arg": "fake-arg-value"},
-		// 					KubernetesVersion: "v1.18.0+vmware.2",
-		// 				},
-		// 				ActualComponentInfo: ComponentInfo{
-		// 					KubernetesVersion: "v1.18.0+vmware.1",
-		// 				},
-		// 			}
-		// 			err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
-		// 			Expect(err).To(BeNil())
+		var _ = Describe("Test PatchKubernetesVersionToKubeadmControlPlane", func() {
+			Context("Testing EtcdExtraArgs parameter configuration", func() {
+				It("when EtcdExtraArgs is defined", func() {
+					clusterUpgradeConfig := &ClusterUpgradeInfo{
+						ClusterName:        "cluster-1",
+						ClusterNamespace:   constants.DefaultNamespace,
+						KCPObjectName:      "fake-name",
+						KCPObjectNamespace: "fake-namespace",
+						UpgradeComponentInfo: ComponentInfo{
+							EtcdExtraArgs:     map[string]string{"fake-arg": "fake-arg-value"},
+							KubernetesVersion: "v1.18.0+vmware.2",
+						},
+						ActualComponentInfo: ComponentInfo{
+							KubernetesVersion: "v1.18.0+vmware.1",
+						},
+					}
+					fakeClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindVSphereMachineTemplate), nil)
 
-		// 			updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
-		// 			Expect(err).To(BeNil())
-		// 			Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
-		// 			Expect(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs["fake-arg"]).To(Equal("fake-arg-value"))
-		// 		})
+					err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(fakeClusterClient, clusterUpgradeConfig)
+					Expect(err).To(BeNil())
 
-		// 		It("when EtcdExtraArgs is empty", func() {
-		// 			clusterUpgradeConfig := &ClusterUpgradeInfo{
-		// 				ClusterName:      "cluster-1",
-		// 				ClusterNamespace: constants.DefaultNamespace,
-		// 				UpgradeComponentInfo: ComponentInfo{
-		// 					EtcdExtraArgs:     map[string]string{},
-		// 					KubernetesVersion: "v1.18.0+vmware.2",
-		// 				},
-		// 				ActualComponentInfo: ComponentInfo{
-		// 					KubernetesVersion: "v1.18.0+vmware.1",
-		// 				},
-		// 			}
-		// 			err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
-		// 			Expect(err).To(BeNil())
+					Expect(fakeClusterClient.GetKCPObjectForClusterCallCount()).To(Equal(1))
+					cname, cspace := fakeClusterClient.GetKCPObjectForClusterArgsForCall(0)
+					Expect(cname).To(Equal("cluster-1"))
+					Expect(cspace).To(Equal(constants.DefaultNamespace))
 
-		// 			updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
-		// 			Expect(err).To(BeNil())
-		// 			Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
-		// 			Expect(len(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs)).To(Equal(0))
-		// 		})
-		// 	})
-		// })
+					Expect(fakeClusterClient.PatchResourceCallCount()).To(Equal(1))
+					_, getCName, getCSpace, gotPatch, gotPatchType, _ := fakeClusterClient.PatchResourceArgsForCall(0)
+					Expect(getCName).To(Equal("fake-name"))
+					Expect(getCSpace).To(Equal("fake-namespace"))
+					Expect(gotPatch).To(ContainSubstring("\"extraArgs\":{\"fake-arg\":\"fake-arg-value\"}"))
+					Expect(gotPatchType).To(Equal(apitypes.MergePatchType))
+				})
+
+				It("when EtcdExtraArgs is empty", func() {
+					clusterUpgradeConfig := &ClusterUpgradeInfo{
+						ClusterName:        "cluster-1",
+						ClusterNamespace:   constants.DefaultNamespace,
+						KCPObjectName:      "fake-name",
+						KCPObjectNamespace: "fake-namespace",
+						UpgradeComponentInfo: ComponentInfo{
+							EtcdExtraArgs:     map[string]string{},
+							KubernetesVersion: "v1.18.0+vmware.2",
+						},
+						ActualComponentInfo: ComponentInfo{
+							KubernetesVersion: "v1.18.0+vmware.1",
+						},
+					}
+					fakeClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindVSphereMachineTemplate), nil)
+					err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(fakeClusterClient, clusterUpgradeConfig)
+					Expect(err).To(BeNil())
+
+					Expect(fakeClusterClient.GetKCPObjectForClusterCallCount()).To(Equal(1))
+					cname, cspace := fakeClusterClient.GetKCPObjectForClusterArgsForCall(0)
+					Expect(cname).To(Equal("cluster-1"))
+					Expect(cspace).To(Equal(constants.DefaultNamespace))
+
+					Expect(fakeClusterClient.PatchResourceCallCount()).To(Equal(1))
+					_, getCName, getCSpace, gotPatch, gotPatchType, _ := fakeClusterClient.PatchResourceArgsForCall(0)
+					Expect(getCName).To(Equal("fake-name"))
+					Expect(getCSpace).To(Equal("fake-namespace"))
+					Expect(gotPatch).ToNot(ContainSubstring("extraArgs"))
+					Expect(gotPatchType).To(Equal(apitypes.MergePatchType))
+				})
+			})
+		})
 
 		var _ = Describe("Test helper functions", func() {
 			Context("Testing the kube-vip modifier helper function", func() {

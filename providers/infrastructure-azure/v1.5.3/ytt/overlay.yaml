@@ -220,7 +220,7 @@ spec:
   rolloutBefore:
     #@overlay/match missing_ok=True
     certificatesExpiryDays:  #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE
-  #@ end  
+  #@ end
   version: #@ data.values.KUBERNETES_VERSION
 
 #@overlay/match by=overlay.subset({"kind": "AzureMachineTemplate", "metadata":{"name": "${CLUSTER_NAME}-control-plane"}})

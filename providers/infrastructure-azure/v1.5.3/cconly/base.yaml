@@ -340,9 +340,6 @@ spec:
     schema:
       openAPIV3Schema:
         type: integer
-        #@ if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE:
-        default: #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE
-        #@ end
   patches:
   - name: AzureClusterCustomTags
     enabledIf: '{{ not (empty .customTags) }}'

@@ -495,9 +495,6 @@ spec:
     schema:
       openAPIV3Schema:
         type: integer
-        #@ if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE:
-        default: #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE
-        #@ end
   - name: identityRef
     required: false
     schema:
@@ -1564,7 +1561,7 @@ spec:
       - op: add
         path: /spec/template/spec/rolloutBefore/certificatesExpiryDays
         valueFrom:
-          variable: controlPlaneCertificateRotationBefore  
+          variable: controlPlaneCertificateRotationBefore
   - name: windows
     definitions:
     - selector:

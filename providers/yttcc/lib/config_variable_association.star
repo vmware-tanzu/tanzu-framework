@@ -585,6 +585,9 @@ def get_aws_vars():
 
     vars["controlPlane"] = controlPlane
 
+    if data.values["CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE"]:
+        vars["controlPlaneCertificateRotationBefore"] = data.values["CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE"]
+
     return vars
 end
 

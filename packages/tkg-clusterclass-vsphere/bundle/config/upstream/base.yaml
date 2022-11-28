@@ -490,6 +490,11 @@ spec:
       openAPIV3Schema:
         type: boolean
         default: true
+  - name: controlPlaneCertificateRotationBefore
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: integer
   - name: identityRef
     required: false
     schema:
@@ -1544,6 +1549,19 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/taints
         value: []
+  - name: kcptCertificateRotation
+    enabledIf: '{{ not (empty .controlPlaneCertificateRotationBefore) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/rolloutBefore/certificatesExpiryDays
+        valueFrom:
+          variable: controlPlaneCertificateRotationBefore
   - name: windows
     definitions:
     - selector:
