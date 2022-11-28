@@ -247,5 +247,5 @@ func PluginNameTarget(pluginName string, target cliv1alpha1.Target) string {
 	if target == "" {
 		return pluginName
 	}
-	return fmt.Sprintf("%s-%s", pluginName, target)
+	return fmt.Sprintf("%s_%s", pluginName, target)
 }
