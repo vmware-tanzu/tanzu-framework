@@ -733,6 +733,10 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return err
 	}
 
+	if err = c.ValidateKubeVipLBConfiguration(TkgLabelClusterRoleWorkload); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	return c.ValidateSupportOfK8sVersionForManagmentCluster(clusterClient, options.KubernetesVersion, skipValidation)
 }
 
@@ -881,6 +885,29 @@ func (c *TkgClient) ValidateManagementClusterVersionWithCLI(regionalClusterClien
 	if curMCSemVersion.Major() != defaultTKGSemVersion.Major() ||
 		curMCSemVersion.Minor() != defaultTKGSemVersion.Minor() {
 		return errors.Errorf("version mismatch between management cluster and cli version. Please upgrade your management cluster to the latest to continue")
+	}
+
+	return nil
+}
+
+// ValidateKubeVipLBConfiguration validates the configuration inputs of Kubevip Loadbalancer related variables
+func (c *TkgClient) ValidateKubeVipLBConfiguration(clusterRole string) error {
+	kvlbEnabled, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableKubevipLoadbalancerEnable)
+	kblbCIDRs, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableKubevipLoadbalancerCIDRs)
+	kvlbIPRanges, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableKubevipLoadbalancerIPRanges)
+
+	// ignoring error because AVI_ENABLE is an optional configuration
+	if kvlbEnabled == "" || kvlbEnabled == "false" {
+		if kblbCIDRs != "" || kvlbIPRanges != "" {
+			return errors.Errorf("%s is disabled but %s or %s is not empty", constants.ConfigVariableKubevipLoadbalancerEnable, constants.ConfigVariableKubevipLoadbalancerCIDRs, constants.ConfigVariableKubevipLoadbalancerIPRanges)
+		}
+		return nil
+	}
+	if clusterRole == TkgLabelClusterRoleManagement {
+		return errors.Errorf("%s is enabled but kubevip loadbalancer is not supported on management cluster so far", constants.ConfigVariableKubevipLoadbalancerEnable)
+	}
+	if kblbCIDRs == "" && kvlbIPRanges == "" {
+		return errors.Errorf("%s is enabled, either %s or %s has to be set", constants.ConfigVariableKubevipLoadbalancerEnable, constants.ConfigVariableKubevipLoadbalancerCIDRs, constants.ConfigVariableKubevipLoadbalancerIPRanges)
 	}
 
 	return nil

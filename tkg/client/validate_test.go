@@ -1485,6 +1485,136 @@ var _ = Describe("Validate", func() {
 			})
 		})
 
+		Context("Kubevip Loadbalancer validation", func() {
+			var (
+				clusterRole string
+			)
+			Context("when creating management cluster", func() {
+				BeforeEach(func() {
+					clusterRole = client.TkgLabelClusterRoleManagement
+				})
+
+				Context("kubevip loadbalancer enable is true", func() {
+					BeforeEach(func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerEnable, "true")
+					})
+					It("returns an error", func() {
+						validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+						Expect(validationError).To(HaveOccurred())
+						Expect(validationError.Error()).To(ContainSubstring("is enabled but kubevip loadbalancer is not supported on management cluster so far"))
+					})
+				})
+
+				Context("kubevip loadbalancer enable is false", func() {
+					Context("ip range is set", func() {
+						BeforeEach(func() {
+							tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerIPRanges, "10.0.0.1-10.0.0.2")
+						})
+						It("returns an error", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("is disabled but"))
+						})
+					})
+					Context("cidrs is set", func() {
+						BeforeEach(func() {
+							tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerCIDRs, "10.0.0.1/24")
+						})
+						It("returns an error", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("is disabled but"))
+						})
+					})
+					Context("cidrs and ip range are not set", func() {
+						It("pass", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+
+				})
+			})
+
+			Context("when creating workload cluster", func() {
+				BeforeEach(func() {
+					clusterRole = client.TkgLabelClusterRoleWorkload
+				})
+
+				Context("kubevip loadbalancer enable is true", func() {
+					BeforeEach(func() {
+						tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerEnable, "true")
+					})
+					Context("neither cidr or ip range are set", func() {
+						It("returns an error", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("is enabled, either"))
+						})
+					})
+					Context("cidr is set", func() {
+						BeforeEach(func() {
+							tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerCIDRs, "10.0.0.1/24")
+						})
+						It("returns an error", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+					Context("ip range is set", func() {
+						BeforeEach(func() {
+							tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerIPRanges, "10.0.0.1-10.0.0.2")
+						})
+						It("returns an error", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+
+					Context("ip range and cird are set", func() {
+						BeforeEach(func() {
+							tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerCIDRs, "10.0.0.1/24")
+							tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerIPRanges, "10.0.0.1-10.0.0.2")
+						})
+						It("returns an error", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+				})
+
+				Context("kubevip loadbalancer enable is false", func() {
+					Context("ip range is set", func() {
+						BeforeEach(func() {
+							tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerIPRanges, "10.0.0.1-10.0.0.2")
+						})
+						It("returns an error", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("is disabled but"))
+						})
+					})
+					Context("cidrs is set", func() {
+						BeforeEach(func() {
+							tkgConfigReaderWriter.Set(constants.ConfigVariableKubevipLoadbalancerCIDRs, "10.0.0.1/24")
+						})
+						It("returns an error", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).To(HaveOccurred())
+							Expect(validationError.Error()).To(ContainSubstring("is disabled but"))
+						})
+					})
+					Context("cidrs and ip range are not set", func() {
+						It("pass", func() {
+							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
+							Expect(validationError).NotTo(HaveOccurred())
+						})
+					})
+
+				})
+			})
+		})
+
 		DescribeTable("SERVICE_CIDR size validation - invalid cases", func(ipFamily, serviceCIDR, problematicCIDR, netmaskSizeConstraint string) {
 			tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, ipFamily)
 			tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, serviceCIDR)

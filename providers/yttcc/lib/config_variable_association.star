@@ -874,7 +874,7 @@ def get_vsphere_vars():
         vars["ntpServers"] = data.values["NTP_SERVERS"].replace(" ", "").split(",")
     end
 
-    if data.values["KUBEVIP_LOADBALANCER_ENABLE"] != "":
+    if data.values["KUBEVIP_LOADBALANCER_ENABLE"] == "True":
         vars["kubeVipLoadBalancerProvider"] = True
     end
 
