@@ -528,34 +528,39 @@ func Test_DeletePlugin(t *testing.T) {
 	defer setupLocalDistoForTesting()()
 
 	// Try to delete plugin when plugin is not installed
-	loginPlugin := DeletePluginOptions{
-		PluginName:  "login",
-		Target:      cliv1alpha1.TargetNone,
-		ForceDelete: true,
-	}
-	err := DeletePlugin(loginPlugin)
+	err := DeletePlugin(DeletePluginOptions{PluginName: "login", Target: cliv1alpha1.TargetNone, ForceDelete: true})
 	assertions.NotNil(err)
-	assertions.Contains(err.Error(), "could not get plugin path for plugin \"login\"")
+	assertions.Contains(err.Error(), "unable to find plugin 'login'")
 
 	// Install login (standalone) package
 	mockInstallPlugin(assertions, "login", "v0.2.0", cliv1alpha1.TargetNone)
 
 	// Try to delete plugin when plugin is installed
-	clusterPlugin := DeletePluginOptions{
-		PluginName:  "cluster",
-		Target:      cliv1alpha1.TargetTMC,
-		ForceDelete: true,
-	}
-	err = DeletePlugin(clusterPlugin)
+	err = DeletePlugin(DeletePluginOptions{PluginName: "cluster", Target: cliv1alpha1.TargetTMC, ForceDelete: true})
 	assertions.NotNil(err)
-	assertions.Contains(err.Error(), "could not get plugin path for plugin \"cluster\"")
+	assertions.Contains(err.Error(), "unable to find plugin 'cluster'")
 
-	// Install cluster (context) package
+	// Install cluster (context) package from TMC target
 	mockInstallPlugin(assertions, "cluster", "v0.2.0", cliv1alpha1.TargetTMC)
 
-	// Try to describe plugin when plugin after installing plugin
-	err = DeletePlugin(clusterPlugin)
+	// Try to Delete plugin after installing plugin
+	err = DeletePlugin(DeletePluginOptions{PluginName: "cluster", Target: cliv1alpha1.TargetTMC, ForceDelete: true})
 	assertions.Nil(err)
+
+	// Install cluster (context) package from TMC target
+	mockInstallPlugin(assertions, "cluster", "v0.2.0", cliv1alpha1.TargetTMC)
+
+	// Try to Delete plugin after installing plugin
+	err = DeletePlugin(DeletePluginOptions{PluginName: "cluster", Target: "", ForceDelete: true})
+	assertions.Nil(err)
+
+	// Install cluster (context) package from TMC target
+	mockInstallPlugin(assertions, "cluster", "v0.2.0", cliv1alpha1.TargetTMC)
+	// Install cluster (context) package from k8s target
+	mockInstallPlugin(assertions, "cluster", "v1.6.0", cliv1alpha1.TargetK8s)
+	// Try to Delete plugin without passing target after installing plugin with different targets
+	err = DeletePlugin(DeletePluginOptions{PluginName: "cluster", Target: "", ForceDelete: true})
+	assertions.Contains(err.Error(), "unable to uniquely identify plugin 'cluster'. Please specify correct Target(kubernetes[k8s]/mission-control[tmc]) of the plugin with `--target` flag")
 }
 
 func Test_ValidatePlugin(t *testing.T) {

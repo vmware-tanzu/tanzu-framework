@@ -670,24 +670,34 @@ func DeletePlugin(options DeletePluginOptions) error {
 		return err
 	}
 
+	var matchedPluginDescriptor cliapi.PluginDescriptor
+	var matchedPluginCatalog *catalog.ContextCatalog
+	matchedPluginCount := 0
+
 	// Add empty serverName for standalone plugins
 	serverNames = append(serverNames, "")
-	var catalogContainingPlugin *catalog.ContextCatalog
 
 	for _, serverName := range serverNames {
 		c, err := catalog.NewContextCatalog(serverName)
 		if err != nil {
 			continue
 		}
-		_, ok := c.Get(catalog.PluginNameTarget(options.PluginName, options.Target))
-		if ok {
-			catalogContainingPlugin = c
-			break
+
+		pds := c.List()
+		for i := range pds {
+			if pds[i].Name == options.PluginName && (options.Target == "" || options.Target == pds[i].Target) {
+				matchedPluginDescriptor = pds[i]
+				matchedPluginCatalog = c
+				matchedPluginCount++
+			}
 		}
 	}
 
-	if catalogContainingPlugin == nil {
-		return fmt.Errorf("could not get plugin path for plugin %q", options.PluginName)
+	if matchedPluginCount == 0 {
+		return errors.Errorf("unable to find plugin '%v'", options.PluginName)
+	}
+	if matchedPluginCount > 1 {
+		return errors.Errorf("unable to uniquely identify plugin '%v'. Please specify correct Target(kubernetes[k8s]/mission-control[tmc]) of the plugin with `--target` flag", options.PluginName)
 	}
 
 	if !options.ForceDelete {
@@ -695,7 +705,7 @@ func DeletePlugin(options DeletePluginOptions) error {
 			return err
 		}
 	}
-	err = catalogContainingPlugin.Delete(catalog.PluginNameTarget(options.PluginName, options.Target))
+	err = matchedPluginCatalog.Delete(catalog.PluginNameTarget(matchedPluginDescriptor.Name, matchedPluginDescriptor.Target))
 	if err != nil {
 		return fmt.Errorf("plugin %q could not be deleted from cache", options.PluginName)
 	}
