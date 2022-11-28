@@ -50,6 +50,9 @@ const (
 	// CSIDefaultRefName is default refname for vsphere-csi addon
 	CSIDefaultRefName = CSIAddonName + ".tanzu.vmware.com"
 
+	// AzureDiskCSIAddonName is name of the azure-disk-csi addon
+	AzureDiskCSIAddonName = "azuredisk-csi"
+
 	// AwsEbsCSIAddonName is name of the aws-ebs-csi addon
 	AwsEbsCSIAddonName = "aws-ebs-csi"
 	// AzureFileCSIAddonName is name of the azurefile-csi addon
@@ -61,8 +64,15 @@ const (
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
+	// TKGBomNamespaceClassyClusters is the TKG add on BOM namespace for ClusterClass or
+	// ClusterClass capable management clusters.
+	TKGBomNamespaceClassyClusters = "tkg-system"
+
 	// TKRLabel is the TKR label.
 	TKRLabel = "tanzuKubernetesRelease"
+
+	// TKGVersionLabel is the TKG version label.
+	TKGVersionLabel = "tkg.tanzu.vmware.com/version"
 
 	// TKRLabelClassyClusters is the TKR label for the clusters created using cluster-class
 	TKRLabelClassyClusters = "run.tanzu.vmware.com/tkr"
@@ -73,8 +83,29 @@ const (
 	// TKGAnnotationTemplateConfig is the TKG annotation for addon config CRs used by ClusterBootstrapTemplate
 	TKGAnnotationTemplateConfig = "tkg.tanzu.vmware.com/template-config"
 
+	// TKRBomContent is the TKR BOM content.
+	TKRBomContent = "bomContent"
+
 	// TKGBomContent is the TKG BOM content.
-	TKGBomContent = "bomContent"
+	TKGBomContent = "bom.yaml"
+
+	// ClusterMetadataNamespace is the namespace for ClusterMetadata
+	ClusterMetadataNamespace = "tkg-system-public"
+
+	// TkgBomConfigMapName is the name of TkgBomConfigMap
+	TkgBomConfigMapName = "tkg-bom"
+
+	// TkgMetadataConfigMapName is the name of TkgMetadataConfigMap
+	TkgMetadataConfigMapName = "tkg-metadata"
+
+	// ClusterMetadataNamespaceRoleName is the role name of ClusterMetadata
+	ClusterMetadataNamespaceRoleName = "tkg-metadata-reader"
+
+	// ClusterMetadataRolebindingSubjectName is the subjectName of ClusterMetadataRolebinding
+	ClusterMetadataRolebindingSubjectName = "system:authenticated"
+
+	// TKGCompatibility is the TKG compatibility content.
+	TKGCompatibility = "compatibility"
 
 	// TKRConfigmapName is the name of TKR config map
 	TKRConfigmapName = "tkr-controller-config"
@@ -179,6 +210,9 @@ const (
 
 	// TKGSystemNS is the TKG system namespace.
 	TKGSystemNS = "tkg-system"
+
+	// TKGbomMetadataConfigmapName is the confimap of bom-metadata
+	TKGbomMetadataConfigmapName = "bom-metadata"
 
 	// DiscoveryCacheInvalidateInterval is the interval for invalidating cache
 	DiscoveryCacheInvalidateInterval = time.Minute * 10
@@ -314,6 +348,14 @@ const (
 
 	// CAPVClusterSelectorKey is the selector key used by capv
 	CAPVClusterSelectorKey = "capv.vmware.com/cluster.name"
+
+	// KindTanzuKubernetesCluster is the owner name of cluster
+	KindTanzuKubernetesCluster = "TanzuKubernetesCluster"
+
+	// SkipDeletePackageInstallAnnotation is the annotation that contains a list of comma separated packageInstalls to skip
+	// for example
+	// "run.tanzu.vmware.com/skip-packageinstall-deletion": "vsphere-cpi,antrea,load-balancer-and-ingress-service"
+	SkipDeletePackageInstallAnnotation = "run.tanzu.vmware.com/skip-packageinstall-deletion"
 )
 
 var (
@@ -346,4 +388,7 @@ var (
 
 	// KubevipCPIConfigKind is the Kind for KubevipCPIConfigConfig object
 	KubevipCPIConfigKind = reflect.TypeOf(cpiv1alpha1.KubevipCPIConfig{}).Name()
+
+	// AzureDiskCSIConfigKind is the Kind for AzureDiskCSIConfig object
+	AzureDiskCSIConfigKind = reflect.TypeOf(csiv1alpha1.AzureDiskCSIConfig{}).Name()
 )

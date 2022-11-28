@@ -41,21 +41,31 @@ func GetVariable(cluster *clusterv1.Cluster, name string, value interface{}) err
 // SetMDVariable sets the variable for the given machineDeployment, overriding it if necessary, to the given value.
 // Pre-reqs: cluster.Spec.Topology != nil && cluster.Spec.Topology.Workers != nil
 func SetMDVariable(cluster *clusterv1.Cluster, mdIndex int, name string, value interface{}) error {
-	jsonValue, err := jsonValue(value)
+	jsonVal, err := jsonValue(value)
 	if err != nil {
 		return err
 	}
 
+	var varDefault *apiextensionsv1.JSON
+	switch reflect.TypeOf(value).Kind() {
+	case reflect.Slice:
+		varDefault, _ = jsonValue([]interface{}{})
+	case reflect.Map:
+		varDefault, _ = jsonValue(map[string]interface{}{})
+	default:
+		varDefault = &apiextensionsv1.JSON{}
+	}
+
 	md := &cluster.Spec.Topology.Workers.MachineDeployments[mdIndex]
 
-	cVar := ensureClusterVariableForName(cluster, name)
-	if reflect.DeepEqual(*jsonValue, cVar.Value) { // if cluster variable with the same name already has the value being set
+	cVar := ensureClusterVariableForNameDefault(cluster, name, varDefault)
+	if reflect.DeepEqual(*jsonVal, cVar.Value) { // if cluster variable with the same name already has the value being set
 		removeMDVariableForName(md, name) // make sure the machineDeployment override is not set
 		return nil
 	}
 
 	mdVar := ensureMDVariableForName(md, name)
-	mdVar.Value = *jsonValue
+	mdVar.Value = *jsonVal
 	return nil
 }
 
@@ -114,13 +124,17 @@ func clusterVariableForName(cluster *clusterv1.Cluster, name string) *clusterv1.
 // ensureClusterVariableForName finds or creates in the cluster the *ClusterVariable for the given name.
 // Pre-reqs: cluster.Spec.Topology != nil
 func ensureClusterVariableForName(cluster *clusterv1.Cluster, name string) *clusterv1.ClusterVariable {
+	return ensureClusterVariableForNameDefault(cluster, name, &apiextensionsv1.JSON{})
+}
+
+func ensureClusterVariableForNameDefault(cluster *clusterv1.Cluster, name string, v *apiextensionsv1.JSON) *clusterv1.ClusterVariable {
 	for i := range cluster.Spec.Topology.Variables {
 		v := &cluster.Spec.Topology.Variables[i]
 		if v.Name == name {
 			return v
 		}
 	}
-	cluster.Spec.Topology.Variables = append(cluster.Spec.Topology.Variables, clusterv1.ClusterVariable{Name: name})
+	cluster.Spec.Topology.Variables = append(cluster.Spec.Topology.Variables, clusterv1.ClusterVariable{Name: name, Value: *v})
 	return &cluster.Spec.Topology.Variables[len(cluster.Spec.Topology.Variables)-1]
 }
 

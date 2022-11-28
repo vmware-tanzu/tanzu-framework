@@ -4,13 +4,21 @@
 package client_test
 
 import (
+	"context"
 	"os"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/rand"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
@@ -209,6 +217,78 @@ var _ = Describe("Unit test for GetAddonsManagerPackageversion", func() {
 
 })
 
+var _ = Describe("RemoveObsoleteManagementComponents()", func() {
+	var (
+		clusterClient *fakes.ClusterClient
+		fakeClient    client.Client
+		objects       []client.Object
+	)
+
+	JustBeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+	})
+
+	When("there is stuff to clean up", func() {
+		BeforeEach(func() {
+			objects = []client.Object{
+				&unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "addons.cluster.x-k8s.io/v1beta1",
+						"kind":       "ClusterResourceSet",
+						"metadata": map[string]interface{}{
+							"namespace": constants.TkrNamespace,
+							"name":      rand.String(10),
+						},
+					},
+				},
+				&unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "apps/v1",
+						"kind":       "Deployment",
+						"metadata": map[string]interface{}{
+							"namespace": constants.TkrNamespace,
+							"name":      constants.TkrControllerDeploymentName,
+						},
+					},
+				},
+			}
+		})
+
+		JustBeforeEach(func() {
+			clusterClient.ListResourcesStub = func(o interface{}, listOptions ...client.ListOption) error {
+				return fakeClient.List(context.Background(), o.(client.ObjectList), listOptions...)
+			}
+			clusterClient.DeleteResourceStub = func(o interface{}) error {
+				return fakeClient.Delete(context.Background(), o.(client.Object))
+			}
+		})
+
+		It("should clean it up", func() {
+			deployment := &unstructured.Unstructured{
+				Object: map[string]interface{}{
+					"apiVersion": "apps/v1",
+					"kind":       "Deployment",
+				},
+			}
+
+			Expect(fakeClient.Get(context.Background(), types.NamespacedName{
+				Namespace: constants.TkrNamespace,
+				Name:      constants.TkrControllerDeploymentName,
+			}, deployment)).To(Succeed())
+
+			Expect(RemoveObsoleteManagementComponents(clusterClient)).To(Succeed())
+
+			err := fakeClient.Get(context.Background(), types.NamespacedName{
+				Namespace: constants.TkrNamespace,
+				Name:      constants.TkrControllerDeploymentName,
+			}, deployment)
+			Expect(err).To(HaveOccurred())
+			Expect(apierrors.IsNotFound(err)).To(BeTrue())
+		})
+	})
+})
+
 func writeConfigFileData(configconfigFileData string) string {
 	tmpFile, _ := utils.CreateTempFile("", "")
 	_ = utils.WriteToFile(tmpFile, []byte(configconfigFileData))
@@ -219,3 +299,51 @@ func readFileData(filePath string) (string, error) {
 	data, err := os.ReadFile(filePath)
 	return string(data), err
 }
+
+var _ = Describe("Unit tests for processAKOPackageInstallFile", func() {
+	var (
+		err                            error
+		inputDataValuesFile            string
+		processedAKOPackageInstallFile string
+		outputAKOPackageInstallFile    string
+		akoDir                         string
+		AKOPackageInstallTemplateDir   = "../../providers/ako"
+	)
+
+	validateResult := func() {
+		Expect(err).NotTo(HaveOccurred())
+		Expect(processedAKOPackageInstallFile).NotTo(BeEmpty())
+		filedata1, err := readFileData(processedAKOPackageInstallFile)
+		Expect(err).NotTo(HaveOccurred())
+		filedata2, err := readFileData(outputAKOPackageInstallFile)
+		Expect(err).NotTo(HaveOccurred())
+		if strings.Compare(filedata1, filedata2) != 0 {
+			log.Infof("Processed Output: %v\n", filedata1)
+			log.Infof("Expected  Output: %v\n", filedata2)
+		}
+		Expect(filedata1).To(Equal(filedata2))
+	}
+
+	JustBeforeEach(func() {
+		processedAKOPackageInstallFile, err = ProcessAKOPackageInstallFile(AKOPackageInstallTemplateDir, inputDataValuesFile)
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	AfterEach(func() {
+		// Remove intermediate config files if err is empty
+		if err == nil {
+			os.RemoveAll(akoDir)
+		}
+	})
+
+	Context("When cluster_name is inside user's config are defined by user", func() {
+		BeforeEach(func() {
+			inputDataValuesFile = "test/ako-packageinstall/testcase1/uservalues.yaml"
+			outputAKOPackageInstallFile = "test/ako-packageinstall/testcase1/output.yaml"
+		})
+		It("should match the output file", func() {
+			validateResult()
+		})
+	})
+
+})

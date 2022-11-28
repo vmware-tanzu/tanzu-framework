@@ -5,22 +5,23 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
-  name: tkg-aws-default
+  name: #@ "tkg-aws-default-{}".format(data.values.AWS_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
-    identifier.cc.vmware.com: tanzu-aws-default-0.0.2
 spec:
   controlPlane:
     ref:
       apiVersion: controlplane.cluster.x-k8s.io/v1beta1
       kind: KubeadmControlPlaneTemplate
-      name: tkg-aws-kcp
+      name: #@ "tkg-aws-default-{}-kcp".format(data.values.AWS_CLUSTER_CLASS_VERSION)
+      namespace: #@ data.values.NAMESPACE
     machineInfrastructure:
       ref:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
         kind: AWSMachineTemplate
-        name: tkg-aws-controlplane-template
+        name: #@ "tkg-aws-default-{}-control-plane".format(data.values.AWS_CLUSTER_CLASS_VERSION)
+        namespace: #@ data.values.NAMESPACE
   workers:
     machineDeployments:
     - class: tkg-worker
@@ -29,17 +30,20 @@ spec:
           ref:
             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
             kind: KubeadmConfigTemplate
-            name: tkg-aws-bootstrap-template
+            name: #@ "tkg-aws-default-{}-md-config".format(data.values.AWS_CLUSTER_CLASS_VERSION)
+            namespace: #@ data.values.NAMESPACE
         infrastructure:
           ref:
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
             kind: AWSMachineTemplate
-            name: tkg-aws-worker-template
+            name: #@ "tkg-aws-default-{}-worker".format(data.values.AWS_CLUSTER_CLASS_VERSION)
+            namespace: #@ data.values.NAMESPACE
   infrastructure:
     ref:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
       kind: AWSClusterTemplate
-      name: aws-cluster-template
+      name: #@ "tkg-aws-default-{}-cluster".format(data.values.AWS_CLUSTER_CLASS_VERSION)
+      namespace: #@ data.values.NAMESPACE
   variables:
   - name: region
     required: true
@@ -182,6 +186,16 @@ spec:
                 #@ else:
                 default: 80
                 #@ end
+          nodeLabels:
+            type: array
+            items:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+            default: []
   - name: worker
     required: true
     schema:
@@ -501,6 +515,33 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
+        valueFrom:
+          template: |
+            {{ $first := true }}
+            {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels }}
+            {{- if $first }}
+              {{- $first = false }}
+            {{- else -}}
+              ,
+            {{- end }}
+            {{- $key }}={{ $val }}
+            {{- end }}
+            {{- if .controlPlane.nodeLabels -}}
+              {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
+              ,
+              {{- end -}}
+              {{- $first := true }}
+              {{- range .controlPlane.nodeLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
+      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
         valueFrom:
           template: |
@@ -513,6 +554,20 @@ spec:
             {{- end }}
             {{- $key }}={{ $val }}
             {{- end }}
+            {{- if .controlPlane.nodeLabels -}}
+              {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
+              ,
+              {{- end -}}
+              {{- $first := true }}
+              {{- range .controlPlane.nodeLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -1015,22 +1070,22 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSClusterTemplate
 metadata:
-  name: aws-cluster-template
+  name: #@ "tkg-aws-default-{}-cluster".format(data.values.AWS_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
-      region: "${AWS_REGION}"
-      sshKeyName: "${AWS_SSH_KEY_NAME}"
+      region: #@ data.values.AWS_REGION
+      sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
       bastion:
         enabled: true
       network:
         vpc:
           cidrBlock:
         subnets:
-        - availabilityZone: '${AWS_NODE_AZ}'
-          cidrBlock: '${AWS_PRIVATE_NODE_CIDR}'
-          id: '${AWS_PRIVATE_SUBNET_ID}'
+        - availabilityZone: #@ data.values.AWS_NODE_AZ
+          cidrBlock: #@ data.values.AWS_PRIVATE_NODE_CIDR
+          id: #@ data.values.AWS_PRIVATE_SUBNET_ID
         cni:
           cniIngressRules:
           - description: kapp-controller
@@ -1045,7 +1100,7 @@ spec:
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
 metadata:
-  name: tkg-aws-kcp
+  name: #@ "tkg-aws-default-{}-kcp".format(data.values.AWS_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -1104,39 +1159,39 @@ spec:
 kind: AWSMachineTemplate
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 metadata:
-  name: tkg-aws-controlplane-template
+  name: #@ "tkg-aws-default-{}-control-plane".format(data.values.AWS_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
-      instanceType: "${CONTROL_PLANE_MACHINE_TYPE}"
+      instanceType: #@ data.values.CONTROL_PLANE_MACHINE_TYPE
       iamInstanceProfile: "control-plane.tkg.cloud.vmware.com"
-      sshKeyName: ${AWS_SSH_KEY_NAME}
+      sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
       ami:
-        id: "${AWS_AMI_ID}"
+        id: #@ data.values.AWS_AMI_ID
       rootVolume:
         size: 80
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSMachineTemplate
 metadata:
-  name: tkg-aws-worker-template
+  name: #@ "tkg-aws-default-{}-worker".format(data.values.AWS_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
-      instanceType: "${NODE_MACHINE_TYPE}"
+      instanceType: #@ data.values.NODE_MACHINE_TYPE
       iamInstanceProfile: "nodes.tkg.cloud.vmware.com"
-      sshKeyName: "${AWS_SSH_KEY_NAME}"
+      sshKeyName: #@ data.values.AWS_SSH_KEY_NAME
       ami:
-        id: "${AWS_AMI_ID}"
+        id: #@ data.values.AWS_AMI_ID
       rootVolume:
         size: 80
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: tkg-aws-bootstrap-template
+  name: #@ "tkg-aws-default-{}-md-config".format(data.values.AWS_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:

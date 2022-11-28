@@ -146,7 +146,7 @@ var _ = Describe("Machine Reconciler", func() {
 			err := k8sClient.List(ctx, pkgInstallsList)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(hasPackageInstalls(ctx, k8sClient, cluster, addonNamespace,
-				clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
+				clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, setupLog)).To(BeTrue())
 
 			By("Cluster deletion with foreground propagation policy")
 			deletePropagation := metav1.DeletePropagationForeground
@@ -155,11 +155,11 @@ var _ = Describe("Machine Reconciler", func() {
 
 			By("Results on additionalPackageInstalls being removed.")
 			Expect(hasPackageInstalls(ctx, k8sClient, cluster, addonNamespace,
-				clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
+				clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, setupLog)).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(func() bool {
 				return hasPackageInstalls(ctx, k8sClient, cluster, addonNamespace,
-					clusterBootstrap.Spec.AdditionalPackages, setupLog)
+					clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, setupLog)
 			}, waitTimeout, pollingInterval).Should(BeFalse())
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)

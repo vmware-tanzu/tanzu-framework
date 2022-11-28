@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	configClient interfaces.ConfigClient
+	configClient interfaces.ConfigClientWrapper
 )
 
 func init() {

@@ -20,6 +20,7 @@ import (
 	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -354,6 +355,26 @@ func (wh *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj r
 	if !oldClusterBootstrap.GetDeletionTimestamp().IsZero() {
 		clusterbootstraplog.Info("object being deleted, ignore validation", "name", oldClusterBootstrap.Name)
 		return nil
+	}
+
+	// don't validate if the cluster associated with the clusterbootstrap is marked for deletion
+	cluster := &clusterv1beta1.Cluster{}
+	key := client.ObjectKey{
+		Namespace: oldClusterBootstrap.Namespace,
+		Name:      oldClusterBootstrap.Name,
+	}
+
+	err := wh.Client.Get(ctx, key, cluster)
+	if err != nil && !apierrors.IsNotFound(err) {
+		return err
+	}
+	if !apierrors.IsNotFound(err) {
+		// if cluster is not found we do nothing  because clusterbootstrap could exist before the cluster is created.
+		// else we check to see if cluster is marked for deletion
+		if !cluster.GetDeletionTimestamp().IsZero() {
+			clusterbootstraplog.Info("cluster being deleted, ignore validation", "name", cluster.Name)
+			return nil
+		}
 	}
 
 	clusterbootstraplog.Info("validate update", "name", newClusterBootstrap.Name)

@@ -157,6 +157,17 @@ VSPHERE_WORKER_CUSTOM_VMX_KEYS:
 #! on updates, the existing worker machines will be deleted *first* before the replacement worker machines are created.
 WORKER_ROLLOUT_STRATEGY: "RollingUpdate"
 
+#! Customizable hardware version for VMs
+#! This is used to explicitly upgrade the hardware version of the VM after the clone operation succeeds.
+#! The version should be higher than the vmx_version property of the OVA.
+#! If unset, the hardware version defaults to the proprty in the OVA.
+#! VSPHERE_CONTROL_PLANE_HARDWARE_VERSION configures the hardware version of the control plane nodes.
+#! e.g. VSPHERE_CONTROL_PLANE_HARDWARE_VERSION: "vmx-17"
+VSPHERE_CONTROL_PLANE_HARDWARE_VERSION:
+#! VSPHERE_WORKER_HARDWARE_VERSION configures the hardware version of the worker nodes.
+#! e.g. VSPHERE_WORKER_HARDWARE_VERSION: "vmx-17"
+VSPHERE_WORKER_HARDWARE_VERSION:
+
 #! Thumbprint of the vCenter server specified with VSPHERE_SERVER config variable
 #! this value can be skipped if user wants to use insecure connection
 #! by setting VSPHERE_INSECURE to true
@@ -301,6 +312,9 @@ NODE_POOL_0_LABELS:
 #! Specifies the taints string to be applied on first node pool. It should be of the
 #! format "key1=value1:effect1,key2=value2:effect2"
 NODE_POOL_0_TAINTS:
+#! Specified node label for control plane
+#! It should be of the format "key1=value1,key2=value2"
+CONTROL_PLANE_NODE_LABELS:
 
 
 
@@ -495,6 +509,12 @@ USE_TOPOLOGY_CATEGORIES: false
 #! NTP server customization (Only support vSphere provider)
 NTP_SERVERS:
 
+#! Disables pod security standards in kube-apiserver.
+POD_SECURITY_STANDARD_DEACTIVATED: false
+
+POD_SECURITY_STANDARD_AUDIT: "baseline"
+POD_SECURITY_STANDARD_WARN: "baseline"
+POD_SECURITY_STANDARD_ENFORCE: ""
 
 #! ---------------------------------------------------------------------
 #! Autoscaler related configuration
@@ -651,10 +671,16 @@ ANTREA_KUBE_APISERVER_OVERRIDE:
 ANTREA_TRANSPORT_INTERFACE:
 ANTREA_TRANSPORT_INTERFACE_CIDRS: ""
 ANTREA_MULTICAST_INTERFACES: ""
+ANTREA_MULTICAST_IGMPQUERY_INTERVAL: "125s"
 ANTREA_TUNNEL_TYPE: geneve
 ANTREA_TRAFFIC_ENCRYPTION_MODE: none
 ANTREA_WIREGUARD_PORT: 51820
 ANTREA_ENABLE_USAGE_REPORTING: false
+ANTREA_ENABLE_BRIDGING_MODE: false
+ANTREA_DISABLE_TXCHECKSUM_OFFLOAD: false
+ANTREA_DNS_SERVER_OVERRIDE: ""
+ANTREA_MULTICLUSTER_ENABLE: false
+ANTREA_MULTICLUSTER_NAMESPACE: ""
 
 #! Antrea feature gates
 ANTREA_PROXY: true
@@ -668,7 +694,15 @@ ANTREA_IPAM: false
 ANTREA_FLOWEXPORTER: false
 ANTREA_SERVICE_EXTERNALIP: false
 ANTREA_MULTICAST: false
+ANTREA_MULTICLUSTER: false
+ANTREA_SECONDARY_NETWORK: false
+ANTREA_TRAFFIC_CONTROL: false
 
+
+
+KUBEVIP_LOADBALANCER_ENABLE: false
+KUBEVIP_LOADBALANCER_IP_RANGES: ""
+KUBEVIP_LOADBALANCER_CIDRs: ""
 
 #! ---------------------------------------------------------------------
 #! Internal configuration, not meant to be overridden
@@ -695,6 +729,10 @@ CORE_DNS_IP:
 FEATURE_FLAG_PACKAGE_BASED_LCM:
 #! Used for testing clusterclasses only
 TKR_DATA:
+VSPHERE_CLUSTER_CLASS_VERSION: v1.0.0
+AZURE_CLUSTER_CLASS_VERSION: v1.0.0
+AWS_CLUSTER_CLASS_VERSION: v1.0.0
+DOCKER_CLUSTER_CLASS_VERSION: v1.0.0
 
 #! ---------------------------------------------------------------------
 #! Settings for OCI infrastructure provider

@@ -7,6 +7,8 @@ import (
 	"flag"
 	"os"
 
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -33,6 +35,7 @@ func init() {
 	utilruntime.Must(runv1.AddToScheme(scheme))
 	utilruntime.Must(corev1.AddToScheme(scheme))
 	utilruntime.Must(clusterv1.AddToScheme(scheme))
+	utilruntime.Must(capvv1beta1.AddToScheme(scheme))
 }
 
 func main() {

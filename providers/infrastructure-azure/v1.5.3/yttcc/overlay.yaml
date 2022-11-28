@@ -88,7 +88,7 @@ spec:
       #@overlay/match missing_ok=True
       metadata:
         annotations:
-          run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-publisher=vmware-inc".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
+          run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={}".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
     workers:
       machineDeployments:
       #@overlay/match by=overlay.index(0)
@@ -100,7 +100,7 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-publisher=vmware-inc".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
+            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={}".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker
@@ -110,7 +110,7 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-publisher=vmware-inc".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
+            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={}".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
         #@ if data.values.NODE_MACHINE_TYPE_1:
         variables:
           overrides:
@@ -126,7 +126,7 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={},azure-publisher=vmware-inc".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
+            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={}".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
         #@ if data.values.NODE_MACHINE_TYPE_2:
         variables:
           overrides:

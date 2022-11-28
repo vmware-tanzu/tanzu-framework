@@ -43,3 +43,4 @@ tkrSourceControllerPackage:
             noProxy: .svc,100.64.0.0/13,192.168.118.0/24,192.168.119.0/24,192.168.120.0/24
 coreManagementPluginsPackage:
     versionConstraints: v0.21.0
+akoOperatorPackage: {}

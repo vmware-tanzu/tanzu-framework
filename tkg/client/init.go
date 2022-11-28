@@ -29,6 +29,8 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/carvelhelpers"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/kind"
@@ -200,6 +202,10 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	if err != nil {
 		return errors.Wrap(err, "unable to get bootstrap cluster client")
 	}
+	bootstrapPkgClient, err := packageclient.NewPackageClientForContext(bootstrapClusterKubeconfigPath, "")
+	if err != nil {
+		return errors.Wrap(err, "unable to get a PackageClient")
+	}
 
 	// configure variables required to deploy providers
 	if err := c.configureVariablesForProvidersInstallation(nil); err != nil {
@@ -209,7 +215,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	// If clusterclass feature flag is enabled then deploy kapp-controller
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		log.Info("Installing kapp-controller on bootstrap cluster...")
-		if err = c.InstallOrUpgradeKappController(bootstrapClusterKubeconfigPath, "", constants.OperationTypeInstall); err != nil {
+		if err = c.InstallOrUpgradeKappController(bootStrapClusterClient, constants.OperationTypeInstall); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
 		}
 	}
@@ -223,8 +229,19 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	// If clusterclass feature flag is enabled then deploy management components
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		if err = c.InstallOrUpgradeManagementComponents(bootstrapClusterKubeconfigPath, "", false); err != nil {
+		if err = c.InstallOrUpgradeManagementComponents(bootStrapClusterClient, bootstrapPkgClient, "", false); err != nil {
 			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
+		}
+
+		akoRequired, err := c.isAKORequiredInBootstrapCluster()
+		if err != nil {
+			return errors.Wrap(err, "unable to check whether avi ha is enabled")
+		}
+		if akoRequired {
+			log.Info("Installing AKO on bootstrapper...")
+			if err = c.InstallAKO(bootStrapClusterClient); err != nil {
+				return errors.Wrap(err, "unable to install ako")
+			}
 		}
 	}
 
@@ -308,11 +325,15 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	if err != nil {
 		return errors.Wrap(err, "unable to get management cluster client")
 	}
+	regionalPkgClient, err := packageclient.NewPackageClientForContext(regionalClusterKubeconfigPath, kubeContext)
+	if err != nil {
+		return errors.Wrap(err, "unable to get a PackageClient")
+	}
 
 	// If clusterclass feature flag is enabled then deploy kapp-controller
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		log.Info("Installing kapp-controller on management cluster...")
-		if err = c.InstallOrUpgradeKappController(regionalClusterKubeconfigPath, kubeContext, constants.OperationTypeInstall); err != nil {
+		if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeInstall); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
 		}
 	}
@@ -334,7 +355,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	// If clusterclass feature flag is enabled then deploy management components to the cluster
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		if err = c.InstallOrUpgradeManagementComponents(regionalClusterKubeconfigPath, kubeContext, false); err != nil {
+		if err = c.InstallOrUpgradeManagementComponents(regionalClusterClient, regionalPkgClient, kubeContext, false); err != nil {
 			return errors.Wrap(err, "unable to install management components to management cluster")
 		}
 	}
@@ -359,6 +380,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		log.Infof("Apply additional manifests %s for the management cluster in %s", options.AdditionalTKGManifests, defaultTkgNamespace)
 		if err = regionalClusterClient.ApplyFileRecursively(options.AdditionalTKGManifests, defaultTkgNamespace); err != nil {
 			return errors.Wrap(err, "unable to apply additional manifests")
+		}
+	}
+
+	// Applying ClusterBootstrap and its associated resources on the management cluster
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+		log.Infof("Applying ClusterBootstrap and its associated resources on management cluster")
+		if err := c.ApplyClusterBootstrapObjects(bootStrapClusterClient, regionalClusterClient); err != nil {
+			return errors.Wrap(err, "Unable to apply ClusterBootstarp and its associated resources on management cluster")
 		}
 	}
 
@@ -421,6 +450,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+		log.Info("Creating tkg-bom versioned ConfigMaps...")
+		if err := c.CreateOrUpdateVerisionedTKGBom(regionalClusterClient); err != nil {
+			log.Warningf("Warning: Management cluster is created successfully, but the tkg-bom versioned ConfigMaps creation is failing. %v", err)
+		}
+	}
+
 	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
 	isSuccessful = true
 	return nil
@@ -470,6 +506,60 @@ func (c *TkgClient) MoveObjects(fromKubeconfigPath, toKubeconfigPath, namespace 
 		Namespace:      namespace,
 	}
 	return c.clusterctlClient.Move(moveOptions)
+}
+
+// ApplyClusterBootstrapObjects renders the ClusterBootstrap and its associated objects from templates and applies them to a target management cluster.
+func (c *TkgClient) ApplyClusterBootstrapObjects(fromClusterClient, toClusterClient clusterclient.Client) error {
+	path, err := c.tkgConfigPathsClient.GetTKGProvidersDirectory()
+	if err != nil {
+		return err
+	}
+	clusterBootstrapTemplatesDirPath := filepath.Join(path, "yttcb")
+	configDefaultPath := filepath.Join(path, "config_default.yaml")
+
+	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		// Remove intermediate config files if err is empty
+		if err == nil {
+			os.Remove(userConfigValuesFile)
+		}
+	}()
+
+	log.V(6).Infof("User ConfigValues File: %v", userConfigValuesFile)
+
+	clusterBootstrapBytes, err := carvelhelpers.ProcessYTTPackage(clusterBootstrapTemplatesDirPath, configDefaultPath, userConfigValuesFile)
+	if err != nil {
+		return err
+	}
+
+	clusterBootstrapString := string(clusterBootstrapBytes)
+	if len(clusterBootstrapString) > 0 {
+
+		// Before applying ClusterBootstrap need to check if TKR is available. Sometimes it takes some time for the
+		// TKr to be available. Hence checking for TKr availability before applying ClusterBootstrap
+		tkr, err := fromClusterClient.GetClusterResolvedTanzuKubernetesRelease()
+		if tkr == nil || err != nil {
+			return err // error occurs or management cluster does not have resolved TKR
+		}
+
+		var toClusterTKR v1alpha3.TanzuKubernetesRelease
+		pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: clusterclient.PackageInstallTimeout}
+		log.V(6).Infof("Checking if TKr %s is created on management cluster", tkr.Name)
+		if err := toClusterClient.GetResource(&toClusterTKR, tkr.Name, tkr.Namespace, nil, pollOptions); err != nil {
+			return err
+		}
+
+		log.V(6).Infof("Applying ClusterBootstrap: %v", clusterBootstrapString)
+		if err := toClusterClient.Apply(clusterBootstrapString); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // CopyNeededTKRAndOSImages moves the resolved TKR and associated OSImage CR for a Cluster resource
@@ -867,8 +957,18 @@ func (c *TkgClient) removeKappControllerLabelsFromClusterClassResources(regional
 		if exists, err := regionalClusterClient.VerifyExistenceOfCRD(resourceName, gvk.Group); err != nil || !exists {
 			continue
 		}
-		errList = append(errList, regionalClusterClient.RemoveMatchingLabelsFromResources(gvk, constants.TkgNamespace, labelsToBeDeleted))
+		errList = append(errList, regionalClusterClient.RemoveMatchingMetadataFromResources(gvk, constants.TkgNamespace, "labels", labelsToBeDeleted))
 	}
 
 	return kerrors.NewAggregate(errList)
+}
+
+// isAKORequiredInBootstrapCluster return whether AVI_CONTROL_PLANE_HA_PROVIDER is enabled
+func (c *TkgClient) isAKORequiredInBootstrapCluster() (bool, error) {
+	log.V(5).Info("Get AVI_CONTROL_PLANE_HA_PROVIDER from user config ")
+
+	if p, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereHaProvider); err == nil && p == trueString {
+		return true, nil
+	}
+	return false, nil
 }

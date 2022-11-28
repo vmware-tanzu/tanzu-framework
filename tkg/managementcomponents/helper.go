@@ -16,6 +16,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
@@ -25,7 +26,7 @@ const (
 )
 
 // GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
-func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration) (string, error) {
+func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration, readerWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (string, error) {
 	// TODO: Temporary hack(hard coded values) to configure TKR source controller package values. This should be replaced with the logic
 	// that fetches these values from tkg-bom(for bom related urls) and set the TKR source controller package values
 	var tkrRepoImagePath string
@@ -45,8 +46,8 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 		return "", errors.Errorf("unknown provider type %q", providerType)
 	}
 
-	// get cacert cal from user input for tkr-controller-config cm
-	caCerts, imageRepo := getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues, tkgBomConfig)
+	// get cacert value from user input for tkr-controller-config cm
+	caCerts, imageRepo := getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues, tkgBomConfig, readerWriter)
 
 	tkgPackageConfig := TKGPackageConfig{
 		Metadata: Metadata{
@@ -98,8 +99,34 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 		CoreManagementPluginsPackage: CoreManagementPluginsPackage{
 			VersionConstraints: managementPackageVersion,
 		},
+		AkoOperatorPackage: AkoOperatorPackage{
+			AkoOperatorPackageValues: AkoOperatorPackageValues{
+				AviEnable:   convertToBool(userProviderConfigValues[constants.ConfigVariableAviEnable]),
+				ClusterName: convertToString(userProviderConfigValues[constants.ConfigVariableClusterName]),
+				AkoOperatorConfig: AkoOperatorConfig{
+					AviControllerAddress:                           convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerAddress]),
+					AviControllerUsername:                          convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerUsername]),
+					AviControllerPassword:                          convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerPassword]),
+					AviControllerCA:                                convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerCA]),
+					AviCloudName:                                   convertToString(userProviderConfigValues[constants.ConfigVariableAviCloudName]),
+					AviServiceEngineGroup:                          convertToString(userProviderConfigValues[constants.ConfigVariableAviServiceEngineGroup]),
+					AviManagementClusterServiceEngineGroup:         convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterServiceEngineGroup]),
+					AviDataPlaneNetworkName:                        convertToString(userProviderConfigValues[constants.ConfigVariableAviDataPlaneNetworkName]),
+					AviDataPlaneNetworkCIDR:                        convertToString(userProviderConfigValues[constants.ConfigVariableAviDataPlaneNetworkCIDR]),
+					AviControlPlaneNetworkName:                     convertToString(userProviderConfigValues[constants.ConfigVariableAviControlPlaneNetworkName]),
+					AviControlPlaneNetworkCIDR:                     convertToString(userProviderConfigValues[constants.ConfigVariableAviControlPlaneNetworkCIDR]),
+					AviManagementClusterDataPlaneNetworkName:       convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkName]),
+					AviManagementClusterDataPlaneNetworkCIDR:       convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR]),
+					AviManagementClusterControlPlaneVipNetworkName: convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName]),
+					AviManagementClusterControlPlaneVipNetworkCIDR: convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR]),
+					AviControlPlaneHaProvider:                      convertToBool(userProviderConfigValues[constants.ConfigVariableVsphereHaProvider]),
+				},
+			},
+		},
 	}
 
+	//Auto fill empty fields in AkoOperatorConfig
+	autofillAkoOperatorConfig(&tkgPackageConfig.AkoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig)
 	setProxyConfiguration(&tkgPackageConfig, userProviderConfigValues)
 
 	configBytes, err := yaml.Marshal(tkgPackageConfig)
@@ -112,7 +139,52 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 	if err != nil {
 		return "", err
 	}
+
 	return valuesFile, nil
+}
+
+// convertToString converts config into string type, and return "" if config is not set
+func convertToString(config interface{}) string {
+	if config != nil {
+		return config.(string)
+	}
+	return ""
+}
+
+// convertToBool converts config into bool type, and return false if config is not set
+func convertToBool(config interface{}) bool {
+	if config != nil {
+		return config.(bool)
+	}
+	return false
+}
+
+// autofillAkoOperatorConfig autofills empty fields in AkoOperatorConfig
+func autofillAkoOperatorConfig(akoOperatorConfig *AkoOperatorConfig) {
+	if akoOperatorConfig.AviManagementClusterServiceEngineGroup == "" {
+		akoOperatorConfig.AviManagementClusterServiceEngineGroup = akoOperatorConfig.AviServiceEngineGroup
+	}
+
+	if akoOperatorConfig.AviManagementClusterDataPlaneNetworkName != "" && akoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR != "" {
+		akoOperatorConfig.AviControlPlaneNetworkName = akoOperatorConfig.AviManagementClusterDataPlaneNetworkName
+		akoOperatorConfig.AviControlPlaneNetworkCIDR = akoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR
+	} else if akoOperatorConfig.AviControlPlaneNetworkName == "" || akoOperatorConfig.AviControlPlaneNetworkCIDR == "" {
+		akoOperatorConfig.AviControlPlaneNetworkName = akoOperatorConfig.AviDataPlaneNetworkName
+		akoOperatorConfig.AviControlPlaneNetworkCIDR = akoOperatorConfig.AviDataPlaneNetworkCIDR
+	}
+
+	if akoOperatorConfig.AviManagementClusterDataPlaneNetworkName != "" && akoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR != "" {
+		akoOperatorConfig.AviManagementClusterControlPlaneVipNetworkName = akoOperatorConfig.AviManagementClusterDataPlaneNetworkName
+		akoOperatorConfig.AviManagementClusterControlPlaneVipNetworkCIDR = akoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR
+	} else if akoOperatorConfig.AviManagementClusterControlPlaneVipNetworkName == "" || akoOperatorConfig.AviManagementClusterControlPlaneVipNetworkCIDR == "" {
+		akoOperatorConfig.AviManagementClusterControlPlaneVipNetworkName = akoOperatorConfig.AviDataPlaneNetworkName
+		akoOperatorConfig.AviManagementClusterControlPlaneVipNetworkCIDR = akoOperatorConfig.AviDataPlaneNetworkCIDR
+	}
+
+	if akoOperatorConfig.AviManagementClusterDataPlaneNetworkName == "" || akoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR == "" {
+		akoOperatorConfig.AviManagementClusterDataPlaneNetworkName = akoOperatorConfig.AviDataPlaneNetworkName
+		akoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR = akoOperatorConfig.AviDataPlaneNetworkCIDR
+	}
 }
 
 func setProxyConfiguration(tkgPackageConfig *TKGPackageConfig, userProviderConfigValues map[string]interface{}) {
@@ -144,7 +216,8 @@ func setProxyInTKRSourceControllerPackage(tkgPackageConfig *TKGPackageConfig, ht
 		}
 }
 
-func getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues map[string]interface{}, bomConfig *tkgconfigbom.BOMConfiguration) (string, string) {
+func getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues map[string]interface{}, bomConfig *tkgconfigbom.BOMConfiguration,
+	readerWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (string, string) {
 	caCert := ""
 	imageRepo := bomConfig.ImageConfig.ImageRepository
 	// implement the same logic as legacy func tkg_image_repo_ca_cert() in providers/ytt/lib/helpers.star
@@ -158,5 +231,19 @@ func getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues 
 	if val, ok := userProviderConfigValues[constants.ConfigVariableCustomImageRepository]; ok {
 		imageRepo = val.(string)
 	}
+
+	// override the values with tkgconfig readerwriter if exists
+	if readerWriter != nil {
+		repo, err := readerWriter.Get(constants.ConfigVariableCustomImageRepository)
+		if err == nil && repo != "" {
+			imageRepo = repo
+		}
+		if ca, err := readerWriter.Get(constants.TKGProxyCACert); err == nil && ca != "" {
+			caCert = ca
+		} else if ca, err := readerWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate); err == nil && ca != "" {
+			caCert = ca
+		}
+	}
+
 	return caCert, imageRepo
 }

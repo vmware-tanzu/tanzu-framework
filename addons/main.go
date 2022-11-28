@@ -35,6 +35,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/controllers"
 	antreacontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	awsebscsicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/awsebscsi"
+	azurediskcsicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/azurediskcsi"
 	azurefilecsicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/azurefilecsi"
 	calicocontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
@@ -246,10 +247,24 @@ func main() {
 		enablePackageInstallStatusController(ctx, mgr, flags)
 	}
 
+	enableClusterMetadata(ctx, mgr)
 	setupChecks(mgr)
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "problem running manager")
+		os.Exit(1)
+	}
+}
+
+func enableClusterMetadata(ctx context.Context, mgr ctrl.Manager) {
+	clusterMetadataReconciler := controllers.NewClusterMetadataReconciler(
+		mgr.GetClient(),
+		ctrl.Log.WithName("ClusterMetadataReconciler"),
+		mgr.GetScheme(),
+	)
+
+	if err := clusterMetadataReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "metadata")
 		os.Exit(1)
 	}
 }
@@ -360,6 +375,17 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create KubevipCPIConfigController", "controller", "kubevipcloudprovider")
+		os.Exit(1)
+	}
+
+	if err := (&azurediskcsicontroller.AzureDiskCSIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("AzureDiskCSIConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.AzureDiskCSIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create CSIConfigController", "controller", "azurediskcsi")
 		os.Exit(1)
 	}
 

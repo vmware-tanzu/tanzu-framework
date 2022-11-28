@@ -5,7 +5,7 @@
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 metadata:
-  name: core-management-plugins
+  name: tanzu-core-management-plugins
   namespace: #@ data.values.coreManagementPluginsPackage.namespaceForPackageInstallation
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting framework-packageinstall/tanzu-framework"

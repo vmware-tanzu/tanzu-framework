@@ -25,7 +25,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -36,6 +35,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/utils/pointer"
 	capav1beta2 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta2"
+	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -114,6 +114,9 @@ username: username
 	vSphereBootstrapCredentialSecret = "capv-manager-bootstrap-credentials"
 	defaultUserName                  = "username"
 	defaultPassword                  = "password"
+	defaultTenantID                  = "tenantID"
+	defaultClientID                  = "clientID"
+	defaultClientSecret              = "clientSecret"
 )
 
 type Replicas struct {
@@ -921,7 +924,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("If autoscaler deployment was not found", func() {
 			JustBeforeEach(func() {
-				clientset.GetReturns(k8serrors.NewNotFound(schema.GroupResource{Group: "apps", Resource: "Deployment"}, "autoscaler"))
+				clientset.GetReturns(apierrors.NewNotFound(schema.GroupResource{Group: "apps", Resource: "Deployment"}, "autoscaler"))
 				err = clstClient.ApplyPatchForAutoScalerDeployment(bomClient, "fake-clusterName", "v1.23.8_vmware.1", "default")
 			})
 			It("should not return an error", func() {
@@ -2360,6 +2363,482 @@ var _ = Describe("Cluster Client", func() {
 		})
 	})
 
+	Describe("Update Azure Credentials", func() {
+		var (
+			tenantID           string
+			clientID           string
+			clientSecret       string
+			clusterName        string
+			identitySecretName string
+			identityName       string
+		)
+
+		BeforeEach(func() {
+			tenantID = defaultTenantID
+			clientID = defaultClientID
+			clientSecret = defaultClientSecret
+
+			clusterName = "dummy-ac"
+			identitySecretName = "identity-secret"
+			identityName = "identity"
+
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("UpdateCapzManagerBootstrapCredentialsSecret", func() {
+			It("should not return an error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				secretData := map[string][]byte{
+					"client-id":     []byte(clientID),
+					"client-secret": []byte(clientSecret),
+					"tenant-id":     []byte(tenantID),
+				}
+
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, option ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *corev1.SecretList:
+						o.Items = append(o.Items, getDummySecret("capz-manager-bootstrap-credentials", secretData, map[string]string{}))
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateCapzManagerBootstrapCredentialsSecret(tenantID, clientID, clientSecret)
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if clientset patch returns error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(errors.New("dummy"))
+
+				secretData := map[string][]byte{
+					"client-id":     []byte(clientID),
+					"client-secret": []byte(clientSecret),
+					"tenant-id":     []byte(tenantID),
+				}
+
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, option ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *corev1.SecretList:
+						o.Items = append(o.Items, getDummySecret("capz-manager-bootstrap-credentials", secretData, map[string]string{}))
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateCapzManagerBootstrapCredentialsSecret(tenantID, clientID, clientSecret)
+				Expect(err).ToNot(BeNil())
+			})
+		})
+
+		Context("GetCAPZControllerManagerDeploymentsReplicas", func() {
+			It("should not return an error", func() {
+				clientset.GetReturns(nil)
+
+				dReplicas := Replicas{SpecReplica: 4, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+				capzDeploy := getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas)
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *appsv1.Deployment:
+						*o = capzDeploy
+					}
+					return nil
+				})
+				curReplicas, err := clstClient.GetCAPZControllerManagerDeploymentsReplicas()
+				Expect(curReplicas).To(Equal(int32(4)))
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if clientset get returns error", func() {
+				clientset.GetReturns(errors.New("dummy"))
+
+				dReplicas := Replicas{SpecReplica: 4, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, option ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *appsv1.DeploymentList:
+						o.Items = append(o.Items, getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas))
+					}
+					return nil
+				})
+				curReplicas, err := clstClient.GetCAPZControllerManagerDeploymentsReplicas()
+				Expect(curReplicas).To(Equal(int32(0)))
+				Expect(err).ToNot(BeNil())
+			})
+		})
+
+		Context("UpdateCAPZControllerManagerDeploymentReplicas", func() {
+			It("should not return an error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				dReplicas := Replicas{SpecReplica: 4, Replicas: 4, ReadyReplicas: 4, UpdatedReplicas: 4}
+				capzDeploy := getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas)
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *appsv1.Deployment:
+						*o = capzDeploy
+					}
+					return nil
+				})
+				curReplicas, err := clstClient.GetCAPZControllerManagerDeploymentsReplicas()
+				Expect(curReplicas).To(Equal(int32(4)))
+				Expect(err).To(BeNil())
+
+				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(1))
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if clientset get returns not found error", func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o.(type) {
+					case *appsv1.Deployment:
+						return apierrors.NewNotFound(schema.GroupResource{Group: "apps", Resource: "Deployment"}, "replicas")
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0))
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if clientset get returns error", func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o.(type) {
+					case *appsv1.Deployment:
+						return errors.New("dummy")
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0))
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("failed to look up")))
+			})
+
+			It("should return an error if clientset patch returns error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(errors.New("dummy"))
+
+				dReplicas := Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+
+				capzDeploy := getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas)
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *appsv1.Deployment:
+						*o = capzDeploy
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0))
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("unable to rollback capz-controller-manager deployment replicas")))
+			})
+
+			It("should return an error if failing to scale deployment", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				dReplicas := Replicas{SpecReplica: 4, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+
+				capzDeploy := getDummyCAPZDeployment(dReplicas.SpecReplica, dReplicas.Replicas, dReplicas.ReadyReplicas, dReplicas.UpdatedReplicas)
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *appsv1.Deployment:
+						*o = capzDeploy
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateCAPZControllerManagerDeploymentReplicas(int32(0))
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("fail to update capz-controller-manager deployment replicas")))
+			})
+		})
+
+		Context("CheckUnifiedAzureClusterIdentity", func() {
+			It("should return true using different identity", func() {
+				clientset.GetReturns(nil)
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, identityName)
+					case *capzv1beta1.AzureClusterIdentity:
+						*o = getDummyAzureClusterIdentity(identityName, identitySecretName, tenantID, clientID)
+					}
+					return nil
+				})
+
+				unified, err := clstClient.CheckUnifiedAzureClusterIdentity(clusterName, constants.DefaultNamespace)
+				Expect(unified).ToNot(BeTrue())
+				Expect(err).To(BeNil())
+			})
+
+			It("should return false using the same identity", func() {
+				clientset.GetReturns(nil)
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, "")
+					}
+					return nil
+				})
+
+				unified, err := clstClient.CheckUnifiedAzureClusterIdentity(clusterName, constants.DefaultNamespace)
+				Expect(unified).To(BeTrue())
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if clientset get returns error", func() {
+				clientset.GetReturns(errors.New("dummy"))
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o.(type) {
+					case *capzv1beta1.AzureCluster:
+						return errors.New("dummy")
+					}
+					return nil
+				})
+
+				unified, err := clstClient.CheckUnifiedAzureClusterIdentity(clusterName, constants.DefaultNamespace)
+				Expect(unified).ToNot(BeTrue())
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring(fmt.Sprintf("unable to retrieve azure cluster %s", clusterName))))
+			})
+		})
+
+		Context("UpdateAzureClusterIdentity", func() {
+			It("should not return an error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				secretData := map[string][]byte{
+					"clientSecret": []byte(clientSecret),
+				}
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, identityName)
+					case *capzv1beta1.AzureClusterIdentity:
+						*o = getDummyAzureClusterIdentity(identityName, identitySecretName, tenantID, clientID)
+					case *corev1.Secret:
+						*o = getDummySecret(identitySecretName, secretData, map[string]string{})
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateAzureClusterIdentity(clusterName, constants.DefaultNamespace, tenantID, clientID, clientSecret)
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if clientset patch returns error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(errors.New("dummy"))
+
+				secretData := map[string][]byte{
+					"clientSecret": []byte(clientSecret),
+				}
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, identityName)
+					case *capzv1beta1.AzureClusterIdentity:
+						*o = getDummyAzureClusterIdentity(identityName, identitySecretName, tenantID, clientID)
+					case *corev1.Secret:
+						*o = getDummySecret(identitySecretName, secretData, map[string]string{})
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateAzureClusterIdentity(clusterName, constants.DefaultNamespace, tenantID, clientID, clientSecret)
+				Expect(err).ToNot(BeNil())
+			})
+
+			It("should not return an error when no azure cluster identity reference", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureClusterIdentity:
+						return errors.New("dummy")
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, "")
+					}
+					return nil
+				})
+				err = clstClient.UpdateAzureClusterIdentity(clusterName, constants.DefaultNamespace, tenantID, clientID, clientSecret)
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if azureCluster does not exist", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o.(type) {
+					case *capzv1beta1.AzureCluster:
+						return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "AzureCluster"}, "not found")
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateAzureClusterIdentity(clusterName, constants.DefaultNamespace, tenantID, clientID, clientSecret)
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("unable to retrieve azure cluster")))
+			})
+
+			It("should return an error if azureClusterIdentity does not exist", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureClusterIdentity:
+						return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "AzureClusterIdentity"}, "not found")
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, identityName)
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateAzureClusterIdentity(clusterName, constants.DefaultNamespace, tenantID, clientID, clientSecret)
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("unable to retrieve AzureClusterIdentity")))
+			})
+
+			It("should return an error if patch azureClusterIdentity failed", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				secretData := map[string][]byte{
+					"clientSecret": []byte(clientSecret),
+				}
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, identityName)
+					case *capzv1beta1.AzureClusterIdentity:
+						*o = getDummyAzureClusterIdentity(identityName, identitySecretName, tenantID, clientID)
+					case *corev1.Secret:
+						*o = getDummySecret(identitySecretName, secretData, map[string]string{})
+					}
+					return nil
+				})
+
+				clientset.PatchCalls(func(ctx context.Context, o crtclient.Object, patch crtclient.Patch, option ...crtclient.PatchOption) error {
+					switch o.(type) {
+					case *capzv1beta1.AzureClusterIdentity:
+						return errors.New("dummy")
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateAzureClusterIdentity(clusterName, constants.DefaultNamespace, tenantID, clientID, clientSecret)
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("unable to save azure cluster identity")))
+			})
+
+			It("should return an error if secret does not exist", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *corev1.Secret:
+						return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "Secret"}, "not found")
+					case *capzv1beta1.AzureClusterIdentity:
+						*o = getDummyAzureClusterIdentity(identityName, identitySecretName, tenantID, clientID)
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, identityName)
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateAzureClusterIdentity(clusterName, constants.DefaultNamespace, tenantID, clientID, clientSecret)
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("unable to retrieve AzureClusterIdentity Secret")))
+			})
+
+			It("should return an error if patch azureClusterIdentity secret failed", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+
+				secretData := map[string][]byte{
+					"clientSecret": []byte(clientSecret),
+				}
+
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+					switch o := o.(type) {
+					case *capzv1beta1.AzureCluster:
+						*o = getDummyAzureCluster(clusterName, identityName)
+					case *capzv1beta1.AzureClusterIdentity:
+						*o = getDummyAzureClusterIdentity(identityName, identitySecretName, tenantID, clientID)
+					case *corev1.Secret:
+						*o = getDummySecret(identitySecretName, secretData, map[string]string{})
+					}
+					return nil
+				})
+
+				clientset.PatchCalls(func(ctx context.Context, o crtclient.Object, patch crtclient.Patch, option ...crtclient.PatchOption) error {
+					switch o.(type) {
+					case *capzv1beta1.AzureClusterIdentity:
+					case *corev1.Secret:
+						return errors.New("dummy")
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateAzureClusterIdentity(clusterName, constants.DefaultNamespace, tenantID, clientID, clientSecret)
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(MatchError(ContainSubstring("unable to save secret")))
+			})
+		})
+
+		Context("UpdateAzureKCP", func() {
+			It("should not return an error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(nil)
+				kcpReplicas = Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *controlplanev1.KubeadmControlPlaneList:
+						o.Items = append(o.Items, getDummyKCP(kcpReplicas.SpecReplica, kcpReplicas.Replicas, kcpReplicas.ReadyReplicas, kcpReplicas.UpdatedReplicas))
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateAzureKCP("clusterName", "")
+				Expect(err).To(BeNil())
+			})
+
+			It("should return an error if clientset patch returns error", func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(errors.New("dummy"))
+				kcpReplicas = Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *controlplanev1.KubeadmControlPlaneList:
+						o.Items = append(o.Items, getDummyKCP(kcpReplicas.SpecReplica, kcpReplicas.Replicas, kcpReplicas.ReadyReplicas, kcpReplicas.UpdatedReplicas))
+					}
+					return nil
+				})
+
+				err = clstClient.UpdateAzureKCP("clusterName", "")
+				Expect(err).ToNot(BeNil())
+			})
+		})
+	})
+
 	Describe("DeleteExistingKappController", func() {
 		var (
 			kappControllerDpCreateOption                 fakehelper.TestDeploymentOption
@@ -3070,7 +3549,7 @@ prod.repo.com: prod.custom.repo.com`
 		})
 	})
 
-	Describe("Unit tests for RemoveMatchingLabelsFromResources", func() {
+	Describe("Unit tests for RemoveMatchingMetadataFromResources", func() {
 		var (
 			fakeClientSet     crtclient.Client
 			resources         []runtime.Object
@@ -3136,7 +3615,7 @@ prod.repo.com: prod.custom.repo.com`
 			Expect(err).NotTo(HaveOccurred())
 
 			clusterClassGVK := schema.GroupVersionKind{Group: capi.GroupVersion.Group, Version: capi.GroupVersion.Version, Kind: "ClusterClass"}
-			err = clstClient.RemoveMatchingLabelsFromResources(clusterClassGVK, "fake-namespace", labelsToBeDeleted)
+			err = clstClient.RemoveMatchingMetadataFromResources(clusterClassGVK, "fake-namespace", "labels", labelsToBeDeleted)
 		})
 
 		Context("When matching objects not found", func() {
@@ -3338,6 +3817,8 @@ func getDummyKCP(specReplica, replicas, readyReplicas, updatedReplicas int32) co
 	kcp.Status.ReadyReplicas = readyReplicas
 	kcp.Status.UpdatedReplicas = updatedReplicas
 	kcp.Spec.MachineTemplate.InfrastructureRef.Kind = infrastructureTemplateKind
+	curTime := metav1.Time{Time: time.Now()}
+	kcp.Spec.RolloutAfter = &curTime
 	return kcp
 }
 
@@ -3353,6 +3834,18 @@ func getDummyMD(currentK8sVersion string, specReplica, replicas, readyReplicas, 
 	return md
 }
 
+func getDummyCAPZDeployment(specReplica, replicas, readyReplicas, updatedReplicas int32) appsv1.Deployment {
+	capzDeploy := appsv1.Deployment{}
+	capzDeploy.Name = "capz-controller-manager"
+	capzDeploy.Namespace = "capz-system"
+	capzDeploy.Spec.Replicas = swag.Int32(specReplica)
+	capzDeploy.Status.AvailableReplicas = readyReplicas
+	capzDeploy.Status.Replicas = replicas
+	capzDeploy.Status.ReadyReplicas = readyReplicas
+	capzDeploy.Status.UpdatedReplicas = updatedReplicas
+	return capzDeploy
+}
+
 func getDummySecret(secretName string, secretData map[string][]byte, secretStringData map[string]string) corev1.Secret {
 	secret := corev1.Secret{}
 	secret.Name = secretName
@@ -3360,6 +3853,38 @@ func getDummySecret(secretName string, secretData map[string][]byte, secretStrin
 	secret.Data = secretData
 	secret.StringData = secretStringData
 	return secret
+}
+
+func getDummyAzureClusterIdentity(identityName string, identitySecretName string, tenantID string, clientID string) capzv1beta1.AzureClusterIdentity {
+	azureClusterIdentity := capzv1beta1.AzureClusterIdentity{}
+	azureClusterIdentity.Name = identityName
+	azureClusterIdentity.Namespace = constants.DefaultNamespace
+	azureClusterIdentity.Spec.ClientID = clientID
+	azureClusterIdentity.Spec.TenantID = tenantID
+	azureClusterIdentity.Spec.ClientSecret.Name = identitySecretName
+	azureClusterIdentity.Spec.ClientSecret.Namespace = constants.DefaultNamespace
+	azureClusterIdentity.Spec.Type = "ServicePrincipal"
+	return azureClusterIdentity
+}
+
+func getDummyAzureCluster(clusterName string, identityName string) capzv1beta1.AzureCluster {
+	ac := capzv1beta1.AzureCluster{}
+	ac.Name = clusterName
+	ac.Namespace = constants.DefaultNamespace
+	ac.Spec.Location = "fake-west"
+	ac.Spec.NetworkSpec.Vnet.Name = "fake-vnet"
+	ac.Spec.ResourceGroup = "fake-rg"
+	ac.Spec.SubscriptionID = "subscription-id"
+	identityRef := &corev1.ObjectReference{
+		APIVersion: "infrastructure.cluster.x-k8s.io/v1beta1",
+		Kind:       "AzureClusterIdentity",
+		Name:       identityName,
+		Namespace:  constants.DefaultNamespace,
+	}
+	if identityName != "" {
+		ac.Spec.IdentityRef = identityRef
+	}
+	return ac
 }
 
 func getDummyMachine(name, currentK8sVersion string, isCP bool) capi.Machine {
@@ -3374,7 +3899,7 @@ func getDummyMachine(name, currentK8sVersion string, isCP bool) capi.Machine {
 	return machine
 }
 
-func getv1alpha3DummyMachine(name, currentK8sVersion string, isCP bool) capiv1alpha3.Machine { //nolint:unparam
+func getv1alpha3DummyMachine(name, currentK8sVersion string, isCP bool) capiv1alpha3.Machine {
 	// TODO: Add test cases where isCP is true, currently there are no such tests
 	machine := capiv1alpha3.Machine{}
 	machine.Name = name

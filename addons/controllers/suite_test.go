@@ -45,6 +45,7 @@ import (
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	awsebscsi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/awsebscsi"
+	azurediskcsi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/azurediskcsi"
 	azurefilecsi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/azurefilecsi"
 	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
@@ -71,6 +72,7 @@ import (
 
 const (
 	waitTimeout                         = time.Second * 90
+	specialWaitTimeout                  = 5 * time.Minute
 	pollingInterval                     = time.Second * 2
 	appSyncPeriod                       = 5 * time.Minute
 	appWaitTimeout                      = 30 * time.Second
@@ -321,6 +323,14 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
+	Expect((&azurediskcsi.AzureDiskCSIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("AzureFileCSIConfig"),
+		Scheme: mgr.GetScheme(),
+		Config: addonconfig.AzureDiskCSIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: constants.TKGSystemNS}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
 	Expect((&cpi.OracleCPIConfigReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("OracleCPIConfig"),
@@ -379,6 +389,13 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 		Config: addonconfig.KubevipCPIConfigControllerConfig{
 			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: constants.TKGSystemNS}},
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&ClusterMetadataReconciler{
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("controllers").WithName("ClusterMetadata"),
+		Scheme:  mgr.GetScheme(),
+		context: ctx,
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters

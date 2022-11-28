@@ -48,7 +48,9 @@ func (GivenClusterClassSelector) Select(rw tkgconfigreaderwriter.TKGConfigReader
 
 func (ProviderBasedClusterClassSelector) Select(rw tkgconfigreaderwriter.TKGConfigReaderWriter) string {
 	if provider, err := rw.Get(constants.ConfigVariableProviderType); err == nil && provider != "" {
-		return fmt.Sprintf("tkg-%s-default", provider)
+		// TODO: The ClusterClass version should be retrieved from TKR bom metadata, see https://jira.eng.vmware.com/browse/TKG-13296.
+		// For Glasgow.X, hardcode it to v1.0.0. From Halifax, all infra providers will start from version v1.0.1 and have their own releases.
+		return fmt.Sprintf("tkg-%s-default-%s", provider, constants.DefaultClusterClassVersion)
 	}
 
 	return ""

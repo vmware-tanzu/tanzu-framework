@@ -12,7 +12,13 @@ import (
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	kerrors "k8s.io/apimachinery/pkg/util/errors"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/carvelhelpers"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
@@ -23,16 +29,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
-func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext string, operationType constants.OperationType) error {
+func (c *TkgClient) InstallOrUpgradeKappController(clusterClient clusterclient.Client, operationType constants.OperationType) error {
 	// Get kapp-controller configuration file
 	kappControllerConfigFile, err := c.getKappControllerConfigFile()
 	if err != nil {
 		return err
-	}
-
-	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
-	if err != nil {
-		return errors.Wrap(err, "unable to get cluster client")
 	}
 
 	kappControllerOptions := managementcomponents.KappControllerOptions{
@@ -48,8 +49,58 @@ func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext strin
 	return err
 }
 
+// RemoveObsoleteManagementComponents lists and removes management cluster components that are obsoleted by new
+// management packages, e.g. the tkr-controller-manager deployment in tkr-system namespace.
+func RemoveObsoleteManagementComponents(clusterClient clusterclient.Client) error {
+	objectsToDelete, err := listObjectsToDelete(clusterClient)
+	if err != nil {
+		return err
+	}
+
+	for _, object := range objectsToDelete {
+		err := clusterClient.DeleteResource(object)
+		if kerrors.FilterOut(err, apierrors.IsNotFound) != nil {
+			return errors.Wrapf(err, "unable to delete resource %s: '%s/%s'",
+				object.GetObjectKind().GroupVersionKind(), object.GetNamespace(), object.GetName())
+		}
+	}
+	return nil
+}
+
+func listObjectsToDelete(clusterClient clusterclient.Client) ([]client.Object, error) {
+	var objectsToDelete []client.Object
+
+	kindsOfObjectsToDelete := map[schema.GroupVersionKind][]client.ListOption{
+		{
+			Group:   "addons.cluster.x-k8s.io",
+			Version: "v1beta1",
+			Kind:    "ClusterResourceSet",
+		}: {client.InNamespace(constants.TkrNamespace)},
+		{
+			Group:   "apps",
+			Version: "v1",
+			Kind:    "Deployment",
+		}: {client.InNamespace(constants.TkrNamespace)},
+	}
+
+	for gvk, listOptions := range kindsOfObjectsToDelete {
+		objectList := &unstructured.UnstructuredList{}
+		objectList.SetGroupVersionKind(gvk)
+
+		if err := clusterClient.ListResources(objectList, listOptions...); err != nil {
+			return nil, errors.Wrapf(err, "unable to list resources: %s", gvk.String())
+		}
+
+		for i := range objectList.Items {
+			objectsToDelete = append(objectsToDelete, &objectList.Items[i])
+		}
+	}
+
+	return objectsToDelete, nil
+}
+
 // InstallOrUpgradeManagementComponents install management components to the cluster
-func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext string, upgrade bool) error {
+func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.Client, pkgClient packageclient.PackageClient, kubecontext string, upgrade bool) error {
 	managementPackageRepoImage, err := c.tkgBomClient.GetManagementPackageRepositoryImage()
 	if err != nil {
 		return errors.Wrap(err, "unable to get management package repository image")
@@ -88,14 +139,13 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 	}
 
 	// Get TKG package's values file
-	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(managementPackageVersion, addonsManagerPackageVersion, kubeconfig, kubecontext, upgrade)
+	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(mcClient, managementPackageVersion, addonsManagerPackageVersion, upgrade)
 	if err != nil {
 		return err
 	}
 
 	managementcomponentsInstallOptions := managementcomponents.ManagementComponentsInstallOptions{
 		ClusterOptions: managementcomponents.ClusterOptions{
-			Kubeconfig:  kubeconfig,
 			Kubecontext: kubecontext,
 		},
 		ManagementPackageRepositoryOptions: managementcomponents.ManagementPackageRepositoryOptions{
@@ -106,13 +156,35 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 		},
 	}
 
-	err = managementcomponents.InstallManagementComponents(&managementcomponentsInstallOptions)
+	err = managementcomponents.InstallManagementComponents(mcClient, pkgClient, &managementcomponentsInstallOptions)
 
 	// Remove intermediate config files if err is empty
 	if err == nil {
 		os.Remove(tkgPackageValuesFile)
 	}
 
+	return err
+}
+
+// InstallAKO install AKO to the cluster
+func (c *TkgClient) InstallAKO(mcClient clusterclient.Client) error {
+	// Get AKO file
+	akoPackageInstallFile, err := c.getAKOPackageInstallFile()
+	if err != nil {
+		return err
+	}
+
+	// Apply ako packageinstall configuration
+	if err := mcClient.ApplyFile(akoPackageInstallFile); err != nil {
+		return errors.Wrapf(err, "error installing %s", constants.AKODeploymentName)
+	}
+	// Remove intermediate config files if err is empty
+	if err == nil {
+		os.Remove(akoPackageInstallFile)
+	}
+	// no need to wait for AKO packageInstall to be ready. It will be ready once the AKOO
+	// creates the secret for it when a cluster is created.
+	// this is to workaround a bug that AKO might allocate control plane HA IP to pinniped service
 	return err
 }
 
@@ -139,12 +211,12 @@ func (c *TkgClient) GetAddonsManagerPackageversion(managementPackageVersion stri
 	return packageVersion, nil
 }
 
-func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, addonsManagerPackageVersion, kubeconfig, kubecontext string, upgrade bool) (string, error) {
+func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client, managementPackageVersion, addonsManagerPackageVersion string, upgrade bool) (string, error) {
 	var userProviderConfigValues map[string]interface{}
 	var err error
 
 	if upgrade {
-		userProviderConfigValues, err = c.getUserConfigVariableValueMapFromSecret(kubeconfig, kubecontext)
+		userProviderConfigValues, err = c.getUserConfigVariableValueMapFromSecret(mcClient)
 	} else {
 		userProviderConfigValues, err = c.getUserConfigVariableValueMap()
 	}
@@ -158,7 +230,7 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, addo
 		return "", err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig)
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig, c.TKGConfigReaderWriter())
 	if err != nil {
 		return "", err
 	}
@@ -175,28 +247,62 @@ func (c *TkgClient) getUserConfigVariableValueMap() (map[string]interface{}, err
 	return c.GetUserConfigVariableValueMap(path, c.TKGConfigReaderWriter())
 }
 
-func (c *TkgClient) getUserConfigVariableValueMapFromSecret(kubeconfig, kubecontext string) (map[string]interface{}, error) {
-	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to get cluster client")
+func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient clusterclient.Client) (map[string]interface{}, error) {
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+	configValues := make(map[string]interface{})
+	// In ClusterClass based cluster, the user config variables can be retrieved from the tkg-pkg package data values secret directly
+	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(packagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, pollOptions)
+	if err == nil {
+		var tkgPackageConfig managementcomponents.TKGPackageConfig
+
+		err = yaml.Unmarshal(bytes, &tkgPackageConfig)
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to unmarshal configuration from secret:  %v-%v-values, namespace: %v", constants.TKGManagementPackageInstallName, constants.TkgNamespace, constants.TkgNamespace)
+		}
+		configValues = tkgPackageConfig.ConfigValues
+
+	} else if err != nil && apierrors.IsNotFound(err) {
+		// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
+		// legacy (non-package-based-lcm) management cluster will not have the secret tkg-pkg-tkg-system-values
+		// defined on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
+		clusterName, _, err := c.getRegionalClusterNameAndNamespace(clusterClient)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get management cluster name and namespace")
+		}
+		// So we retrieve the user config variables from the <cluster-name>-config-values secret
+		// which was managed in legacy ytt template providers/ytt/09_miscellaneous
+		bytes, err := clusterClient.GetSecretValue(fmt.Sprintf("%s-config-values", clusterName), "value", constants.TkgNamespace, pollOptions)
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to get the %s-config-values secret", clusterName)
+		}
+
+		err = yaml.Unmarshal(bytes, &configValues)
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to yaml unmashal the data.value of %s-config-values secret", clusterName)
+		}
+	} else {
+		return nil, errors.Wrapf(err, "unable to get the secret %v-%v-values, namespace: %v", constants.TKGManagementPackageInstallName, constants.TkgNamespace, constants.TkgNamespace)
 	}
 
-	var tkgPackageConfig managementcomponents.TKGPackageConfig
-
-	// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
-	// legacy (non-package-based-lcm) management cluster will not have this secret defined
-	// on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
-	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(packagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, nil)
+	err = c.mutateUserConfigVariableValueMap(configValues)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to get cluster client")
+		return nil, errors.Wrap(err, "unable to mapping the current configuration variables to the cluster's existing configuration")
 	}
 
-	err = yaml.Unmarshal(bytes, &tkgPackageConfig)
-	if err != nil {
-		return nil, errors.Wrapf(err, "unable to unmarshal configuration from secret: %v, namespace: %v", constants.TKGPackageValues, constants.TkgNamespace)
-	}
+	return configValues, nil
+}
 
-	return tkgPackageConfig.ConfigValues, nil
+// mutateUserConfigVariableValueMap get user config variables to overwrite the existing config variables that
+// retrieved from the cluster. This is mainly for mutating during cluster upgrading.
+func (c *TkgClient) mutateUserConfigVariableValueMap(configValues map[string]interface{}) error {
+	userProvidedConfigValues, err := c.getUserConfigVariableValueMap()
+	if err != nil {
+		return err
+	}
+	for k, v := range userProvidedConfigValues {
+		configValues[k] = v
+	}
+	return nil
 }
 
 func (c *TkgClient) getUserConfigVariableValueMapFile() (string, error) {
@@ -356,4 +462,42 @@ func GetConfigVariableListFromYamlData(bytes []byte) ([]string, error) {
 	}
 
 	return keys, nil
+}
+
+func (c *TkgClient) getAKOPackageInstallFile() (string, error) {
+	path, err := c.tkgConfigPathsClient.GetTKGProvidersDirectory()
+	if err != nil {
+		return "", err
+	}
+	akoPackageInstallTemplateDir := filepath.Join(path, "ako")
+
+	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile()
+	if err != nil {
+		return "", err
+	}
+
+	akoPackageInstallFile, err := ProcessAKOPackageInstallFile(akoPackageInstallTemplateDir, userConfigValuesFile)
+	if err != nil {
+		return "", err
+	}
+
+	return akoPackageInstallFile, nil
+}
+
+func ProcessAKOPackageInstallFile(akoPackageInstallTemplateDir, userConfigValuesFile string) (string, error) {
+	akoPackageInstallContent, err := carvelhelpers.ProcessYTTPackage(akoPackageInstallTemplateDir, userConfigValuesFile)
+	if err != nil {
+		return "", err
+	}
+
+	akoPackageInstallFile, err := utils.CreateTempFile("", "*.yaml")
+	if err != nil {
+		return "", err
+	}
+
+	if err := utils.WriteToFile(akoPackageInstallFile, akoPackageInstallContent); err != nil {
+		return "", err
+	}
+
+	return akoPackageInstallFile, nil
 }

@@ -1,0 +1,23 @@
+providers:
+  - # add a custom provider
+    name: "my-infra-provider"
+    url: "https://github.com/myorg/myrepo/releases/latest/infrastructure_components.yaml"
+    type: "InfrastructureProvider"
+  - name: "cluster-api" # override a pre-defined provider
+    url: "https://github.com/myorg/myforkofclusterapi/releases/latest/core_components.yaml"
+    type: "CoreProvider"
+  - name: aws
+    url: /Users/dummy/.tkg/providers/infrastructure-aws/v0.5.1/infrastructure-components.yaml
+    type: InfrastructureProvider
+  - name: vsphere
+    url: /Users/dummy/.tkg/providers/infrastructure-vsphere/v0.6.2/infrastructure-components.yaml
+    type: InfrastructureProvider
+  - name: vsphere
+    url: /Users/dummy/.tkg/providers/infrastructure-vsphere/v0.7.0/infrastructure-components.yaml
+    type: InfrastructureProvider
+
+# Values for environment variable substitution
+ANTREA_TRACEFLOW: false
+CLUSTER_NAME: "test-cluster"
+NAMESPACE: "test-namespace"
+FOO: new-foo

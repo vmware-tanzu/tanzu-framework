@@ -323,6 +323,18 @@ type Client interface {
 	UpdateVsphereCloudProviderCredentialsSecret(clusterName string, namespace string, username string, password string) error
 	// UpdateVsphereCsiConfigSecret updates the vsphere csi config secret
 	UpdateVsphereCsiConfigSecret(clusterName string, namespace string, username string, password string) error
+	// UpdateCapzManagerBootstrapCredentialsSecret updates the azure creds used by the capz provider
+	UpdateCapzManagerBootstrapCredentialsSecret(tenantID string, clientID string, clientSecret string) error
+	// UpdateAzureClusterIdentity returns whether the cluster used the same azure cluster identityRef with the management cluster
+	CheckUnifiedAzureClusterIdentity(clusterName string, namespace string) (bool, error)
+	// UpdateAzureClusterIdentity updates the azure cluster identityRef used by the capz provider
+	UpdateAzureClusterIdentity(clusterName string, namespace string, tenantID string, clientID string, clientSecret string) error
+	// GetCAPZControllerManagerDeploymentsReplicas gets current replicas for the capz-controller-manager deployment
+	GetCAPZControllerManagerDeploymentsReplicas() (int32, error)
+	// UpdateCAPZControllerManagerDeploymentReplicas update the capz-controller-manager deployment replicas
+	UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) error
+	// UpdateAzureKCP recycles KCP for the azure cloud provider
+	UpdateAzureKCP(clusterName string, namespace string) error
 	// GetClientSet gets one clientset used to generate objects list
 	GetClientSet() CrtClient
 	// GetPinnipedIssuerURLAndCA fetches Pinniped supervisor IssuerURL and IssuerCA data from management cluster
@@ -359,8 +371,8 @@ type Client interface {
 	GetCLIPluginImageRepositoryOverride() (map[string]string, error)
 	// VerifyExistenceOfCRD returns true if CRD exists else return false
 	VerifyExistenceOfCRD(resourceName, resourceGroup string) (bool, error)
-	// RemoveMatchingLabelsFromResources removes matching labels for specified resource types
-	RemoveMatchingLabelsFromResources(gvk schema.GroupVersionKind, namespace string, labelsToBeDeleted []string) error
+	// RemoveMatchingMetadataFromResources removes matching metadata (labels or annotations) for specified resource types
+	RemoveMatchingMetadataFromResources(gvk schema.GroupVersionKind, namespace string, metadataKey string, keysToRemove []string) error
 }
 
 // PollOptions is options for polling
@@ -2673,7 +2685,10 @@ func (c *client) IsClusterClassBased(clusterName, namespace string) (bool, error
 	return true, nil
 }
 
-func (c *client) RemoveMatchingLabelsFromResources(gvk schema.GroupVersionKind, namespace string, labelsToBeDeleted []string) error {
+func (c *client) RemoveMatchingMetadataFromResources(gvk schema.GroupVersionKind, namespace string, metadataKey string, keysToRemove []string) error {
+	if len(keysToRemove) == 0 {
+		return nil
+	}
 	resource := &unstructured.UnstructuredList{}
 	resource.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   gvk.Group,
@@ -2685,18 +2700,15 @@ func (c *client) RemoveMatchingLabelsFromResources(gvk schema.GroupVersionKind, 
 	if err != nil {
 		return err
 	}
-
+	var removePatches []string
+	for _, key := range keysToRemove {
+		removePatches = append(removePatches, fmt.Sprintf("%q: null", key))
+	}
+	pollOptions := NewPollOptions(getClientDefaultInterval, getClientDefaultTimeout)
+	patchString := fmt.Sprintf(`{"metadata": {%q: {%s}}}`, metadataKey, strings.Join(removePatches, ","))
 	for _, item := range resource.Items {
-		obj := item
-		labelsMap := obj.GetLabels()
-		for _, key := range labelsToBeDeleted {
-			delete(labelsMap, key)
-		}
-
-		obj.SetLabels(labelsMap)
-		err = c.UpdateResource(&obj, obj.GetName(), obj.GetNamespace())
-		if err != nil {
-			return errors.Wrap(err, "error while updating labels")
+		if err := c.PatchResource(&item, item.GetName(), namespace, patchString, types.MergePatchType, pollOptions); err != nil {
+			return errors.Wrapf(err, "error while removing %s %v on %s %s/%s", metadataKey, keysToRemove, item.GetKind(), item.GetName(), namespace)
 		}
 	}
 	return nil

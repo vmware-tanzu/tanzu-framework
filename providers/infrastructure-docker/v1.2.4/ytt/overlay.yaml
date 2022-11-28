@@ -1,6 +1,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name",  "kubeadm_image_repo", "get_image_repo_for_component")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name",  "kubeadm_image_repo", "get_image_repo_for_component", "disable_cgroupdriver_cgroupfs")
 #@ load("@ytt:yaml", "yaml")
 
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
@@ -76,6 +76,20 @@ spec:
       kind: DockerMachineTemplate
       name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   kubeadmConfigSpec:
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          #@ if disable_cgroupdriver_cgroupfs():
+          #@overlay/remove
+          cgroup-driver: cgroupfs
+          #@ end
+    joinConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          #@ if disable_cgroupdriver_cgroupfs():
+          #@overlay/remove
+          cgroup-driver: cgroupfs
+          #@ end
     clusterConfiguration:
       imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
       etcd:
@@ -125,10 +139,24 @@ apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
   name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
-#@ if data.values.CNI == "antrea":
 spec:
   template:
     spec:
+      initConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            #@ if disable_cgroupdriver_cgroupfs():
+            #@overlay/remove
+            cgroup-driver: cgroupfs
+            #@ end
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            #@ if disable_cgroupdriver_cgroupfs():
+            #@overlay/remove
+            cgroup-driver: cgroupfs
+            #@ end
+      #@ if data.values.CNI == "antrea":
       preKubeadmCommands:
       #! disable TX hardware checksum offload for the veth interface of each Kind Node
       #! https://github.com/vmware-tanzu/antrea/blob/master/docs/kind.md#why-is-the-yaml-manifest-different-when-using-kind
@@ -138,7 +166,7 @@ spec:
       - #@ construct_pre_kubeadm_command()
       #@overlay/append
       - sysctl -w net.ipv4.tcp_retries2=4
-#@ end
+      #@ end
 
 
 #@overlay/match by=overlay.subset({"kind":"MachineDeployment"})

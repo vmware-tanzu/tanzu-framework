@@ -5,10 +5,12 @@ package util
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -32,6 +34,7 @@ import (
 
 const (
 	defaultClientTimeout = 10 * time.Second
+	tkrKey               = "run.tanzu.vmware.com/tkr"
 )
 
 // GetOwnerCluster returns the Cluster object owning the current resource.
@@ -120,6 +123,41 @@ func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1be
 	}
 
 	return bom, nil
+}
+
+func GetTkgBomForCluster(ctx context.Context, c client.Client, tkrName string) (*tkrv1.TkgBom, error) {
+	tkgVersion, err := getTkgVerionByTkr(ctx, tkrName, c)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't get version by tkr name")
+	}
+	tkgBom, err := GetTkgBomConfigMapByName(ctx, c, fmt.Sprintf("%s-%s", constants.TkgBomConfigMapName, tkgVersion))
+	if err != nil {
+		return nil, err
+	}
+
+	return tkgBom, nil
+}
+
+func getTkgVerionByTkr(ctx context.Context, tkrName string, c client.Client) (string, error) {
+	var compatibilityConfigMap corev1.ConfigMap
+	objectKey := client.ObjectKey{Namespace: constants.TKGSystemNS, Name: constants.TKGbomMetadataConfigmapName}
+	if err := c.Get(ctx, objectKey, &compatibilityConfigMap); err != nil {
+		return "", err
+	}
+	compatibilityData, ok := compatibilityConfigMap.BinaryData[constants.TKGCompatibility]
+	if !ok {
+		compatibilityDataDataString, ok := compatibilityConfigMap.Data[constants.TKGCompatibility]
+		if !ok {
+			return "", nil
+		}
+		compatibilityData = []byte(compatibilityDataDataString)
+	}
+
+	compatibility, err := tkrv1.NewCompatibility(compatibilityData)
+	if err != nil {
+		return "", err
+	}
+	return tkrv1.FilterTkgVersionByTkr(compatibility, tkrName)
 }
 
 // ClusterKubeconfigSecretDetails contains the cluster kubeconfig secret details.

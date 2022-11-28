@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/mod/semver"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -212,7 +213,7 @@ func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentCluster
 	}
 
 	// Upgrade addon metadata configmaps after the nodes are upgraded
-	if !options.SkipAddonUpgrade {
+	if !options.SkipAddonUpgrade && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		err = c.upgradeAddonPostNodeUpgrade(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
 		if err != nil {
 			return err
@@ -1103,6 +1104,14 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 		}
 		for k, v := range clusterUpgradeConfig.UpgradeComponentInfo.EtcdExtraArgs {
 			currentKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs[k] = v
+		}
+	}
+
+	if semver.Compare(clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion, "v1.24.0") >= 0 {
+		newKCP := c.configurePodSecurityStandard(currentKCP)
+		if newKCP != nil {
+			log.Infof("Enabling Pod Security Standard for KCP")
+			currentKCP = newKCP
 		}
 	}
 

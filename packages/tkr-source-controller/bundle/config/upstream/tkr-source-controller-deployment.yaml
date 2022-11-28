@@ -1,5 +1,12 @@
 #@ load("@ytt:data", "data")
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: #@ data.values.legacyNamespace
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -48,4 +55,3 @@ spec:
             memory: 100Mi
       serviceAccount: tkr-source-controller-manager-sa
       terminationGracePeriodSeconds: 10
-

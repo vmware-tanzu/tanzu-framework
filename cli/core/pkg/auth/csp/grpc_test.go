@@ -47,6 +47,11 @@ var _ = Describe("Unit tests for grpc", func() {
 				IDToken:     idToken,
 			}
 			confSource = initializeConfigSource(gsa)
+
+			cc := &fakes.FakeConfigClientWrapper{}
+			configClientWrapper = cc
+			cc.StoreClientConfigReturns(nil)
+			cc.AcquireTanzuConfigLock()
 		})
 		It("should return current token", func() {
 			token, err := confSource.Token()
@@ -75,20 +80,24 @@ var _ = Describe("Unit tests for grpc", func() {
 				"token_type": "Test",
 				"expires_in": 86400,
 				"scope": "Test",
-				"access_token": "LetMeIn",
-				"refresh_token": "LetMeInAgain"}`)))
+				"access_token": "LetMeInGrpc1",
+				"refresh_token": "LetMeInAgainGrpc1"}`)))
 
 			fakeHTTPClient.DoReturns(&http.Response{
 				StatusCode: 200,
 				Body:       responseBody,
 			}, nil)
 
+			cc := &fakes.FakeConfigClientWrapper{}
+			configClientWrapper = cc
+			cc.StoreClientConfigReturns(nil)
+			cc.AcquireTanzuConfigLock()
 		})
 		It("should return token from server", func() {
 			token, err := confSource.Token()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(token.AccessToken).To(Equal("LetMeIn"))
-			Expect(token.RefreshToken).To(Equal("LetMeInAgain"))
+			Expect(token.AccessToken).To(Equal("LetMeInGrpc1"))
+			Expect(token.RefreshToken).To(Equal("LetMeInAgainGrpc1"))
 		})
 	})
 })

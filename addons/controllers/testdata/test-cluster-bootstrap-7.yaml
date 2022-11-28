@@ -496,7 +496,7 @@ spec:
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrap
 metadata:
-  name: v1.23
+  name: test-cluster-7
   namespace: cluster-namespace-7
 spec:
   kapp:

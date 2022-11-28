@@ -5,7 +5,7 @@
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereClusterTemplate
 metadata:
-  name: 'tkg-vsphere-infrastructure'
+  name: #@ "tkg-vsphere-default-{}-cluster".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -16,7 +16,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: 'tkg-vsphere-control-plane'
+  name: #@ "tkg-vsphere-default-{}-control-plane".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -40,7 +40,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: 'tkg-vsphere-worker'
+  name: #@ "tkg-vsphere-default-{}-worker".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -64,7 +64,7 @@ spec:
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
 metadata:
-  name: 'tkg-vsphere-kcp'
+  name: #@ "tkg-vsphere-default-{}-kcp".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -131,7 +131,7 @@ spec:
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: 'tkg-vsphere-md-0'
+  name: #@ "tkg-vsphere-default-{}-md-config".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -167,27 +167,28 @@ spec:
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
-  name: tkg-vsphere-default
+  name: #@ "tkg-vsphere-default-{}".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
-    identifier.cc.vmware.com: tanzu-vsphere-default-0.0.3
 spec:
   controlPlane:
     ref:
       apiVersion: controlplane.cluster.x-k8s.io/v1beta1
       kind: KubeadmControlPlaneTemplate
-      name: 'tkg-vsphere-kcp'
+      name: #@ "tkg-vsphere-default-{}-kcp".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
+      namespace: #@ data.values.NAMESPACE
     machineInfrastructure:
       ref:
         kind: VSphereMachineTemplate
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        name: 'tkg-vsphere-control-plane'
+        name: #@ "tkg-vsphere-default-{}-control-plane".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
+        namespace: #@ data.values.NAMESPACE
   infrastructure:
     ref:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: VSphereClusterTemplate
-      name: 'tkg-vsphere-infrastructure'
+      name: #@ "tkg-vsphere-default-{}-cluster".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
       namespace: #@ data.values.NAMESPACE
   workers:
     machineDeployments:
@@ -197,13 +198,13 @@ spec:
           ref:
             kind: KubeadmConfigTemplate
             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-            name: 'tkg-vsphere-md-0'
+            name: #@ "tkg-vsphere-default-{}-md-config".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
             namespace: #@ data.values.NAMESPACE
         infrastructure:
           ref:
             kind: VSphereMachineTemplate
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-            name: 'tkg-vsphere-worker'
+            name: #@ "tkg-vsphere-default-{}-worker".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
             namespace: #@ data.values.NAMESPACE
     - class: tkg-worker-windows
       template:
@@ -211,13 +212,13 @@ spec:
           ref:
             kind: KubeadmConfigTemplate
             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-            name: tkg-vsphere-md-0-worker
+            name: #@ "tkg-vsphere-default-{}-md-config".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
             namespace: #@ data.values.NAMESPACE
         infrastructure:
           ref:
             kind: VSphereMachineTemplate
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-            name: tkg-vsphere-worker
+            name: #@ "tkg-vsphere-default-{}-worker".format(data.values.VSPHERE_CLUSTER_CLASS_VERSION)
             namespace: #@ data.values.NAMESPACE
   variables:
   - name: vcenter
@@ -341,6 +342,12 @@ spec:
     schema:
       openAPIV3Schema:
         type: integer
+  - name: kubeVipLoadBalancerProvider
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
   - name: trust
     required: false
     schema:
@@ -409,6 +416,16 @@ spec:
                 items:
                   type: string
                 default: []
+          nodeLabels:
+            type: array
+            items:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+            default: []
   - name: worker
     required: false
     schema:
@@ -473,6 +490,19 @@ spec:
       openAPIV3Schema:
         type: boolean
         default: true
+  - name: identityRef
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          name:
+            type: string
+          kind:
+            type: string
+        required:
+        - name
+        - kind
   patches:
   - name: vsphereClusterTemplate
     definitions:
@@ -496,12 +526,25 @@ spec:
         path: /spec/template/spec/server
         valueFrom:
           variable: vcenter.server
+  - name: vSphereClusterIdentityRef
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: VSphereClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
       - op: add
         path: /spec/template/spec/identityRef
         valueFrom:
           template: |
+            {{ if .identityRef -}}
+            kind: {{ .identityRef.kind }}
+            name: {{ .identityRef.name }}
+            {{- else -}}
             kind: Secret
             name: '{{ .builtin.cluster.name }}'
+            {{- end }}
   - name: controlPlaneMachineTemplate
     definitions:
     - selector:
@@ -705,6 +748,8 @@ spec:
                   env:
                   - name: cp_enable
                     value: "true"
+                  - name: svc_enable
+                    value: "{{ .kubeVipLoadBalancerProvider }}"
                   - name: vip_arp
                     value: "true"
                   - name: vip_leaderelection
@@ -921,6 +966,35 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
+        valueFrom:
+          template: |
+            {{ $first := true }}
+            {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels }}
+            {{- if regexMatch "^(?:[a-zA-z])(?:[-\\w\\.]*[a-zA-z])$" $val }}
+            {{- if $first }}
+              {{- $first = false }}
+            {{- else -}}
+              ,
+            {{- end }}
+            {{- $key -}} = {{- $val }}
+            {{- end }}
+            {{- end }}
+            {{- if .controlPlane.nodeLabels -}}
+              {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
+              ,
+              {{- end -}}
+              {{- $first := true }}
+              {{- range .controlPlane.nodeLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
+      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
         valueFrom:
           template: |
@@ -935,6 +1009,20 @@ spec:
             {{- $key -}} = {{- $val }}
             {{- end }}
             {{- end }}
+            {{- if .controlPlane.nodeLabels -}}
+              {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
+              ,
+              {{- end -}}
+              {{- $first := true }}
+              {{- range .controlPlane.nodeLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -1477,6 +1565,12 @@ spec:
         path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/register-with-taints
         value: os=windows:NoSchedule
       - op: add
+        path: /spec/template/spec/files/-
+        value:
+          path: 'C:\k\prevent_windows_updates.ps1'
+          content: |
+            Set-Service -Name "wuauserv" -StartupType Disabled -Status Stopped
+      - op: add
         path: /spec/template/spec/postKubeadmCommands/-
         value: powershell c:/k/prevent_windows_updates.ps1 -ExecutionPolicy Bypass
       - op: replace
@@ -1583,7 +1677,7 @@ spec:
 
             # Install antrea-agent & OVS
             Import-Module C:\k\antrea\helper.psm1
-            & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea"
+            & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "1.7.1"
             New-KubeProxyServiceInterface
             & C:\k\antrea\Install-OVS.ps1 -ImportCertificate $false -LocalFile C:\k\antrea\ovs-win64.zip
             Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False

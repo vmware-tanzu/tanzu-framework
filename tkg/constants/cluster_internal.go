@@ -60,6 +60,7 @@ const (
 	TkrControllerDeploymentName      = "tkr-controller-manager"
 	KappControllerPackageName        = "kapp-controller"
 	CoreManagementPluginsPackageName = "tanzu-core-management-plugins"
+	AKODeploymentName                = "load-balancer-and-ingress-service(ako)"
 
 	AkoStatefulSetName       = "ako"
 	AkoAddonName             = "load-balancer-and-ingress-service"

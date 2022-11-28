@@ -1,10 +1,9 @@
 #@ load("@ytt:assert", "assert")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:ip", "ip")
-#@ load("lib/helpers.star", "get_tkr_version_from_tkr_name")
 
 #@ vsphereControlPlaneEndpointAsCidr = ""
-#@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
+#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
 #@   vsphereControlPlaneEndpoint, err = assert.try_to(lambda : ip.parse_addr(data.values.VSPHERE_CONTROL_PLANE_ENDPOINT))
 #@   if err == None:
 #@     if vsphereControlPlaneEndpoint.is_ipv4():
@@ -16,18 +15,54 @@
 #@   end
 #@ end
 
-#@ def antrea_configs_exist():
+#@ def split_comma_values(value):
+#@  return value.split(",") if value else []
+#@ end
+
+#@ def antrea_config_customized():
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED or
-#@           data.values.ANTREA_NO_SNAT or
-#@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
 #@           not data.values.ANTREA_PROXY or
 #@           not data.values.ANTREA_ENDPOINTSLICE or
 #@           not data.values.ANTREA_POLICY or
-#@           not data.values.ANTREA_NODEPORTLOCAL or
 #@           not data.values.ANTREA_TRACEFLOW or
+#@           not data.values.ANTREA_NODEPORTLOCAL or
+#@           data.values.ANTREA_NETWORKPOLICY_STATS or
 #@           not data.values.ANTREA_EGRESS or
+#@           data.values.ANTREA_IPAM or
 #@           data.values.ANTREA_FLOWEXPORTER or
-#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD)
+#@           data.values.ANTREA_SERVICE_EXTERNALIP or
+#@           data.values.ANTREA_MULTICLUSTER or
+#@           data.values.ANTREA_SECONDARY_NETWORK or
+#@           data.values.ANTREA_TRAFFIC_CONTROL or
+#@           data.values.ANTREA_MULTICAST or
+#@           data.values.ANTREA_NO_SNAT or
+#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD or
+#@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
+#@           data.values.ANTREA_EGRESS_EXCEPT_CIDRS != "" or
+#@           not data.values.ANTREA_NODEPORTLOCAL_ENABLED or
+#@           data.values.ANTREA_NODEPORTLOCAL_PORTRANGE != "61000-62000" or
+#@           data.values.ANTREA_PROXY_ALL or
+#@           data.values.ANTREA_PROXY_NODEPORT_ADDRS != "" or
+#@           data.values.ANTREA_PROXY_SKIP_SERVICES != "" or
+#@           data.values.ANTREA_PROXY_LOAD_BALANCER_IPS or
+#@           data.values.ANTREA_FLOWEXPORTER_COLLECTOR_ADDRESS != "flow-aggregator.flow-aggregator.svc:4739:tls" or
+#@           data.values.ANTREA_FLOWEXPORTER_POLL_INTERVAL != "5s" or
+#@           data.values.ANTREA_FLOWEXPORTER_ACTIVE_TIMEOUT != "30s" or
+#@           data.values.ANTREA_FLOWEXPORTER_IDLE_TIMEOUT != "15s" or
+#@           data.values.ANTREA_KUBE_APISERVER_OVERRIDE != None or
+#@           data.values.ANTREA_TRANSPORT_INTERFACE != None or
+#@           data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS != "" or
+#@           data.values.ANTREA_MULTICAST_INTERFACES != "" or
+#@           data.values.ANTREA_MULTICAST_IGMPQUERY_INTERVAL != "125s" or
+#@           data.values.ANTREA_TUNNEL_TYPE != "geneve" or
+#@           data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE != "none" or
+#@           data.values.ANTREA_WIREGUARD_PORT != 51820 or
+#@           data.values.ANTREA_ENABLE_USAGE_REPORTING or
+#@           data.values.ANTREA_ENABLE_BRIDGING_MODE or
+#@           data.values.ANTREA_DISABLE_TXCHECKSUM_OFFLOAD or
+#@           data.values.ANTREA_DNS_SERVER_OVERRIDE != "" or
+#@           data.values.ANTREA_MULTICLUSTER_ENABLE or
+#@           data.values.ANTREA_MULTICLUSTER_NAMESPACE != "")
 #@ end
 
 #@ def vspherecpi_configs_exist():
@@ -42,6 +77,12 @@
 #@           data.values.USE_TOPOLOGY_CATEGORIES) or (data.values.TKG_HTTP_PROXY != "" or
 #@           data.values.TKG_HTTPS_PROXY != "" or
 #@           data.values.TKG_NO_PROXY != ""))
+#@ end
+
+#@ def azurediskcsi_configs_exist():
+#@   return data.values.PROVIDER_TYPE == "azure" and (data.values.TKG_HTTP_PROXY != "" or
+#@                                                  data.values.TKG_HTTPS_PROXY != "" or
+#@                                                  data.values.TKG_NO_PROXY != "")
 #@ end
 
 #@ def storage_class_configs_exist():
@@ -61,10 +102,14 @@
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or azurefilecsi_configs_exist() or storage_class_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_config_customized() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_configs_exist() or azurediskcsi_configs_exist() or azurefilecsi_configs_exist()
 #@ end
 
-#@ if antrea_configs_exist():
+#@ def kubevipcpiconfig_exist():
+#@   return data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE == "workload" and data.values.KUBEVIP_LOADBALANCER_ENABLE and (data.values.KUBEVIP_LOADBALANCER_CIDRs != "" or data.values.KUBEVIP_LOADBALANCER_IP_RANGES != "")
+#@ end
+
+#@ if antrea_config_customized():
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
@@ -74,6 +119,31 @@ metadata:
 spec:
   antrea:
     config:
+      egress:
+        exceptCIDRs: #@ split_comma_values(data.values.ANTREA_EGRESS_EXCEPT_CIDRS)
+      nodePortLocal:
+        enabled: #@ data.values.ANTREA_NODEPORTLOCAL_ENABLED
+        portRange: #@ data.values.ANTREA_NODEPORTLOCAL_PORTRANGE
+      antreaProxy:
+        proxyAll: #@ data.values.ANTREA_PROXY_ALL
+        nodePortAddresses: #@ split_comma_values(data.values.ANTREA_PROXY_NODEPORT_ADDRS)
+        skipServices: #@ split_comma_values(data.values.ANTREA_PROXY_SKIP_SERVICES)
+        proxyLoadBalancerIPs: #@ data.values.ANTREA_PROXY_LOAD_BALANCER_IPS
+      flowExporter:
+        collectorAddress: #@ data.values.ANTREA_FLOWEXPORTER_COLLECTOR_ADDRESS
+        pollInterval: #@ data.values.ANTREA_FLOWEXPORTER_POLL_INTERVAL
+        activeFlowTimeout: #@ data.values.ANTREA_FLOWEXPORTER_ACTIVE_TIMEOUT
+        idleFlowTimeout: #@ data.values.ANTREA_FLOWEXPORTER_IDLE_TIMEOUT
+      kubeAPIServerOverride: #@ data.values.ANTREA_KUBE_APISERVER_OVERRIDE
+      transportInterface: #@ data.values.ANTREA_TRANSPORT_INTERFACE
+      transportInterfaceCIDRs: #@ split_comma_values(data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS)
+      multicastInterfaces: #@ split_comma_values(data.values.ANTREA_MULTICAST_INTERFACES)
+      tunnelType: #@ data.values.ANTREA_TUNNEL_TYPE
+      trafficEncryptionMode: #@ data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE
+      enableUsageReporting: #@ data.values.ANTREA_ENABLE_USAGE_REPORTING
+      wireGuard:
+        port: #@ data.values.ANTREA_WIREGUARD_PORT
+      serviceCIDR: #@ data.values.SERVICE_CIDR
       #@ if data.values.NSXT_POD_ROUTING_ENABLED:
       trafficEncapMode: "noEncap"
       noSNAT: true
@@ -82,6 +152,14 @@ spec:
       noSNAT: #@ data.values.ANTREA_NO_SNAT
       #@ end
       disableUdpTunnelOffload: #@ data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD
+      enableBridgingMode: #@data.values.ANTREA_ENABLE_BRIDGING_MODE
+      disableTXChecksumOffload: #@ data.values.ANTREA_DISABLE_TXCHECKSUM_OFFLOAD
+      dnsServerOverride: #@ data.values.ANTREA_DNS_SERVER_OVERRIDE
+      multicast:
+        igmpQueryInterval: #@ data.values.ANTREA_MULTICAST_IGMPQUERY_INTERVAL
+      multicluster:
+        enable: #@ data.values.ANTREA_MULTICLUSTER_ENABLE
+        namespace: #@ data.values.ANTREA_MULTICLUSTER_NAMESPACE
       featureGates:
         #@ if data.values.NSXT_POD_ROUTING_ENABLED:
         AntreaProxy: true
@@ -89,11 +167,19 @@ spec:
         AntreaProxy: #@ data.values.ANTREA_PROXY
         #@ end
         EndpointSlice: #@ data.values.ANTREA_ENDPOINTSLICE
-        AntreaPolicy: #@ data.values.ANTREA_POLICY
-        NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
         AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
-        Egress: #@ data.values.ANTREA_EGRESS
+        NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
+        AntreaPolicy: #@ data.values.ANTREA_POLICY
         FlowExporter: #@ data.values.ANTREA_FLOWEXPORTER
+        NetworkPolicyStats: #@ data.values.ANTREA_NETWORKPOLICY_STATS
+        Egress: #@ data.values.ANTREA_EGRESS
+        AntreaIPAM: #@ data.values.ANTREA_IPAM
+        ServiceExternalIP: #@ data.values.ANTREA_SERVICE_EXTERNALIP
+        Multicast: #@ data.values.ANTREA_MULTICAST
+        Multicluster: #@ data.values.ANTREA_MULTICLUSTER
+        SecondaryNetwork: #@ data.values.ANTREA_SECONDARY_NETWORK
+        TrafficControl: #@ data.values.ANTREA_TRAFFIC_CONTROL
+
 #@ end
 ---
 #@ if data.values.CNI == "calico":
@@ -218,6 +304,25 @@ metadata:
 #@ end
 
 ---
+#@ if azurediskcsi_configs_exist():
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: AzureDiskCSIConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+spec:
+  azureDiskCSIDriver:
+    namespace: kube-system
+    #@ if data.values.CLUSTER_PLAN == "prod" or data.values.CLUSTER_PLAN == "prodcc":
+    deploymentReplicas: 3
+    #@ else:
+    deploymentReplicas: 1
+    #@ end
+    httpProxy: #@ data.values.TKG_HTTP_PROXY
+    httpsProxy: #@ data.values.TKG_HTTPS_PROXY
+    noProxy: #@ data.values.TKG_NO_PROXY
+#@ end
+---
 #@ if azurefilecsi_configs_exist():
 apiVersion: csi.tanzu.vmware.com/v1alpha1
 kind: AzureFileCSIConfig
@@ -235,9 +340,8 @@ spec:
     httpProxy: #@ data.values.TKG_HTTP_PROXY
     httpsProxy: #@ data.values.TKG_HTTPS_PROXY
     noProxy: #@ data.values.TKG_NO_PROXY
----
 #@ end
-
+---
 #@ if awsebscsi_configs_exist():
 apiVersion: csi.tanzu.vmware.com/v1alpha1
 kind: AwsEbsCSIConfig
@@ -256,6 +360,23 @@ spec:
     httpsProxy: #@ data.values.TKG_HTTPS_PROXY
     noProxy: #@ data.values.TKG_NO_PROXY
 #@ end
+
+---
+#@ if kubevipcpiconfig_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: KubevipCPIConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+spec:
+  #@ if data.values.KUBEVIP_LOADBALANCER_CIDRs != "":
+  loadbalancerCIDRs: #@ data.values.KUBEVIP_LOADBALANCER_CIDRs
+  #@ end
+  #@ if data.values.KUBEVIP_LOADBALANCER_IP_RANGES != "":
+  loadbalancerIPRanges: #@ data.values.KUBEVIP_LOADBALANCER_IP_RANGES
+  #@ end
+#@ end
+
 ---
 #@ if should_create_clusterbootstrap():
 apiVersion: run.tanzu.vmware.com/v1alpha3
@@ -266,7 +387,7 @@ metadata:
   annotations:
     tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
 spec:
-  #@ if data.values.CNI == "antrea" and antrea_configs_exist():
+  #@ if data.values.CNI == "antrea" and antrea_config_customized():
   cni:
     refName: antrea*
     valuesFrom:
@@ -310,12 +431,23 @@ spec:
         kind: AwsEbsCSIConfig
         name: #@ data.values.CLUSTER_NAME
   #@ end
+  #@ if azurediskcsi_configs_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+  csi:
+    refName: azuredisk-csi*
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: AzureDiskCSIConfig
+        name: #@ data.values.CLUSTER_NAME
+  #@ end
   kapp:
     refName: kapp-controller*
   additionalPackages:
     - refName: metrics-server*
     - refName: secretgen-controller*
     - refName: pinniped*
+    #@ if/end data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+    - refName: tkg-windows*
     #@ if storage_class_configs_exist():
     - refName: tkg-storageclass*
       valuesFrom:
@@ -333,6 +465,14 @@ spec:
         providerRef:
           apiGroup: csi.tanzu.vmware.com
           kind: AzureFileCSIConfig
+          name: #@ data.values.CLUSTER_NAME
+    #@ end
+    #@ if kubevipcpiconfig_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+    - refName: kube-vip-cloud-provider*
+      valuesFrom:
+        providerRef:
+          apiGroup: cpi.tanzu.vmware.com
+          kind: KubevipCPIConfig
           name: #@ data.values.CLUSTER_NAME
     #@ end
 #@ end

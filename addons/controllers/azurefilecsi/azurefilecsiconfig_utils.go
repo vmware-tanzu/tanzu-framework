@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	defaultDataValueNameSpace          = "tkg-system"
+	defaultDataValueNameSpace          = "kube-system"
 	defaultDataValueDeploymentReplicas = 3
 )
 
