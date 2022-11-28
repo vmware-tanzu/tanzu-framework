@@ -380,8 +380,8 @@ spec:
                 data:
                   type: string
               required:
-                - name
-                - data
+              - name
+              - data
   - name: auditLogging
     required: false
     schema:
