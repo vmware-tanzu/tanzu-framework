@@ -89,11 +89,16 @@ spec:
                   The value should be a valid semantic version as defined in https://semver.org/.
                   E.g., 2.0.1
                 type: string
+              target:
+                description: Target specifies the target of the plugin. Only needed
+                  for standalone plugins
+                type: string
             required:
             - artifacts
             - description
             - optional
             - recommendedVersion
+            - target
             type: object
         required:
         - metadata
