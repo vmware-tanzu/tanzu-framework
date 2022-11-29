@@ -323,15 +323,25 @@ end
 
 # get_labels_map_from_string constructs a map from given string of the format "key1=label1,key2=label2"
 def get_labels_map_from_string(labelString):
-   labelMap = {}
-   for val in labelString.split(','):
+   return get_map_from_string(labelString, ',')
+end
+
+# get_extra_args_map_from_string constructs a map from given string of the format "key1=label1,key2=label2"
+def get_extra_args_map_from_string(labelString):
+   return get_map_from_string(labelString, ';')
+end
+
+# get_map_from_string constructs a map from given string of the format "key1=label1<delimiter>key2=label2"
+def get_map_from_string(argsString, delimiter):
+   argsMap = {}
+   for val in argsString.split(delimiter):
     kv = val.split('=')
     if len(kv) != 2:
-      assert.fail("given labels string \""+labelString+"\" must be in the  \"key1=label1,key2=label2\" format ")
+      assert.fail("given args string \""+argsString+"\" must be in the  \"key1=label1"+delimiter+"key2=label2\" format ")
     end
-    labelMap.update({kv[0]: kv[1]})
+    argsMap.update({kv[0]: kv[1]})
    end
-   return labelMap
+   return argsMap
 end
 
 # get_labels_array_from_string constructs an array from given string of the format "key1=label1,key2=label2"
