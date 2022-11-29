@@ -32,6 +32,7 @@ contexts:
     path: config
     isManagementCluster: true
   name: mgmt
+  type: k8s
   discoverySources:
     - local:
         name: fake-mgmt
