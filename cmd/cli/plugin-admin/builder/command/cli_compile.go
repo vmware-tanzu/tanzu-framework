@@ -16,7 +16,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aunum/log"
+	log "k8s.io/klog/v2"
+
 	"github.com/gobwas/glob"
 	"gopkg.in/yaml.v2"
 
@@ -98,7 +99,6 @@ func getMaxParallelism() int {
 
 // compileCore builds the core plugin for the plugin at the given corePath and arch.
 func compileCore(corePath string, arch cli.Arch) cli.Plugin {
-	log.Break()
 	log.Info("building core binary")
 	err := buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName, arch, "", "")
 	if err != nil {
@@ -167,6 +167,7 @@ func Compile(compileArgs *PluginCompileArgs) error {
 	maxConcurrent := getMaxParallelism()
 	guard := make(chan struct{}, maxConcurrent)
 
+	log.Info("Compile: Mixing up IDs to avoid different sets and building plugins in parallel")
 	// Mix up IDs so we don't always get the same set.
 	randSkew := rand.Intn(len(identifiers)) // nolint:gosec
 	var wg sync.WaitGroup
@@ -179,6 +180,7 @@ func Compile(compileArgs *PluginCompileArgs) error {
 				wg.Add(1)
 				guard <- struct{}{}
 				go func(fullPath, id string) {
+					log.Infof("starting go func for build of %v %v %v", fullPath, arch, id)
 					defer wg.Done()
 					p, err := buildPlugin(fullPath, arch, id)
 					if err != nil {
@@ -200,7 +202,7 @@ func Compile(compileArgs *PluginCompileArgs) error {
 	close(plugins)
 	close(fatalErrors)
 
-	log.BreakHard()
+	log.Info("Compile: Checking for errors...")
 	hasFailed := false
 	for err := range fatalErrors {
 		hasFailed = true
@@ -226,7 +228,7 @@ func Compile(compileArgs *PluginCompileArgs) error {
 		return err
 	}
 
-	log.Success("successfully built local repository")
+	log.Info("successfully built local repository")
 	return nil
 }
 
@@ -296,8 +298,7 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 		p.testPath = testPath
 		p.modPath = ""
 	}
-
-	log.Debugy("plugin", p)
+	log.Infof("plugin %v", p)
 
 	err = p.compile()
 	if err != nil {
@@ -494,6 +495,7 @@ func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id, mod
 }
 
 func runDownloadGoDep(targetPath, prefix string) error {
+	log.Info("run download of godep")
 	cmdgomoddownload := goCommand("mod", "download")
 	cmdgomoddownload.Dir = targetPath
 
