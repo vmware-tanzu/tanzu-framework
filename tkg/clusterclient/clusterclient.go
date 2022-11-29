@@ -1741,6 +1741,14 @@ func (c *client) GetRegionalClusterDefaultProviderName(providerType clusterctlv1
 			names.Insert(providers.Items[i].ProviderName)
 		}
 	}
+
+	// At time of writing, clusterctl has no notion of IPAM providers, so the
+	// the IPAM provider is masquerading as a plain old Infrastructure Provider
+	// Upcoming versions of clusterctl have the ability to install IPAM providers.
+	// TODO: When clusterctl is bumped to a version with IPAM providers, this delete
+	// can be removed.
+	names.Delete("ipam-in-cluster")
+
 	// If there is only one provider, this is the default
 	if names.Len() == 1 {
 		return names.List()[0], nil

@@ -70,6 +70,7 @@ type InitRegionOptions struct {
 	BootstrapProvider            string
 	InfrastructureProvider       string
 	ControlPlaneProvider         string
+	IPAMProvider                 string
 	Namespace                    string
 	CniType                      string
 	VsphereControlPlaneEndpoint  string

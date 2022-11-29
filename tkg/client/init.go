@@ -338,6 +338,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
+	if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) {
+		ipamProvider, err := c.tkgConfigUpdaterClient.CheckInfrastructureVersion("ipam-in-cluster")
+		if err != nil {
+			return err
+		}
+		options.IPAMProvider = ipamProvider
+	}
+
 	err = bootStrapClusterClient.WaitForClusterInitialized(options.ClusterName, targetClusterNamespace)
 	if err != nil {
 		return errors.Wrap(err, "error waiting for cluster to be provisioned (this may take a few minutes)")
@@ -674,9 +682,14 @@ func (c *TkgClient) teardownKindCluster(clusterName, kubeconfig string, useExist
 
 // InitializeProviders initializes providers
 func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClient clusterclient.Client, kubeconfigPath string) error {
+	infrastructureProviders := []string{options.InfrastructureProvider}
+	if options.IPAMProvider != "" {
+		infrastructureProviders = append(infrastructureProviders, options.IPAMProvider)
+	}
+
 	clusterctlClientInitOptions := clusterctl.InitOptions{
 		Kubeconfig:              clusterctl.Kubeconfig{Path: kubeconfigPath},
-		InfrastructureProviders: []string{options.InfrastructureProvider},
+		InfrastructureProviders: infrastructureProviders,
 		ControlPlaneProviders:   []string{options.ControlPlaneProvider},
 		BootstrapProviders:      []string{options.BootstrapProvider},
 		CoreProvider:            options.CoreProvider,
@@ -743,6 +756,7 @@ func (c *TkgClient) configureImageTagsForProviderInstallation() error {
 	configImageTag(constants.ConfigVariableInternalCAPVManagerImageTag, "cluster_api_vsphere", "capvControllerImage")
 	configImageTag(constants.ConfigVariableInternalCAPZManagerImageTag, "cluster-api-provider-azure", "capzControllerImage")
 	configImageTag(constants.ConfigVariableInternalCAPOCIManagerImageTag, "cluster-api-provider-oci", "capociControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPIIPAMProviderInClusterImageTag, "cluster-api-ipam-provider-in-cluster", "capiIPAMProviderInClusterControllerImage")
 	configImageTag(constants.ConfigVariableInternalNMIImageTag, "aad-pod-identity", "nmiImage")
 
 	return nil

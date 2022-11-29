@@ -38,4 +38,8 @@ const (
 	// FeatureFlagSingleNodeClusters is to enable Single Node Cluster deployment via tanzu CLI.
 	// Setting the feature flag to true will allow the creation of Single Node Clusters.
 	FeatureFlagSingleNodeClusters = "features.cluster.single-node-clusters"
+	// FeatureFlagManagementClusterDeployInClusterIPAMProvider feature flag
+	// determines whether to apply the In-Cluster IPAM provider to the
+	// management cluster.
+	FeatureFlagManagementClusterDeployInClusterIPAMProvider = "features.management-cluster.deploy-in-cluster-ipam-provider-beta"
 )
