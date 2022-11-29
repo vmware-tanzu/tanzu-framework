@@ -81,7 +81,7 @@ require (
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
 	golang.org/x/net v0.0.0-20220909164309-bea034e7d591
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.4.0
 	gomodules.xyz/jsonpatch/v2 v2.2.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -91,7 +91,7 @@ require (
 	k8s.io/client-go v0.24.4
 	k8s.io/kubectl v0.24.0
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
-	sigs.k8s.io/cluster-api v1.2.4
+	sigs.k8s.io/cluster-api v1.2.6
 	sigs.k8s.io/cluster-api-provider-aws v1.4.1-0.20220928212229-13c0c2e7324b
 	sigs.k8s.io/cluster-api-provider-azure v1.5.3
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1
