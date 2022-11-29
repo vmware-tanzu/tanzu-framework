@@ -60,7 +60,7 @@ docker-image-name-%:
 
 .PHONY: docker-build
 docker-build: ## Build docker image
-	@ for plugin in $(PLUGINS) ; do \
+	@ for plugin in $(PLUGINS_WITHOUT_TARGET) ; do \
 		for env in $(ENVS) ; do \
 			$(MAKE) docker-build-$$plugin"_"$$env --no-print-directory ; \
 		done \
@@ -68,7 +68,7 @@ docker-build: ## Build docker image
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image
-	@ for plugin in $(PLUGINS) ; do \
+	@ for plugin in $(PLUGINS_WITHOUT_TARGET) ; do \
 		for env in $(ENVS) ; do \
 			$(MAKE) docker-publish-$$plugin"_"$$env --no-print-directory ; \
 		done \
@@ -76,12 +76,12 @@ docker-publish: ## Publish docker image
 
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yaml
-	@ for plugin in $(STANDALONE_PLUGINS) ; do \
+	@ for plugin in $(STANDALONE_PLUGINS_WITHOUT_TARGET) ; do \
 		for env in $(ENVS) ; do \
 			$(MAKE) kbld-image-replace-$$plugin"_"$$env"_"standalone-plugins --no-print-directory ; \
 		done \
 	done
-	@ for plugin in $(CONTEXTAWARE_PLUGINS) ; do \
+	@ for plugin in $(CONTEXTAWARE_PLUGINS_WITHOUT_TARGET) ; do \
 		for env in $(ENVS) ; do \
 			$(MAKE) kbld-image-replace-$$plugin"_"$$env"_"core-management-plugins --no-print-directory ; \
 		done \
@@ -89,7 +89,7 @@ kbld-image-replace: ## Add newImage in kbld-config.yaml
 
 .PHONY: docker-image-names
 docker-image-names: ## Return newline-separated names of all docker containers built in this package
-	@ for plugin in $(PLUGINS) ; do \
+	@ for plugin in $(PLUGINS_WITHOUT_TARGET) ; do \
 		for env in $(ENVS) ; do \
 			$(MAKE) docker-image-name-$$plugin"_"$$env --no-print-directory ; \
 		done \

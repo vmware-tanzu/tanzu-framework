@@ -63,10 +63,15 @@ LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/util/buildinfo.Version=$
 
 # Add supported OS-ARCHITECTURE combinations here
 ENVS ?= linux-amd64 windows-amd64 darwin-amd64
+
 STANDALONE_PLUGINS ?= login management-cluster:k8s package:k8s pinniped-auth secret:k8s telemetry:k8s
 CONTEXTAWARE_PLUGINS ?= cluster:k8s kubernetes-release:k8s feature:k8s
 ADMIN_PLUGINS ?= builder codegen test
 PLUGINS ?= $(STANDALONE_PLUGINS) $(CONTEXTAWARE_PLUGINS)
+
+STANDALONE_PLUGINS_WITHOUT_TARGET ?= $(shell echo $(STANDALONE_PLUGINS) | sed 's/:k8s//g' | sed 's/:tmc//g')
+CONTEXTAWARE_PLUGINS_WITHOUT_TARGET ?= $(shell echo $(CONTEXTAWARE_PLUGINS) | sed 's/:k8s//g' | sed 's/:tmc//g')
+PLUGINS_WITHOUT_TARGET ?= $(STANDALONE_PLUGINS_WITHOUT_TARGET) $(CONTEXTAWARE_PLUGINS_WITHOUT_TARGET)
 
 # Hosts running SELinux need :z added to volume mounts
 SELINUX_ENABLED := $(shell cat /sys/fs/selinux/enforce 2> /dev/null || echo 0)
