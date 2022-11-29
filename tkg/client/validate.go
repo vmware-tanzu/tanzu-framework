@@ -1873,9 +1873,6 @@ func (c *TkgClient) ConfigureAndValidateAviConfiguration() error {
 	}
 
 	// validate following optional fields if configured
-	if err = c.ValidateAviControllerVersion(); err != nil {
-		return customAviConfigurationError(err, constants.ConfigVariableAviControllerVersion)
-	}
 	if err = c.ValidateAviManagementClusterServiceEngineGroup(aviClient); err != nil {
 		return customAviConfigurationError(err, constants.ConfigVariableAviManagementClusterServiceEngineGroup)
 	}
@@ -1927,19 +1924,6 @@ func (c *TkgClient) ValidateAviControllerAccount(aviClient avi.Client) error {
 	}
 	if !authed {
 		return errors.Errorf("unable to authenticate avi controller due to incorrect credentials")
-	}
-	return nil
-}
-
-// ValidateAviControllerVersion validates AVI controller version format, it shoulde be something like 20.1.7
-func (c *TkgClient) ValidateAviControllerVersion() error {
-	aviVersion, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerVersion)
-	if aviVersion == "" {
-		return nil
-	}
-	var re = regexp.MustCompile(constants.AviControllerVersionRegex)
-	if !re.MatchString(aviVersion) {
-		return errors.Errorf("incorrect avi controller version format")
 	}
 	return nil
 }
