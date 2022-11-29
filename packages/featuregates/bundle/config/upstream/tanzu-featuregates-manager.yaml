@@ -29,6 +29,7 @@ spec:
           name: manager
           args:
             - #@ "--webhook-server-port={}".format(getWebhookServerPort())
+            - #@ "--tls-cipher-suites={}".format(data.values.deployment.tlsCipherSuites)
           resources:
             limits:
               cpu: 100m
