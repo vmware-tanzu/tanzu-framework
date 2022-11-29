@@ -446,7 +446,7 @@ func displayPluginListOutputSplitViewContext(availablePlugins []plugin.Discovere
 
 	for context, writer := range outputContext {
 		fmt.Println("")
-		_, _ = cyanBold.Println("Context Plugins: ", cyanBoldItalic.Sprintf(context))
+		_, _ = cyanBold.Println("Plugins from Context: ", cyanBoldItalic.Sprintf(context))
 		data := dataContext[context]
 		addDataToOutputWriter(writer, data)
 		writer.Render()
