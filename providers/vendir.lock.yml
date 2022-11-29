@@ -18,10 +18,10 @@ directories:
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: Adjust default ciphers used for kapp-controller 0.41.2 (#5388)
-      sha: fbf9b9b607aaa1725a6e92f40ab8db32d0731d7d
+      commitTitle: Bump kc to 0.41.3 (#5548)...
+      sha: 9acb2f7b7f42bf588f5acf3d23ee3d35f1e26752
       tags:
-      - v0.13.0-dev.2-359-gfbf9b9b6
+      - v0.13.0-dev.2-479-g9acb2f7b
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig
