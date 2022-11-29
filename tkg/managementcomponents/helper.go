@@ -103,7 +103,9 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 			AkoOperatorPackageValues: AkoOperatorPackageValues{
 				AviEnable:   convertToBool(userProviderConfigValues[constants.ConfigVariableAviEnable]),
 				ClusterName: convertToString(userProviderConfigValues[constants.ConfigVariableClusterName]),
+				Namespace:   convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerNamespace]),
 				AkoOperatorConfig: AkoOperatorConfig{
+					AviAdminCredentialName:                         convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerCredentialName]),
 					AviControllerAddress:                           convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerAddress]),
 					AviControllerUsername:                          convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerUsername]),
 					AviControllerPassword:                          convertToString(userProviderConfigValues[constants.ConfigVariableAviControllerPassword]),

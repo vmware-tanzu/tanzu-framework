@@ -5,6 +5,7 @@ package client_test
 
 import (
 	"context"
+	"errors"
 	"os"
 	"strings"
 
@@ -12,12 +13,14 @@ import (
 	. "github.com/onsi/gomega"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -346,4 +349,145 @@ var _ = Describe("Unit tests for processAKOPackageInstallFile", func() {
 		})
 	})
 
+})
+
+var _ = Describe("Unit tests for FillMissingAKOOVariablesFromDefault", func() {
+	var (
+		defaultConfigValues map[string]interface{}
+		configValues        map[string]interface{}
+	)
+	BeforeEach(func() {
+		defaultConfigValues = map[string]interface{}{}
+		configValues = map[string]interface{}{}
+		defaultConfigValues[constants.ConfigVariableAviEnable] = true
+		defaultConfigValues[constants.ConfigVariableAviDataPlaneNetworkName] = "VM Network"
+		defaultConfigValues[constants.ConfigVariableAviDataPlaneNetworkCIDR] = "10.78.160.0/20"
+		defaultConfigValues[constants.ConfigVariableAviControlPlaneNetworkName] = nil
+		defaultConfigValues[constants.ConfigVariableAviControlPlaneNetworkCIDR] = nil
+
+		configValues[constants.ConfigVariableAviDataPlaneNetworkName] = "VM Network"
+		configValues[constants.ConfigVariableAviDataPlaneNetworkCIDR] = "10.191.176.0/20"
+		configValues[constants.ConfigVariableAviControlPlaneNetworkCIDR] = "100.191.176.0/20"
+
+	})
+	JustBeforeEach(func() {
+		FillMissingAKOOVariablesFromDefault(defaultConfigValues, configValues)
+	})
+
+	It("should fill the missing akoo variables from default", func() {
+		aviEnable, ok := configValues[constants.ConfigVariableAviEnable]
+		Expect(ok).To(BeTrue())
+		Expect(aviEnable).ToNot(BeNil())
+		Expect(aviEnable.(bool)).To(BeTrue())
+
+		dataPlaneNetworkName, ok := configValues[constants.ConfigVariableAviDataPlaneNetworkName]
+		Expect(ok).To(BeTrue())
+		Expect(dataPlaneNetworkName).ToNot(BeNil())
+		Expect(dataPlaneNetworkName.(string)).To(Equal("VM Network"))
+
+		dataPlaneNetworkCIDR, ok := configValues[constants.ConfigVariableAviDataPlaneNetworkCIDR]
+		Expect(ok).To(BeTrue())
+		Expect(dataPlaneNetworkCIDR).ToNot(BeNil())
+		Expect(dataPlaneNetworkCIDR.(string)).To(Equal("10.191.176.0/20"))
+
+		controlPlaneNetworkCIDR, ok := configValues[constants.ConfigVariableAviControlPlaneNetworkCIDR]
+		Expect(ok).To(BeTrue())
+		Expect(controlPlaneNetworkCIDR).ToNot(BeNil())
+		Expect(controlPlaneNetworkCIDR.(string)).To(Equal("100.191.176.0/20"))
+
+		_, ok = configValues[constants.ConfigVariableAviControlPlaneNetworkName]
+		Expect(ok).To(BeFalse())
+	})
+
+})
+
+var _ = Describe("Unit tests for GetAKOOPassword", func() {
+	var (
+		err           error
+		clusterClient *fakes.ClusterClient
+		configValues  map[string]interface{}
+		fakePW        string
+	)
+
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		configValues = map[string]interface{}{}
+		fakePW = "foo"
+	})
+
+	JustBeforeEach(func() {
+		err = GetAKOOPassword(clusterClient, configValues)
+	})
+
+	Describe("When AVI_ADMIN_CREDENTIAL_NAME and AVI_NAMESPACE are not customized", func() {
+		BeforeEach(func() {
+			clusterClient.GetSecretValueCalls(func(secretName string, secretField string, secretNamespace string, pollOptions *clusterclient.PollOptions) ([]byte, error) {
+				if secretName == constants.AviAdminCredentialDefaultName &&
+					secretNamespace == constants.AviAdminCredentialDefaultNamespace &&
+					secretField == "password" {
+					return []byte(fakePW), nil
+				}
+				return nil, errors.New("Not expected input")
+			})
+		})
+		It("should find the secret with default name and namespace", func() {
+			Expect(err).ToNot(HaveOccurred())
+			pw, ok := configValues[constants.ConfigVariableAviControllerPassword]
+			Expect(ok).To(BeTrue())
+			Expect(pw).ToNot(BeNil())
+			Expect(pw.(string)).To(Equal(fakePW))
+		})
+	})
+
+	Describe("When AVI_ADMIN_CREDENTIAL_NAME and AVI_NAMESPACE are customized", func() {
+		var (
+			customizedSecretName      = "fakeName"
+			customizedSecretNamespace = "fakeNamespace"
+		)
+		BeforeEach(func() {
+			configValues[constants.ConfigVariableAviControllerCredentialName] = customizedSecretName
+			configValues[constants.ConfigVariableAviControllerNamespace] = customizedSecretNamespace
+
+			clusterClient.GetSecretValueCalls(func(secretName string, secretField string, secretNamespace string, pollOptions *clusterclient.PollOptions) ([]byte, error) {
+				if secretName == customizedSecretName &&
+					secretNamespace == customizedSecretNamespace &&
+					secretField == "password" {
+					return []byte(fakePW), nil
+				}
+				return nil, errors.New("Not expected input")
+			})
+		})
+		It("should find the secret with default name and namespace", func() {
+			Expect(err).ToNot(HaveOccurred())
+			pw, ok := configValues[constants.ConfigVariableAviControllerPassword]
+			Expect(ok).To(BeTrue())
+			Expect(pw).ToNot(BeNil())
+			Expect(pw.(string)).To(Equal(fakePW))
+		})
+	})
+
+	Describe("When secret avi-controller-credentials is not found", func() {
+		BeforeEach(func() {
+			clusterClient.GetSecretValueReturns(nil, apierrors.NewNotFound(
+				schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
+				"fakeGroupResource"))
+		})
+		It("should find the secret with default name and namespace", func() {
+			Expect(err).ToNot(HaveOccurred())
+			_, ok := configValues[constants.ConfigVariableAviControllerPassword]
+			Expect(ok).To(BeFalse())
+		})
+	})
+
+	Describe("When failed to get the secret", func() {
+		BeforeEach(func() {
+			clusterClient.GetSecretValueReturns(nil, errors.New("cannot get the secret"))
+		})
+		It("should find the secret with default name and namespace", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("cannot get the secret"))
+			_, ok := configValues[constants.ConfigVariableAviControllerPassword]
+			Expect(ok).To(BeFalse())
+		})
+	})
 })

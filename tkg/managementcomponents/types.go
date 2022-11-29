@@ -120,12 +120,14 @@ type TanzuAuthPackageValues struct {
 // AkoOperatorPackageValues
 type AkoOperatorPackageValues struct {
 	AviEnable         bool              `yaml:"avi_enable,omitempty"`
+	Namespace         string            `yaml:"namespace,omitempty"`
 	ClusterName       string            `yaml:"cluster_name,omitempty"`
 	AkoOperatorConfig AkoOperatorConfig `yaml:"config,omitempty"`
 }
 
 // AkoOperatorConfig
 type AkoOperatorConfig struct {
+	AviAdminCredentialName                         string `yaml:"avi_admin_credential_name,omitempty"`
 	AviControllerAddress                           string `yaml:"avi_controller,omitempty"`
 	AviControllerVersion                           string `yaml:"avi_controller_version,omitempty"`
 	AviControllerUsername                          string `yaml:"avi_username,omitempty"`

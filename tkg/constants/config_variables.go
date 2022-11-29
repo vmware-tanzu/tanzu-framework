@@ -260,11 +260,13 @@ const (
 	// AVI aka. NSX Advanced Load Balancer specific variables
 	ConfigVariableAviEnable = "AVI_ENABLE"
 
-	ConfigVariableAviControllerAddress  = "AVI_CONTROLLER"
-	ConfigVariableAviControllerVersion  = "AVI_CONTROLLER_VERSION"
-	ConfigVariableAviControllerUsername = "AVI_USERNAME"
-	ConfigVariableAviControllerPassword = "AVI_PASSWORD"
-	ConfigVariableAviControllerCA       = "AVI_CA_DATA_B64"
+	ConfigVariableAviControllerAddress        = "AVI_CONTROLLER"
+	ConfigVariableAviControllerVersion        = "AVI_CONTROLLER_VERSION"
+	ConfigVariableAviControllerUsername       = "AVI_USERNAME"
+	ConfigVariableAviControllerPassword       = "AVI_PASSWORD"
+	ConfigVariableAviControllerCA             = "AVI_CA_DATA_B64"
+	ConfigVariableAviControllerNamespace      = "AVI_NAMESPACE"
+	ConfigVariableAviControllerCredentialName = "AVI_ADMIN_CREDENTIAL_NAME"
 
 	ConfigVariableAviCloudName                           = "AVI_CLOUD_NAME"
 	ConfigVariableAviServiceEngineGroup                  = "AVI_SERVICE_ENGINE_GROUP"

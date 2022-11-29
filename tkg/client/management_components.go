@@ -289,6 +289,11 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 		return nil, errors.Wrap(err, "unable to mapping the current configuration variables to the cluster's existing configuration")
 	}
 
+	err = c.handleAKOOVariables(clusterClient, configValues)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to handle the akoo specific variables")
+	}
+
 	return configValues, nil
 }
 
@@ -500,4 +505,93 @@ func ProcessAKOPackageInstallFile(akoPackageInstallTemplateDir, userConfigValues
 	}
 
 	return akoPackageInstallFile, nil
+}
+
+func (c *TkgClient) getDefaultConfigVariables() (map[string]interface{}, error) {
+	defaultConfigValues := map[string]interface{}{}
+	path, err := c.tkgConfigPathsClient.GetConfigDefaultsFilePath()
+	if err != nil {
+		return defaultConfigValues, err
+	}
+	bytes, err := os.ReadFile(path)
+	if err != nil {
+		return defaultConfigValues, err
+	}
+
+	err = yaml.Unmarshal(bytes, &defaultConfigValues)
+	if err != nil {
+		return defaultConfigValues, errors.Wrap(err, "error while unmarshaling the default config values")
+	}
+	return defaultConfigValues, nil
+}
+
+func (c *TkgClient) handleAKOOVariables(clusterClient clusterclient.Client, configValues map[string]interface{}) error {
+	defaultConfigValues, err := c.getDefaultConfigVariables()
+	if err != nil {
+		return errors.Wrap(err, "error while getting default variables")
+	}
+
+	FillMissingAKOOVariablesFromDefault(defaultConfigValues, configValues)
+
+	aviEnabled, ok := configValues[constants.ConfigVariableAviEnable]
+	if ok && aviEnabled != nil && aviEnabled.(bool) == true {
+		err = GetAKOOPassword(clusterClient, configValues)
+		if err != nil {
+			return errors.Wrap(err, "error while getting the akoo password")
+		}
+	}
+	return nil
+}
+
+func FillMissingAKOOVariablesFromDefault(defaultConfigValues, configValues map[string]interface{}) {
+	akooVariables := [...]string{
+		constants.ConfigVariableAviEnable,
+		constants.ConfigVariableAviControllerAddress,
+		constants.ConfigVariableAviControllerUsername,
+		constants.ConfigVariableAviControllerPassword,
+		constants.ConfigVariableAviControllerCA,
+		constants.ConfigVariableAviCloudName,
+		constants.ConfigVariableAviServiceEngineGroup,
+		constants.ConfigVariableAviManagementClusterServiceEngineGroup,
+		constants.ConfigVariableAviDataPlaneNetworkName,
+		constants.ConfigVariableAviDataPlaneNetworkCIDR,
+		constants.ConfigVariableAviControlPlaneNetworkName,
+		constants.ConfigVariableAviControlPlaneNetworkCIDR,
+		constants.ConfigVariableAviManagementClusterDataPlaneNetworkName,
+		constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR,
+		constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName,
+		constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR,
+		constants.ConfigVariableVsphereHaProvider,
+		constants.ConfigVariableAviControllerNamespace,
+		constants.ConfigVariableAviControllerCredentialName,
+	}
+	for _, k := range akooVariables {
+		_, existConfig := configValues[k]
+		defaultVariable, existDefault := defaultConfigValues[k]
+		if !existConfig && existDefault && defaultVariable != nil {
+			configValues[k] = defaultVariable
+		}
+	}
+}
+
+func GetAKOOPassword(clusterClient clusterclient.Client, configValues map[string]interface{}) error {
+	secretName := constants.AviAdminCredentialDefaultName
+	if key, ok := configValues[constants.ConfigVariableAviControllerCredentialName]; ok && key != nil {
+		secretName = key.(string)
+	}
+	secretNamespace := constants.AviAdminCredentialDefaultNamespace
+	if key, ok := configValues[constants.ConfigVariableAviControllerNamespace]; ok && key != nil {
+		secretNamespace = key.(string)
+	}
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+	bytes, err := clusterClient.GetSecretValue(secretName, "password", secretNamespace, pollOptions)
+	if err != nil && apierrors.IsNotFound(err) {
+		log.V(6).Infof("akoo credential secret %s/%s not found", secretNamespace, secretName)
+		return nil
+	} else if err != nil {
+		return err
+	}
+
+	configValues[constants.ConfigVariableAviControllerPassword] = string(bytes)
+	return nil
 }

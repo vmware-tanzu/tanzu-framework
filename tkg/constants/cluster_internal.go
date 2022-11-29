@@ -62,11 +62,13 @@ const (
 	CoreManagementPluginsPackageName = "tanzu-core-management-plugins"
 	AKODeploymentName                = "load-balancer-and-ingress-service(ako)"
 
-	AkoStatefulSetName       = "ako"
-	AkoAddonName             = "load-balancer-and-ingress-service"
-	AkoNamespace             = "avi-system"
-	AkoCleanUpAnnotationKey  = "AviObjectDeletionStatus"
-	AkoCleanUpFinishedStatus = "Done"
+	AkoStatefulSetName                 = "ako"
+	AkoAddonName                       = "load-balancer-and-ingress-service"
+	AkoNamespace                       = "avi-system"
+	AkoCleanUpAnnotationKey            = "AviObjectDeletionStatus"
+	AkoCleanUpFinishedStatus           = "Done"
+	AviAdminCredentialDefaultName      = "avi-controller-credentials"
+	AviAdminCredentialDefaultNamespace = "tkg-system-networking"
 
 	ServiceDNSSuffix             = ".svc"
 	ServiceDNSClusterLocalSuffix = ".svc.cluster.local"
