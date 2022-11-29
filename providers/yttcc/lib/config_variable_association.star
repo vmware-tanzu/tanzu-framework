@@ -902,6 +902,10 @@ def get_vsphere_vars():
         vars["kubeVipLoadBalancerProvider"] = True
     end
 
+    if data.values["VSPHERE_EXTRA_DNS"] != None:
+        vars["extraDNS"] = data.values["VSPHERE_EXTRA_DNS"].replace(" ", "").split(",")
+    end
+
     return vars
 end
 
