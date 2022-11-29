@@ -86,7 +86,7 @@ func StoreClientConfig(cfg *configapi.ClientConfig) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 func clientConfigSetClientOptions(cfg *configapi.ClientConfig, node *yaml.Node) error {

@@ -22,9 +22,13 @@ var (
 	DefaultStandaloneDiscoveryImagePath  = ""
 	DefaultStandaloneDiscoveryImageTag   = ""
 	DefaultStandaloneDiscoveryName       = "default"
-	DefaultStandaloneDiscoveryNameLocal  = "default-local"
-	DefaultStandaloneDiscoveryType       = common.DistributionTypeOCI
-	DefaultStandaloneDiscoveryLocalPath  = ""
+	// DefaultStandaloneDiscoveryNameLocal Used for local discovery of sources.
+	// Changing the default-local discovery source label to default and default will be used as a local discovery source
+	// default and default-local will co-exist in the config.yaml i.e. If local discovery source is used and is now assigned the default name, the discovery source named default-local will still exist.
+	// And recommend that it be manually removed from the config file.
+	DefaultStandaloneDiscoveryNameLocal = "default"
+	DefaultStandaloneDiscoveryType      = common.DistributionTypeOCI
+	DefaultStandaloneDiscoveryLocalPath = ""
 )
 
 // CoreRepositoryName is the core repository name.
@@ -58,7 +62,7 @@ var AdvancedGCPBucketRepository = configapi.GCPPluginRepository{
 const DefaultTMCPluginsArtifactRepository = "https://tmc-cli.s3-us-west-2.amazonaws.com/plugins/artifacts"
 
 // DefaultRepositories are the default repositories for the CLI.
-var DefaultRepositories []configapi.PluginRepository = []configapi.PluginRepository{
+var DefaultRepositories = []configapi.PluginRepository{
 	{
 		GCPPluginRepository: &CoreGCPBucketRepository,
 	},

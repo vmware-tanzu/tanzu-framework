@@ -12,6 +12,7 @@ import (
 
 // GetEdition retrieves ClientOptions Edition
 func GetEdition() (string, error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return "", err
@@ -21,15 +22,20 @@ func GetEdition() (string, error) {
 
 // SetEdition adds or updates edition value
 func SetEdition(val string) (err error) {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return err
 	}
+
+	// Add or Update edition in the yaml node
 	persist := setEdition(node, val)
+
+	// Persist the config node to the file
 	if persist {
-		return persistNode(node)
+		return persistConfig(node)
 	}
 	return err
 }
@@ -84,7 +90,7 @@ func setCompatibilityFilePath(node *yaml.Node, filepath string) (persist bool) {
 
 // getCLIOptionsChildNode parses the yaml node and returns the matched node based on configOptions
 func getCLIOptionsChildNode(key string, node *yaml.Node) *yaml.Node {
-	configOptions := func(c *nodeutils.Config) {
+	configOptions := func(c *nodeutils.CfgNode) {
 		c.ForceCreate = true
 		c.Keys = []nodeutils.Key{
 			{Name: KeyClientOptions, Type: yaml.MappingNode},

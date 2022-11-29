@@ -4,7 +4,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -170,7 +169,6 @@ func TestCLIRepositoriesIntegration(t *testing.T) {
 	tanzuConfig, expectedConfig := setUpRepositoriesData()
 	f, err := os.CreateTemp("", "tanzu_config")
 	assert.Nil(t, err)
-	fmt.Println(f.Name())
 	err = os.WriteFile(f.Name(), []byte(tanzuConfig), 0644)
 	assert.Nil(t, err)
 	defer func(name string) {

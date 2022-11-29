@@ -16,6 +16,7 @@ import (
 
 // IsFeatureEnabled checks and returns whether specific plugin and key is true
 func IsFeatureEnabled(plugin, key string) (bool, error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return false, err
@@ -46,6 +47,7 @@ func getFeature(node *yaml.Node, plugin, key string) (string, error) {
 
 // DeleteFeature deletes the specified plugin key
 func DeleteFeature(plugin, key string) error {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
@@ -56,18 +58,17 @@ func DeleteFeature(plugin, key string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 func deleteFeature(node *yaml.Node, plugin, key string) error {
-	configOptions := func(c *nodeutils.Config) {
-		c.Keys = []nodeutils.Key{
-			{Name: KeyClientOptions},
-			{Name: KeyFeatures},
-			{Name: plugin},
-		}
+	// Find plugin node
+	keys := []nodeutils.Key{
+		{Name: KeyClientOptions},
+		{Name: KeyFeatures},
+		{Name: plugin},
 	}
-	pluginNode := nodeutils.FindNode(node.Content[0], configOptions)
+	pluginNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if pluginNode == nil {
 		return nil
 	}
@@ -86,32 +87,32 @@ func deleteFeature(node *yaml.Node, plugin, key string) error {
 
 // SetFeature add or update plugin key value
 func SetFeature(plugin, key, value string) (err error) {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return err
 	}
+	// Add or Update Feature plugin
 	persist, err := setFeature(node, plugin, key, value)
 	if err != nil {
 		return err
 	}
 	if persist {
-		return persistNode(node)
+		return persistConfig(node)
 	}
 	return err
 }
 
 func setFeature(node *yaml.Node, plugin, key, value string) (persist bool, err error) {
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = true
-		c.Keys = []nodeutils.Key{
-			{Name: KeyClientOptions, Type: yaml.MappingNode},
-			{Name: KeyFeatures, Type: yaml.MappingNode},
-			{Name: plugin, Type: yaml.MappingNode},
-		}
+	// find plugin node
+	keys := []nodeutils.Key{
+		{Name: KeyClientOptions, Type: yaml.MappingNode},
+		{Name: KeyFeatures, Type: yaml.MappingNode},
+		{Name: plugin, Type: yaml.MappingNode},
 	}
-	pluginNode := nodeutils.FindNode(node.Content[0], configOptions)
+	pluginNode := nodeutils.FindNode(node.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys(keys))
 	if pluginNode == nil {
 		return persist, nodeutils.ErrNodeNotFound
 	}
@@ -136,15 +137,13 @@ func ConfigureDefaultFeatureFlagsIfMissing(plugin string, defaultFeatureFlags ma
 	if err != nil {
 		return err
 	}
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = true
-		c.Keys = []nodeutils.Key{
-			{Name: KeyClientOptions, Type: yaml.MappingNode},
-			{Name: KeyFeatures, Type: yaml.MappingNode},
-			{Name: plugin, Type: yaml.MappingNode},
-		}
+	// find plugin node
+	keys := []nodeutils.Key{
+		{Name: KeyClientOptions, Type: yaml.MappingNode},
+		{Name: KeyFeatures, Type: yaml.MappingNode},
+		{Name: plugin, Type: yaml.MappingNode},
 	}
-	pluginNode := nodeutils.FindNode(node.Content[0], configOptions)
+	pluginNode := nodeutils.FindNode(node.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys(keys))
 	if pluginNode == nil {
 		return nodeutils.ErrNodeNotFound
 	}
