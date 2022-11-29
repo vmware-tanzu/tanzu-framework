@@ -36,6 +36,7 @@ var (
 	pkgCni               *kapppkgv1alpha1.Package
 	pkgCsi               *kapppkgv1alpha1.Package
 	pkgCpi               *kapppkgv1alpha1.Package
+	infraProviderName    string
 )
 
 const pkgKappObjStr = `apiVersion: packaging.carvel.dev/v1alpha1
@@ -110,7 +111,7 @@ var _ = Describe("unit tests for monitor addon's packages installation", func() 
 				setFakeClientAndCalls()
 			})
 			It("should not return error", func() {
-				packages, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name)
+				packages, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name, infraProviderName)
 				Expect(err).NotTo(HaveOccurred())
 				err = MonitorAddonsCorePackageInstallation(fakeMgtClusterClient, fakeWcClusterClient, packages, timeout)
 				pkg, ns, _ := fakeMgtClusterClient.WaitForPackageInstallArgsForCall(0)
@@ -131,7 +132,7 @@ var _ = Describe("unit tests for monitor addon's packages installation", func() 
 				fakeMgtClusterClient.GetPackageReturnsOnCall(0, pkgKapp, err)
 			})
 			It("should return error", func() {
-				_, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name)
+				_, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name, infraProviderName)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring(errorStr))
 			})
@@ -144,7 +145,7 @@ var _ = Describe("unit tests for monitor addon's packages installation", func() 
 				fakeMgtClusterClient.WaitForPackageInstallReturns(errors.New(packageNotFound))
 			})
 			It("should return error", func() {
-				packages, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name)
+				packages, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name, infraProviderName)
 				Expect(err).NotTo(HaveOccurred())
 				err = MonitorAddonsCorePackageInstallation(fakeMgtClusterClient, fakeWcClusterClient, packages, timeout)
 				Expect(err).To(HaveOccurred())
@@ -158,11 +159,24 @@ var _ = Describe("unit tests for monitor addon's packages installation", func() 
 				fakeWcClusterClient.WaitForPackageInstallReturns(errors.New(packageNotFound))
 			})
 			It("should return error", func() {
-				packages, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name)
+				packages, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name, infraProviderName)
 				Expect(err).NotTo(HaveOccurred())
 				err = MonitorAddonsCorePackageInstallation(fakeMgtClusterClient, fakeWcClusterClient, packages, timeout)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring(packageNotFound))
+			})
+		})
+		When("package installation successful with docker provider should not return error but skip csi and cpi validation", func() {
+			BeforeEach(func() {
+				setFakeClientAndCalls()
+				infraProviderName = "docker"
+			})
+			It("should not return error", func() {
+				packages, err := GetCorePackagesFromClusterBootstrap(fakeMgtClusterClient, fakeWcClusterClient, clusterBootstrap, constants.CorePackagesNamespaceInTKGM, clusterBootstrap.Name, infraProviderName)
+				Expect(err).NotTo(HaveOccurred())
+				err = MonitorAddonsCorePackageInstallation(fakeMgtClusterClient, fakeWcClusterClient, packages, timeout)
+				Expect(len(packages)).To(Equal(2))
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})
@@ -178,4 +192,5 @@ func setFakeClientAndCalls() {
 	fakeWcClusterClient.GetPackageReturnsOnCall(0, pkgCni, nil)
 	fakeWcClusterClient.GetPackageReturnsOnCall(1, pkgCsi, nil)
 	fakeWcClusterClient.GetPackageReturnsOnCall(2, pkgCpi, nil)
+	infraProviderName = "vsphere"
 }

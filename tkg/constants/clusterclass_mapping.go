@@ -261,7 +261,7 @@ var ClusterAttributesWithArrayTypeValue = map[string]bool{
 // Cluster class variables constants
 const (
 	RegexpMachineDeploymentsOverrides = `spec.topology.workers.machineDeployments.[0-9].variables.overrides`
-	RegexpTopologyClassValue          = `tkg-(aws|azure|vsphere)-default`
+	RegexpTopologyClassValue          = `tkg-(aws|azure|vsphere|docker)-default`
 
 	TopologyVariablesNetworkSubnets   = "spec.topology.variables.network.subnets"
 	TopologyVariablesNodes            = "spec.topology.variables.nodes"

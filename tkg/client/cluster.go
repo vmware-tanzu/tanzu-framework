@@ -65,6 +65,7 @@ type waitForAddonsOptions struct {
 	namespace             string
 	waitForCNI            bool
 	isTKGSCluster         bool
+	infraProviderName     string
 }
 
 // TKGSupportedClusterOptions is the comma separated list of cluster options that could be enabled by user
@@ -107,12 +108,21 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		return false, errors.Wrap(err, "unable to get cluster client while creating cluster")
 	}
 
+	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to get cluster provider information.")
+	}
+	infraProviderName, _, err := ParseProviderName(infraProvider)
+	if err != nil {
+		return false, err
+	}
+
 	isPacific, err := regionalClusterClient.IsPacificRegionalCluster()
 	if err != nil {
 		return false, errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
-		return true, c.createPacificCluster(options, waitForCluster)
+		return true, c.createPacificCluster(options, waitForCluster, infraProviderName)
 	}
 
 	// Validate management cluster version
@@ -133,14 +143,6 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 
 	if err := c.ConfigureAndValidateWorkloadClusterConfiguration(options, regionalClusterClient, false); err != nil {
 		return false, errors.Wrap(err, "workload cluster configuration validation failed")
-	}
-	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to get cluster provider information.")
-	}
-	infraProviderName, _, err := ParseProviderName(infraProvider)
-	if err != nil {
-		return false, err
 	}
 
 	if options.IsInputFileClusterClassBased {
@@ -203,7 +205,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	if !waitForCluster {
 		return false, nil
 	}
-	return true, c.waitForClusterCreation(regionalClusterClient, options)
+	return true, c.waitForClusterCreation(regionalClusterClient, options, infraProviderName)
 }
 
 // getClusterConfigurationBytes returns cluster configuration by taking into consideration of legacy vs clusterclass based cluster creation
@@ -234,7 +236,7 @@ func getContentFromInputFile(fileName string) ([]byte, error) {
 	return content, nil
 }
 
-func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.Client, options *CreateClusterOptions) error {
+func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.Client, options *CreateClusterOptions, infraProviderName string) error {
 	log.Info("waiting for cluster to be initialized...")
 	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(regionalClusterClient, options.ClusterName, options.TargetNamespace)
 	if err != nil {
@@ -283,6 +285,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 			namespace:             options.TargetNamespace,
 			waitForCNI:            true,
 			isTKGSCluster:         isTKGSCluster,
+			infraProviderName:     infraProviderName,
 		}); err != nil {
 			return errors.Wrap(err, "error waiting for addons to get installed")
 		}
@@ -294,6 +297,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 			clusterName:           options.ClusterName,
 			namespace:             options.TargetNamespace,
 			waitForCNI:            true,
+			infraProviderName:     infraProviderName,
 		}); err != nil {
 			return errors.Wrap(err, "error waiting for addons to get installed")
 		}
@@ -475,14 +479,14 @@ func (c *TkgClient) WaitForAddonsCorePackagesInstallation(options waitForAddonsO
 	} else {
 		corePackagesNamespace = constants.CorePackagesNamespaceInTKGM
 	}
-	packages, err := GetCorePackagesFromClusterBootstrap(options.regionalClusterClient, options.workloadClusterClient, clusterBootstrap, corePackagesNamespace, options.clusterName)
+	packages, err := GetCorePackagesFromClusterBootstrap(options.regionalClusterClient, options.workloadClusterClient, clusterBootstrap, corePackagesNamespace, options.clusterName, options.infraProviderName)
 	if err != nil {
 		return err
 	}
 	return MonitorAddonsCorePackageInstallation(options.regionalClusterClient, options.workloadClusterClient, packages, c.getPackageInstallTimeoutFromConfig())
 }
 
-func (c *TkgClient) createPacificCluster(options *CreateClusterOptions, waitForCluster bool) (err error) {
+func (c *TkgClient) createPacificCluster(options *CreateClusterOptions, waitForCluster bool, infraProviderName string) (err error) {
 	// get the configuration
 	var configYaml []byte
 	var clusterName, namespace string
@@ -528,7 +532,7 @@ func (c *TkgClient) createPacificCluster(options *CreateClusterOptions, waitForC
 
 	log.V(3).Infof("Waiting for the Tanzu Kubernetes Cluster service for vSphere workload cluster\n")
 	if options.IsInputFileClusterClassBased {
-		err = c.waitForClusterCreation(clusterClient, options)
+		err = c.waitForClusterCreation(clusterClient, options, infraProviderName)
 	} else {
 		err = clusterClient.WaitForPacificCluster(clusterName, namespace)
 	}

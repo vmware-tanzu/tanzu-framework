@@ -179,6 +179,7 @@ const (
 	KindAzureMachineTemplate        = "AzureMachineTemplate"
 	KindVSphereClusterTemplate      = "VSphereClusterTemplate"
 	KindVSphereMachineTemplate      = "VSphereMachineTemplate"
+	KindDockerClusterTemplate       = "DockerClusterTemplate"
 	KindDockerMachineTemplate       = "DockerMachineTemplate"
 )
 
@@ -193,6 +194,8 @@ const (
 	ResourceAzureMachineTemplate        = "azuremachinetemplates"
 	ResourceVSphereClusterTemplate      = "vsphereclustertemplates"
 	ResourceVSphereMachineTemplate      = "vspheremachinetemplates"
+	ResourceDockerClusterTemplate       = "dockerclustertemplates"
+	ResourceDockerMachineTemplate       = "dockermachinetemplates"
 )
 
 type OperationType int

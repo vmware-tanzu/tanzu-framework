@@ -28,7 +28,7 @@ func GetClusterBootstrap(managementClusterClient clusterclient.Client, clusterNa
 }
 
 // GetCorePackagesFromClusterBootstrap returns addon's core packages details from the given ClusterBootstrap object
-func GetCorePackagesFromClusterBootstrap(regionalClusterClient clusterclient.Client, workloadClusterClient clusterclient.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, corePackagesNamespace, clusterName string) ([]kapppkgv1alpha1.Package, error) { //nolint:gocritic
+func GetCorePackagesFromClusterBootstrap(regionalClusterClient clusterclient.Client, workloadClusterClient clusterclient.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, corePackagesNamespace, clusterName string, infraProviderName string) ([]kapppkgv1alpha1.Package, error) { //nolint:gocritic
 	var packages []kapppkgv1alpha1.Package
 	// kapp package is installed in management cluster, in namespace in which workload cluster created
 	if isPackageExists(clusterBootstrap.Spec.Kapp) {
@@ -47,19 +47,25 @@ func GetCorePackagesFromClusterBootstrap(regionalClusterClient clusterclient.Cli
 		}
 		packages = append(packages, *pkg)
 	}
+	// why use infraProviderName as a condition. There are no clusterbootstraptemplate for docker provider, default to use the vshpere template, so docker provider
+	// need to skip the csi and cpi packageinstall validation.
 	if isPackageExists(clusterBootstrap.Spec.CSI) {
-		pkg, err := getPackage(workloadClusterClient, clusterBootstrap.Spec.CSI.RefName, corePackagesNamespace, clusterName)
-		if err != nil {
-			return packages, err
+		if infraProviderName != DockerProviderName {
+			pkg, err := getPackage(workloadClusterClient, clusterBootstrap.Spec.CSI.RefName, corePackagesNamespace, clusterName)
+			if err != nil {
+				return packages, err
+			}
+			packages = append(packages, *pkg)
 		}
-		packages = append(packages, *pkg)
 	}
 	if isPackageExists(clusterBootstrap.Spec.CPI) {
-		pkg, err := getPackage(workloadClusterClient, clusterBootstrap.Spec.CPI.RefName, corePackagesNamespace, clusterName)
-		if err != nil {
-			return packages, err
+		if infraProviderName != DockerProviderName {
+			pkg, err := getPackage(workloadClusterClient, clusterBootstrap.Spec.CPI.RefName, corePackagesNamespace, clusterName)
+			if err != nil {
+				return packages, err
+			}
+			packages = append(packages, *pkg)
 		}
-		packages = append(packages, *pkg)
 	}
 	return packages, nil
 }
