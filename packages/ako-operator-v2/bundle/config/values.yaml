@@ -5,6 +5,7 @@ akoOperator:
   avi_enable: false
   namespace: tkg-system-networking
   cluster_name: ""
+  on_bootstrap_cluster: false
   config:
     avi_admin_credential_name: avi-controller-credentials
     avi_ca_name: avi-controller-ca

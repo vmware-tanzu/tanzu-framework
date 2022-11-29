@@ -138,8 +138,13 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 		}
 	}
 
+	onBootstrapCluster := true
+	if kubecontext != "" {
+		onBootstrapCluster = false
+	}
+
 	// Get TKG package's values file
-	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(mcClient, managementPackageVersion, addonsManagerPackageVersion, upgrade)
+	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(mcClient, managementPackageVersion, addonsManagerPackageVersion, upgrade, onBootstrapCluster)
 	if err != nil {
 		return err
 	}
@@ -211,7 +216,7 @@ func (c *TkgClient) GetAddonsManagerPackageversion(managementPackageVersion stri
 	return packageVersion, nil
 }
 
-func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client, managementPackageVersion, addonsManagerPackageVersion string, upgrade bool) (string, error) {
+func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client, managementPackageVersion, addonsManagerPackageVersion string, upgrade, onBootstrapCluster bool) (string, error) {
 	var userProviderConfigValues map[string]interface{}
 	var err error
 
@@ -230,7 +235,7 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client,
 		return "", err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig, c.TKGConfigReaderWriter())
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig, c.TKGConfigReaderWriter(), onBootstrapCluster)
 	if err != nil {
 		return "", err
 	}

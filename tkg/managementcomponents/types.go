@@ -119,9 +119,10 @@ type TanzuAuthPackageValues struct {
 
 // AkoOperatorPackageValues
 type AkoOperatorPackageValues struct {
-	AviEnable         bool              `yaml:"avi_enable,omitempty"`
-	ClusterName       string            `yaml:"cluster_name,omitempty"`
-	AkoOperatorConfig AkoOperatorConfig `yaml:"config,omitempty"`
+	AviEnable          bool              `yaml:"avi_enable,omitempty"`
+	ClusterName        string            `yaml:"cluster_name,omitempty"`
+	OnBootstrapCluster bool              `yaml:"on_bootstrap_cluster,omitempty"`
+	AkoOperatorConfig  AkoOperatorConfig `yaml:"config,omitempty"`
 }
 
 // AkoOperatorConfig
