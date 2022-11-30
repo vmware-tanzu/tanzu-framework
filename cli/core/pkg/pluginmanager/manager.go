@@ -258,6 +258,9 @@ func availablePlugins(discoveredServerPlugins, discoveredStandalonePlugins []plu
 func combineDuplicatePlugins(availablePlugins []plugin.Discovered) []plugin.Discovered {
 	mapOfSelectedPlugins := make(map[string]plugin.Discovered)
 
+	// TODO: If there are multiple discovered (but not installed) plugins of the same name then we will
+	// always end up keeping one deterministically (due to the sequence of sources/plugins that we process),
+	// but we should merge the result and show the combined result for duplicate plugins
 	combinePluginInstallationStatus := func(plugin1, plugin2 plugin.Discovered) plugin.Discovered {
 		// Combine the installation status and installedVersion result when combining plugins
 		if plugin2.Status == common.PluginStatusInstalled {

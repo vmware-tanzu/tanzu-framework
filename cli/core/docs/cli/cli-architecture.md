@@ -297,6 +297,6 @@ Plugins are first compiled into an artifact directory (local discovery source) u
 
 All plugins get several commands bundled with the plugin system, to provide a common set of commands:
 
-* _Lint_: Lints the cobra command structure for flag and command names and shortcuts.
-* _Docs_: Every plugin gets the ability to generate its cobra command structure.
-* _Describe, Info, Version_: Get the basic details about any plugin.
+- _Lint_: Lints the cobra command structure for flag and command names and shortcuts.
+- _Docs_: Every plugin gets the ability to generate its cobra command structure.
+- _Describe, Info, Version_: Get the basic details about any plugin.
