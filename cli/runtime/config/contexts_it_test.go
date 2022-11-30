@@ -152,47 +152,11 @@ currentContext:
 func TestContextsIntegration(t *testing.T) {
 	// Setup config data
 	cfg, expectedCfg, cfg2, expectedCfg2 := setupContextsData()
+	cfgTestFiles, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfg2})
 
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
-
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(cfg2), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(fMeta.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(fMeta.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	// Get Context
 	context, err := GetContext("test-mc")
@@ -266,11 +230,11 @@ func TestContextsIntegration(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, updatedCtx, ctx)
 
-	file, err := os.ReadFile(f1.Name())
+	file, err := os.ReadFile(cfgTestFiles[0].Name())
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg, string(file))
 
-	file, err = os.ReadFile(f2.Name())
+	file, err = os.ReadFile(cfgTestFiles[1].Name())
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg2, string(file))
 

@@ -196,52 +196,20 @@ currentContext:
 }
 
 func TestGetClientConfigWithLockAndWithoutLock(t *testing.T) {
-	// Setup config data
+	// Setup config test data
 	cfg, cfgNextGen, _, _ := setupCfgAndCfgNextGenData()
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
+	_, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfgNextGen})
 
-	// Setup config v2 data
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(cfgNextGen), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup config metadata
-	f3, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f3.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigMetadataKey, f3.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f3.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	//Actions
 	nodeWithLock, err := getClientConfigNode()
-
+	assert.NoError(t, err)
 	//Actions
 	nodeWithoutLocK, err := getClientConfigNodeNoLock()
+	assert.NoError(t, err)
 
 	nodes := []*yaml.Node{nodeWithLock, nodeWithoutLocK}
 	for _, node := range nodes {
@@ -309,46 +277,13 @@ func TestGetClientConfigWithLockAndWithoutLock(t *testing.T) {
 }
 
 func TestGetClientConfigWithLockAndMigratedToNewConfig(t *testing.T) {
-	// Setup config data
+	// Setup config test data
 	cfg, cfgNextGen, _, _ := setupCfgAndCfgNextGenData()
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
+	_, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfgNextGen, cfgMetadata: setupConfigMetadataWithMigrateToNewConfig()})
 
-	// Setup config v2 data
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(cfgNextGen), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup config metadata
-	f3, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f3.Name(), []byte(setupConfigMetadataWithMigrateToNewConfig()), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigMetadataKey, f3.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f3.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	//Actions
 	node, err := getClientConfigNode()
@@ -396,46 +331,13 @@ func TestGetClientConfigWithLockAndMigratedToNewConfig(t *testing.T) {
 }
 
 func TestGetClientConfigWithoutLockAndMigratedToNewConfig(t *testing.T) {
-	// Setup config data
+	// Setup config test data
 	cfg, cfgNextGen, _, _ := setupCfgAndCfgNextGenData()
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
+	_, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfgNextGen, cfgMetadata: setupConfigMetadataWithMigrateToNewConfig()})
 
-	// Setup config v2 data
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(cfgNextGen), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup config metadata
-	f3, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f3.Name(), []byte(setupConfigMetadataWithMigrateToNewConfig()), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigMetadataKey, f3.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f3.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	//Actions
 	AcquireTanzuConfigNextGenLock()
@@ -485,47 +387,13 @@ func TestGetClientConfigWithoutLockAndMigratedToNewConfig(t *testing.T) {
 }
 
 func TestPersistConfig(t *testing.T) {
-	// Setup data
+	// Setup config test data
 	cfg, cfgNextGen, expectedCfg, expectedCfgNextGen := setupCfgAndCfgNextGenData()
-	// Setup config data
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
+	cfgTestFiles, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfgNextGen})
 
-	// Setup config v2 data
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(cfgNextGen), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	f3, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f3.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigMetadataKey, f3.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f3.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	// Actions
 	node, err := getClientConfigNode()
@@ -535,13 +403,13 @@ func TestPersistConfig(t *testing.T) {
 	err = persistConfig(node)
 	assert.NoError(t, err)
 
-	cfgFile, err := os.ReadFile(f1.Name())
+	cfgFileData, err := os.ReadFile(cfgTestFiles[0].Name())
 	assert.NoError(t, err)
-	assert.Equal(t, expectedCfg, string(cfgFile))
+	assert.Equal(t, expectedCfg, string(cfgFileData))
 
-	cfgNextGenFile, err := os.ReadFile(f2.Name())
+	cfgNextGenFileData, err := os.ReadFile(cfgTestFiles[1].Name())
 	assert.NoError(t, err)
-	assert.Equal(t, expectedCfgNextGen, string(cfgNextGenFile))
+	assert.Equal(t, expectedCfgNextGen, string(cfgNextGenFileData))
 }
 
 func TestPersistConfigWithMigrateToNewConfig(t *testing.T) {
@@ -578,46 +446,12 @@ func TestPersistConfigWithMigrateToNewConfig(t *testing.T) {
 currentContext:
     k8s: test-mc
 `
-	// Setup config data
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
 
-	// Setup config v2 data
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(cfgNextGen), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
+	cfgTestFiles, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfgNextGen, cfgMetadata: setupConfigMetadataWithMigrateToNewConfig()})
 
-	//Setup metadata
-
-	f3, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f3.Name(), []byte(setupConfigMetadataWithMigrateToNewConfig()), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigMetadataKey, f3.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f3.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	// Actions
 	node, err := getClientConfigNode()
@@ -627,13 +461,13 @@ currentContext:
 	err = persistConfig(node)
 	assert.NoError(t, err)
 
-	cfgFile, err := os.ReadFile(f1.Name())
+	cfgFileData, err := os.ReadFile(cfgTestFiles[0].Name())
 	assert.NoError(t, err)
-	assert.Equal(t, cfg, string(cfgFile))
+	assert.Equal(t, cfg, string(cfgFileData))
 
-	cfgNextGenFile, err := os.ReadFile(f2.Name())
+	cfgNextGenFileData, err := os.ReadFile(cfgTestFiles[1].Name())
 	assert.NoError(t, err)
-	assert.Equal(t, expected, string(cfgNextGenFile))
+	assert.Equal(t, expected, string(cfgNextGenFileData))
 }
 
 func TestMultiConfig(t *testing.T) {
@@ -1335,29 +1169,11 @@ current:
 
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
-			// Setup config data
-			f1, err := os.CreateTemp("", "tanzu_config")
-			assert.Nil(t, err)
-			err = os.WriteFile(f1.Name(), []byte(spec.cfg), 0644)
-			assert.Nil(t, err)
-			err = os.Setenv(EnvConfigKey, f1.Name())
-			assert.NoError(t, err)
+			_, cleanUp := setupTestConfig(t, &CfgTestData{cfg: spec.cfg, cfgNextGen: spec.cfg2})
 
-			// Setup config v2 data
-			f2, err := os.CreateTemp("", "tanzu_config_ng")
-			assert.Nil(t, err)
-			err = os.WriteFile(f2.Name(), []byte(spec.cfg2), 0644)
-			assert.Nil(t, err)
-			err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-			assert.NoError(t, err)
-
-			//Setup config metadata
-			f3, err := os.CreateTemp("", "tanzu_config_metadata")
-			assert.Nil(t, err)
-			err = os.WriteFile(f3.Name(), []byte(""), 0644)
-			assert.Nil(t, err)
-			err = os.Setenv(EnvConfigMetadataKey, f3.Name())
-			assert.NoError(t, err)
+			defer func() {
+				cleanUp()
+			}()
 
 			multiNode, err := getMultiConfig()
 			assert.NoError(t, err)

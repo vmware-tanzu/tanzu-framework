@@ -153,31 +153,11 @@ func setupConfigMetadata() string {
 func TestIntegrationWithReplacePatchStrategy(t *testing.T) {
 	// Setup config data
 	cfg, expectedCfg, cfg2, expectedCfg2 := setupConfigData()
+	cfgTestFiles, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfg2, cfgMetadata: setupConfigMetadata()})
 
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
-
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(cfg2), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(fMeta.Name(), []byte(setupConfigMetadata()), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
-	assert.NoError(t, err)
+	defer func() {
+		cleanUp()
+	}()
 
 	// Actions
 
@@ -242,11 +222,11 @@ func TestIntegrationWithReplacePatchStrategy(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Expectations on file content
-	file, err := os.ReadFile(f1.Name())
+	file, err := os.ReadFile(cfgTestFiles[0].Name())
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg, string(file))
 
-	file, err = os.ReadFile(f2.Name())
+	file, err = os.ReadFile(cfgTestFiles[1].Name())
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg2, string(file))
 }

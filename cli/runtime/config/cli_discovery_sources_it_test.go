@@ -150,47 +150,11 @@ currentContext:
 func TestCLIDiscoverySourceIntegration(t *testing.T) {
 	// Setup config data
 	cfg, expectedCfg, cfg2, expectedCfg2 := setupData()
+	cfgFiles, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfg2})
 
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
-
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(cfg2), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(fMeta.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(fMeta.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	// Get CLI DiscoverySources
 	sources, err := GetCLIDiscoverySources()
@@ -230,11 +194,11 @@ func TestCLIDiscoverySourceIntegration(t *testing.T) {
 	assert.NotNil(t, source)
 	assert.Equal(t, ds.OCI, source.OCI)
 
-	file, err := os.ReadFile(f1.Name())
+	file, err := os.ReadFile(cfgFiles[0].Name())
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg, string(file))
 
-	file, err = os.ReadFile(f2.Name())
+	file, err = os.ReadFile(cfgFiles[1].Name())
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg2, string(file))
 
@@ -286,52 +250,16 @@ currentContext: {}
 }
 
 func TestCLIDiscoverySourceIntegrationWithPatchStrategy(t *testing.T) {
-	// Setup Data and Test config file
+	// Setup config data
 	cfg, expectedCfg, cfg2, expectedCfg2 := setupDataWithPatchStrategy()
-
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(cfg), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
-
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(cfg2), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
 	metadata := `configMetadata:
   patchStrategy:
     clientOptions.cli.discoverySources.oci.annotation: replace`
-	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(fMeta.Name(), []byte(metadata), 0644)
-	assert.Nil(t, err)
+	cfgFiles, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfg2, cfgMetadata: metadata})
 
-	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(fMeta.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	// Get CLI DiscoverySources
 	sources, err := GetCLIDiscoverySources()
@@ -371,11 +299,11 @@ func TestCLIDiscoverySourceIntegrationWithPatchStrategy(t *testing.T) {
 	assert.NotNil(t, source)
 	assert.Equal(t, ds.OCI, source.OCI)
 
-	file, err := os.ReadFile(f1.Name())
+	file, err := os.ReadFile(cfgFiles[0].Name())
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg, string(file))
 
-	file, err = os.ReadFile(f2.Name())
+	file, err = os.ReadFile(cfgFiles[1].Name())
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg2, string(file))
 }

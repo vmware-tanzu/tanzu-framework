@@ -28,47 +28,12 @@ func randString() string {
 }
 
 func TestClientConfig(t *testing.T) {
-	// Setup config data
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
-
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(fMeta.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(fMeta.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	server0 := &configapi.Server{
 		Name: "test",
@@ -84,7 +49,7 @@ func TestClientConfig(t *testing.T) {
 		CurrentServer: "test",
 	}
 	AcquireTanzuConfigLock()
-	err = StoreClientConfig(testCtx)
+	err := StoreClientConfig(testCtx)
 	require.NoError(t, err)
 	ReleaseTanzuConfigLock()
 	_, err = GetClientConfig()
@@ -449,47 +414,12 @@ servers:
   type: global
 `
 
-	// Setup config data
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(tanzuConfigBytes), 0644)
-	assert.Nil(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{cfg: tanzuConfigBytes})
 
-	err = os.Setenv(EnvConfigKey, f1.Name())
-	assert.NoError(t, err)
-
-	f2, err := os.CreateTemp("", "tanzu_config_ng")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(fMeta.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(fMeta.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	pds := GetDiscoverySources("tmc-test")
 	assert.Equal(t, 1, len(pds))
@@ -521,47 +451,12 @@ func TestClientConfigUpdateInParallel(t *testing.T) {
 	}
 	// Creates temp configuration file and runs addServer in parallel
 	runTestInParallel := func() {
-		// Setup config data
-		f1, err := os.CreateTemp("", "tanzu_config")
-		assert.Nil(t, err)
-		err = os.WriteFile(f1.Name(), []byte(""), 0644)
-		assert.Nil(t, err)
+		// Setup config test data
+		cfgTestFiles, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-		err = os.Setenv(EnvConfigKey, f1.Name())
-		assert.NoError(t, err)
-
-		f2, err := os.CreateTemp("", "tanzu_config_ng")
-		assert.Nil(t, err)
-		err = os.WriteFile(f2.Name(), []byte(""), 0644)
-		assert.Nil(t, err)
-
-		err = os.Setenv(EnvConfigNextGenKey, f2.Name())
-		assert.NoError(t, err)
-
-		//Setup metadata
-		fMeta, err := os.CreateTemp("", "tanzu_config_metadata")
-		assert.Nil(t, err)
-		err = os.WriteFile(fMeta.Name(), []byte(""), 0644)
-		assert.Nil(t, err)
-
-		err = os.Setenv(EnvConfigMetadataKey, fMeta.Name())
-		assert.NoError(t, err)
-
-		// Cleanup
-		defer func(name string) {
-			err = os.Remove(name)
-			assert.NoError(t, err)
-		}(f1.Name())
-
-		defer func(name string) {
-			err = os.Remove(name)
-			assert.NoError(t, err)
-		}(f2.Name())
-
-		defer func(name string) {
-			err = os.Remove(name)
-			assert.NoError(t, err)
-		}(fMeta.Name())
+		defer func() {
+			cleanUp()
+		}()
 
 		// run addServer in parallel
 		parallelExecutionCounter := 100
@@ -572,8 +467,8 @@ func TestClientConfigUpdateInParallel(t *testing.T) {
 				return addServer(fmt.Sprintf("mc-%v", id))
 			})
 		}
-		err = group.Wait()
-		rawContents, readErr := os.ReadFile(f1.Name())
+		err := group.Wait()
+		rawContents, readErr := os.ReadFile(cfgTestFiles[0].Name())
 		assert.Nil(t, readErr, "Error reading config: %s", readErr)
 		assert.Nil(t, err, "Config file contents: \n%s", rawContents)
 		// Make sure that the configuration file is not corrupted
