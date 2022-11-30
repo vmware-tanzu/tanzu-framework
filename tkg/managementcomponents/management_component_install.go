@@ -33,7 +33,6 @@ import (
 const (
 	addonsManagerName = "addons-manager"
 	addonFinalizer    = "tkg.tanzu.vmware.com/addon"
-	akoOperatorName   = "ako-operator"
 )
 
 // ClusterOptions specifies cluster configuration
@@ -169,7 +168,7 @@ func NoopDeletePackageInstall(clusterClient clusterclient.Client, pkgiName, name
 
 // DeleteLegacyAkoOperatorPackageInstall removes legacy management cluster ako operator packageInstall
 func DeleteLegacyAkoOperatorPackageInstall(clusterClient clusterclient.Client, akoOperatorAddonName string) error {
-	akoOperatorPkgiName := akoOperatorName
+	akoOperatorPkgiName := constants.AkoOperatorName
 
 	if err := pauseAddonSecretReconciliation(clusterClient, akoOperatorAddonName, constants.TkgNamespace); err != nil {
 		return err
@@ -265,7 +264,7 @@ func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient p
 		}
 	}
 
-	akoOperatorAddonName := fmt.Sprintf("%s-%s-addon", clusterName, akoOperatorName)
+	akoOperatorAddonName := fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName)
 	previousAkoOperatorIsFromCoreRepo, err := AddonSecretExists(clusterClient, akoOperatorAddonName, constants.TkgNamespace)
 	if err != nil {
 		return err
@@ -305,7 +304,7 @@ func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient p
 	}
 
 	if previousAkoOperatorIsFromCoreRepo {
-		err = DeleteAddonSecret(clusterClient, fmt.Sprintf("%s-%s-addon", clusterName, akoOperatorName), constants.TkgNamespace)
+		err = DeleteAddonSecret(clusterClient, fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName), constants.TkgNamespace)
 		if err != nil {
 			return err
 		}
