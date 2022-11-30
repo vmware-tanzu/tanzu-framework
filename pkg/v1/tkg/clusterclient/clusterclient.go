@@ -867,13 +867,21 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 	// maxTimeout to time-bound wait operation to avoid indefinite wait if the cluster state keeps changing
 	maxTimeout := 3 * c.operationTimeout
 	maxTimeoutCounter := 0
+	errorRetry := 0
+	maxErrorRetry := 3
 
 	getterFunc := func() (interface{}, error) {
 		curClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, workloadClusterClient)
 
-		// If cluster's ReadyCondition is False and severity is Error, it implies non-retriable error, so return error
+		// If cluster's ReadyCondition is False and severity is Error, retry 3 times waiting for cluster ready status
+		// for slow I/O infrastructure or resource constrained environments.
 		if conditions.IsFalse(curClusterInfo.ClusterObject, capi.ReadyCondition) &&
 			(*conditions.GetSeverity(curClusterInfo.ClusterObject, capi.ReadyCondition) == capi.ConditionSeverityError) {
+			maxTimeoutCounter++
+			if errorRetry < maxErrorRetry {
+				errorRetry++
+				return false, nil
+			}
 			return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s' ",
 				conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition),
 				conditions.GetMessage(curClusterInfo.ClusterObject, capi.ReadyCondition))
