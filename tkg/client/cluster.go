@@ -896,15 +896,16 @@ func (c *TkgClient) ValidateKubeVipLBConfiguration(clusterRole string) error {
 	kblbCIDRs, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableKubevipLoadbalancerCIDRs)
 	kvlbIPRanges, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableKubevipLoadbalancerIPRanges)
 
+	if (kvlbEnabled == "true" || kblbCIDRs != "" || kvlbIPRanges != "") && clusterRole == TkgLabelClusterRoleManagement {
+		return errors.Errorf("%s or %s or %s is set but kubevip loadbalancer is not supported on management cluster so far", constants.ConfigVariableKubevipLoadbalancerEnable, constants.ConfigVariableKubevipLoadbalancerCIDRs, constants.ConfigVariableKubevipLoadbalancerIPRanges)
+	}
+
 	// ignoring error because AVI_ENABLE is an optional configuration
 	if kvlbEnabled == "" || kvlbEnabled == "false" {
 		if kblbCIDRs != "" || kvlbIPRanges != "" {
 			return errors.Errorf("%s is disabled but %s or %s is not empty", constants.ConfigVariableKubevipLoadbalancerEnable, constants.ConfigVariableKubevipLoadbalancerCIDRs, constants.ConfigVariableKubevipLoadbalancerIPRanges)
 		}
 		return nil
-	}
-	if clusterRole == TkgLabelClusterRoleManagement {
-		return errors.Errorf("%s is enabled but kubevip loadbalancer is not supported on management cluster so far", constants.ConfigVariableKubevipLoadbalancerEnable)
 	}
 	if kblbCIDRs == "" && kvlbIPRanges == "" {
 		return errors.Errorf("%s is enabled, either %s or %s has to be set", constants.ConfigVariableKubevipLoadbalancerEnable, constants.ConfigVariableKubevipLoadbalancerCIDRs, constants.ConfigVariableKubevipLoadbalancerIPRanges)

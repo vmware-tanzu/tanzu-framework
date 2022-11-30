@@ -1501,7 +1501,7 @@ var _ = Describe("Validate", func() {
 					It("returns an error", func() {
 						validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
 						Expect(validationError).To(HaveOccurred())
-						Expect(validationError.Error()).To(ContainSubstring("is enabled but kubevip loadbalancer is not supported on management cluster so far"))
+						Expect(validationError.Error()).To(ContainSubstring("is set but kubevip loadbalancer is not supported on management cluster so far"))
 					})
 				})
 
@@ -1513,7 +1513,7 @@ var _ = Describe("Validate", func() {
 						It("returns an error", func() {
 							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
 							Expect(validationError).To(HaveOccurred())
-							Expect(validationError.Error()).To(ContainSubstring("is disabled but"))
+							Expect(validationError.Error()).To(ContainSubstring("is set but kubevip loadbalancer is not supported on management cluster so far"))
 						})
 					})
 					Context("cidrs is set", func() {
@@ -1523,7 +1523,7 @@ var _ = Describe("Validate", func() {
 						It("returns an error", func() {
 							validationError := tkgClient.ValidateKubeVipLBConfiguration(clusterRole)
 							Expect(validationError).To(HaveOccurred())
-							Expect(validationError.Error()).To(ContainSubstring("is disabled but"))
+							Expect(validationError.Error()).To(ContainSubstring("is set but kubevip loadbalancer is not supported on management cluster so far"))
 						})
 					})
 					Context("cidrs and ip range are not set", func() {
