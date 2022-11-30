@@ -4,11 +4,11 @@
 package controllers
 
 import (
-	"fmt"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"os"
 	"strings"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 
 	v1 "k8s.io/api/core/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -126,7 +126,6 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 			Expect(strings.Contains(secretData, "key: node-role.kubernetes.io/control-plane")).Should(BeTrue())
 
 			Eventually(func() bool {
-				fmt.Println(secretData)
 				if !strings.Contains(secretData, `    caCerts: |
       -----BEGIN CERTIFICATE-----
       MIICxzCCAa+gAwIBAgIUMDCaC1Ve2J1cRsFLTV6ICfx5ug8wDQYJKoZIhvcNAQEL
