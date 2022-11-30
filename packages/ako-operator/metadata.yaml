@@ -1,9 +1,9 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
-  name: ako-operator-v2.tanzu.vmware.com
+  name: ako-operator.tanzu.vmware.com
 spec:
-  displayName: "ako-operator-v2"
+  displayName: "ako-operator"
   longDescription: "NSX Advanced Load Balancer using ako-operator"
   shortDescription: "NSX Advanced Load Balancer using ako-operator"
   providerName: VMware
