@@ -12,7 +12,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/tkg => ../../../../tkg
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../../../../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../../../../util
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.6
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.7
 )
 
 require (
@@ -29,7 +29,7 @@ require (
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	k8s.io/api v0.24.4
 	k8s.io/apimachinery v0.24.4
-	sigs.k8s.io/cluster-api v1.2.6
+	sigs.k8s.io/cluster-api v1.2.7
 	sigs.k8s.io/controller-runtime v0.12.3
 )
 
@@ -75,7 +75,7 @@ require (
 	github.com/cheggaaa/pb v1.0.29 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.11.4 // indirect
 	github.com/coredns/caddy v1.1.1 // indirect
-	github.com/coredns/corefile-migration v1.0.17 // indirect
+	github.com/coredns/corefile-migration v1.0.18 // indirect
 	github.com/cppforlife/cobrautil v0.0.0-20220411122935-c28a9f274a4e // indirect
 	github.com/cppforlife/color v1.9.1-0.20200716202919-6706ac40b835 // indirect
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f // indirect
@@ -240,7 +240,7 @@ require (
 	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.1 // indirect
 	sigs.k8s.io/cluster-api-provider-azure v1.5.3 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 // indirect
-	sigs.k8s.io/cluster-api/test v1.2.6 // indirect
+	sigs.k8s.io/cluster-api/test v1.2.7 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/kind v0.15.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
