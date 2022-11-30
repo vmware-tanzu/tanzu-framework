@@ -91,33 +91,6 @@ metadata:
     kapp.k14s.io/change-rule.1: "delete before deleting tkg-infra-clusterclass-packageinstall/serviceaccount"
 type: Opaque
 stringData:
-  kcp-empty-array-overlay.yaml: |
-    #! This overlay is adds a patch as first element in the patches to create empty
-    #! arrays inside the KCP object. With this other patches are able to append to the
-    #! now empty array.
-    #! Otherwise the arrays would not exist and the patches would fail.
-    #! Empty arrays get dropped due to omitEmpty set at the CRD level.
-    #@ load("@ytt:overlay", "overlay")
-    #@ load("@ytt:data", "data")
-
-    #@overlay/match by=overlay.subset({"kind":"ClusterClass"})
-    ---
-    spec:
-      patches:
-      #@overlay/match by=overlay.index(0)
-      #@overlay/insert before=True
-      - definitions:
-        - jsonPatches:
-          - op: add
-            path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes
-            value: []
-          selector:
-            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-            kind: KubeadmControlPlaneTemplate
-            matchResources:
-              controlPlane: true
-        name: KCP_INIT_EMPTY_ARRAYS
-
   pod-security-overlay.yaml: |
     #@ load("@ytt:overlay", "overlay")
     #@ load("@ytt:data", "data")

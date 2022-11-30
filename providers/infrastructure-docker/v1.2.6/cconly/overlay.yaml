@@ -34,3 +34,14 @@ spec:
         matchResources:
           controlPlane: true
     name: CAPD_KCP_INIT_EMPTY_FILES_ARRAY
+  - definitions:
+    - jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes
+        value: []
+      selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+    name: CAPD_KCP_INIT_EMPTY_VOLUMES_ARRAYS
