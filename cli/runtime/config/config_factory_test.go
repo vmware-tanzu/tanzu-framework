@@ -233,7 +233,6 @@ func TestGetClientConfigWithLockAndWithoutLock(t *testing.T) {
 						Bucket:       "test-bucket",
 						ManifestPath: "test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					GCP: &configapi.GCPDiscovery{
@@ -241,7 +240,6 @@ func TestGetClientConfigWithLockAndWithoutLock(t *testing.T) {
 						Bucket:       "test-bucket",
 						ManifestPath: "test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 		}
@@ -265,7 +263,6 @@ func TestGetClientConfigWithLockAndWithoutLock(t *testing.T) {
 						Bucket:       "test-bucket",
 						ManifestPath: "test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 		}
@@ -308,7 +305,6 @@ func TestGetClientConfigWithLockAndMigratedToNewConfig(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 			{
 				GCP: &configapi.GCPDiscovery{
@@ -316,7 +312,6 @@ func TestGetClientConfigWithLockAndMigratedToNewConfig(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -364,7 +359,6 @@ func TestGetClientConfigWithoutLockAndMigratedToNewConfig(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 			{
 				GCP: &configapi.GCPDiscovery{
@@ -372,7 +366,6 @@ func TestGetClientConfigWithoutLockAndMigratedToNewConfig(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}

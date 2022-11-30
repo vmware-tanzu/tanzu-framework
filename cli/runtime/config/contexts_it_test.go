@@ -13,7 +13,6 @@ import (
 )
 
 func setupContextsData() (string, string, string, string) {
-	//nolint:goconst
 	cfg := `clientOptions:
   cli:
     discoverySources:
@@ -86,8 +85,6 @@ current: test-mc2
 contexts: []
 currentContext: {}
 `
-
-	//nolint:goconst
 	cfg2 := `contexts:
   - name: test-mc
     type: k8s
@@ -108,7 +105,6 @@ currentContext: {}
           manifestPath: test-manifest-path
           annotation: one
           required: true
-        contextType: tmc
 currentContext:
   k8s: test-mc
 `

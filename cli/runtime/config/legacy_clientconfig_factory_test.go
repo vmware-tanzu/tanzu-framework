@@ -69,6 +69,7 @@ servers:
         contextType: tmc
 current: test-mc
 `
+	//nolint:goconst
 	cfg2 := `contexts:
   - name: test-mc
     type: k8s
@@ -111,7 +112,6 @@ currentContext:
                 name: test
                 bucket: ctx-test-bucket
                 manifestPath: ctx-test-manifest-path
-              contextType: k8s
         repositories:
             - gcpPluginRepository:
                 name: test
@@ -160,12 +160,10 @@ currentContext: {}
         - local:
             name: test
             path: test-local-path
-          contextType: tmc
         - gcp:
             name: test2
             bucket: ctx-test-bucket
             manifestPath: ctx-test-manifest-path
-          contextType: tmc
 currentContext:
     k8s: test-mc
 `
@@ -187,7 +185,6 @@ currentContext:
 							Bucket:       "test-bucket",
 							ManifestPath: "test-manifest-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 			},
@@ -210,14 +207,12 @@ currentContext:
 							Bucket:       "ctx-test-bucket",
 							ManifestPath: "ctx-test-manifest-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
 					},
 					{
 						Local: &configapi.LocalDiscovery{
 							Name: "test",
 							Path: "test-local-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 			},
@@ -243,7 +238,6 @@ currentContext:
 							Bucket:       "ctx-test-bucket",
 							ManifestPath: "ctx-test-manifest-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 				UnstableVersionSelector: configapi.VersionSelectorLevel("unstable-version"),

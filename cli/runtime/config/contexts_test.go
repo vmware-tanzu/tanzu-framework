@@ -879,7 +879,6 @@ func TestSetContextMultiFile(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 			{
 				GCP: &configapi.GCPDiscovery{
@@ -887,7 +886,6 @@ func TestSetContextMultiFile(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -903,13 +901,11 @@ func TestSetContextMultiFile(t *testing.T) {
 				GCP: &configapi.GCPDiscovery{
 					Name: "test",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 			{
 				GCP: &configapi.GCPDiscovery{
 					Name: "test2",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -928,7 +924,6 @@ func TestSetContextMultiFile(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 			{
 				GCP: &configapi.GCPDiscovery{
@@ -936,7 +931,6 @@ func TestSetContextMultiFile(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -955,39 +949,6 @@ func TestSetContextMultiFile(t *testing.T) {
 	c, err = GetContext(ctx2.Name)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCtx2, c)
-}
-
-func setupForGetContext(t *testing.T) {
-	// setup
-	cfg := &configapi.ClientConfig{
-		KnownContexts: []*configapi.Context{
-			{
-				Name: "test-mc",
-				Type: "k8s",
-				ClusterOpts: &configapi.ClusterServer{
-					Endpoint:            "test-endpoint",
-					Path:                "test-path",
-					Context:             "test-context",
-					IsManagementCluster: true,
-				},
-			},
-			{
-				Name: "test-tmc",
-				Type: "tmc",
-				GlobalOpts: &configapi.GlobalServer{
-					Endpoint: "test-endpoint",
-				},
-			},
-		},
-		CurrentContext: map[configapi.ContextType]string{
-			"k8s": "test-mc",
-			"tmc": "test-tmc",
-		},
-	}
-
-	LocalDirName = TestLocalDirName
-	err := StoreClientConfig(cfg)
-	assert.NoError(t, err)
 }
 
 func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
@@ -1014,7 +975,6 @@ func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 			{
 				GCP: &configapi.GCPDiscovery{
@@ -1022,7 +982,6 @@ func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -1038,13 +997,11 @@ func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
 				GCP: &configapi.GCPDiscovery{
 					Name: "test",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 			{
 				GCP: &configapi.GCPDiscovery{
 					Name: "test2",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -1063,7 +1020,6 @@ func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 			{
 				GCP: &configapi.GCPDiscovery{
@@ -1071,7 +1027,6 @@ func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}

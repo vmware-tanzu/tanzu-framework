@@ -87,7 +87,6 @@ servers:
             name: test
             bucket: test-bucket-updated
             manifestPath: test-manifest-path
-          contextType: tmc
 current: test-mc2
 contexts: []
 currentContext: {}
@@ -149,7 +148,6 @@ currentContext:
             name: test
             bucket: test-bucket-updated
             manifestPath: test-manifest-path
-          contextType: tmc
 currentContext:
     k8s: test-mc2
 `
@@ -183,7 +181,6 @@ func TestServersIntegration(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -204,7 +201,6 @@ func TestServersIntegration(t *testing.T) {
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -228,7 +224,6 @@ func TestServersIntegration(t *testing.T) {
 					Bucket:       "test-bucket-updated",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -289,7 +284,6 @@ func TestServersIntegrationAndMigratedToNewConfig(t *testing.T) {
             name: test
             bucket: test-bucket-updated
             manifestPath: test-manifest-path
-          contextType: tmc
 currentContext:
     k8s: test-mc2
 servers:
@@ -303,7 +297,6 @@ servers:
             name: test
             bucket: test-bucket-updated
             manifestPath: test-manifest-path
-          contextType: tmc
 current: test-mc2
 `
 	// Setup config data
@@ -331,7 +324,6 @@ current: test-mc2
 					Bucket:       "test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -357,7 +349,6 @@ current: test-mc2
 					Bucket:       "test-bucket-updated",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
