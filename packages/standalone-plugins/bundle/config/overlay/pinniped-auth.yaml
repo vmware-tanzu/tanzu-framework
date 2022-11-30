@@ -12,17 +12,19 @@ spec:
     #@yaml/text-templated-strings
     (@= data.values.pinnipedauth.version @):
     - arch: amd64
-      image: tanzu-cli-plugins/pinniped-auth-darwin-amd64:latest
-      os: darwin
-      type: oci
-    - arch: amd64
       image: tanzu-cli-plugins/pinniped-auth-linux-amd64:latest
       os: linux
+      type: oci
+#@ if data.values.linuxOnly == "False":
+    - arch: amd64
+      image: tanzu-cli-plugins/pinniped-auth-darwin-amd64:latest
+      os: darwin
       type: oci
     - arch: amd64
       image: tanzu-cli-plugins/pinniped-auth-windows-amd64:latest
       os: windows
       type: oci
+#@ end
   description: Pinniped authentication operations (usually not directly invoked)
   optional: false
   recommendedVersion: #@ data.values.pinnipedauth.version
