@@ -243,8 +243,39 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 						ManifestPath: "test-manifest-path",
 					},
 				},
+				{
+					Local: &configapi.LocalDiscovery{
+						Name: "default",
+						Path: "standalone",
+					},
+					ContextType: configapi.CtxTypeK8s,
+				},
 			},
-			total: 1,
+			total: 2,
+		},
+		{
+			name: "success add test",
+			input: []configapi.PluginDiscovery{
+				{
+					Local: &configapi.LocalDiscovery{
+						Name: "admin-local",
+						Path: "admin",
+					},
+				},
+			},
+			total: 3,
+		},
+		{
+			name: "success add test",
+			input: []configapi.PluginDiscovery{
+				{
+					OCI: &configapi.OCIDiscovery{
+						Name:  "default",
+						Image: "test-image",
+					},
+				},
+			},
+			total: 3,
 		},
 		{
 			name: "success update test",
@@ -257,7 +288,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 1,
+			total: 3,
 		},
 		{
 			name: "should not persist same test",
@@ -270,7 +301,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 1,
+			total: 3,
 		},
 		{
 			name: "success add default gcp",
@@ -283,7 +314,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 2,
+			total: 3,
 		},
 		{
 			name: "success add default-local gcp",
@@ -296,7 +327,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 3,
+			total: 4,
 		},
 		{
 			name: "success add default-local local",
@@ -308,7 +339,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 3,
+			total: 4,
 		},
 		{
 			name: "success add default-local local",
@@ -321,7 +352,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			total: 3,
+			total: 4,
 		},
 	}
 	for _, spec := range tests {
