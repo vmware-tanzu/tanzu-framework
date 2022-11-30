@@ -141,7 +141,7 @@ func (r *AntreaConfigReconciler) ClusterToAntreaConfig(o client.Object) []ctrl.R
 			// corresponding AntreaConfig should have following ownerRef
 			ownerReference := metav1.OwnerReference{
 				APIVersion: clusterv1beta1.GroupVersion.String(),
-				// explictly set the cluster kind from variable instead from casted object
+				// explicitly set the cluster kind from variable instead from casted object
 				Kind: constants.ClusterKind,
 				Name: cluster.Name,
 				UID:  cluster.UID,
