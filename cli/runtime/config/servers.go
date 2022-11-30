@@ -342,7 +342,7 @@ func setServer(node *yaml.Node, s *configapi.Server) (persist bool, err error) {
 		if index := nodeutils.GetNodeIndex(serverNode.Content, "name"); index != -1 &&
 			serverNode.Content[index].Value == s.Name {
 			exists = true
-			_, err = nodeutils.ReplaceNodes(newServerNode.Content[0], serverNode, nodeutils.WithPatchStrategyKey(KeyServers), nodeutils.WithPatchStrategies(patchStrategies))
+			_, err = nodeutils.DeleteNodes(newServerNode.Content[0], serverNode, nodeutils.WithPatchStrategyKey(KeyServers), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
 				return false, err
 			}

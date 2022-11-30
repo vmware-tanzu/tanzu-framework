@@ -86,7 +86,7 @@ func getFileLockWithTimeOut(lockPath string, lockDuration time.Duration) (*fsloc
 	lock := fslock.New(lockPath)
 
 	if err := lock.LockWithTimeout(lockDuration); err != nil {
-		return &fslock.Lock{}, errors.Wrap(err, "failed to acquire a lock with timeout")
+		return nil, errors.Wrap(err, "failed to acquire a lock with timeout")
 	}
 	return lock, nil
 }

@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestReplaceNodes(t *testing.T) {
+func TestDeleteNodes(t *testing.T) {
 	tests := []struct {
 		name     string
 		dst      string
@@ -19,83 +19,7 @@ func TestReplaceNodes(t *testing.T) {
 		output   string
 	}{
 		{
-			name:     "success replace nodes with empty patch strategy",
-			metadata: make(map[string]string),
-			dst: `name: test-mc
-type: k8s
-group: one
-clusterOpts:
-  isManagementCluster: true
-  annotation: one
-  required: true
-  annotationStruct:
-    one: one
-  endpoint: test-endpoint
-  path: test-path
-  context: test-context
-discoverySources:
-  - gcp:
-      name: test
-      bucket: test-bucket
-      manifestPath: test-manifest-path
-      annotation: one
-      required: true
-    contextType: tmc
-  - gcp:
-      name: test-two
-      bucket: test-bucket
-      manifestPath: test-manifest-path
-      annotation: two
-      required: true
-    contextType: tmc`,
-			src: `name: test-mc
-type: k8s
-clusterOpts:
-  isManagementCluster: true
-  endpoint: test-endpoint
-  context: test-context
-discoverySources:
-  - gcp:
-      name: test
-      bucket: test-bucket
-      manifestPath: test-manifest-pat
-    contextType: tmc
-  - gcp:
-      name: test-two
-      bucket: test-bucket
-      manifestPath: test-manifest-path
-    contextType: tmc`,
-			output: `name: test-mc
-type: k8s
-group: one
-clusterOpts:
-  isManagementCluster: true
-  annotation: one
-  required: true
-  annotationStruct:
-    one: one
-  endpoint: test-endpoint
-  path: test-path
-  context: test-context
-discoverySources:
-  - gcp:
-      name: test
-      bucket: test-bucket
-      manifestPath: test-manifest-path
-      annotation: one
-      required: true
-    contextType: tmc
-  - gcp:
-      name: test-two
-      bucket: test-bucket
-      manifestPath: test-manifest-path
-      annotation: two
-      required: true
-    contextType: tmc`,
-		},
-
-		{
-			name: "success replace nodes with patch strategy",
+			name: "success delete nodes with patch strategy",
 			metadata: map[string]string{
 				"contexts.group": "replace",
 			},
@@ -172,7 +96,7 @@ discoverySources:
 		},
 
 		{
-			name: "success replace nodes with patch strategies",
+			name: "success delete nodes with patch strategies",
 			metadata: map[string]string{
 				"contexts.group":                        "replace",
 				"contexts.clusterOpts.annotation":       "replace",
@@ -266,7 +190,7 @@ discoverySources:
 			assert.NoError(t, err)
 
 			// Perform action
-			_, err = ReplaceNodes(&src, &dst, WithPatchStrategyKey("contexts"), WithPatchStrategies(spec.metadata))
+			_, err = DeleteNodes(&src, &dst, WithPatchStrategyKey("contexts"), WithPatchStrategies(spec.metadata))
 			assert.NoError(t, err)
 
 			// Assert outcome

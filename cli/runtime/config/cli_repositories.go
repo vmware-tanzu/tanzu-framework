@@ -196,8 +196,8 @@ func setRepository(repositoriesNode *yaml.Node, repository configapi.PluginRepos
 			if repositoryFieldIndex := nodeutils.GetNodeIndex(repositoryNode.Content[repositoryIndex].Content, "name"); repositoryFieldIndex != -1 &&
 				repositoryNode.Content[repositoryIndex].Content[repositoryFieldIndex].Value == repositoryName {
 				exists = true
-				// replace nodes specified in the patch strategy
-				_, err = nodeutils.ReplaceNodes(newNode.Content[0], repositoryNode, patchStrategyOpts...)
+				// delete nodes specified in the patch strategy
+				_, err = nodeutils.DeleteNodes(newNode.Content[0], repositoryNode, patchStrategyOpts...)
 				if err != nil {
 					return false, err
 				}

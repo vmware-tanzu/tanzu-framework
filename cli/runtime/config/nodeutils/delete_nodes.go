@@ -11,8 +11,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ReplaceNodes replace nodes in dst as per patchStrategy prior performing merge
-func ReplaceNodes(src, dst *yaml.Node, opts ...PatchStrategyOpts) (bool, error) {
+// DeleteNodes delete nodes in dst as per patchStrategy prior performing merge
+func DeleteNodes(src, dst *yaml.Node, opts ...PatchStrategyOpts) (bool, error) {
 	// only replace if the change is not equal to existing
 	replaceUnequalObjects, err := NotEqual(src, dst)
 	if err != nil {
@@ -26,10 +26,10 @@ func ReplaceNodes(src, dst *yaml.Node, opts ...PatchStrategyOpts) (bool, error) 
 	for _, opt := range opts {
 		opt(options)
 	}
-	return replaceUnequalObjects, replaceNodes(src, dst, options.Key, options.PatchStrategies)
+	return replaceUnequalObjects, deleteNodes(src, dst, options.Key, options.PatchStrategies)
 }
 
-func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies map[string]string) error {
+func deleteNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies map[string]string) error {
 	err := checkErrors(src, dst)
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 					break
 				}
 
-				if err := replaceNodes(src.Content[j+1], dst.Content[i+1], key, patchStrategies); err != nil {
+				if err := deleteNodes(src.Content[j+1], dst.Content[i+1], key, patchStrategies); err != nil {
 					return errors.Wrap(err, " replace at key "+src.Content[i].Value)
 				}
 				key = patchStrategyKey
@@ -73,7 +73,7 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 	case yaml.ScalarNode:
 	case yaml.SequenceNode:
 	case yaml.DocumentNode:
-		err := replaceNodes(src.Content[0], dst.Content[0], patchStrategyKey, patchStrategies)
+		err := deleteNodes(src.Content[0], dst.Content[0], patchStrategyKey, patchStrategies)
 		if err != nil {
 			return errors.Wrap(err, "replace at key "+src.Content[0].Value)
 		}

@@ -16,17 +16,17 @@ import (
 
 // getMultiConfig retrieves combined config.yaml and config-ng.yaml
 func getMultiConfig() (*yaml.Node, error) {
-	node1, err := getClientConfig()
+	cfgNode, err := getClientConfig()
 	if err != nil {
-		return node1, err
+		return cfgNode, err
 	}
 
-	node2, err := getClientConfigNextGenNode()
+	cfgNextGenNode, err := getClientConfigNextGenNode()
 	if err != nil {
-		return node2, err
+		return cfgNextGenNode, err
 	}
 
-	return makeMultiFileCfg(node1, node2)
+	return makeMultiFileCfg(cfgNode, cfgNextGenNode)
 }
 
 // getMultiConfigNoLock retrieves combined config.yaml and config-ng.yaml
@@ -45,52 +45,40 @@ func getMultiConfigNoLock() (*yaml.Node, error) {
 }
 
 // Construct multi file node from config.yaml and config-ng.yaml nodes
-func makeMultiFileCfg(node1, node2 *yaml.Node) (*yaml.Node, error) {
+func makeMultiFileCfg(cfgNode, cfgNextGenNode *yaml.Node) (*yaml.Node, error) {
 	// config items that goes to config-ng.yaml
 	nextGenCfgItems := []string{
 		KeyContexts,
 		KeyCurrentContext,
 	}
 
-	cfgNode := node1.Content[0]
-
+	// Process the next gen items and discard both key node and value node from config.yaml
 	for _, nextGenItem := range nextGenCfgItems {
 		// Find the next gen item node from the config.yaml
-		nextGenItemNodeIndex := nodeutils.GetNodeIndex(cfgNode.Content, nextGenItem)
+		nextGenItemNodeIndex := nodeutils.GetNodeIndex(cfgNode.Content[0].Content, nextGenItem)
 		if nextGenItemNodeIndex == -1 {
 			continue
 		}
-		// Delete the next gen item node from the config.yaml
-		cfgNode.Content = append(cfgNode.Content[:nextGenItemNodeIndex-1], cfgNode.Content[nextGenItemNodeIndex:]...)
-		cfgNode.Content = append(cfgNode.Content[:nextGenItemNodeIndex-1], cfgNode.Content[nextGenItemNodeIndex:]...)
+		// Delete the next gen item node key from the config.yaml
+		cfgNode.Content[0].Content = append(cfgNode.Content[0].Content[:nextGenItemNodeIndex-1], cfgNode.Content[0].Content[nextGenItemNodeIndex:]...)
+		// Delete the next gen item node value from the config.yaml
+		cfgNode.Content[0].Content = append(cfgNode.Content[0].Content[:nextGenItemNodeIndex-1], cfgNode.Content[0].Content[nextGenItemNodeIndex:]...)
 	}
 
 	// Construct Multi Bytes data
 	var multiBytes []byte
 	var multiNode yaml.Node
 
-	// construct node1 bytes and append to multiBytes
-	if node1.Content[0].Content != nil && len(node1.Content[0].Content) > 0 {
-		node1Bytes, err := yaml.Marshal(node1)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(node1Bytes) != 0 {
-			multiBytes = append(multiBytes, node1Bytes...)
-		}
+	// construct cfgNode bytes and append to multiBytes
+	multiBytes, err := nodeutils.AppendNodeBytes(multiBytes, cfgNode)
+	if err != nil {
+		return nil, err
 	}
 
-	// construct node 2 bytes and append to multiBytes
-	if node2.Content[0].Content != nil && len(node2.Content[0].Content) > 0 {
-		node2Bytes, err := yaml.Marshal(node2)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(node2Bytes) != 0 {
-			multiBytes = append(multiBytes, node2Bytes...)
-		}
+	// construct cfgNextGenNode bytes and append to multiBytes
+	multiBytes, err = nodeutils.AppendNodeBytes(multiBytes, cfgNextGenNode)
+	if err != nil {
+		return nil, err
 	}
 
 	// create new yaml node if multiBytes contains no data or empty
@@ -114,13 +102,14 @@ func makeMultiFileCfg(node1, node2 *yaml.Node) (*yaml.Node, error) {
 	return &multiNode, nil
 }
 
+// persistConfig write the updated node data to config.yaml and config-ng.yaml based on few
 func persistConfig(node *yaml.Node) error {
-	migrate, err := UseUnifiedConfig()
+	useUnifiedConfig, err := UseUnifiedConfig()
 	if err != nil {
-		migrate = false
+		useUnifiedConfig = false
 	}
-
-	if migrate {
+	// If useUnifiedConfig is set to true write to config-ng.yaml
+	if useUnifiedConfig {
 		return persistClientConfigNextGen(node)
 	}
 
@@ -145,12 +134,13 @@ func persistConfig(node *yaml.Node) error {
 		return err
 	}
 
-	// config items that goes to config-ng.yaml
+	// next gen config items that goes to config-ng.yaml
 	nextGenItemNodes := []*yaml.Node{
 		{Value: KeyContexts, Kind: yaml.SequenceNode},
 		{Value: KeyCurrentContext, Kind: yaml.MappingNode},
 	}
 
+	// Loop through each next gen item and add it to config-ng.yaml and reset it in config.yaml
 	for _, nextGenItem := range nextGenItemNodes {
 		// Find the nextGenItem node from the updated node
 		itemNode := nodeutils.FindNode(cfgNodeToPersist.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys([]nodeutils.Key{

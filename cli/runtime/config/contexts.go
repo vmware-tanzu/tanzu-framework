@@ -316,7 +316,7 @@ func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err erro
 			contextNode.Content[index].Value == ctx.Name {
 			exists = true
 			// replace the nodes as per patch strategy
-			_, err = nodeutils.ReplaceNodes(newContextNode.Content[0], contextNode, nodeutils.WithPatchStrategyKey(KeyContexts), nodeutils.WithPatchStrategies(patchStrategies))
+			_, err = nodeutils.DeleteNodes(newContextNode.Content[0], contextNode, nodeutils.WithPatchStrategyKey(KeyContexts), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
 				return false, err
 			}

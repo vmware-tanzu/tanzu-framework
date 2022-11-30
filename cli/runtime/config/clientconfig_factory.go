@@ -19,12 +19,12 @@ import (
 
 // getClientConfigNode retrieves the multi config from the local directory with file lock
 func getClientConfigNode() (*yaml.Node, error) {
-	migrate, err := UseUnifiedConfig()
+	useUnifiedConfig, err := UseUnifiedConfig()
 	if err != nil {
-		migrate = false
+		useUnifiedConfig = false
 	}
 
-	if migrate {
+	if useUnifiedConfig {
 		return getClientConfigNextGenNode()
 	}
 	return getMultiConfig()
@@ -33,12 +33,12 @@ func getClientConfigNode() (*yaml.Node, error) {
 // getClientConfigNodeNoLock retrieves the multi config from the local directory without acquiring the lock
 func getClientConfigNodeNoLock() (*yaml.Node, error) {
 	// Check config migration feature flag
-	migrate, err := UseUnifiedConfig()
+	useUnifiedConfig, err := UseUnifiedConfig()
 	if err != nil {
-		migrate = false
+		useUnifiedConfig = false
 	}
 
-	if migrate {
+	if useUnifiedConfig {
 		return getClientConfigNextGenNodeNoLock()
 	}
 	return getMultiConfigNoLock()

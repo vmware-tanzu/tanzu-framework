@@ -204,7 +204,7 @@ func clientConfigSetCurrentContext(cfg *configapi.ClientConfig, node *yaml.Node)
 	return nil
 }
 
-// DeleteClientConfig deletes the config from the local directory.
+// DeleteClientConfig deletes the config yaml from the local directory.
 func DeleteClientConfig() error {
 	cfgPath, err := ClientConfigPath()
 	if err != nil {
@@ -217,7 +217,7 @@ func DeleteClientConfig() error {
 	return nil
 }
 
-// DeleteClientConfigNextGen deletes the config from the local directory.
+// DeleteClientConfigNextGen deletes the config-ng yaml from the local directory.
 func DeleteClientConfigNextGen() error {
 	cfgPath, err := ClientConfigNextGenPath()
 	if err != nil {
@@ -225,7 +225,7 @@ func DeleteClientConfigNextGen() error {
 	}
 	err = os.Remove(cfgPath)
 	if err != nil {
-		return errors.Wrap(err, "could not remove config-alt")
+		return errors.Wrap(err, "could not remove config-ng")
 	}
 	return nil
 }

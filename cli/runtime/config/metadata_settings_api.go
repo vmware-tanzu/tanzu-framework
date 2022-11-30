@@ -51,7 +51,7 @@ func IsConfigMetadataSpecificSettingEnabled(key string) (bool, error) {
 	return strings.EqualFold(val, "true"), nil
 }
 
-// UseUnifiedConfig checks migrateToNewConfig feature flag
+// UseUnifiedConfig checks useUnifiedConfig feature flag
 func UseUnifiedConfig() (bool, error) {
 	return IsConfigMetadataSpecificSettingEnabled(SettingUseUnifiedConfig)
 }

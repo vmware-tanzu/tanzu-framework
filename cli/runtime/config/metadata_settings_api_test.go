@@ -35,23 +35,23 @@ func TestSetAndDeleteConfigMetadataSettings(t *testing.T) {
 			err := SetConfigMetadataSpecificSetting(tc.key, strconv.FormatBool(tc.value))
 			assert.NoError(t, err)
 
-			migrate, err := UseUnifiedConfig()
+			useUnifiedConfig, err := UseUnifiedConfig()
 			assert.NoError(t, err)
-			assert.Equal(t, tc.value, migrate)
+			assert.Equal(t, tc.value, useUnifiedConfig)
 
 			err = DeleteConfigMetadataSpecificSetting(tc.key)
 			assert.NoError(t, err)
 
-			migrate, err = UseUnifiedConfig()
+			useUnifiedConfig, err = UseUnifiedConfig()
 			assert.Equal(t, "not found", err.Error())
-			assert.Equal(t, tc.value, migrate)
+			assert.Equal(t, tc.value, useUnifiedConfig)
 
 			err = SetConfigMetadataSpecificSetting(tc.key, strconv.FormatBool(!tc.value))
 			assert.NoError(t, err)
 
-			migrate, err = UseUnifiedConfig()
+			useUnifiedConfig, err = UseUnifiedConfig()
 			assert.NoError(t, err)
-			assert.Equal(t, !tc.value, migrate)
+			assert.Equal(t, !tc.value, useUnifiedConfig)
 		})
 	}
 }
@@ -70,17 +70,17 @@ func TestSetConfigMetadataSetting(t *testing.T) {
 		value string
 	}{
 		{
-			name:  "success disable migrateToNewConfig",
+			name:  "success disable useUnifiedConfig",
 			key:   SettingUseUnifiedConfig,
 			value: "false",
 		},
 		{
-			name:  "success enable migrateToNewConfig",
+			name:  "success enable useUnifiedConfig",
 			key:   SettingUseUnifiedConfig,
 			value: "true",
 		},
 		{
-			name:  "success disable migrateToNewConfig",
+			name:  "success disable useUnifiedConfig",
 			key:   SettingUseUnifiedConfig,
 			value: "false",
 		},
@@ -91,11 +91,11 @@ func TestSetConfigMetadataSetting(t *testing.T) {
 			err := SetConfigMetadataSpecificSetting(tc.key, tc.value)
 			assert.NoError(t, err)
 
-			migrate, err := UseUnifiedConfig()
+			useUnifiedConfig, err := UseUnifiedConfig()
 			assert.NoError(t, err)
 			expected, err := strconv.ParseBool(tc.value)
 			assert.NoError(t, err)
-			assert.Equal(t, expected, migrate)
+			assert.Equal(t, expected, useUnifiedConfig)
 		})
 	}
 }
