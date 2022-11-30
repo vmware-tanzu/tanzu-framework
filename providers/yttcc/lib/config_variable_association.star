@@ -301,7 +301,7 @@ return {
 "OCI_CONTROL_PLANE_PV_TRANSIT_ENCRYPTION": ["oci"],
 
 "KUBEVIP_LOADBALANCER_ENABLE": ["vsphere"],
-"KUBEVIP_LOADBALANCER_CIDRs": ["vsphere"],
+"KUBEVIP_LOADBALANCER_CIDRS": ["vsphere"],
 "KUBEVIP_LOADBALANCER_IP_RANGES": ["vsphere"],
 
 "PROVIDER_TYPE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],

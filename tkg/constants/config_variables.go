@@ -283,6 +283,6 @@ const (
 	ConfigVariableFeatureFlagPackageBasedLCM = "FEATURE_FLAG_PACKAGE_BASED_LCM"
 
 	ConfigVariableKubevipLoadbalancerEnable   = "KUBEVIP_LOADBALANCER_ENABLE"
-	ConfigVariableKubevipLoadbalancerCIDRs    = "KUBEVIP_LOADBALANCER_CIDRs"
+	ConfigVariableKubevipLoadbalancerCIDRs    = "KUBEVIP_LOADBALANCER_CIDRS"
 	ConfigVariableKubevipLoadbalancerIPRanges = "KUBEVIP_LOADBALANCER_IP_RANGES"
 )
