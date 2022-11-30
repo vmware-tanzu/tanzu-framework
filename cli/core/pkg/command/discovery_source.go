@@ -200,25 +200,7 @@ var deleteDiscoverySourceCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		discoveryName := args[0]
 
-		// Acquire tanzu config lock
-		configlib.AcquireTanzuConfigLock()
-		defer configlib.ReleaseTanzuConfigLock()
-
-		cfg, err := configlib.GetClientConfigNoLock()
-		if err != nil {
-			return err
-		}
-		if cfg.ClientOptions == nil || cfg.ClientOptions.CLI == nil {
-			return fmt.Errorf("discovery %q unknown", discoveryName)
-		}
-
-		newDiscoverySources, err := deleteDiscoverySource(cfg.ClientOptions.CLI.DiscoverySources, discoveryName)
-		if err != nil {
-			return err
-		}
-
-		cfg.ClientOptions.CLI.DiscoverySources = newDiscoverySources
-		err = configlib.StoreClientConfig(cfg)
+		err = configlib.DeleteCLIDiscoverySource(discoveryName)
 		if err != nil {
 			return err
 		}
