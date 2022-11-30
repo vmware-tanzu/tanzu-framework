@@ -10,6 +10,7 @@ on:
     - 'tkg/**'
     - 'providers/**'
     - '.github/workflows/providers.yaml'
+    - 'all_tests.txt'
 
 jobs:
   build:

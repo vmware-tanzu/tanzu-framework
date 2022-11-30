@@ -7,3 +7,4 @@ Documentation centered on Tanzu Framework and its development process.
 * [Local Development With Framework](build.md)
 * [Troubleshooting](troubleshooting.md)
 * [Design Proposal Template](_proposal.md)
+* [Github Workflow CI](ci.md)

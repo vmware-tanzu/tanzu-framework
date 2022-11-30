@@ -16,6 +16,7 @@ on:
       - '!cmd/cli/plugin/package/test/**'
       - 'providers/**'
       - '.github/workflows/tkg_integration_tests*.yaml'
+      - 'all_tests.txt'
 
   push:
     branches: [ main, release-* ]

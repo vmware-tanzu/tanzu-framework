@@ -1,0 +1,11 @@
+# Update or add timestamp in this file to run following additional tests.
+# Following tests are triggered conditionally on updates to the configured paths,
+# as well as update to all_tests.txt file.
+#
+# - package_integration_test.yaml
+# - plugin_tests.yaml
+# - providers.yaml
+# - tkg_integration_tests.yaml
+# - tkg_integration_tests_clusterclass.yaml
+#
+Thu Dec  1 04:09:01 IST 2022
