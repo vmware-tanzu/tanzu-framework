@@ -86,7 +86,9 @@ jobs:
           fi
           env | sort
           make configure-bom
-          make build-cli-local
+          make build-install-cli-local
+          tanzu plugin list
+          cat ~/.config/tanzu/config.yaml
 
       - name: Cleanup
         run: rm -rf ~/.tanzu ~/.tkg ~/.config ~/.cache/tanzu; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
