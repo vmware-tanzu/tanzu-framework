@@ -4,11 +4,11 @@
 package controllers
 
 import (
-	"os"
-	"strings"
-
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"os"
+	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -126,24 +126,25 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 			Expect(strings.Contains(secretData, "key: node-role.kubernetes.io/control-plane")).Should(BeTrue())
 
 			Eventually(func() bool {
-				if !strings.Contains(secretData, `caCerts: |
-  -----BEGIN CERTIFICATE-----
-  MIICxzCCAa+gAwIBAgIUMDCaC1Ve2J1cRsFLTV6ICfx5ug8wDQYJKoZIhvcNAQEL
-  BQAwEzERMA8GA1UEAwwIZTJlLXRlc3QwHhcNMjIxMTI5MTkyNjMzWhcNMjMxMTI5
-  MTkyNjMzWjATMREwDwYDVQQDDAhlMmUtdGVzdDCCASIwDQYJKoZIhvcNAQEBBQAD
-  ggEPADCCAQoCggEBAMHQwDQuWqexl0G9VWjo/Ib5AkJdFioJmzmq7fTKBXkop3UL
-  cx6ZCkmH5Rn8C2iYCLzxnV7H2cR7MqwMzTqij5VXmovZsg/RmFSFPXHNL1yQWu6z
-  Hu05GWSMpfxb/YJfQS5q2ZRLOflUNKzr8o8F9x5Q9fVd0dRLAE+kauDEV85S6gSS
-  +YPb/lOs1O6hl8qLUo0bAmrl4vsQ1HaNusM0sUJSofV+dk0wxGDohjVKpd7MeGa9
-  UEwBaxZ/OQqFPj3wYLP/qFmlll9c9aTmqRAgnL26qnJA5CPH/ULFLRwwhgi2lLaQ
-  Dcrn2H/M5qAfjxF/BwEke2tvn5au34DHNBasF+8CAwEAAaMTMBEwDwYDVR0RBAgw
-  BocEClwqCDANBgkqhkiG9w0BAQsFAAOCAQEACOJyU7BB1iXsObamAw+xNPUpsD8R
-  HxXvu4NCraY/hY+K3+W99H054UUWzzkMWqNqVr3UpcMsbt3C1lVoKjYhwZU0j7uu
-  bpb6d8obitMV7/rR93kR18wSRChTTzy9HpT/ckEvZTrAAUP8P+GBeJAcIwxglgaZ
-  SckCcLbBlRTlbNqQ78upb7362zWsXw4N1iKA6FfGWJghbhAw7hyKwRu1cvdVOJGz
-  SymehdaRUUB2VX96jW5Q9MYyinp7FiB75REtN6NaSV9nNgehBOS8oDXtt7gF3jCB
-  6Mruumj7zk33iCzCA8q0ukX/FK9N8N+6Amfx6fk1NBRUDHHrlAnx1NqlNw==
-  -----END CERTIFICATE-----`) ||
+				fmt.Println(secretData)
+				if !strings.Contains(secretData, `    caCerts: |
+      -----BEGIN CERTIFICATE-----
+      MIICxzCCAa+gAwIBAgIUMDCaC1Ve2J1cRsFLTV6ICfx5ug8wDQYJKoZIhvcNAQEL
+      BQAwEzERMA8GA1UEAwwIZTJlLXRlc3QwHhcNMjIxMTI5MTkyNjMzWhcNMjMxMTI5
+      MTkyNjMzWjATMREwDwYDVQQDDAhlMmUtdGVzdDCCASIwDQYJKoZIhvcNAQEBBQAD
+      ggEPADCCAQoCggEBAMHQwDQuWqexl0G9VWjo/Ib5AkJdFioJmzmq7fTKBXkop3UL
+      cx6ZCkmH5Rn8C2iYCLzxnV7H2cR7MqwMzTqij5VXmovZsg/RmFSFPXHNL1yQWu6z
+      Hu05GWSMpfxb/YJfQS5q2ZRLOflUNKzr8o8F9x5Q9fVd0dRLAE+kauDEV85S6gSS
+      +YPb/lOs1O6hl8qLUo0bAmrl4vsQ1HaNusM0sUJSofV+dk0wxGDohjVKpd7MeGa9
+      UEwBaxZ/OQqFPj3wYLP/qFmlll9c9aTmqRAgnL26qnJA5CPH/ULFLRwwhgi2lLaQ
+      Dcrn2H/M5qAfjxF/BwEke2tvn5au34DHNBasF+8CAwEAAaMTMBEwDwYDVR0RBAgw
+      BocEClwqCDANBgkqhkiG9w0BAQsFAAOCAQEACOJyU7BB1iXsObamAw+xNPUpsD8R
+      HxXvu4NCraY/hY+K3+W99H054UUWzzkMWqNqVr3UpcMsbt3C1lVoKjYhwZU0j7uu
+      bpb6d8obitMV7/rR93kR18wSRChTTzy9HpT/ckEvZTrAAUP8P+GBeJAcIwxglgaZ
+      SckCcLbBlRTlbNqQ78upb7362zWsXw4N1iKA6FfGWJghbhAw7hyKwRu1cvdVOJGz
+      SymehdaRUUB2VX96jW5Q9MYyinp7FiB75REtN6NaSV9nNgehBOS8oDXtt7gF3jCB
+      6Mruumj7zk33iCzCA8q0ukX/FK9N8N+6Amfx6fk1NBRUDHHrlAnx1NqlNw==
+      -----END CERTIFICATE-----`) ||
 					!strings.Contains(secretData, "httpsProxy: bar.com") ||
 					!strings.Contains(secretData, "noProxy: foobar.com") ||
 					!strings.Contains(secretData, "dangerousSkipTLSVerify: registry1,registry2") {
