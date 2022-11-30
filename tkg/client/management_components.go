@@ -250,10 +250,6 @@ func (c *TkgClient) getUserConfigVariableValueMap() (map[string]interface{}, err
 func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient clusterclient.Client) (map[string]interface{}, error) {
 	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
 	configValues := make(map[string]interface{})
-	clusterName, _, err := c.getRegionalClusterNameAndNamespace(clusterClient)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get management cluster name and namespace")
-	}
 	// In ClusterClass based cluster, the user config variables can be retrieved from the tkg-pkg package data values secret directly
 	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(packagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, pollOptions)
 	if err == nil {
@@ -269,6 +265,10 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 		// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
 		// legacy (non-package-based-lcm) management cluster will not have the secret tkg-pkg-tkg-system-values
 		// defined on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
+		clusterName, _, err := c.getRegionalClusterNameAndNamespace(clusterClient)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get management cluster name and namespace")
+		}
 		// So we retrieve the user config variables from the <cluster-name>-config-values secret
 		// which was managed in legacy ytt template providers/ytt/09_miscellaneous
 		bytes, err := clusterClient.GetSecretValue(fmt.Sprintf("%s-config-values", clusterName), "value", constants.TkgNamespace, pollOptions)
