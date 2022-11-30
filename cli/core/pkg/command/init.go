@@ -72,11 +72,5 @@ func initPluginsWithContextAwareCLI() error {
 	if err := catalog.UpdateCatalogCache(); err != nil {
 		return err
 	}
-
-	serverName := ""
-	server, err := config.GetCurrentServer()
-	if err == nil && server != nil {
-		serverName = server.Name
-	}
-	return pluginmanager.SyncPlugins(serverName)
+	return pluginmanager.SyncPlugins()
 }

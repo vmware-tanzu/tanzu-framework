@@ -60,6 +60,16 @@ spec:
                   description: CompletionType determines how command line completion
                     will be determined.
                   type: integer
+                contextType:
+                  description: ContextType specifies the context/target type of the
+                    plugin
+                  type: string
+                defaultFeatureFlags:
+                  additionalProperties:
+                    type: boolean
+                  description: DefaultFeatureFlags is default featureflags to be configured
+                    if missing when invoking plugin
+                  type: object
                 description:
                   description: Description is the plugin's description.
                   type: string
@@ -104,6 +114,8 @@ spec:
               required:
               - buildSHA
               - completionType
+              - contextType
+              - defaultFeatureFlags
               - description
               - digest
               - discoveredRecommendedVersion
@@ -155,6 +167,16 @@ spec:
                   description: CompletionType determines how command line completion
                     will be determined.
                   type: integer
+                contextType:
+                  description: ContextType specifies the context/target type of the
+                    plugin
+                  type: string
+                defaultFeatureFlags:
+                  additionalProperties:
+                    type: boolean
+                  description: DefaultFeatureFlags is default featureflags to be configured
+                    if missing when invoking plugin
+                  type: object
                 description:
                   description: Description is the plugin's description.
                   type: string
@@ -199,6 +221,8 @@ spec:
               required:
               - buildSHA
               - completionType
+              - contextType
+              - defaultFeatureFlags
               - description
               - digest
               - discoveredRecommendedVersion
@@ -228,16 +252,6 @@ spec:
             description: 'StandAlonePlugins is a set of stand-alone plugin installations
               aggregated across all context types. Note: Shall be reduced to only
               those stand-alone plugins that are common to all context types.'
-            type: object
-          standAlonePluginsByContextType:
-            additionalProperties:
-              additionalProperties:
-                type: string
-              description: PluginAssociation is a set of plugin names and their associated
-                installation paths.
-              type: object
-            description: StandAlonePluginsByContextType is a set of stand-alone plugin
-              installations grouped by the context type.
             type: object
         type: object
     served: true

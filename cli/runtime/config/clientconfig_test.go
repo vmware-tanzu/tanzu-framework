@@ -158,69 +158,6 @@ func TestConfigLegacyDir(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestGetDiscoverySources(t *testing.T) {
-	tanzuConfigBytes := `apiVersion: config.tanzu.vmware.com/v1alpha1
-clientOptions:
-  cli:
-    useContextAwareDiscovery: true
-current: mgmt
-kind: ClientConfig
-metadata:
-  creationTimestamp: null
-servers:
-- managementClusterOpts:
-    context: mgmt-admin@mgmt
-    path: config
-  name: mgmt
-  type: managementcluster
-`
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(tanzuConfigBytes), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-	pds := GetDiscoverySources("mgmt")
-	assert.Equal(t, 1, len(pds))
-	assert.Equal(t, pds[0].Kubernetes.Name, "default-mgmt")
-	assert.Equal(t, pds[0].Kubernetes.Path, "config")
-	assert.Equal(t, pds[0].Kubernetes.Context, "mgmt-admin@mgmt")
-	// Test tmc global server
-	tanzuConfigBytes = `apiVersion: config.tanzu.vmware.com/v1alpha1
-clientOptions:
-  cli:
-    useContextAwareDiscovery: true
-current: tmc-test
-kind: ClientConfig
-metadata:
-  creationTimestamp: null
-servers:
-- globalOpts:
-    endpoint: test.cloud.vmware.com:443
-  name: tmc-test
-  type: global
-`
-	tf, err := os.CreateTemp("", "tanzu_tmc_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(tf.Name(), []byte(tanzuConfigBytes), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(tf.Name())
-	err = os.Setenv("TANZU_CONFIG", tf.Name())
-	assert.Nil(t, err)
-	pds = GetDiscoverySources("tmc-test")
-	assert.Equal(t, 1, len(pds))
-	assert.Equal(t, pds[0].REST.Endpoint, "https://test.cloud.vmware.com")
-	assert.Equal(t, pds[0].REST.BasePath, "v1alpha1/system/binaries/plugins")
-	assert.Equal(t, pds[0].REST.Name, "default-tmc-test")
-}
-
 func TestClientConfigUpdateInParallel(t *testing.T) {
 	addServer := func(mcName string) error {
 		_, err := GetClientConfig()

@@ -42,6 +42,9 @@ type Plugin struct {
 	// To view the list of plugin, user can use `tanzu plugin list` and
 	// to download a specific plugin run, `tanzu plugin install <plugin-name>`
 	Optional bool `json:"optional"`
+
+	// Target the target of the plugin
+	Target cliv1alpha1.Target `json:"contextType"`
 }
 
 // DescribePluginResponse defines the response from Describe Plugin API.
@@ -170,6 +173,7 @@ func DiscoveredFromREST(p *Plugin) (plugin.Discovered, error) {
 		Description:        p.Description,
 		RecommendedVersion: p.RecommendedVersion,
 		Optional:           p.Optional,
+		Target:             cliv1alpha1.StringToTarget(string(p.Target)),
 	}
 	dp.SupportedVersions = make([]string, 0)
 	for v := range p.Artifacts {

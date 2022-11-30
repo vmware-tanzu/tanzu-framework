@@ -7,6 +7,22 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// Target is the namespace of the CLI to which plugin is applicable
+type Target string
+
+const (
+	// TargetK8s is a kubernetes target of the CLI
+	TargetK8s Target = "kubernetes"
+	targetK8s Target = "k8s"
+
+	// TargetTMC is a Tanzu Mission Control target of the CLI
+	TargetTMC Target = "mission-control"
+	targetTMC Target = "tmc"
+
+	// TargetNone is used for plugins that are not associated with any target
+	TargetNone Target = ""
+)
+
 // ArtifactList contains an Artifact object for every supported platform of a version.
 type ArtifactList []Artifact
 
@@ -42,6 +58,8 @@ type CLIPluginSpec struct {
 	// To view the list of plugin, user can use `tanzu plugin list` and
 	// to download a specific plugin run, `tanzu plugin install <plugin-name>`
 	Optional bool `json:"optional"`
+	// Target specifies the target of the plugin. Only needed for standalone plugins
+	Target Target `json:"target,omitempty"`
 }
 
 //+kubebuilder:object:root=true

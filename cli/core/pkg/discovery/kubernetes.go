@@ -103,6 +103,7 @@ func (k *KubernetesDiscovery) GetDiscoveredPlugins(clusterClient cluster.Client)
 		}
 		dp.Source = k.name
 		dp.DiscoveryType = k.Type()
+
 		plugins = append(plugins, dp)
 	}
 
@@ -124,6 +125,7 @@ func DiscoveredFromK8sV1alpha1WithImageRepositoryOverride(p *cliv1alpha1.CLIPlug
 		Description:        p.Spec.Description,
 		RecommendedVersion: p.Spec.RecommendedVersion,
 		Optional:           p.Spec.Optional,
+		Target:             cliv1alpha1.StringToTarget(string(p.Spec.Target)),
 	}
 	dp.SupportedVersions = make([]string, 0)
 	for v := range p.Spec.Artifacts {
