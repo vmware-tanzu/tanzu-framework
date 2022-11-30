@@ -943,6 +943,10 @@ func TestRemoveCurrentContext(t *testing.T) {
 	currSrv, err := GetCurrentServer()
 	assert.Equal(t, "current server \"\" not found in tanzu config", err.Error())
 	assert.Nil(t, currSrv)
+
+	currCtx, err = GetCurrentContext(configapi.CtxTypeTMC)
+	assert.NoError(t, err)
+	assert.Equal(t, currCtx.Name, "test-tmc")
 }
 
 func TestSetSingleContext(t *testing.T) {

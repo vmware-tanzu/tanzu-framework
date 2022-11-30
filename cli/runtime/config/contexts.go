@@ -386,8 +386,7 @@ func removeCurrentContext(node *yaml.Node, ctx *configapi.Context) error {
 	}
 	if currentContextNode.Content[ctxTypeNodeIndex].Value == ctx.Name || ctx.Name == "" {
 		ctxTypeNodeIndex--
-		currentContextNode.Content = append(currentContextNode.Content[:ctxTypeNodeIndex], currentContextNode.Content[ctxTypeNodeIndex+1:]...)
-		currentContextNode.Content = append(currentContextNode.Content[:ctxTypeNodeIndex], currentContextNode.Content[ctxTypeNodeIndex+1:]...)
+		currentContextNode.Content = append(currentContextNode.Content[:ctxTypeNodeIndex], currentContextNode.Content[ctxTypeNodeIndex+2:]...)
 	}
 	return nil
 }

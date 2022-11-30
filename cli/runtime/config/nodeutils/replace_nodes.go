@@ -50,10 +50,8 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 				// check for patch strategy before performing deep replace
 				key = fmt.Sprintf("%v.%v", key, dst.Content[i].Value)
 				if strings.EqualFold(patchStrategies[key], "replace") {
-					dst.Content = append(dst.Content[:i], dst.Content[i+1:]...)
-					dst.Content = append(dst.Content[:i], dst.Content[i+1:]...)
-					i--
-					i--
+					dst.Content = append(dst.Content[:i], dst.Content[i+2:]...)
+					i -= 2
 					break
 				}
 
@@ -67,10 +65,8 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 			if !found {
 				key = fmt.Sprintf("%v.%v", key, dst.Content[i].Value)
 				if strings.EqualFold(patchStrategies[key], "replace") {
-					dst.Content = append(dst.Content[:i], dst.Content[i+1:]...)
-					dst.Content = append(dst.Content[:i], dst.Content[i+1:]...)
-					i--
-					i--
+					dst.Content = append(dst.Content[:i], dst.Content[i+2:]...)
+					i -= 2
 				}
 			}
 		}
