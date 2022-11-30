@@ -149,7 +149,7 @@ func GetCurrentContext(ctxType configapi.ContextType) (c *configapi.Context, err
 
 // GetAllCurrentContextsMap returns all current context per ContextType
 func GetAllCurrentContextsMap() (map[configapi.ContextType]*configapi.Context, error) {
-	node, err := getClientConfigNode()
+	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return nil, err
 	}
