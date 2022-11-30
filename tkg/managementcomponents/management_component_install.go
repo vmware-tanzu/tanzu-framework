@@ -270,9 +270,10 @@ func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient p
 	if err != nil {
 		return err
 	}
-
-	if err := DeleteLegacyAkoOperatorPackageInstall(clusterClient, clusterName); err != nil {
-		return err
+	if previousAkoOperatorIsFromCoreRepo {
+		if err := DeleteLegacyAkoOperatorPackageInstall(clusterClient, akoOperatorAddonName); err != nil {
+			return err
+		}
 	}
 
 	if err = InstallManagementPackages(pkgClient, mcip.ManagementPackageRepositoryOptions); err != nil {
@@ -304,12 +305,12 @@ func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient p
 		}
 	}
 
-	if previousAkoOperatorIsFromCoreRepo {
-		err = DeleteAddonSecret(clusterClient, fmt.Sprintf("%s-%s-addon", clusterName, akoOperatorName), constants.TkgNamespace)
-		if err != nil {
-			return err
-		}
-	}
+	// if previousAkoOperatorIsFromCoreRepo {
+	// 	err = DeleteAddonSecret(clusterClient, fmt.Sprintf("%s-%s-addon", clusterName, akoOperatorName), constants.TkgNamespace)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	return nil
 }
