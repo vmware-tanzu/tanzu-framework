@@ -461,6 +461,16 @@ func setupForGetContext(t *testing.T) {
 				},
 			},
 			{
+				Name: "test-mc-2",
+				Type: "k8s",
+				ClusterOpts: &configapi.ClusterServer{
+					Endpoint:            "test-endpoint-2",
+					Path:                "test-path-2",
+					Context:             "test-context-2",
+					IsManagementCluster: true,
+				},
+			},
+			{
 				Name: "test-tmc",
 				Type: "tmc",
 				GlobalOpts: &configapi.GlobalServer{
@@ -469,7 +479,7 @@ func setupForGetContext(t *testing.T) {
 			},
 		},
 		CurrentContext: map[configapi.ContextType]string{
-			"k8s": "test-mc",
+			"k8s": "test-mc-2",
 			"tmc": "test-tmc",
 		},
 	}
@@ -735,10 +745,11 @@ func TestSetCurrentContext(t *testing.T) {
 		cleanupDir(LocalDirName)
 	}()
 	tcs := []struct {
-		name    string
-		ctxType configapi.ContextType
-		ctxName string
-		errStr  string
+		name       string
+		ctxType    configapi.ContextType
+		ctxName    string
+		currServer string
+		errStr     string
 	}{
 		{
 			name:    "success tmc",
@@ -746,9 +757,15 @@ func TestSetCurrentContext(t *testing.T) {
 			ctxType: "tmc",
 		},
 		{
-			name:    "success k8s",
-			ctxName: "test-mc",
-			ctxType: "k8s",
+			name:       "success k8s",
+			ctxName:    "test-mc",
+			ctxType:    "k8s",
+			currServer: "test-mc",
+		},
+		{
+			name:    "success tmc after setting k8s",
+			ctxName: "test-tmc",
+			ctxType: "tmc",
 		},
 		{
 			name:    "failure",
@@ -759,6 +776,8 @@ func TestSetCurrentContext(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
+			prevSrv, _ := GetCurrentServer()
+
 			err := SetCurrentContext(tc.ctxName)
 			if tc.errStr == "" {
 				assert.NoError(t, err)
@@ -775,7 +794,11 @@ func TestSetCurrentContext(t *testing.T) {
 			currSrv, err := GetCurrentServer()
 			assert.NoError(t, err)
 			if tc.errStr == "" {
-				assert.Equal(t, tc.ctxName, currSrv.Name)
+				if tc.currServer == "" {
+					assert.Equal(t, prevSrv.Name, currSrv.Name)
+				} else {
+					assert.Equal(t, tc.currServer, currSrv.Name)
+				}
 			}
 		})
 	}
