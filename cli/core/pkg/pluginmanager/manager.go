@@ -248,12 +248,13 @@ func availablePlugins(discoveredServerPlugins, discoveredStandalonePlugins []plu
 }
 
 // combineDuplicatePlugins combines same plugins to eliminate duplicates
-// When there is a plugin name conflicts and target of both the plugins are same, remove one.
+// When there is a plugin name conflicts and target of both the plugins are same, remove duplicate one.
+// In addition to above, plugin with same name having `k8s` and `none` target are also considered same for
+// backward compatibility reasons. Considering, we are adding `k8s` targeted plugins as root level commands.
 //
-// Considering, we are adding `k8s` targeted plugins as root level commands as well for backward compatibility
-// A plugin 'foo' getting discovered/installed with `<none>` target and a plugin `foo` getting discovered
+// E.g. A plugin 'foo' getting discovered/installed with `<none>` target and a plugin `foo` getting discovered
 // with `k8s` discovery (having `k8s` target) should be treated as same plugin.
-// This function takes this case into consideration and ignores `<none>` targeted plugin for above the mentioned scenario.
+// This function takes this case into consideration and removes `<none>` targeted plugin for above the mentioned scenario.
 func combineDuplicatePlugins(availablePlugins []plugin.Discovered) []plugin.Discovered {
 	mapOfSelectedPlugins := make(map[string]plugin.Discovered)
 

@@ -124,7 +124,10 @@ There can be multiple contexts for the same combination of `(user, server)`. Pre
 Going forward we shall refer to them as `Context` to be explicit. Also, the context can be managed at one place using the `tanzu context` command.
 Earlier, this was distributed between the `tanzu login` command and `tanzu config server` command.
 
-Each `Context` is associated with a `Target` which is used to determine which the control-plane(target) that context is applicable.
+- Each `Context` is associated with a `Target`.
+- While multiple contexts can be associated with a target.
+- There is at most one context that is active for each target.
+
 More details regarding Target is available in next section.
 
 Note: This is currently behind a feature flag. To enable the flag please run `tanzu config set features.global.context-target true`
@@ -174,7 +177,7 @@ tanzu context use mgmt-cluster
 Target is a top level entity used to make the control plane, that a user is interacting against, more explicit in command invocations.
 This is done by creating a separate target specific command under root level command for Tanzu CLI. e.g. `tanzu <target>`
 
-The Tanzu CLI supports two targets: `kubernetes`, `mission-control`. To respect backwards-compatibility, when no target command is specified, the kubernetes target is used automatically.
+The Tanzu CLI supports two targets: `kubernetes` (alias `k8s`), `mission-control` (alias `tmc`). To respect backwards-compatibility, when no target command is specified, the kubernetes target is used automatically.
 
 Target of a plugin is determined differently for Standalone Plugins and Context-Scoped plugins.
 
