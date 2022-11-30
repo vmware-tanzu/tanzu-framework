@@ -19,13 +19,10 @@ func setAPIVersion(node *yaml.Node, apiVersion string) (persist bool, err error)
 
 // setScalarNode adds or updated scalar node value in yaml node
 func setScalarNode(node *yaml.Node, key, value string) (persist bool, err error) {
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = true
-		c.Keys = []nodeutils.Key{
-			{Name: key, Type: yaml.ScalarNode, Value: ""},
-		}
+	keys := []nodeutils.Key{
+		{Name: key, Type: yaml.ScalarNode, Value: ""},
 	}
-	targetNode := nodeutils.FindNode(node.Content[0], configOptions)
+	targetNode := nodeutils.FindNode(node.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys(keys))
 	if targetNode == nil {
 		return persist, nodeutils.ErrNodeNotFound
 	}

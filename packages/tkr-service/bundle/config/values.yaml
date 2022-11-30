@@ -9,3 +9,4 @@ deployment:
   #! If hostNetwork is set to true the below two ports should be different
   tkrConversionWebhookServerPort: 9443
   tkrResolverWebhookServerPort: 9443
+  tlsCipherSuites: "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"

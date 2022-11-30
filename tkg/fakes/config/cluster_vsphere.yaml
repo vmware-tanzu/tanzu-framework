@@ -25,6 +25,10 @@ spec:
       - name: network
         value:
           ipv6Primary: false #TKG_IP_FAMILY (if true expect TKG_IP_FAMILY="ipv6,ipv4")
+          addressesFromPools:
+          - apiGroup: ipam.cluster.x-k8s.io
+            kind: InClusterIPPool
+            name: inclusterpool
       - name: proxy
         value: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
           httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY

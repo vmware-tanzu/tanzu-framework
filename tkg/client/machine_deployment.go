@@ -17,7 +17,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1beta2"
+	aws "sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
 	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"

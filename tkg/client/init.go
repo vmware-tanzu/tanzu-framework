@@ -17,7 +17,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	capav1beta2 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta2"
+	capav1beta2 "sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -336,6 +336,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeInstall); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
 		}
+	}
+
+	if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) {
+		ipamProvider, err := c.tkgConfigUpdaterClient.CheckInfrastructureVersion("ipam-in-cluster")
+		if err != nil {
+			return err
+		}
+		options.IPAMProvider = ipamProvider
 	}
 
 	err = bootStrapClusterClient.WaitForClusterInitialized(options.ClusterName, targetClusterNamespace)
@@ -674,9 +682,14 @@ func (c *TkgClient) teardownKindCluster(clusterName, kubeconfig string, useExist
 
 // InitializeProviders initializes providers
 func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClient clusterclient.Client, kubeconfigPath string) error {
+	infrastructureProviders := []string{options.InfrastructureProvider}
+	if options.IPAMProvider != "" {
+		infrastructureProviders = append(infrastructureProviders, options.IPAMProvider)
+	}
+
 	clusterctlClientInitOptions := clusterctl.InitOptions{
 		Kubeconfig:              clusterctl.Kubeconfig{Path: kubeconfigPath},
-		InfrastructureProviders: []string{options.InfrastructureProvider},
+		InfrastructureProviders: infrastructureProviders,
 		ControlPlaneProviders:   []string{options.ControlPlaneProvider},
 		BootstrapProviders:      []string{options.BootstrapProvider},
 		CoreProvider:            options.CoreProvider,
@@ -743,6 +756,7 @@ func (c *TkgClient) configureImageTagsForProviderInstallation() error {
 	configImageTag(constants.ConfigVariableInternalCAPVManagerImageTag, "cluster_api_vsphere", "capvControllerImage")
 	configImageTag(constants.ConfigVariableInternalCAPZManagerImageTag, "cluster-api-provider-azure", "capzControllerImage")
 	configImageTag(constants.ConfigVariableInternalCAPOCIManagerImageTag, "cluster-api-provider-oci", "capociControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPIIPAMProviderInClusterImageTag, "cluster-api-ipam-provider-in-cluster", "capiIPAMProviderInClusterControllerImage")
 	configImageTag(constants.ConfigVariableInternalNMIImageTag, "aad-pod-identity", "nmiImage")
 
 	return nil

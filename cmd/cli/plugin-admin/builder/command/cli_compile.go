@@ -24,6 +24,11 @@ import (
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 )
 
+func init() {
+	// TODO, aunum is an old logging library, need to replace w/ klog, but we want timestamps immediately for build optimizations, so one time hack.
+	log.Timestamps = true
+}
+
 var (
 	version, artifactsDir, ldflags string
 	tags, goprivate                string

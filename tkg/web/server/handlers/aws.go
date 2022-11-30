@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
-	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
+	"sigs.k8s.io/cluster-api-provider-aws/v2/cmd/clusterawsadm/credentials"
 
 	awsclient "github.com/vmware-tanzu/tanzu-framework/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"

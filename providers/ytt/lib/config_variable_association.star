@@ -71,6 +71,8 @@ return {
 "NSXT_SECRET_NAME": ["vsphere"],
 "NSXT_SECRET_NAMESPACE": ["vsphere"],
 
+"NODE_IPAM_IP_POOL_NAME": ["vsphere"],
+
 "AWS_REGION": ["aws"],
 "AWS_NODE_AZ": ["aws"],
 "AWS_NODE_AZ_1": ["aws"],

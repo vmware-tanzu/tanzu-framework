@@ -11,7 +11,7 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-func TestSetRepository(t *testing.T) {
+func TestSetGetRepository(t *testing.T) {
 	func() {
 		LocalDirName = TestLocalDirName
 	}()

@@ -71,8 +71,6 @@ spec:
               value: #@ data.values.CLUSTER_NAME
             - name: control_plane_endpoint_port
               value: #@ "{}".format(data.values.VSPHERE_CONTROL_PLANE_ENDPOINT_PORT)
-            - name: avi_controller_version
-              value: #@ "{}".format(data.values.AVI_CONTROLLER_VERSION)
           resources:
             limits:
               cpu: 100m

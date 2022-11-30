@@ -294,6 +294,22 @@ spec:
           ipv6Primary:
             type: boolean
             default: false
+          addressesFromPools:
+            type: array
+            items:
+              type: object
+              properties:
+                apiGroup:
+                  type: string
+                kind:
+                  type: string
+                name:
+                  type: string
+              required:
+              - apiGroup
+              - kind
+              - name
+            default: []
         default:
           ipv6Primary: false
   - name: proxy
@@ -822,8 +838,16 @@ spec:
               - {{ . }}
                 {{- end }}
               {{- end }}
-              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
-              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}} dhcp4: true {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}} dhcp6: true {{- end }}
+              {{ if .network.addressesFromPools  -}}
+              addressesFromPools:
+                {{- range .network.addressesFromPools }}
+              - apiGroup: {{ .apiGroup }}
+                kind: {{ .kind }}
+                name: {{ .name }}
+                {{- end }}
+              {{- end }}
     - selector:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: VSphereMachineTemplate
@@ -851,8 +875,16 @@ spec:
               - {{ . }}
                 {{- end }}
               {{- end }}
-              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
-              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}} dhcp4: true {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}} dhcp6: true {{- end }}
+              {{ if .network.addressesFromPools  -}}
+              addressesFromPools:
+                {{- range .network.addressesFromPools }}
+              - apiGroup: {{ .apiGroup }}
+                kind: {{ .kind }}
+                name: {{ .name }}
+                {{- end }}
+              {{- end }}
   - name: ipv6localhost
     enabledIf: '{{ list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily }}'
     definitions:

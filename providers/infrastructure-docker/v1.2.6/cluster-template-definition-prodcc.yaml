@@ -3,8 +3,8 @@ kind: TemplateDefinition
 spec:
   paths:
     - path: providers/yttcb
-    - path: providers/infrastructure-aws/v2.0.0-beta.1/yttcc
-    - path: providers/infrastructure-aws/yttcc
+    - path: providers/infrastructure-docker/v1.2.6/yttcc
+    - path: providers/infrastructure-docker/yttcc
     - path: providers/yttcc
     - path: bom
       filemark: text-plain

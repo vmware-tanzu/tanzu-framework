@@ -22,7 +22,7 @@ func addCompatibilityFile(c *configapi.ClientConfig, compatibilityFilePath strin
 		c.ClientOptions.CLI = &configapi.CLIOptions{}
 	}
 	// CompatibilityFilePath has been deprecated and will be removed from future version
-	c.ClientOptions.CLI.CompatibilityFilePath = compatibilityFilePath // nolint:staticcheck
+	c.ClientOptions.CLI.CompatibilityFilePath = compatibilityFilePath //nolint:staticcheck
 }
 
 func addBomRepo(c *configapi.ClientConfig, repo string) {
@@ -33,13 +33,13 @@ func addBomRepo(c *configapi.ClientConfig, repo string) {
 		c.ClientOptions.CLI = &configapi.CLIOptions{}
 	}
 	// BOMRepo has been deprecated and will be removed from future version
-	c.ClientOptions.CLI.BOMRepo = repo // nolint:staticcheck
+	c.ClientOptions.CLI.BOMRepo = repo //nolint:staticcheck
 }
 
 // AddCompatibilityFileIfMissing adds the compatibility file to the client configuration to ensure it can be downloaded
 func AddCompatibilityFileIfMissing(config *configapi.ClientConfig) bool {
 	// CompatibilityFilePath has been deprecated and will be removed from future version
-	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.CompatibilityFilePath == "" { // nolint:staticcheck
+	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.CompatibilityFilePath == "" { //nolint:staticcheck
 		addCompatibilityFile(config, tkgDefaultCompatibilityImagePath)
 		return true
 	}
@@ -49,7 +49,7 @@ func AddCompatibilityFileIfMissing(config *configapi.ClientConfig) bool {
 // AddBomRepoIfMissing adds the bomRepository to the client configuration if it is not already present
 func AddBomRepoIfMissing(config *configapi.ClientConfig) bool {
 	// BOMRepo has been deprecated and will be removed from future version
-	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.BOMRepo == "" { // nolint:staticcheck
+	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.BOMRepo == "" { //nolint:staticcheck
 		addBomRepo(config, tkgDefaultImageRepo)
 		return true
 	}

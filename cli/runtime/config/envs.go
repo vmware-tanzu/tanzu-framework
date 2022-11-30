@@ -13,6 +13,7 @@ import (
 
 // GetAllEnvs retrieves all env values from config
 func GetAllEnvs() (map[string]string, error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return nil, err
@@ -33,6 +34,7 @@ func getAllEnvs(node *yaml.Node) (map[string]string, error) {
 
 // GetEnv retrieves env value by key
 func GetEnv(key string) (string, error) {
+	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return "", err
@@ -56,6 +58,7 @@ func getEnv(node *yaml.Node, key string) (string, error) {
 
 // DeleteEnv delete the env entry of specified key
 func DeleteEnv(key string) error {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
@@ -66,19 +69,16 @@ func DeleteEnv(key string) error {
 	if err != nil {
 		return err
 	}
-	return persistNode(node)
+	return persistConfig(node)
 }
 
 func deleteEnv(node *yaml.Node, key string) (err error) {
-	// config options to find env stanza
-	configOptions := func(c *nodeutils.Config) {
-		c.Keys = []nodeutils.Key{
-			{Name: KeyClientOptions},
-			{Name: KeyEnv},
-		}
-	}
 	// find env node
-	envsNode := nodeutils.FindNode(node.Content[0], configOptions)
+	keys := []nodeutils.Key{
+		{Name: KeyClientOptions},
+		{Name: KeyEnv},
+	}
+	envsNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if envsNode == nil {
 		return err
 	}
@@ -103,51 +103,54 @@ func deleteEnv(node *yaml.Node, key string) (err error) {
 
 // SetEnv add or update a env key and value
 func SetEnv(key, value string) (err error) {
+	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return err
 	}
+
+	// add or update env map
 	persist, err := setEnv(node, key, value)
 	if err != nil {
 		return err
 	}
 	if persist {
-		return persistNode(node)
+		return persistConfig(node)
 	}
 	return err
 }
 
 func setEnv(node *yaml.Node, key, value string) (persist bool, err error) {
-	// config options to find env stanza
-	configOptions := func(c *nodeutils.Config) {
-		c.ForceCreate = true
-		c.Keys = []nodeutils.Key{
-			{Name: KeyClientOptions, Type: yaml.MappingNode},
-			{Name: KeyEnv, Type: yaml.MappingNode},
-		}
+	// find env node
+	keys := []nodeutils.Key{
+		{Name: KeyClientOptions, Type: yaml.MappingNode},
+		{Name: KeyEnv, Type: yaml.MappingNode},
 	}
-	// find env stanza node
-	envsNode := nodeutils.FindNode(node.Content[0], configOptions)
+	envsNode := nodeutils.FindNode(node.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys(keys))
 	if envsNode == nil {
 		return persist, err
 	}
+
 	// convert env node to map
 	envs, err := nodeutils.ConvertNodeToMap(envsNode)
 	if err != nil {
 		return persist, err
 	}
+
 	// add or update the envs map per specified key value pair
 	if len(envs) == 0 || envs[key] != value {
 		envs[key] = value
 		persist = true
 	}
+
 	// convert map to yaml node
 	newEnvsNode, err := nodeutils.ConvertMapToNode(envs)
 	if err != nil {
-		return persist, err
+		return false, err
 	}
+
 	envsNode.Content = newEnvsNode.Content[0].Content
 	return persist, err
 }

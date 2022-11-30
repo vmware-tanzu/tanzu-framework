@@ -2,7 +2,7 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - githubRelease:
-      url: https://api.github.com/repos/kubernetes-sigs/cluster-api/releases/80090626
+      url: https://api.github.com/repos/kubernetes-sigs/cluster-api/releases/83704990
     path: .
   path: bundle/config/upstream
 kind: LockConfig

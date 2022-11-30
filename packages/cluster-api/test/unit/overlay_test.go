@@ -36,7 +36,7 @@ var _ = Describe("Cluster-API Ytt Templating", func() {
 		Expect(docs).To(HaveLen(1))
 		Expect(docs[0]).To(HaveYAMLPathWithValue(
 			"$.spec.template.spec.containers[0].args[2]",
-			"--feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterResourceSet=${EXP_CLUSTER_RESOURCE_SET:=true},ClusterTopology=${CLUSTER_TOPOLOGY:=true}",
+			"--feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},ClusterResourceSet=${EXP_CLUSTER_RESOURCE_SET:=true},ClusterTopology=${CLUSTER_TOPOLOGY:=true},RuntimeSDK=${EXP_RUNTIME_SDK:=false}",
 		))
 	})
 })

@@ -350,6 +350,7 @@ spec:
         - #@ "--cluster-delete-timeout={}".format(data.values.tanzuAddonsManager.deployment.clusterDeleteTimeout)
         - #@ "--webhook-server-port={}".format(data.values.tanzuAddonsManager.deployment.webhookServerPort)
         - #@ "--addon-namespace={}".format(data.values.tanzuAddonsManager.namespace)
+        - #@ "--tls-cipher-suites={}".format(data.values.tanzuAddonsManager.deployment.tlsCipherSuites)
         #@ if/end data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
         - --feature-gate-cluster-bootstrap=true
         #@ if/end data.values.tanzuAddonsManager.featureGates.packageInstallStatus:

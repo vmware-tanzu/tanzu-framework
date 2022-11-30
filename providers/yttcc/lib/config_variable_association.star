@@ -74,6 +74,8 @@ return {
 "NSXT_SECRET_NAME": ["vsphere"],
 "NSXT_SECRET_NAMESPACE": ["vsphere"],
 
+"NODE_IPAM_IP_POOL_NAME": ["vsphere"],
+
 "AWS_REGION": ["aws"],
 "AWS_NODE_AZ": ["aws"],
 "AWS_NODE_AZ_1": ["aws"],
@@ -340,6 +342,14 @@ def get_cluster_variables():
     network = {}
     if data.values["TKG_IP_FAMILY"] == "ipv6,ipv4":
         network["ipv6Primary"] = True
+    end
+
+    if data.values["NODE_IPAM_IP_POOL_NAME"] != "":
+        network["addressesFromPools"] = [{
+            "apiGroup": "ipam.cluster.x-k8s.io",
+            "kind": "InClusterIPPool",
+            "name": data.values["NODE_IPAM_IP_POOL_NAME"],
+        }]
     end
 
     if network != {}:

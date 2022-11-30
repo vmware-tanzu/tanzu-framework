@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Update fields for antrea 1.7.1 (#5544)...
-      sha: 8fa1eddbee7864510faf26e545b01e29ac966be5
+      commitTitle: Fix antrea 1.7.1 kapp label (#5568)...
+      sha: 639dfcff20d0edfd3a008e8a64018d5725c09ad8
       tags:
-      - v0.13.0-dev.2-472-g8fa1eddb
+      - v0.13.0-dev.2-493-g639dfcff
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
