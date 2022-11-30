@@ -213,3 +213,18 @@ Global Flags:
         --log-file string   Log file path
   -v, --verbose int32     Number for the log level verbosity(0-9)
 ```
+
+```shell
+>>> tanzu management-cluster osimage oracle populate --help
+
+Usage:
+import your own Kubernetes node image to specific cloud infrastructure, and patched TKR
+to consume the imported image. For example:
+
+
+tanzu management-cluster osimage oracle populate \
+  --tkr-path gcr.io/my-project-1527816345739/tkg/tkr/tkr-oci:latest \
+  --compartment ocid1.compartment.oc1..aaaaaaaawgxbth6afwfzkxxxxxxxxxxxxxxmrf2ouxqa6ifrfa
+  --output-directory {additional manifest directory}
+
+```
