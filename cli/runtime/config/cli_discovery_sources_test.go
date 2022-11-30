@@ -254,15 +254,14 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 	}(f.Name())
 
 	tests := []struct {
-		name    string
-		src     *configapi.ClientConfig
-		input   string
-		deleted bool
-		count   int
-		errStr  string
+		name   string
+		src    *configapi.ClientConfig
+		input  string
+		count  int
+		errStr string
 	}{
 		{
-			name: "should return true on deleting non existing item",
+			name: "should return err on deleting non existing source",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
 					CLI: &configapi.CLIOptions{
@@ -278,13 +277,12 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 					},
 				},
 			},
-			input:   "test-notfound",
-			deleted: true,
-			count:   1,
-			errStr:  "cli discovery source not found",
+			input:  "test-notfound",
+			count:  1,
+			errStr: "cli discovery source not found",
 		},
 		{
-			name: "should return true on deleting existing item",
+			name: "should delete existing test source",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
 					CLI: &configapi.CLIOptions{
@@ -300,12 +298,11 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 					},
 				},
 			},
-			input:   "test",
-			count:   0,
-			deleted: true,
+			input: "test",
+			count: 0,
 		},
 		{
-			name: "should return true on deleting existing test2",
+			name: "should delete test2 source",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
 					CLI: &configapi.CLIOptions{
@@ -328,21 +325,20 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 					},
 				},
 			},
-			count:   1,
-			input:   "test",
-			deleted: true,
+			count: 1,
+			input: "test2",
 		},
 		{
-			name: "should delete local source",
+			name: "should delete local default source",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
 					CLI: &configapi.CLIOptions{
 						DiscoverySources: []configapi.PluginDiscovery{
 							{
 								GCP: &configapi.GCPDiscovery{
-									Name:         "test2",
-									Bucket:       "test-bucket2",
-									ManifestPath: "test-manifest-path2",
+									Name:         "test",
+									Bucket:       "test-bucket",
+									ManifestPath: "test-manifest-path",
 								},
 								ContextType: configapi.CtxTypeTMC,
 							},
@@ -364,9 +360,8 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 					},
 				},
 			},
-			count:   2,
-			input:   "default",
-			deleted: true,
+			count: 2,
+			input: "default",
 		},
 	}
 	for _, spec := range tests {
