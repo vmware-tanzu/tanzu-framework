@@ -104,7 +104,6 @@ spec:
               - description
               - optional
               - recommendedVersion
-              - target
               type: object
           required:
           - metadata

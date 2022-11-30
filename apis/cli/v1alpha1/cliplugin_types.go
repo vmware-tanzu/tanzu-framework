@@ -59,7 +59,7 @@ type CLIPluginSpec struct {
 	// to download a specific plugin run, `tanzu plugin install <plugin-name>`
 	Optional bool `json:"optional"`
 	// Target specifies the target of the plugin. Only needed for standalone plugins
-	Target Target `json:"target"`
+	Target Target `json:"target,omitempty"`
 }
 
 //+kubebuilder:object:root=true
