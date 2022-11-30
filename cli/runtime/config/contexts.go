@@ -193,14 +193,16 @@ func SetCurrentContext(name string) error {
 			return err
 		}
 	}
-	persist, err = setCurrentServer(node, name)
-	if err != nil {
-		return err
-	}
-	if persist {
-		err = persistConfig(node)
+	if ctx.Type == configapi.CtxTypeK8s {
+		persist, err = setCurrentServer(node, name)
 		if err != nil {
 			return err
+		}
+		if persist {
+			err = persistConfig(node)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return err
