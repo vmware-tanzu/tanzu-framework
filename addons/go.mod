@@ -6,6 +6,9 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework => ../
 	github.com/vmware-tanzu/tanzu-framework/apis/cni => ../apis/cni
 	github.com/vmware-tanzu/tanzu-framework/apis/cpi => ../apis/cpi
+	github.com/vmware/vsphere-automation-sdk-go/lib => github.com/TaoZou1/vsphere-automation-sdk-go/lib v0.5.1-0.20221020082725-84e89979deb6
+	github.com/vmware/vsphere-automation-sdk-go/runtime => github.com/TaoZou1/vsphere-automation-sdk-go/runtime v0.5.1-0.20221020082725-84e89979deb6
+	github.com/vmware/vsphere-automation-sdk-go/services/nsxt => github.com/TaoZou1/vsphere-automation-sdk-go/services/nsxt v0.9.2
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 )
 
