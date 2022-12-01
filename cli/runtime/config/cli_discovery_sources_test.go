@@ -244,7 +244,7 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 	assert.Nil(t, err)
 	err = os.WriteFile(f.Name(), []byte(""), 0644)
 	assert.Nil(t, err)
-	err = os.Setenv("TANZU_CONFIG", f.Name())
+	err = os.Setenv(EnvConfigKey, f.Name())
 	assert.NoError(t, err)
 
 	// Cleanup
@@ -254,14 +254,14 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 	}(f.Name())
 
 	tests := []struct {
-		name    string
-		src     *configapi.ClientConfig
-		input   string
-		deleted bool
-		errStr  string
+		name   string
+		src    *configapi.ClientConfig
+		input  string
+		count  int
+		errStr string
 	}{
 		{
-			name: "should return true on deleting non existing item",
+			name: "should return err on deleting non existing source",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
 					CLI: &configapi.CLIOptions{
@@ -277,12 +277,12 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 					},
 				},
 			},
-			input:   "test-notfound",
-			deleted: true,
-			errStr:  "cli discovery source not found",
+			input:  "test-notfound",
+			count:  1,
+			errStr: "cli discovery source not found",
 		},
 		{
-			name: "should return true on deleting existing item",
+			name: "should delete existing test source",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
 					CLI: &configapi.CLIOptions{
@@ -298,11 +298,11 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 					},
 				},
 			},
-			input:   "test",
-			deleted: true,
+			input: "test",
+			count: 0,
 		},
 		{
-			name: "should return true on deleting existing item2",
+			name: "should delete test2 source",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
 					CLI: &configapi.CLIOptions{
@@ -325,8 +325,40 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 					},
 				},
 			},
-			input:   "test",
-			deleted: true,
+			count: 1,
+			input: "test2",
+		},
+		{
+			name: "should delete local default source",
+			src: &configapi.ClientConfig{
+				ClientOptions: &configapi.ClientOptions{
+					CLI: &configapi.CLIOptions{
+						DiscoverySources: []configapi.PluginDiscovery{
+							{
+								GCP: &configapi.GCPDiscovery{
+									Name:         "test",
+									Bucket:       "test-bucket",
+									ManifestPath: "test-manifest-path",
+								},
+							},
+							{
+								Local: &configapi.LocalDiscovery{
+									Name: "default",
+									Path: "standalone",
+								},
+							},
+							{
+								Local: &configapi.LocalDiscovery{
+									Name: "admin-local",
+									Path: "admin",
+								},
+							},
+						},
+					},
+				},
+			},
+			count: 2,
+			input: "default",
 		},
 	}
 	for _, spec := range tests {
@@ -339,6 +371,10 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 			}
+
+			sources, err := GetCLIDiscoverySources()
+			assert.NoError(t, err)
+			assert.Equal(t, spec.count, len(sources))
 		})
 	}
 }

@@ -42,7 +42,7 @@ func GetClientConfigNoLock() (cfg *configapi.ClientConfig, err error) {
 // StoreClientConfig stores the config in the local directory.
 // Make sure to Acquire and Release tanzu lock when reading/writing to the
 // tanzu client configuration
-// Deprecated: StoreClientConfig is deprecated. Use New Config API methods
+// Deprecated: StoreClientConfig is deprecated. Avoid using this method for Delete operations. Use New Config API methods.
 func StoreClientConfig(cfg *configapi.ClientConfig) error {
 	// new plugins would be setting only contexts, so populate servers for backwards compatibility
 	populateServers(cfg)
