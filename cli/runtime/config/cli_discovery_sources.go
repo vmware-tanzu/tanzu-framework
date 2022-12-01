@@ -24,7 +24,7 @@ func GetCLIDiscoverySources() ([]configapi.PluginDiscovery, error) {
 	return getCLIDiscoverySources(node)
 }
 
-// GetCLIDiscoverySource retrieves cli discovery source by name
+// GetCLIDiscoverySource retrieves cli discovery source by name assuming that there should only be one source with the name, returns the first match
 func GetCLIDiscoverySource(name string) (*configapi.PluginDiscovery, error) {
 	// Retrieve client config node
 	node, err := getClientConfigNode()

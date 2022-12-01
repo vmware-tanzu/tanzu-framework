@@ -340,21 +340,18 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 									Bucket:       "test-bucket",
 									ManifestPath: "test-manifest-path",
 								},
-								ContextType: configapi.CtxTypeTMC,
 							},
 							{
 								Local: &configapi.LocalDiscovery{
 									Name: "default",
 									Path: "standalone",
 								},
-								ContextType: configapi.CtxTypeK8s,
 							},
 							{
 								Local: &configapi.LocalDiscovery{
 									Name: "admin-local",
 									Path: "admin",
 								},
-								ContextType: configapi.CtxTypeK8s,
 							},
 						},
 					},
