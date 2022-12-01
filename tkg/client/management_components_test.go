@@ -352,18 +352,80 @@ var _ = Describe("Unit tests for processAKOPackageInstallFile", func() {
 
 })
 
-var _ = Describe("Unit tests for RetrieveAKOOVariablesFromAddonSecret", func() {
+var _ = Describe("Unit tests for GetAKOOAddonSecretValues", func() {
+	var (
+		err           error
+		clusterClient *fakes.ClusterClient
+		clusterName   string
+		secretContent string
+		bytes         []byte
+		found         bool
+	)
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		clusterName = "fake-cluster"
+		secretContent = "foo"
+	})
+	JustBeforeEach(func() {
+		bytes, found, err = GetAKOOAddonSecretValues(clusterClient, clusterName)
+	})
+	Describe("When the ako-operator addon secret is not found", func() {
+		BeforeEach(func() {
+			clusterClient.GetSecretValueReturns(nil, apierrors.NewNotFound(
+				schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
+				"fakeGroupResource"))
+		})
+		It("should return not found with no errors", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(found).To(BeFalse())
+			Expect(len(bytes)).To(Equal(0))
+		})
+	})
+
+	Describe("When failed to get the ako-operator addon secret", func() {
+		BeforeEach(func() {
+			clusterClient.GetSecretValueReturns(nil, errors.New("cannot get the secret"))
+		})
+		It("should return the error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("cannot get the secret"))
+			Expect(found).To(BeFalse())
+			Expect(len(bytes)).To(Equal(0))
+		})
+	})
+
+	Describe("When the ako-operator addon secret is found", func() {
+		BeforeEach(func() {
+			clusterClient.GetSecretValueCalls(func(secretName string, secretField string, secretNamespace string, pollOptions *clusterclient.PollOptions) ([]byte, error) {
+				if secretName == fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName) &&
+					secretNamespace == constants.TkgNamespace &&
+					secretField == "values.yaml" {
+					return []byte(secretContent), nil
+				}
+				return nil, errors.New("Not expected input")
+			})
+		})
+		It("should get the content of the addon secret", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(found).To(BeTrue())
+			Expect(len(bytes)).ToNot(Equal(0))
+			Expect(string(bytes)).To(Equal(secretContent))
+		})
+	})
+
+})
+
+var _ = Describe("Unit tests for RetrieveAKOOVariablesFromAddonSecretValues", func() {
 	var (
 		err                  error
-		clusterClient        *fakes.ClusterClient
 		configValues         map[string]interface{}
 		clusterName          string
 		secretContent        string
 		invalidSecretContent string
+		secretValues         []byte
 	)
 
 	BeforeEach(func() {
-		clusterClient = &fakes.ClusterClient{}
 		configValues = map[string]interface{}{}
 		clusterName = "fake-cluster"
 		secretContent = `
@@ -395,40 +457,12 @@ akoOperator:
 	})
 
 	JustBeforeEach(func() {
-		err = RetrieveAKOOVariablesFromAddonSecret(clusterClient, clusterName, configValues)
-	})
-
-	Describe("When the ako-operator addon secret is not found", func() {
-		BeforeEach(func() {
-			clusterClient.GetSecretValueReturns(nil, apierrors.NewNotFound(
-				schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
-				"fakeGroupResource"))
-		})
-		It("should find the secret with default name and namespace", func() {
-			Expect(err).ToNot(HaveOccurred())
-		})
-	})
-
-	Describe("When failed to get the ako-operator addon secret", func() {
-		BeforeEach(func() {
-			clusterClient.GetSecretValueReturns(nil, errors.New("cannot get the secret"))
-		})
-		It("should find the secret with default name and namespace", func() {
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).Should(ContainSubstring("cannot get the secret"))
-		})
+		err = RetrieveAKOOVariablesFromAddonSecretValues(clusterName, configValues, secretValues)
 	})
 
 	Describe("When failed to yaml unmashall the ako-operator addon contents", func() {
 		BeforeEach(func() {
-			clusterClient.GetSecretValueCalls(func(secretName string, secretField string, secretNamespace string, pollOptions *clusterclient.PollOptions) ([]byte, error) {
-				if secretName == fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName) &&
-					secretNamespace == constants.TkgNamespace &&
-					secretField == "values.yaml" {
-					return []byte(invalidSecretContent), nil
-				}
-				return nil, errors.New("Not expected input")
-			})
+			secretValues = []byte(invalidSecretContent)
 		})
 		It("should update the config based on the addon secret", func() {
 			Expect(err).To(HaveOccurred())
@@ -436,16 +470,9 @@ akoOperator:
 		})
 	})
 
-	Describe("When the ako-operator addon secret exists", func() {
+	Describe("When the ako-operator addon secret content is valid", func() {
 		BeforeEach(func() {
-			clusterClient.GetSecretValueCalls(func(secretName string, secretField string, secretNamespace string, pollOptions *clusterclient.PollOptions) ([]byte, error) {
-				if secretName == fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName) &&
-					secretNamespace == constants.TkgNamespace &&
-					secretField == "values.yaml" {
-					return []byte(secretContent), nil
-				}
-				return nil, errors.New("Not expected input")
-			})
+			secretValues = []byte(secretContent)
 		})
 		It("should update the config based on the addon secret", func() {
 			Expect(err).ToNot(HaveOccurred())

@@ -282,10 +282,18 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 		}
 
 		// retrieve the akoo variables from legacy addon secret.
-		err = RetrieveAKOOVariablesFromAddonSecret(clusterClient, clusterName, configValues)
+		akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(clusterClient, clusterName)
 		if err != nil {
-			return nil, errors.Wrap(err, "unable to handle the akoo specific variables")
+			return nil, errors.Wrap(err, "unable to get akoo addon secret values")
 		}
+
+		if found {
+			err = RetrieveAKOOVariablesFromAddonSecretValues(clusterName, configValues, akooAddonSecretValues)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to handle the akoo specific variables")
+			}
+		}
+
 	} else {
 		return nil, errors.Wrapf(err, "unable to get the secret %v-%v-values, namespace: %v", constants.TKGManagementPackageInstallName, constants.TkgNamespace, constants.TkgNamespace)
 	}
@@ -508,20 +516,28 @@ func ProcessAKOPackageInstallFile(akoPackageInstallTemplateDir, userConfigValues
 	return akoPackageInstallFile, nil
 }
 
-func RetrieveAKOOVariablesFromAddonSecret(clusterClient clusterclient.Client, clusterName string, configValues map[string]interface{}) error {
+func GetAKOOAddonSecretValues(clusterClient clusterclient.Client, clusterName string) ([]byte, bool, error) {
 	akoOperatorAddonName := fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName)
 	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+	log.V(6).Infof("trying to fetch akoo addon secret %s/%s", constants.TkgNamespace, akoOperatorAddonName)
 	bytes, err := clusterClient.GetSecretValue(akoOperatorAddonName, "values.yaml", constants.TkgNamespace, pollOptions)
 	if err != nil && apierrors.IsNotFound(err) {
 		log.V(6).Infof("akoo addon secret %s/%s not found, akoo was not installed on this legacy management cluster", constants.TkgNamespace, akoOperatorAddonName)
-		return nil
+		return []byte{}, false, nil
 	} else if err != nil {
-		return err
+		return []byte{}, false, err
+	}
+	return bytes, true, nil
+}
+
+func RetrieveAKOOVariablesFromAddonSecretValues(clusterName string, configValues map[string]interface{}, secretValues []byte) error {
+	if len(secretValues) == 0 {
+		log.V(6).Info("akoo addon secret content is empty")
+		return nil
 	}
 
 	akoOperatorPackage := &managementcomponents.AkoOperatorPackage{}
-
-	err = yaml.Unmarshal(bytes, akoOperatorPackage)
+	err := yaml.Unmarshal(secretValues, akoOperatorPackage)
 	if err != nil {
 		return errors.Wrap(err, "failed to unmarshal the akoo addon secret values.yaml")
 	}
