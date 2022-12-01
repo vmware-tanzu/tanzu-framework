@@ -1,0 +1,21 @@
+currentContext:
+  k8s: mgmt
+  tmc: tmc-fake
+contexts:
+  - clusterOpts:
+      context: mgmt-admin@mgmt
+      path: config
+      isManagementCluster: true
+    name: mgmt
+    type: k8s
+    discoverySources:
+      - local:
+          name: fake-mgmt
+          path: context-mgmt
+  - globalOpts:
+    name: tmc-fake
+    type: tmc
+    discoverySources:
+      - local:
+          name: fake-tmc
+          path: context-tmc

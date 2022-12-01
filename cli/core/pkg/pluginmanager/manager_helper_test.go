@@ -59,7 +59,9 @@ func setupLocalDistoForTesting() func() {
 	common.DefaultCacheDir = filepath.Join(tmpDir, "cache")
 
 	tkgConfigFile := filepath.Join(tmpDir, "tanzu_config.yaml")
+	tkgConfigNextGenFile := filepath.Join(tmpDir, "tanzu_config_ng.yaml")
 	os.Setenv("TANZU_CONFIG", tkgConfigFile)
+	os.Setenv("TANZU_CONFIG_NEXT_GEN", tkgConfigNextGenFile)
 	os.Setenv("HOME", tmpHomeDir)
 
 	err = copy.Copy(filepath.Join("test", "local"), common.DefaultLocalPluginDistroDir)
@@ -70,6 +72,11 @@ func setupLocalDistoForTesting() func() {
 	err = copy.Copy(filepath.Join("test", "config.yaml"), tkgConfigFile)
 	if err != nil {
 		log.Fatal(err, "Error while coping tanzu config file for testing")
+	}
+
+	err = copy.Copy(filepath.Join("test", "config-ng.yaml"), tkgConfigNextGenFile)
+	if err != nil {
+		log.Fatal(err, "Error while coping tanzu config next gen file for testing")
 	}
 
 	err = configlib.SetFeature("global", "context-target", "true")

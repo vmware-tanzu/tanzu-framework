@@ -36,17 +36,3 @@ func checkErrors(src, dst *yaml.Node) error {
 	}
 	return nil
 }
-
-func AppendNodeBytes(rootBytes []byte, documentNode *yaml.Node) ([]byte, error) {
-	if documentNode.Content[0].Content != nil && len(documentNode.Content[0].Content) > 0 {
-		cfgNodeBytes, err := yaml.Marshal(documentNode)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(cfgNodeBytes) != 0 {
-			rootBytes = append(rootBytes, cfgNodeBytes...)
-		}
-	}
-	return rootBytes, nil
-}

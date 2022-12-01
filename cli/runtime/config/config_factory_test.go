@@ -101,9 +101,6 @@ currentContext:
   k8s: test-mc
 `
 	expectedCfg := `apiVersion: config.tanzu.vmware.com/v1alpha1
-kind: ClientConfig
-metadata:
-    creationTimestamp: null
 clientOptions:
     cli:
         bomRepo: projects.registry.vmware.com/tkg
@@ -136,6 +133,9 @@ clientOptions:
             standalone-cluster-mode: 'false'
         package:
             kctrl-package-command-tree: 'true'
+kind: ClientConfig
+metadata:
+    creationTimestamp: null
 servers:
     - name: test-mc
       type: managementcluster
