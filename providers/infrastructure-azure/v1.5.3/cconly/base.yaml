@@ -533,7 +533,21 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/controllerManager/extraArgs/cluster-name
         valueFrom:
           template: '{{ .builtin.cluster.name }}'
-
+  - name: cloudConfigVolume
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-
+        value:
+          name: cloud-config
+          hostPath: /etc/kubernetes/azure.json
+          mountPath: /etc/kubernetes/azure.json
+          readOnly: true
   - name: apiServerBindPort
     enabledIf: '{{ not (empty .apiServerPort) }}'
     definitions:
@@ -1353,11 +1367,7 @@ spec:
             extraArgs:
               cloud-config: /etc/kubernetes/azure.json
               cloud-provider: azure
-            extraVolumes:
-            - hostPath: /etc/kubernetes/azure.json
-              mountPath: /etc/kubernetes/azure.json
-              name: cloud-config
-              readOnly: true
+            extraVolumes: []
             timeoutForControlPlane: 20m
           controllerManager:
             extraArgs:
