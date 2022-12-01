@@ -56,7 +56,7 @@ func deleteNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies m
 				}
 
 				if err := deleteNodes(src.Content[j+1], dst.Content[i+1], key, patchStrategies); err != nil {
-					return errors.Wrap(err, " replace at key "+src.Content[i].Value)
+					return errors.Wrap(err, " delete at key "+src.Content[i].Value)
 				}
 				key = patchStrategyKey
 				break
@@ -75,10 +75,10 @@ func deleteNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies m
 	case yaml.DocumentNode:
 		err := deleteNodes(src.Content[0], dst.Content[0], patchStrategyKey, patchStrategies)
 		if err != nil {
-			return errors.Wrap(err, "replace at key "+src.Content[0].Value)
+			return errors.Wrap(err, "delete at key "+src.Content[0].Value)
 		}
 	default:
-		return errors.New("unknown node type: can only replace know node types")
+		return errors.New("unknown node type: can only replace known node types")
 	}
 	return nil
 }
