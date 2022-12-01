@@ -82,7 +82,7 @@ func makeMultiFileCfg(cfgNode, cfgNextGenNode *yaml.Node) (*yaml.Node, error) {
 	return rootCfgNode, nil
 }
 
-// persistConfig write the updated node data to config.yaml and config-ng.yaml based on few
+// persistConfig write the updated node data to config.yaml and config-ng.yaml based on cfgItems
 func persistConfig(node *yaml.Node) error {
 	// check to persist multi file or to config-ng yaml
 	useUnifiedConfig, err := UseUnifiedConfig()

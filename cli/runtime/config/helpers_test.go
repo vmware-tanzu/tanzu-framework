@@ -64,7 +64,6 @@ func setupConfigMetadataWithMigrateToNewConfig() string {
 	return metadata
 }
 
-//nolint:funlen
 func setupMultiCfgData() (string, string) {
 	cfg := `servers:
   - name: test-mc
