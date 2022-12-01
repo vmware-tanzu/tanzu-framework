@@ -1,17 +1,18 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package featuregateclient
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
 	"k8s.io/client-go/kubernetes/scheme"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient/fake"
 )
 
@@ -23,7 +24,7 @@ func TestGetFeature(t *testing.T) {
 
 	objs, features, _ := fake.GetTestObjects()
 	s := scheme.Scheme
-	if err := configv1alpha1.AddToScheme(s); err != nil {
+	if err := corev1alpha2.AddToScheme(s); err != nil {
 		t.Fatalf("Unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
@@ -62,10 +63,8 @@ func TestGetFeature(t *testing.T) {
 				}
 			}
 			if feature != nil && (feature.Name != features[tc.featureName].Name ||
-				feature.Spec.Immutable != features[tc.featureName].Spec.Immutable ||
-				feature.Spec.Discoverable != features[tc.featureName].Spec.Discoverable ||
-				feature.Spec.Activated != features[tc.featureName].Spec.Activated ||
-				feature.Spec.Maturity != features[tc.featureName].Spec.Maturity ||
+				feature.Status.Activated != features[tc.featureName].Status.Activated ||
+				feature.Spec.Stability != features[tc.featureName].Spec.Stability ||
 				feature.Spec.Description != features[tc.featureName].Spec.Description) {
 				t.Errorf("feature returned is not the correct feature, Expected: %v, Got: %v", features[tc.featureName], feature)
 			}
@@ -77,9 +76,9 @@ func TestGetFeaturegate(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
-	objs, _, featureGates := fake.GetTestObjects()
+	objs, _, _ := fake.GetTestObjects()
 	s := scheme.Scheme
-	if err := configv1alpha1.AddToScheme(s); err != nil {
+	if err := corev1alpha2.AddToScheme(s); err != nil {
 		t.Fatalf("Unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
@@ -88,38 +87,87 @@ func TestGetFeaturegate(t *testing.T) {
 		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
 	}
 
-	getFeatureGateTestCases := []struct {
-		description     string
-		featureGateName string
-		returnErr       bool
+	tests := []struct {
+		description  string
+		featureGate  string
+		wantGate     string
+		wantFeatures []string
 	}{
 		{
-			description:     "should successfully return featuregate",
-			featureGateName: "tkg-system",
-			returnErr:       false,
-		},
-		{
-			description:     "should return an error when querying for feature that doesn't exist",
-			featureGateName: "bar",
-			returnErr:       true,
+			description: "should return specified FeatureGate in cluster",
+			featureGate: "tkg-system",
+			wantGate:    "tkg-system",
+			wantFeatures: []string{
+				"cloud-event-listener",
+				"dodgy-experimental-periscope",
+				"super-toaster",
+				"bar",
+				"foo",
+				"baz",
+				"hard-to-get",
+			},
 		},
 	}
 
-	for _, tc := range getFeatureGateTestCases {
+	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			featureGate, err := featureGateClient.GetFeatureGate(ctx, tc.featureGateName)
+			got, err := featureGateClient.GetFeatureGate(ctx, tc.featureGate)
 			if err != nil {
-				if !tc.returnErr {
-					t.Errorf("error not expected, but got error: %v", err)
-				}
-			} else if tc.returnErr {
-				if err == nil {
-					t.Errorf("error expected, but got nothing")
+				t.Errorf("get Feature %sGate: %v", tc.featureGate, err)
+			}
+
+			if got.Name != tc.wantGate {
+				t.Errorf("got: %s, want: %s", got.Name, tc.wantGate)
+			}
+
+			for _, want := range tc.wantFeatures {
+				if !featureGateContainsFeature(got, want) {
+					t.Errorf("got: %#v, but missing wanted Feature: %s", got, want)
 				}
 			}
-			if featureGate != nil && (featureGate.Name != featureGates[tc.featureGateName].Name ||
-				len(featureGate.Spec.Features) != len(featureGates[tc.featureGateName].Spec.Features)) {
-				t.Errorf("featuregate returned is not the correct featuregate, Expected: %v, Got: %v", featureGates[tc.featureGateName], featureGate)
+		})
+	}
+}
+
+func TestGetFeaturegateList(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	objs, _, _ := fake.GetTestObjects()
+	s := scheme.Scheme
+	if err := corev1alpha2.AddToScheme(s); err != nil {
+		t.Fatalf("Unable to add config scheme: (%v)", err)
+	}
+	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
+	featureGateClient, err := NewFeatureGateClient(WithClient(cl))
+	if err != nil {
+		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
+	}
+
+	tests := []struct {
+		description string
+		wantGates   []string
+	}{
+		{
+			description: "should return all featuregates in cluster",
+			wantGates: []string{
+				"tkg-system",
+				"empty-fg",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.description, func(t *testing.T) {
+			got, err := featureGateClient.GetFeatureGateList(ctx)
+			if err != nil {
+				t.Errorf("get FeatureGateList: %v", err)
+			}
+
+			for _, want := range tc.wantGates {
+				if !featureGateListContainsFeatureGate(got, want) {
+					t.Errorf("got: %#v, but missing wanted FeatureGate: %s", got, want)
+				}
 			}
 		})
 	}
@@ -130,8 +178,8 @@ func TestActivateFeature(t *testing.T) {
 	defer cancel()
 
 	objs, _, _ := fake.GetTestObjects()
-	s := scheme.Scheme
-	if err := configv1alpha1.AddToScheme(s); err != nil {
+	testScheme := scheme.Scheme
+	if err := corev1alpha2.AddToScheme(testScheme); err != nil {
 		t.Fatalf("Unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
@@ -140,54 +188,125 @@ func TestActivateFeature(t *testing.T) {
 		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
 	}
 
-	activateFeatureTestCases := []struct {
-		description     string
-		featureName     string
-		featureGateName string
-		returnErr       bool
+	tests := []struct {
+		description       string
+		featureName       string
+		allowWarrantyVoid bool
+		wantErr           error
+		wantGateName      string
+		wantActivated     bool
+		wantVoidWarranty  bool
 	}{
 		{
-			description:     "should successfully activate the feature",
-			featureName:     "foo",
-			featureGateName: "tkg-system",
-			returnErr:       false,
+			description:       "should successfully activate a technical preview Feature",
+			featureName:       "bar",
+			allowWarrantyVoid: false,
+			wantErr:           nil,
+			wantGateName:      "tkg-system",
+			wantActivated:     true,
+			wantVoidWarranty:  false,
 		},
 		{
-			description:     "should throw an error when changing immutable feature",
-			featureName:     "bar",
-			featureGateName: "tkg-system",
-			returnErr:       true,
+			description:       "should do nothing if Feature is already activated and a previously voided warranty stays voided",
+			featureName:       "cloud-event-listener",
+			allowWarrantyVoid: false,
+			wantErr:           nil,
+			wantGateName:      "tkg-system",
+			wantActivated:     true,
+			wantVoidWarranty:  true,
 		},
 		{
-			description:     "should throw an error when changing undiscoverable feature",
-			featureName:     "baz",
-			featureGateName: "tkg-system",
-			returnErr:       true,
+			description:       "should throw an error when warranty will be voided without user permission",
+			featureName:       "foo",
+			allowWarrantyVoid: false,
+			wantErr:           ErrTypeForbidden,
+			wantGateName:      "tkg-system",
+			wantActivated:     false,
+			wantVoidWarranty:  false,
 		},
 		{
-			description:     "should throw an error when the feature doesn't exist",
-			featureName:     "bax",
-			featureGateName: "tkg-system",
-			returnErr:       true,
+			description:       "should not throw an error if warranty would've been voided but is already void",
+			featureName:       "cloud-event-listener",
+			allowWarrantyVoid: false,
+			wantErr:           nil,
+			wantGateName:      "tkg-system",
+			wantActivated:     true,
+			wantVoidWarranty:  true,
 		},
 		{
-			description:     "should throw an error when the featuregate doesn't exist",
-			featureName:     "foo",
-			featureGateName: "tkg-system-test",
-			returnErr:       true,
+			description:       "should set warranty void if warranty is allowed and activating voids warranty",
+			featureName:       "dodgy-experimental-periscope",
+			allowWarrantyVoid: true,
+			wantErr:           nil,
+			wantGateName:      "tkg-system",
+			wantActivated:     true,
+			wantVoidWarranty:  true,
+		},
+		{
+			description:       "should throw an error when the feature doesn't exist",
+			featureName:       "bax",
+			allowWarrantyVoid: false,
+			wantErr:           ErrTypeNotFound,
+		},
+		{
+			description:       "should throw an error when the Feature is not referenced in a FeatureGate",
+			featureName:       "specialized-toaster",
+			allowWarrantyVoid: false,
+			wantErr:           ErrTypeNotFound,
+			wantActivated:     false,
+			wantVoidWarranty:  false,
+		},
+		{
+			description:       "should throw an error when the Feature is referenced in more than one FeatureGate",
+			featureName:       "baz",
+			allowWarrantyVoid: false,
+			wantErr:           ErrTypeTooMany,
+			wantActivated:     false,
+			wantVoidWarranty:  false,
 		},
 	}
 
-	for _, tc := range activateFeatureTestCases {
+	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			err := featureGateClient.ActivateFeature(ctx, tc.featureName, tc.featureGateName)
-			if err != nil {
-				if !tc.returnErr {
-					t.Errorf("error not expected, but got error: %v", err)
-				}
-			} else if tc.returnErr {
+			err := featureGateClient.ActivateFeature(ctx, tc.featureName, tc.allowWarrantyVoid)
+
+			// Error is expected for ActivateFeature.
+			if tc.wantErr != nil {
 				if err == nil {
-					t.Errorf("error expected, but got nothing")
+					t.Errorf("no error, want: %v", tc.wantErr)
+				}
+
+				if !errors.Is(err, tc.wantErr) {
+					t.Errorf("%v, want: %v", err, tc.wantErr)
+				}
+
+				return
+			}
+
+			// Error is not expected for ActivateFeature.
+			if err != nil {
+				t.Error(err)
+			} else {
+				gateList, err := featureGateClient.GetFeatureGateList(ctx)
+				if err != nil {
+					t.Error(err)
+				}
+
+				gateName, featRef := FeatureRefFromGateList(gateList, tc.featureName)
+				if gateName != tc.wantGateName {
+					t.Errorf("got FeatureGate %s, want: %s", gateName, tc.wantGateName)
+				}
+
+				if featRef.Name != tc.featureName {
+					t.Errorf("got Feature %s, want: %s", featRef.Name, tc.featureName)
+				}
+
+				if featRef.Activate != tc.wantActivated {
+					t.Errorf("got Feature %s activated %t, want: %t", tc.featureName, featRef.Activate, tc.wantActivated)
+				}
+
+				if featRef.PermanentlyVoidAllSupportGuarantees != tc.wantVoidWarranty {
+					t.Errorf("got Feature %s warranty voided: %t, want: %t", featRef.Name, featRef.PermanentlyVoidAllSupportGuarantees, tc.wantVoidWarranty)
 				}
 			}
 		})
@@ -200,7 +319,7 @@ func TestDeactivateFeature(t *testing.T) {
 
 	objs, _, _ := fake.GetTestObjects()
 	s := scheme.Scheme
-	if err := configv1alpha1.AddToScheme(s); err != nil {
+	if err := corev1alpha2.AddToScheme(s); err != nil {
 		t.Fatalf("Unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
@@ -209,56 +328,124 @@ func TestDeactivateFeature(t *testing.T) {
 		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
 	}
 
-	deactivateFeatureTestCases := []struct {
-		description     string
-		featureName     string
-		featureGateName string
-		returnErr       bool
+	tests := []struct {
+		description       string
+		featureName       string
+		allowWarrantyVoid bool
+		wantErr           error
+		wantGateName      string
+		wantActivated     bool
+		wantVoidWarranty  bool
 	}{
 		{
-			description:     "should successfully deactivate the feature",
-			featureName:     "foo",
-			featureGateName: "tkg-system",
-			returnErr:       false,
+			description:       "should successfully deactivate a technical preview Feature",
+			featureName:       "barries",
+			allowWarrantyVoid: false,
+			wantErr:           nil,
+			wantGateName:      "tkg-system",
+			wantActivated:     false,
+			wantVoidWarranty:  false,
 		},
 		{
-			description:     "should throw an error when changing immutable feature",
-			featureName:     "bar",
-			featureGateName: "tkg-system",
-			returnErr:       true,
+			description:       "should throw an error when deactivating a stable (immutable) Feature",
+			featureName:       "super-toaster",
+			allowWarrantyVoid: false,
+			wantErr:           ErrTypeForbidden,
+			wantGateName:      "tkg-system",
+			wantActivated:     true,
+			wantVoidWarranty:  false,
 		},
 		{
-			description:     "should throw an error when changing undiscoverable feature",
-			featureName:     "baz",
-			featureGateName: "tkg-system",
-			returnErr:       true,
+			description:       "should throw an error when the feature doesn't exist",
+			featureName:       "bax",
+			allowWarrantyVoid: false,
+			wantErr:           ErrTypeNotFound,
 		},
 		{
-			description:     "should throw an error when the feature doesn't exist",
-			featureName:     "bax",
-			featureGateName: "tkg-system",
-			returnErr:       true,
+			description:       "should throw an error when the feature doesn't exist",
+			featureName:       "bax",
+			allowWarrantyVoid: false,
+			wantErr:           ErrTypeNotFound,
 		},
 		{
-			description:     "should throw an error when the featuregate doesn't exist",
-			featureName:     "foo",
-			featureGateName: "tkg-system-test",
-			returnErr:       true,
+			description:       "should throw an error when the Feature is not referenced in a FeatureGate",
+			featureName:       "specialized-toaster",
+			allowWarrantyVoid: false,
+			wantErr:           ErrTypeNotFound,
+			wantActivated:     false,
+			wantVoidWarranty:  false,
+		},
+		{
+			description:       "should throw an error when the Feature is referenced in more than one FeatureGate",
+			featureName:       "bazzies",
+			allowWarrantyVoid: false,
+			wantErr:           ErrTypeTooMany,
+			wantActivated:     true,
+			wantVoidWarranty:  false,
 		},
 	}
 
-	for _, tc := range deactivateFeatureTestCases {
+	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			err := featureGateClient.DeactivateFeature(ctx, tc.featureName, tc.featureGateName)
-			if err != nil {
-				if !tc.returnErr {
-					t.Errorf("error not expected, but got error: %v", err)
-				}
-			} else if tc.returnErr {
+			_, err := featureGateClient.DeactivateFeature(ctx, tc.featureName)
+
+			// Error is expected for DeactivateFeature.
+			if tc.wantErr != nil {
 				if err == nil {
-					t.Errorf("error expected, but got nothing")
+					t.Errorf("no error, want: %v", tc.wantErr)
+				}
+
+				if !errors.Is(err, tc.wantErr) {
+					t.Errorf("%v, want: %v", err, tc.wantErr)
+				}
+
+				return
+			}
+
+			// Error is not expected for DeactivateFeature.
+			if err != nil {
+				t.Error(err)
+			} else {
+				gateList, err := featureGateClient.GetFeatureGateList(ctx)
+				if err != nil {
+					t.Error(err)
+				}
+
+				gateName, featRef := FeatureRefFromGateList(gateList, tc.featureName)
+				if gateName != tc.wantGateName {
+					t.Errorf("got FeatureGate %s, want: %s", gateName, tc.wantGateName)
+				}
+
+				if featRef.Name != tc.featureName {
+					t.Errorf("got Feature %s, want: %s", featRef.Name, tc.featureName)
+				}
+
+				if featRef.Activate != tc.wantActivated {
+					t.Errorf("got Feature %s activated %t, want: %t", tc.featureName, featRef.Activate, tc.wantActivated)
+				}
+
+				if featRef.PermanentlyVoidAllSupportGuarantees != tc.wantVoidWarranty {
+					t.Errorf("got Feature %s warranty voided: %t, want: %t", featRef.Name, featRef.PermanentlyVoidAllSupportGuarantees, tc.wantVoidWarranty)
 				}
 			}
 		})
 	}
+}
+
+func featureGateContainsFeature(gate *corev1alpha2.FeatureGate, feature string) bool {
+	for _, feat := range gate.Spec.Features {
+		if feature == feat.Name {
+			return true
+		}
+	}
+	return false
+}
+
+func featureGateListContainsFeatureGate(gates *corev1alpha2.FeatureGateList, feature string) bool {
+	for _, gate := range gates.Items {
+		if feature == gate.Name {
+			return true
+		}
+	}
+	return false
 }

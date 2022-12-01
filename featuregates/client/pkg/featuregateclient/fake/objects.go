@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package fake
@@ -8,97 +8,168 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 )
 
 // GetTestObjects returns objects to initialize the fake client
 //
 //nolint:funlen
-func GetTestObjects() ([]runtime.Object, map[string]*configv1alpha1.Feature, map[string]*configv1alpha1.FeatureGate) {
-	cloudEventListener := &configv1alpha1.Feature{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "cloud-event-listener",
-		},
-		Spec: configv1alpha1.FeatureSpec{
-			Description:  "Open a port to listen for cloudevents. Highly experimental!",
-			Immutable:    false,
-			Discoverable: true,
-			Activated:    true,
-			Maturity:     "alpha",
-		},
-	}
-	dodgyExperimentalPeriscope := &configv1alpha1.Feature{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "dodgy-experimental-periscope",
-		},
-		Spec: configv1alpha1.FeatureSpec{
-			Description:  "experimental support for deploying a periscope. doesnt work very often!",
-			Immutable:    false,
-			Discoverable: true,
-			Activated:    true,
-			Maturity:     "dev",
-		},
-	}
-
-	superToaster := &configv1alpha1.Feature{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "super-toaster",
-		},
-		Spec: configv1alpha1.FeatureSpec{
-			Description:  "An old reliable toaster",
-			Immutable:    false,
-			Discoverable: true,
-			Activated:    true,
-			Maturity:     "dev",
-		},
-	}
-
-	bar := &configv1alpha1.Feature{
+func GetTestObjects() ([]runtime.Object, map[string]*corev1alpha2.Feature, map[string]*corev1alpha2.FeatureGate) {
+	bar := &corev1alpha2.Feature{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "bar",
 		},
-		Spec: configv1alpha1.FeatureSpec{
-			Description:  "Bar support",
-			Immutable:    true,
-			Discoverable: true,
-			Activated:    false,
-			Maturity:     "beta",
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "Bar support",
+			Stability:   corev1alpha2.TechnicalPreview,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: false,
 		},
 	}
 
-	foo := &configv1alpha1.Feature{
+	barries := &corev1alpha2.Feature{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "foo",
+			Name: "barries",
 		},
-		Spec: configv1alpha1.FeatureSpec{
-			Description:  "Foo support",
-			Immutable:    false,
-			Discoverable: true,
-			Activated:    false,
-			Maturity:     "dev",
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "Barries support",
+			Stability:   corev1alpha2.TechnicalPreview,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: false,
 		},
 	}
 
-	baz := &configv1alpha1.Feature{
+	baz := &corev1alpha2.Feature{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "baz",
 		},
-		Spec: configv1alpha1.FeatureSpec{
-			Description:  "Baz support",
-			Immutable:    false,
-			Discoverable: false,
-			Activated:    false,
-			Maturity:     "dev",
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "[Deprecated] Baz support",
+			Stability:   corev1alpha2.Deprecated,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: false,
 		},
 	}
 
-	features := map[string]*configv1alpha1.Feature{
+	bazzies := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "bazzies",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "[Deprecated] Bazzies support",
+			Stability:   corev1alpha2.Deprecated,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: true,
+		},
+	}
+
+	cloudEventListener := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "cloud-event-listener",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "Open a port to listen for cloudevents. Highly experimental!",
+			Stability:   corev1alpha2.Experimental,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: true,
+		},
+	}
+
+	dodgyExperimentalPeriscope := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "dodgy-experimental-periscope",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "Experimental support for deploying a periscope. Doesn't work very often!",
+			Stability:   corev1alpha2.WorkInProgress,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: true,
+		},
+	}
+
+	foo := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "foo",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "Foo support",
+			Stability:   corev1alpha2.WorkInProgress,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: false,
+		},
+	}
+
+	specializedToaster := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "specialized-toaster",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "A new toaster specialized for special things",
+			Stability:   corev1alpha2.Stable,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: true,
+		},
+	}
+
+	superToaster := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "super-toaster",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "An old, reliable toaster",
+			Stability:   corev1alpha2.Stable,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: true,
+		},
+	}
+
+	tuna := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "tuna",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "A fish that likes to travel in tribes",
+			Stability:   corev1alpha2.TechnicalPreview,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: false,
+		},
+	}
+
+	tuner := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "tuner",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "A that tunes into trendy tracks",
+			Stability:   corev1alpha2.TechnicalPreview,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: true,
+		},
+	}
+
+	features := map[string]*corev1alpha2.Feature{
+		"bar":                          bar,
+		"barries":                      barries,
+		"baz":                          baz,
+		"bazzies":                      bazzies,
 		"cloud-event-listener":         cloudEventListener,
 		"dodgy-experimental-periscope": dodgyExperimentalPeriscope,
-		"super-toaster":                superToaster,
 		"foo":                          foo,
-		"bar":                          bar,
-		"baz":                          baz,
+		"tuner":                        tuner,
+		"tuna":                         tuna,
+		"specialized-toaster":          specializedToaster,
+		"super-toaster":                superToaster,
 	}
 
 	tkgSystemNamespace := &corev1.Namespace{
@@ -113,51 +184,135 @@ func GetTestObjects() ([]runtime.Object, map[string]*configv1alpha1.Feature, map
 		},
 	}
 
-	systemFeatureGate := &configv1alpha1.FeatureGate{
+	systemFeatureGate := &corev1alpha2.FeatureGate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "tkg-system",
 		},
-		Spec: configv1alpha1.FeatureGateSpec{
-			NamespaceSelector: metav1.LabelSelector{},
-			Features: []configv1alpha1.FeatureReference{
-				configv1alpha1.FeatureReference{
-					Activate: true,
-					Name:     "cloud-event-listener",
+		Spec: corev1alpha2.FeatureGateSpec{
+			Features: []corev1alpha2.FeatureReference{
+				{
+					// WIP
+					Name:                                "dodgy-experimental-periscope",
+					Activate:                            false,
+					PermanentlyVoidAllSupportGuarantees: false,
 				},
-				configv1alpha1.FeatureReference{
-					Name:     "dodgy-experimental-periscope",
-					Activate: false,
+				{
+					// WIP
+					Name:                                "foo",
+					Activate:                            false,
+					PermanentlyVoidAllSupportGuarantees: false,
 				},
-				configv1alpha1.FeatureReference{
-					Name:     "bar",
-					Activate: false,
+				{
+					// Experimental
+					Name:                                "cloud-event-listener",
+					Activate:                            true,
+					PermanentlyVoidAllSupportGuarantees: true,
 				},
-				configv1alpha1.FeatureReference{
-					Name:     "super-toaster",
-					Activate: false,
+				{
+					// Feature is not in cluster and stability is unknown
+					Name:                                "hard-to-get",
+					Activate:                            false,
+					PermanentlyVoidAllSupportGuarantees: false,
 				},
-				configv1alpha1.FeatureReference{
-					Name:     "foo",
-					Activate: false,
+				{
+					// Technical Preview
+					Name:                                "bar",
+					Activate:                            false,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
+					// Technical Preview
+					Name:                                "barries",
+					Activate:                            true,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
+					// Stable
+					Name:                                "super-toaster",
+					Activate:                            true,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
+					// Deprecated
+					Name:                                "baz",
+					Activate:                            false,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
+					// Deprecated
+					Name:                                "bazzies",
+					Activate:                            true,
+					PermanentlyVoidAllSupportGuarantees: false,
 				},
 			},
 		},
 	}
 
-	featureGates := map[string]*configv1alpha1.FeatureGate{
+	emptyFeatureGate := &corev1alpha2.FeatureGate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "empty-fg",
+		},
+		Spec: corev1alpha2.FeatureGateSpec{
+			Features: []corev1alpha2.FeatureReference{},
+		},
+	}
+
+	tanzuFeatureGate := &corev1alpha2.FeatureGate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "tanzu-fg",
+		},
+		Spec: corev1alpha2.FeatureGateSpec{
+			Features: []corev1alpha2.FeatureReference{
+				{
+					// Technical Preview
+					Name:                                "tuna",
+					Activate:                            false,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
+					// Technical Preview
+					Name:                                "tuner",
+					Activate:                            true,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
+					// Deprecated
+					Name:                                "baz",
+					Activate:                            false,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
+					// Deprecated
+					Name:                                "bazzies",
+					Activate:                            true,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+			},
+		},
+	}
+
+	featureGates := map[string]*corev1alpha2.FeatureGate{
 		"tkg-system": systemFeatureGate,
+		"empty-fg":   emptyFeatureGate,
+		"tanzu-fg":   tanzuFeatureGate,
 	}
 
 	// Objects to track in the fake client.
 	return []runtime.Object{
+		bar,
+		barries,
+		baz,
+		bazzies,
 		cloudEventListener,
 		dodgyExperimentalPeriscope,
-		superToaster,
-		bar,
+		emptyFeatureGate,
 		foo,
-		baz,
-		systemFeatureGate,
-		tkgSystemNamespace,
 		kubeSystemNamespace,
+		superToaster,
+		systemFeatureGate,
+		tanzuFeatureGate,
+		tkgSystemNamespace,
+		tuna,
+		tuner,
 	}, features, featureGates
 }

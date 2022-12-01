@@ -22,7 +22,7 @@ var descriptor = cliapi.PluginDescriptor{
 	BuildSHA:    buildinfo.SHA,
 }
 
-const contextTimeout = 30 * time.Second
+const contextTimeout = 300 * time.Second
 
 func main() {
 	p, err := plugin.NewPlugin(&descriptor)
