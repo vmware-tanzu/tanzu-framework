@@ -52,3 +52,5 @@ coverage.txt
 /build
 /packages/package-values-sha256.yaml
 /packages/**/.imgpkg
+
+/vendor

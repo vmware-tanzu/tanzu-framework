@@ -70,3 +70,41 @@ antrea:
       Multicluster: false
       SecondaryNetwork: false
       TrafficControl: false
+
+antrea_nsx:
+  enable: false
+
+antrea_interworking:
+  config:
+    nsxCert: ZHVtbXlBZG1pbg==
+    nsxKey: ZHVtbXlQYXNzd29yZA==
+    nsxUser: ZHVtbXlBZG1pbg==
+    nsxPassword: ZHVtbXlQYXNzd29yZA==
+    clusterName: dummyClusterName
+    NSXManagers: []
+    vpcPath: ""
+    mp_adapter_conf:
+      NSXClientTimeout: 120
+      InventoryBatchSize: 50
+      InventoryBatchPeriod: 5
+      EnableDebugServer: false
+      APIServerPort: 16664
+      DebugServerPort: 16666
+      NSXRPCDebug: false
+      ConditionTimeout: 150
+    ccp_adapter_conf:
+      EnableDebugServer: false
+      APIServerPort: 16665
+      DebugServerPort: 16667
+      NSXRPCDebug: false
+      #! Time to wait for realization
+      RealizeTimeoutSeconds: 60
+      #! An interval for regularly report latest realization error in background
+      RealizeErrorSyncIntervalSeconds: 600
+      ReconcilerWorkerCount: 8
+      #! Average QPS = ReconcilerWorkerCount * ReconcilerQPS
+      ReconcilerQPS: 5.0
+      #! Peak QPS =  ReconcilerWorkerCount * ReconcilerBurst
+      ReconcilerBurst: 10
+      #! 24 Hours
+      ReconcilerResyncSeconds: 86400

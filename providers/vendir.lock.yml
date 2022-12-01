@@ -10,10 +10,8 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add antrea 1.7.2 package (#5627)...
-      sha: 71dd9381be1a4f075a64f404ca262f860e769a68
-      tags:
-      - v0.13.0-dev.2-544-g71dd9381
+      commitTitle: move to 1.7.2-p1...
+      sha: 9d3b8fdb3cf9e26add76637e9facb43113e82f34
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
