@@ -13,13 +13,13 @@ spec:
     #@yaml/text-templated-strings
     (@= data.values.telemetry.version @):
       - arch: amd64
-        image: tanzu-cli-plugins/telemetry-darwin-amd64:latest
-        os: darwin
+        image: tanzu-cli-plugins/telemetry-linux-amd64:latest
+        os: linux
         type: oci
 #@ if data.values.linuxOnly == "False":
       - arch: amd64
-        image: tanzu-cli-plugins/telemetry-linux-amd64:latest
-        os: linux
+        image: tanzu-cli-plugins/telemetry-darwin-amd64:latest
+        os: darwin
         type: oci
       - arch: amd64
         image: tanzu-cli-plugins/telemetry-windows-amd64:latest
