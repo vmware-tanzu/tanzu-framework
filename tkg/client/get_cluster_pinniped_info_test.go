@@ -59,6 +59,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		servCert                          *x509.Certificate
 		clusterPinnipedInfo               *ClusterPinnipedInfo
 		isPacific                         bool
+		isClusterClassBased               bool
 	)
 
 	var (
@@ -124,6 +125,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(err.Error()).To(Equal(`failed to get cluster information: failed to get kubeconfig for cluster tkg-system/fake-mgmt-cluster: secrets "fake-mgmt-cluster-kubeconfig" not found`))
 			})
 		})
+
 		Context("When cluster kubeconfig is invalid", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
@@ -135,6 +137,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(err.Error()).To(HavePrefix("failed to get cluster information: failed to load the kubeconfig: couldn't get version/kind; json parse error"))
 			})
 		})
+
 		Context("When pinniped-info is not found in kube-public namespace", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
@@ -186,6 +189,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			})
 		})
 	})
+
 	Describe("Get cluster pinniped info for workload cluster", func() {
 		JustBeforeEach(func() {
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
@@ -203,7 +207,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Namespace:           constants.DefaultNamespace,
 				IsManagementCluster: false,
 			}
-			clusterPinnipedInfo, err = tkgClient.GetWCClusterPinnipedInfo(regionalClusterClient, region, options, isPacific)
+			clusterPinnipedInfo, err = tkgClient.GetWCClusterPinnipedInfo(regionalClusterClient, region, options, isPacific, isClusterClassBased)
 		})
 
 		Context("When workload cluster is not found", func() {
@@ -216,6 +220,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(err.Error()).To(Equal(`failed to get workload cluster information: failed to get kubeconfig for cluster default/fake-workload-cluster: secrets "fake-workload-cluster-kubeconfig" not found`))
 			})
 		})
+
 		Context("When workload cluster kubeconfig is invalid", func() {
 			BeforeEach(func() {
 				searchNamespace = constants.DefaultNamespace
@@ -371,6 +376,53 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 
 			BeforeEach(func() {
 				isPacific = true
+
+				var clusterRefs []runtime.Object
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", wlClusterUID, wlClusterEndpoint, readFile(wlKubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, "some-uid", endpoint, readFile(kubeconfig))...)
+				issuer = fakeIssuer
+				issuerCA = fakeCAData
+				conciergeIsClusterScoped = false
+				conciergeIsClusterScopedWLCluster = true
+				pinnipedInfoCM := fakehelper.PinnipedInfo{
+					ClusterName:              mgmtClusterName,
+					Issuer:                   issuer,
+					IssuerCABundleData:       issuerCA,
+					ConciergeIsClusterScoped: conciergeIsClusterScoped,
+				}
+				clusterRefs = append(clusterRefs, getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM))
+
+				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+					ConciergeIsClusterScoped: conciergeIsClusterScopedWLCluster,
+				})
+				searchNamespace = constants.DefaultNamespace
+				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
+
+				tlsServerWLCluster.AppendHandlers(
+					ghttp.CombineHandlers(
+						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
+						ghttp.RespondWith(http.StatusOK, pinnipedInfoWorkloadCluster),
+					),
+				)
+			})
+			It("should return the cluster pinniped information successfully with a special audience", func() {
+				wantClusterAudience := fmt.Sprintf("%s-%s", wlClusterName, wlClusterUID)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(clusterPinnipedInfo.ClusterName).To(Equal(wlClusterName))
+				Expect(clusterPinnipedInfo.ClusterAudience).To(Equal(&wantClusterAudience))
+				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
+			})
+		})
+
+		Context("When the workload cluster is ClusterClass based", func() {
+			const wlClusterUID = "some-classy-cluster-uid"
+
+			BeforeEach(func() {
+				isClusterClassBased = true
 
 				var clusterRefs []runtime.Object
 				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", wlClusterUID, wlClusterEndpoint, readFile(wlKubeconfig))...)
