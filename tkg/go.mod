@@ -92,7 +92,7 @@ require (
 	k8s.io/kubectl v0.24.0
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
 	sigs.k8s.io/cluster-api v1.2.7
-	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.1
+	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2
 	sigs.k8s.io/cluster-api-provider-azure v1.5.3
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1
 	sigs.k8s.io/cluster-api/test v1.2.7

@@ -11741,7 +11741,7 @@ spec:
         env:
         - name: AWS_SHARED_CREDENTIALS_FILE
           value: /home/.aws/credentials
-        image: registry.k8s.io/cluster-api-aws/cluster-api-aws-controller:v2.0.1
+        image: registry.k8s.io/cluster-api-aws/cluster-api-aws-controller:v2.0.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
