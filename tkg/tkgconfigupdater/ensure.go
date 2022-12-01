@@ -298,7 +298,14 @@ func (c *client) saveProvidersFromRemoteRepo(providerDirPath string) error {
 
 	fullImagePath := tkgconfigbom.GetFullImagePath(providerTemplateImage, tkgBomConfig.ImageConfig.ImageRepository)
 	imageTag := providerTemplateImage.Tag
-	filesMap, err := bomRegistry.GetFiles(fmt.Sprintf("%s:%s", fullImagePath, imageTag))
+
+	fullImagePathWithTag := fmt.Sprintf("%s:%s", fullImagePath, imageTag)
+	ptImage := os.Getenv("_PROVIDER_TEMPLATE_IMAGE")
+	if ptImage != "" {
+		fullImagePathWithTag = ptImage
+	}
+	filesMap, err := bomRegistry.GetFiles(fullImagePathWithTag)
+
 	if err != nil {
 		return errors.Wrap(err, "failed to get providers files from repository")
 	}
