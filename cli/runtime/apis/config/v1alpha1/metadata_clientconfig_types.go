@@ -13,4 +13,6 @@ type Metadata struct {
 type ConfigMetadata struct {
 	// PatchStrategy patch strategy to determine merge of nodes in config file. Two ways of patch strategies are merge and replace
 	PatchStrategy map[string]string `json:"patchStrategy,omitempty" yaml:"patchStrategy,omitempty" mapstructure:"patchStrategy,omitempty"`
+	// Settings related to config
+	Settings map[string]string `json:"settings,omitempty" yaml:"settings,omitempty" mapstructure:"settings,omitempty"`
 }

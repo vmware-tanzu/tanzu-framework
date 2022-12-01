@@ -51,6 +51,9 @@ func AcquireTanzuConfigLock() {
 	// Lock the mutex to prevent concurrent calls to acquire and configure the tanzuConfigLock
 	mutex.Lock()
 	tanzuConfigLock = lock
+
+	// Get lock on config-ng.yaml
+	AcquireTanzuConfigNextGenLock()
 }
 
 // ReleaseTanzuConfigLock releases the lock if the tanzuConfigLock was acquired
@@ -65,6 +68,9 @@ func ReleaseTanzuConfigLock() {
 	tanzuConfigLock = nil
 	// Unlock the mutex to allow other concurrent calls to acquire and configure the tanzuConfigLock
 	mutex.Unlock()
+
+	// Release lock on config-ng.yaml
+	ReleaseTanzuConfigNextGenLock()
 }
 
 // getFileLockWithTimeOut returns a file lock with timeout
@@ -80,7 +86,7 @@ func getFileLockWithTimeOut(lockPath string, lockDuration time.Duration) (*fsloc
 	lock := fslock.New(lockPath)
 
 	if err := lock.LockWithTimeout(lockDuration); err != nil {
-		return &fslock.Lock{}, errors.Wrap(err, "failed to acquire a lock with timeout")
+		return nil, errors.Wrap(err, "failed to acquire a lock with timeout")
 	}
 	return lock, nil
 }

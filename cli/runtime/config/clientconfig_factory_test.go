@@ -6,7 +6,6 @@ package config
 import (
 	"context"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -42,15 +41,13 @@ func TestClientConfigNodeUpdateInParallel(t *testing.T) {
 	// multiple times to make sure all the attempts are successful
 	for testCounter := 1; testCounter <= 5; testCounter++ {
 		func() {
-			// Get the temp tanzu config file
-			f, err := os.CreateTemp("", "tanzu_config*")
-			assert.Nil(t, err)
-			defer func(name string) {
-				err = os.Remove(name)
-				assert.NoError(t, err)
-			}(f.Name())
-			err = os.Setenv("TANZU_CONFIG", f.Name())
-			assert.NoError(t, err)
+			// Setup config test data
+			_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
+			defer func() {
+				cleanUp()
+			}()
+
 			// run addServer in parallel
 			parallelExecutionCounter := 100
 			group, _ := errgroup.WithContext(context.Background())
@@ -65,7 +62,7 @@ func TestClientConfigNodeUpdateInParallel(t *testing.T) {
 			node, err := getClientConfigNode()
 			assert.Nil(t, err)
 			// Make sure all expected servers are added to the knownServers list
-			assert.Equal(t, parallelExecutionCounter, len(node.Content[0].Content[1].Content))
+			assert.Equal(t, parallelExecutionCounter, len(node.Content[0].Content[5].Content))
 		}()
 	}
 }

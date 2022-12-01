@@ -11,8 +11,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ReplaceNodes replace nodes in dst as per patchStrategy prior performing merge
-func ReplaceNodes(src, dst *yaml.Node, opts ...PatchStrategyOpts) (bool, error) {
+// DeleteNodes delete nodes in dst as per patchStrategy prior performing merge
+func DeleteNodes(src, dst *yaml.Node, opts ...PatchStrategyOpts) (bool, error) {
 	// only replace if the change is not equal to existing
 	replaceUnequalObjects, err := NotEqual(src, dst)
 	if err != nil {
@@ -26,10 +26,10 @@ func ReplaceNodes(src, dst *yaml.Node, opts ...PatchStrategyOpts) (bool, error) 
 	for _, opt := range opts {
 		opt(options)
 	}
-	return replaceUnequalObjects, replaceNodes(src, dst, options.Key, options.PatchStrategies)
+	return replaceUnequalObjects, deleteNodes(src, dst, options.Key, options.PatchStrategies)
 }
 
-func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies map[string]string) error {
+func deleteNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies map[string]string) error {
 	err := checkErrors(src, dst)
 	if err != nil {
 		return err
@@ -50,15 +50,13 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 				// check for patch strategy before performing deep replace
 				key = fmt.Sprintf("%v.%v", key, dst.Content[i].Value)
 				if strings.EqualFold(patchStrategies[key], "replace") {
-					dst.Content = append(dst.Content[:i], dst.Content[i+1:]...)
-					dst.Content = append(dst.Content[:i], dst.Content[i+1:]...)
-					i--
-					i--
+					dst.Content = append(dst.Content[:i], dst.Content[i+2:]...)
+					i -= 2
 					break
 				}
 
-				if err := replaceNodes(src.Content[j+1], dst.Content[i+1], key, patchStrategies); err != nil {
-					return errors.New("replace at key " + src.Content[i].Value + ": " + err.Error())
+				if err := deleteNodes(src.Content[j+1], dst.Content[i+1], key, patchStrategies); err != nil {
+					return errors.Wrap(err, " delete at key "+src.Content[i].Value)
 				}
 				key = patchStrategyKey
 				break
@@ -67,22 +65,20 @@ func replaceNodes(src, dst *yaml.Node, patchStrategyKey string, patchStrategies 
 			if !found {
 				key = fmt.Sprintf("%v.%v", key, dst.Content[i].Value)
 				if strings.EqualFold(patchStrategies[key], "replace") {
-					dst.Content = append(dst.Content[:i], dst.Content[i+1:]...)
-					dst.Content = append(dst.Content[:i], dst.Content[i+1:]...)
-					i--
-					i--
+					dst.Content = append(dst.Content[:i], dst.Content[i+2:]...)
+					i -= 2
 				}
 			}
 		}
 	case yaml.ScalarNode:
 	case yaml.SequenceNode:
 	case yaml.DocumentNode:
-		err := replaceNodes(src.Content[0], dst.Content[0], patchStrategyKey, patchStrategies)
+		err := deleteNodes(src.Content[0], dst.Content[0], patchStrategyKey, patchStrategies)
 		if err != nil {
-			return errors.New("replace at key " + src.Content[0].Value + ": " + err.Error())
+			return errors.Wrap(err, "delete at key "+src.Content[0].Value)
 		}
 	default:
-		return errors.New("can only merge mapping nodes")
+		return errors.New("unknown node type: can only replace known node types")
 	}
 	return nil
 }

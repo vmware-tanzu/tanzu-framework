@@ -28,7 +28,13 @@ func randString() string {
 }
 
 func TestClientConfig(t *testing.T) {
-	LocalDirName = fmt.Sprintf(".tanzu-test-%s", randString())
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
+	defer func() {
+		cleanUp()
+	}()
+
 	server0 := &configapi.Server{
 		Name: "test",
 		Type: configapi.ManagementClusterServerType,
@@ -46,7 +52,6 @@ func TestClientConfig(t *testing.T) {
 	err := StoreClientConfig(testCtx)
 	require.NoError(t, err)
 	ReleaseTanzuConfigLock()
-	defer cleanupDir(LocalDirName)
 	_, err = GetClientConfig()
 	require.NoError(t, err)
 	s, err := GetServer("test")
@@ -91,13 +96,17 @@ func TestClientConfig(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, c.KnownServers, 0)
 	require.Equal(t, c.CurrentServer, "")
-	err = DeleteClientConfig()
-	require.NoError(t, err)
 }
 
-func TestConfigLegacyDir(t *testing.T) {
+func TestConfigLegacyDirWithEnvConfigKey(t *testing.T) {
 	r := randString()
-	LocalDirName = fmt.Sprintf(".tanzu-test-%s", r)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
+	defer func() {
+		cleanUp()
+	}()
+
 	// Setup legacy config dir.
 	legacyLocalDirName = fmt.Sprintf(".tanzu-test-legacy-%s", r)
 	legacyLocalDir, err := legacyLocalDir()
@@ -106,26 +115,28 @@ func TestConfigLegacyDir(t *testing.T) {
 	require.NoError(t, err)
 	legacyCfgPath, err := legacyConfigPath()
 	require.NoError(t, err)
-	server0 := &configapi.Server{
-		Name: "test",
-		Type: configapi.ManagementClusterServerType,
-		ManagementClusterOpts: &configapi.ManagementClusterServer{
-			Path: "test",
-		},
-	}
-	testCtx := &configapi.ClientConfig{
+	defer cleanupDir(legacyLocalDirName)
+
+	//Setup data
+	testCfg := &configapi.ClientConfig{
 		KnownServers: []*configapi.Server{
-			server0,
+			{
+				Name: "test",
+				Type: configapi.ManagementClusterServerType,
+				ManagementClusterOpts: &configapi.ManagementClusterServer{
+					Path: "test",
+				},
+			},
 		},
 		CurrentServer: "test",
 	}
+
 	AcquireTanzuConfigLock()
-	err = StoreClientConfig(testCtx)
+	err = StoreClientConfig(testCfg)
 	ReleaseTanzuConfigLock()
 	require.NoError(t, err)
 	require.FileExists(t, legacyCfgPath)
-	defer cleanupDir(LocalDirName)
-	defer cleanupDir(legacyLocalDirName)
+
 	_, err = GetClientConfig()
 	require.NoError(t, err)
 	server1 := &configapi.Server{
@@ -135,17 +146,22 @@ func TestConfigLegacyDir(t *testing.T) {
 			Path: "test1",
 		},
 	}
+
 	err = SetServer(server1, true)
 	require.NoError(t, err)
+
 	c, err := GetClientConfig()
 	require.NoError(t, err)
 	require.Len(t, c.KnownServers, 2)
 	require.Equal(t, c.CurrentServer, "test1")
+
 	err = RemoveServer("test")
 	require.NoError(t, err)
+
 	c, err = GetClientConfig()
 	require.NoError(t, err)
 	require.Len(t, c.KnownServers, 1)
+
 	tmp := LocalDirName
 	LocalDirName = legacyLocalDirName
 	configCopy, err := GetClientConfig()
@@ -154,8 +170,88 @@ func TestConfigLegacyDir(t *testing.T) {
 		t.Errorf("ClientConfig object mismatch between legacy and new config location (-want +got): \n%s", diff)
 	}
 	LocalDirName = tmp
-	err = DeleteClientConfig()
+}
+
+func TestConfigLegacyDirWithoutEnvConfigKey(t *testing.T) {
+	r := randString()
+
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
+	defer func() {
+		cleanUp()
+	}()
+
+	func() {
+		LocalDirName = TestLocalDirName
+	}()
+	defer func() {
+		cleanupDir(LocalDirName)
+	}()
+
+	// Setup legacy config dir.
+	legacyLocalDirName = fmt.Sprintf(".tanzu-test-legacy-%s", r)
+	legacyLocalDir, err := legacyLocalDir()
 	require.NoError(t, err)
+	err = os.MkdirAll(legacyLocalDir, 0755)
+	require.NoError(t, err)
+	legacyCfgPath, err := legacyConfigPath()
+	require.NoError(t, err)
+	defer cleanupDir(legacyLocalDirName)
+
+	//Setup data
+	testCfg := &configapi.ClientConfig{
+		KnownServers: []*configapi.Server{
+			{
+				Name: "test",
+				Type: configapi.ManagementClusterServerType,
+				ManagementClusterOpts: &configapi.ManagementClusterServer{
+					Path: "test",
+				},
+			},
+		},
+		CurrentServer: "test",
+	}
+
+	AcquireTanzuConfigLock()
+	err = StoreClientConfig(testCfg)
+	ReleaseTanzuConfigLock()
+	require.NoError(t, err)
+	require.FileExists(t, legacyCfgPath)
+
+	_, err = GetClientConfig()
+	require.NoError(t, err)
+	server1 := &configapi.Server{
+		Name: "test1",
+		Type: configapi.ManagementClusterServerType,
+		ManagementClusterOpts: &configapi.ManagementClusterServer{
+			Path: "test1",
+		},
+	}
+
+	err = SetServer(server1, true)
+	require.NoError(t, err)
+
+	c, err := GetClientConfig()
+	require.NoError(t, err)
+	require.Len(t, c.KnownServers, 2)
+	require.Equal(t, c.CurrentServer, "test1")
+
+	err = RemoveServer("test")
+	require.NoError(t, err)
+
+	c, err = GetClientConfig()
+	require.NoError(t, err)
+	require.Len(t, c.KnownServers, 1)
+
+	tmp := LocalDirName
+	LocalDirName = legacyLocalDirName
+	configCopy, err := GetClientConfig()
+	require.NoError(t, err)
+	if diff := cmp.Diff(c, configCopy); diff != "" {
+		t.Errorf("ClientConfig object mismatch between legacy and new config location (-want +got): \n%s", diff)
+	}
+	LocalDirName = tmp
 }
 
 func TestClientConfigUpdateInParallel(t *testing.T) {
@@ -181,15 +277,13 @@ func TestClientConfigUpdateInParallel(t *testing.T) {
 	}
 	// Creates temp configuration file and runs addServer in parallel
 	runTestInParallel := func() {
-		// Get the temp tanzu config file
-		f, err := os.CreateTemp("", "tanzu_config*")
-		assert.Nil(t, err)
-		defer func(name string) {
-			err = os.Remove(name)
-			assert.NoError(t, err)
-		}(f.Name())
-		err = os.Setenv("TANZU_CONFIG", f.Name())
-		assert.NoError(t, err)
+		// Setup config test data
+		cfgTestFiles, cleanUp := setupTestConfig(t, &CfgTestData{})
+
+		defer func() {
+			cleanUp()
+		}()
+
 		// run addServer in parallel
 		parallelExecutionCounter := 100
 		group, _ := errgroup.WithContext(context.Background())
@@ -199,8 +293,8 @@ func TestClientConfigUpdateInParallel(t *testing.T) {
 				return addServer(fmt.Sprintf("mc-%v", id))
 			})
 		}
-		err = group.Wait()
-		rawContents, readErr := os.ReadFile(f.Name())
+		err := group.Wait()
+		rawContents, readErr := os.ReadFile(cfgTestFiles[0].Name())
 		assert.Nil(t, readErr, "Error reading config: %s", readErr)
 		assert.Nil(t, err, "Config file contents: \n%s", rawContents)
 		// Make sure that the configuration file is not corrupted

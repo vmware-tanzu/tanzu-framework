@@ -4,7 +4,6 @@
 package config
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,13 +12,13 @@ import (
 )
 
 func TestGetCLIDiscoverySources(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
+
 	tests := []struct {
 		name   string
 		in     *configapi.ClientConfig
@@ -66,13 +65,13 @@ func TestGetCLIDiscoverySources(t *testing.T) {
 }
 
 func TestGetCLIDiscoverySource(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
+
 	tests := []struct {
 		name string
 		in   *configapi.ClientConfig
@@ -116,34 +115,12 @@ func TestGetCLIDiscoverySource(t *testing.T) {
 }
 
 func TestSetCLIDiscoverySources(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	tests := []struct {
 		name  string
@@ -160,8 +137,38 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 						ManifestPath: "test-manifest-path",
 					},
 				},
+				{
+					Local: &configapi.LocalDiscovery{
+						Name: "default",
+						Path: "standalone",
+					},
+				},
 			},
-			total: 1,
+			total: 2,
+		},
+		{
+			name: "success add test",
+			input: []configapi.PluginDiscovery{
+				{
+					Local: &configapi.LocalDiscovery{
+						Name: "admin-local",
+						Path: "admin",
+					},
+				},
+			},
+			total: 3,
+		},
+		{
+			name: "success add test",
+			input: []configapi.PluginDiscovery{
+				{
+					OCI: &configapi.OCIDiscovery{
+						Name:  "default",
+						Image: "test-image",
+					},
+				},
+			},
+			total: 3,
 		},
 		{
 			name: "success update test",
@@ -174,7 +181,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 1,
+			total: 3,
 		},
 		{
 			name: "should not persist same test",
@@ -187,7 +194,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 1,
+			total: 3,
 		},
 		{
 			name: "success add default gcp",
@@ -200,7 +207,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 2,
+			total: 3,
 		},
 		{
 			name: "success add default-local gcp",
@@ -213,7 +220,7 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 3,
+			total: 4,
 		},
 		{
 			name: "success add default-local local",
@@ -225,12 +232,24 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 					},
 				},
 			},
-			total: 3,
+			total: 4,
+		},
+		{
+			name: "success add default-local local",
+			input: []configapi.PluginDiscovery{
+				{
+					Local: &configapi.LocalDiscovery{
+						Name: "default-local",
+						Path: "test-path",
+					},
+				},
+			},
+			total: 4,
 		},
 	}
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
-			err = SetCLIDiscoverySources(spec.input)
+			err := SetCLIDiscoverySources(spec.input)
 			assert.NoError(t, err)
 			sources, err := GetCLIDiscoverySources()
 			assert.NoError(t, err)
@@ -238,20 +257,14 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 		})
 	}
 }
-func TestDeleteCLIDiscoverySource(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv(EnvConfigKey, f.Name())
-	assert.NoError(t, err)
 
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
+func TestDeleteCLIDiscoverySource(t *testing.T) {
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
+	defer func() {
+		cleanUp()
+	}()
 
 	tests := []struct {
 		name   string
@@ -259,28 +272,27 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 		input  string
 		count  int
 		errStr string
-	}{
-		{
-			name: "should return err on deleting non existing source",
-			src: &configapi.ClientConfig{
-				ClientOptions: &configapi.ClientOptions{
-					CLI: &configapi.CLIOptions{
-						DiscoverySources: []configapi.PluginDiscovery{
-							{
-								GCP: &configapi.GCPDiscovery{
-									Name:         "test",
-									Bucket:       "test-bucket",
-									ManifestPath: "test-manifest-path",
-								},
+	}{{
+		name: "should return err on deleting non existing source",
+		src: &configapi.ClientConfig{
+			ClientOptions: &configapi.ClientOptions{
+				CLI: &configapi.CLIOptions{
+					DiscoverySources: []configapi.PluginDiscovery{
+						{
+							GCP: &configapi.GCPDiscovery{
+								Name:         "test",
+								Bucket:       "test-bucket",
+								ManifestPath: "test-manifest-path",
 							},
 						},
 					},
 				},
 			},
-			input:  "test-notfound",
-			count:  1,
-			errStr: "cli discovery source not found",
 		},
+		input:  "test-notfound",
+		count:  1,
+		errStr: "cli discovery source not found",
+	},
 		{
 			name: "should delete existing test source",
 			src: &configapi.ClientConfig{
@@ -371,7 +383,6 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 			}
-
 			sources, err := GetCLIDiscoverySources()
 			assert.NoError(t, err)
 			assert.Equal(t, spec.count, len(sources))
@@ -380,34 +391,12 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 }
 
 func TestIntegrationSetGetDeleteCLIDiscoverySource(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	sources := []configapi.PluginDiscovery{
 		{
@@ -453,34 +442,12 @@ func TestIntegrationSetGetDeleteCLIDiscoverySource(t *testing.T) {
 }
 
 func TestSetCLIDiscoverySourceLocalMulti(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	src := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
@@ -507,7 +474,7 @@ func TestSetCLIDiscoverySourceLocalMulti(t *testing.T) {
 	}
 
 	// Actions
-	err = StoreClientConfig(src)
+	err := StoreClientConfig(src)
 	assert.NoError(t, err)
 	err = SetCLIDiscoverySource(input)
 	assert.NoError(t, err)
@@ -528,29 +495,12 @@ func TestSetCLIDiscoverySourceLocalMulti(t *testing.T) {
 }
 
 func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
+	defer func() {
+		cleanUp()
+	}()
 
 	tests := []struct {
 		name         string
@@ -694,29 +644,12 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 }
 
 func TestSetCLIDiscoverySourceMultiTypes(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
+	defer func() {
+		cleanUp()
+	}()
 
 	tests := []struct {
 		name         string

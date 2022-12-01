@@ -7,4 +7,5 @@ package config
 const (
 	KeyConfigMetadata = "configMetadata"
 	KeyPatchStrategy  = "patchStrategy"
+	KeySettings       = "settings"
 )

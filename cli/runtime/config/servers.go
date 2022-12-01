@@ -282,6 +282,7 @@ func removeCurrentServer(node *yaml.Node, name string) error {
 	return nil
 }
 
+//nolint:dupl
 func removeServer(node *yaml.Node, name string) error {
 	// find servers node
 	keys := []nodeutils.Key{
@@ -289,7 +290,7 @@ func removeServer(node *yaml.Node, name string) error {
 	}
 	serversNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if serversNode == nil {
-		return nodeutils.ErrNodeNotFound
+		return nil
 	}
 	var servers []*yaml.Node
 	for _, serverNode := range serversNode.Content {
@@ -341,7 +342,7 @@ func setServer(node *yaml.Node, s *configapi.Server) (persist bool, err error) {
 		if index := nodeutils.GetNodeIndex(serverNode.Content, "name"); index != -1 &&
 			serverNode.Content[index].Value == s.Name {
 			exists = true
-			_, err = nodeutils.ReplaceNodes(newServerNode.Content[0], serverNode, nodeutils.WithPatchStrategyKey(KeyServers), nodeutils.WithPatchStrategies(patchStrategies))
+			_, err = nodeutils.DeleteNodes(newServerNode.Content[0], serverNode, nodeutils.WithPatchStrategyKey(KeyServers), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
 				return false, err
 			}

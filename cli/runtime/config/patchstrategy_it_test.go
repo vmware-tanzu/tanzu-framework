@@ -12,8 +12,8 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-func setupConfigData() (string, string) {
-	tanzuConfigBytes := `clientOptions:
+func setupConfigData() (string, string, string, string) {
+	cfg := `clientOptions:
   cli:
     discoverySources:
       - gcp:
@@ -60,7 +60,7 @@ contexts:
 currentContext:
   k8s: test-mc
 `
-	expectedConfig := `clientOptions:
+	expectedCfg := `clientOptions:
     cli:
         discoverySources:
             - gcp:
@@ -103,9 +103,42 @@ contexts:
 currentContext:
     k8s: test-mc
 `
-	return tanzuConfigBytes, expectedConfig
-}
 
+	cfg2 := `contexts:
+  - name: test-mc
+    type: k8s
+    group: one
+    clusterOpts:
+      isManagementCluster: true
+      annotation: one
+      required: true
+      annotationStruct:
+        one: one
+      endpoint: test-endpoint
+      path: test-path
+      context: test-context
+currentContext:
+  k8s: test-mc
+`
+	expectedCfg2 := `contexts:
+    - name: test-mc
+      type: k8s
+      group: one
+      clusterOpts:
+        isManagementCluster: true
+        annotation: one
+        required: true
+        annotationStruct:
+            one: one
+        endpoint: test-endpoint
+        path: test-path
+        context: test-context
+currentContext:
+    k8s: test-mc
+`
+
+	return cfg, expectedCfg, cfg2, expectedCfg2
+}
 func setupConfigMetadata() string {
 	metadata := `configMetadata:
   patchStrategy:
@@ -118,33 +151,13 @@ func setupConfigMetadata() string {
 }
 
 func TestIntegrationWithReplacePatchStrategy(t *testing.T) {
-	//Setup data
-	tanzuConfigBytes, expectedConfig := setupConfigData()
-	metadata := setupConfigMetadata()
+	// Setup config data
+	cfg, expectedCfg, cfg2, expectedCfg2 := setupConfigData()
+	cfgTestFiles, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfg2, cfgMetadata: setupConfigMetadata()})
 
-	// create temp config file
-	f1, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f1.Name(), []byte(tanzuConfigBytes), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f1.Name())
-	err = os.Setenv("TANZU_CONFIG", f1.Name())
-	assert.NoError(t, err)
-
-	//create temp config metadata file
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(metadata), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-	err = os.Setenv("TANZU_CONFIG_METADATA", f2.Name())
-	assert.NoError(t, err)
+	defer func() {
+		cleanUp()
+	}()
 
 	// Actions
 
@@ -208,8 +221,12 @@ func TestIntegrationWithReplacePatchStrategy(t *testing.T) {
 	err = SetCLIDiscoverySources(updatedSources)
 	assert.NoError(t, err)
 
-	//Expectations on file content
-	file, err := os.ReadFile(f1.Name())
+	// Expectations on file content
+	file, err := os.ReadFile(cfgTestFiles[0].Name())
 	assert.NoError(t, err)
-	assert.Equal(t, expectedConfig, string(file))
+	assert.Equal(t, expectedCfg, string(file))
+
+	file, err = os.ReadFile(cfgTestFiles[1].Name())
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCfg2, string(file))
 }

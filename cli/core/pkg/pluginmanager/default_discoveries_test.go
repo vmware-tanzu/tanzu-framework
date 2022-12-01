@@ -38,6 +38,18 @@ servers:
 	}(f.Name())
 	err = os.Setenv("TANZU_CONFIG", f.Name())
 	assert.NoError(t, err)
+
+	f2, err := os.CreateTemp("", "tanzu_config")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(""), 0644)
+	assert.Nil(t, err)
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f2.Name())
+	err = os.Setenv("TANZU_CONFIG_NEXT_GEN", f2.Name())
+	assert.NoError(t, err)
+
 	server, err := configlib.GetServer("mgmt")
 	assert.Nil(t, err)
 	pds := append(server.DiscoverySources, defaultDiscoverySourceBasedOnServer(server)...)
@@ -57,7 +69,8 @@ current: tmc-test
 kind: ClientConfig
 metadata:
   creationTimestamp: null
-contexts:
+`
+	nextGenCfgBytes := `contexts:
 - globalOpts:
     endpoint: test.cloud.vmware.com:443
   name: tmc-test
@@ -66,8 +79,7 @@ contexts:
     context: mgmt-admin@mgmt
     path: config
   name: mgmt
-  type: k8s
-`
+  type: k8s`
 	tf, err := os.CreateTemp("", "tanzu_tmc_config")
 	assert.Nil(t, err)
 	err = os.WriteFile(tf.Name(), []byte(tanzuConfigBytes), 0644)
@@ -78,6 +90,17 @@ contexts:
 	}(tf.Name())
 	err = os.Setenv("TANZU_CONFIG", tf.Name())
 	assert.Nil(t, err)
+
+	f2, err := os.CreateTemp("", "tanzu_config")
+	assert.Nil(t, err)
+	err = os.WriteFile(f2.Name(), []byte(nextGenCfgBytes), 0644)
+	assert.Nil(t, err)
+	defer func(name string) {
+		err = os.Remove(name)
+		assert.NoError(t, err)
+	}(f2.Name())
+	err = os.Setenv("TANZU_CONFIG_NEXT_GEN", f2.Name())
+	assert.NoError(t, err)
 
 	context, err := configlib.GetContext("tmc-test")
 	assert.Nil(t, err)

@@ -4,7 +4,6 @@
 package config
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,33 +15,11 @@ import (
 
 func TestSetGetDeleteContext(t *testing.T) {
 	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	ctx1 := &configapi.Context{
 		Name: "test1",
@@ -109,6 +86,7 @@ func TestSetGetDeleteContext(t *testing.T) {
 	assert.Equal(t, ctx1, ctx)
 
 	err = DeleteContext("test")
+	assert.Equal(t, "context test not found", err.Error())
 
 	err = DeleteContext("test1")
 	assert.Nil(t, err)
@@ -148,16 +126,14 @@ contexts:
             annotation: one
             required: true
 `
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(tanzuConfigBytes), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
+
+	// Setup config data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{cfgNextGen: tanzuConfigBytes})
+
+	defer func() {
+		cleanUp()
+	}()
+
 	ctx := &configapi.Context{
 		Name: "test-mc",
 		Type: "k8s",
@@ -177,7 +153,7 @@ contexts:
 		},
 	}
 
-	err = SetContext(ctx, false)
+	err := SetContext(ctx, false)
 	assert.NoError(t, err)
 
 	c, err := GetContext(ctx.Name)
@@ -189,13 +165,11 @@ contexts:
 }
 
 func TestSetContextWithDiscoverySourceWithNewFields(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
 
 	tests := []struct {
@@ -318,13 +292,11 @@ func TestSetContextWithDiscoverySourceWithNewFields(t *testing.T) {
 }
 
 func TestSetContextWithDiscoverySource(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
 
 	tests := []struct {
@@ -814,6 +786,29 @@ func TestSetCurrentContext(t *testing.T) {
 	assert.Contains(t, currentContextsList, "test-tmc")
 }
 
+func TestRemoveCurrentContext(t *testing.T) {
+	// setup
+	setupForGetContext(t)
+	defer func() {
+		cleanupDir(LocalDirName)
+	}()
+
+	err := RemoveCurrentContext(configapi.CtxTypeK8s)
+	assert.NoError(t, err)
+
+	currCtx, err := GetCurrentContext(configapi.CtxTypeK8s)
+	assert.Equal(t, "no current context set for type \"k8s\"", err.Error())
+	assert.Nil(t, currCtx)
+
+	currSrv, err := GetCurrentServer()
+	assert.Equal(t, "current server \"\" not found in tanzu config", err.Error())
+	assert.Nil(t, currSrv)
+
+	currCtx, err = GetCurrentContext(configapi.CtxTypeTMC)
+	assert.NoError(t, err)
+	assert.Equal(t, currCtx.Name, "test-tmc")
+}
+
 func TestSetSingleContext(t *testing.T) {
 	// setup
 	func() {
@@ -859,6 +854,197 @@ func TestSetSingleContext(t *testing.T) {
 			assert.NoError(t, err)
 		})
 	}
+}
+
+func TestSetContextMultiFile(t *testing.T) {
+	configBytes, configNextGenBytes := setupMultiCfgData()
+	// Setup config data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{cfg: configBytes, cfgNextGen: configNextGenBytes})
+
+	defer func() {
+		cleanUp()
+	}()
+
+	ctx := &configapi.Context{
+		Name: "test-mc",
+		Type: "k8s",
+		ClusterOpts: &configapi.ClusterServer{
+			IsManagementCluster: true,
+			Endpoint:            "test-endpoint",
+		},
+		DiscoverySources: []configapi.PluginDiscovery{
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test",
+					Bucket:       "test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+			},
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test2",
+					Bucket:       "test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+			},
+		},
+	}
+
+	ctx2 := &configapi.Context{
+		Name: "test-mc2",
+		Type: "k8s",
+		ClusterOpts: &configapi.ClusterServer{
+			Endpoint: "updated-test-endpoint",
+		},
+		DiscoverySources: []configapi.PluginDiscovery{
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name: "test",
+				},
+			},
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name: "test2",
+				},
+			},
+		},
+	}
+
+	expectedCtx2 := &configapi.Context{
+		Name: "test-mc2",
+		Type: "k8s",
+		ClusterOpts: &configapi.ClusterServer{
+			IsManagementCluster: true,
+			Endpoint:            "updated-test-endpoint",
+		},
+		DiscoverySources: []configapi.PluginDiscovery{
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test",
+					Bucket:       "test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+			},
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test2",
+					Bucket:       "test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+			},
+		},
+	}
+
+	c, err := GetCurrentContext(configapi.CtxTypeK8s)
+	assert.NoError(t, err)
+	assert.Equal(t, ctx, c)
+
+	c, err = GetContext("test-mc")
+	assert.NoError(t, err)
+	assert.Equal(t, ctx, c)
+
+	err = SetContext(ctx2, true)
+	assert.NoError(t, err)
+
+	c, err = GetContext(ctx2.Name)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCtx2, c)
+}
+
+func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
+	configBytes, configNextGenBytes := setupMultiCfgData()
+
+	// Setup config data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{cfg: configBytes, cfgNextGen: configNextGenBytes, cfgMetadata: setupConfigMetadataWithMigrateToNewConfig()})
+
+	defer func() {
+		cleanUp()
+	}()
+
+	ctx := &configapi.Context{
+		Name: "test-mc",
+		Type: "k8s",
+		ClusterOpts: &configapi.ClusterServer{
+			IsManagementCluster: true,
+			Endpoint:            "test-endpoint",
+		},
+		DiscoverySources: []configapi.PluginDiscovery{
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test",
+					Bucket:       "test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+			},
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test2",
+					Bucket:       "test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+			},
+		},
+	}
+
+	ctx2 := &configapi.Context{
+		Name: "test-mc2",
+		Type: "k8s",
+		ClusterOpts: &configapi.ClusterServer{
+			Endpoint: "updated-test-endpoint",
+		},
+		DiscoverySources: []configapi.PluginDiscovery{
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name: "test",
+				},
+			},
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name: "test2",
+				},
+			},
+		},
+	}
+
+	expectedCtx2 := &configapi.Context{
+		Name: "test-mc2",
+		Type: "k8s",
+		ClusterOpts: &configapi.ClusterServer{
+			IsManagementCluster: true,
+			Endpoint:            "updated-test-endpoint",
+		},
+		DiscoverySources: []configapi.PluginDiscovery{
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test",
+					Bucket:       "test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+			},
+			{
+				GCP: &configapi.GCPDiscovery{
+					Name:         "test2",
+					Bucket:       "test-bucket",
+					ManifestPath: "test-manifest-path",
+				},
+			},
+		},
+	}
+
+	c, err := GetCurrentContext(configapi.CtxTypeK8s)
+	assert.NoError(t, err)
+	assert.Equal(t, ctx, c)
+
+	c, err = GetContext("test-mc")
+	assert.NoError(t, err)
+	assert.Equal(t, ctx, c)
+
+	err = SetContext(ctx2, true)
+	assert.NoError(t, err)
+
+	c, err = GetContext(ctx2.Name)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCtx2, c)
 }
 
 func TestSetContextWithUniquePermissions(t *testing.T) {
