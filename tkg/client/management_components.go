@@ -282,7 +282,7 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 		}
 
 		// retrieve the akoo variables from legacy addon secret.
-		err = c.handleAKOOVariables(clusterClient, clusterName, configValues)
+		err = RetrieveAKOOVariablesFromAddonSecret(clusterClient, clusterName, configValues)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to handle the akoo specific variables")
 		}
@@ -296,47 +296,6 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 	}
 
 	return configValues, nil
-}
-
-func (c *TkgClient) handleAKOOVariables(clusterClient clusterclient.Client, clusterName string, configValues map[string]interface{}) error {
-
-	akoOperatorAddonName := fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName)
-	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
-	bytes, err := clusterClient.GetSecretValue(akoOperatorAddonName, "values.yaml", constants.TkgNamespace, pollOptions)
-	if err != nil && apierrors.IsNotFound(err) {
-		log.V(6).Infof("akoo addon secret %s/%s not found, akoo was not installed on this legacy management cluster", constants.TkgNamespace, akoOperatorAddonName)
-		return nil
-	} else if err != nil {
-		return err
-	}
-
-	akoOperatorPackage := &managementcomponents.AkoOperatorPackage{}
-
-	err = yaml.Unmarshal(bytes, akoOperatorPackage)
-	if err != nil {
-		return errors.Wrap(err, "failed to unmarshal the akoo addon secret values.yaml")
-	}
-
-	configValues[constants.ConfigVariableAviEnable] = akoOperatorPackage.AkoOperatorPackageValues.AviEnable
-	configValues[constants.ConfigVariableAviControllerAddress] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerAddress
-	configValues[constants.ConfigVariableAviControllerUsername] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerUsername
-	configValues[constants.ConfigVariableAviControllerPassword] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerPassword
-	configValues[constants.ConfigVariableAviControllerCA] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerCA
-	configValues[constants.ConfigVariableAviCloudName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviCloudName
-	configValues[constants.ConfigVariableAviServiceEngineGroup] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviServiceEngineGroup
-	configValues[constants.ConfigVariableAviManagementClusterServiceEngineGroup] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterServiceEngineGroup
-	configValues[constants.ConfigVariableAviDataPlaneNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviDataPlaneNetworkName
-	configValues[constants.ConfigVariableAviDataPlaneNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviDataPlaneNetworkCIDR
-	configValues[constants.ConfigVariableAviControlPlaneNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneNetworkName
-	configValues[constants.ConfigVariableAviControlPlaneNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneNetworkCIDR
-	configValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterDataPlaneNetworkName
-	configValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR
-	configValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterControlPlaneVipNetworkName
-	configValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterControlPlaneVipNetworkCIDR
-	configValues[constants.ConfigVariableVsphereHaProvider] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneHaProvider
-	configValues[constants.ConfigVariableClusterName] = clusterName
-
-	return nil
 }
 
 // mutateUserConfigVariableValueMap get user config variables to overwrite the existing config variables that
@@ -547,4 +506,44 @@ func ProcessAKOPackageInstallFile(akoPackageInstallTemplateDir, userConfigValues
 	}
 
 	return akoPackageInstallFile, nil
+}
+
+func RetrieveAKOOVariablesFromAddonSecret(clusterClient clusterclient.Client, clusterName string, configValues map[string]interface{}) error {
+	akoOperatorAddonName := fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName)
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+	bytes, err := clusterClient.GetSecretValue(akoOperatorAddonName, "values.yaml", constants.TkgNamespace, pollOptions)
+	if err != nil && apierrors.IsNotFound(err) {
+		log.V(6).Infof("akoo addon secret %s/%s not found, akoo was not installed on this legacy management cluster", constants.TkgNamespace, akoOperatorAddonName)
+		return nil
+	} else if err != nil {
+		return err
+	}
+
+	akoOperatorPackage := &managementcomponents.AkoOperatorPackage{}
+
+	err = yaml.Unmarshal(bytes, akoOperatorPackage)
+	if err != nil {
+		return errors.Wrap(err, "failed to unmarshal the akoo addon secret values.yaml")
+	}
+
+	configValues[constants.ConfigVariableAviEnable] = akoOperatorPackage.AkoOperatorPackageValues.AviEnable
+	configValues[constants.ConfigVariableAviControllerAddress] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerAddress
+	configValues[constants.ConfigVariableAviControllerUsername] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerUsername
+	configValues[constants.ConfigVariableAviControllerPassword] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerPassword
+	configValues[constants.ConfigVariableAviControllerCA] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerCA
+	configValues[constants.ConfigVariableAviCloudName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviCloudName
+	configValues[constants.ConfigVariableAviServiceEngineGroup] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviServiceEngineGroup
+	configValues[constants.ConfigVariableAviManagementClusterServiceEngineGroup] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterServiceEngineGroup
+	configValues[constants.ConfigVariableAviDataPlaneNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviDataPlaneNetworkName
+	configValues[constants.ConfigVariableAviDataPlaneNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviDataPlaneNetworkCIDR
+	configValues[constants.ConfigVariableAviControlPlaneNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneNetworkName
+	configValues[constants.ConfigVariableAviControlPlaneNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneNetworkCIDR
+	configValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterDataPlaneNetworkName
+	configValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR
+	configValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterControlPlaneVipNetworkName
+	configValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterControlPlaneVipNetworkCIDR
+	configValues[constants.ConfigVariableVsphereHaProvider] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneHaProvider
+	configValues[constants.ConfigVariableClusterName] = clusterName
+
+	return nil
 }

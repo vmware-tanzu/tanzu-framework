@@ -304,8 +304,13 @@ func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient p
 		}
 	}
 
+	// // Todo: For the addon secret deletion of ako-operator, this is for legacy to clusterclass capable management cluster upgrade.
+	// // Because the upgraded management cluster will deploy ako-operator by the management package tkg-pkg instead of addon secret.
+	// // We currently only pause the legacy ako-operator addon secret to disable it but do not delete it, in order to keep this ako-operator
+	// // configuration information as a debug reference in case the upgrade is failed.
+	// // This secret could be removed in later releases where all the management cluster has already successfully upgraded to clusterclass capable.
 	// if previousAkoOperatorIsFromCoreRepo {
-	// 	err = DeleteAddonSecret(clusterClient, fmt.Sprintf("%s-%s-addon", clusterName, akoOperatorName), constants.TkgNamespace)
+	// 	err = DeleteAddonSecret(clusterClient, fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName), constants.TkgNamespace)
 	// 	if err != nil {
 	// 		return err
 	// 	}
