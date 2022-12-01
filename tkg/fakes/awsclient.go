@@ -94,9 +94,9 @@ type AWSClient struct {
 		result1 []string
 		result2 error
 	}
-	ListEC2KeyPairsStub			func() ([]*models.AWSKeyPair, error)
-	listEC2KeyPairsMutex		sync.RWMutex
-	listEC2KeyPairsArgsForCall	[]struct {
+	ListEC2KeyPairsStub        func() ([]*models.AWSKeyPair, error)
+	listEC2KeyPairsMutex       sync.RWMutex
+	listEC2KeyPairsArgsForCall []struct {
 	}
 	listEC2KeyPairsReturns struct {
 		result1 []*models.AWSKeyPair
@@ -119,7 +119,6 @@ type AWSClient struct {
 		result1 []string
 		result2 error
 	}
-
 	ListRegionsByUserStub        func() ([]string, error)
 	listRegionsByUserMutex       sync.RWMutex
 	listRegionsByUserArgsForCall []struct {
@@ -581,7 +580,6 @@ func (fake *AWSClient) ListCloudFormationStacksReturnsOnCall(i int, result1 []st
 	}{result1, result2}
 }
 
-
 func (fake *AWSClient) ListEC2KeyPairs() ([]*models.AWSKeyPair, error) {
 	fake.listEC2KeyPairsMutex.Lock()
 	ret, specificReturn := fake.listEC2KeyPairsReturnsOnCall[len(fake.listEC2KeyPairsArgsForCall)]
@@ -948,6 +946,8 @@ func (fake *AWSClient) Invocations() map[string][][]interface{} {
 	defer fake.listAvailabilityZonesMutex.RUnlock()
 	fake.listCloudFormationStacksMutex.RLock()
 	defer fake.listCloudFormationStacksMutex.RUnlock()
+	fake.listEC2KeyPairsMutex.RLock()
+	defer fake.listEC2KeyPairsMutex.RUnlock()
 	fake.listInstanceTypesMutex.RLock()
 	defer fake.listInstanceTypesMutex.RUnlock()
 	fake.listRegionsByUserMutex.RLock()
