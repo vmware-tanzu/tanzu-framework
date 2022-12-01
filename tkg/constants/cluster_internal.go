@@ -67,6 +67,7 @@ const (
 	AkoNamespace             = "avi-system"
 	AkoCleanUpAnnotationKey  = "AviObjectDeletionStatus"
 	AkoCleanUpFinishedStatus = "Done"
+	AkoOperatorName          = "ako-operator"
 
 	ServiceDNSSuffix             = ".svc"
 	ServiceDNSClusterLocalSuffix = ".svc.cluster.local"
