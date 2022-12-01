@@ -139,8 +139,6 @@ servers:
             required: true
           contextType: tmc
 current: test-mc
-contexts: []
-currentContext: {}
 `
 
 	expectedCfg2 := `contexts:

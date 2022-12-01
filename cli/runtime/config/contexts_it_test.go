@@ -82,8 +82,6 @@ servers:
             bucket: test-bucket-updated
             manifestPath: test-manifest-path-updated
 current: test-mc2
-contexts: []
-currentContext: {}
 `
 	cfg2 := `contexts:
   - name: test-mc

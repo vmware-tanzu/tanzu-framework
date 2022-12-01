@@ -69,8 +69,41 @@ servers:
           required: true
         contextType: tmc
 current: test-mc
+contexts:
+  - name: test-mc
+    type: k8s
+    group: one
+    clusterOpts:
+      isManagementCluster: true
+      annotation: one
+      required: true
+      annotationStruct:
+        one: one
+      endpoint: test-endpoint
+      path: test-path
+      context: test-context
+    discoverySources:
+      - gcp:
+          name: test
+          bucket: test-bucket
+          manifestPath: test-manifest-path
+          annotation: one
+          required: true
+        contextType: tmc
+      - gcp:
+          name: test-two
+          bucket: test-bucket
+          manifestPath: test-manifest-path
+          annotation: two
+          required: true
+        contextType: tmc
+currentContext:
+  k8s: test-mc
 `
 	expectedCfg := `apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: ClientConfig
+metadata:
+    creationTimestamp: null
 clientOptions:
     cli:
         bomRepo: projects.registry.vmware.com/tkg
@@ -103,9 +136,6 @@ clientOptions:
             standalone-cluster-mode: 'false'
         package:
             kctrl-package-command-tree: 'true'
-kind: ClientConfig
-metadata:
-    creationTimestamp: null
 servers:
     - name: test-mc
       type: managementcluster
@@ -124,8 +154,36 @@ servers:
             required: true
           contextType: tmc
 current: test-mc
-contexts: []
-currentContext: {}
+contexts:
+    - name: test-mc
+      type: k8s
+      group: one
+      clusterOpts:
+        isManagementCluster: true
+        annotation: one
+        required: true
+        annotationStruct:
+            one: one
+        endpoint: test-endpoint
+        path: test-path
+        context: test-context
+      discoverySources:
+        - gcp:
+            name: test
+            bucket: test-bucket
+            manifestPath: test-manifest-path
+            annotation: one
+            required: true
+          contextType: tmc
+        - gcp:
+            name: test-two
+            bucket: test-bucket
+            manifestPath: test-manifest-path
+            annotation: two
+            required: true
+          contextType: tmc
+currentContext:
+    k8s: test-mc
 `
 
 	cfgNextGen := `
@@ -540,6 +598,9 @@ metadata:
   creationTimestamp: null`,
 			cfg2: ``,
 			output: `apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: ClientConfig
+metadata:
+    creationTimestamp: null
 clientOptions:
     cli:
         bomRepo: projects.registry.vmware.com/tkg
@@ -572,9 +633,6 @@ clientOptions:
             standalone-cluster-mode: 'false'
         package:
             kctrl-package-command-tree: 'true'
-kind: ClientConfig
-metadata:
-    creationTimestamp: null
 `,
 		},
 		{
@@ -677,6 +735,9 @@ contexts:
 currentContext:
   k8s: test-mc`,
 			output: `apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: ClientConfig
+metadata:
+    creationTimestamp: null
 clientOptions:
     cli:
         bomRepo: projects.registry.vmware.com/tkg
@@ -709,9 +770,6 @@ clientOptions:
             standalone-cluster-mode: 'false'
         package:
             kctrl-package-command-tree: 'true'
-kind: ClientConfig
-metadata:
-    creationTimestamp: null
 contexts:
     - name: test-mc
       type: k8s
@@ -844,6 +902,9 @@ contexts:
 currentContext:
   tmc: test-tmc`,
 			output: `apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: ClientConfig
+metadata:
+    creationTimestamp: null
 clientOptions:
     cli:
         bomRepo: projects.registry.vmware.com/tkg
@@ -876,9 +937,6 @@ clientOptions:
             standalone-cluster-mode: 'false'
         package:
             kctrl-package-command-tree: 'true'
-kind: ClientConfig
-metadata:
-    creationTimestamp: null
 contexts:
     - name: test-mc
       type: k8s
@@ -983,6 +1041,9 @@ metadata:
 contexts: []
 currentContext: {}`,
 			output: `apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: ClientConfig
+metadata:
+    creationTimestamp: null
 clientOptions:
     cli:
         bomRepo: projects.registry.vmware.com/tkg
@@ -1015,9 +1076,6 @@ clientOptions:
             standalone-cluster-mode: 'false'
         package:
             kctrl-package-command-tree: 'true'
-kind: ClientConfig
-metadata:
-    creationTimestamp: null
 contexts: []
 currentContext: {}
 `,
@@ -1118,6 +1176,9 @@ currentContext: {}
 current: 
 `,
 			output: `apiVersion: config.tanzu.vmware.com/v1alpha1
+kind: ClientConfig
+metadata:
+    creationTimestamp: null
 clientOptions:
     cli:
         bomRepo: projects.registry.vmware.com/tkg
@@ -1150,12 +1211,16 @@ clientOptions:
             standalone-cluster-mode: 'false'
         package:
             kctrl-package-command-tree: 'true'
-kind: ClientConfig
-metadata:
-    creationTimestamp: null
 contexts: []
 currentContext: {}
 current:
+`,
+		},
+		{
+			name: "success empty data",
+			cfg:  ``,
+			cfg2: ``,
+			output: `{}
 `,
 		},
 	}

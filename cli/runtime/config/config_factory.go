@@ -9,6 +9,8 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/collectionutils"
+
 	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
@@ -46,64 +48,43 @@ func getMultiConfigNoLock() (*yaml.Node, error) {
 
 // Construct multi file node from config.yaml and config-ng.yaml nodes
 func makeMultiFileCfg(cfgNode, cfgNextGenNode *yaml.Node) (*yaml.Node, error) {
-	// config items that goes to config-ng.yaml
-	nextGenCfgItems := []string{
-		KeyContexts,
-		KeyCurrentContext,
+	// config nodes that goes to config.yaml
+	cfgItems := []string{
+		KeyAPIVersion,
+		KeyKind,
+		KeyMetadata,
+		KeyClientOptions,
+		KeyServers,
+		KeyCurrentServer,
 	}
 
-	// Process the next gen items and discard both key node and value node from config.yaml
-	for _, nextGenItem := range nextGenCfgItems {
-		// Find the next gen item node from the config.yaml
-		nextGenItemNodeIndex := nodeutils.GetNodeIndex(cfgNode.Content[0].Content, nextGenItem)
-		if nextGenItemNodeIndex == -1 {
+	// Create a root config document node
+	rootCfgNode, err := newClientConfigNode()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new client config node")
+	}
+
+	// Loop through each config items and construct the root config node
+	for _, cfgItem := range cfgItems {
+		// Find the cfg item node from the config.yaml
+		cfgNodeIndex := nodeutils.GetNodeIndex(cfgNode.Content[0].Content, cfgItem)
+		if cfgNodeIndex == -1 {
 			continue
 		}
-		// Delete the next gen item node key from the config.yaml
-		cfgNode.Content[0].Content = append(cfgNode.Content[0].Content[:nextGenItemNodeIndex-1], cfgNode.Content[0].Content[nextGenItemNodeIndex:]...)
-		// Delete the next gen item node value from the config.yaml
-		cfgNode.Content[0].Content = append(cfgNode.Content[0].Content[:nextGenItemNodeIndex-1], cfgNode.Content[0].Content[nextGenItemNodeIndex:]...)
+		// Add matching key node and value node from config.yaml to root cfg node
+		rootCfgNode.Content[0].Content = append(rootCfgNode.Content[0].Content, cfgNode.Content[0].Content[cfgNodeIndex-1:cfgNodeIndex+1]...)
 	}
 
-	// Construct Multi Bytes data
-	var multiBytes []byte
-	var multiNode yaml.Node
+	// Append the config-ng.yaml nodes to root config node
+	rootCfgNode.Content[0].Content = append(rootCfgNode.Content[0].Content, cfgNextGenNode.Content[0].Content...)
 
-	// construct cfgNode bytes and append to multiBytes
-	multiBytes, err := nodeutils.AppendNodeBytes(multiBytes, cfgNode)
-	if err != nil {
-		return nil, err
-	}
-
-	// construct cfgNextGenNode bytes and append to multiBytes
-	multiBytes, err = nodeutils.AppendNodeBytes(multiBytes, cfgNextGenNode)
-	if err != nil {
-		return nil, err
-	}
-
-	// create new yaml node if multiBytes contains no data or empty
-	if multiBytes == nil {
-		multiNode, err := newClientConfigNode()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to create new client config node")
-		}
-
-		return multiNode, err
-	}
-
-	// construct the multi node from multi bytes data
-	if len(multiBytes) != 0 {
-		err := yaml.Unmarshal(multiBytes, &multiNode)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &multiNode, nil
+	// return the construct root node that contains both config.yaml with cfgItems and all of config-ng.yaml
+	return rootCfgNode, nil
 }
 
 // persistConfig write the updated node data to config.yaml and config-ng.yaml based on few
 func persistConfig(node *yaml.Node) error {
+	// check to persist multi file or to config-ng yaml
 	useUnifiedConfig, err := UseUnifiedConfig()
 	if err != nil {
 		useUnifiedConfig = false
@@ -113,65 +94,61 @@ func persistConfig(node *yaml.Node) error {
 		return persistClientConfigNextGen(node)
 	}
 
+	// config node from config.yaml
 	cfgNode, err := getClientConfigNoLock()
 	if err != nil {
 		return err
 	}
 
-	// deep copy of change node
-	var cfgNodeToPersist yaml.Node
-	data, err := yaml.Marshal(node)
+	// config items that goes to config.yaml
+	cfgItems := []string{
+		KeyAPIVersion,
+		KeyKind,
+		KeyMetadata,
+		KeyClientOptions,
+		KeyServers,
+		KeyCurrentServer,
+	}
+
+	// Create a root cfg document node
+	rootCfgNode, err := newClientConfigNode()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create root client config node")
 	}
-	err = yaml.Unmarshal(data, &cfgNodeToPersist)
+
+	// Create a root cfg next gen document node
+	rootCfgNextGenNode, err := newClientConfigNode()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create root client config node")
 	}
 
-	cfgNextGenNode, err := getClientConfigNextGenNodeNoLock()
-	if err != nil {
-		return err
-	}
-
-	// next gen config items that goes to config-ng.yaml
-	nextGenItemNodes := []*yaml.Node{
-		{Value: KeyContexts, Kind: yaml.SequenceNode},
-		{Value: KeyCurrentContext, Kind: yaml.MappingNode},
-	}
-
-	// Loop through each next gen item and add it to config-ng.yaml and reset it in config.yaml
-	for _, nextGenItem := range nextGenItemNodes {
-		// Find the nextGenItem node from the updated node
-		itemNode := nodeutils.FindNode(cfgNodeToPersist.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys([]nodeutils.Key{
-			{Name: nextGenItem.Value, Type: nextGenItem.Kind},
-		}))
-
-		// Find the nextGenItem node from config.yaml
-		itemCfgNode := nodeutils.FindNode(cfgNode.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys([]nodeutils.Key{
-			{Name: nextGenItem.Value, Type: nextGenItem.Kind},
-		}))
-
-		// Find the nextGenItem node from config-ng.yaml
-		itemCfgNextGenNode := nodeutils.FindNode(cfgNextGenNode.Content[0], nodeutils.WithForceCreate(), nodeutils.WithKeys([]nodeutils.Key{
-			{Name: nextGenItem.Value, Type: nextGenItem.Kind},
-		}))
-
-		// Update nextGenItem node in config-ng
-		*itemCfgNextGenNode = *itemNode
-
-		// Reset nextGenItem node in config.yaml
-		*itemNode = *itemCfgNode
+	// Loop through the change nodes and construct root cfg node and root cfg next gen node
+	for index, changeNode := range node.Content[0].Content {
+		if index%2 == 0 {
+			// If contains then add it to root config node for config.yaml
+			if collectionutils.Contains(cfgItems, changeNode.Value) {
+				rootCfgNode.Content[0].Content = append(rootCfgNode.Content[0].Content, node.Content[0].Content[index:index+2]...)
+			} else {
+				// Get the original node from config.yaml
+				changeNodeIndexOfCfgNode := nodeutils.GetNodeIndex(cfgNode.Content[0].Content, changeNode.Value)
+				// If exists then append to root cfg node for config yaml
+				if changeNodeIndexOfCfgNode != -1 {
+					rootCfgNode.Content[0].Content = append(rootCfgNode.Content[0].Content, cfgNode.Content[0].Content[changeNodeIndexOfCfgNode-1:changeNodeIndexOfCfgNode+1]...)
+				}
+				// Since the change node is not in root cfg node then Add this next gen node to root cfg next gen node for config-ng.yaml
+				rootCfgNextGenNode.Content[0].Content = append(rootCfgNextGenNode.Content[0].Content, node.Content[0].Content[index:index+2]...)
+			}
+		}
 	}
 
 	// Store the non nextGenItem config data to config.yaml
-	err = persistClientConfig(&cfgNodeToPersist)
+	err = persistClientConfig(rootCfgNode)
 	if err != nil {
 		return err
 	}
 
 	// Store the nextGenItem config data to config-ng.yaml
-	err = persistClientConfigNextGen(cfgNextGenNode)
+	err = persistClientConfigNextGen(rootCfgNextGenNode)
 	if err != nil {
 		return err
 	}
