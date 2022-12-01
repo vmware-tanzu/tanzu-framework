@@ -33,7 +33,7 @@ func getClientConfigNextGenNodeNoLock() (*yaml.Node, error) {
 	if err != nil || len(bytes) == 0 {
 		node, err := newClientConfigNode()
 		if err != nil {
-			return nil, errors.Wrap(err, " failed to create new client config ng")
+			return nil, errors.Wrap(err, "failed to create new client config ng")
 		}
 		return node, nil
 	}
