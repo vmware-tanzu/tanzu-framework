@@ -14,17 +14,19 @@ spec:
     #@yaml/text-templated-strings
     (@= data.values.kubernetesrelease.version @):
     - arch: amd64
-      image: tanzu-cli-plugins/kubernetes-release-darwin-amd64:latest
-      os: darwin
-      type: oci
-    - arch: amd64
       image: tanzu-cli-plugins/kubernetes-release-linux-amd64:latest
       os: linux
+      type: oci
+#@ if data.values.linuxOnly == "False":
+    - arch: amd64
+      image: tanzu-cli-plugins/kubernetes-release-darwin-amd64:latest
+      os: darwin
       type: oci
     - arch: amd64
       image: tanzu-cli-plugins/kubernetes-release-windows-amd64:latest
       os: windows
       type: oci
+#@ end
   description: Kubernetes release operations
   optional: false
   recommendedVersion: #@ data.values.kubernetesrelease.version

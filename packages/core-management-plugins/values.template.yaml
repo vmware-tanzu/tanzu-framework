@@ -2,6 +2,7 @@
 #@overlay/match-child-defaults missing_ok=True
 
 ---
+linuxOnly: LINUX_ONLY_BUILD
 cluster:
   version: VERSION
 kubernetesrelease:
