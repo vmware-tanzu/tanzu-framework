@@ -87,21 +87,6 @@ servers:
         annotation: one
         required: true
 current: test-mc
-contexts:
-    - name: test-mc
-      target: kubernetes
-      group: one
-      clusterOpts:
-        isManagementCluster: true
-        annotation: one
-        required: true
-        annotationStruct:
-            one: one
-        endpoint: test-endpoint
-        path: test-path
-        context: test-context
-currentContext:
-    kubernetes: test-mc
 `
 
 	cfg2 := `contexts:

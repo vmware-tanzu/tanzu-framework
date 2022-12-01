@@ -138,36 +138,6 @@ servers:
             required: true
           contextType: tmc
 current: test-mc
-contexts:
-    - name: test-mc
-      target: kubernetes
-      group: one
-      clusterOpts:
-        isManagementCluster: true
-        annotation: one
-        required: true
-        annotationStruct:
-            one: one
-        endpoint: test-endpoint
-        path: test-path
-        context: test-context
-      discoverySources:
-        - gcp:
-            name: test
-            bucket: test-bucket
-            manifestPath: test-manifest-path
-            annotation: one
-            required: true
-          contextType: tmc
-        - gcp:
-            name: test-two
-            bucket: test-bucket
-            manifestPath: test-manifest-path
-            annotation: two
-            required: true
-          contextType: tmc
-currentContext:
-    kubernetes: test-mc
 `
 	//nolint:goconst
 	expectedCFG2 := `contexts:

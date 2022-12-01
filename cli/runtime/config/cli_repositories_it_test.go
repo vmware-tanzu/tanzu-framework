@@ -130,36 +130,6 @@ servers:
             required: true
           contextType: tmc
 current: test-mc
-contexts:
-    - name: test-mc
-      target: kubernetes
-      group: one
-      clusterOpts:
-        isManagementCluster: true
-        annotation: one
-        required: true
-        annotationStruct:
-            one: one
-        endpoint: updated-test-endpoint
-        path: updated-test-path
-        context: updated-test-context
-      discoverySources:
-        - gcp:
-            name: test
-            bucket: updated-test-bucket
-            manifestPath: updated-test-manifest-path
-            annotation: one
-            required: true
-          contextType: tmc
-        - gcp:
-            name: test-two
-            bucket: updated-test-bucket
-            manifestPath: updated-test-manifest-path
-            annotation: two
-            required: true
-          contextType: tmc
-currentContext:
-    kubernetes: test-mc
 `
 
 	cfg2 := `contexts:

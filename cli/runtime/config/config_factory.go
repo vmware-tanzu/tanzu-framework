@@ -26,6 +26,11 @@ var LegacyConfigNodeKeys = []string{
 	KeyCurrentServer,
 }
 
+var DiscardedConfigNodeKeys = []string{
+	KeyContexts,
+	KeyCurrentContext,
+}
+
 // getMultiConfig retrieves combined config.yaml and config-ng.yaml
 func getMultiConfig() (*yaml.Node, error) {
 	cfgNode, err := getClientConfig()
@@ -135,6 +140,16 @@ func persistConfig(node *yaml.Node) error {
 					cfgNextGenNode.Content[0].Content = append(cfgNextGenNode.Content[0].Content, node.Content[0].Content[index:index+2]...)
 				}
 			}
+		}
+	}
+
+	// Discard nodes from config.yaml
+	for _, discardedCfgNodeKey := range DiscardedConfigNodeKeys {
+		// Discard node from config.yaml
+		legacyDiscardedContextsNodeIndex := nodeutils.GetNodeIndex(cfgNode.Content[0].Content, discardedCfgNodeKey)
+		if legacyDiscardedContextsNodeIndex != -1 {
+			// remove discarded node
+			cfgNode.Content[0].Content = append(cfgNode.Content[0].Content[:legacyDiscardedContextsNodeIndex-1], cfgNode.Content[0].Content[legacyDiscardedContextsNodeIndex+1:]...)
 		}
 	}
 
