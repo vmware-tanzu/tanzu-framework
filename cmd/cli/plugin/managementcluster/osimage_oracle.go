@@ -36,8 +36,8 @@ var oraclePopulate = &cobra.Command{
 	Short: "populate public OS Image specified in TKR to private OCI compartment and region",
 	Example: `
 	# Import a public image to the specified OCI compartment and region
-	tanzu kubernetes-release osimage oracle populate --image https://objectstorage.us-sanjose-1.oraclecloud.com/n/axxxxxxxxxx8/b/exported-node-images/o/ubuntu-2004 \
-		--tkr-path projects-stg.registry.vmware.com/tkg/tkr-oci:v1.23.5 --compartment <compartment ocid>`,
+	tanzu management-cluster osimage oracle populate --tkr-path projects-stg.registry.vmware.com/tkg/tkr-oci:v1.23.5 \
+		 --compartment <compartment ocid> --output-directory <addiontal manifest directory>`,
 	Run: ociPopulateCmdInitRun,
 }
 
@@ -96,6 +96,26 @@ func getOSImageFromManifest(path string) (*v1alpha3.OSImage, error) {
 	return &osImage, nil
 }
 
+// validateOSImage checks if the os image is a valid oracle os image
+func validateOSImage(osImage *v1alpha3.OSImage) (string, bool) {
+	if osImage.Spec.Image.Type != "oci" {
+		log.Infof("skip patching image %s, image type is %s, not 'oci'", osImage.Spec.Image.Type)
+		return "", false
+	}
+	mapRef := osImage.Spec.Image.Ref
+	imageURL, exists := mapRef["imageURL"]
+	if !exists {
+		log.Infof("skip patching image %s, image ref does not contains key 'imageURL'")
+		return "", false
+	}
+	imageURLStr, ok := imageURL.(string)
+	if !ok {
+		log.Infof("skip patching image %s, image ref value of key 'imageURL' is not a string")
+		return "", false
+	}
+	return imageURLStr, true
+}
+
 // TKRPath returns the absolute path for the TKR manifest
 func TKRPath() string {
 	// default TKR manifest file name in the bundle
@@ -105,7 +125,7 @@ func TKRPath() string {
 
 // OSImagePath returns the absolute path for the OSImage manifest to create, provided its name
 func OSImagePath(name string) string {
-	return filepath.Join(outputDirectory, "config", fmt.Sprintf("OSImage-%s.yaml", name))
+	return filepath.Join(outputDirectory, "config", fmt.Sprintf("OSImage-%s.yml", name))
 }
 
 func ociPopulateCmdInitRun(_ *cobra.Command, _ []string) {
@@ -152,22 +172,10 @@ func ociPopulateCmdInitRun(_ *cobra.Command, _ []string) {
 			if err != nil {
 				return err
 			}
-			if osImage.Spec.Image.Type != "oci" {
-				log.Infof("skip patching image %s, image type is %s, not 'oci'", osImage.Spec.Image.Type)
+			imageURLStr, valid := validateOSImage(osImage)
+			if !valid {
 				return nil
 			}
-			mapRef := osImage.Spec.Image.Ref
-			imageURL, exists := mapRef["imageURL"]
-			if !exists {
-				log.Infof("skip patching image %s, image ref does not contains key 'imageURL'")
-				return nil
-			}
-			imageURLStr, ok := imageURL.(string)
-			if !ok {
-				log.Infof("skip patching image %s, image ref value of key 'imageURL' is not a string")
-				return nil
-			}
-
 			image, err := oracleClient.ImportImageSync(ctx, name, compartmentID, imageURLStr)
 			if err != nil {
 				return err
@@ -188,5 +196,5 @@ func ociPopulateCmdInitRun(_ *cobra.Command, _ []string) {
 	if err := waitGroup.Wait(); err != nil {
 		log.Fatal(err)
 	}
-	log.Infof("TKR has been patched! To consume, \n\t\t tanzu management-cluster create -f <cluster-config>.yaml --additional-manifests %s", outputDirectory)
+	log.Infof("TKR has been patched! To consume, \n\t\t tanzu management-cluster create -f <cluster-config>.yaml --additional-tkg-system-manifests %s", outputDirectory)
 }
