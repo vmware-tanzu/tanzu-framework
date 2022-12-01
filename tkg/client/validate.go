@@ -525,10 +525,13 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, "unable to verify cluster name uniqueness")
 	}
 
-	for _, region := range regions {
-		if region.ClusterName == options.ClusterName {
-			errMsg := fmt.Sprintf("cluster name %s matches another management cluster", options.ClusterName)
-			return NewValidationError(ValidationErrorCode, errMsg)
+	// Skip the same cluster name validation if dry-run
+	if !options.GenerateOnly {
+		for _, region := range regions {
+			if region.ClusterName == options.ClusterName {
+				errMsg := fmt.Sprintf("cluster name %s matches another management cluster", options.ClusterName)
+				return NewValidationError(ValidationErrorCode, errMsg)
+			}
 		}
 	}
 
