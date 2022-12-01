@@ -122,13 +122,14 @@ type tkrCompatibilityInfo struct {
 type tkrPackageRepo struct {
 	AWS                string `yaml:"aws"`
 	Azure              string `yaml:"azure"`
-	OCI                string `yaml:"oci"`
+	Oracle             string `yaml:"oracle"`
 	VSphereNonparavirt string `yaml:"vsphere-nonparavirt"`
 }
 
 type tkrPackage struct {
 	AWS                string `yaml:"aws"`
 	Azure              string `yaml:"azure"`
+	Oracle             string `yaml:"oracle"`
 	VSphereNonparavirt string `yaml:"vsphere-nonparavirt"`
 }
 
