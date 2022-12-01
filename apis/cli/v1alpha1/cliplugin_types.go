@@ -23,6 +23,11 @@ const (
 	TargetNone Target = ""
 )
 
+var (
+	// SupportedTargets is a list of all supported Target
+	SupportedTargets = []Target{TargetK8s, TargetTMC}
+)
+
 // ArtifactList contains an Artifact object for every supported platform of a version.
 type ArtifactList []Artifact
 

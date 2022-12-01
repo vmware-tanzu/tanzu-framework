@@ -6,6 +6,8 @@ package v1alpha1
 import (
 	"testing"
 
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+
 	"github.com/stretchr/testify/suite"
 )
 
@@ -35,17 +37,17 @@ func (suite *ClientTestSuite) SetupTest() {
 		CurrentServer: suite.GlobalServer.Name,
 		KnownContexts: []*Context{
 			{
-				Name: suite.GlobalServer.Name,
-				Type: CtxTypeTMC,
+				Name:   suite.GlobalServer.Name,
+				Target: cliapi.TargetTMC,
 			},
 			{
-				Name: suite.ManagementServer.Name,
-				Type: CtxTypeK8s,
+				Name:   suite.ManagementServer.Name,
+				Target: cliapi.TargetK8s,
 			},
 		},
-		CurrentContext: map[ContextType]string{
-			CtxTypeTMC: suite.GlobalServer.Name,
-			CtxTypeK8s: suite.ManagementServer.Name,
+		CurrentContext: map[cliapi.Target]string{
+			cliapi.TargetTMC: suite.GlobalServer.Name,
+			cliapi.TargetK8s: suite.ManagementServer.Name,
 		},
 	}
 }
@@ -112,13 +114,13 @@ func (suite *ClientTestSuite) TestHasContext_NotFound() {
 }
 
 func (suite *ClientTestSuite) TestGetCurrentContext_TMC() {
-	c, err := suite.ClientConfig.GetCurrentContext(CtxTypeTMC)
+	c, err := suite.ClientConfig.GetCurrentContext(cliapi.TargetTMC)
 	suite.Nil(err)
 	suite.Equal(c.Name, suite.GlobalServer.Name)
 }
 
 func (suite *ClientTestSuite) TestGetCurrentContext_K8s() {
-	c, err := suite.ClientConfig.GetCurrentContext(CtxTypeK8s)
+	c, err := suite.ClientConfig.GetCurrentContext(cliapi.TargetK8s)
 	suite.Nil(err)
 	suite.Equal(c.Name, suite.ManagementServer.Name)
 }
@@ -126,21 +128,21 @@ func (suite *ClientTestSuite) TestGetCurrentContext_K8s() {
 func (suite *ClientTestSuite) TestGetCurrentContext_NotFound() {
 	_, err := suite.ClientConfig.GetCurrentContext("test")
 	suite.Error(err)
-	suite.EqualError(err, "no current context set for type \"test\"")
+	suite.EqualError(err, "no current context set for target \"test\"")
 }
 
 func (suite *ClientTestSuite) TestSetCurrentContext_TMC() {
-	delete(suite.ClientConfig.CurrentContext, CtxTypeTMC)
-	err := suite.ClientConfig.SetCurrentContext(CtxTypeTMC, suite.GlobalServer.Name)
+	delete(suite.ClientConfig.CurrentContext, cliapi.TargetTMC)
+	err := suite.ClientConfig.SetCurrentContext(cliapi.TargetTMC, suite.GlobalServer.Name)
 	suite.NoError(err)
-	suite.Equal(suite.GlobalServer.Name, suite.ClientConfig.CurrentContext[CtxTypeTMC])
+	suite.Equal(suite.GlobalServer.Name, suite.ClientConfig.CurrentContext[cliapi.TargetTMC])
 }
 
 func (suite *ClientTestSuite) TestSetCurrentContext_K8s() {
-	delete(suite.ClientConfig.CurrentContext, CtxTypeK8s)
-	err := suite.ClientConfig.SetCurrentContext(CtxTypeK8s, suite.ManagementServer.Name)
+	delete(suite.ClientConfig.CurrentContext, cliapi.TargetK8s)
+	err := suite.ClientConfig.SetCurrentContext(cliapi.TargetK8s, suite.ManagementServer.Name)
 	suite.NoError(err)
-	suite.Equal(suite.ManagementServer.Name, suite.ClientConfig.CurrentContext[CtxTypeK8s])
+	suite.Equal(suite.ManagementServer.Name, suite.ClientConfig.CurrentContext[cliapi.TargetK8s])
 }
 
 func (suite *ClientTestSuite) TestIsGlobal_True() {

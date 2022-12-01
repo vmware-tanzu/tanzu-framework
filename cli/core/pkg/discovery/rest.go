@@ -44,7 +44,7 @@ type Plugin struct {
 	Optional bool `json:"optional"`
 
 	// Target the target of the plugin
-	Target cliv1alpha1.Target `json:"contextType"`
+	Target cliv1alpha1.Target `json:"target"`
 }
 
 // DescribePluginResponse defines the response from Describe Plugin API.

@@ -8,6 +8,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
 )
@@ -137,18 +138,18 @@ func ContextExists(name string) (bool, error) {
 	return exists != nil, nil
 }
 
-// GetCurrentContext retrieves the current context for the specified context type
-func GetCurrentContext(ctxType configapi.ContextType) (c *configapi.Context, err error) {
+// GetCurrentContext retrieves the current context for the specified target
+func GetCurrentContext(target cliapi.Target) (c *configapi.Context, err error) {
 	// Retrieve client config node
 	node, err := getClientConfigNode()
 	if err != nil {
 		return nil, err
 	}
-	return getCurrentContext(node, ctxType)
+	return getCurrentContext(node, target)
 }
 
-// GetAllCurrentContextsMap returns all current context per ContextType
-func GetAllCurrentContextsMap() (map[configapi.ContextType]*configapi.Context, error) {
+// GetAllCurrentContextsMap returns all current context per Target
+func GetAllCurrentContextsMap() (map[cliapi.Target]*configapi.Context, error) {
 	node, err := getClientConfigNodeNoLock()
 	if err != nil {
 		return nil, err
@@ -193,7 +194,7 @@ func SetCurrentContext(name string) error {
 			return err
 		}
 	}
-	if ctx.Type == configapi.CtxTypeK8s {
+	if ctx.Target == cliapi.TargetK8s {
 		persist, err = setCurrentServer(node, name)
 		if err != nil {
 			return err
@@ -209,7 +210,7 @@ func SetCurrentContext(name string) error {
 }
 
 // RemoveCurrentContext removed the current context of specified context type
-func RemoveCurrentContext(ctxType configapi.ContextType) error {
+func RemoveCurrentContext(target cliapi.Target) error {
 	// Retrieve client config node
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
@@ -217,11 +218,11 @@ func RemoveCurrentContext(ctxType configapi.ContextType) error {
 	if err != nil {
 		return err
 	}
-	c, err := getCurrentContext(node, ctxType)
+	c, err := getCurrentContext(node, target)
 	if err != nil {
 		return err
 	}
-	err = removeCurrentContext(node, &configapi.Context{Type: ctxType})
+	err = removeCurrentContext(node, &configapi.Context{Target: target})
 	if err != nil {
 		return err
 	}
@@ -234,13 +235,13 @@ func RemoveCurrentContext(ctxType configapi.ContextType) error {
 
 // EndpointFromContext retrieved the endpoint from the specified context
 func EndpointFromContext(s *configapi.Context) (endpoint string, err error) {
-	switch s.Type {
-	case configapi.CtxTypeK8s:
+	switch s.Target {
+	case cliapi.TargetK8s:
 		return s.ClusterOpts.Endpoint, nil
-	case configapi.CtxTypeTMC:
+	case cliapi.TargetTMC:
 		return s.GlobalOpts.Endpoint, nil
 	default:
-		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
+		return endpoint, fmt.Errorf("unknown server type %q", s.Target)
 	}
 }
 
@@ -257,15 +258,15 @@ func getContext(node *yaml.Node, name string) (*configapi.Context, error) {
 	return nil, fmt.Errorf("context %v not found", name)
 }
 
-func getCurrentContext(node *yaml.Node, ctxType configapi.ContextType) (*configapi.Context, error) {
+func getCurrentContext(node *yaml.Node, target cliapi.Target) (*configapi.Context, error) {
 	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return nil, err
 	}
-	return cfg.GetCurrentContext(ctxType)
+	return cfg.GetCurrentContext(target)
 }
 
-func getAllCurrentContextsMap(node *yaml.Node) (map[configapi.ContextType]*configapi.Context, error) {
+func getAllCurrentContextsMap(node *yaml.Node) (map[cliapi.Target]*configapi.Context, error) {
 	cfg, err := convertNodeToClientConfig(node)
 	if err != nil {
 		return nil, err
@@ -357,14 +358,14 @@ func setCurrentContext(node *yaml.Node, ctx *configapi.Context) (persist bool, e
 	if currentContextNode == nil {
 		return persist, nodeutils.ErrNodeNotFound
 	}
-	if index := nodeutils.GetNodeIndex(currentContextNode.Content, string(ctx.Type)); index != -1 {
+	if index := nodeutils.GetNodeIndex(currentContextNode.Content, string(ctx.Target)); index != -1 {
 		if currentContextNode.Content[index].Value != ctx.Name {
 			currentContextNode.Content[index].Value = ctx.Name
 			currentContextNode.Content[index].Style = 0
 			persist = true
 		}
 	} else {
-		currentContextNode.Content = append(currentContextNode.Content, nodeutils.CreateScalarNode(string(ctx.Type), ctx.Name)...)
+		currentContextNode.Content = append(currentContextNode.Content, nodeutils.CreateScalarNode(string(ctx.Target), ctx.Name)...)
 		persist = true
 	}
 	return persist, err
@@ -380,13 +381,13 @@ func removeCurrentContext(node *yaml.Node, ctx *configapi.Context) error {
 	if currentContextNode == nil {
 		return nil
 	}
-	ctxTypeNodeIndex := nodeutils.GetNodeIndex(currentContextNode.Content, string(ctx.Type))
-	if ctxTypeNodeIndex == -1 {
+	targetNodeIndex := nodeutils.GetNodeIndex(currentContextNode.Content, string(ctx.Target))
+	if targetNodeIndex == -1 {
 		return nil
 	}
-	if currentContextNode.Content[ctxTypeNodeIndex].Value == ctx.Name || ctx.Name == "" {
-		ctxTypeNodeIndex--
-		currentContextNode.Content = append(currentContextNode.Content[:ctxTypeNodeIndex], currentContextNode.Content[ctxTypeNodeIndex+2:]...)
+	if currentContextNode.Content[targetNodeIndex].Value == ctx.Name || ctx.Name == "" {
+		targetNodeIndex--
+		currentContextNode.Content = append(currentContextNode.Content[:targetNodeIndex], currentContextNode.Content[targetNodeIndex+2:]...)
 	}
 	return nil
 }

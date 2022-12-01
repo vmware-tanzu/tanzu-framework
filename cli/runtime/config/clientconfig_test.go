@@ -15,6 +15,7 @@ import (
 	"github.com/tj/assert"
 	"golang.org/x/sync/errgroup"
 
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -320,8 +321,8 @@ func TestEndpointFromContext(t *testing.T) {
 		{
 			name: "success k8s",
 			ctx: &configapi.Context{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliv1alpha1.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
@@ -333,8 +334,8 @@ func TestEndpointFromContext(t *testing.T) {
 		{
 			name: "success tmc current",
 			ctx: &configapi.Context{
-				Name: "test-tmc",
-				Type: "tmc",
+				Name:   "test-tmc",
+				Target: cliv1alpha1.TargetTMC,
 				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},
@@ -343,8 +344,8 @@ func TestEndpointFromContext(t *testing.T) {
 		{
 			name: "failure",
 			ctx: &configapi.Context{
-				Name: "test-dummy",
-				Type: "dummy",
+				Name:   "test-dummy",
+				Target: "dummy",
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",

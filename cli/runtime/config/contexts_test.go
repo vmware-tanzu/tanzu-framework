@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -22,8 +23,8 @@ func TestSetGetDeleteContext(t *testing.T) {
 	}()
 
 	ctx1 := &configapi.Context{
-		Name: "test1",
-		Type: "k8s",
+		Name:   "test1",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Path:                "test-path",
 			Context:             "test-context",
@@ -41,8 +42,8 @@ func TestSetGetDeleteContext(t *testing.T) {
 	}
 
 	ctx2 := &configapi.Context{
-		Name: "test2",
-		Type: configapi.CtxTypeK8s,
+		Name:   "test2",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Path:                "test-path",
 			Context:             "test-context",
@@ -70,7 +71,7 @@ func TestSetGetDeleteContext(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, ctx1, ctx)
 
-	ctx, err = GetCurrentContext(configapi.CtxTypeK8s)
+	ctx, err = GetCurrentContext(cliapi.TargetK8s)
 	assert.Nil(t, err)
 	assert.Equal(t, ctx1, ctx)
 
@@ -81,7 +82,7 @@ func TestSetGetDeleteContext(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, ctx2, ctx)
 
-	ctx, err = GetCurrentContext(configapi.CtxTypeK8s)
+	ctx, err = GetCurrentContext(cliapi.TargetK8s)
 	assert.Nil(t, err)
 	assert.Equal(t, ctx1, ctx)
 
@@ -99,12 +100,12 @@ func TestSetGetDeleteContext(t *testing.T) {
 func TestSetContextWithOldVersion(t *testing.T) {
 	tanzuConfigBytes := `
 currentContext:
-    k8s: test-mc
+    kubernetes: test-mc
 contexts:
     - name: test-mc
       ctx-field: new-ctx-field
       optional: true
-      type: k8s
+      target: kubernetes
       clusterOpts:
         isManagementCluster: true
         endpoint: old-test-endpoint
@@ -135,8 +136,8 @@ contexts:
 	}()
 
 	ctx := &configapi.Context{
-		Name: "test-mc",
-		Type: "k8s",
+		Name:   "test-mc",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Path:                "test-path",
 			Context:             "test-context",
@@ -183,8 +184,8 @@ func TestSetContextWithDiscoverySourceWithNewFields(t *testing.T) {
 			name: "should add new context with new discovery sources to empty client config",
 			src:  &configapi.ClientConfig{},
 			ctx: &configapi.Context{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
@@ -208,8 +209,8 @@ func TestSetContextWithDiscoverySourceWithNewFields(t *testing.T) {
 			src: &configapi.ClientConfig{
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-mc",
-						Type: "k8s",
+						Name:   "test-mc",
+						Target: cliapi.TargetK8s,
 						ClusterOpts: &configapi.ClusterServer{
 							Endpoint:            "test-endpoint",
 							Path:                "test-path",
@@ -248,13 +249,13 @@ func TestSetContextWithDiscoverySourceWithNewFields(t *testing.T) {
 					},
 				},
 				CurrentServer: "test-mc",
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeK8s: "test-mc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetK8s: "test-mc",
 				},
 			},
 			ctx: &configapi.Context{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "updated-test-endpoint",
 					Path:                "updated-test-path",
@@ -310,8 +311,8 @@ func TestSetContextWithDiscoverySource(t *testing.T) {
 			name: "should add new context with new discovery sources to empty client config",
 			src:  &configapi.ClientConfig{},
 			ctx: &configapi.Context{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
@@ -335,8 +336,8 @@ func TestSetContextWithDiscoverySource(t *testing.T) {
 			src: &configapi.ClientConfig{
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-mc",
-						Type: "k8s",
+						Name:   "test-mc",
+						Target: cliapi.TargetK8s,
 						ClusterOpts: &configapi.ClusterServer{
 							Endpoint:            "test-endpoint",
 							Path:                "test-path",
@@ -375,13 +376,13 @@ func TestSetContextWithDiscoverySource(t *testing.T) {
 					},
 				},
 				CurrentServer: "test-mc",
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeK8s: "test-mc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetK8s: "test-mc",
 				},
 			},
 			ctx: &configapi.Context{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "updated-test-endpoint",
 					Path:                "updated-test-path",
@@ -423,8 +424,8 @@ func setupForGetContext(t *testing.T) {
 	cfg := &configapi.ClientConfig{
 		KnownContexts: []*configapi.Context{
 			{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
@@ -433,8 +434,8 @@ func setupForGetContext(t *testing.T) {
 				},
 			},
 			{
-				Name: "test-mc-2",
-				Type: "k8s",
+				Name:   "test-mc-2",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint-2",
 					Path:                "test-path-2",
@@ -443,16 +444,16 @@ func setupForGetContext(t *testing.T) {
 				},
 			},
 			{
-				Name: "test-tmc",
-				Type: "tmc",
+				Name:   "test-tmc",
+				Target: cliapi.TargetTMC,
 				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},
 			},
 		},
-		CurrentContext: map[configapi.ContextType]string{
-			"k8s": "test-mc-2",
-			"tmc": "test-tmc",
+		CurrentContext: map[cliapi.Target]string{
+			cliapi.TargetK8s: "test-mc-2",
+			cliapi.TargetTMC: "test-tmc",
 		},
 	}
 	func() {
@@ -568,8 +569,8 @@ func TestSetContext(t *testing.T) {
 		{
 			name: "should add new context and set current on empty config",
 			ctx: &configapi.Context{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
@@ -583,8 +584,8 @@ func TestSetContext(t *testing.T) {
 		{
 			name: "should add new context but not current",
 			ctx: &configapi.Context{
-				Name: "test-mc2",
-				Type: "k8s",
+				Name:   "test-mc2",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
@@ -596,8 +597,8 @@ func TestSetContext(t *testing.T) {
 		{
 			name: "success tmc current",
 			ctx: &configapi.Context{
-				Name: "test-tmc1",
-				Type: "tmc",
+				Name:   "test-tmc1",
+				Target: cliapi.TargetTMC,
 				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},
@@ -607,8 +608,8 @@ func TestSetContext(t *testing.T) {
 		{
 			name: "success tmc not_current",
 			ctx: &configapi.Context{
-				Name: "test-tmc2",
-				Type: "tmc",
+				Name:   "test-tmc2",
+				Target: cliapi.TargetTMC,
 				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},
@@ -617,8 +618,8 @@ func TestSetContext(t *testing.T) {
 		{
 			name: "success update test-mc",
 			ctx: &configapi.Context{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "good-test-endpoint",
 					Path:                "updated-test-path",
@@ -630,8 +631,8 @@ func TestSetContext(t *testing.T) {
 		{
 			name: "success update tmc",
 			ctx: &configapi.Context{
-				Name: "test-tmc",
-				Type: "tmc",
+				Name:   "test-tmc",
+				Target: cliapi.TargetTMC,
 				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "updated-test-endpoint",
 				},
@@ -667,18 +668,18 @@ func TestRemoveContext(t *testing.T) {
 	tcs := []struct {
 		name    string
 		ctxName string
-		ctxType configapi.ContextType
+		target  cliapi.Target
 		errStr  string
 	}{
 		{
 			name:    "success k8s",
 			ctxName: "test-mc",
-			ctxType: "k8s",
+			target:  cliapi.TargetK8s,
 		},
 		{
 			name:    "success tmc",
 			ctxName: "test-tmc",
-			ctxType: "tmc",
+			target:  cliapi.TargetTMC,
 		},
 		{
 			name:    "failure",
@@ -718,7 +719,7 @@ func TestSetCurrentContext(t *testing.T) {
 	}()
 	tcs := []struct {
 		name       string
-		ctxType    configapi.ContextType
+		target     cliapi.Target
 		ctxName    string
 		currServer string
 		errStr     string
@@ -726,18 +727,18 @@ func TestSetCurrentContext(t *testing.T) {
 		{
 			name:    "success tmc",
 			ctxName: "test-tmc",
-			ctxType: "tmc",
+			target:  cliapi.TargetTMC,
 		},
 		{
 			name:       "success k8s",
 			ctxName:    "test-mc",
-			ctxType:    "k8s",
+			target:     cliapi.TargetK8s,
 			currServer: "test-mc",
 		},
 		{
 			name:    "success tmc after setting k8s",
 			ctxName: "test-tmc",
-			ctxType: "tmc",
+			target:  cliapi.TargetTMC,
 		},
 		{
 			name:    "failure",
@@ -756,7 +757,7 @@ func TestSetCurrentContext(t *testing.T) {
 			} else {
 				assert.EqualError(t, err, tc.errStr)
 			}
-			currCtx, err := GetCurrentContext(tc.ctxType)
+			currCtx, err := GetCurrentContext(tc.target)
 			if tc.errStr == "" {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.ctxName, currCtx.Name)
@@ -777,8 +778,8 @@ func TestSetCurrentContext(t *testing.T) {
 
 	currentContextMap, err := GetAllCurrentContextsMap()
 	assert.NoError(t, err)
-	assert.Equal(t, "test-mc", currentContextMap[configapi.CtxTypeK8s].Name)
-	assert.Equal(t, "test-tmc", currentContextMap[configapi.CtxTypeTMC].Name)
+	assert.Equal(t, "test-mc", currentContextMap[cliapi.TargetK8s].Name)
+	assert.Equal(t, "test-tmc", currentContextMap[cliapi.TargetTMC].Name)
 
 	currentContextsList, err := GetAllCurrentContextsList()
 	assert.NoError(t, err)
@@ -793,18 +794,18 @@ func TestRemoveCurrentContext(t *testing.T) {
 		cleanupDir(LocalDirName)
 	}()
 
-	err := RemoveCurrentContext(configapi.CtxTypeK8s)
+	err := RemoveCurrentContext(cliapi.TargetK8s)
 	assert.NoError(t, err)
 
-	currCtx, err := GetCurrentContext(configapi.CtxTypeK8s)
-	assert.Equal(t, "no current context set for type \"k8s\"", err.Error())
+	currCtx, err := GetCurrentContext(cliapi.TargetK8s)
+	assert.Equal(t, "no current context set for target \"kubernetes\"", err.Error())
 	assert.Nil(t, currCtx)
 
 	currSrv, err := GetCurrentServer()
 	assert.Equal(t, "current server \"\" not found in tanzu config", err.Error())
 	assert.Nil(t, currSrv)
 
-	currCtx, err = GetCurrentContext(configapi.CtxTypeTMC)
+	currCtx, err = GetCurrentContext(cliapi.TargetTMC)
 	assert.NoError(t, err)
 	assert.Equal(t, currCtx.Name, "test-tmc")
 }
@@ -826,8 +827,8 @@ func TestSetSingleContext(t *testing.T) {
 		{
 			name: "success k8s current",
 			ctx: &configapi.Context{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
@@ -866,8 +867,8 @@ func TestSetContextMultiFile(t *testing.T) {
 	}()
 
 	ctx := &configapi.Context{
-		Name: "test-mc",
-		Type: "k8s",
+		Name:   "test-mc",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			IsManagementCluster: true,
 			Endpoint:            "test-endpoint",
@@ -891,8 +892,8 @@ func TestSetContextMultiFile(t *testing.T) {
 	}
 
 	ctx2 := &configapi.Context{
-		Name: "test-mc2",
-		Type: "k8s",
+		Name:   "test-mc2",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Endpoint: "updated-test-endpoint",
 		},
@@ -911,8 +912,8 @@ func TestSetContextMultiFile(t *testing.T) {
 	}
 
 	expectedCtx2 := &configapi.Context{
-		Name: "test-mc2",
-		Type: "k8s",
+		Name:   "test-mc2",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			IsManagementCluster: true,
 			Endpoint:            "updated-test-endpoint",
@@ -935,7 +936,7 @@ func TestSetContextMultiFile(t *testing.T) {
 		},
 	}
 
-	c, err := GetCurrentContext(configapi.CtxTypeK8s)
+	c, err := GetCurrentContext(cliapi.TargetK8s)
 	assert.NoError(t, err)
 	assert.Equal(t, ctx, c)
 
@@ -962,8 +963,8 @@ func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
 	}()
 
 	ctx := &configapi.Context{
-		Name: "test-mc",
-		Type: "k8s",
+		Name:   "test-mc",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			IsManagementCluster: true,
 			Endpoint:            "test-endpoint",
@@ -987,8 +988,8 @@ func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
 	}
 
 	ctx2 := &configapi.Context{
-		Name: "test-mc2",
-		Type: "k8s",
+		Name:   "test-mc2",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Endpoint: "updated-test-endpoint",
 		},
@@ -1007,8 +1008,8 @@ func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
 	}
 
 	expectedCtx2 := &configapi.Context{
-		Name: "test-mc2",
-		Type: "k8s",
+		Name:   "test-mc2",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			IsManagementCluster: true,
 			Endpoint:            "updated-test-endpoint",
@@ -1031,7 +1032,7 @@ func TestSetContextMultiFileAndMigrateToNewConfig(t *testing.T) {
 		},
 	}
 
-	c, err := GetCurrentContext(configapi.CtxTypeK8s)
+	c, err := GetCurrentContext(cliapi.TargetK8s)
 	assert.NoError(t, err)
 	assert.Equal(t, ctx, c)
 
@@ -1058,8 +1059,8 @@ func TestSetContextWithUniquePermissions(t *testing.T) {
 	}()
 
 	ctx := &configapi.Context{
-		Name: "test-mc",
-		Type: "tmc",
+		Name:   "test-mc",
+		Target: cliapi.TargetTMC,
 		GlobalOpts: &configapi.GlobalServer{
 			Endpoint: "test-endpoint",
 			Auth: configapi.GlobalServerAuth{
@@ -1080,8 +1081,8 @@ func TestSetContextWithUniquePermissions(t *testing.T) {
 	}
 
 	ctx2 := &configapi.Context{
-		Name: "test-mc",
-		Type: "tmc",
+		Name:   "test-mc",
+		Target: cliapi.TargetTMC,
 		GlobalOpts: &configapi.GlobalServer{
 			Endpoint: "test-endpoint-updated",
 			Auth: configapi.GlobalServerAuth{
@@ -1099,8 +1100,8 @@ func TestSetContextWithUniquePermissions(t *testing.T) {
 	}
 
 	ctx3 := &configapi.Context{
-		Name: "test-mc",
-		Type: "tmc",
+		Name:   "test-mc",
+		Target: cliapi.TargetTMC,
 		GlobalOpts: &configapi.GlobalServer{
 			Endpoint: "test-endpoint-updated3",
 			Auth: configapi.GlobalServerAuth{

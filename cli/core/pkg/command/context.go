@@ -22,6 +22,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/csp"
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/tkg"
 	wcpauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/wcp"
@@ -35,8 +36,8 @@ import (
 )
 
 var (
-	stderrOnly, forceCSP, staging, onlyCurrent                                  bool
-	ctxName, ctxType, endpoint, apiToken, kubeConfig, kubeContext, getOutputFmt string
+	stderrOnly, forceCSP, staging, onlyCurrent                         bool
+	ctxName, endpoint, apiToken, kubeConfig, kubeContext, getOutputFmt string
 )
 
 const (
@@ -64,7 +65,7 @@ func init() {
 
 	initCreateCtxCmd()
 
-	listCtxCmd.Flags().StringVarP(&ctxType, "type", "t", "", "context type (k8s|tmc)")
+	listCtxCmd.Flags().StringVarP(&target, "target", "t", "", "list only contexts associated with the specified target (kubernetes[k8s]|mission-control[tmc])")
 	listCtxCmd.Flags().BoolVar(&onlyCurrent, "current", false, "list only current active contexts")
 	listCtxCmd.Flags().StringVarP(&outputFormat, "output", "o", "table", "output format: table|yaml|json")
 
@@ -115,7 +116,7 @@ func createCtx(_ *cobra.Command, _ []string) (err error) {
 	if err != nil {
 		return err
 	}
-	if ctx.Type == configapi.CtxTypeK8s {
+	if ctx.Target == cliv1alpha1.TargetK8s {
 		err = k8sLogin(ctx)
 	} else {
 		err = globalLogin(ctx)
@@ -239,8 +240,8 @@ func createContextWithKubeconfig() (context *configapi.Context, err error) {
 	}
 
 	context = &configapi.Context{
-		Name: ctxName,
-		Type: configapi.CtxTypeK8s,
+		Name:   ctxName,
+		Target: cliv1alpha1.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Path:                kubeConfig,
 			Context:             kubeContext,
@@ -290,7 +291,7 @@ func createContextWithEndpoint() (context *configapi.Context, err error) {
 	if isGlobalContext(endpoint) {
 		context = &configapi.Context{
 			Name:       ctxName,
-			Type:       configapi.CtxTypeTMC,
+			Target:     cliv1alpha1.TargetTMC,
 			GlobalOpts: &configapi.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
 		}
 	} else {
@@ -318,8 +319,8 @@ func createContextWithEndpoint() (context *configapi.Context, err error) {
 		}
 
 		context = &configapi.Context{
-			Name: ctxName,
-			Type: configapi.CtxTypeK8s,
+			Name:   ctxName,
+			Target: cliv1alpha1.TargetK8s,
 			ClusterOpts: &configapi.ClusterServer{
 				Path:                kubeConfig,
 				Context:             kubeContext,
@@ -528,7 +529,7 @@ func promptCtx() (*configapi.Context, error) {
 		if err != nil {
 			return nil, err
 		}
-		if info == "" && ctx.Type == configapi.CtxTypeK8s {
+		if info == "" && ctx.Target == cliv1alpha1.TargetK8s {
 			info = fmt.Sprintf("%s:%s", ctx.ClusterOpts.Path, ctx.ClusterOpts.Context)
 		}
 
@@ -631,25 +632,25 @@ func useCtx(_ *cobra.Command, args []string) error {
 func displayContextListOutputListView(cfg *configapi.ClientConfig, writer io.Writer) {
 	op := component.NewOutputWriter(writer, outputFormat, "Name", "Type", "IsManagementCluster", "IsCurrent", "Endpoint", "KubeConfigPath", "KubeContext")
 	for _, ctx := range cfg.KnownContexts {
-		if ctxType != "" && ctx.Type != configapi.ContextType(ctxType) {
+		if target != "" && ctx.Target != cliv1alpha1.Target(target) {
 			continue
 		}
 		isMgmtCluster := ctx.IsManagementCluster()
-		isCurrent := ctx.Name == cfg.CurrentContext[ctx.Type]
+		isCurrent := ctx.Name == cfg.CurrentContext[ctx.Target]
 		if onlyCurrent && !isCurrent {
 			continue
 		}
 
 		var endpoint, path, context string
-		switch ctx.Type {
-		case configapi.CtxTypeTMC:
+		switch ctx.Target {
+		case cliv1alpha1.TargetTMC:
 			endpoint = ctx.GlobalOpts.Endpoint
 		default:
 			endpoint = ctx.ClusterOpts.Endpoint
 			path = ctx.ClusterOpts.Path
 			context = ctx.ClusterOpts.Context
 		}
-		op.AddRow(ctx.Name, ctx.Type, isMgmtCluster, isCurrent, endpoint, path, context)
+		op.AddRow(ctx.Name, ctx.Target, isMgmtCluster, isCurrent, endpoint, path, context)
 	}
 	op.Render()
 }
@@ -658,17 +659,17 @@ func displayContextListOutputSplitViewTarget(cfg *configapi.ClientConfig, writer
 	outputWriterK8sTarget := component.NewOutputWriter(writer, outputFormat, "Name", "IsActive", "Endpoint", "KubeConfigPath", "KubeContext")
 	outputWriterTMCTarget := component.NewOutputWriter(writer, outputFormat, "Name", "IsActive", "Endpoint")
 	for _, ctx := range cfg.KnownContexts {
-		if ctxType != "" && ctx.Type != configapi.ContextType(ctxType) {
+		if target != "" && ctx.Target != cliv1alpha1.Target(target) {
 			continue
 		}
-		isCurrent := ctx.Name == cfg.CurrentContext[ctx.Type]
+		isCurrent := ctx.Name == cfg.CurrentContext[ctx.Target]
 		if onlyCurrent && !isCurrent {
 			continue
 		}
 
 		var endpoint, path, context string
-		switch ctx.Type {
-		case configapi.CtxTypeTMC:
+		switch ctx.Target {
+		case cliv1alpha1.TargetTMC:
 			endpoint = ctx.GlobalOpts.Endpoint
 			outputWriterTMCTarget.AddRow(ctx.Name, isCurrent, endpoint)
 		default:
@@ -681,9 +682,13 @@ func displayContextListOutputSplitViewTarget(cfg *configapi.ClientConfig, writer
 
 	cyanBold := color.New(color.FgCyan).Add(color.Bold)
 	cyanBoldItalic := color.New(color.FgCyan).Add(color.Bold, color.Italic)
-	_, _ = cyanBold.Println("Target: ", cyanBoldItalic.Sprintf("%s", configapi.CtxTypeK8s))
-	outputWriterK8sTarget.Render()
+	if target == "" || target == string(cliv1alpha1.TargetK8s) {
+		_, _ = cyanBold.Println("Target: ", cyanBoldItalic.Sprintf("%s", cliv1alpha1.TargetK8s))
+		outputWriterK8sTarget.Render()
+	}
 
-	_, _ = cyanBold.Println("Target: ", cyanBoldItalic.Sprintf("%s", configapi.CtxTypeTMC))
-	outputWriterTMCTarget.Render()
+	if target == "" || target == string(cliv1alpha1.TargetTMC) {
+		_, _ = cyanBold.Println("Target: ", cyanBoldItalic.Sprintf("%s", cliv1alpha1.TargetTMC))
+		outputWriterTMCTarget.Render()
+	}
 }

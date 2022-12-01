@@ -56,7 +56,7 @@ servers:
 current: test-mc
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -83,7 +83,7 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 `
 	expectedCfg := `clientOptions:
     cli:
@@ -132,7 +132,7 @@ servers:
 current: test-mc
 contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -159,12 +159,12 @@ contexts:
             required: true
           contextType: tmc
 currentContext:
-    k8s: test-mc
+    kubernetes: test-mc
 `
 
 	cfg2 := `contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -191,11 +191,11 @@ currentContext:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+    kubernetes: test-mc
 `
 	expectedCfg2 := `contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -222,7 +222,7 @@ currentContext:
             required: true
           contextType: tmc
 currentContext:
-    k8s: test-mc
+    kubernetes: test-mc
 `
 
 	return cfg, expectedCfg, cfg2, expectedCfg2

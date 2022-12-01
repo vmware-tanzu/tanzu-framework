@@ -42,7 +42,7 @@ Context is an isolated scope of relevant client-side configurations for a combin
 If a plugin wants to access the context it should use the [provided libraries](../../../runtime/config/context.go) for forwards compatibility. For example, to get the current active context use the below snippet:
 
 ```go
-ctx, err := config.GetCurrentContext(v1alpha1.CtxTypeK8s)
+ctx, err := config.GetCurrentContext(cliapi.Target)
 ```
 
 **Note:** The Tanzu CLI ensures backwards compatibility between `Server` and `Context`.

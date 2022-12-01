@@ -26,7 +26,8 @@ spec:
               internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           clientOptions:
-            description: ClientOptions are client specific options.
+            description: ClientOptions are client specific options like feature flags,
+              environment variables, repositories, discoverySources, etc.
             properties:
               cli:
                 description: CLI options specific to the CLI.
@@ -66,10 +67,6 @@ spec:
                             name:
                               description: Name is a name of the discovery
                               type: string
-                          required:
-                          - bucket
-                          - manifestPath
-                          - name
                           type: object
                         k8s:
                           description: KubernetesDiscovery is set if the plugins are
@@ -89,11 +86,6 @@ spec:
                               description: Version of the CLIPlugins API to query.
                                 E.g., v1alpha1
                               type: string
-                          required:
-                          - context
-                          - name
-                          - path
-                          - version
                           type: object
                         local:
                           description: LocalDiscovery is set if the plugins are to
@@ -107,9 +99,6 @@ spec:
                                 containing YAML files, each of which contains single
                                 CLIPlugin API resource.
                               type: string
-                          required:
-                          - name
-                          - path
                           type: object
                         oci:
                           description: OCIDiscovery is set if the plugins are to be
@@ -126,9 +115,6 @@ spec:
                             name:
                               description: Name is a name of the discovery
                               type: string
-                          required:
-                          - image
-                          - name
                           type: object
                         rest:
                           description: GenericRESTDiscovery is set if the plugins
@@ -145,10 +131,6 @@ spec:
                             name:
                               description: Name is a name of the discovery
                               type: string
-                          required:
-                          - basePath
-                          - endpoint
-                          - name
                           type: object
                       type: object
                     type: array
@@ -241,10 +223,6 @@ spec:
                           name:
                             description: Name is a name of the discovery
                             type: string
-                        required:
-                        - bucket
-                        - manifestPath
-                        - name
                         type: object
                       k8s:
                         description: KubernetesDiscovery is set if the plugins are
@@ -264,11 +242,6 @@ spec:
                             description: Version of the CLIPlugins API to query. E.g.,
                               v1alpha1
                             type: string
-                        required:
-                        - context
-                        - name
-                        - path
-                        - version
                         type: object
                       local:
                         description: LocalDiscovery is set if the plugins are to be
@@ -282,9 +255,6 @@ spec:
                               containing YAML files, each of which contains single
                               CLIPlugin API resource.
                             type: string
-                        required:
-                        - name
-                        - path
                         type: object
                       oci:
                         description: OCIDiscovery is set if the plugins are to be
@@ -300,9 +270,6 @@ spec:
                           name:
                             description: Name is a name of the discovery
                             type: string
-                        required:
-                        - image
-                        - name
                         type: object
                       rest:
                         description: GenericRESTDiscovery is set if the plugins are
@@ -319,10 +286,6 @@ spec:
                           name:
                             description: Name is a name of the discovery
                             type: string
-                        required:
-                        - basePath
-                        - endpoint
-                        - name
                         type: object
                     type: object
                   type: array
@@ -366,14 +329,7 @@ spec:
                             assigned to.
                           type: string
                       required:
-                      - IDToken
-                      - accessToken
-                      - expiration
-                      - issuer
-                      - permissions
-                      - refresh_token
                       - type
-                      - userName
                       type: object
                     endpoint:
                       description: Endpoint for the server.
@@ -382,14 +338,14 @@ spec:
                 name:
                   description: Name of the context.
                   type: string
-                type:
-                  description: Type of the context.
+                target:
+                  description: Target of the context.
                   type: string
               type: object
             type: array
           current:
-            description: CurrentServer in use. Deprecation targeted for a a future
-              version. Superseded by CurrentContext.
+            description: CurrentServer in use. Deprecation targeted for a future version.
+              Superseded by CurrentContext.
             type: string
           currentContext:
             additionalProperties:
@@ -401,14 +357,12 @@ spec:
               object represents. Servers may infer this from the endpoint the client
               submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
-          metadata:
-            type: object
           servers:
-            description: KnownServers available. Deprecation targeted for a a future
+            description: KnownServers available. Deprecation targeted for a future
               version. Superseded by KnownContexts.
             items:
-              description: Server connection. Deprecation targeted for a a future
-                version. Superseded by Context.
+              description: Server connection. Deprecation targeted for a future version.
+                Superseded by Context.
               properties:
                 discoverySources:
                   description: DiscoverySources determines from where to discover
@@ -432,10 +386,6 @@ spec:
                           name:
                             description: Name is a name of the discovery
                             type: string
-                        required:
-                        - bucket
-                        - manifestPath
-                        - name
                         type: object
                       k8s:
                         description: KubernetesDiscovery is set if the plugins are
@@ -455,11 +405,6 @@ spec:
                             description: Version of the CLIPlugins API to query. E.g.,
                               v1alpha1
                             type: string
-                        required:
-                        - context
-                        - name
-                        - path
-                        - version
                         type: object
                       local:
                         description: LocalDiscovery is set if the plugins are to be
@@ -473,9 +418,6 @@ spec:
                               containing YAML files, each of which contains single
                               CLIPlugin API resource.
                             type: string
-                        required:
-                        - name
-                        - path
                         type: object
                       oci:
                         description: OCIDiscovery is set if the plugins are to be
@@ -491,9 +433,6 @@ spec:
                           name:
                             description: Name is a name of the discovery
                             type: string
-                        required:
-                        - image
-                        - name
                         type: object
                       rest:
                         description: GenericRESTDiscovery is set if the plugins are
@@ -510,10 +449,6 @@ spec:
                           name:
                             description: Name is a name of the discovery
                             type: string
-                        required:
-                        - basePath
-                        - endpoint
-                        - name
                         type: object
                     type: object
                   type: array
@@ -556,14 +491,7 @@ spec:
                             assigned to.
                           type: string
                       required:
-                      - IDToken
-                      - accessToken
-                      - expiration
-                      - issuer
-                      - permissions
-                      - refresh_token
                       - type
-                      - userName
                       type: object
                     endpoint:
                       description: Endpoint for the server.

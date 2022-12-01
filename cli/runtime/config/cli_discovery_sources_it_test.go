@@ -44,7 +44,7 @@ servers:
 current: test-mc
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -71,12 +71,12 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 `
 
 	CFG2 := `contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -103,7 +103,7 @@ currentContext:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 `
 
 	expectedCFG := `clientOptions:
@@ -140,7 +140,7 @@ servers:
 current: test-mc
 contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -167,12 +167,12 @@ contexts:
             required: true
           contextType: tmc
 currentContext:
-    k8s: test-mc
+    kubernetes: test-mc
 `
 	//nolint:goconst
 	expectedCFG2 := `contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -199,7 +199,7 @@ currentContext:
             required: true
           contextType: tmc
 currentContext:
-    k8s: test-mc
+    kubernetes: test-mc
 `
 
 	return CFG, expectedCFG, CFG2, expectedCFG2

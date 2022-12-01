@@ -74,12 +74,12 @@ metadata:
 - globalOpts:
     endpoint: test.cloud.vmware.com:443
   name: tmc-test
-  type: tmc
+  target: mission-control
 - clusterOpts:
     context: mgmt-admin@mgmt
     path: config
   name: mgmt
-  type: k8s`
+  target: kubernetes`
 	tf, err := os.CreateTemp("", "tanzu_tmc_config")
 	assert.Nil(t, err)
 	err = os.WriteFile(tf.Name(), []byte(tanzuConfigBytes), 0644)
