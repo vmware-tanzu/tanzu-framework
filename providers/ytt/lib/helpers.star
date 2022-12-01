@@ -390,3 +390,10 @@ end
 def map(f, list):
     return [f(x) for x in list]
 end
+
+def enable_certificate_automatic_renewal():
+  if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE > 0:
+     return True
+  end
+  return False
+end

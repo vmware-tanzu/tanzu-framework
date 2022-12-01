@@ -3,7 +3,7 @@
 #@ load("@ytt:regexp", "regexp")
 #@ load("@ytt:assert", "assert")
 
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint", "get_tkr_version_from_tkr_name", "verify_and_configure_machine_deployment_rollout_strategy", "map")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint", "get_tkr_version_from_tkr_name", "verify_and_configure_machine_deployment_rollout_strategy", "map", "enable_certificate_automatic_renewal")
 
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
@@ -414,7 +414,7 @@ spec:
     #@ end
     #@ end
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
-  #@ if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE:
+  #@ if enable_certificate_automatic_renewal():
   #@overlay/match missing_ok=True
   rolloutBefore:
     #@overlay/match missing_ok=True
