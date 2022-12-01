@@ -29,7 +29,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
 	github.com/vmware-tanzu/carvel-kapp-controller v0.39.0
-	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20221026213745-c834810997d4
+	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20221214062743-6b0843a3db36
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret v0.0.0-00010101000000-000000000000
@@ -88,7 +88,7 @@ require (
 	github.com/containerd/stargz-snapshotter/estargz v0.11.4 // indirect
 	github.com/coredns/caddy v1.1.1 // indirect
 	github.com/coredns/corefile-migration v1.0.18 // indirect
-	github.com/cppforlife/cobrautil v0.0.0-20220907150944-da5ee3a6ab1f // indirect
+	github.com/cppforlife/cobrautil v0.0.0-20221130162803-acdfead391ef // indirect
 	github.com/cppforlife/color v1.9.1-0.20200716202919-6706ac40b835 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
