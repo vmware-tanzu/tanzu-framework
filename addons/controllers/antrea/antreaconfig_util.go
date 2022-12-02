@@ -19,7 +19,7 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 )
 
-// AntreaConfigSpec defines the desired state of AntreaConfig
+// AntreaConfigSpec defines the desired state of AntreaConfig Test
 type antreaConfigSpec struct {
 	InfraProvider string `yaml:"infraProvider"`
 	Antrea        antrea `yaml:"antrea,omitempty"`
