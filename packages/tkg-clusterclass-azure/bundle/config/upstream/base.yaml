@@ -1331,12 +1331,24 @@ spec:
         vnet:
           cidrBlock: #@ data.values.AZURE_VNET_CIDR
         subnets:
+        #@ if data.values.AZURE_CONTROL_PLANE_SUBNET_NAME == "":
+        - name: management-cluster-controlplane-subnet
+          role: control-plane
+          cidrBlock: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_CIDR
+        #@ else:
         - name: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_NAME
           role: control-plane
           cidrBlock: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_CIDR
+        #@ end
+        #@ if data.values.AZURE_NODE_SUBNET_NAME == "":
+        - name: management-cluster-node-subnet
+          role: node
+          cidrBlock: #@ data.values.AZURE_NODE_SUBNET_CIDR
+        #@ else:
         - name: #@ data.values.AZURE_NODE_SUBNET_NAME
           role: node
           cidrBlock: #@ data.values.AZURE_NODE_SUBNET_CIDR
+        #@ end
       subscriptionID: #@ data.values.AZURE_SUBSCRIPTION_ID
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
