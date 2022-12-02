@@ -188,7 +188,7 @@ var _ = Describe("Parse Cluster Variable", func() {
 				result, err = ParseClusterVariableCert(clusterObj, testClusterVariableName, "additionalTrustedCAs", "data")
 			})
 			It("should return cluster variable value", func() {
-				Expect(result).To(Equal("aGVsbG8=\nbHWtcH9=\n"))
+				Expect(result).To(Equal("aGVsbG8KbHWtcH8K"))
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
