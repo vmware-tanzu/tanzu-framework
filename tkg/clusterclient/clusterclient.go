@@ -42,6 +42,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/retry"
 	capav1beta2 "sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
@@ -2514,7 +2515,10 @@ func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) 
 
 	if cniIngressRulesNeedUpdate {
 		awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = cniIngressRules
-		if err := c.UpdateResource(awsCluster, clusterName, clusterNamespace); err != nil {
+		err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+			return c.UpdateResource(awsCluster, clusterName, clusterNamespace)
+		})
+		if err != nil {
 			return err
 		}
 	}
