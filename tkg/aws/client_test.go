@@ -5,6 +5,7 @@ package aws_test
 
 import (
 	"fmt"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"os"
 	"path"
 	"testing"
@@ -104,6 +105,37 @@ var _ = Describe("Unit tests for aws client", func() {
 			})
 			Expect(err).NotTo(HaveOccurred())
 			testBootstrapTemplate("tmc-disabled", template)
+		})
+	})
+
+	Describe("ListEC2KeyPairs", func() {
+		var (
+			ec2KeyPairs   []*models.AWSKeyPair
+			desiredResult = []*models.AWSKeyPair{
+				{
+					ID:         "1",
+					Name:       "us-west-2-kp",
+					Thumbprint: "",
+				}, {
+					ID:         "2",
+					Name:       "eu-west-1-kp",
+					Thumbprint: "",
+				}, {
+					ID:         "3",
+					Name:       "eu-west-2-kp",
+					Thumbprint: "",
+				},
+			}
+		)
+
+		JustBeforeEach(func() {
+			ec2KeyPairs, err = awsClient.ListEC2KeyPairs()
+		})
+		Context("when retrieving ec2 keypairs", func() {
+			It("returns all ec2 keypairs", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(ec2KeyPairs).To(ConsistOf(desiredResult))
+			})
 		})
 	})
 })
