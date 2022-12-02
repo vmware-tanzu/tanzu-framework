@@ -79,7 +79,7 @@ func setupLocalDistoForTesting() func() {
 		log.Fatal(err, "Error while coping tanzu config next gen file for testing")
 	}
 
-	err = configlib.SetFeature("global", "context-target", "true")
+	err = configlib.SetFeature("global", "context-target-v2", "true")
 	if err != nil {
 		log.Fatal(err, "Error while coping tanzu config file for testing")
 	}
