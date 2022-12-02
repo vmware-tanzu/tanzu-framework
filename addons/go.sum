@@ -878,8 +878,8 @@ github.com/vmware-tanzu/carvel-kapp-controller v0.35.0 h1:zgWNumjhN+0CCiq1Wo4lVT
 github.com/vmware-tanzu/carvel-kapp-controller v0.35.0/go.mod h1:Hldrv7kPAD3THS1yUYZPFIaHmPE0ENO0ljzbJrpftiE=
 github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0 h1:3mSDyzhf52Y0jdvHrhJUf4Sk97CILBOkQt/WUaD8G/8=
 github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0/go.mod h1:UW9xzccG6vjNoq2emVderTX11epILNyxtmGxFupRsHc=
-github.com/vmware-tanzu/carvel-vendir v0.26.0 h1:Q98tPnH9WUAWE2vJSAP0lsHGsfwGjfW2y+JUOEiJ/Yk=
-github.com/vmware-tanzu/carvel-vendir v0.26.0/go.mod h1:JcuNNVONFbZTbm/GjtGiWUfFrt17YBQzeGT9+gY1+yY=
+github.com/vmware-tanzu/carvel-vendir v0.32.1 h1:0Md8yTOy+tB3Aoq0GdmDuzyYv4NBRGRakg9gsK5d7zo=
+github.com/vmware-tanzu/carvel-vendir v0.32.1/go.mod h1:kZrO/YbKflLRNv7AU+sQKx2Zyl6tPJSCNoBAqMk0SUk=
 github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707 h1:2onys8tWlQh7DFiOz6+68AwJdW9EBOEv6RTKzwh1x7A=
 github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707/go.mod h1:pDB0pUiFYufuP3lUkQX9fZ67PYnKvqBpDcJN3mSrw5U=
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd h1:BXz4aAPzRAYD8x8LEhjEsmvTj9mCvesnr4ApT1Ay4YY=
@@ -1006,8 +1006,8 @@ golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5y
 golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/crypto v0.0.0-20220214200702-86341886e292/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
-golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 h1:GIAS/yBem/gq2MUqgNIzUHW7cJMmx3TGZOrnyYaNQ6c=
-golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
+golang.org/x/crypto v0.3.0 h1:a06MkbcxBrEFc0w0QIZWXrH/9cCX6KJyWbBOIwAn+7A=
+golang.org/x/crypto v0.3.0/go.mod h1:hebNnKkNXi2UzZN1eVRvBB7co0a+JxK6XbPiWVs/3J4=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190306152737-a1d7652674e8/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190510132918-efd6b22b2522/go.mod h1:ZjyILWgesfNpC6sMxTJOJm9Kp84zZh5NQWvqDGG3Qr8=
