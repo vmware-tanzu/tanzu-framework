@@ -32,9 +32,11 @@ import (
 )
 
 const (
-	upgradePatchInterval = 30 * time.Second
-	upgradePatchTimeout  = 5 * time.Minute
-	vmTemplateMoidKey    = "vmTemplateMoid"
+	upgradePatchInterval          = 30 * time.Second
+	upgradePatchTimeout           = 5 * time.Minute
+	vmTemplateMoidKey             = "vmTemplateMoid"
+	DefaultKappControllerHostPort = 10100
+	DefaultAddonsManagerHostPort  = 9865
 )
 
 // UpgradeClusterOptions upgrade cluster options
@@ -1176,6 +1178,11 @@ func (c *TkgClient) patchKubernetesVersionToMachineDeployment(regionalClusterCli
 	return nil
 }
 
+// HandleKappControllerUpgrade is only meant for testing  handleKappControllerUpgrade
+func (c *TkgClient) HandleKappControllerUpgrade(regionalClusterClient, currentClusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo) error {
+	return c.handleKappControllerUpgrade(regionalClusterClient, currentClusterClient, upgradeClusterConfig)
+}
+
 // handleKappControllerUpgrade contains upgrade logic required for kapp-controller.
 func (c *TkgClient) handleKappControllerUpgrade(regionalClusterClient, currentClusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo) error {
 	// In TKG version prior to v1.3, kapp-controller could have been deployed by user as part of tkg-extensions deployment.
@@ -1191,8 +1198,41 @@ func (c *TkgClient) handleKappControllerUpgrade(regionalClusterClient, currentCl
 			return errors.Wrapf(err, "unable to check if Cluster API Provider for AWS is enabled")
 		}
 	} else {
-		if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace); err != nil {
-			return errors.Wrapf(err, "unable to update AWS CNI ingress rules")
+		kappControllerAWSIngressRule := capav1beta2.CNIIngressRule{
+			Description: "kapp-controller",
+			Protocol:    capav1beta2.SecurityGroupProtocolTCP,
+			FromPort:    DefaultKappControllerHostPort,
+			ToPort:      DefaultKappControllerHostPort,
+		}
+		if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, kappControllerAWSIngressRule); err != nil {
+			return errors.Wrapf(err, "unable to update AWS CNI ingress rules for %s/%s kapp-controller", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName)
+		}
+	}
+
+	return nil
+}
+
+// PrepareAddonsManagerUpgrade is only meant for testing prepareAddonsManagerUpgrade
+func (c *TkgClient) PrepareAddonsManagerUpgrade(regionalClusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo) error {
+	return c.prepareAddonsManagerUpgrade(regionalClusterClient, upgradeClusterConfig)
+}
+
+func (c *TkgClient) prepareAddonsManagerUpgrade(regionalClusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo) error {
+	// Update AWSCluster cniIngressRules to include addon-manager port only if CAPA is running on the management cluster
+	if err := regionalClusterClient.GetResource(&corev1.Namespace{}, clusterclient.CAPAControllerNamespace, clusterclient.CAPAControllerNamespace, nil, nil); err != nil {
+		// if capa-system namespace doesn't exist, then assume that updates to AWSCluster are not required during upgrade.
+		if !apierrors.IsNotFound(err) {
+			return errors.Wrapf(err, "unable to check if Cluster API Provider for AWS is enabled")
+		}
+	} else {
+		addonsManagerAWSIngressRule := capav1beta2.CNIIngressRule{
+			Description: "addons-manager",
+			Protocol:    capav1beta2.SecurityGroupProtocolTCP,
+			FromPort:    DefaultAddonsManagerHostPort,
+			ToPort:      DefaultAddonsManagerHostPort,
+		}
+		if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, addonsManagerAWSIngressRule); err != nil {
+			return errors.Wrapf(err, "unable to update AWS CNI ingress rules for %s/%s addons-manager", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName)
 		}
 	}
 

@@ -127,6 +127,17 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	}
 
 	log.Info("Upgrading management cluster providers...")
+
+	log.Info("Retrieving configuration for upgrade cluster...")
+	upgradeClusterConfig, err := c.getUpgradeClusterConfig(options)
+	if err != nil {
+		return errors.Wrap(err, "unable to retrieve component upgrade info")
+	}
+	err = c.prepareAddonsManagerUpgrade(regionalClusterClient, upgradeClusterConfig)
+	if err != nil {
+		return errors.Wrap(err, "unable to prepare addons manage for upgrade")
+	}
+
 	providersUpgradeClient := providersupgradeclient.New(c.clusterctlClient)
 	if err = c.DoProvidersUpgrade(regionalClusterClient, currentRegion.ContextName, providersUpgradeClient, options); err != nil {
 		return errors.Wrap(err, "failed to upgrade management cluster providers")
