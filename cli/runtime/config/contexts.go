@@ -80,7 +80,7 @@ func SetContext(c *configapi.Context, setCurrent bool) error {
 	}
 
 	// Set current server
-	if setCurrent {
+	if setCurrent && s.Type == configapi.ManagementClusterServerType {
 		persist, err = setCurrentServer(node, s.Name)
 		if err != nil {
 			return err
