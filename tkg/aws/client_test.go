@@ -5,10 +5,11 @@ package aws_test
 
 import (
 	"fmt"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"os"
 	"path"
 	"testing"
+
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 
 	"github.com/awslabs/goformation/v4/cloudformation"
 	. "github.com/onsi/ginkgo"
@@ -111,21 +112,7 @@ var _ = Describe("Unit tests for aws client", func() {
 	Describe("ListEC2KeyPairs", func() {
 		var (
 			ec2KeyPairs   []*models.AWSKeyPair
-			desiredResult = []*models.AWSKeyPair{
-				{
-					ID:         "1",
-					Name:       "us-west-2-kp",
-					Thumbprint: "",
-				}, {
-					ID:         "2",
-					Name:       "eu-west-1-kp",
-					Thumbprint: "",
-				}, {
-					ID:         "3",
-					Name:       "eu-west-2-kp",
-					Thumbprint: "",
-				},
-			}
+			desiredResult = []*models.AWSKeyPair{}
 		)
 
 		JustBeforeEach(func() {
