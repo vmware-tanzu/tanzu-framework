@@ -57,7 +57,7 @@ func main() {
 
 	if err = (&run.CapabilityReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Capability"),
+		Log:    ctrl.Log.WithName("controllers").WithName("Capability").WithValues("apigroup", "run"),
 		Scheme: mgr.GetScheme(),
 		Host:   mgr.GetConfig().Host,
 	}).SetupWithManager(mgr); err != nil {
@@ -67,7 +67,7 @@ func main() {
 
 	if err = (&core.CapabilityReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Capability"),
+		Log:    ctrl.Log.WithName("controllers").WithName("Capability").WithValues("apigroup", "core"),
 		Scheme: mgr.GetScheme(),
 		Host:   mgr.GetConfig().Host,
 	}).SetupWithManager(mgr); err != nil {

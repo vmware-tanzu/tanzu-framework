@@ -4,7 +4,6 @@
 package config
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,17 +52,12 @@ func TestGetMetadata(t *testing.T) {
 	}
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
-			// Setup Input Data
-			f, err := os.CreateTemp("", "tanzu_config")
-			assert.Nil(t, err)
-			err = os.WriteFile(f.Name(), []byte(spec.in), 0644)
-			assert.Nil(t, err)
-			defer func(name string) {
-				err = os.Remove(name)
-				assert.NoError(t, err)
-			}(f.Name())
-			err = os.Setenv(EnvConfigMetadataKey, f.Name())
-			assert.NoError(t, err)
+			// Setup config data
+			_, cleanUp := setupTestConfig(t, &CfgTestData{cfgMetadata: spec.in})
+
+			defer func() {
+				cleanUp()
+			}()
 
 			//Test case
 			c, err := GetMetadata()
@@ -113,17 +107,12 @@ func TestGetConfigMetadata(t *testing.T) {
 	}
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
-			// Setup Input Data
-			f, err := os.CreateTemp("", "tanzu_config")
-			assert.Nil(t, err)
-			err = os.WriteFile(f.Name(), []byte(spec.in), 0644)
-			assert.Nil(t, err)
-			defer func(name string) {
-				err = os.Remove(name)
-				assert.NoError(t, err)
-			}(f.Name())
-			err = os.Setenv(EnvConfigMetadataKey, f.Name())
-			assert.NoError(t, err)
+			// Setup config data
+			_, cleanUp := setupTestConfig(t, &CfgTestData{cfgMetadata: spec.in})
+
+			defer func() {
+				cleanUp()
+			}()
 
 			//Test case
 			c, err := GetConfigMetadata()
@@ -138,13 +127,11 @@ func TestGetConfigMetadata(t *testing.T) {
 }
 
 func TestSetConfigMetadataPatchStrategy(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
 
 	tests := []struct {

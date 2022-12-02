@@ -12,13 +12,13 @@ import (
 )
 
 func TestGetEdition(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
+
 	tests := []struct {
 		name   string
 		in     *configapi.ClientConfig
@@ -50,13 +50,13 @@ func TestGetEdition(t *testing.T) {
 }
 
 func TestSetEdition(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
+
 	tests := []struct {
 		name  string
 		value string

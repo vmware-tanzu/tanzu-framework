@@ -12,8 +12,8 @@ const (
 	// EnvConfigMetadataKey is the environment variable that points to a tanzu config.
 	EnvConfigMetadataKey = "TANZU_CONFIG_METADATA"
 
-	// CfgMetadataName is the name of the config metadata
-	CfgMetadataName = "config-metadata.yaml"
+	// CfgMetadataName is the name of the config metadata hidden file
+	CfgMetadataName = ".config-metadata.yaml"
 )
 
 // metadataPath constructs the full config path, checking for environment overrides.

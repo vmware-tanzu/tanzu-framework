@@ -5,12 +5,12 @@ package command
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
@@ -61,11 +61,12 @@ var getConfigCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get the current configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgPath, err := configlib.ClientConfigPath()
+		cfg, err := configlib.GetClientConfig()
 		if err != nil {
 			return err
 		}
-		b, err := os.ReadFile(cfgPath)
+
+		b, err := yaml.Marshal(&cfg)
 		if err != nil {
 			return err
 		}
@@ -218,13 +219,7 @@ var initConfigCmd = &cobra.Command{
 			cfg.ClientOptions.CLI = &configapi.CLIOptions{}
 		}
 
-		serverName := ""
-		server, err := cfg.GetCurrentServer()
-		if err == nil && server != nil {
-			serverName = server.Name
-		}
-
-		serverPluginDescriptors, standalonePluginDescriptors, err := pluginmanager.InstalledPlugins(serverName)
+		serverPluginDescriptors, standalonePluginDescriptors, err := pluginmanager.InstalledPlugins()
 		if err != nil {
 			return err
 		}

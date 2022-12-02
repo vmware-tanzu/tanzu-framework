@@ -253,3 +253,44 @@ stringData:
                         namespaces: [{{ $namespace_exemptions }}]
                 path: /etc/kubernetes/kube-apiserver-admission-pss.yaml
         enabledIf: '{{ and (not .podSecurityStandard.deactivated) (semverCompare ">= v1.24" .builtin.controlPlane.version) }}'
+  certificate-renewal-overlay.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    #@ load("@ytt:data", "data")
+
+    #@overlay/match by=overlay.subset({"kind":"ClusterClass"})
+    ---
+    apiVersion: cluster.x-k8s.io/v1beta1
+    kind: ClusterClass
+    spec:
+      #@overlay/match missing_ok=True
+      variables:
+      #@overlay/remove
+      #@overlay/match by=overlay.map_key("name"),missing_ok=True
+      - name: controlPlaneCertificateRotationBefore
+      #@overlay/append
+      - name: controlPlaneCertificateRotationBefore
+        required: false
+        schema:
+          openAPIV3Schema:
+          type: integer
+          default: 90
+      #@overlay/match missing_ok=True
+      patches:
+      #@overlay/remove
+      #@overlay/match by=overlay.map_key("name"),missing_ok=True
+      - name: controlPlaneCertificateRotationBefore
+      #@overlay/append
+      - name: controlPlaneCertificateRotationBefore
+        description: "Enables configuration of automatic renewal of machine certificates before expiration."
+        definitions:
+        - selector:
+            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+            kind: KubeadmControlPlaneTemplate
+            matchResources:
+              controlPlane: true
+          jsonPatches:
+          - op: add
+            path: /spec/template/spec/rolloutBefore/certificatesExpiryDays
+            valueFrom:
+              variable: controlPlaneCertificateRotationBefore
+        enabledIf: '{{ .controlPlaneCertificateRotationBefore | gt 0 }}'

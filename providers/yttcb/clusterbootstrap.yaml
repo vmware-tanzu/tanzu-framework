@@ -106,7 +106,7 @@
 #@ end
 
 #@ def kubevipcpiconfig_exist():
-#@   return data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE == "workload" and data.values.KUBEVIP_LOADBALANCER_ENABLE and (data.values.KUBEVIP_LOADBALANCER_CIDRs != "" or data.values.KUBEVIP_LOADBALANCER_IP_RANGES != "")
+#@   return data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE == "workload" and data.values.KUBEVIP_LOADBALANCER_ENABLE and (data.values.KUBEVIP_LOADBALANCER_CIDRS != "" or data.values.KUBEVIP_LOADBALANCER_IP_RANGES != "")
 #@ end
 
 #@ if antrea_config_customized():
@@ -369,8 +369,8 @@ metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
 spec:
-  #@ if data.values.KUBEVIP_LOADBALANCER_CIDRs != "":
-  loadbalancerCIDRs: #@ data.values.KUBEVIP_LOADBALANCER_CIDRs
+  #@ if data.values.KUBEVIP_LOADBALANCER_CIDRS != "":
+  loadbalancerCIDRs: #@ data.values.KUBEVIP_LOADBALANCER_CIDRS
   #@ end
   #@ if data.values.KUBEVIP_LOADBALANCER_IP_RANGES != "":
   loadbalancerIPRanges: #@ data.values.KUBEVIP_LOADBALANCER_IP_RANGES

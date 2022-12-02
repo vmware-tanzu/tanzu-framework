@@ -221,7 +221,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						cluster.Annotations[addontypes.HTTPProxyConfigAnnotation] == "foo.com" &&
 						cluster.Annotations[addontypes.HTTPSProxyConfigAnnotation] == "bar.com" &&
 						cluster.Annotations[addontypes.NoProxyConfigAnnotation] == "foobar.com,google.com" &&
-						cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] == "aGVsbG8=\nbHWtcH9=\n" &&
+						cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] == "aGVsbG8KbHWtcH8K" &&
 						cluster.Annotations[addontypes.IPFamilyConfigAnnotation] == "ipv4" &&
 						cluster.Annotations[addontypes.SkipTLSVerifyConfigAnnotation] == "registry1, registry2" {
 						return true

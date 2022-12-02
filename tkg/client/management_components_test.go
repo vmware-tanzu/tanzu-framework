@@ -5,19 +5,23 @@ package client_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -346,4 +350,150 @@ var _ = Describe("Unit tests for processAKOPackageInstallFile", func() {
 		})
 	})
 
+})
+
+var _ = Describe("Unit tests for GetAKOOAddonSecretValues", func() {
+	var (
+		err           error
+		clusterClient *fakes.ClusterClient
+		clusterName   string
+		secretContent string
+		bytes         []byte
+		found         bool
+	)
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		clusterName = "fake-cluster"
+		secretContent = "foo"
+	})
+	JustBeforeEach(func() {
+		bytes, found, err = GetAKOOAddonSecretValues(clusterClient, clusterName)
+	})
+	Describe("When the ako-operator addon secret is not found", func() {
+		BeforeEach(func() {
+			clusterClient.GetSecretValueReturns(nil, apierrors.NewNotFound(
+				schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
+				"fakeGroupResource"))
+		})
+		It("should return not found with no errors", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(found).To(BeFalse())
+			Expect(len(bytes)).To(Equal(0))
+		})
+	})
+
+	Describe("When failed to get the ako-operator addon secret", func() {
+		BeforeEach(func() {
+			clusterClient.GetSecretValueReturns(nil, errors.New("cannot get the secret"))
+		})
+		It("should return the error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("cannot get the secret"))
+			Expect(found).To(BeFalse())
+			Expect(len(bytes)).To(Equal(0))
+		})
+	})
+
+	Describe("When the ako-operator addon secret is found", func() {
+		BeforeEach(func() {
+			clusterClient.GetSecretValueCalls(func(secretName string, secretField string, secretNamespace string, pollOptions *clusterclient.PollOptions) ([]byte, error) {
+				if secretName == fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName) &&
+					secretNamespace == constants.TkgNamespace &&
+					secretField == "values.yaml" {
+					return []byte(secretContent), nil
+				}
+				return nil, errors.New("Not expected input")
+			})
+		})
+		It("should get the content of the addon secret", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(found).To(BeTrue())
+			Expect(len(bytes)).ToNot(Equal(0))
+			Expect(string(bytes)).To(Equal(secretContent))
+		})
+	})
+
+})
+
+var _ = Describe("Unit tests for RetrieveAKOOVariablesFromAddonSecretValues", func() {
+	var (
+		err                  error
+		configValues         map[string]interface{}
+		clusterName          string
+		secretContent        string
+		invalidSecretContent string
+		secretValues         []byte
+	)
+
+	BeforeEach(func() {
+		configValues = map[string]interface{}{}
+		clusterName = "fake-cluster"
+		secretContent = `
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+akoOperator:
+  avi_enable: true
+  cluster_name: tkg-mgmt-vc
+  config:
+    avi_controller: 10.180.111.173
+    avi_username: fakeUserName
+    avi_password: fakePW
+    avi_ca_data_b64: fakeCA
+    avi_cloud_name: Default-Cloud
+    avi_service_engine_group: Default-Group
+    avi_management_cluster_service_engine_group: Default-Group
+    avi_data_network: VM Network
+    avi_data_network_cidr: 10.180.96.0/20
+    avi_control_plane_network: VM Network
+    avi_control_plane_network_cidr: 10.180.96.0/20
+    avi_management_cluster_vip_network_name: VM Network
+    avi_management_cluster_vip_network_cidr: 10.180.96.0/20
+    avi_management_cluster_control_plane_vip_network_name: VM Network
+    avi_management_cluster_control_plane_vip_network_cidr: 10.180.96.0/20
+    avi_control_plane_ha_provider: false
+`
+		invalidSecretContent = "invalid"
+	})
+
+	JustBeforeEach(func() {
+		err = RetrieveAKOOVariablesFromAddonSecretValues(clusterName, configValues, secretValues)
+	})
+
+	Describe("When failed to yaml unmashall the ako-operator addon contents", func() {
+		BeforeEach(func() {
+			secretValues = []byte(invalidSecretContent)
+		})
+		It("should update the config based on the addon secret", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("cannot unmarshal"))
+		})
+	})
+
+	Describe("When the ako-operator addon secret content is valid", func() {
+		BeforeEach(func() {
+			secretValues = []byte(secretContent)
+		})
+		It("should update the config based on the addon secret", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(configValues[constants.ConfigVariableAviEnable].(bool)).To(Equal(true))
+			Expect(configValues[constants.ConfigVariableAviControllerAddress].(string)).To(Equal("10.180.111.173"))
+			Expect(configValues[constants.ConfigVariableAviControllerUsername].(string)).To(Equal("fakeUserName"))
+			Expect(configValues[constants.ConfigVariableAviControllerPassword].(string)).To(Equal("fakePW"))
+			Expect(configValues[constants.ConfigVariableAviControllerCA].(string)).To(Equal("fakeCA"))
+			Expect(configValues[constants.ConfigVariableAviCloudName].(string)).To(Equal("Default-Cloud"))
+			Expect(configValues[constants.ConfigVariableAviServiceEngineGroup].(string)).To(Equal("Default-Group"))
+			Expect(configValues[constants.ConfigVariableAviManagementClusterServiceEngineGroup].(string)).To(Equal("Default-Group"))
+			Expect(configValues[constants.ConfigVariableAviDataPlaneNetworkName].(string)).To(Equal("VM Network"))
+			Expect(configValues[constants.ConfigVariableAviDataPlaneNetworkCIDR].(string)).To(Equal("10.180.96.0/20"))
+			Expect(configValues[constants.ConfigVariableAviControlPlaneNetworkName].(string)).To(Equal("VM Network"))
+			Expect(configValues[constants.ConfigVariableAviControlPlaneNetworkCIDR].(string)).To(Equal("10.180.96.0/20"))
+			Expect(configValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkName].(string)).To(Equal("VM Network"))
+			Expect(configValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR].(string)).To(Equal("10.180.96.0/20"))
+			Expect(configValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName].(string)).To(Equal("VM Network"))
+			Expect(configValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR].(string)).To(Equal("10.180.96.0/20"))
+			Expect(configValues[constants.ConfigVariableVsphereHaProvider].(bool)).To(Equal(false))
+			Expect(configValues[constants.ConfigVariableClusterName].(string)).To(Equal(clusterName))
+		})
+	})
 })

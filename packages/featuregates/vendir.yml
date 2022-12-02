@@ -4,8 +4,14 @@ minimumRequiredVersion: 0.12.0
 directories:
   - path: bundle/config/upstream
     contents:
-      - path: crds
+      - path: crds/config
         manual: {}
+      - path: crds/core
+        directory:
+          path: ../../apis/core/config/crd/bases/
+        includePaths:
+          - core.tanzu.vmware.com_features.yaml
+          - core.tanzu.vmware.com_featuregates.yaml
       - path: certificates.yaml
         manual: {}
       - path: rbac.yaml
@@ -14,9 +20,12 @@ directories:
         manual: {}
       - path: tanzu-featuregates-manager.yaml
         manual: {}
-      - path: webhook.yaml
+      - path: webhooks/config/webhook.yaml
+        manual: {}
+      - path: webhooks/core/webhook.yaml
         manual: {}
       - path: default-featuregate-cr.yaml
         manual: {}
       - path: helpers.star
         manual: {}
+

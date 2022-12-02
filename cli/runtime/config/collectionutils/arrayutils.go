@@ -13,3 +13,14 @@ func SomeBool(arr []bool, condition func(t bool) bool) bool {
 	}
 	return false
 }
+
+// Contains checks if a string is present in a slice
+func Contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
+}

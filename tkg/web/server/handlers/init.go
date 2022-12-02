@@ -92,7 +92,7 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 			log.Infof("\nManagement cluster created!\n\n")
 			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
 			log.Info("  tanzu cluster create [name] -f [file]\n\n")
-			err = pluginmanager.SyncPlugins(app.InitOptions.ClusterName)
+			err = pluginmanager.SyncPlugins()
 			if err != nil {
 				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
 			}
@@ -177,7 +177,7 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 			log.Infof("\nManagement cluster created!\n\n")
 			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
 			log.Info("  tanzu cluster create [name] -f [file]\n\n")
-			err = pluginmanager.SyncPlugins(app.InitOptions.ClusterName)
+			err = pluginmanager.SyncPlugins()
 			if err != nil {
 				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
 			}
@@ -281,7 +281,7 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 			log.Infof("\nManagement cluster created!\n\n")
 			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
 			log.Info("  tanzu cluster create [name] -f [file]\n\n")
-			err = pluginmanager.SyncPlugins(app.InitOptions.ClusterName)
+			err = pluginmanager.SyncPlugins()
 			if err != nil {
 				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
 			}
@@ -350,7 +350,7 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 			log.Infof("\nManagement cluster created!\n\n")
 			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
 			log.Info("  tanzu cluster create [name] -f [file]\n\n")
-			err = pluginmanager.SyncPlugins(app.InitOptions.ClusterName)
+			err = pluginmanager.SyncPlugins()
 			if err != nil {
 				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
 			}

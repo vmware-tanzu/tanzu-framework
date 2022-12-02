@@ -5,13 +5,18 @@ package command
 
 import (
 	"fmt"
+	"io"
 	"path/filepath"
 	"sort"
-	"strings"
+
+	"github.com/fatih/color"
+
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
-	"golang.org/x/mod/semver"
 	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/cobra"
@@ -22,7 +27,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/command"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	component "github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -30,6 +35,7 @@ var (
 	local       string
 	version     string
 	forceDelete bool
+	target      string
 )
 
 func init() {
@@ -51,6 +57,13 @@ func init() {
 	installPluginCmd.Flags().StringVarP(&version, "version", "v", cli.VersionLatest, "version of the plugin")
 	deletePluginCmd.Flags().BoolVarP(&forceDelete, "yes", "y", false, "delete the plugin without asking for confirmation")
 
+	if config.IsFeatureActivated(cliconfig.FeatureContextCommand) {
+		installPluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin (kubernetes[k8s]/mission-control[tmc])")
+		upgradePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin (kubernetes[k8s]/mission-control[tmc])")
+		deletePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin (kubernetes[k8s]/mission-control[tmc])")
+		describePluginCmd.Flags().StringVarP(&target, "target", "", "", "target of the plugin (kubernetes[k8s]/mission-control[tmc])")
+	}
+
 	command.DeprecateCommand(repoCmd, "")
 }
 
@@ -66,124 +79,32 @@ var listPluginCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available plugins",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-
-			var availablePlugins []plugin.Discovered
-			if local != "" {
-				// get absolute local path
-				local, err = filepath.Abs(local)
-				if err != nil {
-					return err
-				}
-				availablePlugins, err = pluginmanager.AvailablePluginsFromLocalSource(local)
-			} else {
-				availablePlugins, err = pluginmanager.AvailablePlugins(serverName)
-			}
+		var err error
+		var availablePlugins []plugin.Discovered
+		if local != "" {
+			// get absolute local path
+			local, err = filepath.Abs(local)
 			if err != nil {
 				return err
 			}
-
-			data := [][]string{}
-			for index := range availablePlugins {
-				data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
-					availablePlugins[index].Source, getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
-			}
-
-			output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
-			for _, row := range data {
-				vals := make([]interface{}, len(row))
-				for i, val := range row {
-					vals[i] = val
-				}
-				output.AddRow(vals...)
-			}
-			output.Render()
-
-			return nil
+			availablePlugins, err = pluginmanager.AvailablePluginsFromLocalSource(local)
+		} else {
+			availablePlugins, err = pluginmanager.AvailablePlugins()
 		}
-		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		descriptors, err := cli.ListPlugins()
+		sort.Sort(plugin.DiscoveredSorter(availablePlugins))
+
 		if err != nil {
 			return err
 		}
 
-		repos := getRepositories()
-		plugins, err := repos.ListPlugins()
-
-		// Failure to query plugin metadata from remote repositories should not
-		// prevent display of information about plugins already installed.
-		if err != nil {
-			log.Warningf("Unable to query remote plugin repositories : %v", err)
+		if config.IsFeatureActivated(cliconfig.FeatureContextCommand) && (outputFormat == "" || outputFormat == string(component.TableOutputType)) {
+			displayPluginListOutputSplitViewContext(availablePlugins, cmd.OutOrStdout())
+		} else {
+			displayPluginListOutputListView(availablePlugins, cmd.OutOrStdout())
 		}
 
-		data := [][]string{}
-		for repoName, descs := range plugins {
-			for _, plugin := range descs {
-				if plugin.Name == cli.CoreName {
-					continue
-				}
-
-				status := "not installed"
-				var currentVersion string
-
-				repo, err := repos.GetRepository(repoName)
-				if err != nil {
-					return err
-				}
-
-				versionSelector := repo.VersionSelector()
-				latestVersion := plugin.FindVersion(versionSelector)
-				for _, desc := range descriptors {
-					if plugin.Name != desc.Name {
-						continue
-					}
-					status = "installed"
-					currentVersion = desc.Version
-					compared := semver.Compare(latestVersion, desc.Version)
-					if compared == 1 {
-						status = "upgrade available"
-					}
-				}
-				data = append(data, []string{plugin.Name, latestVersion, plugin.Description, repoName, currentVersion, status})
-			}
-		}
-
-		// show plugins installed locally but not found in repositories
-		// failure to query the remote repository will degenerate the plugin list
-		// to this view as well
-		for _, desc := range descriptors {
-			var exists bool
-			for _, d := range data {
-				if desc.Name == d[0] {
-					exists = true
-					break
-				}
-			}
-			if !exists {
-				data = append(data, []string{desc.Name, "", desc.Description, "", desc.Version, "installed"})
-			}
-		}
-
-		// sort plugins based on their names
-		sort.SliceStable(data, func(i, j int) bool {
-			return strings.ToLower(data[i][0]) < strings.ToLower(data[j][0])
-		})
-
-		output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Latest Version", "Description", "Repository", "Version", "Status")
-		for _, row := range data {
-			vals := make([]interface{}, len(row))
-			for i, val := range row {
-				vals[i] = val
-			}
-			output.AddRow(vals...)
-		}
-		output.Render()
 		return nil
+
 	},
 }
 
@@ -197,12 +118,7 @@ var describePluginCmd = &cobra.Command{
 		pluginName := args[0]
 
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-			pd, err := pluginmanager.DescribePlugin(serverName, pluginName)
+			pd, err := pluginmanager.DescribePlugin(pluginName, getTarget())
 			if err != nil {
 				return err
 			}
@@ -255,7 +171,7 @@ var installPluginCmd = &cobra.Command{
 				if err != nil {
 					return err
 				}
-				err = pluginmanager.InstallPluginsFromLocalSource(pluginName, version, local, false)
+				err = pluginmanager.InstallPluginsFromLocalSource(pluginName, version, getTarget(), local, false)
 				if err != nil {
 					return err
 				}
@@ -267,15 +183,9 @@ var installPluginCmd = &cobra.Command{
 				return nil
 			}
 
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-
 			// Invoke plugin sync if install all plugins is mentioned
 			if pluginName == cli.AllPlugins {
-				err = pluginmanager.SyncPlugins(serverName)
+				err = pluginmanager.SyncPlugins()
 				if err != nil {
 					return err
 				}
@@ -285,13 +195,13 @@ var installPluginCmd = &cobra.Command{
 
 			pluginVersion := version
 			if pluginVersion == cli.VersionLatest {
-				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(serverName, pluginName)
+				pluginVersion, err = pluginmanager.GetRecommendedVersionOfPlugin(pluginName, getTarget())
 				if err != nil {
 					return err
 				}
 			}
 
-			err = pluginmanager.InstallPlugin(serverName, pluginName, pluginVersion)
+			err = pluginmanager.InstallPlugin(pluginName, pluginVersion, getTarget())
 			if err != nil {
 				return err
 			}
@@ -335,18 +245,12 @@ var upgradePluginCmd = &cobra.Command{
 		pluginName := args[0]
 
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-
-			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(serverName, pluginName)
+			pluginVersion, err := pluginmanager.GetRecommendedVersionOfPlugin(pluginName, getTarget())
 			if err != nil {
 				return err
 			}
 
-			err = pluginmanager.UpgradePlugin(serverName, pluginName, pluginVersion)
+			err = pluginmanager.UpgradePlugin(pluginName, pluginVersion, getTarget())
 			if err != nil {
 				return err
 			}
@@ -385,15 +289,9 @@ var deletePluginCmd = &cobra.Command{
 		pluginName := args[0]
 
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-
 			deletePluginOptions := pluginmanager.DeletePluginOptions{
 				PluginName:  pluginName,
-				ServerName:  serverName,
+				Target:      getTarget(),
 				ForceDelete: forceDelete,
 			}
 
@@ -442,12 +340,7 @@ var syncPluginCmd = &cobra.Command{
 	Short: "Sync the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-			serverName := ""
-			server, err := config.GetCurrentServer()
-			if err == nil && server != nil {
-				serverName = server.Name
-			}
-			err = pluginmanager.SyncPlugins(serverName)
+			err = pluginmanager.SyncPlugins()
 			if err != nil {
 				return err
 			}
@@ -489,4 +382,77 @@ func getInstalledElseAvailablePluginVersion(p *plugin.Discovered) string {
 		installedOrAvailableVersion = p.RecommendedVersion
 	}
 	return installedOrAvailableVersion
+}
+
+func displayPluginListOutputListView(availablePlugins []plugin.Discovered, writer io.Writer) {
+	var data [][]string
+	var output component.OutputWriter
+
+	for index := range availablePlugins {
+		data = append(data, []string{availablePlugins[index].Name, availablePlugins[index].Description, availablePlugins[index].Scope,
+			availablePlugins[index].Source, getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status})
+	}
+	output = component.NewOutputWriter(writer, outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
+
+	for _, row := range data {
+		vals := make([]interface{}, len(row))
+		for i, val := range row {
+			vals[i] = val
+		}
+		output.AddRow(vals...)
+	}
+	output.Render()
+}
+
+func displayPluginListOutputSplitViewContext(availablePlugins []plugin.Discovered, writer io.Writer) {
+	var dataStandalone [][]string
+	var outputStandalone component.OutputWriter
+	dataContext := make(map[string][][]string)
+	outputContext := make(map[string]component.OutputWriter)
+
+	outputStandalone = component.NewOutputWriter(writer, outputFormat, "Name", "Description", "Target", "Discovery", "Version", "Status")
+
+	for index := range availablePlugins {
+		if availablePlugins[index].Scope == common.PluginScopeStandalone {
+			newRow := []string{availablePlugins[index].Name, availablePlugins[index].Description, string(availablePlugins[index].Target),
+				availablePlugins[index].Source, getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status}
+			dataStandalone = append(dataStandalone, newRow)
+		} else {
+			newRow := []string{availablePlugins[index].Name, availablePlugins[index].Description, string(availablePlugins[index].Target),
+				getInstalledElseAvailablePluginVersion(&availablePlugins[index]), availablePlugins[index].Status}
+			outputContext[availablePlugins[index].ContextName] = component.NewOutputWriter(writer, outputFormat, "Name", "Description", "Target", "Version", "Status")
+			data := dataContext[availablePlugins[index].ContextName]
+			data = append(data, newRow)
+			dataContext[availablePlugins[index].ContextName] = data
+		}
+	}
+
+	addDataToOutputWriter := func(output component.OutputWriter, data [][]string) {
+		for _, row := range data {
+			vals := make([]interface{}, len(row))
+			for i, val := range row {
+				vals[i] = val
+			}
+			output.AddRow(vals...)
+		}
+	}
+
+	cyanBold := color.New(color.FgCyan).Add(color.Bold)
+	cyanBoldItalic := color.New(color.FgCyan).Add(color.Bold, color.Italic)
+
+	_, _ = cyanBold.Println("Standalone Plugins")
+	addDataToOutputWriter(outputStandalone, dataStandalone)
+	outputStandalone.Render()
+
+	for context, writer := range outputContext {
+		fmt.Println("")
+		_, _ = cyanBold.Println("Plugins from Context: ", cyanBoldItalic.Sprintf(context))
+		data := dataContext[context]
+		addDataToOutputWriter(writer, data)
+		writer.Render()
+	}
+}
+
+func getTarget() cliv1alpha1.Target {
+	return cliv1alpha1.StringToTarget(target)
 }

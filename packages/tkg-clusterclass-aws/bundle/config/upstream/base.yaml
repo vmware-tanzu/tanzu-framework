@@ -45,6 +45,20 @@ spec:
       name: #@ "tkg-aws-default-{}-cluster".format(data.values.AWS_CLUSTER_CLASS_VERSION)
       namespace: #@ data.values.NAMESPACE
   variables:
+  - name: etcdExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: tlsCipherSuites
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
   - name: region
     required: true
     schema:
@@ -230,17 +244,20 @@ spec:
     required: false
     schema:
       openAPIV3Schema:
-        type: array
-        items:
-          type: object
-          properties:
-            name:
-              type: string
-            data:
-              type: string
-          required:
-          - name
-          - data
+        type: object
+        properties:
+          additionalTrustedCAs:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                data:
+                  type: string
+              required:
+              - name
+              - data
   - name: auditLogging
     required: false
     schema:
@@ -273,13 +290,29 @@ spec:
       openAPIV3Schema:
         type: object
         properties: {}
-  - name: controlPlaneCertificateRotationBefore
-    required: false
-    schema:
-      openAPIV3Schema:
-        type: integer
-        default: 90
   patches:
+  - name: etcdExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/extraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{- range $key, $val := .etcdExtraArgs }}
+            {{- if eq $key "cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
   - name: AWSCT_main
     definitions:
     - selector:
@@ -699,7 +732,7 @@ spec:
         valueFrom:
           template: *exportNoProxy
   - name: httpProxyCACert
-    enabledIf: '{{ $hasProxyCert := false }} {{- range .trust }} {{- if .name | eq "proxy" }} {{- $hasProxyCert = true }} {{- end }} {{- end }} {{- $hasProxyCert }}'
+    enabledIf: '{{ $hasProxyCert := false }} {{- range .trust.additionalTrustedCAs }} {{- if .name | eq "proxy" }} {{- $hasProxyCert = true }} {{- end }} {{- end }} {{- $hasProxyCert }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -725,7 +758,7 @@ spec:
           template: |
             path: /etc/ssl/certs/tkg-custom-ca.pem
             {{- $proxy := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -759,7 +792,7 @@ spec:
           template: |
             path: /etc/ssl/certs/tkg-custom-ca.pem
             {{- $proxy := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -795,7 +828,7 @@ spec:
           template: |
             sed -i 's|".*/pause|" {{- or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository -}} /pause|' /etc/containerd/config.toml
   - name: registryCACert
-    enabledIf: '{{ not (empty .trust) }}'
+    enabledIf: '{{ not (empty .trust.additionalTrustedCAs) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -834,7 +867,7 @@ spec:
             path: /etc/containerd/ {{- index (or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository | splitList "/") 0 -}} .crt
             {{- $proxy := "" }}
             {{- $image := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -884,7 +917,7 @@ spec:
             path: /etc/containerd/{{ index (or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository | splitList "/") 0 }}.crt
             {{- $proxy := "" }}
             {{- $image := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -1072,19 +1105,6 @@ spec:
               - level: Metadata
                 omitStages:
                   - "RequestReceived"
-  - name: kcptCertificateRotation
-    enabledIf: '{{ .controlPlaneCertificateRotationBefore | gt 0 }}'
-    definitions:
-    - selector:
-        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-        kind: KubeadmControlPlaneTemplate
-        matchResources:
-          controlPlane: true
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/rolloutBefore/certificatesExpiryDays
-        valueFrom:
-          variable: controlPlaneCertificateRotationBefore
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSClusterTemplate
@@ -1154,8 +1174,7 @@ spec:
               dataDir: /var/lib/etcd
               imageRepository: dummy.registry.vmware.com
               imageTag: 1.8.4_dummy.5
-              extraArgs:
-                cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+              extraArgs: {}
           imageRepository: dummy.registry.vmware.com
           scheduler:
             extraArgs:

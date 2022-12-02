@@ -97,6 +97,32 @@ func (c *ClientConfig) GetCurrentContext(ctxType ContextType) (*Context, error) 
 	return ctx, nil
 }
 
+// GetAllCurrentContextsMap returns all current context per ContextType
+func (c *ClientConfig) GetAllCurrentContextsMap() (map[ContextType]*Context, error) {
+	currentContexts := make(map[ContextType]*Context)
+	for _, ctxType := range SupportedCtxTypes {
+		context, err := c.GetCurrentContext(ctxType)
+		if err == nil && context != nil {
+			currentContexts[ctxType] = context
+		}
+	}
+	return currentContexts, nil
+}
+
+// GetAllCurrentContextsList returns all current context names as list
+func (c *ClientConfig) GetAllCurrentContextsList() ([]string, error) {
+	var serverNames []string
+	currentContextsMap, err := c.GetAllCurrentContextsMap()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, context := range currentContextsMap {
+		serverNames = append(serverNames, context.Name)
+	}
+	return serverNames, nil
+}
+
 // SetCurrentContext sets the current context for the given type.
 func (c *ClientConfig) SetCurrentContext(ctxType ContextType, ctxName string) error {
 	if c.CurrentContext == nil {

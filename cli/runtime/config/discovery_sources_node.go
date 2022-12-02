@@ -87,8 +87,8 @@ func setDiscoverySource(discoverySourcesNode *yaml.Node, discoverySource configa
 			if isSameNameAlreadyExists {
 				// match found proceed with regular merge
 				exists = true
-				// Replace nodes as per patch strategy defined in config-metadata.yaml
-				_, err = nodeutils.ReplaceNodes(newNode.Content[0], discoverySourceNode, patchStrategyOpts...)
+				// Delete nodes as per patch strategy defined in config-metadata.yaml
+				_, err = nodeutils.DeleteNodes(newNode.Content[0], discoverySourceNode, patchStrategyOpts...)
 				if err != nil {
 					return false, err
 				}
@@ -112,8 +112,8 @@ func setDiscoverySource(discoverySourcesNode *yaml.Node, discoverySource configa
 				options.PatchStrategies[replaceDiscoverySourceTypeKey] = nodeutils.PatchStrategyReplace
 				options.PatchStrategies[replaceDiscoverySourceContextTypeKey] = nodeutils.PatchStrategyReplace
 
-				// Replace nodes as per patch strategy defined in config-metadata.yaml
-				_, err = nodeutils.ReplaceNodes(newNode.Content[0], discoverySourceNode, patchStrategyOpts...)
+				// Delete nodes as per patch strategy defined in config-metadata.yaml
+				_, err = nodeutils.DeleteNodes(newNode.Content[0], discoverySourceNode, patchStrategyOpts...)
 				if err != nil {
 					return false, err
 				}

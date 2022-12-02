@@ -49,6 +49,7 @@ func main() {
 		permissionsCmd,
 		importCmd,
 		clusterKubeconfigCmd,
+		osImageCmd,
 	)
 
 	if err = p.Execute(); err != nil {

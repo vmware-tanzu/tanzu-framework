@@ -198,12 +198,9 @@ func runInit() error {
 
 	// Sync plugins if management-cluster creation is successful
 	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-		server, err := config.GetCurrentServer()
-		if err == nil && server != nil {
-			err = pluginmanager.SyncPlugins(server.Name)
-			if err != nil {
-				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
-			}
+		err = pluginmanager.SyncPlugins()
+		if err != nil {
+			log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
 		}
 	}
 

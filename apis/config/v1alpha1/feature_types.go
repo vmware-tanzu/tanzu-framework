@@ -40,6 +40,7 @@ type FeatureStatus struct{}
 // +kubebuilder:printcolumn:name="Description",type=string,JSONPath=.spec.description
 // +kubebuilder:printcolumn:name="Immutable",type=boolean,JSONPath=.spec.immutable
 // +kubebuilder:printcolumn:name="Maturity",type=string,JSONPath=.spec.maturity
+// +kubebuilder:deprecatedversion:warning="Feature API in config.tanzu.vmware.com is deprecated. Use Feature API from core.tanzu.vmware.com instead"
 type Feature struct {
 	Status            FeatureStatus `json:"status,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

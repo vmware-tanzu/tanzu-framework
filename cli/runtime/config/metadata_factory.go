@@ -15,7 +15,7 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-// getMetadataNode retrieves the config from the local directory without acquiring the lock
+// getMetadataNode retrieves the config from the local directory with lock
 func getMetadataNode() (*yaml.Node, error) {
 	// Retrieve config metadata node
 	AcquireTanzuMetadataLock()

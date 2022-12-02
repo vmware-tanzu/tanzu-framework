@@ -1,0 +1,1 @@
+{"name":"cluster","description":"Kubernetes cluster operations","version":"v1.6.0","buildSHA":"c2dbd15","digest":"","group":"Run","docURL":"","completionType":0,"aliases":["cl","clusters"],"installationPath":"","discovery":"","scope":"","status":""}

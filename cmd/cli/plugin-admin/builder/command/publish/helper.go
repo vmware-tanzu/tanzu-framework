@@ -36,6 +36,7 @@ type pluginInfo struct {
 	recommendedVersion string
 	description        string
 	versions           map[string][]osArch
+	target             string
 }
 
 var fs = afero.NewOsFs()
@@ -44,7 +45,8 @@ func detectAvailablePluginInfo(artifactDir string, plugins, arrOSArch []string, 
 	mapPluginInfo := make(map[string]*pluginInfo)
 
 	// For all plugins
-	for _, plugin := range plugins {
+	for _, pluginTarget := range plugins {
+		plugin, target := getPluginNameAndTarget(pluginTarget)
 		// For all supported OS
 		for _, osArch := range arrOSArch {
 			o, a, err := splitOSArch(osArch)
@@ -67,21 +69,22 @@ func detectAvailablePluginInfo(artifactDir string, plugins, arrOSArch []string, 
 			}
 
 			description := getDescriptionFromPluginYaml(filepath.Join(artifactDir, o, a, "cli", plugin, "plugin.yaml"))
-			// Update recommanded version and Description
-			updatePluginInfoMapWithRecommandedVersionDescription(mapPluginInfo, plugin, recommandedVersion, description)
+			// Update recommended version, Description and Target
+			updatePluginInfoMapWithRecommandedVersionDescriptionTarget(mapPluginInfo, plugin, recommandedVersion, description, target)
 		}
 	}
 
 	return mapPluginInfo, nil
 }
 
-func updatePluginInfoMapWithRecommandedVersionDescription(mapPluginInfo map[string]*pluginInfo, plugin, recommendedVersion, description string) {
+func updatePluginInfoMapWithRecommandedVersionDescriptionTarget(mapPluginInfo map[string]*pluginInfo, plugin, recommendedVersion, description, target string) {
 	if mapPluginInfo[plugin] == nil {
 		mapPluginInfo[plugin] = &pluginInfo{}
 		mapPluginInfo[plugin].versions = make(map[string][]osArch)
 	}
 	mapPluginInfo[plugin].recommendedVersion = recommendedVersion
 	mapPluginInfo[plugin].description = description
+	mapPluginInfo[plugin].target = target
 }
 
 func updatePluginInfoMapWithVersionOSArch(mapPluginInfo map[string]*pluginInfo, plugin, version, osType, arch string) {
@@ -112,13 +115,14 @@ func getDescriptionFromPluginYaml(pluginYaml string) string {
 	return ""
 }
 
-func newCLIPluginResource(plugin, description, version string, artifacts map[string]v1alpha1.ArtifactList) v1alpha1.CLIPlugin {
+func newCLIPluginResource(plugin, target, description, version string, artifacts map[string]v1alpha1.ArtifactList) v1alpha1.CLIPlugin {
 	cliPlugin := v1alpha1.CLIPlugin{}
 	cliPlugin.SetGroupVersionKind(v1alpha1.GroupVersionKindCLIPlugin)
 	cliPlugin.SetName(plugin)
 	cliPlugin.Spec.Description = description
 	cliPlugin.Spec.RecommendedVersion = version
 	cliPlugin.Spec.Artifacts = artifacts
+	cliPlugin.Spec.Target = v1alpha1.Target(target)
 	return cliPlugin
 }
 

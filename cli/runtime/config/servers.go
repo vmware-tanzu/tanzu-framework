@@ -5,9 +5,6 @@ package config
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/aunum/log"
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config/nodeutils"
@@ -228,54 +225,6 @@ func RemoveServer(name string) error {
 	return persistConfig(node)
 }
 
-// GetDiscoverySources returns all discovery sources
-// Includes standalone discovery sources and if server is available
-// it also includes context based discovery sources as well
-func GetDiscoverySources(serverName string) []configapi.PluginDiscovery {
-	server, err := GetServer(serverName)
-	if err != nil {
-		log.Warningf("unknown server '%s', Unable to get server based discovery sources: %s", serverName, err.Error())
-		return []configapi.PluginDiscovery{}
-	}
-
-	discoverySources := server.DiscoverySources
-	// If current server type is management-cluster, then add
-	// the default kubernetes discovery endpoint pointing to the
-	// management-cluster kubeconfig
-	if server.Type == configapi.ManagementClusterServerType {
-		defaultClusterK8sDiscovery := configapi.PluginDiscovery{
-			Kubernetes: &configapi.KubernetesDiscovery{
-				Name:    fmt.Sprintf("default-%s", serverName),
-				Path:    server.ManagementClusterOpts.Path,
-				Context: server.ManagementClusterOpts.Context,
-			},
-		}
-		discoverySources = append(discoverySources, defaultClusterK8sDiscovery)
-	}
-
-	// If the current server type is global, then add the default REST endpoint
-	// for the discovery service
-	if server.Type == configapi.GlobalServerType && server.GlobalOpts != nil {
-		defaultRestDiscovery := configapi.PluginDiscovery{
-			REST: &configapi.GenericRESTDiscovery{
-				Name:     fmt.Sprintf("default-%s", serverName),
-				Endpoint: appendURLScheme(server.GlobalOpts.Endpoint),
-				BasePath: "v1alpha1/system/binaries/plugins",
-			},
-		}
-		discoverySources = append(discoverySources, defaultRestDiscovery)
-	}
-	return discoverySources
-}
-
-func appendURLScheme(endpoint string) string {
-	e := strings.Split(endpoint, ":")[0]
-	if !strings.Contains(e, "https") {
-		return fmt.Sprintf("https://%s", e)
-	}
-	return e
-}
-
 func setCurrentServer(node *yaml.Node, name string) (persist bool, err error) {
 	// find current server node
 	keys := []nodeutils.Key{
@@ -333,6 +282,7 @@ func removeCurrentServer(node *yaml.Node, name string) error {
 	return nil
 }
 
+//nolint:dupl
 func removeServer(node *yaml.Node, name string) error {
 	// find servers node
 	keys := []nodeutils.Key{
@@ -340,7 +290,7 @@ func removeServer(node *yaml.Node, name string) error {
 	}
 	serversNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if serversNode == nil {
-		return nodeutils.ErrNodeNotFound
+		return nil
 	}
 	var servers []*yaml.Node
 	for _, serverNode := range serversNode.Content {
@@ -392,7 +342,7 @@ func setServer(node *yaml.Node, s *configapi.Server) (persist bool, err error) {
 		if index := nodeutils.GetNodeIndex(serverNode.Content, "name"); index != -1 &&
 			serverNode.Content[index].Value == s.Name {
 			exists = true
-			_, err = nodeutils.ReplaceNodes(newServerNode.Content[0], serverNode, nodeutils.WithPatchStrategyKey(KeyServers), nodeutils.WithPatchStrategies(patchStrategies))
+			_, err = nodeutils.DeleteNodes(newServerNode.Content[0], serverNode, nodeutils.WithPatchStrategyKey(KeyServers), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
 				return false, err
 			}

@@ -8,17 +8,17 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
-	"github.com/aunum/log"
-	"github.com/briandowns/spinner"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -31,22 +31,12 @@ var RootCmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
-var (
-	noInit      bool
-	forceNoInit = "true" // a string variable so as to be overridable via linker flag
-)
-
 // NewRootCmd creates a root command.
 func NewRootCmd() (*cobra.Command, error) {
 	uFunc := cli.NewMainUsage().Func()
 	RootCmd.SetUsageFunc(uFunc)
 	k8sCmd.SetUsageFunc(uFunc)
 	tmcCmd.SetUsageFunc(uFunc)
-
-	ni := os.Getenv("TANZU_CLI_NO_INIT")
-	if ni != "" || strings.EqualFold(forceNoInit, "true") {
-		noInit = true
-	}
 
 	// configure defined environment variables under tanzu config file
 	cliconfig.ConfigureEnvVariables()
@@ -73,34 +63,52 @@ func NewRootCmd() (*cobra.Command, error) {
 			k8sCmd,
 			tmcCmd,
 		)
-		if err := addCtxPlugins(k8sCmd, configapi.CtxTypeK8s); err != nil {
-			return nil, err
+		mapCtxTypeToCmd := map[cliv1alpha1.Target]*cobra.Command{
+			cliv1alpha1.TargetK8s: k8sCmd,
+			cliv1alpha1.TargetTMC: tmcCmd,
 		}
-		if err := addCtxPlugins(tmcCmd, configapi.CtxTypeTMC); err != nil {
+		if err := addPluginsToTarget(mapCtxTypeToCmd); err != nil {
 			return nil, err
 		}
 	}
 
-	plugins, err := getAvailablePlugins()
+	serverPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins()
 	if err != nil {
 		return nil, err
 	}
+
+	plugins := serverPlugins
+	plugins = append(plugins, standalonePlugins...)
 
 	if err = config.CopyLegacyConfigDir(); err != nil {
 		return nil, fmt.Errorf("failed to copy legacy configuration directory to new location: %w", err)
 	}
 
-	// If context-aware-cli-for-plugins feature is not enabled
-	// check that all plugins in the core distro are installed or do so.
-	if !config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-		plugins, err = checkAndInstallMissingPlugins(plugins)
-		if err != nil {
-			return nil, err
+	var maskedPlugins []string
+
+	for i := range plugins {
+		// Only add plugins that should be available as root level command
+		if isPluginRootCmdTargeted(&plugins[i]) {
+			cmd := cli.GetCmd(&plugins[i])
+			// check and find if same command already exists as part of root command
+			matchedCmd := findSubCommand(RootCmd, cmd)
+			if matchedCmd == nil { // If the subcommand for the plugin doesn't exist add the command
+				RootCmd.AddCommand(cmd)
+			} else if plugins[i].Scope == common.PluginScopeContext && isStandalonePluginCommand(matchedCmd) {
+				// If the subcommand already exists but plugin is `Context-Scoped` plugin
+				// then context-scoped plugin gets higher precedence, so, replace the existing command
+				// to point to new command by removing and adding new command.
+				maskedPlugins = append(maskedPlugins, matchedCmd.Name())
+				RootCmd.RemoveCommand(matchedCmd)
+				RootCmd.AddCommand(cmd)
+			} else {
+				maskedPlugins = append(maskedPlugins, plugins[i].Name)
+			}
 		}
 	}
 
-	for _, plugin := range plugins {
-		RootCmd.AddCommand(cli.GetCmd(plugin))
+	if len(maskedPlugins) > 0 {
+		fmt.Fprintf(os.Stderr, "Warning, Masking commands for plugins %q because a core command or other plugin with that name already exists. \n", strings.Join(maskedPlugins, ", "))
 	}
 
 	duplicateAliasWarning()
@@ -129,92 +137,20 @@ var tmcCmd = &cobra.Command{
 	},
 }
 
-func addCtxPlugins(cmd *cobra.Command, ctxType configapi.ContextType) error {
-	var ctxName string
-	if ctx, _ := config.GetCurrentContext(ctxType); ctx != nil {
-		ctxName = ctx.Name
-	}
-
-	ctxPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins(ctxName)
+func addPluginsToTarget(mapCtxTypeToCmd map[cliv1alpha1.Target]*cobra.Command) error {
+	installedPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins()
 	if err != nil {
 		return fmt.Errorf("unable to find installed plugins: %w", err)
 	}
 
-	if ctxType == configapi.CtxTypeK8s {
-		// Standalone plugins exist only for K8s context type.
-		for i := range standalonePlugins {
-			if standalonePlugins[i].Group == cliapi.SystemCmdGroup {
-				// Do not include plugins from the system command group.
-				continue
-			}
-			cmd.AddCommand(cli.GetCmd(&standalonePlugins[i]))
-		}
-	}
+	installedPlugins = append(installedPlugins, standalonePlugins...)
 
-	for i := range ctxPlugins {
-		cmd.AddCommand(cli.GetCmd(&ctxPlugins[i]))
+	for i := range installedPlugins {
+		if cmd, exists := mapCtxTypeToCmd[installedPlugins[i].Target]; exists {
+			cmd.AddCommand(cli.GetCmd(&installedPlugins[i]))
+		}
 	}
 	return nil
-}
-
-func getAvailablePlugins() ([]*cliapi.PluginDescriptor, error) {
-	plugins := make([]*cliapi.PluginDescriptor, 0)
-	var err error
-
-	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
-		currentServerName := ""
-
-		server, err := config.GetCurrentServer()
-		if err == nil && server != nil {
-			currentServerName = server.Name
-		}
-
-		serverPlugin, standalonePlugins, err := pluginmanager.InstalledPlugins(currentServerName)
-		if err != nil {
-			return nil, fmt.Errorf("find installed plugins: %w", err)
-		}
-
-		allPlugins := serverPlugin
-		allPlugins = append(allPlugins, standalonePlugins...)
-		for i := range allPlugins {
-			plugins = append(plugins, &allPlugins[i])
-		}
-	} else {
-		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		plugins, err = cli.ListPlugins()
-		if err != nil {
-			return nil, fmt.Errorf("find available plugins: %w", err)
-		}
-	}
-	return plugins, nil
-}
-
-func checkAndInstallMissingPlugins(plugins []*cliapi.PluginDescriptor) ([]*cliapi.PluginDescriptor, error) {
-	// check that all plugins in the core distro are installed or do so.
-	if !noInit && !cli.IsDistributionSatisfied(plugins) {
-		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-		if err := s.Color("bgBlack", "bold", "fgWhite"); err != nil {
-			return nil, err
-		}
-		s.Suffix = fmt.Sprintf(" %s", "initializing")
-		s.Start()
-		cfg, err := config.GetClientConfig()
-		if err != nil {
-			log.Fatal(err)
-		}
-		repos := cli.NewMultiRepo(cli.LoadRepositories(cfg)...)
-		err = cli.EnsureDistro(repos)
-		if err != nil {
-			return nil, err
-		}
-		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
-		plugins, err = cli.ListPlugins()
-		if err != nil {
-			return nil, fmt.Errorf("find available plugins: %w", err)
-		}
-		s.Stop()
-	}
-	return plugins, nil
 }
 
 func duplicateAliasWarning() {
@@ -244,4 +180,24 @@ func Execute() error {
 		return err
 	}
 	return root.Execute()
+}
+
+func findSubCommand(rootCmd, subCmd *cobra.Command) *cobra.Command {
+	arrSubCmd := rootCmd.Commands()
+	for i := range arrSubCmd {
+		if arrSubCmd[i].Name() == subCmd.Name() {
+			return arrSubCmd[i]
+		}
+	}
+	return nil
+}
+
+func isPluginRootCmdTargeted(plugin *cliapi.PluginDescriptor) bool {
+	// Only '<none>' targeted and `k8s` targeted plugins are considered root cmd targeted plugins
+	return plugin != nil && (plugin.Target == cliv1alpha1.TargetNone || plugin.Target == cliv1alpha1.TargetK8s)
+}
+
+func isStandalonePluginCommand(cmd *cobra.Command) bool {
+	scope, exists := cmd.Annotations["scope"]
+	return exists && scope == common.PluginScopeStandalone
 }

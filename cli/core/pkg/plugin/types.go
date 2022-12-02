@@ -5,6 +5,8 @@
 package plugin
 
 import (
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/distribution"
 )
 
@@ -48,10 +50,28 @@ type Discovered struct {
 	// discovered.
 	Source string
 
+	// ContextName is the name of the context from where the plugin was discovered.
+	ContextName string
+
 	// DiscoveryType defines the type of the discovery. Possible values are
 	// oci, local or kubernetes
 	DiscoveryType string
 
+	// Target defines the target to which this plugin is applicable to
+	Target cliv1alpha1.Target
+
 	// Status is the installed/uninstalled status of the plugin.
 	Status string
+}
+
+// DiscoveredSorter sorts discovered objects.
+type DiscoveredSorter []Discovered
+
+func (d DiscoveredSorter) Len() int      { return len(d) }
+func (d DiscoveredSorter) Swap(i, j int) { d[i], d[j] = d[j], d[i] }
+func (d DiscoveredSorter) Less(i, j int) bool {
+	if d[i].Target != d[j].Target {
+		return d[i].Target < d[j].Target
+	}
+	return d[i].Name < d[j].Name
 }

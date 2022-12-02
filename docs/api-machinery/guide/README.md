@@ -2,7 +2,7 @@
 
 The purpose of this walkthrough is to provide a good starting place for those writing new features atop Framework.
 
-The primary aim is to intoduce the APIs and tools available in Framework to developers of new APIs.
+The primary aim is to introduce the APIs and tools available in Framework to developers of new APIs.
 
 We will use stock Kubebuilder and manually setup a Feature, and the Query for the controller via Capabilities API.
 
@@ -47,18 +47,13 @@ vim api/v1alpha1/megacache_types.go
 Add the following line to your types file one line above the type itself.
 
 ```go
-//+tanzu:feature:name=megacache,immutable=false,activated=false,discoverable=true,maturity=dev
+//+tanzu:feature:name=mega-cache,stability=Technical Preview
 ```
 
-This tag states that this Type makes use of a feature `enable-cache`, which is mutable and deactivated by default.
+This tag states that this Type makes use of a feature `mega-cache` with stability level as `Technical Preview`, which is
+mutable, discoverable, deactivated by default and does not void support warranty of the environment if activated.
 
-This Feature will be discoverable however, meaning it can be managed via FeatureGates.
-
-Finally, the maturity level is `dev`, which all new Features should start at.
-
-Features progress Maturity levels from `dev` to `alpha`, `beta` and finally `ga`. Features can also be of state `deprecated`.
-
-More info on these levels is available in the [Features Matrix](../features-and-featuregates.md#feature-promotion-best-practices).
+More info on these levels is available [here](../features-and-featuregates.md##stability-level-policies).
 
 ## Modify the type
 
@@ -75,17 +70,17 @@ type MegaCacheSpec struct {
 
 To do so, open `main.go` in the editor of your choice.
 
-Here, the FeatureGate Kind needs be registered in Scheme for type v1alpha1.FeatureGate after importing the appropriate package.
+Here, the FeatureGate Kind needs be registered in Scheme for type v1alpha2.FeatureGate after importing the appropriate package.
 
 The init function should look like below after adding the appropriate Kinds to the scheme:
 
 ```go
-import configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+import corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 ...
 
 func init() {
         utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-        utilruntime.Must(configv1alpha1.AddToScheme(scheme))
+        utilruntime.Must(corev1alpha2.AddToScheme(scheme))
         utilruntime.Must(examplev1alpha1.AddToScheme(scheme))
         //+kubebuilder:scaffold:scheme
 }
@@ -95,21 +90,21 @@ func init() {
 
 You may reference [this example of the controller code](examples/controller.go.sample).
 
-Next, the controller code needs some updating. We want it to provide a manager that listens for FeatureGate updates,
+Next, the controller code needs some updating. We want it to provide a manager that listens for Feature updates,
 and we want to provide a simple means of checking the feature in our reconciler function.
 
 ### Update Imports
 
-First add the import for the Framework Config API package and the SDK FeatureGate package.
+First add the import for the Framework Core API package and the SDK FeatureGate package.
 
 ```go
-configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 gate "github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient"
 ```
 
 ### Update Manager
 
-We need to update the manager setup to listen for the FeatureGate updates.
+We need to update the manager setup to listen for the Feature updates.
 
 It should look like this afterword:
 
@@ -118,7 +113,7 @@ It should look like this afterword:
 func (r *MegaCacheReconciler) SetupWithManager(mgr ctrl.Manager) error {
     return ctrl.NewControllerManagedBy(mgr).
         For(&mygroupv1alpha1.MegaCache{}).
-        Watches(&source.Kind{Type: &configv1alpha1.FeatureGate{}}, eventHandler(mgr.GetClient())).
+        Watches(&source.Kind{Type: &corev1alpha2.Feature{}}, eventHandler(mgr.GetClient())).
         Complete(r)
 }
 
@@ -149,7 +144,7 @@ To do so, in this case we will add the following functionality in the reconcile 
 This code will essentially toggle the logic of the entire controller, but your code should be more granular.
 
 ```go
-enabled, err := gate.FeatureActivatedInNamespace(ctx, r.Client, ns, "megacache")
+enabled, err := gate.IsFeatureActivated(ctx, r.Client, "megacache")
 if err != nil {
         return ctrl.Result{}, err
 }

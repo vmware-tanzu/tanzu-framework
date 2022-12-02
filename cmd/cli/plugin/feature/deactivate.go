@@ -22,22 +22,21 @@ var FeatureDeactivateCmd = &cobra.Command{
 	tanzu feature deactivate myfeature`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		featureName := args[0]
-		featureGateClient, err := featuregateclient.NewFeatureGateClient()
+
+		fgClient, err := featuregateclient.NewFeatureGateClient()
 		if err != nil {
-			return fmt.Errorf("couldn't get a featureGateRunner: %w", err)
+			return fmt.Errorf("could not get FeatureGate client: %w", err)
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 		defer cancel()
 
-		if err := featureGateClient.DeactivateFeature(ctx, featureName, featuregate); err != nil {
-			return fmt.Errorf("couldn't deactivate feature %s: %w", featureName, err)
+		gateName, err := fgClient.DeactivateFeature(ctx, featureName)
+		if err != nil {
+			return fmt.Errorf("could not deactivate Feature %s gated by FeatureGate %s: %w", featureName, gateName, err)
 		}
-		cmd.Printf("Feature %s Deactivated", featureName)
+
+		cmd.Printf("Feature %s gated by FeatureGate %s is deactivated.\n", featureName, gateName)
 		return nil
 	},
-}
-
-func init() {
-	FeatureDeactivateCmd.Flags().StringVarP(&featuregate, "featuregate", "f", "tkg-system", "Deactivate Feature gated by a particular FeatureGate")
 }

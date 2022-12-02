@@ -4,6 +4,7 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"reflect"
 	"strings"
 
@@ -111,7 +112,11 @@ func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *run
 
 	// Will use cluster-wide proxy and network setting if no user input is provided
 	if cluster.Annotations != nil {
-		configSpec.KappController.Config.CaCerts = cluster.Annotations[types.ProxyCACertConfigAnnotation]
+		data, err := base64.StdEncoding.DecodeString(cluster.Annotations[types.ProxyCACertConfigAnnotation])
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unable to decode certificate from cluster annotation %s", types.ProxyCACertConfigAnnotation)
+		}
+		configSpec.KappController.Config.CaCerts = string(data)
 		configSpec.KappController.Config.HTTPProxy = cluster.Annotations[types.HTTPProxyConfigAnnotation]
 		configSpec.KappController.Config.HTTPSProxy = cluster.Annotations[types.HTTPSProxyConfigAnnotation]
 		configSpec.KappController.Config.NoProxy = cluster.Annotations[types.NoProxyConfigAnnotation]

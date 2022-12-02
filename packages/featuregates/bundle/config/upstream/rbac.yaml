@@ -54,6 +54,44 @@ rules:
       - patch
       - update
   - apiGroups:
+      - core.tanzu.vmware.com
+    resources:
+      - featuregates
+    verbs:
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - core.tanzu.vmware.com
+    resources:
+      - featuregates/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - core.tanzu.vmware.com
+    resources:
+      - features
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - core.tanzu.vmware.com
+    resources:
+      - features/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
       - ""
     resources:
       - namespaces

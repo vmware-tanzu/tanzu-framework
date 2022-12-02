@@ -29,7 +29,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 
 	gate "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/featuregate"
 	mygroupv1alpha1 "my.domain/demo-operator/api/v1alpha1"
@@ -70,7 +70,7 @@ func (r *MegaCacheReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 func (r *MegaCacheReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&mygroupv1alpha1.MegaCache{}).
-		Watches(&source.Kind{Type: &configv1alpha1.FeatureGate{}}, eventHandler(mgr.GetClient())).
+		Watches(&source.Kind{Type: &corev1alpha2.Feature{}}, eventHandler(mgr.GetClient())).
 		Complete(r)
 }
 

@@ -147,6 +147,28 @@ func GetCurrentContext(ctxType configapi.ContextType) (c *configapi.Context, err
 	return getCurrentContext(node, ctxType)
 }
 
+// GetAllCurrentContextsMap returns all current context per ContextType
+func GetAllCurrentContextsMap() (map[configapi.ContextType]*configapi.Context, error) {
+	node, err := getClientConfigNodeNoLock()
+	if err != nil {
+		return nil, err
+	}
+	return getAllCurrentContextsMap(node)
+}
+
+// GetAllCurrentContextsList returns all current context names as list
+func GetAllCurrentContextsList() ([]string, error) {
+	currentContextsMap, err := GetAllCurrentContextsMap()
+	if err != nil {
+		return nil, err
+	}
+	var serverNames []string
+	for _, context := range currentContextsMap {
+		serverNames = append(serverNames, context.Name)
+	}
+	return serverNames, nil
+}
+
 // SetCurrentContext sets the current context to the specified name if context is present
 func SetCurrentContext(name string) error {
 	// Retrieve client config node
@@ -171,14 +193,16 @@ func SetCurrentContext(name string) error {
 			return err
 		}
 	}
-	persist, err = setCurrentServer(node, name)
-	if err != nil {
-		return err
-	}
-	if persist {
-		err = persistConfig(node)
+	if ctx.Type == configapi.CtxTypeK8s {
+		persist, err = setCurrentServer(node, name)
 		if err != nil {
 			return err
+		}
+		if persist {
+			err = persistConfig(node)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return err
@@ -193,13 +217,11 @@ func RemoveCurrentContext(ctxType configapi.ContextType) error {
 	if err != nil {
 		return err
 	}
-
-	ctx := &configapi.Context{Type: ctxType}
-	err = removeCurrentContext(node, ctx)
+	c, err := getCurrentContext(node, ctxType)
 	if err != nil {
 		return err
 	}
-	c, err := getCurrentContext(node, ctxType)
+	err = removeCurrentContext(node, &configapi.Context{Type: ctxType})
 	if err != nil {
 		return err
 	}
@@ -241,6 +263,14 @@ func getCurrentContext(node *yaml.Node, ctxType configapi.ContextType) (*configa
 		return nil, err
 	}
 	return cfg.GetCurrentContext(ctxType)
+}
+
+func getAllCurrentContextsMap(node *yaml.Node) (map[configapi.ContextType]*configapi.Context, error) {
+	cfg, err := convertNodeToClientConfig(node)
+	if err != nil {
+		return nil, err
+	}
+	return cfg.GetAllCurrentContextsMap()
 }
 
 func setContexts(node *yaml.Node, contexts []*configapi.Context) (err error) {
@@ -286,7 +316,7 @@ func setContext(node *yaml.Node, ctx *configapi.Context) (persist bool, err erro
 			contextNode.Content[index].Value == ctx.Name {
 			exists = true
 			// replace the nodes as per patch strategy
-			_, err = nodeutils.ReplaceNodes(newContextNode.Content[0], contextNode, nodeutils.WithPatchStrategyKey(KeyContexts), nodeutils.WithPatchStrategies(patchStrategies))
+			_, err = nodeutils.DeleteNodes(newContextNode.Content[0], contextNode, nodeutils.WithPatchStrategyKey(KeyContexts), nodeutils.WithPatchStrategies(patchStrategies))
 			if err != nil {
 				return false, err
 			}
@@ -344,19 +374,24 @@ func removeCurrentContext(node *yaml.Node, ctx *configapi.Context) error {
 	// Find current context node in the yaml node
 	keys := []nodeutils.Key{
 		{Name: KeyCurrentContext},
-		{Name: string(ctx.Type)},
 	}
+
 	currentContextNode := nodeutils.FindNode(node.Content[0], nodeutils.WithKeys(keys))
 	if currentContextNode == nil {
 		return nil
 	}
-	if currentContextNode.Value == ctx.Name || ctx.Name == "" {
-		currentContextNode.Value = ""
-		currentContextNode.Style = 0
+	ctxTypeNodeIndex := nodeutils.GetNodeIndex(currentContextNode.Content, string(ctx.Type))
+	if ctxTypeNodeIndex == -1 {
+		return nil
+	}
+	if currentContextNode.Content[ctxTypeNodeIndex].Value == ctx.Name || ctx.Name == "" {
+		ctxTypeNodeIndex--
+		currentContextNode.Content = append(currentContextNode.Content[:ctxTypeNodeIndex], currentContextNode.Content[ctxTypeNodeIndex+2:]...)
 	}
 	return nil
 }
 
+//nolint:dupl
 func removeContext(node *yaml.Node, name string) error {
 	// Find the contexts node in the yaml node
 	keys := []nodeutils.Key{

@@ -5,7 +5,7 @@
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 metadata:
-  name: ako-operator-v2
+  name: ako-operator
   namespace: tkg-system
   labels:
     tkg.tanzu.vmware.com/package-type: "management"

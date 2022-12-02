@@ -51,7 +51,6 @@ var (
 		tkrv1alpha3.OsCmd,
 		tkrv1alpha3.ActivateCmd,
 		tkrv1alpha3.DeactivateCmd,
-		osImageCmd,
 	}
 )
 

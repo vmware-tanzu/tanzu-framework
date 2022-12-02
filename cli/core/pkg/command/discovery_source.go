@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
+
 	"github.com/aunum/log"
 
 	"github.com/pkg/errors"
@@ -69,17 +71,22 @@ var listDiscoverySourceCmd = &cobra.Command{
 			outputFromDiscoverySources(cfg.ClientOptions.CLI.DiscoverySources, common.PluginScopeStandalone, output)
 		}
 
-		// Get context scoped discoveries
-		server, err := configlib.GetCurrentServer()
-		if err == nil && server != nil {
-			var serverDiscoverySources []configapi.PluginDiscovery
-			if server.DiscoverySources == nil {
-				serverDiscoverySources = configlib.GetDiscoverySources(server.Name)
-			} else {
-				serverDiscoverySources = server.DiscoverySources
+		// If context-target feature is activated, get discovery sources from all active context
+		// else get discovery sources from current server
+		if configlib.IsFeatureActivated(config.FeatureContextCommand) {
+			mapContexts, err := configlib.GetAllCurrentContextsMap()
+			if err == nil {
+				for _, context := range mapContexts {
+					outputFromDiscoverySources(context.DiscoverySources, common.PluginScopeContext, output)
+				}
 			}
-			outputFromDiscoverySources(serverDiscoverySources, common.PluginScopeContext, output)
+		} else {
+			server, err := configlib.GetCurrentServer()
+			if err == nil && server != nil {
+				outputFromDiscoverySources(server.DiscoverySources, common.PluginScopeContext, output)
+			}
 		}
+
 		output.Render()
 
 		return nil
@@ -193,25 +200,7 @@ var deleteDiscoverySourceCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		discoveryName := args[0]
 
-		// Acquire tanzu config lock
-		configlib.AcquireTanzuConfigLock()
-		defer configlib.ReleaseTanzuConfigLock()
-
-		cfg, err := configlib.GetClientConfigNoLock()
-		if err != nil {
-			return err
-		}
-		if cfg.ClientOptions == nil || cfg.ClientOptions.CLI == nil {
-			return fmt.Errorf("discovery %q unknown", discoveryName)
-		}
-
-		newDiscoverySources, err := deleteDiscoverySource(cfg.ClientOptions.CLI.DiscoverySources, discoveryName)
-		if err != nil {
-			return err
-		}
-
-		cfg.ClientOptions.CLI.DiscoverySources = newDiscoverySources
-		err = configlib.StoreClientConfig(cfg)
+		err = configlib.DeleteCLIDiscoverySource(discoveryName)
 		if err != nil {
 			return err
 		}

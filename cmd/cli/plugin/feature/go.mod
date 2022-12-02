@@ -5,18 +5,18 @@ go 1.18
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../../../apis/config
-	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../../../apis/run
+	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../../../apis/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../../../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/featuregates/client => ../../../../featuregates/client
+	github.com/vmware-tanzu/tanzu-framework/util => ../../../../util
 )
 
 require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/spf13/cobra v1.5.0
-	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220824221239-af5a644ffef7
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20220901171806-254f018f3ce4
+	github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/featuregates/client v0.0.0-00010101000000-000000000000
-	k8s.io/apimachinery v0.24.4
 	k8s.io/client-go v0.24.4
 	sigs.k8s.io/controller-runtime v0.12.3
 )
@@ -69,6 +69,7 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
@@ -86,6 +87,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.24.4 // indirect
 	k8s.io/apiextensions-apiserver v0.24.4 // indirect
+	k8s.io/apimachinery v0.24.4 // indirect
 	k8s.io/component-base v0.24.4 // indirect
 	k8s.io/klog/v2 v2.80.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803164354-a70c9af30aea // indirect

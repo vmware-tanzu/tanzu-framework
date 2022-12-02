@@ -4,6 +4,7 @@
 package util
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -89,6 +90,7 @@ func ParseClusterVariableList(cluster *clusterapiv1beta1.Cluster, variableName s
 	return varList, err
 }
 
+// Decode all certificate then append them in single string, then ecode them together
 func ParseClusterVariableCert(cluster *clusterapiv1beta1.Cluster, variableName, keyName, data string) (string, error) {
 	var result interface{}
 	var sb strings.Builder
@@ -104,13 +106,18 @@ func ParseClusterVariableCert(cluster *clusterapiv1beta1.Cluster, variableName, 
 				if cert, ok := certRaw.(map[string]interface{}); ok {
 					certData := cert[data]
 					if _, ok := certData.(string); ok {
-						sb.WriteString(certData.(string) + "\n")
+						decoded, err := base64.StdEncoding.DecodeString(certData.(string))
+						if err != nil {
+							return "", err
+						}
+						sb.Write(decoded)
+						sb.WriteString("\n")
 					}
 				}
 			}
 		}
 	}
-	return sb.String(), err
+	return base64.StdEncoding.EncodeToString([]byte(sb.String())), err
 }
 
 func parseClusterVariable(cluster *clusterapiv1beta1.Cluster, variableName string) (interface{}, error) {

@@ -52,6 +52,7 @@ type FeatureGateStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
+//+kubebuilder:deprecatedversion:warning="FeatureGate API in config.tanzu.vmware.com is deprecated. Use FeatureGate API from core.tanzu.vmware.com instead"
 
 // FeatureGate is the Schema for the featuregates API
 type FeatureGate struct {

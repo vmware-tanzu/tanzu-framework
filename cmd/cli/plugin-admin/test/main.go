@@ -42,7 +42,7 @@ func main() {
 		pluginsCmd,
 	)
 
-	_, standalonePlugins, err := pluginmanager.InstalledPlugins("")
+	_, standalonePlugins, err := pluginmanager.InstalledPlugins()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,6 +70,6 @@ var fetchCmd = &cobra.Command{
 	Use:   "fetch",
 	Short: "Fetch the plugin tests",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return pluginmanager.InstallPluginsFromLocalSource("all", "", local, true)
+		return pluginmanager.InstallPluginsFromLocalSource("all", "", "", local, true)
 	},
 }

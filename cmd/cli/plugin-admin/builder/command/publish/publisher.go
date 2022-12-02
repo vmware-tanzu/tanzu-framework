@@ -6,6 +6,7 @@ package publish
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -45,6 +46,7 @@ func PublishPlugins(pm *Metadata) error {
 	}
 
 	for plugin, pluginInfo := range availablePluginInfo {
+
 		mapVersionArtifactList := make(map[string]v1alpha1.ArtifactList)
 
 		// Create version based artifact list
@@ -67,7 +69,7 @@ func PublishPlugins(pm *Metadata) error {
 		}
 
 		// Create new CLIPlugin resource based on plugin and artifact info
-		cliPlugin := newCLIPluginResource(plugin, pluginInfo.description, pluginInfo.recommendedVersion, mapVersionArtifactList)
+		cliPlugin := newCLIPluginResource(plugin, pluginInfo.target, pluginInfo.description, pluginInfo.recommendedVersion, mapVersionArtifactList)
 
 		err := saveCLIPluginResource(&cliPlugin, filepath.Join(pm.LocalDiscoveryPath, plugin+".yaml"))
 		if err != nil {
@@ -76,4 +78,14 @@ func PublishPlugins(pm *Metadata) error {
 	}
 
 	return pm.PublisherInterface.PublishDiscovery()
+}
+
+func getPluginNameAndTarget(pluginTarget string) (string, string) {
+	arr := strings.Split(pluginTarget, ":")
+	plugin := arr[0]
+	target := ""
+	if len(arr) > 1 {
+		target = arr[1]
+	}
+	return plugin, target
 }

@@ -12,12 +12,13 @@ import (
 )
 
 func TestSetGetRepository(t *testing.T) {
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
+
 	tests := []struct {
 		name string
 		cfg  *configapi.ClientConfig

@@ -3,6 +3,7 @@ load("@ytt:overlay", "overlay")
 load("@ytt:yaml", "yaml")
 load("/lib/helpers.star", "get_default_tkg_bom_data")
 load("/lib/helpers.star", "get_labels_array_from_string")
+load("/lib/helpers.star", "get_extra_args_map_from_string")
 
 #! This file contains function 'config_variable_association' which specifies all configuration variables
 #! mentioned in 'config_default.yaml' and describes association of each configuration variable with
@@ -123,6 +124,7 @@ return {
 "NODE_POOL_0_LABELS": ["tkg-service-vsphere"],
 "NODE_POOL_0_TAINTS": ["tkg-service-vsphere"],
 "CONTROL_PLANE_NODE_LABELS": ["vsphere", "aws", "azure"],
+"ETCD_EXTRA_ARGS": ["vsphere", "aws", "azure"],
 
 "AZURE_ENVIRONMENT": ["azure"],
 "AZURE_TENANT_ID": ["azure"],
@@ -304,7 +306,7 @@ return {
 "OCI_CONTROL_PLANE_PV_TRANSIT_ENCRYPTION": ["oci"],
 
 "KUBEVIP_LOADBALANCER_ENABLE": ["vsphere"],
-"KUBEVIP_LOADBALANCER_CIDRs": ["vsphere"],
+"KUBEVIP_LOADBALANCER_CIDRS": ["vsphere"],
 "KUBEVIP_LOADBALANCER_IP_RANGES": ["vsphere"],
 
 "PROVIDER_TYPE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
@@ -358,6 +360,10 @@ def get_cluster_variables():
 
     vars["cni"] = data.values["CNI"]
 
+    if data.values["CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE"]:
+        vars["controlPlaneCertificateRotationBefore"] = data.values["CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE"]
+    end
+
     customImageRepository = {}
     if data.values["TKG_CUSTOM_IMAGE_REPOSITORY"] != "":
         customImageRepository["host"] = data.values["TKG_CUSTOM_IMAGE_REPOSITORY"]
@@ -382,13 +388,13 @@ def get_cluster_variables():
 
 
     additionalTrustedCAs = []
+    #! TKG_PROXY_CA_CERT has higher priority than TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
     if data.values["TKG_PROXY_CA_CERT"] != "":
         additionalTrustedCAs.append({
             "name": "proxy",
             "data": data.values["TKG_PROXY_CA_CERT"]
         })
-    end
-    if data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"] != "":
+    elif data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"] != "":
         additionalTrustedCAs.append({
             "name": "imageRepository",
             "data": data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"]
@@ -579,6 +585,10 @@ def get_aws_vars():
 
     vars["worker"] = worker
 
+    if data.values["ETCD_EXTRA_ARGS"] != None:
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
+    end
+
     controlPlane = {}
     if data.values["CONTROL_PLANE_MACHINE_TYPE"] != None:
         controlPlane["instanceType"] = data.values["CONTROL_PLANE_MACHINE_TYPE"]
@@ -594,9 +604,6 @@ def get_aws_vars():
     end
 
     vars["controlPlane"] = controlPlane
-
-    if data.values["CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE"]:
-        vars["controlPlaneCertificateRotationBefore"] = data.values["CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE"]
 
     return vars
 end
@@ -713,6 +720,10 @@ def get_azure_vars():
 
     if controlPlane != {}:
         vars["controlPlane"] = controlPlane
+    end
+
+    if data.values["ETCD_EXTRA_ARGS"] != None:
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
     end
 
     worker = {}
@@ -851,6 +862,10 @@ def get_vsphere_vars():
         vars["controlPlane"] = controlPlane
     end
 
+    if data.values["ETCD_EXTRA_ARGS"] != None:
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
+    end
+
     worker = {}
     if data.values["WORKER_MACHINE_COUNT"] != "":
         worker["count"] = data.values["WORKER_MACHINE_COUNT"]
@@ -888,7 +903,7 @@ def get_vsphere_vars():
         vars["ntpServers"] = data.values["NTP_SERVERS"].replace(" ", "").split(",")
     end
 
-    if data.values["KUBEVIP_LOADBALANCER_ENABLE"] != "":
+    if data.values["KUBEVIP_LOADBALANCER_ENABLE"]:
         vars["kubeVipLoadBalancerProvider"] = True
     end
 
@@ -932,4 +947,4 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "externalControlPlaneEndpointSubnetId", "externalControlPlaneSubnetId", "externalWorkerSubnetId",
         "nodePvTransitEncryption", "controlPlaneMachineShape", "controlPlaneMachineOcpus",
         "controlPlanePvTransitEncryption",
-        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA"]
+        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", "controlPlaneCertificateRotationBefore"]

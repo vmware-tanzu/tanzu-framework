@@ -12,8 +12,31 @@ import (
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-func setupStoreClientConfigData() (string, string, *configapi.ClientConfig) {
-	tanzuConfig := `clientOptions:
+func TestStoreClientConfig(t *testing.T) {
+	cfg, expectedCfg, cfg2, expectedCfg2, c := setupStoreClientConfigData()
+
+	// Setup config data
+	cfgTestFiles, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfg2})
+
+	defer func() {
+		cleanUp()
+	}()
+
+	// Action
+	err := StoreClientConfig(c)
+	assert.NoError(t, err)
+
+	file, err := os.ReadFile(cfgTestFiles[0].Name())
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCfg, string(file))
+
+	file, err = os.ReadFile(cfgTestFiles[1].Name())
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCfg2, string(file))
+}
+
+func setupStoreClientConfigData() (string, string, string, string, *configapi.ClientConfig) {
+	cfg := `clientOptions:
   cli:
     discoverySources:
       - oci:
@@ -45,7 +68,9 @@ servers:
           required: true
         contextType: tmc
 current: test-mc
-contexts:
+`
+	//nolint:goconst
+	cfg2 := `contexts:
   - name: test-mc
     type: k8s
     group: one
@@ -69,7 +94,7 @@ contexts:
 currentContext:
   k8s: test-mc
 `
-	expectedConfig := `clientOptions:
+	expectedCfg := `clientOptions:
     cli:
         discoverySources:
             - oci:
@@ -87,7 +112,6 @@ currentContext:
                 name: test
                 bucket: ctx-test-bucket
                 manifestPath: ctx-test-manifest-path
-              contextType: k8s
         repositories:
             - gcpPluginRepository:
                 name: test
@@ -115,7 +139,9 @@ servers:
             required: true
           contextType: tmc
 current: test-mc
-contexts:
+`
+
+	expectedCfg2 := `contexts:
     - name: test-mc
       type: k8s
       group: one
@@ -129,17 +155,18 @@ contexts:
         path: test-context-path
         context: test-context
       discoverySources:
-        - gcp:
+        - local:
             name: test
+            path: test-local-path
+        - gcp:
+            name: test2
             bucket: ctx-test-bucket
             manifestPath: ctx-test-manifest-path
-            annotation: one
-            required: true
-          contextType: tmc
 currentContext:
     k8s: test-mc
 `
-	cfg := &configapi.ClientConfig{
+
+	c := &configapi.ClientConfig{
 		KnownServers: []*configapi.Server{
 			{
 				Name: "test-mc",
@@ -156,7 +183,6 @@ currentContext:
 							Bucket:       "test-bucket",
 							ManifestPath: "test-manifest-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 			},
@@ -175,11 +201,16 @@ currentContext:
 				DiscoverySources: []configapi.PluginDiscovery{
 					{
 						GCP: &configapi.GCPDiscovery{
-							Name:         "test",
+							Name:         "test2",
 							Bucket:       "ctx-test-bucket",
 							ManifestPath: "ctx-test-manifest-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
+					},
+					{
+						Local: &configapi.LocalDiscovery{
+							Name: "test",
+							Path: "test-local-path",
+						},
 					},
 				},
 			},
@@ -205,7 +236,6 @@ currentContext:
 							Bucket:       "ctx-test-bucket",
 							ManifestPath: "ctx-test-manifest-path",
 						},
-						ContextType: configapi.CtxTypeTMC,
 					},
 				},
 				UnstableVersionSelector: configapi.VersionSelectorLevel("unstable-version"),
@@ -215,24 +245,5 @@ currentContext:
 			},
 		},
 	}
-	return tanzuConfig, expectedConfig, cfg
-}
-
-func TestStoreClientConfig(t *testing.T) {
-	tanzuConfig, expectedConfig, cfg := setupStoreClientConfigData()
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(tanzuConfig), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-	err = StoreClientConfig(cfg)
-	assert.NoError(t, err)
-	file, err := os.ReadFile(f.Name())
-	assert.NoError(t, err)
-	assert.Equal(t, []byte(expectedConfig), file)
+	return cfg, expectedCfg, cfg2, expectedCfg2, c
 }

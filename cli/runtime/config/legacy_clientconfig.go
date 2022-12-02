@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"github.com/aunum/log"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 // CopyLegacyConfigDir copies configuration files from legacy config dir to the new location. This is a no-op if the legacy dir
@@ -68,4 +70,14 @@ func storeConfigToLegacyDir(data []byte) {
 		return
 	}
 	err = os.WriteFile(legacyCfgPath, data, 0644)
+}
+
+// persistLegacyClientConfig write to config.yaml
+func persistLegacyClientConfig(node *yaml.Node) error {
+	data, err := yaml.Marshal(node)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal nodeutils")
+	}
+	storeConfigToLegacyDir(data)
+	return nil
 }

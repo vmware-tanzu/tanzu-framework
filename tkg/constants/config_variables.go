@@ -284,4 +284,8 @@ const (
 	ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"
 
 	ConfigVariableFeatureFlagPackageBasedLCM = "FEATURE_FLAG_PACKAGE_BASED_LCM"
+
+	ConfigVariableKubevipLoadbalancerEnable   = "KUBEVIP_LOADBALANCER_ENABLE"
+	ConfigVariableKubevipLoadbalancerCIDRs    = "KUBEVIP_LOADBALANCER_CIDRS"
+	ConfigVariableKubevipLoadbalancerIPRanges = "KUBEVIP_LOADBALANCER_IP_RANGES"
 )

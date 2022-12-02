@@ -31,7 +31,7 @@ type MegaCacheStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+tanzu:feature:name=megacache,immutable=false,activated=false,discoverable=true,maturity=dev
+//+tanzu:feature:name=megacache,stability=Technical Preview
 
 // MegaCache is the Schema for the megacaches API
 type MegaCache struct {

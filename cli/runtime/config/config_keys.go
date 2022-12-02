@@ -18,6 +18,7 @@ const (
 	KeyUnstableVersionSelector = "unstableVersionSelector"
 	KeyEdition                 = "edition"
 	KeyKind                    = "kind"
+	KeyMetadata                = "metadata"
 	KeyAPIVersion              = "apiVersion"
 	KeyBomRepo                 = "bomRepo"
 	KeyCompatibilityFilePath   = "compatibilityFilePath"

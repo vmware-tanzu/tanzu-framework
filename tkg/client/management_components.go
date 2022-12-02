@@ -138,8 +138,13 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 		}
 	}
 
+	onBootstrapCluster := true
+	if kubecontext != "" {
+		onBootstrapCluster = false
+	}
+
 	// Get TKG package's values file
-	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(mcClient, managementPackageVersion, addonsManagerPackageVersion, upgrade)
+	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(mcClient, managementPackageVersion, addonsManagerPackageVersion, upgrade, onBootstrapCluster)
 	if err != nil {
 		return err
 	}
@@ -211,7 +216,7 @@ func (c *TkgClient) GetAddonsManagerPackageversion(managementPackageVersion stri
 	return packageVersion, nil
 }
 
-func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client, managementPackageVersion, addonsManagerPackageVersion string, upgrade bool) (string, error) {
+func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client, managementPackageVersion, addonsManagerPackageVersion string, upgrade, onBootstrapCluster bool) (string, error) {
 	var userProviderConfigValues map[string]interface{}
 	var err error
 
@@ -230,7 +235,7 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(mcClient clusterclient.Client,
 		return "", err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig, c.TKGConfigReaderWriter())
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig, c.TKGConfigReaderWriter(), onBootstrapCluster)
 	if err != nil {
 		return "", err
 	}
@@ -280,6 +285,20 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 		if err != nil {
 			return nil, errors.Wrapf(err, "unable to yaml unmashal the data.value of %s-config-values secret", clusterName)
 		}
+
+		// retrieve the akoo variables from legacy addon secret.
+		akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(clusterClient, clusterName)
+		if err != nil {
+			return nil, errors.Wrap(err, "unable to get akoo addon secret values")
+		}
+
+		if found {
+			err = RetrieveAKOOVariablesFromAddonSecretValues(clusterName, configValues, akooAddonSecretValues)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to handle the akoo specific variables")
+			}
+		}
+
 	} else {
 		return nil, errors.Wrapf(err, "unable to get the secret %v-%v-values, namespace: %v", constants.TKGManagementPackageInstallName, constants.TkgNamespace, constants.TkgNamespace)
 	}
@@ -500,4 +519,52 @@ func ProcessAKOPackageInstallFile(akoPackageInstallTemplateDir, userConfigValues
 	}
 
 	return akoPackageInstallFile, nil
+}
+
+func GetAKOOAddonSecretValues(clusterClient clusterclient.Client, clusterName string) ([]byte, bool, error) {
+	akoOperatorAddonName := fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName)
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+	log.V(6).Infof("trying to fetch akoo addon secret %s/%s", constants.TkgNamespace, akoOperatorAddonName)
+	bytes, err := clusterClient.GetSecretValue(akoOperatorAddonName, "values.yaml", constants.TkgNamespace, pollOptions)
+	if err != nil && apierrors.IsNotFound(err) {
+		log.V(6).Infof("akoo addon secret %s/%s not found, akoo was not installed on this legacy management cluster", constants.TkgNamespace, akoOperatorAddonName)
+		return []byte{}, false, nil
+	} else if err != nil {
+		return []byte{}, false, err
+	}
+	return bytes, true, nil
+}
+
+func RetrieveAKOOVariablesFromAddonSecretValues(clusterName string, configValues map[string]interface{}, secretValues []byte) error {
+	if len(secretValues) == 0 {
+		log.V(6).Info("akoo addon secret content is empty")
+		return nil
+	}
+
+	akoOperatorPackage := &managementcomponents.AkoOperatorPackage{}
+	err := yaml.Unmarshal(secretValues, akoOperatorPackage)
+	if err != nil {
+		return errors.Wrap(err, "failed to unmarshal the akoo addon secret values.yaml")
+	}
+
+	configValues[constants.ConfigVariableAviEnable] = akoOperatorPackage.AkoOperatorPackageValues.AviEnable
+	configValues[constants.ConfigVariableAviControllerAddress] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerAddress
+	configValues[constants.ConfigVariableAviControllerUsername] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerUsername
+	configValues[constants.ConfigVariableAviControllerPassword] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerPassword
+	configValues[constants.ConfigVariableAviControllerCA] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControllerCA
+	configValues[constants.ConfigVariableAviCloudName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviCloudName
+	configValues[constants.ConfigVariableAviServiceEngineGroup] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviServiceEngineGroup
+	configValues[constants.ConfigVariableAviManagementClusterServiceEngineGroup] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterServiceEngineGroup
+	configValues[constants.ConfigVariableAviDataPlaneNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviDataPlaneNetworkName
+	configValues[constants.ConfigVariableAviDataPlaneNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviDataPlaneNetworkCIDR
+	configValues[constants.ConfigVariableAviControlPlaneNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneNetworkName
+	configValues[constants.ConfigVariableAviControlPlaneNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneNetworkCIDR
+	configValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterDataPlaneNetworkName
+	configValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR
+	configValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterControlPlaneVipNetworkName
+	configValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviManagementClusterControlPlaneVipNetworkCIDR
+	configValues[constants.ConfigVariableVsphereHaProvider] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneHaProvider
+	configValues[constants.ConfigVariableClusterName] = clusterName
+
+	return nil
 }

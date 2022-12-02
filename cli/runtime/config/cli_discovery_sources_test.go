@@ -4,7 +4,6 @@
 package config
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,13 +12,13 @@ import (
 )
 
 func TestGetCLIDiscoverySources(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
+
 	tests := []struct {
 		name   string
 		in     *configapi.ClientConfig
@@ -38,7 +37,6 @@ func TestGetCLIDiscoverySources(t *testing.T) {
 									Bucket:       "updated-test-bucket",
 									ManifestPath: "test-manifest-path",
 								},
-								ContextType: configapi.CtxTypeTMC,
 							},
 						},
 					},
@@ -51,7 +49,6 @@ func TestGetCLIDiscoverySources(t *testing.T) {
 						Bucket:       "updated-test-bucket",
 						ManifestPath: "test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 		},
@@ -68,13 +65,13 @@ func TestGetCLIDiscoverySources(t *testing.T) {
 }
 
 func TestGetCLIDiscoverySource(t *testing.T) {
-	// setup
-	func() {
-		LocalDirName = TestLocalDirName
-	}()
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
 	defer func() {
-		cleanupDir(LocalDirName)
+		cleanUp()
 	}()
+
 	tests := []struct {
 		name string
 		in   *configapi.ClientConfig
@@ -92,7 +89,6 @@ func TestGetCLIDiscoverySource(t *testing.T) {
 									Bucket:       "updated-test-bucket",
 									ManifestPath: "test-manifest-path",
 								},
-								ContextType: configapi.CtxTypeTMC,
 							},
 						},
 					},
@@ -104,7 +100,6 @@ func TestGetCLIDiscoverySource(t *testing.T) {
 					Bucket:       "updated-test-bucket",
 					ManifestPath: "test-manifest-path",
 				},
-				ContextType: configapi.CtxTypeTMC,
 			},
 		},
 	}
@@ -120,34 +115,12 @@ func TestGetCLIDiscoverySource(t *testing.T) {
 }
 
 func TestSetCLIDiscoverySources(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	tests := []struct {
 		name  string
@@ -163,10 +136,39 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 						Bucket:       "test-bucket",
 						ManifestPath: "test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
+				},
+				{
+					Local: &configapi.LocalDiscovery{
+						Name: "default",
+						Path: "standalone",
+					},
 				},
 			},
-			total: 1,
+			total: 2,
+		},
+		{
+			name: "success add test",
+			input: []configapi.PluginDiscovery{
+				{
+					Local: &configapi.LocalDiscovery{
+						Name: "admin-local",
+						Path: "admin",
+					},
+				},
+			},
+			total: 3,
+		},
+		{
+			name: "success add test",
+			input: []configapi.PluginDiscovery{
+				{
+					OCI: &configapi.OCIDiscovery{
+						Name:  "default",
+						Image: "test-image",
+					},
+				},
+			},
+			total: 3,
 		},
 		{
 			name: "success update test",
@@ -177,10 +179,9 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 						Bucket:       "test-updated-bucket",
 						ManifestPath: "test-updated-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			total: 1,
+			total: 3,
 		},
 		{
 			name: "should not persist same test",
@@ -191,10 +192,9 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 						Bucket:       "test-updated-bucket",
 						ManifestPath: "test-updated-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			total: 1,
+			total: 3,
 		},
 		{
 			name: "success add default gcp",
@@ -205,10 +205,9 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 						Bucket:       "test-bucket",
 						ManifestPath: "test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			total: 2,
+			total: 3,
 		},
 		{
 			name: "success add default-local gcp",
@@ -219,10 +218,9 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 						Bucket:       "test-bucket",
 						ManifestPath: "test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			total: 3,
+			total: 4,
 		},
 		{
 			name: "success add default-local local",
@@ -232,15 +230,26 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 						Name: "default-local",
 						Path: "test-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
-			total: 3,
+			total: 4,
+		},
+		{
+			name: "success add default-local local",
+			input: []configapi.PluginDiscovery{
+				{
+					Local: &configapi.LocalDiscovery{
+						Name: "default-local",
+						Path: "test-path",
+					},
+				},
+			},
+			total: 4,
 		},
 	}
 	for _, spec := range tests {
 		t.Run(spec.name, func(t *testing.T) {
-			err = SetCLIDiscoverySources(spec.input)
+			err := SetCLIDiscoverySources(spec.input)
 			assert.NoError(t, err)
 			sources, err := GetCLIDiscoverySources()
 			assert.NoError(t, err)
@@ -248,52 +257,44 @@ func TestSetCLIDiscoverySources(t *testing.T) {
 		})
 	}
 }
-func TestDeleteCLIDiscoverySource(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
 
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
+func TestDeleteCLIDiscoverySource(t *testing.T) {
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
+
+	defer func() {
+		cleanUp()
+	}()
 
 	tests := []struct {
-		name    string
-		src     *configapi.ClientConfig
-		input   string
-		deleted bool
-		errStr  string
-	}{
-		{
-			name: "should return true on deleting non existing item",
-			src: &configapi.ClientConfig{
-				ClientOptions: &configapi.ClientOptions{
-					CLI: &configapi.CLIOptions{
-						DiscoverySources: []configapi.PluginDiscovery{
-							{
-								GCP: &configapi.GCPDiscovery{
-									Name:         "test",
-									Bucket:       "test-bucket",
-									ManifestPath: "test-manifest-path",
-								},
-								ContextType: configapi.CtxTypeTMC,
+		name   string
+		src    *configapi.ClientConfig
+		input  string
+		count  int
+		errStr string
+	}{{
+		name: "should return err on deleting non existing source",
+		src: &configapi.ClientConfig{
+			ClientOptions: &configapi.ClientOptions{
+				CLI: &configapi.CLIOptions{
+					DiscoverySources: []configapi.PluginDiscovery{
+						{
+							GCP: &configapi.GCPDiscovery{
+								Name:         "test",
+								Bucket:       "test-bucket",
+								ManifestPath: "test-manifest-path",
 							},
 						},
 					},
 				},
 			},
-			input:   "test-notfound",
-			deleted: true,
-			errStr:  "cli discovery source not found",
 		},
+		input:  "test-notfound",
+		count:  1,
+		errStr: "cli discovery source not found",
+	},
 		{
-			name: "should return true on deleting existing item",
+			name: "should delete existing test source",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
 					CLI: &configapi.CLIOptions{
@@ -304,17 +305,16 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 									Bucket:       "test-bucket",
 									ManifestPath: "test-manifest-path",
 								},
-								ContextType: configapi.CtxTypeTMC,
 							},
 						},
 					},
 				},
 			},
-			input:   "test",
-			deleted: true,
+			input: "test",
+			count: 0,
 		},
 		{
-			name: "should return true on deleting existing item2",
+			name: "should delete test2 source",
 			src: &configapi.ClientConfig{
 				ClientOptions: &configapi.ClientOptions{
 					CLI: &configapi.CLIOptions{
@@ -325,7 +325,6 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 									Bucket:       "test-bucket",
 									ManifestPath: "test-manifest-path",
 								},
-								ContextType: configapi.CtxTypeTMC,
 							},
 							{
 								GCP: &configapi.GCPDiscovery{
@@ -333,14 +332,45 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 									Bucket:       "test-bucket2",
 									ManifestPath: "test-manifest-path2",
 								},
-								ContextType: configapi.CtxTypeTMC,
 							},
 						},
 					},
 				},
 			},
-			input:   "test",
-			deleted: true,
+			count: 1,
+			input: "test2",
+		},
+		{
+			name: "should delete local default source",
+			src: &configapi.ClientConfig{
+				ClientOptions: &configapi.ClientOptions{
+					CLI: &configapi.CLIOptions{
+						DiscoverySources: []configapi.PluginDiscovery{
+							{
+								GCP: &configapi.GCPDiscovery{
+									Name:         "test",
+									Bucket:       "test-bucket",
+									ManifestPath: "test-manifest-path",
+								},
+							},
+							{
+								Local: &configapi.LocalDiscovery{
+									Name: "default",
+									Path: "standalone",
+								},
+							},
+							{
+								Local: &configapi.LocalDiscovery{
+									Name: "admin-local",
+									Path: "admin",
+								},
+							},
+						},
+					},
+				},
+			},
+			count: 2,
+			input: "default",
 		},
 	}
 	for _, spec := range tests {
@@ -353,39 +383,20 @@ func TestDeleteCLIDiscoverySource(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 			}
+			sources, err := GetCLIDiscoverySources()
+			assert.NoError(t, err)
+			assert.Equal(t, spec.count, len(sources))
 		})
 	}
 }
 
 func TestIntegrationSetGetDeleteCLIDiscoverySource(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	sources := []configapi.PluginDiscovery{
 		{
@@ -394,7 +405,6 @@ func TestIntegrationSetGetDeleteCLIDiscoverySource(t *testing.T) {
 				Bucket:       "test-bucket",
 				ManifestPath: "test-manifest-path",
 			},
-			ContextType: configapi.CtxTypeTMC,
 		},
 	}
 
@@ -432,34 +442,12 @@ func TestIntegrationSetGetDeleteCLIDiscoverySource(t *testing.T) {
 }
 
 func TestSetCLIDiscoverySourceLocalMulti(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
-
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
-
-	// Cleanup
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
+	defer func() {
+		cleanUp()
+	}()
 
 	src := &configapi.ClientConfig{
 		ClientOptions: &configapi.ClientOptions{
@@ -477,18 +465,16 @@ func TestSetCLIDiscoverySourceLocalMulti(t *testing.T) {
 			Name: "default-local",
 			Path: "standalone",
 		},
-		ContextType: "k8s",
 	}
 	updateInput2 := configapi.PluginDiscovery{
 		Local: &configapi.LocalDiscovery{
 			Name: "default-local",
 			Path: "standalone-updated",
 		},
-		ContextType: "k8s",
 	}
 
 	// Actions
-	err = StoreClientConfig(src)
+	err := StoreClientConfig(src)
 	assert.NoError(t, err)
 	err = SetCLIDiscoverySource(input)
 	assert.NoError(t, err)
@@ -509,29 +495,12 @@ func TestSetCLIDiscoverySourceLocalMulti(t *testing.T) {
 }
 
 func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
+	defer func() {
+		cleanUp()
+	}()
 
 	tests := []struct {
 		name         string
@@ -547,7 +516,6 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 						Bucket:       "default-test-bucket",
 						ManifestPath: "default-test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 			totalSources: 1,
@@ -561,7 +529,6 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 						Bucket:       "default-test-bucket",
 						ManifestPath: "default-test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 			totalSources: 2,
@@ -575,7 +542,6 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 						Bucket:       "test-bucket",
 						ManifestPath: "test-manifest-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 
@@ -590,7 +556,6 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 						Bucket:       "default-test-bucket-updated",
 						ManifestPath: "default-test-manifest-path-updated",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 
@@ -605,7 +570,6 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 						Bucket:       "default-test-bucket-updated",
 						ManifestPath: "default-test-manifest-path-updated",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 
@@ -620,21 +584,18 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 						Bucket:       "default-test-bucket-updated",
 						ManifestPath: "default-test-manifest-path-updated",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					Local: &configapi.LocalDiscovery{
 						Name: "test-local",
 						Path: "test-local-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					Local: &configapi.LocalDiscovery{
 						Name: "default",
 						Path: "default-local-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					GCP: &configapi.GCPDiscovery{
@@ -642,7 +603,6 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 						Bucket:       "default-test-bucket-updated2",
 						ManifestPath: "default-test-manifest-path-updated2",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					GCP: &configapi.GCPDiscovery{
@@ -650,21 +610,18 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 						Bucket:       "test-bucket-updated",
 						ManifestPath: "test-manifest-path-updated",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					Local: &configapi.LocalDiscovery{
 						Name: "default-local",
 						Path: "default-local-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					Local: &configapi.LocalDiscovery{
 						Name: "test-gcp1",
 						Path: "default-local-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 			totalSources: 5,
@@ -687,29 +644,12 @@ func TestSetCLIDiscoverySourceWithDefaultAndDefaultLocal(t *testing.T) {
 }
 
 func TestSetCLIDiscoverySourceMultiTypes(t *testing.T) {
-	// Setup config data
-	f, err := os.CreateTemp("", "tanzu_config")
-	assert.Nil(t, err)
-	err = os.WriteFile(f.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f.Name())
-	err = os.Setenv("TANZU_CONFIG", f.Name())
-	assert.NoError(t, err)
+	// Setup config test data
+	_, cleanUp := setupTestConfig(t, &CfgTestData{})
 
-	//Setup metadata
-	f2, err := os.CreateTemp("", "tanzu_config_metadata")
-	assert.Nil(t, err)
-	err = os.WriteFile(f2.Name(), []byte(""), 0644)
-	assert.Nil(t, err)
-	defer func(name string) {
-		err = os.Remove(name)
-		assert.NoError(t, err)
-	}(f2.Name())
-	err = os.Setenv(EnvConfigMetadataKey, f2.Name())
-	assert.NoError(t, err)
+	defer func() {
+		cleanUp()
+	}()
 
 	tests := []struct {
 		name         string
@@ -726,21 +666,18 @@ func TestSetCLIDiscoverySourceMultiTypes(t *testing.T) {
 						Bucket:       "default-test-bucket-updated",
 						ManifestPath: "default-test-manifest-path-updated",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					Local: &configapi.LocalDiscovery{
 						Name: "test-local",
 						Path: "test-local-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					Local: &configapi.LocalDiscovery{
 						Name: "default",
 						Path: "default-local-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					GCP: &configapi.GCPDiscovery{
@@ -748,7 +685,6 @@ func TestSetCLIDiscoverySourceMultiTypes(t *testing.T) {
 						Bucket:       "default-test-bucket-updated2",
 						ManifestPath: "default-test-manifest-path-updated2",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					GCP: &configapi.GCPDiscovery{
@@ -756,21 +692,18 @@ func TestSetCLIDiscoverySourceMultiTypes(t *testing.T) {
 						Bucket:       "test-bucket-updated",
 						ManifestPath: "test-manifest-path-updated",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					Local: &configapi.LocalDiscovery{
 						Name: "default-local",
 						Path: "default-local-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					Local: &configapi.LocalDiscovery{
 						Name: "test-gcp1",
 						Path: "default-local-path",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 				{
 					GCP: &configapi.GCPDiscovery{
@@ -778,7 +711,6 @@ func TestSetCLIDiscoverySourceMultiTypes(t *testing.T) {
 						Bucket:       "test-bucket-updated",
 						ManifestPath: "test-manifest-path-updated",
 					},
-					ContextType: configapi.CtxTypeTMC,
 				},
 			},
 			totalSources: 5,

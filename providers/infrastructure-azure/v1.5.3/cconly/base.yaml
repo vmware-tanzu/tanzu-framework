@@ -45,6 +45,20 @@ spec:
       name: #@ "tkg-azure-default-{}-cluster".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
       namespace: #@ data.values.NAMESPACE
   variables:
+  - name: etcdExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: tlsCipherSuites
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
   - name: location
     required: true
     schema:
@@ -286,17 +300,20 @@ spec:
     required: false
     schema:
       openAPIV3Schema:
-        type: array
-        items:
-          type: object
-          properties:
-            name:
-              type: string
-            data:
-              type: string
-          required:
-          - name
-          - data
+        type: object
+        properties:
+          additionalTrustedCAs:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                data:
+                  type: string
+              required:
+              - name
+              - data
   - name: auditLogging
     required: false
     schema:
@@ -335,13 +352,36 @@ spec:
       openAPIV3Schema:
         type: object
         properties: {}
-  - name: controlPlaneCertificateRotationBefore
-    required: false
-    schema:
-      openAPIV3Schema:
-        type: integer
-        default: 90
   patches:
+  - name: etcdExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/extraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containQuotaBackendBytes := false }}
+            {{- range $key, $val := .etcdExtraArgs }}
+            {{- if eq $key "cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "quota-backend-bytes" }}
+              {{- $containQuotaBackendBytes = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containQuotaBackendBytes }}
+            quota-backend-bytes: "8589934592"
+            {{- end }}
   - name: AzureClusterCustomTags
     enabledIf: '{{ not (empty .customTags) }}'
     definitions:
@@ -539,7 +579,21 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/controllerManager/extraArgs/cluster-name
         valueFrom:
           template: '{{ .builtin.cluster.name }}'
-
+  - name: cloudConfigVolume
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-
+        value:
+          name: cloud-config
+          hostPath: /etc/kubernetes/azure.json
+          mountPath: /etc/kubernetes/azure.json
+          readOnly: true
   - name: apiServerBindPort
     enabledIf: '{{ not (empty .apiServerPort) }}'
     definitions:
@@ -944,7 +998,7 @@ spec:
         valueFrom:
           template: *exportNoProxy
   - name: httpProxyCACert
-    enabledIf: '{{ $hasProxyCert := false }} {{- range .trust }} {{- if .name | eq "proxy" }} {{- $hasProxyCert = true }} {{- end }} {{- end }} {{- $hasProxyCert }}'
+    enabledIf: '{{ $hasProxyCert := false }} {{- range .trust.additionalTrustedCAs }} {{- if .name | eq "proxy" }} {{- $hasProxyCert = true }} {{- end }} {{- end }} {{- $hasProxyCert }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -970,7 +1024,7 @@ spec:
           template: |
             path: /etc/ssl/certs/tkg-custom-ca.pem
             {{- $proxy := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -1004,7 +1058,7 @@ spec:
           template: |
             path: /etc/ssl/certs/tkg-custom-ca.pem
             {{- $proxy := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -1040,7 +1094,7 @@ spec:
           template: |
             sed -i 's|".*/pause|" {{- or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository -}} /pause|' /etc/containerd/config.toml
   - name: registryCACert
-    enabledIf: '{{ not (empty .trust) }}'
+    enabledIf: '{{ not (empty .trust.additionalTrustedCAs) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -1079,7 +1133,7 @@ spec:
             path: /etc/containerd/ {{- index (or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository | splitList "/") 0 -}} .crt
             {{- $proxy := "" }}
             {{- $image := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -1129,7 +1183,7 @@ spec:
             path: /etc/containerd/{{ index (or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository | splitList "/") 0 }}.crt
             {{- $proxy := "" }}
             {{- $image := "" }}
-            {{- range .trust }}
+            {{- range .trust.additionalTrustedCAs }}
               {{- if eq .name "proxy" }}
                 {{- $proxy = .data }}
               {{- end }}
@@ -1322,19 +1376,6 @@ spec:
               - level: Metadata
                 omitStages:
                   - "RequestReceived"
-  - name: kcptCertificateRotation
-    enabledIf: '{{ .controlPlaneCertificateRotationBefore | gt 0 }}'
-    definitions:
-    - selector:
-        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-        kind: KubeadmControlPlaneTemplate
-        matchResources:
-          controlPlane: true
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/rolloutBefore/certificatesExpiryDays
-        valueFrom:
-          variable: controlPlaneCertificateRotationBefore
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AzureClusterTemplate
@@ -1350,12 +1391,24 @@ spec:
         vnet:
           cidrBlock: #@ data.values.AZURE_VNET_CIDR
         subnets:
+        #@ if data.values.AZURE_CONTROL_PLANE_SUBNET_NAME == "":
+        - name: management-cluster-controlplane-subnet
+          role: control-plane
+          cidrBlock: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_CIDR
+        #@ else:
         - name: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_NAME
           role: control-plane
           cidrBlock: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_CIDR
+        #@ end
+        #@ if data.values.AZURE_NODE_SUBNET_NAME == "":
+        - name: management-cluster-node-subnet
+          role: node
+          cidrBlock: #@ data.values.AZURE_NODE_SUBNET_CIDR
+        #@ else:
         - name: #@ data.values.AZURE_NODE_SUBNET_NAME
           role: node
           cidrBlock: #@ data.values.AZURE_NODE_SUBNET_CIDR
+        #@ end
       subscriptionID: #@ data.values.AZURE_SUBSCRIPTION_ID
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -1372,11 +1425,7 @@ spec:
             extraArgs:
               cloud-config: /etc/kubernetes/azure.json
               cloud-provider: azure
-            extraVolumes:
-            - hostPath: /etc/kubernetes/azure.json
-              mountPath: /etc/kubernetes/azure.json
-              name: cloud-config
-              readOnly: true
+            extraVolumes: []
             timeoutForControlPlane: 20m
           controllerManager:
             extraArgs:
@@ -1395,9 +1444,7 @@ spec:
           etcd:
             local:
               dataDir: /var/lib/etcddisk/etcd
-              extraArgs:
-                cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-                quota-backend-bytes: "8589934592"
+              extraArgs: {}
               imageRepository: #! e.g. registry.tkg.vmware.run
               imageTag: #! e.g v3.4.3_vmware.4
           imageRepository: #! e.g. registry.tkg.vmware.run

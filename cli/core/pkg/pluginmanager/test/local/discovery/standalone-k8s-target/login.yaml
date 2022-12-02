@@ -1,0 +1,26 @@
+apiVersion: cli.tanzu.vmware.com/v1alpha1
+kind: CLIPlugin
+metadata:
+  name: login
+spec:
+  description: Login to clusters
+  artifacts:
+    v0.2.0:
+      - uri: v0.2.0/tanzu-login
+        os: darwin
+        arch: amd64
+        type: local
+      - uri: v0.2.0/tanzu-login
+        os: linux
+        arch: amd64
+        type: local
+      - uri: v0.2.0/tanzu-login
+        os: windows
+        arch: amd64
+        type: local
+      - uri: v0.2.0/tanzu-login
+        os: darwin
+        arch: arm64
+        type: local
+  recommendedVersion: v0.2.0
+  target: k8s

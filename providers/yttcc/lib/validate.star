@@ -39,6 +39,8 @@ def validate_configuration(provider):
     return
   end
 
+  validate_kcp_certificate_rotation_config()
+
   if provider == "vsphere":
     flag_missing_variable_error(required_variable_list_vsphere)
     if data.values.NSXT_POD_ROUTING_ENABLED == True:
@@ -103,4 +105,10 @@ def validate_nsxt_config():
      assert.fail("user/password or vmc access token or client certificates must be set")  
    end
    data.values.NSXT_MANAGER_HOST != "" or assert.fail("missing configuration variables: NSXT_MANAGER_HOST")
+end
+
+def validate_kcp_certificate_rotation_config():
+  if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE < 7 and data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE > 0:
+    assert.fail("certificatesExpiryDays must be set as integer with a minimum value of 7 when certificate automatic renewal is enabled")
+  end
 end

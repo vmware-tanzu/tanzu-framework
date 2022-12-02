@@ -95,10 +95,6 @@ ifneq ($(strip $(TANZU_CORE_BUCKET)),) # Name of the core plugin repository buck
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.CoreBucketName=$(TANZU_CORE_BUCKET)'
 endif
 
-ifeq ($(TANZU_FORCE_NO_INIT), true) # Force No installation of plugins and override TANZU_NO_INIT env variable
-LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command.forceNoInit=true'
-endif
-
 ifneq ($(strip $(TKG_DEFAULT_IMAGE_REPOSITORY)),)
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryRepository=$(TKG_DEFAULT_IMAGE_REPOSITORY)'
 endif
