@@ -39,7 +39,7 @@ func performActionForCPIConfigIfOwnedByCluster(cpiConfig client.Object, cluster 
 	// corresponding CPIConfig should have following ownerRef
 	ownerReference := metav1.OwnerReference{
 		APIVersion: clusterapiv1beta1.GroupVersion.String(),
-		Kind:       cluster.Kind,
+		Kind:       constants.ClusterKind,
 		Name:       cluster.Name,
 		UID:        cluster.UID,
 	}
