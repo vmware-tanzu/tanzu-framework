@@ -65,7 +65,7 @@ func init() {
 
 	initCreateCtxCmd()
 
-	listCtxCmd.Flags().StringVarP(&target, "target", "t", "", "list only contexts associated with the specified target (kubernetes[k8s]|mission-control[tmc])")
+	listCtxCmd.Flags().StringVarP(&targetStr, "target", "t", "", "list only contexts associated with the specified target (kubernetes[k8s]|mission-control[tmc])")
 	listCtxCmd.Flags().BoolVar(&onlyCurrent, "current", false, "list only current active contexts")
 	listCtxCmd.Flags().StringVarP(&outputFormat, "output", "o", "table", "output format: table|yaml|json")
 
@@ -478,6 +478,10 @@ func listCtx(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	if !cliv1alpha1.IsValidTarget(targetStr) {
+		return errors.New("invalid target specified. Please specify correct value of `--target` or `-t` flag from 'kubernetes/k8s/mission-control/tmc'")
+	}
+
 	if outputFormat == "" || outputFormat == string(component.TableOutputType) {
 		displayContextListOutputSplitViewTarget(cfg, cmd.OutOrStdout())
 	} else {
@@ -630,9 +634,11 @@ func useCtx(_ *cobra.Command, args []string) error {
 }
 
 func displayContextListOutputListView(cfg *configapi.ClientConfig, writer io.Writer) {
+	target := getTarget()
+
 	op := component.NewOutputWriter(writer, outputFormat, "Name", "Type", "IsManagementCluster", "IsCurrent", "Endpoint", "KubeConfigPath", "KubeContext")
 	for _, ctx := range cfg.KnownContexts {
-		if target != "" && ctx.Target != cliv1alpha1.Target(target) {
+		if target != cliv1alpha1.TargetNone && ctx.Target != target {
 			continue
 		}
 		isMgmtCluster := ctx.IsManagementCluster()
@@ -656,10 +662,12 @@ func displayContextListOutputListView(cfg *configapi.ClientConfig, writer io.Wri
 }
 
 func displayContextListOutputSplitViewTarget(cfg *configapi.ClientConfig, writer io.Writer) {
+	target := getTarget()
+
 	outputWriterK8sTarget := component.NewOutputWriter(writer, outputFormat, "Name", "IsActive", "Endpoint", "KubeConfigPath", "KubeContext")
 	outputWriterTMCTarget := component.NewOutputWriter(writer, outputFormat, "Name", "IsActive", "Endpoint")
 	for _, ctx := range cfg.KnownContexts {
-		if target != "" && ctx.Target != cliv1alpha1.Target(target) {
+		if target != cliv1alpha1.TargetNone && ctx.Target != target {
 			continue
 		}
 		isCurrent := ctx.Name == cfg.CurrentContext[ctx.Target]
@@ -682,12 +690,11 @@ func displayContextListOutputSplitViewTarget(cfg *configapi.ClientConfig, writer
 
 	cyanBold := color.New(color.FgCyan).Add(color.Bold)
 	cyanBoldItalic := color.New(color.FgCyan).Add(color.Bold, color.Italic)
-	if target == "" || target == string(cliv1alpha1.TargetK8s) {
+	if target == cliv1alpha1.TargetNone || target == cliv1alpha1.TargetK8s {
 		_, _ = cyanBold.Println("Target: ", cyanBoldItalic.Sprintf("%s", cliv1alpha1.TargetK8s))
 		outputWriterK8sTarget.Render()
 	}
-
-	if target == "" || target == string(cliv1alpha1.TargetTMC) {
+	if target == cliv1alpha1.TargetNone || target == cliv1alpha1.TargetTMC {
 		_, _ = cyanBold.Println("Target: ", cyanBoldItalic.Sprintf("%s", cliv1alpha1.TargetTMC))
 		outputWriterTMCTarget.Render()
 	}
