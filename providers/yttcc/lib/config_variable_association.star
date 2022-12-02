@@ -3,6 +3,7 @@ load("@ytt:overlay", "overlay")
 load("@ytt:yaml", "yaml")
 load("/lib/helpers.star", "get_default_tkg_bom_data")
 load("/lib/helpers.star", "get_labels_array_from_string")
+load("/lib/helpers.star", "get_extra_args_map_from_string")
 
 #! This file contains function 'config_variable_association' which specifies all configuration variables
 #! mentioned in 'config_default.yaml' and describes association of each configuration variable with
@@ -122,6 +123,7 @@ return {
 "NODE_POOL_0_LABELS": ["tkg-service-vsphere"],
 "NODE_POOL_0_TAINTS": ["tkg-service-vsphere"],
 "CONTROL_PLANE_NODE_LABELS": ["vsphere", "aws", "azure"],
+"ETCD_EXTRA_ARGS": ["vsphere", "aws", "azure"],
 
 "AZURE_ENVIRONMENT": ["azure"],
 "AZURE_TENANT_ID": ["azure"],
@@ -578,6 +580,10 @@ def get_aws_vars():
 
     vars["worker"] = worker
 
+    if data.values["ETCD_EXTRA_ARGS"] != None:
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
+    end
+
     controlPlane = {}
     if data.values["CONTROL_PLANE_MACHINE_TYPE"] != None:
         controlPlane["instanceType"] = data.values["CONTROL_PLANE_MACHINE_TYPE"]
@@ -709,6 +715,10 @@ def get_azure_vars():
 
     if controlPlane != {}:
         vars["controlPlane"] = controlPlane
+    end
+
+    if data.values["ETCD_EXTRA_ARGS"] != None:
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
     end
 
     worker = {}
@@ -845,6 +855,10 @@ def get_vsphere_vars():
 
     if controlPlane != {}:
         vars["controlPlane"] = controlPlane
+    end
+
+    if data.values["ETCD_EXTRA_ARGS"] != None:
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
     end
 
     worker = {}

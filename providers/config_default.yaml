@@ -62,6 +62,11 @@ ENABLE_TKGS_ON_VSPHERE7:
 #! Valid values for BUILD_EDITION are 'tce' and 'tkg'.
 BUILD_EDITION:
 
+#! ETCD_EXTRA_ARGS specified etcd flags.
+#! It should be of the format "key1=value1;key2=value2".
+#! E.g. "heartbeat-interval=300;election-timeout=2000"
+ETCD_EXTRA_ARGS:
+
 #! ---------------------------------------------------------------------
 #! Settings for vSphere infrastructure provider
 #! ---------------------------------------------------------------------

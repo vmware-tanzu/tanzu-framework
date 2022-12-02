@@ -45,6 +45,20 @@ spec:
       name: #@ "tkg-azure-default-{}-cluster".format(data.values.AZURE_CLUSTER_CLASS_VERSION)
       namespace: #@ data.values.NAMESPACE
   variables:
+  - name: etcdExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: tlsCipherSuites
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
   - name: location
     required: true
     schema:
@@ -336,6 +350,35 @@ spec:
         type: object
         properties: {}
   patches:
+  - name: etcdExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/extraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containQuotaBackendBytes := false }}
+            {{- range $key, $val := .etcdExtraArgs }}
+            {{- if eq $key "cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "quota-backend-bytes" }}
+              {{- $containQuotaBackendBytes = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containQuotaBackendBytes }}
+            quota-backend-bytes: "8589934592"
+            {{- end }}
   - name: AzureClusterCustomTags
     enabledIf: '{{ not (empty .customTags) }}'
     definitions:
@@ -1376,9 +1419,7 @@ spec:
           etcd:
             local:
               dataDir: /var/lib/etcddisk/etcd
-              extraArgs:
-                cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-                quota-backend-bytes: "8589934592"
+              extraArgs: {}
               imageRepository: #! e.g. registry.tkg.vmware.run
               imageTag: #! e.g v3.4.3_vmware.4
           imageRepository: #! e.g. registry.tkg.vmware.run

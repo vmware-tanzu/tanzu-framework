@@ -139,7 +139,7 @@ spec:
     variables:
     #@ vars = get_azure_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["location", "network", "controlPlane", "worker", "resourceGroup", "subscriptionID", "identityRef", "clusterRole", "environment", "sshPublicKey", "acceleratedNetworking", "privateCluster", "frontendPrivateIP", "imageRepository", "auditLogging", "customTags", "apiServerPort", "trust", "TKR_DATA", "proxy"]:
+    #@  if vars[configVariable] != None and configVariable in ["etcdExtraArgs", "location", "network", "controlPlane", "worker", "resourceGroup", "subscriptionID", "identityRef", "clusterRole", "environment", "sshPublicKey", "acceleratedNetworking", "privateCluster", "frontendPrivateIP", "imageRepository", "auditLogging", "customTags", "apiServerPort", "trust", "TKR_DATA", "proxy"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end
