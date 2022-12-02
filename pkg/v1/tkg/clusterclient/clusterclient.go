@@ -880,7 +880,7 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 			maxTimeoutCounter++
 			if errorRetry < maxErrorRetry {
 				errorRetry++
-				return false, nil
+				return false, errors.Errorf("cluster is not ready, retrying")
 			}
 			return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s' ",
 				conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition),
