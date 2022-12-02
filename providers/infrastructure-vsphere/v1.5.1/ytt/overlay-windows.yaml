@@ -556,4 +556,13 @@ data:
       name: kube-proxy-windows
       namespace: kube-system
     ---
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      annotations:
+        kubernetes.io/service-account.name: kube-proxy-windows
+      name: kube-proxy-windows-token
+      namespace: kube-system
+    type: kubernetes.io/service-account-token
+    ---
 #@ end
