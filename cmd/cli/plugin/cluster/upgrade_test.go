@@ -393,6 +393,19 @@ var _ = Describe("getValidTKRVersionFromClusterForUpgrade", func() {
 			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no available upgrades for cluster '%s', namespace '%s'", cluster.Name, cluster.Namespace)))
 		})
 	})
+
+	Context("when user provided TKR prefix name is empty", func() {
+
+		BeforeEach(func() {
+			availableUpdates := fmt.Sprintf("[%s %s %s]", "v1.18.18+vmware.1-tkg.2", "v1.18.8+vmware.1-tkg.1", "v1.18.14+vmware.1-tkg.1-rc.1")
+			cluster = getFakeCluster("fake-cluster", availableUpdates)
+			tkrNamePrefix = ""
+		})
+		It("should return the highest available version", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(latestTKRVersion).To(Equal("v1.18.18+vmware.1-tkg.2"))
+		})
+	})
 })
 
 var _ = Describe("getClusterResource", func() {
