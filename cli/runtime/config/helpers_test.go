@@ -110,12 +110,12 @@ func setupMultiCfgData() (string, string) {
 current: test-mc
 `
 	cfg2 := `currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 contexts:
   - name: test-mc
     ctx-field: new-ctx-field
     optional: true
-    type: k8s
+    target: kubernetes
     clusterOpts:
       isManagementCluster: true
       endpoint: test-endpoint
@@ -141,7 +141,7 @@ contexts:
   - name: test-mc2
     ctx-field: new-ctx-field
     optional: true
-    type: k8s
+    target: kubernetes
     clusterOpts:
       isManagementCluster: true
       endpoint: test-endpoint
@@ -167,7 +167,7 @@ contexts:
   - name: test-mc3
     ctx-field: new-ctx-field
     optional: true
-    type: k8s
+    target: kubernetes
     clusterOpts:
       isManagementCluster: true
       endpoint: test-endpoint

@@ -78,7 +78,7 @@ servers:
             required: true
           contextType: tmc
     - name: test-mc2
-      type: k8s
+      type: managementcluster
       managementClusterOpts:
         endpoint: test-endpoint-updated
         path: test-path
@@ -92,7 +92,7 @@ current: test-mc2
 
 	cfg2 := `contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -112,11 +112,11 @@ current: test-mc2
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+    kubernetes: test-mc
 `
 	expectedCfg2 := `contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -136,7 +136,7 @@ currentContext:
             required: true
           contextType: tmc
     - name: test-mc2
-      type: k8s
+      target: kubernetes
       clusterOpts:
         endpoint: test-endpoint-updated
         path: test-path
@@ -147,7 +147,7 @@ currentContext:
             bucket: test-bucket-updated
             manifestPath: test-manifest-path
 currentContext:
-    k8s: test-mc2
+    kubernetes: test-mc2
 `
 
 	return cfg, expectedCfg, cfg2, expectedCfg2
@@ -187,7 +187,7 @@ func TestServersIntegration(t *testing.T) {
 	// Add new Server
 	newServer := &configapi.Server{
 		Name: "test-mc2",
-		Type: "k8s",
+		Type: "managementcluster",
 		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Endpoint: "test-endpoint",
 			Path:     "test-path",
@@ -210,7 +210,7 @@ func TestServersIntegration(t *testing.T) {
 	// Update existing Server
 	updatedServer := &configapi.Server{
 		Name: "test-mc2",
-		Type: "k8s",
+		Type: "managementcluster",
 		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Endpoint: "test-endpoint-updated",
 			Path:     "test-path",
@@ -233,11 +233,13 @@ func TestServersIntegration(t *testing.T) {
 
 	file, err := os.ReadFile(cfgTestFiles[0].Name())
 	assert.NoError(t, err)
-	assert.Equal(t, expectedCfg, string(file))
+	content := string(file)
+	assert.Equal(t, expectedCfg, content)
 
 	file, err = os.ReadFile(cfgTestFiles[1].Name())
 	assert.NoError(t, err)
-	assert.Equal(t, expectedCfg2, string(file))
+	content = string(file)
+	assert.Equal(t, expectedCfg2, content)
 
 	// Delete server
 	err = DeleteServer("test-mc2")
@@ -252,7 +254,7 @@ func TestServersIntegrationAndMigratedToNewConfig(t *testing.T) {
 	cfg, _, cfg2, _ := setupServersTestData()
 	expectedCfg2 := `contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -272,7 +274,7 @@ func TestServersIntegrationAndMigratedToNewConfig(t *testing.T) {
             required: true
           contextType: tmc
     - name: test-mc2
-      type: k8s
+      target: kubernetes
       clusterOpts:
         endpoint: test-endpoint-updated
         path: test-path
@@ -283,10 +285,10 @@ func TestServersIntegrationAndMigratedToNewConfig(t *testing.T) {
             bucket: test-bucket-updated
             manifestPath: test-manifest-path
 currentContext:
-    k8s: test-mc2
+    kubernetes: test-mc2
 servers:
     - name: test-mc2
-      type: k8s
+      type: managementcluster
       managementClusterOpts:
         endpoint: test-endpoint-updated
         path: test-path
@@ -310,7 +312,7 @@ current: test-mc2
 	// Add new Server
 	newServer := &configapi.Server{
 		Name: "test-mc2",
-		Type: "k8s",
+		Type: "managementcluster",
 		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Endpoint: "test-endpoint",
 			Path:     "test-path",
@@ -335,7 +337,7 @@ current: test-mc2
 	// Update existing Server
 	updatedServer := &configapi.Server{
 		Name: "test-mc2",
-		Type: "k8s",
+		Type: "managementcluster",
 		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Endpoint: "test-endpoint-updated",
 			Path:     "test-path",

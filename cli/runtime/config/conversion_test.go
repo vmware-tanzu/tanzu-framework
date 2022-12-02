@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -48,8 +49,8 @@ func TestPopulateContexts(t *testing.T) {
 				CurrentServer: "test-mc",
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-mc",
-						Type: configapi.CtxTypeK8s,
+						Name:   "test-mc",
+						Target: cliapi.TargetK8s,
 						ClusterOpts: &configapi.ClusterServer{
 							Endpoint:            "test-endpoint",
 							Path:                "test-path",
@@ -58,16 +59,16 @@ func TestPopulateContexts(t *testing.T) {
 						},
 					},
 					{
-						Name: "test-tmc",
-						Type: configapi.CtxTypeTMC,
+						Name:   "test-tmc",
+						Target: cliapi.TargetTMC,
 						GlobalOpts: &configapi.GlobalServer{
 							Endpoint: "test-endpoint",
 						},
 					},
 				},
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeK8s: "test-mc",
-					configapi.CtxTypeTMC: "test-tmc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetK8s: "test-mc",
+					cliapi.TargetTMC: "test-tmc",
 				},
 			},
 			op: &configapi.ClientConfig{
@@ -92,8 +93,8 @@ func TestPopulateContexts(t *testing.T) {
 				CurrentServer: "test-mc",
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-mc",
-						Type: configapi.CtxTypeK8s,
+						Name:   "test-mc",
+						Target: cliapi.TargetK8s,
 						ClusterOpts: &configapi.ClusterServer{
 							Endpoint:            "test-endpoint",
 							Path:                "test-path",
@@ -102,16 +103,16 @@ func TestPopulateContexts(t *testing.T) {
 						},
 					},
 					{
-						Name: "test-tmc",
-						Type: configapi.CtxTypeTMC,
+						Name:   "test-tmc",
+						Target: cliapi.TargetTMC,
 						GlobalOpts: &configapi.GlobalServer{
 							Endpoint: "test-endpoint",
 						},
 					},
 				},
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeK8s: "test-mc",
-					configapi.CtxTypeTMC: "test-tmc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetK8s: "test-mc",
+					cliapi.TargetTMC: "test-tmc",
 				},
 			},
 			delta: false,
@@ -140,15 +141,15 @@ func TestPopulateContexts(t *testing.T) {
 				CurrentServer: "test-mc",
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-tmc",
-						Type: configapi.CtxTypeTMC,
+						Name:   "test-tmc",
+						Target: cliapi.TargetTMC,
 						GlobalOpts: &configapi.GlobalServer{
 							Endpoint: "test-endpoint",
 						},
 					},
 				},
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeTMC: "test-tmc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetTMC: "test-tmc",
 				},
 			},
 			op: &configapi.ClientConfig{
@@ -173,8 +174,8 @@ func TestPopulateContexts(t *testing.T) {
 				CurrentServer: "test-mc",
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-mc",
-						Type: configapi.CtxTypeK8s,
+						Name:   "test-mc",
+						Target: cliapi.TargetK8s,
 						ClusterOpts: &configapi.ClusterServer{
 							Endpoint:            "test-endpoint",
 							Path:                "test-path",
@@ -183,16 +184,16 @@ func TestPopulateContexts(t *testing.T) {
 						},
 					},
 					{
-						Name: "test-tmc",
-						Type: configapi.CtxTypeTMC,
+						Name:   "test-tmc",
+						Target: cliapi.TargetTMC,
 						GlobalOpts: &configapi.GlobalServer{
 							Endpoint: "test-endpoint",
 						},
 					},
 				},
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeK8s: "test-mc",
-					configapi.CtxTypeTMC: "test-tmc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetK8s: "test-mc",
+					cliapi.TargetTMC: "test-tmc",
 				},
 			},
 			delta: true,
@@ -247,8 +248,8 @@ func TestPopulateServers(t *testing.T) {
 				CurrentServer: "test-mc",
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-mc",
-						Type: configapi.CtxTypeK8s,
+						Name:   "test-mc",
+						Target: cliapi.TargetK8s,
 						ClusterOpts: &configapi.ClusterServer{
 							Endpoint:            "test-endpoint",
 							Path:                "test-path",
@@ -257,16 +258,16 @@ func TestPopulateServers(t *testing.T) {
 						},
 					},
 					{
-						Name: "test-tmc",
-						Type: configapi.CtxTypeTMC,
+						Name:   "test-tmc",
+						Target: cliapi.TargetTMC,
 						GlobalOpts: &configapi.GlobalServer{
 							Endpoint: "test-endpoint",
 						},
 					},
 				},
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeK8s: "test-mc",
-					configapi.CtxTypeTMC: "test-tmc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetK8s: "test-mc",
+					cliapi.TargetTMC: "test-tmc",
 				},
 			},
 			op: &configapi.ClientConfig{
@@ -291,8 +292,8 @@ func TestPopulateServers(t *testing.T) {
 				CurrentServer: "test-mc",
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-mc",
-						Type: configapi.CtxTypeK8s,
+						Name:   "test-mc",
+						Target: cliapi.TargetK8s,
 						ClusterOpts: &configapi.ClusterServer{
 							Endpoint:            "test-endpoint",
 							Path:                "test-path",
@@ -301,16 +302,16 @@ func TestPopulateServers(t *testing.T) {
 						},
 					},
 					{
-						Name: "test-tmc",
-						Type: configapi.CtxTypeTMC,
+						Name:   "test-tmc",
+						Target: cliapi.TargetTMC,
 						GlobalOpts: &configapi.GlobalServer{
 							Endpoint: "test-endpoint",
 						},
 					},
 				},
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeK8s: "test-mc",
-					configapi.CtxTypeTMC: "test-tmc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetK8s: "test-mc",
+					cliapi.TargetTMC: "test-tmc",
 				},
 			},
 		},
@@ -331,8 +332,8 @@ func TestPopulateServers(t *testing.T) {
 				CurrentServer: "test-mc",
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-mc",
-						Type: configapi.CtxTypeK8s,
+						Name:   "test-mc",
+						Target: cliapi.TargetK8s,
 						ClusterOpts: &configapi.ClusterServer{
 							Endpoint:            "test-endpoint",
 							Path:                "test-path",
@@ -341,16 +342,16 @@ func TestPopulateServers(t *testing.T) {
 						},
 					},
 					{
-						Name: "test-tmc",
-						Type: configapi.CtxTypeTMC,
+						Name:   "test-tmc",
+						Target: cliapi.TargetTMC,
 						GlobalOpts: &configapi.GlobalServer{
 							Endpoint: "test-endpoint",
 						},
 					},
 				},
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeK8s: "test-mc",
-					configapi.CtxTypeTMC: "test-tmc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetK8s: "test-mc",
+					cliapi.TargetTMC: "test-tmc",
 				},
 			},
 			op: &configapi.ClientConfig{
@@ -375,8 +376,8 @@ func TestPopulateServers(t *testing.T) {
 				CurrentServer: "test-mc",
 				KnownContexts: []*configapi.Context{
 					{
-						Name: "test-mc",
-						Type: configapi.CtxTypeK8s,
+						Name:   "test-mc",
+						Target: cliapi.TargetK8s,
 						ClusterOpts: &configapi.ClusterServer{
 							Endpoint:            "test-endpoint",
 							Path:                "test-path",
@@ -385,16 +386,16 @@ func TestPopulateServers(t *testing.T) {
 						},
 					},
 					{
-						Name: "test-tmc",
-						Type: configapi.CtxTypeTMC,
+						Name:   "test-tmc",
+						Target: cliapi.TargetTMC,
 						GlobalOpts: &configapi.GlobalServer{
 							Endpoint: "test-endpoint",
 						},
 					},
 				},
-				CurrentContext: map[configapi.ContextType]string{
-					configapi.CtxTypeK8s: "test-mc",
-					configapi.CtxTypeTMC: "test-tmc",
+				CurrentContext: map[cliapi.Target]string{
+					cliapi.TargetK8s: "test-mc",
+					cliapi.TargetTMC: "test-tmc",
 				},
 			},
 		},

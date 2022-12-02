@@ -8,6 +8,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
+
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 )
 
 func TestMergeNode(t *testing.T) {
@@ -35,7 +37,7 @@ func TestMergeNode(t *testing.T) {
 								Content: []*yaml.Node{
 									{
 										Kind:  yaml.ScalarNode,
-										Value: "k8s",
+										Value: string(cliapi.TargetK8s),
 									},
 									{
 										Kind:  yaml.ScalarNode,
@@ -103,11 +105,11 @@ func TestMergeNode(t *testing.T) {
 											},
 											{
 												Kind:  yaml.ScalarNode,
-												Value: "type",
+												Value: "target",
 											},
 											{
 												Kind:  yaml.ScalarNode,
-												Value: "k8s",
+												Value: string(cliapi.TargetK8s),
 											},
 											{
 												Kind:  yaml.ScalarNode,
@@ -284,7 +286,7 @@ func TestMergeNode(t *testing.T) {
 								Content: []*yaml.Node{
 									{
 										Kind:  yaml.ScalarNode,
-										Value: "k8s",
+										Value: string(cliapi.TargetK8s),
 									},
 									{
 										Kind:  yaml.ScalarNode,

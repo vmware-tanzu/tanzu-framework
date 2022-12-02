@@ -63,11 +63,11 @@ func NewRootCmd() (*cobra.Command, error) {
 			k8sCmd,
 			tmcCmd,
 		)
-		mapCtxTypeToCmd := map[cliv1alpha1.Target]*cobra.Command{
+		mapTargetToCmd := map[cliv1alpha1.Target]*cobra.Command{
 			cliv1alpha1.TargetK8s: k8sCmd,
 			cliv1alpha1.TargetTMC: tmcCmd,
 		}
-		if err := addPluginsToTarget(mapCtxTypeToCmd); err != nil {
+		if err := addPluginsToTarget(mapTargetToCmd); err != nil {
 			return nil, err
 		}
 	}
@@ -137,7 +137,7 @@ var tmcCmd = &cobra.Command{
 	},
 }
 
-func addPluginsToTarget(mapCtxTypeToCmd map[cliv1alpha1.Target]*cobra.Command) error {
+func addPluginsToTarget(mapTargetToCmd map[cliv1alpha1.Target]*cobra.Command) error {
 	installedPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins()
 	if err != nil {
 		return fmt.Errorf("unable to find installed plugins: %w", err)
@@ -146,7 +146,7 @@ func addPluginsToTarget(mapCtxTypeToCmd map[cliv1alpha1.Target]*cobra.Command) e
 	installedPlugins = append(installedPlugins, standalonePlugins...)
 
 	for i := range installedPlugins {
-		if cmd, exists := mapCtxTypeToCmd[installedPlugins[i].Target]; exists {
+		if cmd, exists := mapTargetToCmd[installedPlugins[i].Target]; exists {
 			cmd.AddCommand(cli.GetCmd(&installedPlugins[i]))
 		}
 	}

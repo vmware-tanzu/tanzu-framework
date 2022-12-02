@@ -9,9 +9,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
 	"golang.org/x/sync/errgroup"
 
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -43,8 +43,8 @@ func TestClientConfigNextGenNodeUpdateInParallel(t *testing.T) {
 		}
 
 		ctx := &configapi.Context{
-			Name: mcName,
-			Type: configapi.CtxTypeK8s,
+			Name:   mcName,
+			Target: cliapi.TargetK8s,
 			ClusterOpts: &configapi.ClusterServer{
 				Path:                "test-path",
 				Context:             "test-context",

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 )
 
 const (
@@ -36,13 +38,13 @@ type EditionSelector string
 type VersionSelectorLevel string
 
 // IsGlobal tells if the server is global.
-// Deprecation targeted for a future version. Use Context.Type instead.
+// Deprecation targeted for a future version. Use Context.Target instead.
 func (s *Server) IsGlobal() bool {
 	return s.Type == GlobalServerType
 }
 
 // IsManagementCluster tells if the server is a management cluster.
-// Deprecation targeted for a future version. Use Context.Type instead.
+// Deprecation targeted for a future version. Use Context.Target instead.
 func (s *Server) IsManagementCluster() bool {
 	return s.Type == ManagementClusterServerType
 }
@@ -85,10 +87,10 @@ func (c *ClientConfig) HasContext(name string) bool {
 }
 
 // GetCurrentContext returns the current context for the given type.
-func (c *ClientConfig) GetCurrentContext(ctxType ContextType) (*Context, error) {
-	ctxName := c.CurrentContext[ctxType]
+func (c *ClientConfig) GetCurrentContext(target cliapi.Target) (*Context, error) {
+	ctxName := c.CurrentContext[target]
 	if ctxName == "" {
-		return nil, fmt.Errorf("no current context set for type %q", ctxType)
+		return nil, fmt.Errorf("no current context set for target %q", target)
 	}
 	ctx, err := c.GetContext(ctxName)
 	if err != nil {
@@ -97,13 +99,13 @@ func (c *ClientConfig) GetCurrentContext(ctxType ContextType) (*Context, error) 
 	return ctx, nil
 }
 
-// GetAllCurrentContextsMap returns all current context per ContextType
-func (c *ClientConfig) GetAllCurrentContextsMap() (map[ContextType]*Context, error) {
-	currentContexts := make(map[ContextType]*Context)
-	for _, ctxType := range SupportedCtxTypes {
-		context, err := c.GetCurrentContext(ctxType)
+// GetAllCurrentContextsMap returns all current context per Target
+func (c *ClientConfig) GetAllCurrentContextsMap() (map[cliapi.Target]*Context, error) {
+	currentContexts := make(map[cliapi.Target]*Context)
+	for _, target := range cliapi.SupportedTargets {
+		context, err := c.GetCurrentContext(target)
 		if err == nil && context != nil {
-			currentContexts[ctxType] = context
+			currentContexts[target] = context
 		}
 	}
 	return currentContexts, nil
@@ -123,17 +125,17 @@ func (c *ClientConfig) GetAllCurrentContextsList() ([]string, error) {
 	return serverNames, nil
 }
 
-// SetCurrentContext sets the current context for the given type.
-func (c *ClientConfig) SetCurrentContext(ctxType ContextType, ctxName string) error {
+// SetCurrentContext sets the current context for the given target.
+func (c *ClientConfig) SetCurrentContext(target cliapi.Target, ctxName string) error {
 	if c.CurrentContext == nil {
-		c.CurrentContext = make(map[ContextType]string)
+		c.CurrentContext = make(map[cliapi.Target]string)
 	}
-	c.CurrentContext[ctxType] = ctxName
+	c.CurrentContext[target] = ctxName
 	ctx, err := c.GetContext(ctxName)
 	if err != nil {
 		return err
 	}
-	if ctx.IsManagementCluster() || ctx.Type == CtxTypeTMC {
+	if ctx.IsManagementCluster() || ctx.Target == cliapi.TargetTMC {
 		c.CurrentServer = ctxName
 	}
 	return nil
@@ -141,7 +143,7 @@ func (c *ClientConfig) SetCurrentContext(ctxType ContextType, ctxName string) er
 
 // IsManagementCluster tells if the context is for a management cluster.
 func (c *Context) IsManagementCluster() bool {
-	return c != nil && c.Type == CtxTypeK8s && c.ClusterOpts != nil && c.ClusterOpts.IsManagementCluster
+	return c != nil && c.Target == cliapi.TargetK8s && c.ClusterOpts != nil && c.ClusterOpts.IsManagementCluster
 }
 
 // SetUnstableVersionSelector will help determine the unstable versions supported

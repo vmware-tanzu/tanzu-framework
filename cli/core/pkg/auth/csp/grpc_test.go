@@ -14,6 +14,7 @@ import (
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/fakes"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
@@ -124,17 +125,17 @@ func initializeConfigSource(gsa configapi.GlobalServerAuth) configSource {
 		CurrentServer: globalServer.Name,
 		KnownContexts: []*configapi.Context{
 			{
-				Name: globalServer.Name,
-				Type: configapi.CtxTypeTMC,
+				Name:   globalServer.Name,
+				Target: cliv1alpha1.TargetTMC,
 			},
 			{
-				Name: managementServer.Name,
-				Type: configapi.CtxTypeK8s,
+				Name:   managementServer.Name,
+				Target: cliv1alpha1.TargetK8s,
 			},
 		},
-		CurrentContext: map[configapi.ContextType]string{
-			configapi.CtxTypeTMC: globalServer.Name,
-			configapi.CtxTypeK8s: managementServer.Name,
+		CurrentContext: map[cliv1alpha1.Target]string{
+			cliv1alpha1.TargetTMC: globalServer.Name,
+			cliv1alpha1.TargetK8s: managementServer.Name,
 		},
 	}
 	return configSource{

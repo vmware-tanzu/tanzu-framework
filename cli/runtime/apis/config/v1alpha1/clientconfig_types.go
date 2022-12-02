@@ -5,38 +5,25 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // ServerType is the type of server.
-// Deprecation targeted for a a future version. Superseded by ContextType.
+// Deprecation targeted for a future version. Superseded by cliapi.Target.
 type ServerType string
-
-// ContextType is the type of the context (control plane).
-// TODO(anuj): Rename to Target
-type ContextType string
 
 const (
 	// ManagementClusterServerType is a management cluster server.
-	// Deprecation targeted for a a future version. Superseded by CtxTypeK8s.
+	// Deprecation targeted for a future version. Superseded by cliapi.TargetK8s.
 	ManagementClusterServerType ServerType = "managementcluster"
 
 	// GlobalServerType is a global control plane server.
-	// Deprecation targeted for a a future version. Superseded by CtxTypeTMC.
+	// Deprecation targeted for a future version. Superseded by cliapi.TargetTMC.
 	GlobalServerType ServerType = "global"
-
-	// CtxTypeK8s is a kubernetes cluster API server.
-	CtxTypeK8s ContextType = "k8s"
-
-	// CtxTypeTMC is a Tanzu Mission Control server.
-	CtxTypeTMC ContextType = "tmc"
-)
-
-var (
-	// SupportedCtxTypes is a list of all supported Context Types
-	SupportedCtxTypes = []ContextType{CtxTypeK8s, CtxTypeTMC}
 )
 
 // Server connection.
@@ -66,8 +53,8 @@ type Context struct {
 	// Name of the context.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 
-	// Type of the context.
-	Type ContextType `json:"type,omitempty" yaml:"type,omitempty"`
+	// Target of the context.
+	Target cliapi.Target `json:"target,omitempty" yaml:"target,omitempty"`
 
 	// GlobalOpts if the context is a global control plane (e.g., TMC).
 	GlobalOpts *GlobalServer `json:"globalOpts,omitempty" yaml:"globalOpts,omitempty"`
@@ -293,9 +280,9 @@ type ClientConfig struct {
 	KnownContexts []*Context `json:"contexts,omitempty" yaml:"contexts,omitempty"`
 
 	// CurrentContext for every type.
-	CurrentContext map[ContextType]string `json:"currentContext,omitempty" yaml:"currentContext,omitempty"`
+	CurrentContext map[cliapi.Target]string `json:"currentContext,omitempty" yaml:"currentContext,omitempty"`
 
-	// ClientOptions are client specific options like feature flags, env variables, repositories , discoverySources etc.
+	// ClientOptions are client specific options like feature flags, environment variables, repositories, discoverySources, etc.
 	ClientOptions *ClientOptions `json:"clientOptions,omitempty" yaml:"clientOptions,omitempty"`
 }
 

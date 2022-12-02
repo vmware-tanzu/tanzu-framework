@@ -11,8 +11,8 @@ clientOptions:
     useContextAwareDiscovery: true
 current: mgmt
 currentContext:
-  k8s: mgmt
-  tmc: tmc-fake
+  kubernetes: mgmt
+  mission-control: tmc-fake
 kind: ClientConfig
 metadata:
   creationTimestamp: null
@@ -32,14 +32,14 @@ contexts:
     path: config
     isManagementCluster: true
   name: mgmt
-  type: k8s
+  target: kubernetes
   discoverySources:
     - local:
         name: fake-mgmt
         path: context-mgmt
 - globalOpts:
   name: tmc-fake
-  type: tmc
+  target: mission-control
   discoverySources:
     - local:
         name: fake-tmc
