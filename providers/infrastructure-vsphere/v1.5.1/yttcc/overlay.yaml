@@ -142,12 +142,3 @@ spec:
       value: #@ vars[configVariable]
     #@ end
     #@ end
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: #@ data.values.CLUSTER_NAME
-stringData:
-  username: #@ data.values.VSPHERE_USERNAME
-  password: #@ data.values.VSPHERE_PASSWORD
