@@ -1,7 +1,15 @@
 metadata:
     infraProvider: vsphere
 configvalues:
+    AVI_CLOUD_NAME: Default-Cloud
+    AVI_CONTROL_PLANE_HA_PROVIDER: true
+    AVI_CONTROLLER: 10.191.186.55
+    AVI_DATA_NETWORK: VM Network
+    AVI_DATA_NETWORK_CIDR: 10.191.176.0/20
     AVI_ENABLE: true
+    AVI_PASSWORD: Admin!23
+    AVI_SERVICE_ENGINE_GROUP: Default-Group
+    AVI_USERNAME: admin
     PROVIDER_TYPE: vsphere
 frameworkPackage:
     versionConstraints: v0.21.0
@@ -37,3 +45,20 @@ coreManagementPluginsPackage:
 akoOperatorPackage:
     akoOperator:
         avi_enable: true
+        on_bootstrap_cluster: true
+        config:
+            avi_controller: 10.191.186.55
+            avi_username: admin
+            avi_password: Admin!23
+            avi_cloud_name: Default-Cloud
+            avi_service_engine_group: Default-Group
+            avi_management_cluster_service_engine_group: Default-Group
+            avi_data_network: VM Network
+            avi_data_network_cidr: 10.191.176.0/20
+            avi_control_plane_network: VM Network
+            avi_control_plane_network_cidr: 10.191.176.0/20
+            avi_management_cluster_vip_network_name: VM Network
+            avi_management_cluster_vip_network_cidr: 10.191.176.0/20
+            avi_management_cluster_control_plane_vip_network_name: VM Network
+            avi_management_cluster_control_plane_vip_network_cidr: 10.191.176.0/20
+            avi_control_plane_ha_provider: true

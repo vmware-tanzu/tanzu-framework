@@ -47,8 +47,13 @@ spec:
               name: webhook-server
               protocol: TCP
           env:
+            #@ if values.akoOperator.on_bootstrap_cluster:
+            #@overlay/match missing_ok=True
             - name: bootstrap_cluster
-              value: "False"
+              value: "True"
+            #@ end
+            - name: cluster_class_enabled
+              value: "True"
             - name: avi_control_plane_ha_provider
               value: #@ "{}".format(values.akoOperator.config.avi_control_plane_ha_provider)
             - name: control_plane_endpoint_port
