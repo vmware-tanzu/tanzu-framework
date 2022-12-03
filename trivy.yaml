@@ -1,0 +1,13 @@
+scan:
+  skip-dirs:
+  - tkg/web/node_modules
+  - tkg/web/e2e
+  - hack/providers-sync-tools/
+  - packages/cluster-api-provider-aws
+  - providers/provider-bundle
+  - pkg/v1/providers
+  - providers/infrastructure-aws
+severity:
+  - HIGH
+  - CRITICAL
+  - UNKNOWN
