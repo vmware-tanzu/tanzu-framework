@@ -21,7 +21,7 @@ const (
 	// and the feature will be always enabled
 	FeatureContextAwareCLIForPlugins = "features.global.context-aware-cli-for-plugins"
 	// FeatureContextCommand determines whether to surface the context command. This is disabled by default.
-	FeatureContextCommand = "features.global.context-target"
+	FeatureContextCommand = "features.global.context-target-v2"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
@@ -38,7 +38,7 @@ const (
 var (
 	DefaultCliFeatureFlags = map[string]bool{
 		FeatureContextAwareCLIForPlugins: contextAwareDiscoveryEnabled(),
-		FeatureContextCommand:            false,
+		FeatureContextCommand:            true,
 	}
 )
 
