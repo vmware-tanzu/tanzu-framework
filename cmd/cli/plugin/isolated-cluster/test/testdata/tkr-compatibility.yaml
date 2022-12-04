@@ -1,0 +1,98 @@
+version: v19
+managementClusterVersions:
+- version: v1.3.0
+  supportedKubernetesVersions:
+  - v1.20.4+vmware.1-tkg.1
+  - v1.19.8+vmware.1-tkg.1
+  - v1.18.16+vmware.1-tkg.1
+  - v1.17.16+vmware.2-tkg.1
+- version: v1.3.1
+  supportedKubernetesVersions:
+  - v1.19.8+vmware.3-tkg.1
+  - v1.20.5+vmware.2-tkg.1
+  - v1.18.17+vmware.2-tkg.1
+  - v1.20.4+vmware.3-tkg.1
+  - v1.19.9+vmware.2-tkg.1
+  - v1.18.16+vmware.3-tkg.1
+  - v1.17.16+vmware.3-tkg.1
+- version: v1.3.1-fips.1
+  supportedKubernetesVersions:
+  - v1.20.5+vmware.2-fips.1-tkg.1
+- version: v1.3.1-patch1
+  supportedKubernetesVersions:
+  - v1.19.8+vmware.3-tkg.1
+  - v1.20.5+vmware.2-tkg.1
+  - v1.18.17+vmware.2-tkg.1
+  - v1.20.4+vmware.3-tkg.1
+  - v1.19.9+vmware.2-tkg.1
+  - v1.18.16+vmware.3-tkg.1
+  - v1.17.16+vmware.3-tkg.1
+- version: v1.4.0
+  supportedKubernetesVersions:
+  - v1.19.12+vmware.1-tkg.1
+  - v1.21.2+vmware.1-tkg.1
+  - v1.20.8+vmware.1-tkg.2
+- version: v1.4.0-fips.1
+  supportedKubernetesVersions:
+  - v1.21.2+vmware.1-fips.1-tkg.1
+  - v1.20.8+vmware.1-fips.1-tkg.2
+- version: v1.4.1
+  supportedKubernetesVersions:
+  - v1.21.2+vmware.1-tkg.2
+  - v1.20.8+vmware.1-tkg.3
+  - v1.19.12+vmware.1-tkg.2
+- version: v1.4.2
+  supportedKubernetesVersions:
+  - v1.21.8+vmware.1-tkg.2
+  - v1.19.16+vmware.1-tkg.1
+  - v1.20.14+vmware.1-tkg.2
+- version: v1.4.3
+  supportedKubernetesVersions:
+  - v1.20.14+vmware.1-tkg.7
+  - v1.19.16+vmware.1-tkg.2
+  - v1.21.8+vmware.1-tkg.7
+- version: v1.5.0
+  supportedKubernetesVersions:
+  - v1.22.5+vmware.1-tkg.1
+  - v1.21.8+vmware.1-tkg.1
+  - v1.20.14+vmware.1-tkg.1
+- version: v1.5.1
+  supportedKubernetesVersions:
+  - v1.22.5+vmware.1-tkg.3
+  - v1.21.8+vmware.1-tkg.4
+  - v1.20.14+vmware.1-tkg.4
+- version: v1.5.2
+  supportedKubernetesVersions:
+  - v1.22.5+vmware.1-tkg.4
+  - v1.20.14+vmware.1-tkg.5
+  - v1.21.8+vmware.1-tkg.5
+- version: v1.5.3
+  supportedKubernetesVersions:
+  - v1.20.15+vmware.1-tkg.1
+  - v1.22.8+vmware.1-tkg.1
+  - v1.21.11+vmware.1-tkg.1
+- version: v1.5.3-fips.1
+  supportedKubernetesVersions:
+  - v1.20.15+vmware.1-fips.1-tkg.1
+  - v1.22.8+vmware.1-fips.1-tkg.1
+  - v1.21.11+vmware.1-fips.1-tkg.1
+- version: v1.5.4
+  supportedKubernetesVersions:
+  - v1.20.15+vmware.1-tkg.2
+  - v1.22.9+vmware.1-tkg.1
+  - v1.21.11+vmware.1-tkg.3
+- version: v1.5.4-fips.1
+  supportedKubernetesVersions:
+  - v1.20.15+vmware.2-fips-tkg.1
+  - v1.21.11+vmware.2-fips-tkg.1
+  - v1.22.9+vmware.1-fips-tkg.1
+- version: v1.6.0
+  supportedKubernetesVersions:
+  - v1.23.8+vmware.2-tkg.1
+  - v1.21.14+vmware.2-tkg.1
+  - v1.22.11+vmware.2-tkg.1
+- version: v1.6.0-fips.1
+  supportedKubernetesVersions:
+  - v1.23.8+vmware.2-fips.1-tkg.1
+  - v1.22.11+vmware.2-fips.1-tkg.1
+  - v1.21.14+vmware.2-fips.1-tkg.1
