@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -93,7 +94,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgBomAndComponentImages() (string, 
 		return "", err
 	}
 	// read the tkg-bom file
-	tkgBomFilePath := path.Join(outputDir, fmt.Sprintf("tkg-bom-%s.yaml", p.TkgVersion))
+	tkgBomFilePath := filepath.Join(outputDir, fmt.Sprintf("tkg-bom-%s.yaml", p.TkgVersion))
 	b, err := os.ReadFile(tkgBomFilePath)
 
 	// read the tkg-bom file
@@ -151,7 +152,7 @@ func (p *PublishImagesToTarOptions) DownloadTkrCompatibilityImage(tkrCompatibili
 	if len(files) != 1 || files[0].IsDir() {
 		return nil, fmt.Errorf("tkr-compatibility image should only has exact one file inside")
 	}
-	tkrCompatibilityFilePath := path.Join(outputDir, files[0].Name())
+	tkrCompatibilityFilePath := filepath.Join(outputDir, files[0].Name())
 	b, err := os.ReadFile(tkrCompatibilityFilePath)
 	if err != nil {
 		return nil, errors.Wrapf(err, "read tkr-compatibility file from %s faild", tkrCompatibilityFilePath)
@@ -214,7 +215,7 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 	for _, compInfos := range components {
 		for _, compInfo := range compInfos {
 			for _, imageInfo := range compInfo.Images {
-				sourceImageName = path.Join(p.TkgImageRepo, imageInfo.ImagePath) + ":" + imageInfo.Tag
+				sourceImageName = filepath.Join(p.TkgImageRepo, imageInfo.ImagePath) + ":" + imageInfo.Tag
 				imageInfo.ImagePath = replaceSlash(imageInfo.ImagePath)
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
 				p.ImageDetails[tarname] = imageInfo.ImagePath
