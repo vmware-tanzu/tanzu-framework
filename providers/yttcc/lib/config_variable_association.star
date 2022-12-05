@@ -362,10 +362,10 @@ def get_cluster_variables():
     vars["cni"] = data.values["CNI"]
 
     customControlPlaneCertificateRotation = {}
-    if data.values["CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED"]:
+    if data.values["CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED"] != "":
         customControlPlaneCertificateRotation["activate"] = data.values["CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED"]
     end
-    if data.values["CONTROLPLANE_CERTIFICATE_ROTATION_DAYS_BEFORE"]:
+    if data.values["CONTROLPLANE_CERTIFICATE_ROTATION_DAYS_BEFORE"] != "":
         customControlPlaneCertificateRotation["daysBefore"] = data.values["CONTROLPLANE_CERTIFICATE_ROTATION_DAYS_BEFORE"]
     end
     if customControlPlaneCertificateRotation != {}:
