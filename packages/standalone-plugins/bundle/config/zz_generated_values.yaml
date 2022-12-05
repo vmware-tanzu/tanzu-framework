@@ -1,0 +1,19 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+
+---
+login:
+  version: v0.28.0-dev
+managementcluster:
+  version: v0.28.0-dev
+package:
+  version: v0.28.0-dev
+pinnipedauth:
+  version: v0.28.0-dev
+secret:
+  version: v0.28.0-dev
+telemetry:
+  version: v0.28.0-dev
+isolatedcluster:
+  version: v0.28.0-dev
+
