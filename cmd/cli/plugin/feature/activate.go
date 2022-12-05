@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -38,20 +39,35 @@ func featureActivate(cmd *cobra.Command, args []string) error {
 
 	fgClient, err := featuregateclient.NewFeatureGateClient()
 	if err != nil {
-		return fmt.Errorf("could not get FeatureGate client: %w", err)
+		return fmt.Errorf("could not get FeatureGateClient: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
+	var userAllows *bool
+	if cmd.Flags().Changed("permanentlyVoidAllSupportGuarantees") {
+		userAllows = &userAllowsVoidingWarranty
+	}
+
+	gateName, err := activateFeature(ctx, fgClient, featureName, userAllows)
+	if err != nil {
+		return fmt.Errorf("could not activate Feature %s: %w", featureName, err)
+	}
+
+	cmd.Printf("Feature %s gated by FeatureGate %s is activated.\n", featureName, gateName)
+	return nil
+}
+
+func activateFeature(ctx context.Context, fgClient *featuregateclient.FeatureGateClient, featureName string, userAllows *bool) (string, error) {
 	feature, err := fgClient.GetFeature(ctx, featureName)
 	if err != nil {
-		return fmt.Errorf("could not get Feature %s: %w", featureName, err)
+		return "", fmt.Errorf("could not get Feature %s: %w", featureName, err)
 	}
 
 	gates, err := fgClient.GetFeatureGateList(ctx)
 	if err != nil {
-		return fmt.Errorf("could not get FeatureGate List: %w", err)
+		return "", fmt.Errorf("could not get FeatureGate List: %w", err)
 	}
 
 	gateName, featRef := featuregateclient.FeatureRefFromGateList(gates, featureName)
@@ -59,25 +75,20 @@ func featureActivate(cmd *cobra.Command, args []string) error {
 	var proceedWithVoidingWarranty bool
 	if willWarrantyBeVoided(featRef, feature) {
 		// The warranty will be voided with the request, so check that user allows it.
-		var userAllows *bool
-		if cmd.Flags().Changed("permanentlyVoidAllSupportGuarantees") {
-			userAllows = &userAllowsVoidingWarranty
-		}
 		proceedWithVoidingWarranty, err = userGivesPermissionToVoidWarranty(feature, userAllows)
 		if err != nil {
-			return fmt.Errorf("could not get user permission to void warranty for Feature %s: %w", featureName, err)
+			return gateName, fmt.Errorf("could not get user permission to void warranty for Feature %s: %w", featureName, err)
 		}
 	}
 
 	err = fgClient.ActivateFeature(ctx, featureName, proceedWithVoidingWarranty)
 	if err != nil {
-		return fmt.Errorf("could not activate Feature %s gated by FeatureGate %s: %w", featureName, gateName, err)
+		return gateName, fmt.Errorf("could not activate Feature %s gated by FeatureGate %s: %w", featureName, gateName, err)
 	}
 
 	displayActivationWarnings(feature)
 
-	cmd.Printf("Feature %s gated by FeatureGate %s is activated.\n", featureName, gateName)
-	return nil
+	return gateName, nil
 }
 
 // displayActivationWarnings warns the user that technical preview features are
@@ -113,15 +124,19 @@ func userGivesPermissionToVoidWarranty(feature *corev1alpha2.Feature, userAllows
 	if userAllowsByFlag == nil {
 		// Request user permission interactively to void the warranty if not already set by flag.
 		fmt.Printf("Warning: activating %q, a %s Feature will irrevocably void all support guarantees for this environment. You will need to recreate the environment to return to a supported state.\nWould you like to continue [y/N]?", feature.Name, feature.Spec.Stability)
-		return userAllowsByInteractiveCLI()
+		return userAllowsByInteractiveCLI(nil)
 	}
 	// If the user did pass a value to the flag, use the user's input. No interactive user input is needed.
 	return *userAllowsByFlag, nil
 }
 
-func userAllowsByInteractiveCLI() (bool, error) {
+func userAllowsByInteractiveCLI(in *os.File) (bool, error) {
+	if in == nil {
+		in = os.Stdin
+	}
+
 	var userAnswer string
-	if n, err := fmt.Scanln(&userAnswer); err != nil {
+	if n, err := fmt.Fscanln(in, &userAnswer); err != nil {
 		if n == 0 {
 			return false, nil
 		}
@@ -136,6 +151,6 @@ func userAllowsByInteractiveCLI() (bool, error) {
 		return false, nil
 	default:
 		fmt.Printf("Please respond with %q or %q\n", "y", "n")
-		return userAllowsByInteractiveCLI()
+		return userAllowsByInteractiveCLI(nil)
 	}
 }

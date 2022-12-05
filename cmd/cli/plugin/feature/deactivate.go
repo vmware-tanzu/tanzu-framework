@@ -25,7 +25,7 @@ var FeatureDeactivateCmd = &cobra.Command{
 
 		fgClient, err := featuregateclient.NewFeatureGateClient()
 		if err != nil {
-			return fmt.Errorf("could not get FeatureGate client: %w", err)
+			return fmt.Errorf("could not get FeatureGateClient: %w", err)
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)

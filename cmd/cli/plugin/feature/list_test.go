@@ -5,8 +5,11 @@ package main
 
 import (
 	"context"
+	"os"
+	"strings"
 	"testing"
 
+	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes/scheme"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
@@ -87,10 +90,13 @@ func TestFeatureInfoList(t *testing.T) {
 				"include-experimental": true,
 			},
 			want: []string{
+				"cloud-event-speaker",
+				"cloud-event-relayer",
 				"hard-to-get",
 				"bar",
 				"barries",
 				"baz",
+				"biz",
 				"tuna",
 			},
 		},
@@ -103,10 +109,13 @@ func TestFeatureInfoList(t *testing.T) {
 				"include-experimental": true,
 			},
 			want: []string{
+				"cloud-event-speaker",
+				"cloud-event-relayer",
 				"hard-to-get",
 				"bar",
 				"barries",
 				"baz",
+				"biz",
 			},
 		},
 		{
@@ -122,6 +131,7 @@ func TestFeatureInfoList(t *testing.T) {
 				"barries",
 				"baz",
 				"baz",
+				"biz",
 				"tuna",
 			},
 		},
@@ -137,6 +147,7 @@ func TestFeatureInfoList(t *testing.T) {
 				"bar",
 				"barries",
 				"baz",
+				"biz",
 				"hard-to-get",
 			},
 		},
@@ -153,6 +164,7 @@ func TestFeatureInfoList(t *testing.T) {
 				"barries",
 				"baz",
 				"bazzies",
+				"biz",
 				"hard-to-get",
 				"super-toaster",
 				"tuna",
@@ -173,6 +185,7 @@ func TestFeatureInfoList(t *testing.T) {
 				"barries",
 				"baz",
 				"bazzies",
+				"biz",
 				"hard-to-get",
 				"super-toaster",
 			},
@@ -187,8 +200,11 @@ func TestFeatureInfoList(t *testing.T) {
 			},
 			want: []string{
 				"cloud-event-listener",
+				"cloud-event-speaker",
+				"cloud-event-relayer",
 				"bar",
 				"barries",
+				"biz",
 				"hard-to-get",
 				"super-toaster",
 				"baz",
@@ -207,8 +223,11 @@ func TestFeatureInfoList(t *testing.T) {
 			},
 			want: []string{
 				"cloud-event-listener",
+				"cloud-event-speaker",
+				"cloud-event-relayer",
 				"bar",
 				"barries",
+				"biz",
 				"hard-to-get",
 				"super-toaster",
 				"baz",
@@ -252,6 +271,108 @@ func TestFeatureInfoList(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestListExtended(t *testing.T) {
+	tests := []struct {
+		description string
+		cmd         *cobra.Command
+		feats       []FeatureInfo
+		wantErr     error
+	}{
+		{
+			description: "extended list should not error",
+			cmd:         FeatureListCmd,
+			feats: []FeatureInfo{
+				{
+					Name:         "cloud-event-relayer",
+					Description:  "Open a port to relay cloud events. Highly experimental!",
+					Stability:    corev1alpha2.Experimental,
+					Immutable:    false,
+					Discoverable: true,
+					FeatureGate:  "tkg-system",
+					Activated:    false,
+					ShowInList:   true,
+				},
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		got := listExtended(tc.cmd, tc.feats)
+		if got != tc.wantErr {
+			t.Fatalf("got unwanted extended list error: %v", got)
+		}
+	}
+}
+
+func TestListBasic(t *testing.T) {
+	tests := []struct {
+		description string
+		cmd         *cobra.Command
+		feats       []FeatureInfo
+		wantErr     error
+	}{
+		{
+			description: "basic list should not error",
+			cmd:         FeatureListCmd,
+			feats: []FeatureInfo{
+				{
+					Name:         "cloud-event-relayer",
+					Description:  "Open a port to relay cloud events. Highly experimental!",
+					Stability:    corev1alpha2.Experimental,
+					Immutable:    false,
+					Discoverable: true,
+					FeatureGate:  "tkg-system",
+					Activated:    false,
+					ShowInList:   true,
+				},
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		got := listBasic(tc.cmd, tc.feats)
+		if got != tc.wantErr {
+			t.Fatalf("got unwanted basic list error: %v", got)
+		}
+	}
+}
+
+func TestExecuteFeatureListCommand(t *testing.T) {
+	test := struct {
+		description string
+		cmd         *cobra.Command
+		errMsg      string
+	}{
+		description: "FeatureGateClient cannot connect due to bad configuration",
+		cmd:         FeatureListCmd,
+		errMsg:      "could not get FeatureGateClient",
+	}
+
+	storedKubeConfig, lastEnvVarOK := os.LookupEnv("KUBECONFIG")
+	if err := os.Setenv("KUBECONFIG", "test/k8s_config.kube"); err != nil {
+		t.Fatalf("failed to set test kubeconfig: %v", err)
+	}
+
+	err := test.cmd.Execute()
+
+	if len(test.errMsg) > 0 {
+		if err == nil {
+			t.Fatal("expected error, but did not get one")
+		}
+
+		if !strings.Contains(err.Error(), test.errMsg) {
+			t.Errorf("got: %s, want error to contain: %s", err, test.errMsg)
+		}
+	}
+
+	// Restore previous kubeconfig if it was set.
+	if err := restoreEnvVar("KUBECONFIG", storedKubeConfig, lastEnvVarOK); err != nil {
+		t.Errorf("unable to restore previous KUBECONFIG envvar: %v", err)
 	}
 }
 

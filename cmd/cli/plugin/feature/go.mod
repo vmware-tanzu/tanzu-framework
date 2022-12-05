@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/tanzu-framework/featuregate/plugin
+module github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/feature
 
 go 1.18
 
