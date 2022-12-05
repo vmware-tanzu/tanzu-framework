@@ -272,6 +272,13 @@ func (c *TkgClient) ConfigureAndValidateAzureConfig(tkrVersion string, nodeSizes
 	return nil
 }
 
+// ConfigureAndValidateOracleConfig configures and validates oracle configurationn
+func (c *TkgClient) ConfigureAndValidateOracleConfig(tkrVersion string, nodeSizes NodeSizeOptions, skipValidation bool) error {
+	c.SetProviderType(OracleProviderName)
+
+	return nil
+}
+
 // ValidateAzurePublicSSHKey validates AZURE_SSH_PUBLIC_KEY_B64 exists and is base64 encoded
 func (c *TkgClient) ValidateAzurePublicSSHKey() error {
 	sshKey, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureSSHPublicKeyB64)
@@ -621,6 +628,8 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		err = c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, nil)
 	case DockerProviderName:
 		err = c.ConfigureAndValidateDockerConfig(tkrVersion, options.NodeSizeOptions, skipValidation)
+	case OracleProviderName:
+		err = c.ConfigureAndValidateOracleConfig(tkrVersion, options.NodeSizeOptions, skipValidation)
 	}
 
 	if err != nil {
