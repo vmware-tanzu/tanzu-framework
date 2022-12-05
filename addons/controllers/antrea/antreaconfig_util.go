@@ -20,7 +20,7 @@ import (
 )
 
 // AntreaConfigSpec defines the desired state of AntreaConfig
-type antreaConfigSpec struct {
+type AntreaConfigSpec struct {
 	InfraProvider string    `yaml:"infraProvider"`
 	Antrea        antrea    `yaml:"antrea,omitempty"`
 	AntreaNsx     antreaNsx `yaml:"antreaNsx,omitempty"`
@@ -32,24 +32,18 @@ type antrea struct {
 
 type antreaNsx struct {
 	Enable          bool                   `yaml:"enable,omitempty"`
-	BootstrapFrom   AntreaNsxBootstrapFrom `yaml:"bootstrapFrom,omitempty"`
+	BootstrapFrom   antreaNsxBootstrapFrom `yaml:"bootstrapFrom,omitempty"`
 	AntreaNsxConfig antreaNsxConfig        `yaml:"config,omitempty"`
 }
 
-type antreaNsxProvider struct {
-	ApiVersion string `yaml:"apiVersion,omitempty"`
-	Kind       string `yaml:"kind,omitempty"`
-	Name       string `yaml:"kind,omitempty"`
-}
-
-type AntreaNsxBootstrapFrom struct {
+type antreaNsxBootstrapFrom struct {
 	// ProviderRef is used with uTKG, which will be filled by NCP operator
 	ProviderRef *antreaNsxProvider `yaml:"providerRef,omitempty"`
 	// Inline is used with TKGm, user need to fill in manually
 	Inline *antreaNsxInline `yaml:"inline,omitempty"`
 }
 
-type AntreaNsxProvider struct {
+type antreaNsxProvider struct {
 	// Api version for nsxServiceAccount, its value is "nsx.vmware.com/v1alpha1" now
 	ApiVersion string `yaml:"apiVersion,omitempty"`
 	// Its value is NsxServiceAccount
@@ -207,8 +201,8 @@ func (r *AntreaConfigReconciler) ClusterToAntreaConfig(o client.Object) []ctrl.R
 	return requests
 }
 
-func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.AntreaConfig, client client.Client) (*antreaConfigSpec, error) {
-	configSpec := &antreaConfigSpec{}
+func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.AntreaConfig, client client.Client) (*AntreaConfigSpec, error) {
+	configSpec := &AntreaConfigSpec{}
 
 	// Derive InfraProvider from the cluster
 	infraProvider, err := util.GetInfraProvider(cluster)

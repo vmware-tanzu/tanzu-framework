@@ -6,10 +6,10 @@ package controllers
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,6 +17,7 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	antreatype "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -183,16 +184,19 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
 
 				// check data value secret contents
-				secretData := string(secret.Data["values.yaml"])
-
-				Expect(strings.Contains(secretData, "serviceCIDR: 192.168.0.0/16")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "serviceCIDRv6: fd00:100:96::/48")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "infraProvider: docker")).Should(BeTrue())
-
-				Expect(strings.Contains(secretData, "trafficEncapMode: encap")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "AntreaProxy: true")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "AntreaPolicy: true")).Should(BeTrue())
+				content := secret.Data["values.yaml"]
+				spec := antreatype.AntreaConfigSpec{}
+				err = yaml.Unmarshal(content, &spec)
+				if err != nil {
+					return false
+				}
+				Expect(spec.Antrea.AntreaConfigDataValue.ServiceCIDR).Should(Equal("192.168.0.0/16"))
+				Expect(spec.Antrea.AntreaConfigDataValue.ServiceCIDRv6).Should(Equal("fd00:100:96::/48"))
+				Expect(spec.InfraProvider).Should(Equal("docker"))
+				Expect(spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).Should(Equal("encap"))
+				Expect(spec.Antrea.AntreaConfigDataValue.TLSCipherSuites).Should(Equal("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384"))
+				Expect(spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy).Should(Equal(true))
+				Expect(spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy).Should(Equal(true))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -302,16 +306,19 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
 
 				// check data value secret contents
-				secretData := string(secret.Data["values.yaml"])
-
-				Expect(strings.Contains(secretData, "serviceCIDR: 192.168.0.0/16")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "serviceCIDRv6: fd00:100:96::/48")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "infraProvider: vsphere")).Should(BeTrue())
-
-				Expect(strings.Contains(secretData, "trafficEncapMode: encap")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "AntreaProxy: true")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "AntreaPolicy: true")).Should(BeTrue())
+				content := secret.Data["values.yaml"]
+				spec := antreatype.AntreaConfigSpec{}
+				err = yaml.Unmarshal(content, &spec)
+				if err != nil {
+					return false
+				}
+				Expect(spec.Antrea.AntreaConfigDataValue.ServiceCIDR).Should(Equal("192.168.0.0/16"))
+				Expect(spec.Antrea.AntreaConfigDataValue.ServiceCIDRv6).Should(Equal("fd00:100:96::/48"))
+				Expect(spec.InfraProvider).Should(Equal("vsphere"))
+				Expect(spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).Should(Equal("encap"))
+				Expect(spec.Antrea.AntreaConfigDataValue.TLSCipherSuites).Should(Equal("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384"))
+				Expect(spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy).Should(Equal(true))
+				Expect(spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy).Should(Equal(true))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
