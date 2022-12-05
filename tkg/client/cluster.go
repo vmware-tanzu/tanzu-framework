@@ -45,6 +45,8 @@ const (
 	AzureProviderName = "azure"
 	// DockerProviderName docker provider name
 	DockerProviderName = "docker"
+	// OracleProviderName oracle infrastructure cloud provider name
+	OracleProviderName = "oci"
 
 	defaultPacificProviderVersion = "v1.1.0"
 )
