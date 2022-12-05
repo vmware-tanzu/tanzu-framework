@@ -42,11 +42,23 @@ require (
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.24.4
-	k8s.io/apimachinery v0.24.4
-	k8s.io/client-go v0.24.4
-	sigs.k8s.io/cluster-api v1.2.7
-	sigs.k8s.io/controller-runtime v0.12.3
+	gopkg.in/yaml.v3 v3.0.1
+	k8s.io/api v0.23.5
+	k8s.io/apiextensions-apiserver v0.23.5
+	k8s.io/apimachinery v0.23.5
+	k8s.io/client-go v0.23.5
+	k8s.io/kubectl v0.23.4
+	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
+	knative.dev/pkg v0.0.0-20220302134643-d2cdc682d974
+	sigs.k8s.io/cluster-api v1.1.5
+	sigs.k8s.io/cluster-api-provider-aws v1.1.0
+	sigs.k8s.io/cluster-api-provider-azure v1.4.5
+	sigs.k8s.io/cluster-api-provider-vsphere v1.3.5
+	sigs.k8s.io/cluster-api/test v1.1.5
+	sigs.k8s.io/controller-runtime v0.11.2
+	sigs.k8s.io/controller-tools v0.7.0
+	sigs.k8s.io/kind v0.14.0
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (

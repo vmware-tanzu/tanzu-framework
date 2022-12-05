@@ -114,10 +114,15 @@ require (
 	gopkg.in/gcfg.v1 v1.2.3 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
-	gopkg.in/warnings.v0 v0.1.2 // indirect
-	k8s.io/cluster-bootstrap v0.24.6 // indirect
-	k8s.io/kube-openapi v0.0.0-20220803164354-a70c9af30aea // indirect
-	k8s.io/kubectl v0.24.6 // indirect
-	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
-	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
+	k8s.io/apiserver v0.23.5 // indirect
+	k8s.io/cluster-bootstrap v0.23.4 // indirect
+	k8s.io/component-base v0.23.5 // indirect
+	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
+	k8s.io/kubectl v0.23.4 // indirect
+	sigs.k8s.io/cluster-api-provider-aws v1.1.0 // indirect
+	sigs.k8s.io/cluster-api-provider-azure v1.4.5 // indirect
+	sigs.k8s.io/cluster-api/test v1.1.5 // indirect
+	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
+	sigs.k8s.io/kind v0.14.0 // indirect
+	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 )
