@@ -114,7 +114,7 @@ def validate_nsxt_config():
 end
 
 def validate_kcp_certificate_rotation_config():
-  if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE < 7 and data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE > 0:
+  if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE < 7 :
     assert.fail("certificatesExpiryDays must be set as integer with a minimum value of 7 when certificate automatic renewal is enabled")
   end
 end

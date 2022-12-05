@@ -266,21 +266,32 @@ stringData:
       variables:
       #@overlay/remove
       #@overlay/match by=overlay.map_key("name"),missing_ok=True
-      - name: controlPlaneCertificateRotationBefore
+      - name: controlPlaneCertificateRotation
       #@overlay/append
-      - name: controlPlaneCertificateRotationBefore
+      - name: controlPlaneCertificateRotation
         required: false
         schema:
           openAPIV3Schema:
-          type: integer
-          default: 90
+          type: object
+          default:
+            activate: true
+            daysBefore: 90
+          properties:
+            activate:
+              type: string
+              default: true
+            daysBefore:
+              type: integer
+              format: int32
+              minimum: 7
+              default: 90
       #@overlay/match missing_ok=True
       patches:
       #@overlay/remove
       #@overlay/match by=overlay.map_key("name"),missing_ok=True
-      - name: controlPlaneCertificateRotationBefore
+      - name: controlPlaneCertificateRotation
       #@overlay/append
-      - name: controlPlaneCertificateRotationBefore
+      - name: controlPlaneCertificateRotation
         description: "Enables configuration of automatic renewal of machine certificates before expiration."
         definitions:
         - selector:
@@ -292,5 +303,5 @@ stringData:
           - op: add
             path: /spec/template/spec/rolloutBefore/certificatesExpiryDays
             valueFrom:
-              variable: controlPlaneCertificateRotationBefore
-        enabledIf: '{{ .controlPlaneCertificateRotationBefore | gt 0 }}'
+              variable: controlPlaneCertificateRotation.daysBefore
+        enabledIf: '{{ .controlPlaneCertificateRotation }}'

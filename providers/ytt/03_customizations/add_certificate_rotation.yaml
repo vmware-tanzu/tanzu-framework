@@ -2,7 +2,7 @@
 #@ load("@ytt:data", "data")
 #@ load("/lib/helpers.star", "enable_certificate_automatic_renewal")
 
-#@ if enable_certificate_automatic_renewal():
+#@ if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED:
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -11,5 +11,5 @@ spec:
   #@overlay/match missing_ok=True
   rolloutBefore:
     #@overlay/match missing_ok=True
-    certificatesExpiryDays:  #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_BEFORE
+    certificatesExpiryDays:  #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_DAYS_BEFORE
 #@ end
