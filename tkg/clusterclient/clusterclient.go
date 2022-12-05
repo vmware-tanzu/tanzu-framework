@@ -42,6 +42,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/retry"
 	capav1beta2 "sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
@@ -86,11 +87,9 @@ import (
 )
 
 const (
-	kubectlApplyRetryTimeout          = 30 * time.Second
-	kubectlApplyRetryInterval         = 5 * time.Second
-	kubectlApplyLastAppliedAnnotation = "kubectl.kubernetes.io/last-applied-configuration"
-	// DefaultKappControllerHostPort is the default kapp-controller port for it's extension apiserver
-	DefaultKappControllerHostPort           = 10100
+	kubectlApplyRetryTimeout                = 30 * time.Second
+	kubectlApplyRetryInterval               = 5 * time.Second
+	kubectlApplyLastAppliedAnnotation       = "kubectl.kubernetes.io/last-applied-configuration"
 	waitPeriodBeforePollingForUpgradeStatus = 60 * time.Second
 	ErrUnableToGetPackage                   = "unable to get the package: '%s' in namespace: '%s'"
 )
@@ -2468,8 +2467,29 @@ func (c *client) DeleteExistingKappController() error {
 	return nil
 }
 
-// UpdateAWSCNIIngressRules updates the cniIngressRules field for AWSCluster to allow for
-// kapp-controller host port that was added in newer versions.
+const (
+	DefaultKappControllerHostPort = 10100
+	DefaultAddonsManagerHostPort  = 9865
+)
+
+// AWSIngressRules is a list of CNIIngressRules that need to be applied to an aws cluster to allow for control-plane pod network traffic
+var AWSIngressRules = capav1beta2.CNIIngressRules{
+	capav1beta2.CNIIngressRule{
+		Description: "kapp-controller",
+		Protocol:    capav1beta2.SecurityGroupProtocolTCP,
+		FromPort:    DefaultKappControllerHostPort,
+		ToPort:      DefaultKappControllerHostPort,
+	},
+	capav1beta2.CNIIngressRule{
+		Description: "addons-manager",
+		Protocol:    capav1beta2.SecurityGroupProtocolTCP,
+		FromPort:    DefaultAddonsManagerHostPort,
+		ToPort:      DefaultAddonsManagerHostPort,
+	},
+}
+
+// UpdateAWSCNIIngressRules updates the cniIngressRules field on an AWSCluster with rules listed under
+// AWSIngressRules
 func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error {
 	awsCluster := &capav1beta2.AWSCluster{}
 	if err := c.GetResource(awsCluster, clusterName, clusterNamespace, nil, nil); err != nil {
@@ -2485,36 +2505,44 @@ func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) 
 	}
 
 	cniIngressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
-	// first check if existing ingress rules contains the kapp-controller port
-	for _, ingressRule := range cniIngressRules {
-		if ingressRule.Description != "kapp-controller" {
-			continue
+	cniIngressRulesNeedUpdate := false
+	for _, ingressRule := range AWSIngressRules {
+		if !containsIngressRule(cniIngressRules, ingressRule) {
+			cniIngressRules = append(cniIngressRules, ingressRule)
+			cniIngressRulesNeedUpdate = true
 		}
-
-		if ingressRule.Protocol != capav1beta2.SecurityGroupProtocolTCP {
-			continue
-		}
-
-		if ingressRule.FromPort != DefaultKappControllerHostPort || ingressRule.ToPort != DefaultKappControllerHostPort {
-			continue
-		}
-
-		return nil
 	}
 
-	cniIngressRules = append(cniIngressRules, capav1beta2.CNIIngressRule{
-		Description: "kapp-controller",
-		Protocol:    capav1beta2.SecurityGroupProtocolTCP,
-		FromPort:    DefaultKappControllerHostPort,
-		ToPort:      DefaultKappControllerHostPort,
-	})
-
-	awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = cniIngressRules
-	if err := c.UpdateResource(awsCluster, clusterName, clusterNamespace); err != nil {
-		return err
+	if cniIngressRulesNeedUpdate {
+		awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = cniIngressRules
+		err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+			return c.UpdateResource(awsCluster, clusterName, clusterNamespace)
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
+}
+
+func containsIngressRule(listOfRules capav1beta2.CNIIngressRules, rule capav1beta2.CNIIngressRule) bool {
+	for _, ingressRule := range listOfRules {
+		if ingressRule.Description != rule.Description {
+			continue
+		}
+		if ingressRule.Protocol != rule.Protocol {
+			continue
+		}
+		if ingressRule.FromPort != rule.FromPort {
+			continue
+		}
+		if ingressRule.ToPort != rule.ToPort {
+			continue
+		}
+		return true
+	}
+	return false
 }
 
 // RemoveCEIPTelemetryJob removes installed telemetry job
