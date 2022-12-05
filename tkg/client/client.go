@@ -83,6 +83,7 @@ type InitRegionOptions struct {
 	CeipOptIn                    bool
 	UseExistingCluster           bool
 	IsInputFileClusterClassBased bool
+	GenerateOnly                 bool
 }
 
 // DeleteRegionOptions contains options supported by DeleteRegion

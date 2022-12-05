@@ -360,8 +360,8 @@ Assume below configuration as part of the config file where there is one active 
 
 ```yaml
 currentContext:
-  k8s: vsphere-mc-1
-  tmc: tmc-unstable
+  kubernetes: vsphere-mc-1
+  mission-control: tmc-unstable
 ```
 
 ```sh

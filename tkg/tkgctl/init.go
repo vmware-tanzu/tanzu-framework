@@ -358,6 +358,7 @@ func (t *tkgctl) populateClientInitRegionOptions(options *InitRegionOptions, nod
 		VsphereControlPlaneEndpoint: options.VsphereControlPlaneEndpoint,
 		Edition:                     options.Edition,
 		AdditionalTKGManifests:      options.AdditionalTKGManifests,
+		GenerateOnly:                options.GenerateOnly,
 	}
 }
 

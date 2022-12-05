@@ -130,8 +130,6 @@ Earlier, this was distributed between the `tanzu login` command and `tanzu confi
 
 More details regarding Target is available in next section.
 
-Note: This is currently behind a feature flag. To enable the flag please run `tanzu config set features.global.context-target true`
-
 Create a new context:
 
 ```sh

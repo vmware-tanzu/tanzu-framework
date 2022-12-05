@@ -24,7 +24,7 @@ func TestDeleteNodes(t *testing.T) {
 				"contexts.group": "replace",
 			},
 			dst: `name: test-mc
-type: k8s
+target: kubernetes
 group: one
 clusterOpts:
   isManagementCluster: true
@@ -51,7 +51,7 @@ discoverySources:
       required: true
     contextType: tmc`,
 			src: `name: test-mc
-type: k8s
+target: kubernetes
 clusterOpts:
   isManagementCluster: true
   endpoint: test-endpoint
@@ -68,7 +68,7 @@ discoverySources:
       manifestPath: test-manifest-path
     contextType: tmc`,
 			output: `name: test-mc
-type: k8s
+target: kubernetes
 clusterOpts:
   isManagementCluster: true
   annotation: one
@@ -104,7 +104,7 @@ discoverySources:
 				"contexts.clusterOpts.optional":         "replace",
 			},
 			dst: `name: test-mc
-type: k8s
+target: kubernetes
 group: one
 clusterOpts:
   isManagementCluster: true
@@ -134,7 +134,7 @@ discoverySources:
       required: true
     contextType: tmc`,
 			src: `name: test-mc
-type: k8s
+target: kubernetes
 clusterOpts:
   isManagementCluster: true
   endpoint: test-endpoint
@@ -151,7 +151,7 @@ discoverySources:
       manifestPath: test-manifest-path
     contextType: tmc`,
 			output: `name: test-mc
-type: k8s
+target: kubernetes
 clusterOpts:
   isManagementCluster: true
   required: true

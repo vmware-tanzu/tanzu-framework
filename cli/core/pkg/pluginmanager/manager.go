@@ -158,10 +158,10 @@ func discoverServerPluginsBasedOnAllCurrentContexts() ([]plugin.Discovered, erro
 			discoveredPlugins[i].ContextName = context.Name
 
 			// Associate Target of the plugin based on the Context Type of the Context
-			switch context.Type {
-			case configapi.CtxTypeTMC:
+			switch context.Target {
+			case cliv1alpha1.TargetTMC:
 				discoveredPlugins[i].Target = cliv1alpha1.TargetTMC
-			case configapi.CtxTypeK8s:
+			case cliv1alpha1.TargetK8s:
 				discoveredPlugins[i].Target = cliv1alpha1.TargetK8s
 			}
 		}

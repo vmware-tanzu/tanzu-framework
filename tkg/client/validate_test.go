@@ -13,16 +13,16 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
 	aviMock "github.com/vmware-tanzu/tanzu-framework/tkg/avi/mocks"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
-
-	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 )
 
 var _ = Describe("Validate", func() {
@@ -63,11 +63,18 @@ var _ = Describe("Validate", func() {
 		featureFlagClient = &fakes.FeatureFlagClient{}
 		featureFlagClient.IsConfigFeatureActivatedReturns(true, nil)
 
+		regionManager := new(fakes.RegionManager)
+		regionManager.ListRegionContextsReturns([]region.RegionContext{
+			{
+				ClusterName: "test-mc",
+			},
+		}, nil)
+
 		options := client.Options{
 			ReaderWriterConfigClient: readerWriter,
 			TKGConfigUpdater:         tkgConfigUpdater,
 			TKGBomClient:             tkgBomClient,
-			RegionManager:            new(fakes.RegionManager),
+			RegionManager:            regionManager,
 			FeatureFlagClient:        featureFlagClient,
 		}
 		tkgClient, err = client.New(options)
@@ -1391,6 +1398,32 @@ var _ = Describe("Validate", func() {
 					mockClient.EXPECT().GetVipNetworkByName("test-mc-data-net").Return(nil, nil).Times(1)
 					err := tkgClient.ValidateAviManagementClusterDataPlaneNetwork(mockClient)
 					Expect(err).Should(HaveOccurred())
+				})
+			})
+		})
+
+		Context("ConfigureAndValidateSameClusterNameConfiguration", func() {
+			Context("Validate the same name when dry run", func() {
+				BeforeEach(func() {
+					initRegionOptions.GenerateOnly = true
+					initRegionOptions.ClusterName = "test-mc"
+				})
+
+				It("should return with no error", func() {
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).NotTo(HaveOccurred())
+				})
+			})
+			Context("Validate the same name when actually installing", func() {
+				BeforeEach(func() {
+					initRegionOptions.GenerateOnly = false
+					initRegionOptions.ClusterName = "test-mc"
+				})
+
+				It("should return with error", func() {
+					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+					Expect(validationError).To(HaveOccurred())
+					Expect(validationError.Error()).To(ContainSubstring(fmt.Sprintf("cluster name %s matches another management cluster", "test-mc")))
 				})
 			})
 		})

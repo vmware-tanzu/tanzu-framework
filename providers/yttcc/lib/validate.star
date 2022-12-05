@@ -39,8 +39,6 @@ def validate_configuration(provider):
     return
   end
 
-  validate_kcp_certificate_rotation_config()
-
   if provider == "vsphere":
     flag_missing_variable_error(required_variable_list_vsphere)
     if data.values.NSXT_POD_ROUTING_ENABLED == True:

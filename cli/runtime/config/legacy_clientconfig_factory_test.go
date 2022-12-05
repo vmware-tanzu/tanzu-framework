@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -69,10 +70,10 @@ servers:
         contextType: tmc
 current: test-mc
 `
-	//nolint:goconst
+
 	cfg2 := `contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -92,7 +93,7 @@ current: test-mc
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 `
 	expectedCfg := `clientOptions:
     cli:
@@ -143,7 +144,7 @@ current: test-mc
 
 	expectedCfg2 := `contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -163,7 +164,7 @@ current: test-mc
             bucket: ctx-test-bucket
             manifestPath: ctx-test-manifest-path
 currentContext:
-    k8s: test-mc
+    kubernetes: test-mc
 `
 
 	c := &configapi.ClientConfig{
@@ -190,8 +191,8 @@ currentContext:
 		CurrentServer: "test-mc",
 		KnownContexts: []*configapi.Context{
 			{
-				Name: "test-mc",
-				Type: "k8s",
+				Name:   "test-mc",
+				Target: cliapi.TargetK8s,
 				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-context-endpoint",
 					Path:                "test-context-path",
@@ -215,8 +216,8 @@ currentContext:
 				},
 			},
 		},
-		CurrentContext: map[configapi.ContextType]string{
-			configapi.CtxTypeK8s: "test-mc",
+		CurrentContext: map[cliapi.Target]string{
+			cliapi.TargetK8s: "test-mc",
 		},
 		ClientOptions: &configapi.ClientOptions{
 			CLI: &configapi.CLIOptions{

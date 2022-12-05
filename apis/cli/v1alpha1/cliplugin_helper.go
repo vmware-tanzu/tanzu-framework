@@ -14,3 +14,11 @@ func StringToTarget(target string) Target {
 	}
 	return TargetNone
 }
+
+func IsValidTarget(target string) bool {
+	return target == string(targetK8s) ||
+		target == string(TargetK8s) ||
+		target == string(targetTMC) ||
+		target == string(TargetTMC) ||
+		target == string(TargetNone)
+}

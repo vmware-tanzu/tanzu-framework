@@ -87,7 +87,7 @@ func Test_DiscoverPlugins(t *testing.T) {
 		assertions.Equal(expectedDiscoveredPlugins[i].Target, p.Target)
 	}
 
-	err := configlib.SetFeature("global", "context-target", "false")
+	err := configlib.SetFeature("global", "context-target-v2", "false")
 	assertions.Nil(err)
 
 	serverPlugins, standalonePlugins = DiscoverPlugins()

@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -85,7 +86,7 @@ current: test-mc2
 `
 	cfg2 := `contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -104,11 +105,11 @@ current: test-mc2
           annotation: one
           required: true
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 `
 	expectedCfg2 := `contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -127,7 +128,7 @@ currentContext:
             annotation: one
             required: true
     - name: test-mc2
-      type: k8s
+      target: kubernetes
       clusterOpts:
         path: test-path-updated
         context: test-context-updated
@@ -138,7 +139,7 @@ currentContext:
             bucket: test-bucket-updated
             manifestPath: test-manifest-path-updated
 currentContext:
-    k8s: test-mc2
+    kubernetes: test-mc2
 `
 
 	return cfg, expectedCfg, cfg2, expectedCfg2
@@ -155,8 +156,8 @@ func TestContextsIntegration(t *testing.T) {
 	// Get Context
 	context, err := GetContext("test-mc")
 	expected := &configapi.Context{
-		Name: "test-mc",
-		Type: "k8s",
+		Name:   "test-mc",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Endpoint:            "test-endpoint",
 			Path:                "test-path",
@@ -177,8 +178,8 @@ func TestContextsIntegration(t *testing.T) {
 	assert.Equal(t, expected, context)
 	// Add new Context
 	newCtx := &configapi.Context{
-		Name: "test-mc2",
-		Type: "k8s",
+		Name:   "test-mc2",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Path:                "test-path",
 			Context:             "test-context",
@@ -201,8 +202,8 @@ func TestContextsIntegration(t *testing.T) {
 	assert.Equal(t, newCtx, ctx)
 	// Update existing Context
 	updatedCtx := &configapi.Context{
-		Name: "test-mc2",
-		Type: "k8s",
+		Name:   "test-mc2",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Path:                "test-path-updated",
 			Context:             "test-context-updated",

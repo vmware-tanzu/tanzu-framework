@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
 	"gopkg.in/yaml.v3"
 
+	cliapi "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -71,7 +71,7 @@ servers:
 current: test-mc
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -98,7 +98,10 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
+#extraneous fields/comments are preserved on file update
+extrafield:
+ extrasubfiled: 1
 `
 	expectedCfg := `apiVersion: config.tanzu.vmware.com/v1alpha1
 clientOptions:
@@ -154,42 +157,15 @@ servers:
             required: true
           contextType: tmc
 current: test-mc
-contexts:
-    - name: test-mc
-      type: k8s
-      group: one
-      clusterOpts:
-        isManagementCluster: true
-        annotation: one
-        required: true
-        annotationStruct:
-            one: one
-        endpoint: test-endpoint
-        path: test-path
-        context: test-context
-      discoverySources:
-        - gcp:
-            name: test
-            bucket: test-bucket
-            manifestPath: test-manifest-path
-            annotation: one
-            required: true
-          contextType: tmc
-        - gcp:
-            name: test-two
-            bucket: test-bucket
-            manifestPath: test-manifest-path
-            annotation: two
-            required: true
-          contextType: tmc
-currentContext:
-    k8s: test-mc
+#extraneous fields/comments are preserved on file update
+extrafield:
+    extrasubfiled: 1
 `
 
 	cfgNextGen := `
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -216,11 +192,11 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+    kubernetes: test-mc
 `
 	expectedCfgNextGen := `contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -247,7 +223,7 @@ currentContext:
             required: true
           contextType: tmc
 currentContext:
-    k8s: test-mc
+    kubernetes: test-mc
 `
 
 	return cfg, cfgNextGen, expectedCfg, expectedCfgNextGen
@@ -276,8 +252,8 @@ func TestGetClientConfigWithLockAndWithoutLock(t *testing.T) {
 		assert.NoError(t, err)
 
 		expectedCtx := &configapi.Context{
-			Name: "test-mc",
-			Type: configapi.CtxTypeK8s,
+			Name:   "test-mc",
+			Target: cliapi.TargetK8s,
 			ClusterOpts: &configapi.ClusterServer{
 				Endpoint:            "test-endpoint",
 				Path:                "test-path",
@@ -348,8 +324,8 @@ func TestGetClientConfigWithLockAndMigratedToNewConfig(t *testing.T) {
 	assert.NoError(t, err)
 
 	expectedCtx := &configapi.Context{
-		Name: "test-mc",
-		Type: configapi.CtxTypeK8s,
+		Name:   "test-mc",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Endpoint:            "test-endpoint",
 			Path:                "test-path",
@@ -402,8 +378,8 @@ func TestGetClientConfigWithoutLockAndMigratedToNewConfig(t *testing.T) {
 	assert.NoError(t, err)
 
 	expectedCtx := &configapi.Context{
-		Name: "test-mc",
-		Type: configapi.CtxTypeK8s,
+		Name:   "test-mc",
+		Target: cliapi.TargetK8s,
 		ClusterOpts: &configapi.ClusterServer{
 			Endpoint:            "test-endpoint",
 			Path:                "test-path",
@@ -468,7 +444,7 @@ func TestPersistConfigWithMigrateToNewConfig(t *testing.T) {
 	cfg, cfgNextGen, _, _ := setupCfgAndCfgNextGenData()
 	expected := `contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -495,7 +471,7 @@ func TestPersistConfigWithMigrateToNewConfig(t *testing.T) {
             required: true
           contextType: tmc
 currentContext:
-    k8s: test-mc
+    kubernetes: test-mc
 `
 
 	cfgTestFiles, cleanUp := setupTestConfig(t, &CfgTestData{cfg: cfg, cfgNextGen: cfgNextGen, cfgMetadata: setupConfigMetadataWithMigrateToNewConfig()})
@@ -565,7 +541,7 @@ clientOptions:
       kctrl-package-command-tree: 'true'
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -592,7 +568,7 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 kind: ClientConfig
 metadata:
   creationTimestamp: null`,
@@ -672,7 +648,7 @@ clientOptions:
       kctrl-package-command-tree: 'true'
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -699,14 +675,14 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 kind: ClientConfig
 metadata:
   creationTimestamp: null`,
 			cfg2: `
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -733,7 +709,7 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc`,
+  kubernetes: test-mc`,
 			output: `apiVersion: config.tanzu.vmware.com/v1alpha1
 kind: ClientConfig
 metadata:
@@ -772,7 +748,7 @@ clientOptions:
             kctrl-package-command-tree: 'true'
 contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -799,7 +775,7 @@ contexts:
             required: true
           contextType: tmc
 currentContext:
-    k8s: test-mc
+    kubernetes: test-mc
 `,
 		},
 		{
@@ -839,7 +815,7 @@ clientOptions:
       kctrl-package-command-tree: 'true'
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -866,14 +842,14 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 kind: ClientConfig
 metadata:
   creationTimestamp: null`,
 			cfg2: `
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -900,7 +876,7 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  tmc: test-tmc`,
+  mission-control: test-tmc`,
 			output: `apiVersion: config.tanzu.vmware.com/v1alpha1
 kind: ClientConfig
 metadata:
@@ -939,7 +915,7 @@ clientOptions:
             kctrl-package-command-tree: 'true'
 contexts:
     - name: test-mc
-      type: k8s
+      target: kubernetes
       group: one
       clusterOpts:
         isManagementCluster: true
@@ -966,7 +942,7 @@ contexts:
             required: true
           contextType: tmc
 currentContext:
-    tmc: test-tmc
+    mission-control: test-tmc
 `,
 		},
 		{
@@ -1006,7 +982,7 @@ clientOptions:
       kctrl-package-command-tree: 'true'
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -1033,7 +1009,7 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 kind: ClientConfig
 metadata:
   creationTimestamp: null`,
@@ -1140,7 +1116,7 @@ clientOptions:
       kctrl-package-command-tree: 'true'
 contexts:
   - name: test-mc
-    type: k8s
+    target: kubernetes
     group: one
     clusterOpts:
       isManagementCluster: true
@@ -1167,7 +1143,7 @@ contexts:
           required: true
         contextType: tmc
 currentContext:
-  k8s: test-mc
+  kubernetes: test-mc
 kind: ClientConfig
 metadata:
   creationTimestamp: null`,

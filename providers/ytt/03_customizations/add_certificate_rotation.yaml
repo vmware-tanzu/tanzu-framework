@@ -1,6 +1,5 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
-#@ load("/lib/helpers.star", "enable_certificate_automatic_renewal")
 
 #@ if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED:
 #@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})

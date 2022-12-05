@@ -3,7 +3,7 @@ module github.com/vmware-tanzu/tanzu-framework/featuregates/client
 go 1.18
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../../../apis/cli
+	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../apis/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../cli/runtime
@@ -62,6 +62,7 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
