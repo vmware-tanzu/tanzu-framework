@@ -18,6 +18,7 @@ require (
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.26.0
+	github.com/vmware-tanzu/nsx-operator v0.0.0-20221102072746-f7b4cc7cce41
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs v0.0.0-20220907220230-c1137d344dd3
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20220907220230-c1137d344dd3
 	github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd
@@ -96,7 +97,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707 // indirect
 	github.com/vmware-tanzu/vm-operator/external/ncp v0.0.0-20211209213435-0f4ab286f64f // indirect
-	github.com/vmware/govmomi v0.27.1 // indirect
+	github.com/vmware/govmomi v0.27.4 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.22.0 // indirect
