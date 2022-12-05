@@ -4,14 +4,17 @@ package client_test
 
 import (
 	"fmt"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 )
 
 var _ = Describe("SetClusterClass", func() {
@@ -54,4 +57,72 @@ var _ = Describe("SetClusterClass", func() {
 			Expect(varValue).To(Equal(fmt.Sprintf("tkg-vsphere-default-%s", constants.DefaultClusterClassVersion)))
 		})
 	})
+})
+
+type MockFeatureFlag struct {
+	FeatureFlags map[string]bool
+}
+
+func (m *MockFeatureFlag) IsConfigFeatureActivated(featurePath string) (bool, error) {
+	if val, ok := m.FeatureFlags[featurePath]; ok {
+		return val, nil
+	}
+	return false, errors.Errorf("missing key %s\n", featurePath)
+}
+
+var _ = Describe("ensureAllowLegacyClusterConfiguration", func() {
+	var (
+		err               error
+		tkgClient         *client.TkgClient
+		featureFlagClient *MockFeatureFlag
+		value             string
+		testingDir        string
+		values            []string
+	)
+
+	BeforeEach(func() {
+		testingDir = helper.CreateTempTestingDirectory()
+		featureFlagClient = &MockFeatureFlag{map[string]bool{}}
+		tkgClient, err = client.CreateTKGClientOptsMutator("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Second, func(o client.Options) client.Options {
+			o.FeatureFlagClient = featureFlagClient
+			return o
+		})
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	AfterEach((func() {
+		helper.DeleteTempTestingDirectory(testingDir)
+	}))
+
+	Context("when ALLOW_LEGACY_CLUSTER is not previously set", func() {
+		It("ALLOW_LEGACY_CLUSTER should keep consistent with FeatureFlagAllowLegacyCluster (false)", func() {
+			featureFlagClient.FeatureFlags[constants.FeatureFlagAllowLegacyCluster] = false
+			_ = tkgClient.SetAllowLegacyClusterConfiguration()
+			value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(value).To(Equal("false"))
+		})
+
+		It("ALLOW_LEGACY_CLUSTER should keep consistent with FeatureFlagAllowLegacyCluster (true)", func() {
+			featureFlagClient.FeatureFlags[constants.FeatureFlagAllowLegacyCluster] = true
+			_ = tkgClient.SetAllowLegacyClusterConfiguration()
+			value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(value).To(Equal("true"))
+		})
+	})
+
+	Context("when ALLOW_LEGACY_CLUSTER is explicitly overridden", func() {
+		values = []string{"true", "false"}
+		It("Retain the value", func() {
+			for _, v := range values {
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableAllowLegacyCluster, v)
+				_ = tkgClient.SetAllowLegacyClusterConfiguration()
+				value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(value).To(Equal(v))
+			}
+		})
+	})
+
 })

@@ -280,11 +280,11 @@ func (r *AddonReconciler) reconcileNormal(
 		errors []error
 		result ctrl.Result
 	)
-	// Skip reconcile core package repository in the management cluster if the package based lcm is enabled.
-	// Because in the package based lcm cluster, the core packages are managed by the tkr
+	// Skip reconcile core package repository in the management cluster if the package based cc is enabled.
+	// Because in the package based cc cluster, the core packages are managed by the tkr
 	_, isMgmtCluster := cluster.ObjectMeta.Labels[constants.ManagementClusterRoleLabel]
 	if isMgmtCluster && r.Config.FeatureGateClusterBootstrap {
-		log.Info("skip reconciling the core package repository on the management cluster when the package based lcm is enabled")
+		log.Info("skip reconciling the core package repository on the management cluster when the package based cc is enabled")
 	} else {
 		// Reconcile core package repository in the cluster
 		pkgReconciler := &PackageReconciler{ctx: ctx, log: log, clusterClient: remoteClient, Config: r.Config}

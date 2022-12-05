@@ -144,7 +144,7 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	log.Info("Management cluster providers upgraded successfully...")
 
 	// If clusterclass feature flag is enabled then deploy management components
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Upgrading kapp-controller...")
 		if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeUpgrade); err != nil {
 			return errors.Wrap(err, "unable to upgrade kapp-controller")
@@ -181,7 +181,7 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		return err
 	}
 
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Creating tkg-bom versioned ConfigMaps...")
 		if err := c.CreateOrUpdateVerisionedTKGBom(regionalClusterClient); err != nil {
 			log.Warningf("Warning: Management cluster is created successfully, but the tkg-bom versioned ConfigMaps creation is failing. %v", err)
@@ -446,7 +446,7 @@ func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient 
 	var packagesInstalled []kapppkgv1alpha1.Package
 
 	// Add tanzu-core-management-plugins packages to the list of packages to wait for management-cluster
-	if isRegionalCluster && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if isRegionalCluster && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		packagesInstalled = append(packagesInstalled, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: constants.CoreManagementPluginsPackageName, Namespace: constants.TkgNamespace}})
 	}
 

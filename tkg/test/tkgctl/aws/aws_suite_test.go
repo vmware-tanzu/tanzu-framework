@@ -21,6 +21,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework/exec"
 )
 
 const clusterName = "tkg-cli-wc"
@@ -82,6 +83,17 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 			e2eConfig.ManagementClusterOptions.Endpoint = mcEndPointIP
 		}
 	}
+
+	hackCmd := exec.NewCommand(
+		exec.WithCommand("../../scripts/legacy_hack.sh"),
+		exec.WithStdout(GinkgoWriter),
+	)
+
+	fmt.Println("Executing the legacy hack script")
+	out, cmdErr, err := hackCmd.Run(context.Background())
+	fmt.Println(string(out))
+	fmt.Println(string(cmdErr))
+	Expect(err).To(BeNil())
 
 	cli, err := tkgctl.New(tkgctl.Options{
 		ConfigDir: e2eConfig.TkgConfigDir,

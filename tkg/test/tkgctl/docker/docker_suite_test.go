@@ -20,6 +20,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework/exec"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
@@ -67,6 +68,17 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	By(fmt.Sprintf("Loading the e2e test configuration from %q", e2eConfigPath))
 	e2eConfig = framework.LoadE2EConfig(context.TODO(), framework.E2EConfigInput{ConfigPath: e2eConfigPath})
 	Expect(e2eConfigPath).ToNot(BeNil(), "Failed to load e2e config from %s", e2eConfigPath)
+
+	hackCmd := exec.NewCommand(
+		exec.WithCommand("../../scripts/legacy_hack.sh"),
+		exec.WithStdout(GinkgoWriter),
+	)
+
+	fmt.Println("Executing the legacy hack script")
+	out, cmdErr, err := hackCmd.Run(context.Background())
+	fmt.Println(string(out))
+	fmt.Println(string(cmdErr))
+	Expect(err).To(BeNil())
 
 	logLocation := filepath.Join(artifactsFolder, "logs")
 	cli, err := tkgctl.New(tkgctl.Options{
