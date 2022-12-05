@@ -1,6 +1,10 @@
 #! This file should be processed very last as it removes some specific components from the cluster template
 #! that can be needed by some other overlay file that is trying to apply specific overlays to certain objects
 #! Processing the file at the very end makes sure that we are removing the objects after they are processed.
+#!
+#! The job of this overlay is to allow the following command to keep working for classy clusters:
+#!   `FILTER_BY_ADDON_TYPE="authentication/pinniped" tanzu management-cluster create --dry-run ...`
+#! This is the documented method for end users to generate or update Pinniped configuration for an already existing cluster.
 
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
@@ -14,11 +18,6 @@
 #@  end
 #@
 #@  if (l["metadata"]["annotations"]["tkg.tanzu.vmware.com/addon-type"] in data.values.FILTER_BY_ADDON_TYPE.split(",")):
-#@    if (data.values.REMOVE_CRS_FOR_ADDON_TYPE and l["metadata"]["annotations"]["tkg.tanzu.vmware.com/addon-type"] in data.values.REMOVE_CRS_FOR_ADDON_TYPE.split(",")):
-#@      if (l["kind"] == "ClusterResourceSet" or (l["kind"] == "Secret" and l["type"] == "addons.cluster.x-k8s.io/resource-set")):
-#@        return True
-#@      end
-#@    end
 #@    return False
 #@  end
 #@
