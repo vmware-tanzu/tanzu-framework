@@ -115,18 +115,15 @@ func upgradeCluster(server *configapi.Server, clusterName string) error {
 		return err
 	}
 
-	tkrVersion := ""
-	if uc.tkrName != "" {
-		clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
-		clusterClient, err := clusterclient.NewClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context, clusterClientOptions)
-		if err != nil {
-			return err
-		}
+	clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
+	clusterClient, err := clusterclient.NewClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context, clusterClientOptions)
+	if err != nil {
+		return err
+	}
 
-		tkrVersion, err = getValidTkrVersionFromTkrForUpgrade(tkgctlClient, clusterClient, clusterName)
-		if err != nil {
-			return err
-		}
+	tkrVersion, err := getValidTkrVersionFromTkrForUpgrade(tkgctlClient, clusterClient, clusterName)
+	if err != nil {
+		return err
 	}
 
 	edition, err := config.GetEdition()
@@ -352,6 +349,15 @@ func getClusterTKRNameFromClusterLabels(clusterLabels map[string]string) (string
 }
 
 func getValidTKRVersionFromClusterForUpgrade(cluster *capiv1.Cluster, tkrName string) (string, error) {
+	// if tkrname is not specified, return the latest available version
+	if tkrName == "" {
+		updates := clusters.AvailableUpgrades(cluster)
+		if len(updates) == 0 {
+			return "", errors.Errorf("no available upgrades for cluster '%s', namespace '%s'", cluster.Name, cluster.Namespace)
+		}
+		return latestTkrVersion(updates.Slice()), nil
+	}
+
 	tkrVersion := strings.ReplaceAll(tkrName, "---", "+")
 	// If the existing TKR on the cluster and the one requested are same
 	// continue the upgrade using the given TKR
