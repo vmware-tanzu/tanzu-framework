@@ -215,7 +215,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	// If clusterclass feature flag is enabled then deploy kapp-controller
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Installing kapp-controller on bootstrap cluster...")
-		if err = c.InstallOrUpgradeKappController(bootStrapClusterClient, constants.OperationTypeInstall); err != nil {
+		if err = c.InstallOrUpgradeKappController(bootStrapClusterClient, constants.OperationTypeInstall, false); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
 		}
 	}
@@ -333,7 +333,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	// If clusterclass feature flag is enabled then deploy kapp-controller
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Installing kapp-controller on management cluster...")
-		if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeInstall); err != nil {
+		if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeInstall, false); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
 		}
 	}
@@ -525,7 +525,7 @@ func (c *TkgClient) ApplyClusterBootstrapObjects(fromClusterClient, toClusterCli
 	clusterBootstrapTemplatesDirPath := filepath.Join(path, "yttcb")
 	configDefaultPath := filepath.Join(path, "config_default.yaml")
 
-	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile()
+	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile(toClusterClient, false)
 	if err != nil {
 		return err
 	}
