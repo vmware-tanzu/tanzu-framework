@@ -273,9 +273,9 @@ func (r *Reconciler) patchExisting(ctx context.Context, u *unstructured.Unstruct
 	}
 
 	ps := patchset.New(r.Client)
-	ps.Add(existing)
+	ps.Add(u)
 
-	addOwnerRefs(existing, u.GetOwnerReferences())
+	addOwnerRefs(u, existing.GetOwnerReferences())
 
 	if err := ps.Apply(ctx); err != nil {
 		return err
