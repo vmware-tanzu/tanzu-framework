@@ -71,6 +71,31 @@ BUILD_EDITION:
 #! E.g. "heartbeat-interval=300;election-timeout=2000"
 ETCD_EXTRA_ARGS:
 
+#! APISERVER_EXTRA_ARGS specified kube api server flags.
+#! It should be of the format "key1=value1;key2=value2".
+#! E.g. "tls-min-version=VersionTLS12;tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+APISERVER_EXTRA_ARGS:
+
+#! KUBE_SCHEDULER_EXTRA_ARGS specified kube scheduler flags.
+#! It should be of the format "key1=value1;key2=value2".
+#! E.g. "tls-min-version=VersionTLS12;profiling=false"
+KUBE_SCHEDULER_EXTRA_ARGS:
+
+#! KUBE_CONTROLLER_MANAGER_EXTRA_ARGS specified kube controller manager flags.
+#! It should be of the format "key1=value1;key2=value2".
+#! E.g. "tls-min-version=VersionTLS12;profiling=false"
+KUBE_CONTROLLER_MANAGER_EXTRA_ARGS:
+
+#! CONTROLPLANE_KUBELET_EXTRA_ARGS specified kubelet flags for control plane nodes.
+#! It should be of the format "key1=value1;key2=value2".
+#! E.g. "heartbeat-interval=300;election-timeout=2000"
+CONTROLPLANE_KUBELET_EXTRA_ARGS:
+
+#! WORKER_KUBELET_EXTRA_ARGS specified kubelet flags for worker nodes.
+#! It should be of the format "key1=value1;key2=value2".
+#! E.g. "read-only-port=0;event-qps=0"
+WORKER_KUBELET_EXTRA_ARGS:
+
 #! ---------------------------------------------------------------------
 #! Settings for vSphere infrastructure provider
 #! ---------------------------------------------------------------------

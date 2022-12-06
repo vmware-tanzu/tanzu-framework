@@ -53,6 +53,46 @@ spec:
         additionalProperties:
           type: string
         default: {}
+  - name: apiServerExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: kubeSchedulerExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: kubeControllerManagerExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: controlPlaneKubeletExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: workerKubeletExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
   - name: tlsCipherSuites
     required: false
     schema:
@@ -329,6 +369,167 @@ spec:
             {{- end }}
             {{- if not $containCipherSuites }}
             cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+  - name: apiServerExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containCloudProvider := false }}
+            {{- range $key, $val := .apiServerExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: aws
+            {{- end }}
+  - name: kubeSchedulerExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/scheduler/extraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{- range $key, $val := .kubeSchedulerExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+  - name: kubeControllerManagerExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/controllerManager/extraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containCloudProvider := false }}
+            {{- range $key, $val := .kubeControllerManagerExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: aws
+            {{- end }}
+  - name: controlPlaneKubeletExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containCloudProvider := false }}
+            {{- range $key, $val := .controlPlaneKubeletExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: aws
+            {{- end }}
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containCloudProvider := false }}
+            {{- range $key, $val := .controlPlaneKubeletExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: aws
+            {{- end }}
+  - name: workerKubeletExtraArgs
+    definitions:
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - "tkg-worker"
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containCloudProvider := false }}
+            {{- range $key, $val := .workerKubeletExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: aws
             {{- end }}
   - name: AWSCT_main
     definitions:
@@ -1190,13 +1391,9 @@ spec:
           apiServer:
             timeoutForControlPlane: "8m0s"
             extraVolumes: []
-            extraArgs:
-              cloud-provider: aws
-              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+            extraArgs: {}
           controllerManager:
-            extraArgs:
-              cloud-provider: aws
-              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+            extraArgs: {}
           dns:
             imageRepository: dummy.registry.vmware.com
             imageTag: 1.8.4_dummy.5
@@ -1208,22 +1405,17 @@ spec:
               extraArgs: {}
           imageRepository: dummy.registry.vmware.com
           scheduler:
-            extraArgs:
-              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+            extraArgs: {}
         initConfiguration:
           nodeRegistration:
             criSocket: /var/run/containerd/containerd.sock
             name: '{{ ds.meta_data.local_hostname }}'
-            kubeletExtraArgs:
-              cloud-provider: aws
-              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+            kubeletExtraArgs: {}
         joinConfiguration:
           nodeRegistration:
             criSocket: /var/run/containerd/containerd.sock
             name: '{{ ds.meta_data.local_hostname }}'
-            kubeletExtraArgs:
-              cloud-provider: aws
-              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+            kubeletExtraArgs: {}
 ---
 kind: AWSMachineTemplate
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
@@ -1270,9 +1462,7 @@ spec:
         nodeRegistration:
           criSocket: /var/run/containerd/containerd.sock
           name: '{{ ds.meta_data.local_hostname }}'
-          kubeletExtraArgs:
-            cloud-provider: aws
-            tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          kubeletExtraArgs: {}
       files:
       - path: /tmp/empty.txt
         owner: "root:root"
