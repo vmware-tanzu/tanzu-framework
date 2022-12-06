@@ -536,18 +536,28 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 	// maxTimeout to time-bound wait operation to avoid indefinite wait if the cluster state keeps changing
 	maxTimeout := 3 * c.operationTimeout
 	maxTimeoutCounter := 0
+	errorRetry := 0
+	maxErrorRetry := 3
 
 	getterFunc := func() (interface{}, error) {
 		currentClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, nil)
 		err = currentClusterInfo.RetrievalError
 
 		if err == nil {
-			// If cluster's ReadyCondition is False and severity is Error, it implies non-retriable error, so return error
+			// If cluster's ReadyCondition is False and severity is Error, retry 3 times waiting for cluster ready status
+			// for slow I/O infrastructure or resource constrained environments.
 			if conditions.IsFalse(currentClusterInfo.ClusterObject, capi.ReadyCondition) &&
 				(*conditions.GetSeverity(currentClusterInfo.ClusterObject, capi.ReadyCondition) == capi.ConditionSeverityError) {
-				return true, errors.Errorf("cluster creation failed, reason:'%s', message:'%s'",
-					conditions.GetReason(currentClusterInfo.ClusterObject, capi.ReadyCondition),
-					conditions.GetMessage(currentClusterInfo.ClusterObject, capi.ReadyCondition))
+					reason := conditions.GetReason(currentClusterInfo.ClusterObject, capi.ReadyCondition)
+					message := conditions.GetMessage(currentClusterInfo.ClusterObject, capi.ReadyCondition)
+					maxTimeoutCounter++
+					if errorRetry < maxErrorRetry {
+						errorRetry++
+						return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
+					}
+					return true, errors.Errorf("cluster creation failed, reason:'%s', message:'%s'",
+						reason,
+						message)
 			}
 			// Could have checked cluster's ReadyCondition is True which is currently aggregation of ControlPlaneReadyCondition
 			// and InfrastructureReadyCondition, however in future if capi adds WorkersReadyCondition into aggregation, it would
