@@ -14,5 +14,3 @@ secret:
   version: VERSION
 telemetry:
   version: VERSION
-isolatedcluster:
-  version: VERSION
