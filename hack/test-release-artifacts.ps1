@@ -81,3 +81,10 @@ tanzu pinniped-auth version
 if ($LastExitCode -ne 0) {
   throw "Error verifying tanzu auth plugin using version command: " + $_.FullName
 }
+
+tanzu isolated-cluster version
+
+if ($LastExitCode -ne 0) {
+  throw "Error verifying tanzu auth plugin using version command: " + $_.FullName
+}
+
