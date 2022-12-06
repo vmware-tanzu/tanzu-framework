@@ -196,8 +196,8 @@ func runInit() error {
 		return err
 	}
 
-	// Sync plugins if management-cluster creation is successful
-	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) {
+	// Sync plugins if management-cluster creation is successful and --dry-run was not set
+	if config.IsFeatureActivated(cliconfig.FeatureContextAwareCLIForPlugins) && !iro.dryRun {
 		err = pluginmanager.SyncPlugins()
 		if err != nil {
 			log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
