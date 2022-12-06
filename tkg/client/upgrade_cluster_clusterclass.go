@@ -18,6 +18,7 @@ func (c *TkgClient) DoClassyClusterUpgrade(regionalClusterClient clusterclient.C
 	kubernetesVersion := options.KubernetesVersion
 
 	log.Infof("Upgrading kubernetes cluster to `%v` version", kubernetesVersion)
+
 	patchJSONString := fmt.Sprintf(`{"spec": {"topology": {"version": "%v"}}}`, kubernetesVersion)
 
 	err := regionalClusterClient.PatchClusterObject(options.ClusterName, options.Namespace, patchJSONString)
