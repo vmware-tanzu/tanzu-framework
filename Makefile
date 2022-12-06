@@ -554,9 +554,6 @@ test: generate manifests build-cli-mocks ## Run tests
 	# Cluster plugin tests
 	$(MAKE) test -C cmd/cli/plugin/managementcluster
 
-        # isolated-cluster plugin tests
-	$(MAKE) test -C cmd/cli/plugin/isolated-cluster
-
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
 	$(GO) test  ./pkg/v1/auth/... ./pkg/v1/builder/...  ./pkg/v1/encoding/... ./pkg/v1/grpc/...
