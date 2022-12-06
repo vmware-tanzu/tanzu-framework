@@ -16,11 +16,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/util/version"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
@@ -206,7 +208,7 @@ func (c *TkgClient) validateAndconfigure(options *UpgradeClusterOptions, regiona
 	}
 
 	log.Infof("Validating for the user configuration secret to be existed in the cluster")
-	clusterName, _, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
+	clusterName, namespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
 	if err != nil {
 		return errors.Wrap(err, "failed to get management cluster name and namespace")
 	}
@@ -227,6 +229,26 @@ func (c *TkgClient) validateAndconfigure(options *UpgradeClusterOptions, regiona
 
 	if err := c.configureVariablesForProvidersInstallation(regionalClusterClient); err != nil {
 		return errors.Wrap(err, "unable to configure variables for provider installation")
+	}
+
+	options.ClusterName = clusterName
+	options.Namespace = namespace
+
+	err = c.configureOSOptionsForUpgrade(regionalClusterClient, options)
+	if err != nil {
+		return errors.Wrap(err, "unable to config os options for upgrade")
+	}
+
+	providerType, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableProviderType)
+	if err != nil {
+		return errors.Wrap(err, "unable to get the infra provider type")
+	}
+
+	if providerType == AWSProviderName {
+		err = c.configureAMIID(options, regionalClusterClient)
+		if err != nil {
+			return errors.Wrap(err, "error getting ami id")
+		}
 	}
 
 	return nil
@@ -642,5 +664,53 @@ func (c *TkgClient) upgradeTelemetryImageIfExists(regionalClusterClient clusterc
 		log.Info("management cluster is opted out of telemetry - skipping telemetry image upgrade")
 	}
 
+	return nil
+}
+
+func (c *TkgClient) configureAMIID(options *UpgradeClusterOptions, regionalClusterClient clusterclient.Client) error {
+	bomConfiguration, err := c.tkgBomClient.GetBOMConfigurationFromTkrVersion(options.TkrVersion)
+	if err != nil {
+		return errors.Wrapf(err, "unable to get bom configuration for TKr version %s", options.TkrVersion)
+	}
+
+	clusterName, clusterNamespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
+
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+
+	cluster := &capi.Cluster{}
+	err = regionalClusterClient.GetResource(cluster, clusterName, clusterNamespace, nil, pollOptions)
+	if err != nil {
+		return errors.Wrapf(err, "unable to get the cluster %q", clusterName)
+	}
+
+	if cluster.Spec.InfrastructureRef == nil {
+		return errors.Errorf("cluster %s doest not have a InfrastructureRef", clusterName)
+	}
+	awsClusterUnstructured := &unstructured.Unstructured{}
+	awsClusterUnstructured.SetAPIVersion(cluster.Spec.InfrastructureRef.APIVersion)
+	awsClusterUnstructured.SetKind(cluster.Spec.InfrastructureRef.Kind)
+	err = regionalClusterClient.GetResource(awsClusterUnstructured, cluster.Spec.InfrastructureRef.Name, cluster.Spec.InfrastructureRef.Namespace, nil, pollOptions)
+	if err != nil {
+		return errors.Wrapf(err, "unable to get the awscluster %q", cluster.Spec.InfrastructureRef.Name)
+	}
+
+	spec := awsClusterUnstructured.Object[constants.SPEC].(map[string]interface{})
+
+	if spec["region"] == nil || spec["region"].(string) == "" {
+		return errors.Errorf("awscluster %q has empty region", cluster.Spec.InfrastructureRef.Name)
+	}
+	awsRegion := spec["region"].(string)
+
+	amiInfo, err := c.tkgConfigProvidersClient.GetAWSAMIInfo(bomConfiguration, awsRegion)
+	if err != nil || amiInfo == nil {
+		// throw error
+		return errors.Errorf("unable to get ami info, error: %v", err.Error())
+	}
+
+	log.V(3).Infof("using AMI '%v' for tkr version: '%v', aws-region '%v'", amiInfo.ID, bomConfiguration.Release.Version, awsRegion)
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableAWSAMIID, amiInfo.ID)
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSName, amiInfo.OSInfo.Name)
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSVersion, amiInfo.OSInfo.Version)
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSArch, amiInfo.OSInfo.Arch)
 	return nil
 }
