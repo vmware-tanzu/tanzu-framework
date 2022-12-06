@@ -77,7 +77,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	timeout, err := time.ParseDuration(e2eConfig.DefaultTimeout)
 	Expect(err).To(BeNil())
 
-	// turn on the `auto-apply-generated-clusterclass-based-configuration` and `package-based-lcm-beta` feature gate
+	// turn on the `auto-apply-generated-clusterclass-based-configuration` and `package-based-cc` feature gate
 	hackCmd := exec.NewCommand(
 		exec.WithCommand("../../scripts/cc_hack.sh"),
 		exec.WithStdout(GinkgoWriter),

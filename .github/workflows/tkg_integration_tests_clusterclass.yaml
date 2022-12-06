@@ -381,3 +381,116 @@ jobs:
           tkg/test/scripts/aws_cleanup.sh ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
         env:
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
+
+  integ-tests-azure-cc:
+    name: TKG Integration Tests CAPZ (ClusterClass)
+    runs-on: ubuntu-latest
+    needs: build-and-publish-packages
+    env:
+      azure_client_id: ${{secrets.AZURE_CLIENT_ID_SAIB}}
+      gcp_bucket_sa: ${{ secrets.GCP_BUCKET_SA }}
+    steps:
+      - name: show environment
+        uses: hmarr/debug-action@v2
+
+      - name: Free disk space and clean up installed plugins on runner
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/lib/jvm
+          sudo rm -rf /usr/lib/firefox
+          sudo rm -rf /opt/microsoft/powershell
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf /home/tanzu/.cache
+          sudo rm -rf /home/tanzu/.kube
+          sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
+          sudo sh -c 'find /tmp -type d -name "go-build*" -mtime +3 | xargs rm -rf'
+          echo "free space after cleanup:"
+          df -h
+
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+
+      - name: go cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Build Tools
+        run: make tools
+
+      - name: Cleanup
+        run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
+
+      - name: Build CLI
+        run: |
+          make install-cli
+
+      - name: Generate cluster prefix
+        if: ${{ env.azure_client_id != '' }}
+        env:
+          NUM: ${{ github.run_number }}
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        run: |
+          echo ::set-env name=CLUSTER_PREFIX::"github-$NUM-"
+
+      - uses: microsoft/variable-substitution@v1
+        if: ${{ env.azure_client_id != '' }}
+        with:
+          files: 'tkg/test/config/azure.yaml'
+        env:
+          tkg_config_variables.AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID_SAIB }}
+          tkg_config_variables.AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID_SAIB }}
+          tkg_config_variables.AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_SAIB }}
+          tkg_config_variables.AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET_SAIB }}
+          cluster_prefix: ${{ env.CLUSTER_PREFIX }}
+      - run: |
+          cat tkg/test/config/azure.yaml
+
+      - name: Run TKG integration tests
+        if: ${{ env.azure_client_id != '' }}
+        run: |
+          if [[ ! -z "${{ needs.build-and-publish-packages.outputs.bompath }}" ]]; then
+            export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ needs.build-and-publish-packages.outputs.bompath }}
+          fi
+          make configure-bom
+          make generate-embedproviders
+          pushd tkg
+          E2E_CONFIG=$PWD/test/config/azure.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/azure_cc
+          popd
+        env:
+          tkg_config_variables.AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID_SAIB }}
+          tkg_config_variables.AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID_SAIB }}
+          tkg_config_variables.AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_SAIB }}
+          tkg_config_variables.AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET_SAIB }}
+          _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ needs.build-and-publish-packages.outputs.registry }}/tanzu_framework/github-actions/${{ needs.build-and-publish-packages.outputs.regdir }}/management:v0.21.0
+          _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
+          TKG_CUSTOM_IMAGE_REPOSITORY: "projects-stg.registry.vmware.com/tkg"
+
+      - uses: Azure/login@v1.1
+        if: ${{ always() && env.azure_client_id != '' }}
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID_SAIB }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET_SAIB }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID_SAIB }}","tenantId":"${{ secrets.AZURE_TENANT_ID_SAIB }}"}'
+
+      - name: Cleanup Azure resources
+        if: ${{ always() }}
+        run: |
+          for rgname in `az group list --query "[? contains(name,'${cluster_prefix}')][].{name:name}" -o tsv`; do
+          echo Deleting ${rgname}
+          az group delete -n ${rgname} --yes --no-wait
+          done
+        env:
+          cluster_prefix: ${{ env.CLUSTER_PREFIX }}

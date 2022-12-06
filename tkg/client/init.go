@@ -213,7 +213,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	}
 
 	// If clusterclass feature flag is enabled then deploy kapp-controller
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Installing kapp-controller on bootstrap cluster...")
 		if err = c.InstallOrUpgradeKappController(bootStrapClusterClient, constants.OperationTypeInstall); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
@@ -228,7 +228,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	}
 
 	// If clusterclass feature flag is enabled then deploy management components
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		if err = c.InstallOrUpgradeManagementComponents(bootStrapClusterClient, bootstrapPkgClient, "", false); err != nil {
 			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
 		}
@@ -331,7 +331,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	}
 
 	// If clusterclass feature flag is enabled then deploy kapp-controller
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Installing kapp-controller on management cluster...")
 		if err = c.InstallOrUpgradeKappController(regionalClusterClient, constants.OperationTypeInstall); err != nil {
 			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
@@ -362,7 +362,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	}
 
 	// If clusterclass feature flag is enabled then deploy management components to the cluster
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		if err = c.InstallOrUpgradeManagementComponents(regionalClusterClient, regionalPkgClient, kubeContext, false); err != nil {
 			return errors.Wrap(err, "unable to install management components to management cluster")
 		}
@@ -392,7 +392,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	}
 
 	// Applying ClusterBootstrap and its associated resources on the management cluster
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Infof("Applying ClusterBootstrap and its associated resources on management cluster")
 		if err := c.ApplyClusterBootstrapObjects(bootStrapClusterClient, regionalClusterClient); err != nil {
 			return errors.Wrap(err, "Unable to apply ClusterBootstarp and its associated resources on management cluster")
@@ -441,7 +441,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
-	if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Waiting for additional components to be up and running...")
 		if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
 			return err
@@ -451,14 +451,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	// Wait for packages if the feature-flag is disabled
 	// We do not need to wait for packages as we have already installed and waited for all
 	// packages to be deployed during tkg package installation
-	if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Waiting for packages to be up and running...")
 		if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, targetClusterNamespace, true); err != nil {
 			log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
 		}
 	}
 
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Creating tkg-bom versioned ConfigMaps...")
 		if err := c.CreateOrUpdateVerisionedTKGBom(regionalClusterClient); err != nil {
 			log.Warningf("Warning: Management cluster is created successfully, but the tkg-bom versioned ConfigMaps creation is failing. %v", err)
@@ -496,7 +496,7 @@ func (c *TkgClient) PatchClusterInitOperations(regionalClusterClient clusterclie
 		return errors.Wrap(err, "unable to patch optional metadata under labels")
 	}
 
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		// Patch and remove kapp-controller labels from clusterclass resources
 		err = c.removeKappControllerLabelsFromClusterClassResources(regionalClusterClient)
 		if err != nil {

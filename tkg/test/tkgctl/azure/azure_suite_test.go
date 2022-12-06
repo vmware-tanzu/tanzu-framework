@@ -20,6 +20,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework/exec"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
@@ -75,6 +76,17 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	Expect(err).To(BeNil())
 
 	timeout, err := time.ParseDuration(e2eConfig.DefaultTimeout)
+	Expect(err).To(BeNil())
+
+	hackCmd := exec.NewCommand(
+		exec.WithCommand("../../scripts/legacy_hack.sh"),
+		exec.WithStdout(GinkgoWriter),
+	)
+
+	fmt.Println("Executing the legacy hack script")
+	out, cmdErr, err := hackCmd.Run(context.Background())
+	fmt.Println(string(out))
+	fmt.Println(string(cmdErr))
 	Expect(err).To(BeNil())
 
 	cli, err := tkgctl.New(tkgctl.Options{

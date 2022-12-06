@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // nolint:typecheck,nolintlint
-package vsphere67
+package azure_cc
 
 import (
 	"context"
@@ -13,12 +13,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/config"
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
@@ -54,11 +57,13 @@ func TestE2E(t *testing.T) {
 	RegisterFailHandler(Fail)
 	junitPath := filepath.Join(artifactsFolder, "junit", fmt.Sprintf("junit.e2e_suite.%d.xml", config.GinkgoConfig.ParallelNode))
 	junitReporter := reporters.NewJUnitReporter(junitPath)
-	RunSpecsWithDefaultAndCustomReporters(t, "tkgctl-vsphere-e2e", []Reporter{junitReporter})
+	RunSpecsWithDefaultAndCustomReporters(t, "tkgctl-azure-cc-e2e", []Reporter{junitReporter})
 }
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Before all parallel nodes
+
+	var mcClusterClient clusterclient.Client
 
 	Expect(e2eConfigPath).To(BeAnExistingFile(), "e2e config file is either not set or invalid")
 	Expect(os.MkdirAll(artifactsFolder, 0o700)).To(Succeed(), "Can't create artifacts directory %q", artifactsFolder)
@@ -68,7 +73,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 	By(fmt.Sprintf("Loading the e2e test configuration from %q", e2eConfigPath))
 	e2eConfig = framework.LoadE2EConfig(context.TODO(), framework.E2EConfigInput{ConfigPath: e2eConfigPath})
-	Expect(e2eConfigPath).ToNot(BeNil(), "Failed to load e2e config from %s", e2eConfigPath)
+	Expect(e2eConfig).ToNot(BeNil(), "Failed to load e2e config from %s", e2eConfigPath)
 
 	logLocation := filepath.Join(artifactsFolder, "logs")
 
@@ -86,11 +91,11 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	}
 
 	hackCmd := exec.NewCommand(
-		exec.WithCommand("../../scripts/legacy_hack.sh"),
+		exec.WithCommand("../../scripts/cc_hack.sh"),
 		exec.WithStdout(GinkgoWriter),
 	)
 
-	fmt.Println("Executing the legacy hack script")
+	fmt.Println("Executing the hack script")
 	out, cmdErr, err := hackCmd.Run(context.Background())
 	fmt.Println(string(out))
 	fmt.Println(string(cmdErr))
@@ -122,46 +127,32 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		})
 
 		Expect(err).To(BeNil())
+
+		kubeConfigFileName := e2eConfig.ManagementClusterName + ".kubeconfig"
+		mcKubeconfigFile := filepath.Join(os.TempDir(), kubeConfigFileName)
+		mcKubecontext := e2eConfig.ManagementClusterName + "-admin@" + e2eConfig.ManagementClusterName
+		defer os.Remove(mcKubeconfigFile)
+		err = cli.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+			ClusterName: e2eConfig.ManagementClusterName,
+			Namespace:   "tkg-system",
+			ExportFile:  mcKubeconfigFile,
+		})
+		Expect(err).To(BeNil())
+
+		// Create management-cluster client
+		mcClusterClient, err = clusterclient.NewClient(mcKubeconfigFile, mcKubecontext, clusterclient.Options{})
+		Expect(err).To(BeNil())
+
+		// Should verify management cluster is created using default ClusterClass
+		clusterInfo := mcClusterClient.GetClusterStatusInfo(e2eConfig.ManagementClusterName, "tkg-system", nil)
+		Expect(clusterInfo.ClusterObject).NotTo(BeNil())
+		Expect(clusterInfo.ClusterObject.Spec.Topology).NotTo(BeNil())
+		Expect(clusterInfo.ClusterObject.Spec.Topology.Class).To(Equal("tkg-" + e2eConfig.InfrastructureName + "-default-" + constants.DefaultClusterClassVersion))
+
+		// Should verify all management packages are deployed and reconciled successfully
+		err = managementcomponents.WaitForManagementPackages(mcClusterClient, 2*time.Minute)
+		Expect(err).To(BeNil())
 	}
-
-	// Create initial workload cluster
-	clusterEndPointIP, _ := os.LookupEnv("CLUSTER_ENDPOINT_1")
-	options := framework.CreateClusterOptions{
-		ClusterName:                 clusterName,
-		Namespace:                   constants.DefaultNamespace,
-		Plan:                        "dev",
-		VsphereControlPlaneEndpoint: clusterEndPointIP,
-	}
-	clusterConfigFile, err := framework.GetTempClusterConfigFile(e2eConfig.TkgClusterConfigPath, &options)
-	Expect(err).To(BeNil())
-
-	defer os.Remove(clusterConfigFile)
-
-	tkgCtlClient, err := tkgctl.New(tkgctl.Options{
-		ConfigDir: e2eConfig.TkgConfigDir,
-		LogOptions: tkgctl.LoggingOptions{
-			File:      filepath.Join(logsDir, clusterName+".log"),
-			Verbosity: e2eConfig.TkgCliLogLevel,
-		},
-	})
-	Expect(err).To(BeNil())
-
-	err = tkgCtlClient.ConfigCluster(tkgctl.CreateClusterOptions{
-		ClusterConfigFile: clusterConfigFile,
-		Edition:           "tkg",
-	})
-	Expect(err).To(BeNil())
-
-	By(fmt.Sprintf("Creating initial workload cluster %q", clusterName))
-
-	defer os.Remove(clusterConfigFile)
-	err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
-		ClusterConfigFile: clusterConfigFile,
-		Edition:           "tkg",
-	})
-	Expect(err).To(BeNil())
-
-	Expect(err).To(BeNil())
 
 	return []byte(
 		strings.Join([]string{
@@ -188,25 +179,7 @@ var _ = SynchronizedAfterSuite(func() {
 	timeout, err := time.ParseDuration(e2eConfig.DefaultTimeout)
 	Expect(err).To(BeNil())
 
-	logsDir := filepath.Join(artifactsFolder, "logs")
-	clusterName := "tkg-cli-wc"
 	logLocation := filepath.Join(artifactsFolder, "logs")
-	tkgCtlClient, err := tkgctl.New(tkgctl.Options{
-		ConfigDir: e2eConfig.TkgConfigDir,
-		LogOptions: tkgctl.LoggingOptions{
-			File:      filepath.Join(logsDir, clusterName+".log"),
-			Verbosity: e2eConfig.TkgCliLogLevel,
-		},
-	})
-	Expect(err).To(BeNil())
-
-	err = tkgCtlClient.DeleteCluster(tkgctl.DeleteClustersOptions{
-		ClusterName: clusterName,
-		Namespace:   constants.DefaultNamespace,
-		SkipPrompt:  true,
-	})
-	Expect(err).To(BeNil())
-
 	cli, err := tkgctl.New(tkgctl.Options{
 		ConfigDir: e2eConfig.TkgConfigDir,
 		LogOptions: tkgctl.LoggingOptions{
@@ -216,12 +189,14 @@ var _ = SynchronizedAfterSuite(func() {
 	})
 	Expect(err).To(BeNil())
 
-	err = cli.DeleteRegion(tkgctl.DeleteRegionOptions{
-		ClusterName: e2eConfig.ManagementClusterName,
-		Force:       true,
-		SkipPrompt:  true,
-		Timeout:     timeout,
-	})
+	if !e2eConfig.UseExistingCluster {
+		err = cli.DeleteRegion(tkgctl.DeleteRegionOptions{
+			ClusterName: e2eConfig.ManagementClusterName,
+			Force:       true,
+			SkipPrompt:  true,
+			Timeout:     timeout,
+		})
 
-	Expect(err).To(BeNil())
+		Expect(err).To(BeNil())
+	}
 })

@@ -237,7 +237,7 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
 			tkgBomClient:           bomClient,
 		}
-		tkgClient.IsFeatureActivatedReturns(true)
+		tkgClient.IsFeatureActivatedReturns(false)
 	})
 	Context("When input Cluster object file is valid, plan is devcc:", func() {
 		BeforeEach(func() {
@@ -408,7 +408,7 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 			tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
 			tkgBomClient:           bomClient,
 		}
-		tkgClient.IsFeatureActivatedReturns(true)
+		tkgClient.IsFeatureActivatedReturns(false)
 	})
 	Context("When input file is valid Cluster Class, plan devcc:", func() {
 		BeforeEach(func() {
@@ -516,7 +516,7 @@ var _ = Describe("Unit tests for - (Azure) - cluster_azure.yaml as input file fo
 			tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
 			tkgBomClient:           bomClient,
 		}
-		tkgClient.IsFeatureActivatedReturns(true)
+		tkgClient.IsFeatureActivatedReturns(false)
 	})
 	Context("When input file is valid Cluster Class, plan devcc:", func() {
 		BeforeEach(func() {
@@ -589,7 +589,7 @@ var _ = Describe("TKGS Cluster - cluster_tkgs.yaml as input file for 'tanzu clus
 			tkgBomClient:           bomClient,
 			featureGateHelper:      fg,
 		}
-		tkgClient.IsFeatureActivatedReturns(true)
+		tkgClient.IsFeatureActivatedReturns(false)
 	})
 	Context("When input file is valid Cluster Class", func() {
 		BeforeEach(func() {
@@ -666,7 +666,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 				featureGateHelper:      fg,
 			}
 		})
-		It("When feature flag (FeatureFlagPackageBasedLCM) enabled, input Cluster file is processed:", func() {
+		It("When feature flag (FeatureFlagAllowLegacyCluster) disabled, input Cluster file is processed:", func() {
 			fg.FeatureActivatedInNamespaceReturns(true, nil)
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
@@ -686,7 +686,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
 			Expect(ns).To(Equal("ns01"))
 		})
-		It("Expect error when feature flag (FeatureFlagPackageBasedLCM) not enabled and CC feature is disabled but CClass input file and TKGS Cluster ", func() {
+		It("Expect error when feature flag (FeatureFlagAllowLegacyCluster) enabled and CC feature is disabled but CClass input file and TKGS Cluster ", func() {
 			fg.FeatureActivatedInNamespaceReturns(false, nil)
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
@@ -702,7 +702,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			pc := tkgClient.IsPacificManagementClusterCallCount()
 			Expect(1).To(Equal(pc))
 		})
-		It("Should be able to create cluster when feature flag (FeatureFlagPackageBasedLCM) disabled and CC feature is enabled on supervisor cluster but CClass input file and TKGS Cluster ", func() {
+		It("Should be able to create cluster when feature flag (FeatureFlagAllowLegacyCluster) enabled and CC feature is enabled on supervisor cluster but CClass input file and TKGS Cluster ", func() {
 			fg.FeatureActivatedInNamespaceReturns(true, nil)
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
@@ -719,7 +719,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			tkgClient.IsFeatureActivatedReturns(true)
 			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
 
-			// feature flag (FeatureFlagPackageBasedLCM) activated, its clusterclass input file, but "clusterclass" feature in FeatureGate is disabled, so throws error
+			// feature flag (FeatureFlagAllowLegacyCluster) is not activated, its clusterclass input file, but "clusterclass" feature in FeatureGate is disabled, so throws error
 			err := tkgctlClient.CreateCluster(options)
 			expectedErrMsg := fmt.Sprintf(constants.ErrorMsgFeatureGateNotActivated, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
 			Expect(err.Error()).To(ContainSubstring(expectedErrMsg))
@@ -775,7 +775,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 				featureGateHelper:      fg,
 			}
 		})
-		It("When feature flag (FeatureFlagPackageBasedLCM) enabled, input TKC file is processed:", func() {
+		It("When feature flag (FeatureFlagAllowLegacyCluster) is disabled, input TKC file is processed:", func() {
 			fg.FeatureActivatedInNamespaceReturns(true, nil)
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
@@ -795,7 +795,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
 			Expect(ns).To(Equal(namespace))
 		})
-		It("Expect to complete CreateCluster call even feature flag (FeatureFlagPackageBasedLCM) not enabled, TKC input file ", func() {
+		It("Expect to complete CreateCluster call even feature flag (FeatureFlagAllowLegacyCluster) enabled, TKC input file ", func() {
 			fg.FeatureActivatedInNamespaceReturns(true, nil)
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
@@ -823,7 +823,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			tkgClient.IsFeatureActivatedReturns(true)
 			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
 
-			// feature flag (FeatureFlagPackageBasedLCM) activated, its clusterclass input file, but "clusterclass" feature in FeatureGate is disabled, so throws error
+			// feature flag (FeatureFlagAllowLegacyCluster) is not activated, its clusterclass input file, but "clusterclass" feature in FeatureGate is disabled, so throws error
 			err := tkgctlClient.CreateCluster(options)
 			expectedErrMsg := fmt.Sprintf(constants.ErrorMsgFeatureGateNotActivated, constants.TKCAPIFeature, constants.TKGSTKCAPINamespace)
 			Expect(err.Error()).To(ContainSubstring(expectedErrMsg))

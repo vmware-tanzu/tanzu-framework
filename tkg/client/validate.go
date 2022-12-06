@@ -116,8 +116,8 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 	}
 
 	namespace := constants.TkrNamespace
-	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
-		//TODO: After CLI fully support package based LCM, "constants.TkrNamespace" should be updated to "tkg-system"
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
+		//TODO: After CLI fully support cluster class, "constants.TkrNamespace" should be updated to "tkg-system"
 		namespace = "tkg-system"
 	}
 
@@ -268,6 +268,13 @@ func (c *TkgClient) ConfigureAndValidateAzureConfig(tkrVersion string, nodeSizes
 	if err := c.ConfigureAzureVMImage(tkrVersion); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// ConfigureAndValidateOracleConfig configures and validates oracle configurationn
+func (c *TkgClient) ConfigureAndValidateOracleConfig(tkrVersion string, nodeSizes NodeSizeOptions, skipValidation bool) error {
+	c.SetProviderType(OracleProviderName)
 
 	return nil
 }
@@ -621,6 +628,8 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		err = c.ConfigureAndValidateAzureConfig(tkrVersion, options.NodeSizeOptions, skipValidation, nil)
 	case DockerProviderName:
 		err = c.ConfigureAndValidateDockerConfig(tkrVersion, options.NodeSizeOptions, skipValidation)
+	case OracleProviderName:
+		err = c.ConfigureAndValidateOracleConfig(tkrVersion, options.NodeSizeOptions, skipValidation)
 	}
 
 	if err != nil {

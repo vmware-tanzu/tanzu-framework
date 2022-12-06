@@ -267,8 +267,8 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 		configValues = tkgPackageConfig.ConfigValues
 
 	} else if err != nil && apierrors.IsNotFound(err) {
-		// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
-		// legacy (non-package-based-lcm) management cluster will not have the secret tkg-pkg-tkg-system-values
+		// Handle the upgrade from legacy (non-package-based-cc) management cluster as
+		// legacy (non-package-based-cc) management cluster will not have the secret tkg-pkg-tkg-system-values
 		// defined on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
 		clusterName, _, err := c.getRegionalClusterNameAndNamespace(clusterClient)
 		if err != nil {

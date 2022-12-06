@@ -23,10 +23,9 @@ const (
 	// support of ARM should be included when discovering available AWS instance types. Setting feature flag to true
 	// filters out ARM supporting instance types; false allows ARM instance types to be included in results.
 	FeatureFlagAwsInstanceTypesExcludeArm = "features.management-cluster.aws-instance-types-exclude-arm"
-	// PackageBasedLCM feature flag determines whether to use package based lifecycle management of management component
-	// or legacy way of managing management components. This is also used for clusterclass based management and workload
-	// cluster provisioning
-	FeatureFlagPackageBasedLCM = "features.global.package-based-lcm-beta"
+	// PackageBasedCC feature flag determines whether to use package based lifecycle management of management component
+	// or legacy way of managing management components. This is also used for clusterclass based management cluster provisioning
+	FeatureFlagPackageBasedCC = "features.management-cluster.package-based-cc"
 	// FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration feature flag determines whether to auto-apply the generated ClusterClass
 	// based configuration after converting legacy configration to ClusterClass based config or not
 	// Note: This is a hidden feature-flag that doesn't get persisted to config.yaml by default
@@ -42,4 +41,7 @@ const (
 	// determines whether to apply the In-Cluster IPAM provider to the
 	// management cluster.
 	FeatureFlagManagementClusterDeployInClusterIPAMProvider = "features.management-cluster.deploy-in-cluster-ipam-provider-beta"
+	// FeatureFlagAllowLegacyCluster is used to decide the workload cluster is clusterclass based or legayc based.
+	// By default, it's false. If it's true, then workload cluster is legacy based.
+	FeatureFlagAllowLegacyCluster = "features.cluster.allow-legacy-cluster"
 )
