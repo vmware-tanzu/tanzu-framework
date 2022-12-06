@@ -163,9 +163,9 @@ func getPackagesFromCB(ctx context.Context, clusterBootstrap *runtanzuv1alpha3.C
 		for _, additionalPkg := range clusterBootstrap.Spec.AdditionalPackages {
 			pkgShortName, pkgName, pkgVersion := getPackageDetailsFromCBS(additionalPkg.RefName)
 
-			// TODO: temporarily skip verifying tkg-storageclass due to install failure issue.
+			// TODO: temporarily skip verifying azurediskcsi-driver due to install failure issue.
 			//		 this should be removed once the issue is resolved.
-			if pkgShortName == "tkg-storageclass" {
+			if strings.Contains(pkgShortName, "azurefile-csi-driver") {
 				continue
 			}
 			packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: pkgShortName, Namespace: systemNamespace},
@@ -368,9 +368,9 @@ func verifyPackageInstallStatusinClusterBootstrapStatus(ctx context.Context, mcc
 
 		for _, pkg := range packages {
 			log.Infof("Check Package %q status in clusterbootstrap status", pkg.Name)
-			// TODO: temporarily skip verifying tkg-storageclass due to install failure issue.
+			// TODO: temporarily skip verifying azurefile-csi-driver due to install failure issue.
 			//		 this should be removed once the issue is resolved.
-			if pkg.Name == "tkg-storageclass" {
+			if strings.Contains(pkg.Name, "azurefile-csi-driver") {
 				pkgConditionSuccess = pkgConditionSuccess + 1
 				continue
 			}
