@@ -245,7 +245,7 @@ func (c *TkgClient) validateAndconfigure(options *UpgradeClusterOptions, regiona
 	}
 
 	if providerType == AWSProviderName {
-		err = c.configureAMIID(options, regionalClusterClient)
+		err = c.ConfigureAMIID(options, regionalClusterClient)
 		if err != nil {
 			return errors.Wrap(err, "error getting ami id")
 		}
@@ -278,6 +278,11 @@ func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterCl
 	err = c.RetrieveRegionalClusterConfiguration(regionalClusterClient)
 	if err != nil {
 		return errors.Wrap(err, "failed to set configurations for upgrade")
+	}
+
+	// config CORE_DNS_IP in addition for kapp-controller update
+	if err := c.configureAndValidateCoreDNSIP(); err != nil {
+		return errors.Wrap(err, "error while initializing networking configuration")
 	}
 
 	// Configure provider name to readerwriter config
@@ -667,13 +672,14 @@ func (c *TkgClient) upgradeTelemetryImageIfExists(regionalClusterClient clusterc
 	return nil
 }
 
-func (c *TkgClient) configureAMIID(options *UpgradeClusterOptions, regionalClusterClient clusterclient.Client) error {
+func (c *TkgClient) ConfigureAMIID(options *UpgradeClusterOptions, regionalClusterClient clusterclient.Client) error {
 	bomConfiguration, err := c.tkgBomClient.GetBOMConfigurationFromTkrVersion(options.TkrVersion)
 	if err != nil {
 		return errors.Wrapf(err, "unable to get bom configuration for TKr version %s", options.TkrVersion)
 	}
 
-	clusterName, clusterNamespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
+	clusterName := options.ClusterName
+	clusterNamespace := options.Namespace
 
 	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
 
@@ -694,7 +700,13 @@ func (c *TkgClient) configureAMIID(options *UpgradeClusterOptions, regionalClust
 		return errors.Wrapf(err, "unable to get the awscluster %q", cluster.Spec.InfrastructureRef.Name)
 	}
 
-	spec := awsClusterUnstructured.Object[constants.SPEC].(map[string]interface{})
+	specObj := awsClusterUnstructured.Object[constants.SPEC]
+	// this should never happen
+	if specObj == nil {
+		return errors.Errorf("awscluster %q has empty spec", cluster.Spec.InfrastructureRef.Name)
+	}
+
+	spec := specObj.(map[string]interface{})
 
 	if spec["region"] == nil || spec["region"].(string) == "" {
 		return errors.Errorf("awscluster %q has empty region", cluster.Spec.InfrastructureRef.Name)

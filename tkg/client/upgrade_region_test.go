@@ -10,12 +10,17 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
@@ -260,6 +265,233 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 				It("should not return an error", func() {
 					Expect(err).ToNot(HaveOccurred())
 				})
+			})
+		})
+	})
+	Describe("When configuring AWS_AMI_ID for aws cluster upgrade", func() {
+		const (
+			fakeAWSClusterName      = "fakeAWSClusterName"
+			fakeAWSClusterNamespace = "fakeAWSClusterNamespace"
+			fakeAWSClusterKind      = "AWSCluster"
+			fakeAWSAPIVersion       = "infrastructure.cluster.x-k8s.io/v1beta2"
+		)
+		BeforeEach(func() {
+			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			upgradeClusterOptions.TkrVersion = "v1.18.0+vmware.1-tkg.2"
+		})
+		JustBeforeEach(func() {
+			err = tkgClient.ConfigureAMIID(&upgradeClusterOptions, regionalClusterClient)
+		})
+		Context("When failed to get the cluster", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceCalls(func(cluster interface{}, clusterName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if clusterName == upgradeClusterOptions.ClusterName && namespace == upgradeClusterOptions.Namespace {
+						return errors.New("failed to get the cluster")
+					}
+					return nil
+				})
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("failed to get the cluster"))
+			})
+		})
+
+		Context("When failed to get the InfrastructureRef", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceCalls(func(cluster interface{}, clusterName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if clusterName == upgradeClusterOptions.ClusterName && namespace == upgradeClusterOptions.Namespace {
+						clusterObj, ok := cluster.(*capi.Cluster)
+						if !ok {
+							return errors.New("not a cluster")
+						}
+						*clusterObj = capi.Cluster{
+							Spec: capi.ClusterSpec{
+								InfrastructureRef: nil,
+							},
+						}
+					}
+					return nil
+				})
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("doest not have a InfrastructureRef"))
+			})
+		})
+
+		Context("When failed to get the aws cluster", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceCalls(func(cluster interface{}, clusterName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if clusterName == upgradeClusterOptions.ClusterName && namespace == upgradeClusterOptions.Namespace {
+						clusterObj, ok := cluster.(*capi.Cluster)
+						if !ok {
+							return errors.New("not a cluster")
+						}
+						*clusterObj = capi.Cluster{
+							Spec: capi.ClusterSpec{
+								InfrastructureRef: &corev1.ObjectReference{
+									APIVersion: fakeAWSAPIVersion,
+									Kind:       fakeAWSClusterKind,
+									Name:       fakeAWSClusterName,
+									Namespace:  fakeAWSClusterNamespace,
+								},
+							},
+						}
+						return nil
+					} else if clusterName == fakeAWSClusterName && namespace == fakeAWSClusterNamespace {
+						awsclusterObj, ok := cluster.(*unstructured.Unstructured)
+						if !ok {
+							return errors.New("not a unstructured aws cluster")
+						}
+
+						if awsclusterObj.GetAPIVersion() == fakeAWSAPIVersion &&
+							awsclusterObj.GetKind() == fakeAWSClusterKind {
+							return errors.New("failed to get aws cluster")
+						}
+						return nil
+					}
+					return errors.Errorf("invalid clusterName %s and namespace %s", clusterName, namespace)
+				})
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("failed to get aws cluster"))
+			})
+		})
+
+		Context("When failed to get the aws cluster spec", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceCalls(func(cluster interface{}, clusterName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if clusterName == upgradeClusterOptions.ClusterName && namespace == upgradeClusterOptions.Namespace {
+						clusterObj, ok := cluster.(*capi.Cluster)
+						if !ok {
+							return errors.New("not a cluster")
+						}
+						*clusterObj = capi.Cluster{
+							Spec: capi.ClusterSpec{
+								InfrastructureRef: &corev1.ObjectReference{
+									APIVersion: fakeAWSAPIVersion,
+									Kind:       fakeAWSClusterKind,
+									Name:       fakeAWSClusterName,
+									Namespace:  fakeAWSClusterNamespace,
+								},
+							},
+						}
+						return nil
+					} else if clusterName == fakeAWSClusterName && namespace == fakeAWSClusterNamespace {
+						awsclusterObj, ok := cluster.(*unstructured.Unstructured)
+						if !ok {
+							return errors.New("not a unstructured aws cluster")
+						}
+
+						if awsclusterObj.GetAPIVersion() == fakeAWSAPIVersion &&
+							awsclusterObj.GetKind() == fakeAWSClusterKind {
+							awsclusterObj.Object[constants.SPEC] = nil
+						}
+						return nil
+					}
+					return errors.Errorf("invalid clusterName %s and namespace %s", clusterName, namespace)
+				})
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("has empty spec"))
+			})
+		})
+
+		Context("When failed to get the aws cluster region", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceCalls(func(cluster interface{}, clusterName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if clusterName == upgradeClusterOptions.ClusterName && namespace == upgradeClusterOptions.Namespace {
+						clusterObj, ok := cluster.(*capi.Cluster)
+						if !ok {
+							return errors.New("not a cluster")
+						}
+						*clusterObj = capi.Cluster{
+							Spec: capi.ClusterSpec{
+								InfrastructureRef: &corev1.ObjectReference{
+									APIVersion: fakeAWSAPIVersion,
+									Kind:       fakeAWSClusterKind,
+									Name:       fakeAWSClusterName,
+									Namespace:  fakeAWSClusterNamespace,
+								},
+							},
+						}
+						return nil
+					} else if clusterName == fakeAWSClusterName && namespace == fakeAWSClusterNamespace {
+						awsclusterObj, ok := cluster.(*unstructured.Unstructured)
+						if !ok {
+							return errors.New("not a unstructured aws cluster")
+						}
+
+						if awsclusterObj.GetAPIVersion() == fakeAWSAPIVersion &&
+							awsclusterObj.GetKind() == fakeAWSClusterKind {
+							spec := map[string]interface{}{}
+							awsclusterObj.Object[constants.SPEC] = spec
+						}
+						return nil
+					}
+					return errors.Errorf("invalid clusterName %s and namespace %s", clusterName, namespace)
+				})
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("has empty region"))
+			})
+		})
+
+		Context("When succeeded getting the AWS_AMI_ID", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceCalls(func(cluster interface{}, clusterName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if clusterName == upgradeClusterOptions.ClusterName && namespace == upgradeClusterOptions.Namespace {
+						clusterObj, ok := cluster.(*capi.Cluster)
+						if !ok {
+							return errors.New("not a cluster")
+						}
+						*clusterObj = capi.Cluster{
+							Spec: capi.ClusterSpec{
+								InfrastructureRef: &corev1.ObjectReference{
+									APIVersion: fakeAWSAPIVersion,
+									Kind:       fakeAWSClusterKind,
+									Name:       fakeAWSClusterName,
+									Namespace:  fakeAWSClusterNamespace,
+								},
+							},
+						}
+						return nil
+					} else if clusterName == fakeAWSClusterName && namespace == fakeAWSClusterNamespace {
+						awsclusterObj, ok := cluster.(*unstructured.Unstructured)
+						if !ok {
+							return errors.New("not a unstructured aws cluster")
+						}
+
+						if awsclusterObj.GetAPIVersion() == fakeAWSAPIVersion &&
+							awsclusterObj.GetKind() == fakeAWSClusterKind {
+							spec := map[string]interface{}{}
+							spec["region"] = "us-west-2"
+							awsclusterObj.Object[constants.SPEC] = spec
+						}
+						return nil
+					}
+					return errors.Errorf("invalid clusterName %s and namespace %s", clusterName, namespace)
+				})
+			})
+			It("should get the AWS_AMI_ID along with OS_NAME, OS_VERSION, and OS_ARCH", func() {
+				Expect(err).ToNot(HaveOccurred())
+				amiID, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSAMIID)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(amiID).To(Equal("ami-03f483756fb3350c7"))
+				osName, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableOSName)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(osName).To(Equal("ubuntu"))
+				osVersion, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableOSVersion)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(osVersion).To(Equal("20.04"))
+				osArch, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableOSArch)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(osArch).To(Equal("amd64"))
 			})
 		})
 	})

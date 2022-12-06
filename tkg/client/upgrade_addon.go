@@ -292,10 +292,6 @@ func (c *TkgClient) RetrieveRegionalClusterConfiguration(regionalClusterClient c
 		return errors.Wrap(err, "error while initializing networking configuration")
 	}
 
-	// config CORE_DNS_IP for kapp-controller update
-	if err := c.configureAndValidateCoreDNSIP(); err != nil {
-		return errors.Wrap(err, "error while initializing networking configuration")
-	}
 	return nil
 }
 
