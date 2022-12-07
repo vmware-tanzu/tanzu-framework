@@ -218,7 +218,11 @@ func parseObject(cm *corev1.ConfigMap, bytes []byte) (*unstructured.Unstructured
 	if err := yaml.Unmarshal(bytes, u); err != nil {
 		return nil, err
 	}
-	u.SetNamespace(cm.Namespace)
+	switch u.GetObjectKind().GroupVersionKind().Kind {
+	case "TanzuKubernetesRelease", "OSImage": // skip setting namespace
+	default:
+		u.SetNamespace(cm.Namespace)
+	}
 	addOwnerRefs(u, []metav1.OwnerReference{{
 		APIVersion: cmAPIVersion,
 		Kind:       cmKind,
@@ -265,22 +269,31 @@ func (r *Reconciler) create(ctx context.Context, u *unstructured.Unstructured) e
 }
 
 func (r *Reconciler) patchExisting(ctx context.Context, u *unstructured.Unstructured) error {
-	existing := &unstructured.Unstructured{}
-	existing.SetAPIVersion(u.GetAPIVersion())
-	existing.SetKind(u.GetKind())
-	if err := r.Client.Get(ctx, objKey(u), existing); err != nil {
-		return errors.Wrapf(err, "getting object '%s', named '%s'", u.GetObjectKind().GroupVersionKind(), objKey(u))
+	existing, err := r.getExisting(ctx, u)
+	if err != nil {
+		return err
 	}
 
 	ps := patchset.New(r.Client)
 	ps.Add(existing)
 
 	addOwnerRefs(existing, u.GetOwnerReferences())
+	writeOver(existing, u)
 
 	if err := ps.Apply(ctx); err != nil {
-		return err
+		return errors.Wrapf(err, "patching object '%s', named '%s'", u.GetObjectKind().GroupVersionKind(), objKey(u))
 	}
 	return nil
+}
+
+func (r *Reconciler) getExisting(ctx context.Context, u *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	existing := &unstructured.Unstructured{}
+	existing.SetAPIVersion(u.GetAPIVersion())
+	existing.SetKind(u.GetKind())
+	if err := r.Client.Get(ctx, objKey(u), existing); err != nil {
+		return nil, errors.Wrapf(err, "getting object '%s', named '%s'", u.GetObjectKind().GroupVersionKind(), objKey(u))
+	}
+	return existing, nil
 }
 
 func addOwnerRefs(object client.Object, ownerRefs []metav1.OwnerReference) {
@@ -288,12 +301,36 @@ func addOwnerRefs(object client.Object, ownerRefs []metav1.OwnerReference) {
 	case "TanzuKubernetesRelease", "OSImage":
 		return // not adding ownerRef to cluster scoped resources
 	}
+	var addedOwnerRefs []metav1.OwnerReference
 	for _, ownerRef := range ownerRefs {
-		for _, r := range object.GetOwnerReferences() {
-			if r == ownerRef {
-				return
-			}
+		if !ownerRefExists(object, ownerRef) {
+			addedOwnerRefs = append(addedOwnerRefs, ownerRef)
 		}
-		object.SetOwnerReferences(append(object.GetOwnerReferences(), ownerRef))
 	}
+	object.SetOwnerReferences(append(object.GetOwnerReferences(), addedOwnerRefs...))
+}
+
+func ownerRefExists(object client.Object, ownerRef metav1.OwnerReference) bool {
+	for _, r := range object.GetOwnerReferences() {
+		if reflect.DeepEqual(r, ownerRef) {
+			return true
+		}
+	}
+	return false
+}
+
+func writeOver(to, from *unstructured.Unstructured) {
+	orig := to.DeepCopy()
+	from.DeepCopyInto(to)
+	restoreMeta(to, orig)
+}
+
+func restoreMeta(targetObj, orig client.Object) {
+	targetObj.SetOwnerReferences(orig.GetOwnerReferences())
+	targetObj.SetNamespace(orig.GetNamespace())
+	targetObj.SetUID(orig.GetUID())
+	targetObj.SetResourceVersion(orig.GetResourceVersion())
+	targetObj.SetGeneration(orig.GetGeneration())
+	targetObj.SetSelfLink(orig.GetSelfLink())
+	targetObj.SetCreationTimestamp(orig.GetCreationTimestamp())
 }

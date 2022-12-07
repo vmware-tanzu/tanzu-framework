@@ -82,6 +82,18 @@ var _ = Describe("Reconciler", func() {
 			objects = []client.Object{pkg}
 			tkrVersion = pkg.Spec.Version
 			tkrName = version.Label(tkrVersion)
+			existingTKR := rand.Intn(2)
+			if existingTKR != 0 {
+				tkr := &runv1.TanzuKubernetesRelease{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: tkrName,
+					},
+					Spec: runv1.TanzuKubernetesReleaseSpec{
+						Version: tkrVersion,
+					},
+				}
+				objects = append(objects, tkr)
+			}
 			reg = fakeRegistry{
 				imageParams: map[string]struct {
 					tkrVersion string
@@ -111,7 +123,13 @@ var _ = Describe("Reconciler", func() {
 					Expect(err).ToNot(HaveOccurred())
 
 					tkr := &runv1.TanzuKubernetesRelease{}
-					Expect(r.Client.Get(ctx, installedObjectName(pkg, tkrName), tkr)).To(Succeed())
+					Expect(r.Client.Get(ctx, client.ObjectKey{Name: tkrName}, tkr)).To(Succeed())
+
+					Expect(tkr.Spec.OSImages).ToNot(BeNil())
+					Expect(tkr.Spec.OSImages).ToNot(BeEmpty())
+
+					cbt := &runv1.ClusterBootstrapTemplate{}
+					Expect(r.Client.Get(ctx, installedObjectName(pkg, tkrName), cbt)).To(Succeed())
 
 				case false:
 					Expect(err).To(HaveOccurred())
@@ -187,6 +205,7 @@ func (r fakeRegistry) GetFiles(image string) (map[string][]byte, error) {
 	params := r.imageParams[image]
 	return map[string][]byte{
 		"config/tkr.yaml":     []byte(tkrStr(params.tkrVersion, params.k8sVersion)),
+		"config/cbt.yaml":     []byte(cbtStr(params.tkrVersion, params.k8sVersion)),
 		"config/garbage.yaml": []byte(garbageStr),
 	}, nil
 }
@@ -223,6 +242,52 @@ spec:
   - name: capabilities.tanzu.vmware.com.0.22.0-dev-57-gd9465b25+vmware.1
   - name: calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable
 `, version.Label(tkrVersion), tkrVersion, k8sVersion)
+}
+
+func cbtStr(tkrVersion, k8sVersion string) string {
+	return fmt.Sprintf(`
+kind: ClusterBootstrapTemplate
+apiVersion: run.tanzu.vmware.com/v1alpha3
+metadata:
+  name: %s
+spec:
+  cni:
+    refName: antrea.tanzu.vmware.com.1.5.3+tkg.2-zshippable
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: AntreaConfig
+        name: %s
+  csi:
+    refName: aws-ebs-csi-driver.tanzu.vmware.com.1.8.0+vmware.1-tkg.2-zshippable
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: AwsEbsCSIConfig
+        name: %s
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.41.2+vmware.2-tkg.1-zshippable
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: %s
+  additionalPackages:
+  - refName: metrics-server.tanzu.vmware.com.0.6.1+vmware.1-tkg.3-zshippable
+  - refName: secretgen-controller.tanzu.vmware.com.0.11.0+vmware.2-tkg.1-zshippable
+  - refName: pinniped.tanzu.vmware.com.0.12.1+vmware.2-tkg.3-zshippable
+    valuesFrom:
+      secretRef: default-pinniped-config-%s
+  - refName: capabilities.tanzu.vmware.com.0.28.0-dev-90-gd0c30409+vmware.1
+    valuesFrom:
+      secretRef: default-capabilities-package-config-%s
+  - refName: tkg-storageclass.tanzu.vmware.com.0.28.0-dev-12-g869f6335+vmware.1
+`, version.Label(tkrVersion),
+		version.Label(tkrVersion),
+		version.Label(tkrVersion),
+		version.Label(tkrVersion),
+		version.Label(tkrVersion),
+		version.Label(tkrVersion))
 }
 
 const garbageStr = `
