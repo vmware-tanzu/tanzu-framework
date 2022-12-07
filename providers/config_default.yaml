@@ -183,6 +183,7 @@ VSPHERE_INSECURE: false
 #! Virtual IP address or FQDN for the cluster's control plane nodes
 VSPHERE_CONTROL_PLANE_ENDPOINT:
 VSPHERE_CONTROL_PLANE_ENDPOINT_PORT: 6443
+VSPHERE_ADDITIONAL_FQDN:
 #! NSX-T specific configurations for enabling NSX-T routable pods
 #! set this to true to enable NSX-T routable pods
 NSXT_POD_ROUTING_ENABLED: false
