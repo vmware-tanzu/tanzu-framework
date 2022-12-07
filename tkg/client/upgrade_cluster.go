@@ -1179,14 +1179,18 @@ func (c *TkgClient) handleKappControllerUpgrade(regionalClusterClient, currentCl
 		return errors.Wrapf(err, "unable to delete existing kapp-controller")
 	}
 
+	return c.configureControlPlaneIngressPorts(regionalClusterClient, upgradeClusterConfig)
+}
+
+func (c *TkgClient) configureControlPlaneIngressPorts(clusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo) error {
 	// Update AWSCluster cniIngressRules to include kapp-controller API port only if CAPA is running on the management cluster
-	if err := regionalClusterClient.GetResource(&corev1.Namespace{}, clusterclient.CAPAControllerNamespace, clusterclient.CAPAControllerNamespace, nil, nil); err != nil {
+	if err := clusterClient.GetResource(&corev1.Namespace{}, clusterclient.CAPAControllerNamespace, clusterclient.CAPAControllerNamespace, nil, nil); err != nil {
 		// if capa-system namespace doesn't exist, then assume that updates to AWSCluster are not required during upgrade.
 		if !apierrors.IsNotFound(err) {
 			return errors.Wrapf(err, "unable to check if Cluster API Provider for AWS is enabled")
 		}
 	} else {
-		if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace); err != nil {
+		if err := clusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace); err != nil {
 			return errors.Wrapf(err, "unable to update AWS CNI ingress rules")
 		}
 	}

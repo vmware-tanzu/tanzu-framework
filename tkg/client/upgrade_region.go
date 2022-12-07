@@ -125,6 +125,15 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	}
 
 	log.Info("Upgrading management cluster providers...")
+
+	// Configure ingress port rules required by control-plane
+	log.Info("Retrieving configuration for upgrade cluster...")
+	upgradeClusterConfig, err := c.getUpgradeClusterConfig(options)
+	if err != nil {
+		return errors.Wrap(err, "unable to retrieve component upgrade info")
+	}
+	c.configureControlPlaneIngressPorts(regionalClusterClient, upgradeClusterConfig)
+
 	providersUpgradeClient := providersupgradeclient.New(c.clusterctlClient)
 	if err = c.DoProvidersUpgrade(regionalClusterClient, currentRegion.ContextName, providersUpgradeClient, options); err != nil {
 		return errors.Wrap(err, "failed to upgrade management cluster providers")
