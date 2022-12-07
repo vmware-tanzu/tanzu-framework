@@ -496,7 +496,7 @@ spec:
         items:
           type: string
         default: []
-  - name: extraDNS
+  - name: additionalFQDN
     required: false
     schema:
       openAPIV3Schema:
@@ -1806,8 +1806,8 @@ spec:
               {{- range .ntpServers }}
             - {{ . }}
               {{- end }}
-  - name: extraDNS
-    enabledIf: '{{ not (empty .extraDNS) }}'
+  - name: additionalFQDN
+    enabledIf: '{{ not (empty .additionalFQDN) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -1816,10 +1816,9 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/certSANs
         valueFrom:
           template: |
-            certSANs:
-              {{- range .extraDNS }}
+            {{- range .additionalFQDN }}
             - {{ . }}
-              {{- end }}
+            {{- end }}
