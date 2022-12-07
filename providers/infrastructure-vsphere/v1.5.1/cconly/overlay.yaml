@@ -52,3 +52,17 @@ spec:
           status: "False"
           timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
       #@ end
+  patches:
+  #@overlay/match by=overlay.index(0)
+  #@overlay/insert before=True
+  - definitions:
+    - jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes
+        value: []
+      selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+    name: KCP_INIT_APISERVER_EMPTY_EXTRAVOLUMES_ARRAY

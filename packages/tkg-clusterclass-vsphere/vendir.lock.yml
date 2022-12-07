@@ -5,5 +5,7 @@ directories:
     path: base.yaml
   - manual: {}
     path: overlay.yaml
+  - manual: {}
+    path: overlay-pod-security-admission.yaml
   path: bundle/config/upstream
 kind: LockConfig

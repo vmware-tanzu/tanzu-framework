@@ -1010,4 +1010,4 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "nodePvTransitEncryption", "controlPlaneMachineShape", "controlPlaneMachineOcpus",
         "controlPlanePvTransitEncryption",
         "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
-        "controlPlaneCertificateRotation"]
+        "controlPlaneCertificateRotation", "podSecurityStandard"]
