@@ -1487,7 +1487,7 @@ var _ = Describe("DistributeMachineDeploymentWorkers", func() {
 	JustBeforeEach(func() {
 		tkgClient, err = CreateTKGClient(tkgConfigPath, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
 		Expect(err).NotTo(HaveOccurred())
-		workerCounts, err = tkgClient.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, infraProviderName, false)
+		workerCounts, err = tkgClient.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, infraProviderName)
 	})
 
 	Context("when not aws and azure", func() {
@@ -1666,6 +1666,22 @@ var _ = Describe("DistributeMachineDeploymentWorkers", func() {
 			Expect(workerCounts[0]).To(Equal(2))
 			Expect(workerCounts[1]).To(Equal(1))
 			Expect(workerCounts[2]).To(Equal(3))
+		})
+	})
+
+	Context("when docker prod plan and is mgmt cluster", func() {
+		BeforeEach(func() {
+			workerMachineCount = 5
+			isProdConfig = true
+			isManagementCluster = true
+			infraProviderName = constants.InfrastructureProviderDocker
+			tkgConfigPath = configFile7
+		})
+		It("should have first worker count as total machine count ", func() {
+			Expect(err).To(Not(HaveOccurred()))
+			Expect(workerCounts[0]).To(Equal(5))
+			Expect(workerCounts[1]).To(Equal(0))
+			Expect(workerCounts[2]).To(Equal(0))
 		})
 	})
 

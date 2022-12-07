@@ -815,9 +815,9 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 		dryRunMode, _ := c.readerwriterConfigClient.TKGConfigReaderWriter().Get(constants.ConfigVariableDryRunMode)
 		filter, _ := c.readerwriterConfigClient.TKGConfigReaderWriter().Get(constants.ConfigVariableFilterByAddonType)
 		if options.GenerateOnly && dryRunMode == "legacy" && filter != "" {
-			bytes, err = c.getClusterConfiguration(&clusterConfigOptions, true, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, false)
+			bytes, err = c.getClusterConfiguration(&clusterConfigOptions, true, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider)
 		} else {
-			bytes, err = c.getClusterConfigurationBytes(&clusterConfigOptions, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, true, false)
+			bytes, err = c.getClusterConfigurationBytes(&clusterConfigOptions, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, true)
 		}
 		if err != nil {
 			return bytes, options.ClusterName, "", err
