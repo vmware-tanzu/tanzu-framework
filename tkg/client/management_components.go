@@ -29,9 +29,9 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
-func (c *TkgClient) InstallOrUpgradeKappController(clusterClient clusterclient.Client, operationType constants.OperationType) error {
+func (c *TkgClient) InstallOrUpgradeKappController(clusterClient clusterclient.Client, operationType constants.OperationType, upgrade bool) error {
 	// Get kapp-controller configuration file
-	kappControllerConfigFile, err := c.getKappControllerConfigFile()
+	kappControllerConfigFile, err := c.getKappControllerConfigFile(clusterClient, upgrade)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 // InstallAKO install AKO to the cluster
 func (c *TkgClient) InstallAKO(mcClient clusterclient.Client) error {
 	// Get AKO file
-	akoPackageInstallFile, err := c.getAKOPackageInstallFile()
+	akoPackageInstallFile, err := c.getAKOPackageInstallFile(mcClient)
 	if err != nil {
 		return err
 	}
@@ -324,8 +324,15 @@ func (c *TkgClient) mutateUserConfigVariableValueMap(configValues map[string]int
 	return nil
 }
 
-func (c *TkgClient) getUserConfigVariableValueMapFile() (string, error) {
-	userConfigValues, err := c.getUserConfigVariableValueMap()
+func (c *TkgClient) getUserConfigVariableValueMapFile(mcClient clusterclient.Client, upgrade bool) (string, error) {
+	var userConfigValues map[string]interface{}
+	var err error
+
+	if upgrade {
+		userConfigValues, err = c.getUserConfigVariableValueMapFromSecret(mcClient)
+	} else {
+		userConfigValues, err = c.getUserConfigVariableValueMap()
+	}
 	if err != nil {
 		return "", err
 	}
@@ -352,7 +359,7 @@ func (c *TkgClient) getUserConfigVariableValueMapFile() (string, error) {
 	return configFile, nil
 }
 
-func (c *TkgClient) getKappControllerConfigFile() (string, error) {
+func (c *TkgClient) getKappControllerConfigFile(mcClient clusterclient.Client, upgrade bool) (string, error) {
 	kappControllerPackageImage, err := c.tkgBomClient.GetKappControllerPackageImage()
 	if err != nil {
 		return "", err
@@ -364,7 +371,7 @@ func (c *TkgClient) getKappControllerConfigFile() (string, error) {
 	}
 	kappControllerValuesDirPath := filepath.Join(path, "kapp-controller-values")
 
-	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile()
+	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile(mcClient, upgrade)
 	if err != nil {
 		return "", err
 	}
@@ -483,14 +490,14 @@ func GetConfigVariableListFromYamlData(bytes []byte) ([]string, error) {
 	return keys, nil
 }
 
-func (c *TkgClient) getAKOPackageInstallFile() (string, error) {
+func (c *TkgClient) getAKOPackageInstallFile(mcClient clusterclient.Client) (string, error) {
 	path, err := c.tkgConfigPathsClient.GetTKGProvidersDirectory()
 	if err != nil {
 		return "", err
 	}
 	akoPackageInstallTemplateDir := filepath.Join(path, "ako")
 
-	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile()
+	userConfigValuesFile, err := c.getUserConfigVariableValueMapFile(mcClient, false)
 	if err != nil {
 		return "", err
 	}
