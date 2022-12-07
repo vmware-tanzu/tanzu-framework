@@ -496,6 +496,14 @@ spec:
         items:
           type: string
         default: []
+  - name: additionalFQDN
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: array
+        items:
+          type: string
+        default: []
   - name: TKR_DATA
     required: false
     schema:
@@ -1798,3 +1806,19 @@ spec:
               {{- range .ntpServers }}
             - {{ . }}
               {{- end }}
+  - name: additionalFQDN
+    enabledIf: '{{ not (empty .additionalFQDN) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/certSANs
+        valueFrom:
+          template: |
+            {{- range .additionalFQDN }}
+            - {{ . }}
+            {{- end }}
