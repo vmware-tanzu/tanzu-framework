@@ -88,7 +88,7 @@ KUBE_CONTROLLER_MANAGER_EXTRA_ARGS:
 
 #! CONTROLPLANE_KUBELET_EXTRA_ARGS specified kubelet flags for control plane nodes.
 #! It should be of the format "key1=value1;key2=value2".
-#! E.g. "heartbeat-interval=300;election-timeout=2000"
+#! E.g. "read-only-port=0;event-qps=0"
 CONTROLPLANE_KUBELET_EXTRA_ARGS:
 
 #! WORKER_KUBELET_EXTRA_ARGS specified kubelet flags for worker nodes.
