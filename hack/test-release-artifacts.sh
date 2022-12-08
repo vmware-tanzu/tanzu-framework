@@ -48,3 +48,5 @@ tanzu secret version
 tanzu login version
 
 tanzu pinniped-auth version
+
+tanzu isolated-cluster version

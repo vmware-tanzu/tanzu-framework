@@ -14,6 +14,8 @@ overrides:
   newImage: ""
 - image: tanzu-cli-plugins/telemetry-linux-amd64:latest
   newImage: ""
+- image: tanzu-cli-plugins/isolated-cluster-linux-amd64:latest
+  newImage: ""
 #! tanzu-cliplugins darwin-amd64
 - image: tanzu-cli-plugins/login-darwin-amd64:latest
   newImage: ""
@@ -26,6 +28,8 @@ overrides:
 - image: tanzu-cli-plugins/secret-darwin-amd64:latest
   newImage: ""
 - image: tanzu-cli-plugins/telemetry-darwin-amd64:latest
+  newImage: ""
+- image: tanzu-cli-plugins/isolated-cluster-darwin-amd64:latest
   newImage: ""
 #! tanzu-cliplugins windows-amd64
 - image: tanzu-cli-plugins/login-windows-amd64:latest
@@ -40,3 +44,6 @@ overrides:
   newImage: ""
 - image: tanzu-cli-plugins/telemetry-windows-amd64:latest
   newImage: ""
+- image: tanzu-cli-plugins/isolated-cluster-windows-amd64:latest
+  newImage: ""
+

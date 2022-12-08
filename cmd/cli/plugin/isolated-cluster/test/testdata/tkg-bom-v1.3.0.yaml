@@ -1,0 +1,298 @@
+default:
+  k8sVersion: v1.19.3+vmware.1-tkg.1
+release:
+  version: 1.2.1-rc.1
+components:
+  kubernetes_autoscaler:
+  - version: v1.19.1+vmware.1
+    images:
+      kubernetesAutoscalerImage:
+        imagePath: cluster-autoscaler
+        tag: v1.19.1_vmware.1
+    metadata:
+      k8sVersion: v1.19.1+vmware.1
+  - version: v1.18.3+vmware.1
+    images:
+      kubernetesAutoscalerImage:
+        imagePath: cluster-autoscaler
+        tag: v1.18.3_vmware.1
+    metadata:
+      k8sVersion: v1.18.3+vmware.1
+  - version: v1.17.4+vmware.1
+    images:
+      kubernetesAutoscalerImage:
+        imagePath: cluster-autoscaler
+        tag: v1.17.4_vmware.1
+    metadata:
+      k8sVersion: v1.17.4+vmware.1
+  calico_all:
+  - version: v3.11.3+vmware.1
+    images:
+      calicoCniImage:
+        imagePath: calico-all/cni-plugin
+        tag: v3.11.3_vmware.1
+      calicoKubecontrollerImage:
+        imagePath: calico-all/kube-controllers
+        tag: v3.11.3_vmware.1
+      calicoNodeImage:
+        imagePath: calico-all/node
+        tag: v3.11.3_vmware.1
+      calicoPodDaemonImage:
+        imagePath: calico-all/pod2daemon
+        tag: v3.11.3_vmware.1
+    metadata:
+      ANY_NAME: ANY_INTERFACE
+  alertmanager:
+  - version: v0.20.0+vmware.1
+    images:
+      alertmanagerImage:
+        imagePath: prometheus/alertmanager
+        tag: v0.11.1_vmware.5
+  antrea:
+  - version: v0.11.1+vmware.5
+    images:
+      antreaImage:
+        imagePath: antrea/antrea-debian
+        tag: v0.11.1_vmware.5
+  cadvisorImage:
+  - version: v0.36.0+vmware.1
+    images:
+      cadvisorImage:
+        imagePath: prometheus/cadvisor
+        tag: v0.36.0_vmware.1
+  ccm_controller:
+  - version: v0.36.0+vmware.1
+    images:
+      ccmControllerImage:
+        imagePath: ccm/manager
+        tag: v1.2.1_vmware.1
+  cloud-provider-azure:
+  - version: v0.5.1+vmware.2
+  cloud_provider_vsphere:
+  - version: v1.2.1+vmware.1
+  cluster-api-provider-azure:
+  - version: v0.4.8-47-gfbb2d55b+vmware.1
+    images:
+      capzControllerImage:
+        imagePath: cluster-api/cluster-api-azure-controller
+        tag: v0.4.8-47-gfbb2d55b_vmware.1
+  cluster_api:
+  - version: v0.3.11-13-ga74685ee9+vmware.1
+    images:
+      capiControllerImage:
+        imagePath: cluster-api/cluster-api-controller
+        tag: v0.3.11-13-ga74685ee9_vmware.1
+  cluster_api_aws:
+  - version: v0.6.3+vmware.1
+    images:
+      capaControllerImage:
+        imagePath: cluster-api/cluster-api-aws-controller
+        tag: v0.6.3_vmware.1
+  cluster_api_vsphere:
+  - version: v0.7.1+vmware.1
+    images:
+      capvControllerImage:
+        imagePath: cluster-api/cluster-api-vsphere-controller
+        tag: v0.7.1_vmware.1
+  cluster_api_docker:
+  - version: v0.3.11-13-ga74685ee9_vmware.1
+    images:
+      capvControllerImage:
+        imagePath: cluster-api/capd-manager
+        tag: v0.3.11-13-ga74685ee9_vmware.1
+  cni_plugins:
+  - version: v0.8.7+vmware.3
+  configmap-reload:
+  - version: v0.3.0+vmware.1
+    images:
+      configmapReloadImage:
+        imagePath: prometheus/configmap-reload
+        tag: v0.3.0_vmware.1
+  containerd:
+  - version: v1.4.1+vmware.1
+  contour:
+  - version: v1.8.1+vmware.1
+  crash-diagnostics:
+  - version: v0.3.2+vmware.1
+  cri_tools:
+  - version: v1.18.0+vmware.3
+  csi_attacher:
+  - version: v2.0.0+vmware.2
+    images:
+      csiAttacherImage:
+        imagePath: csi/csi-attacher
+        tag: v2.0.0_vmware.2
+      csiControllerImage:
+        imagePath: csi/vsphere-block-csi-driver
+        tag: v2.0.1_vmware.1
+  csi_livenessprobe:
+  - version: v1.1.0+vmware.8
+    images:
+      csiLivenessProbeImage:
+        imagePath: csi/csi-livenessprobe
+        tag: v1.1.0_vmware.8
+      csiMetaDataSyncerImage:
+        imagePath: csi/volume-metadata-syncer
+        tag: v2.0.1_vmware.1
+  csi_node_driver_registrar:
+  - version: v1.2.0+vmware.2
+    images:
+      csiNodeDriverRegistrarImage:
+        imagePath: csi/csi-node-driver-registrar
+        tag: v1.2.0_vmware.2
+  csi_provisioner:
+  - version: v2.0.0+vmware.1
+    images:
+      csiProvisonerImage:
+        imagePath: csi/csi-provisioner
+        tag: v2.0.0_vmware.1
+  dex:
+  - version: v2.27.0+vmware.1
+  envoy:
+  - version: v1.15.0+vmware.1
+  fluent-bit:
+  - version: v1.6.9+vmware.1
+  gangway:
+  - version: v3.2.0+vmware.2
+  grafana:
+  - version: v7.0.3+vmware.1
+  harbor:
+  - version: v2.0.2+vmware.1
+  jetstack_cert-manager:
+  - version: v0.16.1+vmware.1
+    images:
+      certMgrControllerImage:
+        imagePath: cert-manager/cert-manager-controller
+        tag: v0.16.1_vmware.1
+      certMgrInjectorImage:
+        imagePath: cert-manager/cert-manager-cainjector
+        tag: v0.16.1_vmware.1
+      certMgrWebhookImage:
+        imagePath: cert-manager/cert-manager-webhook
+        tag: v0.16.1_vmware.1
+  k8s-sidecar:
+  - version: v0.1.144+vmware.1
+    images:
+      k8sSidecarImage:
+        imagePath: grafana/k8s-sidecar
+        tag: v0.1.144_vmware.1
+  kapp_controller:
+  - version: v0.9.0+vmware.1
+    images:
+      kappControllerImage:
+        imagePath: kapp-controller
+        tag: v0.9.0_vmware.1
+  kube-state-metrics:
+  - version: v1.9.5+vmware.1
+    images:
+      kubeStateMetricsImage:
+        imagePath: prometheus/kube-state-metrics
+        tag: v1.9.5_vmware.1
+  kube_vip:
+  - version: v0.2.0+vmware.1
+    images:
+      kubeVipImage:
+        imagePath: kube-vip
+        tag: v0.2.0_vmware.1
+  kube_rbac_proxy:
+  - version: v0.4.1+vmware.2
+    images:
+      kubeProxy:
+        imagePath: kube-proxy
+        tag: v1.19.3_vmware.1
+      kubeRbacProxyControllerImage:
+        imagePath: cluster-api/kube-rbac-proxy
+        tag: v0.4.1_vmware.2
+  kubernetes-sigs_kind:
+  - version: v0.8.1-1.19.3+vmware.1
+    images:
+      kindNodeImage:
+        imagePath: kind/node
+        tag: v1.19.3_vmware.1
+  prometheus:
+  - version: v2.18.1+vmware.1
+  prometheus_node_exporter:
+  - version: v0.18.1+vmware.1
+  pushgateway:
+  - version: v1.2.0+vmware.1
+  metrics-server:
+  - version: v0.4.0+vmware.1
+  sonobuoy:
+  - version: v0.19.0+vmware.1
+  tanzu_core:
+  - version: v1.4.0-pre-alpha-1-296-gb098dcc
+    images:
+      providerTemplateImage:
+        imagePath: sandbox/tanzu_core/provider/provider-templates
+        tag: v1.4.0-pre-alpha-1-296-gb098dcc
+      tkrImage:
+        imagePath: sandbox/tanzu_core/tkr/tkr-controller-manager
+        tag: v1.4.0-pre-alpha-1-296-gb098dcc
+  tkg_extensions:
+  - version: v1.2.0+vmware.1
+  tkg_telemetry:
+  - version: v1.2.0+vmware.1
+    images:
+      tkgTelemetryImage:
+        imagePath: tkg-telemetry
+        tag: v1.2.0_vmware.1
+  velero:
+  - version: v1.4.3+vmware.1
+  velero-plugin-for-aws:
+  - version: v1.1.0+vmware.1
+  velero-plugin-for-microsoft-azure:
+  - version: v1.1.0+vmware.1
+  velero-plugin-for-vsphere:
+  - version: v1.0.2+vmware.1
+  vsphere_csi_driver:
+  - version: v2.0.1+vmware.1
+
+kindKubeadmConfigSpec:
+- "kind: Cluster"
+- "apiVersion: kind.x-k8s.io/v1alpha4"
+- "kubeadmConfigPatches:"
+- "- |"
+- "  apiVersion: kubeadm.k8s.io/v1beta2"
+- "  kind: ClusterConfiguration"
+- "  imageRepository: registry.tkg.vmware.run"
+- "  etcd:"
+- "    local:"
+- "      imageRepository: registry.tkg.vmware.run"
+- "      imageTag: v3.4.13_vmware.4"
+- "  dns:"
+- "    type: CoreDNS"
+- "    imageRepository: registry.tkg.vmware.run"
+- "    imageTag: v1.7.0_vmware.5"
+imageConfig:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+extensions:
+  contour:
+    clusterTypes:
+    - workload
+    managedBy: user
+  dex:
+    clusterTypes:
+    - management
+    managedBy: user
+  fluent-bit:
+    clusterTypes:
+    - workload
+    managedBy: user
+  gangway:
+    clusterTypes:
+    - workload
+    managedBy: user
+  grafana:
+    clusterTypes:
+    - workload
+    managedBy: user
+  harbor:
+    clusterTypes:
+    - workload
+    managedBy: user
+  prometheus:
+    clusterTypes:
+    - workload
+    managedBy: user
+tkr-compatibility:
+  imagePath: tkr-compatibility

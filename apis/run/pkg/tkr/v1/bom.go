@@ -103,15 +103,20 @@ type Addon struct {
 	PackageName          string               `yaml:"packageName,omitempty"`
 }
 
+type ImagePathInfo struct {
+	ImagePath string `yaml:"imagePath"`
+}
+
 // BomContent contains the content of a BOM file
 type BomContent struct {
-	Release     Release                    `yaml:"release"`
-	Components  map[string][]ComponentInfo `yaml:"components"`
-	ImageConfig ImageConfig                `yaml:"imageConfig"`
-	OVA         OVAInfos                   `yaml:"ova"`
-	AMI         AMIInfos                   `yaml:"ami,omitempty"`
-	Azure       AzureInfos                 `yaml:"azure,omitempty"`
-	Addons      Addons                     `yaml:"addons,omitempty"`
+	Release       Release                    `yaml:"release"`
+	Components    map[string][]ComponentInfo `yaml:"components"`
+	ImageConfig   ImageConfig                `yaml:"imageConfig"`
+	OVA           OVAInfos                   `yaml:"ova"`
+	AMI           AMIInfos                   `yaml:"ami,omitempty"`
+	Azure         AzureInfos                 `yaml:"azure,omitempty"`
+	Addons        Addons                     `yaml:"addons,omitempty"`
+	Compatibility ImagePathInfo              `yaml:"tkr-compatibility"`
 }
 
 // Bom represents a BOM file
@@ -143,6 +148,10 @@ func NewBom(content []byte) (Bom, error) {
 		bom:        bc,
 		initialzed: true,
 	}, nil
+}
+
+func (b *Bom) GetCompatibility() string {
+	return b.bom.Compatibility.ImagePath
 }
 
 // GetReleaseVersion gets the Tanzu release version
