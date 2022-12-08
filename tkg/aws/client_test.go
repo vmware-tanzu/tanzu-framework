@@ -9,8 +9,6 @@ import (
 	"path"
 	"testing"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
-
 	"github.com/awslabs/goformation/v4/cloudformation"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -106,23 +104,6 @@ var _ = Describe("Unit tests for aws client", func() {
 			})
 			Expect(err).NotTo(HaveOccurred())
 			testBootstrapTemplate("tmc-disabled", template)
-		})
-	})
-
-	Describe("ListEC2KeyPairs", func() {
-		var (
-			ec2KeyPairs   []*models.AWSKeyPair
-			desiredResult = []*models.AWSKeyPair{}
-		)
-
-		JustBeforeEach(func() {
-			ec2KeyPairs, err = awsClient.ListEC2KeyPairs()
-		})
-		Context("when retrieving ec2 keypairs", func() {
-			It("returns all ec2 keypairs", func() {
-				Expect(err).ToNot(HaveOccurred())
-				Expect(ec2KeyPairs).To(ConsistOf(desiredResult))
-			})
 		})
 	})
 })
