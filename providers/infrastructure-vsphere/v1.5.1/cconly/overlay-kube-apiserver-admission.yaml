@@ -64,6 +64,13 @@ spec:
                 items:
                   type: string
                 description: "namespaces excluded to apply PodSecurityConfiguration Admission."
+  #@overlay/append
+  - name: eventRateLimitConf
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
   #@overlay/match missing_ok=True
   patches:
   #@overlay/remove
@@ -71,7 +78,7 @@ spec:
   - name: podSecurityStandard
   #@overlay/append
   - name: podSecurityStandard
-    description: "Adds an admission configuration for PodSecurity to the kube-apiserver."
+    description: "Adds an admission configuration for kube-apiserver."
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -81,20 +88,26 @@ spec:
       jsonPatches:
       - op: add
         path: "/spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/admission-control-config-file"
-        value: "/etc/kubernetes/kube-apiserver-admission-pss.yaml"
+        value: "/etc/kubernetes/admission-control-config.yaml"
       - op: add
         path: "/spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-"
-        value:
-          name: admission-pss
-          hostPath: /etc/kubernetes/kube-apiserver-admission-pss.yaml
-          mountPath: /etc/kubernetes/kube-apiserver-admission-pss.yaml
-          readOnly: true
-          pathType: "File"
+        valueFrom:
+          template: |
+            name: admin-control-conf
+            hostPath: /etc/kubernetes/admission-control-config.yaml
+            mountPath: /etc/kubernetes/admission-control-config.yaml
+            readOnly: true
+            pathType: "File"
       - op: add
         path: "/spec/template/spec/kubeadmConfigSpec/files/-"
         valueFrom:
           template: |-
+            path: /etc/kubernetes/admission-control-config.yaml
             content: |-
+              apiVersion: apiserver.config.k8s.io/v1
+              kind: AdmissionConfiguration
+              plugins:
+              {{- if and (not .podSecurityStandard.deactivated) (semverCompare ">= v1.24" .builtin.controlPlane.version) }}
               {{ $namespace_exemptions := printf "%q, %q" "kube-system" "tkg-system" -}}
               {{ $defaultWarnAudit := "baseline" }}
               {{- if .podSecurityStandard.exemptions.namespaces -}}
@@ -102,9 +115,6 @@ spec:
                   {{ $namespace_exemptions = printf "%s, %q" $namespace_exemptions $namespace -}}
                 {{- end -}}
               {{- end -}}
-              apiVersion: apiserver.config.k8s.io/v1
-              kind: AdmissionConfiguration
-              plugins:
               - name: PodSecurity
                 configuration:
                   apiVersion: pod-security.admission.config.k8s.io/v1beta1
@@ -130,5 +140,53 @@ spec:
                     usernames: []
                     runtimeClasses: []
                     namespaces: [{{ $namespace_exemptions }}]
-            path: /etc/kubernetes/kube-apiserver-admission-pss.yaml
-    enabledIf: '{{ and (not .podSecurityStandard.deactivated) (semverCompare ">= v1.24" .builtin.controlPlane.version) }}'
+              {{- end }}
+              {{- if .eventRateLimitConf }}
+              - name: EventRateLimit
+                path: eventConfig.yaml
+              {{- end }}
+    enabledIf: '{{ or (and (not .podSecurityStandard.deactivated) (semverCompare ">= v1.24" .builtin.controlPlane.version)) (.eventRateLimitConf) }}'
+    #@overlay/append
+  - name: eventRateLimitConf
+    description: "Adds an admission configuration for EventRateLimit."
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/enable-admission-plugins"
+        valueFrom:
+          template: |
+            {{ $containEnableAdmissionPlugin := false }}
+            {{- $admissionPlugins := "" }}
+            {{- range $key, $val := .apiServerExtraArgs }}
+            {{- if eq $key "enable-admission-plugins" }}
+              {{- $containEnableAdmissionPlugin = true }}
+              {{- $admissionPlugins = $val }}
+            {{- end }}
+            {{- end }}
+            {{- if not $containEnableAdmissionPlugin }}
+            NodeRestriction,EventRateLimit
+            {{- else -}}
+            {{- $admissionPlugins -}},EventRateLimit
+            {{- end }}
+      - op: add
+        path: "/spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-"
+        valueFrom:
+          template: |
+            name: event-conf
+            hostPath: /etc/kubernetes/eventConfig.yaml
+            mountPath: /etc/kubernetes/eventConfig.yaml
+            readOnly: true
+            pathType: "File"
+      - op: add
+        path: "/spec/template/spec/kubeadmConfigSpec/files/-"
+        valueFrom:
+          template: |-
+            path: /etc/kubernetes/eventConfig.yaml
+            encoding: base64
+            content: {{ .eventRateLimitConf}}
+    enabledIf: '{{ not (empty .eventRateLimitConf) }}'

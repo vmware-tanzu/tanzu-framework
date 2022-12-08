@@ -139,7 +139,7 @@ spec:
     variables:
     #@ vars = get_azure_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["workerKubeletExtraArgs","controlPlaneKubeletExtraArgs","kubeControllerManagerExtraArgs","kubeSchedulerExtraArgs","apiServerExtraArgs","etcdExtraArgs", "location", "network", "controlPlane", "worker", "resourceGroup", "subscriptionID", "identityRef", "clusterRole", "environment", "sshPublicKey", "acceleratedNetworking", "privateCluster", "frontendPrivateIP", "imageRepository", "auditLogging", "customTags", "apiServerPort", "trust", "TKR_DATA", "proxy", "controlPlaneCertificateRotation", "podSecurityStandard"]:
+    #@  if vars[configVariable] != None and configVariable in ["workerKubeletExtraArgs","controlPlaneKubeletExtraArgs","kubeControllerManagerExtraArgs","kubeSchedulerExtraArgs","apiServerExtraArgs","etcdExtraArgs", "location", "network", "controlPlane", "worker", "resourceGroup", "subscriptionID", "identityRef", "clusterRole", "environment", "sshPublicKey", "acceleratedNetworking", "privateCluster", "frontendPrivateIP", "imageRepository", "auditLogging", "customTags", "apiServerPort", "trust", "TKR_DATA", "proxy", "controlPlaneCertificateRotation", "podSecurityStandard", "eventRateLimitConf"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end
