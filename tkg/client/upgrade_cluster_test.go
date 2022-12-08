@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apitypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
@@ -468,11 +469,11 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 
 		Context("When patch KCP fails", func() {
 			BeforeEach(func() {
-				regionalClusterClient.UpdateResourceWithPollingReturns(errors.New("fake-error-patch-resource"))
+				regionalClusterClient.PatchResourceReturns(errors.New("fake-error-patch-resource"))
 			})
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("unable to update the kubernetes version for kubeadm control plane nodes"))
+				Expect(err.Error()).To(ContainSubstring("unable to patch the kubernetes version for kubeadm control plane nodes"))
 				Expect(err.Error()).To(ContainSubstring("fake-error-patch-resource"))
 			})
 		})
@@ -498,7 +499,7 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 		})
 		Context("When patch MD fails", func() {
 			BeforeEach(func() {
-				regionalClusterClient.PatchResourceReturnsOnCall(0, errors.New("fake-error-patch-resource-md"))
+				regionalClusterClient.PatchResourceReturnsOnCall(1, errors.New("fake-error-patch-resource-md"))
 			})
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -549,7 +550,8 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		regionalClusterK8sVersion string
 		currentClusterK8sVersion  string
 
-		vcClient *fakes.VCClient
+		vcClient          *fakes.VCClient
+		fakeClusterClient *fakes.ClusterClient
 	)
 
 	getDiscoveryClient := func(k8sVersion string) *fakediscovery.FakeDiscovery {
@@ -573,6 +575,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 
 	configureTKGClient := func() {
 		vcClient = &fakes.VCClient{}
+		fakeClusterClient = &fakes.ClusterClient{}
 		vcClient.GetAndValidateVirtualMachineTemplateReturns(&types.VSphereVirtualMachine{}, nil)
 
 		kubeconfig = fakehelper.GetFakeKubeConfigFilePath(testingDir, "../fakes/config/kubeconfig/config1.yaml")
@@ -621,7 +624,6 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 			currentK8sVersion = "v1.17.3+vmware.2"
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
 			os.Setenv("SKIP_VSPHERE_TEMPLATE_VERIFICATION", "1")
-
 			regionalClusterOptions = fakehelper.TestAllClusterComponentOptions{
 				ClusterName: "cluster-1",
 				Namespace:   constants.DefaultNamespace,
@@ -712,8 +714,10 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 			Context("Testing EtcdExtraArgs parameter configuration", func() {
 				It("when EtcdExtraArgs is defined", func() {
 					clusterUpgradeConfig := &ClusterUpgradeInfo{
-						ClusterName:      "cluster-1",
-						ClusterNamespace: constants.DefaultNamespace,
+						ClusterName:        "cluster-1",
+						ClusterNamespace:   constants.DefaultNamespace,
+						KCPObjectName:      "fake-name",
+						KCPObjectNamespace: "fake-namespace",
 						UpgradeComponentInfo: ComponentInfo{
 							EtcdExtraArgs:     map[string]string{"fake-arg": "fake-arg-value"},
 							KubernetesVersion: "v1.18.0+vmware.2",
@@ -722,20 +726,30 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 							KubernetesVersion: "v1.18.0+vmware.1",
 						},
 					}
+					fakeClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindVSphereMachineTemplate), nil)
 
-					err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
+					err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(fakeClusterClient, clusterUpgradeConfig)
 					Expect(err).To(BeNil())
 
-					updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
-					Expect(err).To(BeNil())
-					Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
-					Expect(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs["fake-arg"]).To(Equal("fake-arg-value"))
+					Expect(fakeClusterClient.GetKCPObjectForClusterCallCount()).To(Equal(1))
+					cname, cspace := fakeClusterClient.GetKCPObjectForClusterArgsForCall(0)
+					Expect(cname).To(Equal("cluster-1"))
+					Expect(cspace).To(Equal(constants.DefaultNamespace))
+
+					Expect(fakeClusterClient.PatchResourceCallCount()).To(Equal(1))
+					_, getCName, getCSpace, gotPatch, gotPatchType, _ := fakeClusterClient.PatchResourceArgsForCall(0)
+					Expect(getCName).To(Equal("fake-name"))
+					Expect(getCSpace).To(Equal("fake-namespace"))
+					Expect(gotPatch).To(ContainSubstring("\"extraArgs\":{\"fake-arg\":\"fake-arg-value\"}"))
+					Expect(gotPatchType).To(Equal(apitypes.MergePatchType))
 				})
 
 				It("when EtcdExtraArgs is empty", func() {
 					clusterUpgradeConfig := &ClusterUpgradeInfo{
-						ClusterName:      "cluster-1",
-						ClusterNamespace: constants.DefaultNamespace,
+						ClusterName:        "cluster-1",
+						ClusterNamespace:   constants.DefaultNamespace,
+						KCPObjectName:      "fake-name",
+						KCPObjectNamespace: "fake-namespace",
 						UpgradeComponentInfo: ComponentInfo{
 							EtcdExtraArgs:     map[string]string{},
 							KubernetesVersion: "v1.18.0+vmware.2",
@@ -744,14 +758,21 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 							KubernetesVersion: "v1.18.0+vmware.1",
 						},
 					}
-
-					err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
+					fakeClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindVSphereMachineTemplate), nil)
+					err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(fakeClusterClient, clusterUpgradeConfig)
 					Expect(err).To(BeNil())
 
-					updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
-					Expect(err).To(BeNil())
-					Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
-					Expect(len(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs)).To(Equal(0))
+					Expect(fakeClusterClient.GetKCPObjectForClusterCallCount()).To(Equal(1))
+					cname, cspace := fakeClusterClient.GetKCPObjectForClusterArgsForCall(0)
+					Expect(cname).To(Equal("cluster-1"))
+					Expect(cspace).To(Equal(constants.DefaultNamespace))
+
+					Expect(fakeClusterClient.PatchResourceCallCount()).To(Equal(1))
+					_, getCName, getCSpace, gotPatch, gotPatchType, _ := fakeClusterClient.PatchResourceArgsForCall(0)
+					Expect(getCName).To(Equal("fake-name"))
+					Expect(getCSpace).To(Equal("fake-namespace"))
+					Expect(gotPatch).ToNot(ContainSubstring("extraArgs"))
+					Expect(gotPatchType).To(Equal(apitypes.MergePatchType))
 				})
 			})
 		})

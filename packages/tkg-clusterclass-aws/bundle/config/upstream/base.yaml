@@ -290,6 +290,23 @@ spec:
       openAPIV3Schema:
         type: object
         properties: {}
+  - name: controlPlaneCertificateRotation
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          activate:
+            type: boolean
+            default: true
+          daysBefore:
+            type: integer
+            format: int32
+            minimum: 7
+            default: 90
+        default:
+          activate: true
+          daysBefore: 90
   patches:
   - name: etcdExtraArgs
     definitions:
@@ -1105,6 +1122,20 @@ spec:
               - level: Metadata
                 omitStages:
                   - "RequestReceived"
+  - name: kcptCertificateRotation
+    enabledIf: '{{ .controlPlaneCertificateRotation.activate }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/rolloutBefore
+        valueFrom:
+          template: |
+            certificatesExpiryDays: {{ .controlPlaneCertificateRotation.daysBefore }}
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
 kind: AWSClusterTemplate

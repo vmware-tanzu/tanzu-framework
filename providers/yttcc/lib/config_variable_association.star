@@ -24,6 +24,8 @@ return {
 "SIZE": ["vsphere", "aws", "azure", "docker", "oci"],
 "CONTROLPLANE_SIZE": ["vsphere", "aws", "azure", "docker", "oci"],
 "WORKER_SIZE": ["vsphere", "aws", "azure", "docker", "oci"],
+"CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED": ["vsphere", "aws", "azure", "docker", "oci"],
+"CONTROLPLANE_CERTIFICATE_ROTATION_DAYS_BEFORE": ["vsphere", "aws", "azure", "docker", "oci"],
 
 "ENABLE_CEIP_PARTICIPATION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "DEPLOY_TKG_ON_VSPHERE7": ["vsphere"],
@@ -358,6 +360,17 @@ def get_cluster_variables():
     end
 
     vars["cni"] = data.values["CNI"]
+
+    customControlPlaneCertificateRotation = {}
+    if data.values["CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED"] != "":
+        customControlPlaneCertificateRotation["activate"] = data.values["CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED"]
+    end
+    if data.values["CONTROLPLANE_CERTIFICATE_ROTATION_DAYS_BEFORE"] != "":
+        customControlPlaneCertificateRotation["daysBefore"] = data.values["CONTROLPLANE_CERTIFICATE_ROTATION_DAYS_BEFORE"]
+    end
+    if customControlPlaneCertificateRotation != {}:
+        vars["controlPlaneCertificateRotation"] = customControlPlaneCertificateRotation
+    end
 
     customImageRepository = {}
     if data.values["TKG_CUSTOM_IMAGE_REPOSITORY"] != "":
@@ -946,4 +959,5 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "externalControlPlaneEndpointSubnetId", "externalControlPlaneSubnetId", "externalWorkerSubnetId",
         "nodePvTransitEncryption", "controlPlaneMachineShape", "controlPlaneMachineOcpus",
         "controlPlanePvTransitEncryption",
-        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA"]
+        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
+        "controlPlaneCertificateRotation"]

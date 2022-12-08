@@ -20,6 +20,8 @@ return {
 "SIZE": ["vsphere", "aws", "azure", "docker"],
 "CONTROLPLANE_SIZE": ["vsphere", "aws", "azure", "docker"],
 "WORKER_SIZE": ["vsphere", "aws", "azure", "docker"],
+"CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED": ["vsphere", "aws", "azure", "docker"],
+"CONTROLPLANE_CERTIFICATE_ROTATION_DAYS_BEFORE": ["vsphere", "aws", "azure", "docker"],
 
 "ENABLE_CEIP_PARTICIPATION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 "DEPLOY_TKG_ON_VSPHERE7": ["vsphere"],

@@ -1,0 +1,14 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@ if data.values.CONTROLPLANE_CERTIFICATE_ROTATION_ENABLED:
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+spec:
+  #@overlay/match missing_ok=True
+  rolloutBefore:
+    #@overlay/match missing_ok=True
+    certificatesExpiryDays:  #@ data.values.CONTROLPLANE_CERTIFICATE_ROTATION_DAYS_BEFORE
+#@ end
