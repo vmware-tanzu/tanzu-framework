@@ -197,6 +197,7 @@ spec:
 #@ end
 ---
 #@ if vspherecpi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+#@ if data.values.VSPHERE_USERNAME or data.values.VSPHERE_PASSWORD:
 apiVersion: v1
 kind: Secret
 metadata:
@@ -205,6 +206,8 @@ metadata:
 stringData:
   username: #@ data.values.VSPHERE_USERNAME
   password: #@ data.values.VSPHERE_PASSWORD
+#@ end
+#@ if data.values.NSXT_USERNAME or data.values.NSXT_PASSWORD:
 ---
 apiVersion: v1
 kind: Secret
@@ -214,6 +217,7 @@ metadata:
 stringData:
   username: #@ data.values.NSXT_USERNAME
   password: #@ data.values.NSXT_PASSWORD
+#@ end
 ---
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
 kind: VSphereCPIConfig

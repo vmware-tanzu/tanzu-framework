@@ -22,6 +22,8 @@ import (
 	capvidentity "sigs.k8s.io/cluster-api-provider-vsphere/pkg/identity"
 	capvmanager "sigs.k8s.io/cluster-api-provider-vsphere/pkg/manager"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	clusterapiutil "sigs.k8s.io/cluster-api/util"
+	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
@@ -111,6 +113,9 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 		if err != nil {
 			return nil, err
 		}
+		if err := r.ensureSecretOnwerRef(ctx, vsphereSecret, cluster); err != nil {
+			return nil, err
+		}
 		d.Username, d.Password, err = getUsernameAndPasswordFromSecret(vsphereSecret)
 		if err != nil {
 			return nil, err
@@ -155,6 +160,9 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 			d.Nsxt.SecretNamespace = cpiConfig.Namespace
 			nsxtSecret, err := r.getSecret(ctx, cpiConfig.Namespace, c.NSXT.CredentialLocalObjRef.Name)
 			if err != nil {
+				return nil, err
+			}
+			if err := r.ensureSecretOnwerRef(ctx, nsxtSecret, cluster); err != nil {
 				return nil, err
 			}
 			d.Nsxt.Username, d.Nsxt.Password, err = getUsernameAndPasswordFromSecret(nsxtSecret)
@@ -394,4 +402,28 @@ func tryParseString(src string, sub *string) string {
 		return *sub
 	}
 	return src
+}
+
+func (r *VSphereCPIConfigReconciler) ensureSecretOnwerRef(ctx context.Context, secret *v1.Secret, cluster *clusterapiv1beta1.Cluster) error {
+	ownerReference := metav1.OwnerReference{
+		APIVersion: clusterapiv1beta1.GroupVersion.String(),
+		Kind:       cluster.Kind,
+		Name:       cluster.Name,
+		UID:        cluster.UID,
+	}
+	if !clusterapiutil.HasOwnerRef(secret.OwnerReferences, ownerReference) {
+		r.Log.Info(fmt.Sprintf("Adding owner reference to secret %s/%s", secret.Namespace, secret.Name))
+		secret.OwnerReferences = clusterapiutil.EnsureOwnerRef(secret.OwnerReferences, ownerReference)
+		// Create a patch helper for addon secret
+		patchHelper, err := clusterapipatchutil.NewHelper(secret, r.Client)
+		if err != nil {
+			r.Log.Info("Failed to create patchHelper")
+			return err
+		}
+		if err := patchHelper.Patch(ctx, secret.DeepCopy()); err != nil {
+			r.Log.Info(fmt.Sprintf("Failed to patch owner reference to secret %s/%s", secret.Namespace, secret.Name))
+			return err
+		}
+	}
+	return nil
 }
