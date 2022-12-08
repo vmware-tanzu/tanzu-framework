@@ -170,6 +170,7 @@ const (
 	ConfigVariableEnableAutoscaler           = "ENABLE_AUTOSCALER"
 	ConfigVariableDisableTMCCloudPermissions = "DISABLE_TMC_CLOUD_PERMISSIONS"
 	AutoscalerDeploymentNameSuffix           = "-cluster-autoscaler"
+	ConfigVariableDryRunMode                 = "DRY_RUN_MODE"
 
 	ConfigVariableControlPlaneMachineCount = "CONTROL_PLANE_MACHINE_COUNT"
 	ConfigVariableControlPlaneMachineType  = "CONTROL_PLANE_MACHINE_TYPE"
