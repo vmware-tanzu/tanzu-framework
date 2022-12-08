@@ -10,22 +10,23 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/supervisor"
-
-	kubeerrors "k8s.io/apimachinery/pkg/api/errors"
-
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+	kubeerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	kubefake "k8s.io/client-go/kubernetes/fake"
 	kubetesting "k8s.io/client-go/testing"
+
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/supervisor"
 )
 
-func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
+func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
 	const (
-		namespace = "kube-public"
-		name      = "pinniped-info"
+		kubePublicNamespaceName   = "kube-public"
+		supervisorNamespaceName   = "pinniped-supervisor"
+		supervisorNamespaceUID    = "pinniped-supervisor-namespace-object-uid"
+		pinnipedInfoConfigMapName = "pinniped-info"
 	)
 	var (
 		clusterName = "some-cluster-name"
@@ -33,6 +34,7 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 		issuerCA    = "some-issuer-ca-bundle-data"
 		emptyString = ""
 	)
+
 	managementClusterPinnipedInfo := supervisor.PinnipedInfo{
 		MgmtClusterName:          &clusterName,
 		Issuer:                   &issuer,
@@ -52,11 +54,20 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 	}
 
 	configMapGVR := corev1.SchemeGroupVersion.WithResource("configmaps")
+	namespaceGVR := corev1.SchemeGroupVersion.WithResource("namespaces")
+
+	supervisorNamespaceOwnerRef := metav1.OwnerReference{
+		APIVersion: "v1",
+		Kind:       "Namespace",
+		Name:       supervisorNamespaceName,
+		UID:        supervisorNamespaceUID,
+	}
 
 	managementClusterPinnipedInfoConfigMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: namespace,
-			Name:      name,
+			Namespace:       kubePublicNamespaceName,
+			Name:            pinnipedInfoConfigMapName,
+			OwnerReferences: []metav1.OwnerReference{supervisorNamespaceOwnerRef},
 		},
 		Data: map[string]string{
 			"cluster_name":                clusterName,
@@ -68,8 +79,9 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 
 	workloadClusterPinnipedInfoConfigMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: namespace,
-			Name:      name,
+			Namespace:       kubePublicNamespaceName,
+			Name:            pinnipedInfoConfigMapName,
+			OwnerReferences: []metav1.OwnerReference{supervisorNamespaceOwnerRef},
 		},
 		Data: map[string]string{
 			"concierge_is_cluster_scoped": fmt.Sprintf("%t", workloadClusterPinnipedInfo.ConciergeIsClusterScoped),
@@ -78,14 +90,39 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 
 	emptyFieldsPinnipedInfoConfigMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: namespace,
-			Name:      name,
+			Namespace:       kubePublicNamespaceName,
+			Name:            pinnipedInfoConfigMapName,
+			OwnerReferences: []metav1.OwnerReference{supervisorNamespaceOwnerRef},
 		},
 		Data: map[string]string{
 			"cluster_name":                "",
 			"issuer":                      "",
 			"issuer_ca_bundle_data":       "",
 			"concierge_is_cluster_scoped": "false",
+		},
+	}
+
+	noOwnerRefPinnipedConfigMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: kubePublicNamespaceName,
+			Name:      pinnipedInfoConfigMapName,
+		},
+		Data: map[string]string{
+			"cluster_name":                clusterName,
+			"issuer":                      issuer,
+			"issuer_ca_bundle_data":       issuerCA,
+			"concierge_is_cluster_scoped": fmt.Sprintf("%t", managementClusterPinnipedInfo.ConciergeIsClusterScoped),
+		},
+	}
+
+	supervisorNamespace := &corev1.Namespace{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Namespace",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: supervisorNamespaceName,
+			UID:  supervisorNamespaceUID,
 		},
 	}
 
@@ -99,7 +136,7 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 		{
 			name: "getting pinniped info fails",
 			newKubeClient: func() *kubefake.Clientset {
-				c := kubefake.NewSimpleClientset()
+				c := kubefake.NewSimpleClientset(supervisorNamespace)
 				c.PrependReactor("get", "configmaps", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, nil, errors.New("some get error")
 				})
@@ -108,24 +145,52 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			pinnipedInfo: managementClusterPinnipedInfo,
 			wantError:    "could not get pinniped-info configmap: some get error",
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
 			},
 		},
 		{
-			name: "pinniped info does not exist",
+			name: "getting pinniped supervisor namespace does not exist",
 			newKubeClient: func() *kubefake.Clientset {
 				return kubefake.NewSimpleClientset()
 			},
 			pinnipedInfo: managementClusterPinnipedInfo,
+			wantError:    fmt.Sprintf(`could not get namespace %[1]s: namespaces %[1]q not found`, supervisorNamespaceName),
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewCreateAction(configMapGVR, namespace, managementClusterPinnipedInfoConfigMap),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+			},
+		},
+		{
+			name: "getting pinniped supervisor namespace results in some other error aside from not found",
+			newKubeClient: func() *kubefake.Clientset {
+				c := kubefake.NewSimpleClientset(supervisorNamespace)
+				c.PrependReactor("get", "namespaces", func(a kubetesting.Action) (bool, runtime.Object, error) {
+					return true, nil, errors.New("some get error")
+				})
+				return c
+			},
+			pinnipedInfo: managementClusterPinnipedInfo,
+			wantError:    fmt.Sprintf(`could not get namespace %[1]s: some get error`, supervisorNamespaceName),
+			wantActions: []kubetesting.Action{
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+			},
+		},
+		{
+			name: "pinniped info does not exist, creates it",
+			newKubeClient: func() *kubefake.Clientset {
+				return kubefake.NewSimpleClientset(supervisorNamespace)
+			},
+			pinnipedInfo: managementClusterPinnipedInfo,
+			wantActions: []kubetesting.Action{
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewCreateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
 			},
 		},
 		{
 			name: "pinniped info does not exist and creating pinniped-info fails",
 			newKubeClient: func() *kubefake.Clientset {
-				c := kubefake.NewSimpleClientset()
+				c := kubefake.NewSimpleClientset(supervisorNamespace)
 				c.PrependReactor("create", "configmaps", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, nil, errors.New("some create error")
 				})
@@ -134,32 +199,35 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			pinnipedInfo: managementClusterPinnipedInfo,
 			wantError:    "could not create pinniped-info configmap: some create error",
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewCreateAction(configMapGVR, namespace, managementClusterPinnipedInfoConfigMap),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewCreateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
 			},
 		},
 		{
 			name: "pinniped info exists and is up to date for management cluster",
 			newKubeClient: func() *kubefake.Clientset {
-				return kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap)
+				return kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap, supervisorNamespace)
 			},
 			pinnipedInfo: managementClusterPinnipedInfo,
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewUpdateAction(configMapGVR, namespace, managementClusterPinnipedInfoConfigMap),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
 			},
 		},
 		{
 			name: "pinniped info exists and is up to date for workload cluster",
 			newKubeClient: func() *kubefake.Clientset {
-				return kubefake.NewSimpleClientset(workloadClusterPinnipedInfoConfigMap)
+				return kubefake.NewSimpleClientset(workloadClusterPinnipedInfoConfigMap, supervisorNamespace)
 			},
 			pinnipedInfo: workloadClusterPinnipedInfo,
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewUpdateAction(configMapGVR, namespace, workloadClusterPinnipedInfoConfigMap),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, workloadClusterPinnipedInfoConfigMap),
 			},
 		},
 		{
@@ -169,19 +237,20 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 				existingPinnipedInfoConfigMap.Data = map[string]string{
 					"concierge_is_cluster_scoped": "false",
 				}
-				return kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap)
+				return kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap, supervisorNamespace)
 			},
 			pinnipedInfo: managementClusterPinnipedInfo,
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewUpdateAction(configMapGVR, namespace, managementClusterPinnipedInfoConfigMap),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
 			},
 		},
 		{
 			name: "pinniped info exists and getting pinniped-info fails",
 			newKubeClient: func() *kubefake.Clientset {
-				c := kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap)
+				c := kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap, supervisorNamespace)
 				once := &sync.Once{}
 				c.PrependReactor("get", "configmaps", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					err := errors.New("some get error")
@@ -197,14 +266,15 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			pinnipedInfo: managementClusterPinnipedInfo,
 			wantError:    "could not update pinniped-info configmap: some get error",
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
 			},
 		},
 		{
 			name: "pinniped info exists and updating pinniped-info fails",
 			newKubeClient: func() *kubefake.Clientset {
-				c := kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap)
+				c := kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap, supervisorNamespace)
 				c.PrependReactor("update", "configmaps", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					return true, nil, errors.New("some update error")
 				})
@@ -213,15 +283,16 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			pinnipedInfo: managementClusterPinnipedInfo,
 			wantError:    "could not update pinniped-info configmap: some update error",
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewUpdateAction(configMapGVR, namespace, managementClusterPinnipedInfoConfigMap),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
 			},
 		},
 		{
 			name: "pinniped info exists and updating pinniped-info fails the first time because of a conflict but passes on retry",
 			newKubeClient: func() *kubefake.Clientset {
-				c := kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap)
+				c := kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap, supervisorNamespace)
 				once := &sync.Once{}
 				c.PrependReactor("update", "configmaps", func(a kubetesting.Action) (bool, runtime.Object, error) {
 					var err error
@@ -231,7 +302,7 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 						// succeed.
 						err = kubeerrors.NewConflict(
 							configMapGVR.GroupResource(),
-							name,
+							pinnipedInfoConfigMapName,
 							errors.New("some error"),
 						)
 					})
@@ -241,23 +312,51 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 			},
 			pinnipedInfo: managementClusterPinnipedInfo,
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewUpdateAction(configMapGVR, namespace, managementClusterPinnipedInfoConfigMap),
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewUpdateAction(configMapGVR, namespace, managementClusterPinnipedInfoConfigMap),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
 			},
 		},
 		{
 			name: "fields added to Pinniped Info config map when they are set to empty",
 			newKubeClient: func() *kubefake.Clientset {
-				return kubefake.NewSimpleClientset(emptyFieldsPinnipedInfoConfigMap)
+				return kubefake.NewSimpleClientset(emptyFieldsPinnipedInfoConfigMap, supervisorNamespace)
 			},
 			pinnipedInfo: emptyFieldsPinnipedInfo,
 			wantActions: []kubetesting.Action{
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewGetAction(configMapGVR, namespace, name),
-				kubetesting.NewUpdateAction(configMapGVR, namespace, emptyFieldsPinnipedInfoConfigMap),
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, emptyFieldsPinnipedInfoConfigMap),
+			},
+		},
+		{
+			name: "with existing configMap with ownerRef, will update configMap with the ownerRef",
+			newKubeClient: func() *kubefake.Clientset {
+				return kubefake.NewSimpleClientset(noOwnerRefPinnipedConfigMap, supervisorNamespace)
+			},
+			pinnipedInfo: managementClusterPinnipedInfo,
+			wantActions: []kubetesting.Action{
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
+			},
+		},
+		{
+			name: "with existing configMap with ownerRef, will keep the ownerRef in the update",
+			newKubeClient: func() *kubefake.Clientset {
+				return kubefake.NewSimpleClientset(managementClusterPinnipedInfoConfigMap, supervisorNamespace)
+			},
+			pinnipedInfo: managementClusterPinnipedInfo,
+			wantActions: []kubetesting.Action{
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
+				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
 			},
 		},
 	}
@@ -265,7 +364,7 @@ func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			kubeClient := test.newKubeClient()
-			err := createOrUpdatePinnipedInfo(context.Background(), test.pinnipedInfo, kubeClient)
+			err := createOrUpdateManagementClusterPinnipedInfo(context.Background(), test.pinnipedInfo, kubeClient, supervisorNamespaceName)
 			if test.wantError != "" {
 				require.EqualError(t, err, test.wantError)
 			} else {

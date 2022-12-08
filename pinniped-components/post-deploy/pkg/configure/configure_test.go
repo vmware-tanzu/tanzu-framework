@@ -36,14 +36,26 @@ import (
 func TestTKGAuthentication(t *testing.T) {
 
 	const (
-		supervisorNamespace = "pinniped-supervisor" // vars.SupervisorNamespace default
+		supervisorNamespaceName = "pinniped-supervisor" // vars.SupervisorNamespace default
+		supervisorNamespaceUID  = "pinniped-supervisor-namespace-object-uid"
 	)
 
 	enableLogging() // Comment me out for less verbose test logs
 
+	supervisorNamespace := &corev1.Namespace{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Namespace",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: supervisorNamespaceName,
+			UID:  supervisorNamespaceUID,
+		},
+	}
+
 	supervisorCertificateSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: supervisorNamespace,
+			Namespace: supervisorNamespaceName,
 			Name:      "some-supervisor-certificate-secret-name",
 		},
 		Type: corev1.SecretTypeTLS,
@@ -54,7 +66,7 @@ func TestTKGAuthentication(t *testing.T) {
 
 	supervisorService := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: supervisorNamespace,
+			Namespace: supervisorNamespaceName,
 			// This is set via flag on post-deploy job, the default value is empty string. This simplifies the test.
 			Name: "",
 		},
@@ -71,7 +83,7 @@ func TestTKGAuthentication(t *testing.T) {
 
 	supervisorCertificate := &certmanagerv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: supervisorNamespace,
+			Namespace: supervisorNamespaceName,
 			// This is set via flag on post-deploy job, the default value is empty string. This simplifies the test.
 			Name: "",
 		},
@@ -86,7 +98,7 @@ func TestTKGAuthentication(t *testing.T) {
 	federationDomainGVR := configv1alpha1.SchemeGroupVersion.WithResource("federationdomains")
 	federationDomain := &configv1alpha1.FederationDomain{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: supervisorNamespace,
+			Namespace: supervisorNamespaceName,
 			Name:      "my-federation-domain",
 		},
 		Spec: configv1alpha1.FederationDomainSpec{
@@ -207,6 +219,7 @@ func TestTKGAuthentication(t *testing.T) {
 			name: "TKGm Management Cluster Case: The JWTAuthenticator audience is set to the Supervisor Service Endpoint value and the cluster.type is derived from tkg-metadata configmap and the pinniped supervisor will be deployed",
 			newKubeClient: func() *kubefake.Clientset {
 				c := kubefake.NewSimpleClientset(
+					supervisorNamespace,
 					tkgMetadataConfigmapManagementCluster,
 					conciergeDeployment,
 					supervisorDeployment,
@@ -398,22 +411,35 @@ func TestTKGAuthentication(t *testing.T) {
 
 func TestPinniped(t *testing.T) {
 	const (
-		supervisorNamespace = "pinniped-supervisor" // vars.SupervisorNamespace default
+		supervisorNamespaceName = "pinniped-supervisor" // vars.SupervisorNamespace default
+		supervisorNamespaceUID  = "pinniped-supervisor-namespace-object-uid"
 	)
 
 	enableLogging() // Comment me out for less verbose test logs
 
+	namespaceGVR := corev1.SchemeGroupVersion.WithResource("namespaces")
+	supervisorNamespace := &corev1.Namespace{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Namespace",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: supervisorNamespaceName,
+			UID:  supervisorNamespaceUID,
+		},
+	}
+
 	podGVR := corev1.SchemeGroupVersion.WithResource("pods")
 	podGVK := corev1.SchemeGroupVersion.WithKind("Pod")
 	supervisorPods := []*corev1.Pod{
-		{ObjectMeta: metav1.ObjectMeta{Namespace: supervisorNamespace, Name: "pinniped-supervisor-abc"}},
-		{ObjectMeta: metav1.ObjectMeta{Namespace: supervisorNamespace, Name: "pinniped-supervisor-def"}},
+		{ObjectMeta: metav1.ObjectMeta{Namespace: supervisorNamespaceName, Name: "pinniped-supervisor-abc"}},
+		{ObjectMeta: metav1.ObjectMeta{Namespace: supervisorNamespaceName, Name: "pinniped-supervisor-def"}},
 	}
 
 	secretGVR := corev1.SchemeGroupVersion.WithResource("secrets")
 	supervisorCertificateSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: supervisorNamespace,
+			Namespace: supervisorNamespaceName,
 			Name:      "some-supervisor-certificate-secret-name",
 		},
 		Type: corev1.SecretTypeTLS,
@@ -425,7 +451,7 @@ func TestPinniped(t *testing.T) {
 	serviceGVR := corev1.SchemeGroupVersion.WithResource("services")
 	supervisorService := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: supervisorNamespace,
+			Namespace: supervisorNamespaceName,
 			Name:      "some-supervisor-service-name",
 		},
 		Spec: corev1.ServiceSpec{
@@ -439,11 +465,19 @@ func TestPinniped(t *testing.T) {
 		},
 	}
 
+	supervisorNamespaceOwnerRef := metav1.OwnerReference{
+		APIVersion: "v1",
+		Kind:       "Namespace",
+		Name:       supervisorNamespaceName,
+		UID:        supervisorNamespaceUID,
+	}
+
 	configMapGVR := corev1.SchemeGroupVersion.WithResource("configmaps")
 	pinnipedInfoConfigMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "kube-public",
-			Name:      "pinniped-info",
+			Namespace:       "kube-public",
+			Name:            "pinniped-info",
+			OwnerReferences: []metav1.OwnerReference{supervisorNamespaceOwnerRef},
 		},
 		Data: map[string]string{
 			"cluster_name":                "some-pinniped-info-management-cluster-name",
@@ -456,7 +490,7 @@ func TestPinniped(t *testing.T) {
 	certificateGVR := certmanagerv1.SchemeGroupVersion.WithResource("certificates")
 	supervisorCertificate := &certmanagerv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: supervisorNamespace,
+			Namespace: supervisorNamespaceName,
 			Name:      "some-supervisor-certificate-name",
 		},
 		Spec: certmanagerv1.CertificateSpec{
@@ -470,7 +504,7 @@ func TestPinniped(t *testing.T) {
 	federationDomainGVR := configv1alpha1.SchemeGroupVersion.WithResource("federationdomains")
 	federationDomain := &configv1alpha1.FederationDomain{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: supervisorNamespace,
+			Namespace: supervisorNamespaceName,
 			Name:      "some-federation-domain-name",
 		},
 		Spec: configv1alpha1.FederationDomainSpec{
@@ -512,6 +546,7 @@ func TestPinniped(t *testing.T) {
 			name: "management cluster configured from scratch",
 			newKubeClient: func() *kubefake.Clientset {
 				c := kubefake.NewSimpleClientset(
+					supervisorNamespace,
 					supervisorService,
 					supervisorCertificateSecret,
 					supervisorPods[0],
@@ -558,10 +593,11 @@ func TestPinniped(t *testing.T) {
 				// 5. Read the new supervisor certificate secret that has the correct SAN(s) from step 3
 				kubetesting.NewGetAction(secretGVR, supervisorCertificateSecret.Namespace, supervisorCertificateSecret.Name),
 				// 7. Create the pinniped info configmap with the supervisor discovery information
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
 				kubetesting.NewGetAction(configMapGVR, pinnipedInfoConfigMap.Namespace, pinnipedInfoConfigMap.Name),
 				kubetesting.NewCreateAction(configMapGVR, pinnipedInfoConfigMap.Namespace, pinnipedInfoConfigMap),
 				// 8. Kick the supervisor pods so that they reload new serving cert info
-				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
+				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespaceName, metav1.ListOptions{}),
 				kubetesting.NewDeleteAction(podGVR, supervisorPods[0].Namespace, supervisorPods[0].Name),
 				kubetesting.NewDeleteAction(podGVR, supervisorPods[1].Namespace, supervisorPods[1].Name),
 			},
@@ -585,6 +621,7 @@ func TestPinniped(t *testing.T) {
 			name: "management cluster configured with explicit concierge audience should ignore the audience (not write it to the JWTAuthenticator)",
 			newKubeClient: func() *kubefake.Clientset {
 				c := kubefake.NewSimpleClientset(
+					supervisorNamespace,
 					supervisorService,
 					supervisorCertificateSecret,
 					supervisorPods[0],
@@ -633,10 +670,11 @@ func TestPinniped(t *testing.T) {
 				// 5. Read the new supervisor certificate secret that has the correct SAN(s) from step 3
 				kubetesting.NewGetAction(secretGVR, supervisorCertificateSecret.Namespace, supervisorCertificateSecret.Name),
 				// 7. Create the pinniped info configmap with the supervisor discovery information
+				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
 				kubetesting.NewGetAction(configMapGVR, pinnipedInfoConfigMap.Namespace, pinnipedInfoConfigMap.Name),
 				kubetesting.NewCreateAction(configMapGVR, pinnipedInfoConfigMap.Namespace, pinnipedInfoConfigMap),
 				// 8. Kick the supervisor pods so that they reload new serving cert info
-				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
+				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespaceName, metav1.ListOptions{}),
 				kubetesting.NewDeleteAction(podGVR, supervisorPods[0].Namespace, supervisorPods[0].Name),
 				kubetesting.NewDeleteAction(podGVR, supervisorPods[1].Namespace, supervisorPods[1].Name),
 			},
@@ -689,7 +727,7 @@ func TestPinniped(t *testing.T) {
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 2. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
-				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
+				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespaceName, metav1.ListOptions{}),
 			},
 			wantCertManagerClientActions: []kubetesting.Action{},
 			wantSupervisorClientActions:  []kubetesting.Action{},
@@ -730,7 +768,7 @@ func TestPinniped(t *testing.T) {
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 2. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
-				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
+				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespaceName, metav1.ListOptions{}),
 			},
 			wantCertManagerClientActions: []kubetesting.Action{},
 			wantSupervisorClientActions:  []kubetesting.Action{},
