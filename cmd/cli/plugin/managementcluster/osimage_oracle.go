@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/aunum/log"
@@ -48,7 +49,7 @@ func init() {
 }
 
 // writeToFile writes a Kubernetes runtime.Object to the file, given its paths
-func writeToFile(object runtime.Object, path string) error {
+func writeToFile(object runtime.Object, osImagePath string) error {
 	serializer := k8sjson.NewSerializerWithOptions(
 		k8sjson.DefaultMetaFactory, nil, nil,
 		k8sjson.SerializerOptions{
@@ -57,7 +58,7 @@ func writeToFile(object runtime.Object, path string) error {
 			Strict: true,
 		},
 	)
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	file, err := os.OpenFile(osImagePath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -69,9 +70,9 @@ func writeToFile(object runtime.Object, path string) error {
 }
 
 // getTKRFromManifest reads the TanzuKubernetesRelease from its yaml manifest given path
-func getTKRFromManifest(path string) (*v1alpha3.TanzuKubernetesRelease, error) {
+func getTKRFromManifest(tkrPath string) (*v1alpha3.TanzuKubernetesRelease, error) {
 	var tkr v1alpha3.TanzuKubernetesRelease
-	tkrFile, err := os.Open(path)
+	tkrFile, err := os.Open(tkrPath)
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +84,9 @@ func getTKRFromManifest(path string) (*v1alpha3.TanzuKubernetesRelease, error) {
 }
 
 // getOSImageFromManifest reads the OSImage from its yaml manifest given path
-func getOSImageFromManifest(path string) (*v1alpha3.OSImage, error) {
+func getOSImageFromManifest(osImageFilePath string) (*v1alpha3.OSImage, error) {
 	var osImage v1alpha3.OSImage
-	osImageFile, err := os.Open(path)
+	osImageFile, err := os.Open(osImageFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -142,6 +143,11 @@ func ociPopulateCmdInitRun(_ *cobra.Command, _ []string) {
 		log.Fatalf("unable to fetch TKR package image from %s: %v", tkrRegistryPath, err.Error())
 	}
 	log.Infof("downloaded TKR from %s to %s", tkrRegistryPath, outputDirectory)
+
+	if err := os.RemoveAll(path.Join(outputDirectory, ".imgpkg")); err != nil {
+		log.Fatalf("unable to remove .imgpkg folder from %s: %v", outputDirectory, err.Error())
+	}
+	log.Infof("removed .imgpkg folder from %s if exists", outputDirectory)
 
 	tkr, err := getTKRFromManifest(TKRPath())
 	if err != nil {
