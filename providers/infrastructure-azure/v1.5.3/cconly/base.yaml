@@ -869,12 +869,14 @@ spec:
           template: |
             {{ $first := true }}
             {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels }}
+            {{- if regexMatch "^(?:[a-zA-z])(?:[-\\w\\.]*[a-zA-z])$" $val }}
             {{- if $first }}
               {{- $first = false }}
             {{- else -}}
               ,
             {{- end }}
             {{- $key -}} = {{- $val }}
+            {{- end }}
             {{- end }}
             {{- if .controlPlane.nodeLabels -}}
               {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
@@ -904,13 +906,15 @@ spec:
           template: |
             {{ $first := true }}
             {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels }}
+            {{- if regexMatch "^(?:[a-zA-z])(?:[-\\w\\.]*[a-zA-z])$" $val }}
             {{- if $first }}
               {{- $first = false }}
             {{- else -}}
               ,
             {{- end }}
             {{- $key -}} = {{- $val }}
-            {{- end}}
+            {{- end }}
+            {{- end }}
             {{- if .nodePoolLabels -}}
               ,
               {{- $first := true }}
@@ -1590,3 +1594,4 @@ spec:
       useExperimentalRetryJoin: true
       preKubeadmCommands:
       - echo "running preKubeadmCommands…"
+
