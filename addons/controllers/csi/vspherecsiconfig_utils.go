@@ -402,6 +402,10 @@ func (r *VSphereCSIConfigReconciler) computeRecommendedNumberOfDeploymentReplica
 func (r *VSphereCSIConfigReconciler) getNumberOfControlPlaneNodes(ctx context.Context,
 	cluster *clusterv1beta1.Cluster) (int32, error) {
 
+	if cluster.Spec.ControlPlaneRef == nil {
+		return -1, fmt.Errorf("cluster %s 's controlplane reference is not set yet", cluster.Name)
+	}
+
 	name := cluster.Spec.ControlPlaneRef.Name
 	namespace := cluster.Spec.ControlPlaneRef.Namespace
 
