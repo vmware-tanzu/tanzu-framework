@@ -256,6 +256,9 @@ func (r *Reconciler) create(ctx context.Context, u *unstructured.Unstructured) e
 			if !apierrors.IsAlreadyExists(err) {
 				return errors.Wrapf(err, "creating object '%s', named '%s'", u.GetObjectKind().GroupVersionKind(), objKey(u))
 			}
+			if u.GetObjectKind().GroupVersionKind().Kind == "OSImage" {
+				return nil // not overwriting existing OSImage (hack to avoid overwriting OSImages modified for Oracle)
+			}
 			if err := r.patchExisting(ctx, u); err != nil {
 				if err := kerrors.FilterOut(err, apierrors.IsConflict, apierrors.IsNotFound); err != nil {
 					return err // not IsConflict, not IsNotFound
