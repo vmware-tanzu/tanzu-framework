@@ -53,6 +53,46 @@ spec:
         additionalProperties:
           type: string
         default: {}
+  - name: apiServerExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: kubeSchedulerExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: kubeControllerManagerExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: controlPlaneKubeletExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
+  - name: workerKubeletExtraArgs
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        additionalProperties:
+          type: string
+        default: {}
   - name: tlsCipherSuites
     required: false
     schema:
@@ -398,6 +438,237 @@ spec:
             {{- end }}
             {{- if not $containQuotaBackendBytes }}
             quota-backend-bytes: "8589934592"
+            {{- end }}
+  - name: kubeControllerManagerExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/controllerManager/extraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containAllocateNodeCidrs := false }}
+            {{ $containCloudConfig := false }}
+            {{ $containCloudProvider := false }}
+            {{ $containClusterName := false }}
+            {{- range $key, $val := .kubeControllerManagerExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "allocate-node-cidrs" }}
+              {{- $containAllocateNodeCidrs = true }}
+            {{- end }}
+            {{- if eq $key "cloud-config" }}
+              {{- $containCloudConfig = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{- if eq $key "cluster-name" }}
+              {{- $containClusterName = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containAllocateNodeCidrs }}
+            allocate-node-cidrs: "true"
+            {{- end }}
+            {{- if not $containCloudConfig }}
+            cloud-config: /etc/kubernetes/azure.json
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: azure
+            {{- end }}
+            {{- if not $containClusterName }}
+            cluster-name: ${CLUSTER_NAME}
+            {{- end }}
+  - name: apiServerExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containCloudConfig := false }}
+            {{ $containCloudProvider := false }}
+            {{- range $key, $val := .apiServerExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "cloud-config" }}
+              {{- $containCloudConfig = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containCloudConfig }}
+            cloud-config: /etc/kubernetes/azure.json
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: azure
+            {{- end }}
+  - name: kubeSchedulerExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/scheduler/extraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{- range $key, $val := .kubeSchedulerExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+  - name: controlPlaneKubeletExtraArgs
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containCloudConfig := false }}
+            {{ $containCloudProvider := false }}
+            {{ $containContainerRegistConf := false }}
+            {{- range $key, $val := .controlPlaneKubeletExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "cloud-config" }}
+              {{- $containCloudConfig = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{- if eq $key "azure-container-registry-config" }}
+              {{- $containContainerRegistConf = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containCloudConfig }}
+            cloud-config: /etc/kubernetes/azure.json
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: azure
+            {{- end }}
+            {{- if not $containContainerRegistConf }}
+            azure-container-registry-config: /etc/kubernetes/azure.json
+            {{- end }}
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containCloudConfig := false }}
+            {{ $containCloudProvider := false }}
+            {{ $containContainerRegistConf := false }}
+            {{- range $key, $val := .controlPlaneKubeletExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "cloud-config" }}
+              {{- $containCloudConfig = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{- if eq $key "azure-container-registry-config" }}
+              {{- $containContainerRegistConf = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containCloudConfig }}
+            cloud-config: /etc/kubernetes/azure.json
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: azure
+            {{- end }}
+            {{- if not $containContainerRegistConf }}
+            azure-container-registry-config: /etc/kubernetes/azure.json
+            {{- end }}
+  - name: workerKubeletExtraArgs
+    definitions:
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            {{ $containCipherSuites := false }}
+            {{ $containCloudConfig := false }}
+            {{ $containCloudProvider := false }}
+            {{ $containContainerRegistConf := false }}
+            {{- range $key, $val := .workerKubeletExtraArgs }}
+            {{- if eq $key "tls-cipher-suites" }}
+              {{- $containCipherSuites = true }}
+            {{- end }}
+            {{- if eq $key "cloud-config" }}
+              {{- $containCloudConfig = true }}
+            {{- end }}
+            {{- if eq $key "cloud-provider" }}
+              {{- $containCloudProvider = true }}
+            {{- end }}
+            {{- if eq $key "azure-container-registry-config" }}
+              {{- $containContainerRegistConf = true }}
+            {{- end }}
+            {{ $key -}} : "{{ $val }}"
+            {{- end }}
+            {{- if not $containCipherSuites }}
+            tls-cipher-suites: "{{ .tlsCipherSuites }}"
+            {{- end }}
+            {{- if not $containCloudConfig }}
+            cloud-config: /etc/kubernetes/azure.json
+            {{- end }}
+            {{- if not $containCloudProvider }}
+            cloud-provider: azure
+            {{- end }}
+            {{- if not $containContainerRegistConf }}
+            azure-container-registry-config: /etc/kubernetes/azure.json
             {{- end }}
   - name: AzureClusterCustomTags
     enabledIf: '{{ not (empty .customTags) }}'
@@ -1221,25 +1492,20 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-log-path: /var/log/kubernetes/audit.log
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-log-path
+        value: /var/log/kubernetes/audit.log
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-policy-file: /etc/kubernetes/audit-policy.yaml
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-policy-file
+        value: /etc/kubernetes/audit-policy.yaml
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-log-maxage: "30"
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-log-maxage
+        value: "30"
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-log-maxbackup: "10"
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-log-maxbackup
+        value: "10"
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-log-maxsize: "100"
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-log-maxsize
+        value: "100"
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-
         value:
@@ -1453,17 +1719,13 @@ spec:
       kubeadmConfigSpec:
         clusterConfiguration:
           apiServer:
-            extraArgs:
-              cloud-config: /etc/kubernetes/azure.json
-              cloud-provider: azure
+            extraArgs: {}
             extraVolumes: []
             timeoutForControlPlane: 20m
+          scheduler:
+            extraArgs: {}
           controllerManager:
-            extraArgs:
-              allocate-node-cidrs: "true"
-              cloud-config: /etc/kubernetes/azure.json
-              cloud-provider: azure
-              cluster-name: ${CLUSTER_NAME}
+            extraArgs: {}
             extraVolumes:
             - hostPath: /etc/kubernetes/azure.json
               mountPath: /etc/kubernetes/azure.json
@@ -1505,18 +1767,12 @@ spec:
         initConfiguration:
           nodeRegistration:
             criSocket: /var/run/containerd/containerd.sock
-            kubeletExtraArgs:
-              azure-container-registry-config: /etc/kubernetes/azure.json
-              cloud-config: /etc/kubernetes/azure.json
-              cloud-provider: azure
+            kubeletExtraArgs: {}
             name: '{{ ds.meta_data["local_hostname"] }}'
         joinConfiguration:
           nodeRegistration:
             criSocket: /var/run/containerd/containerd.sock
-            kubeletExtraArgs:
-              azure-container-registry-config: /etc/kubernetes/azure.json
-              cloud-config: /etc/kubernetes/azure.json
-              cloud-provider: azure
+            kubeletExtraArgs: {}
             name: '{{ ds.meta_data["local_hostname"] }}'
         mounts:
         - - LABEL=etcd_disk
@@ -1582,10 +1838,7 @@ spec:
       joinConfiguration:
         nodeRegistration:
           criSocket: /var/run/containerd/containerd.sock
-          kubeletExtraArgs:
-            azure-container-registry-config: /etc/kubernetes/azure.json
-            cloud-config: /etc/kubernetes/azure.json
-            cloud-provider: azure
+          kubeletExtraArgs: {}
           name: '{{ ds.meta_data["local_hostname"] }}'
       useExperimentalRetryJoin: true
       preKubeadmCommands:
