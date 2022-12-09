@@ -328,43 +328,6 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			patchedVSphereCPIConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedVSphereCPIConfig.OwnerReferences, ownerRef)
 			Expect(k8sClient.Patch(ctx, patchedVSphereCPIConfig, client.MergeFrom(config))).ShouldNot(HaveOccurred())
 
-			By("vsphere and nsx-t secret should have cluster ownerRef")
-			vsphereSecretKey := client.ObjectKey{
-				Namespace: defaultString,
-				Name:      "cpi-vsphere-credential",
-			}
-			Consistently(func() bool {
-				if err := k8sClient.Get(ctx, vsphereSecretKey, config); err != nil {
-					return false
-				}
-
-				if len(config.OwnerReferences) == 0 {
-					return false
-				}
-				Expect(len(config.OwnerReferences)).Should(Equal(1))
-
-				Expect(config.OwnerReferences[0].Name).Should(Equal(clusterName))
-				return true
-			}, waitTimeout, pollingInterval).Should(BeTrue())
-
-			nsxtSecretKey := client.ObjectKey{
-				Namespace: defaultString,
-				Name:      "nsxt-credential",
-			}
-			Consistently(func() bool {
-				if err := k8sClient.Get(ctx, nsxtSecretKey, config); err != nil {
-					return false
-				}
-
-				if len(config.OwnerReferences) == 0 {
-					return false
-				}
-				Expect(len(config.OwnerReferences)).Should(Equal(1))
-
-				Expect(config.OwnerReferences[0].Name).Should(Equal(clusterName))
-				return true
-			}, waitTimeout, pollingInterval).Should(BeTrue())
-
 			// the data values secret should be generated
 			secret := &v1.Secret{}
 			Eventually(func() bool {
@@ -406,6 +369,46 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			By("vsphere and nsx-t secret should have cluster ownerRef")
+			vsphereSecretKey := client.ObjectKey{
+				Namespace: defaultString,
+				Name:      "cpi-vsphere-credential",
+			}
+			vsecret := &v1.Secret{}
+			Eventually(func() error {
+				if err := k8sClient.Get(ctx, vsphereSecretKey, vsecret); err != nil {
+					return err
+				}
+
+				if len(vsecret.OwnerReferences) == 0 {
+					return fmt.Errorf("ownerRef is 0")
+				}
+				Expect(len(vsecret.OwnerReferences)).Should(Equal(1))
+
+				Expect(vsecret.OwnerReferences[0].Name).Should(Equal(clusterName))
+				return nil
+			}, waitTimeout, pollingInterval).Should(BeNil())
+
+			nsxtSecretKey := client.ObjectKey{
+				Namespace: defaultString,
+				Name:      "nsxt-credential",
+			}
+
+			nsecret := &v1.Secret{}
+			Eventually(func() error {
+				if err := k8sClient.Get(ctx, nsxtSecretKey, nsecret); err != nil {
+					return err
+				}
+
+				if len(nsecret.OwnerReferences) == 0 {
+					return fmt.Errorf("ownerRef is 0")
+				}
+				Expect(len(nsecret.OwnerReferences)).Should(Equal(1))
+
+				Expect(nsecret.OwnerReferences[0].Name).Should(Equal(clusterName))
+				return nil
+			}, waitTimeout, pollingInterval).Should(BeNil())
 
 			// eventually the secret ref to the data values should be updated
 			Eventually(func() bool {

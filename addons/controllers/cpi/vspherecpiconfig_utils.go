@@ -413,13 +413,13 @@ func (r *VSphereCPIConfigReconciler) ensureSecretOnwerRef(ctx context.Context, s
 	}
 	if !clusterapiutil.HasOwnerRef(secret.OwnerReferences, ownerReference) {
 		r.Log.Info(fmt.Sprintf("Adding owner reference to secret %s/%s", secret.Namespace, secret.Name))
-		secret.OwnerReferences = clusterapiutil.EnsureOwnerRef(secret.OwnerReferences, ownerReference)
-		// Create a patch helper for addon secret
 		patchHelper, err := clusterapipatchutil.NewHelper(secret, r.Client)
 		if err != nil {
 			r.Log.Info("Failed to create patchHelper")
 			return err
 		}
+		secret.OwnerReferences = clusterapiutil.EnsureOwnerRef(secret.OwnerReferences, ownerReference)
+		// Create a patch helper for addon secret
 		if err := patchHelper.Patch(ctx, secret.DeepCopy()); err != nil {
 			r.Log.Info(fmt.Sprintf("Failed to patch owner reference to secret %s/%s", secret.Namespace, secret.Name))
 			return err
