@@ -243,7 +243,7 @@ spec:
     zone: #@ data.values.VSPHERE_ZONE
     #@ end
     #@ if data.values.VSPHERE_INSECURE:
-    insecureFlag: #@ data.values.VSPHERE_INSECURE
+    insecure: #@ data.values.VSPHERE_INSECURE
     #@ else:
     tlsThumbprint: #@ data.values.VSPHERE_TLS_THUMBPRINT
     #@ end
