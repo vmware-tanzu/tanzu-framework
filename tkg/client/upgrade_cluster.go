@@ -1178,6 +1178,21 @@ func (c *TkgClient) patchKubernetesVersionToMachineDeployment(regionalClusterCli
 	return nil
 }
 
+func addAWSIngressrule(regionalClusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo, newRule capav1beta2.CNIIngressRule) error {
+	awsClusterObject := &capav1beta2.AWSCluster{}
+	if err := regionalClusterClient.GetResource(awsClusterObject, upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, nil, nil); err != nil {
+		return errors.Wrap(err, "unable to retrieve aws cluster object")
+	}
+	if awsClusterObject.Spec.NetworkSpec.SecurityGroupOverrides != nil {
+		log.Infof("aws cluster Spec.NetworkSpec.SecurityGroupOverrides is not nil. Will not configure aws ingress rules")
+		return nil
+	}
+	if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, newRule); err != nil {
+		log.Infof("unable to update AWS CNI ingress rules for %s/%s kapp-controller: %s", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName, err.Error())
+	}
+	return nil
+}
+
 // HandleKappControllerUpgrade is only meant for testing  handleKappControllerUpgrade
 func (c *TkgClient) HandleKappControllerUpgrade(regionalClusterClient, currentClusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo) error {
 	return c.handleKappControllerUpgrade(regionalClusterClient, currentClusterClient, upgradeClusterConfig)
@@ -1191,9 +1206,8 @@ func (c *TkgClient) handleKappControllerUpgrade(regionalClusterClient, currentCl
 		return errors.Wrapf(err, "unable to delete existing kapp-controller")
 	}
 
-	// Update AWSCluster cniIngressRules to include kapp-controller API port only if CAPA is running on the management cluster
+	// handle aws management cluster
 	if err := regionalClusterClient.GetResource(&corev1.Namespace{}, clusterclient.CAPAControllerNamespace, clusterclient.CAPAControllerNamespace, nil, nil); err != nil {
-		// if capa-system namespace doesn't exist, then assume that updates to AWSCluster are not required during upgrade.
 		if !apierrors.IsNotFound(err) {
 			return errors.Wrapf(err, "unable to check if Cluster API Provider for AWS is enabled")
 		}
@@ -1204,11 +1218,11 @@ func (c *TkgClient) handleKappControllerUpgrade(regionalClusterClient, currentCl
 			FromPort:    DefaultKappControllerHostPort,
 			ToPort:      DefaultKappControllerHostPort,
 		}
-		if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, kappControllerAWSIngressRule); err != nil {
-			return errors.Wrapf(err, "unable to update AWS CNI ingress rules for %s/%s kapp-controller", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName)
+		err := addAWSIngressrule(regionalClusterClient, upgradeClusterConfig, kappControllerAWSIngressRule)
+		if err != nil {
+			return err
 		}
 	}
-
 	return nil
 }
 
@@ -1218,9 +1232,8 @@ func (c *TkgClient) PrepareAddonsManagerUpgrade(regionalClusterClient clustercli
 }
 
 func (c *TkgClient) prepareAddonsManagerUpgrade(regionalClusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo) error {
-	// Update AWSCluster cniIngressRules to include addon-manager port only if CAPA is running on the management cluster
+	// handle aws management cluster
 	if err := regionalClusterClient.GetResource(&corev1.Namespace{}, clusterclient.CAPAControllerNamespace, clusterclient.CAPAControllerNamespace, nil, nil); err != nil {
-		// if capa-system namespace doesn't exist, then assume that updates to AWSCluster are not required during upgrade.
 		if !apierrors.IsNotFound(err) {
 			return errors.Wrapf(err, "unable to check if Cluster API Provider for AWS is enabled")
 		}
@@ -1231,11 +1244,11 @@ func (c *TkgClient) prepareAddonsManagerUpgrade(regionalClusterClient clustercli
 			FromPort:    DefaultAddonsManagerHostPort,
 			ToPort:      DefaultAddonsManagerHostPort,
 		}
-		if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, addonsManagerAWSIngressRule); err != nil {
-			return errors.Wrapf(err, "unable to update AWS CNI ingress rules for %s/%s addons-manager", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName)
+		err := addAWSIngressrule(regionalClusterClient, upgradeClusterConfig, addonsManagerAWSIngressRule)
+		if err != nil {
+			return err
 		}
 	}
-
 	return nil
 }
 

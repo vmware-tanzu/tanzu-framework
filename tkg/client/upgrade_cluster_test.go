@@ -1016,9 +1016,31 @@ var _ = Describe("Unit test for prepareAddonsManagerUpgrade", func() {
 			regionalClusterClient.GetResourceReturns(nil)
 			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
 			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
-			Expect(err).To(HaveOccurred())
+			Expect(err).ToNot(HaveOccurred())
 			callcount := regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()
 			Expect(callcount).To(Equal(1))
+		})
+	})
+	When("spec.network.seucrityGroupOverrides is not nil for aws cluster", func() {
+		It("should return no error and should not try to add aws ingress rule", func() {
+			regionalClusterClient.GetResourceReturns(nil)
+			callIndex := 0
+			regionalClusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if callIndex < 1 { //in this test there is one call to GetResources before the call to check gert the awscluster
+					callIndex++
+					return nil
+				}
+				awsCluster := obj.(*capav1beta2.AWSCluster)
+				securityGroupOverride := make(map[capav1beta2.SecurityGroupRole]string)
+				securityGroupOverride["secgroup1"] = "secrules"
+				awsCluster.Spec.NetworkSpec.SecurityGroupOverrides = securityGroupOverride
+				return nil
+			}
+			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
+			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
+			Expect(err).ToNot(HaveOccurred())
+			callcount := regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()
+			Expect(callcount).To(Equal(0))
 		})
 	})
 })
@@ -1079,8 +1101,30 @@ var _ = Describe("Unit test for handleKappControllerUpgrade", func() {
 		currentClusterClient.DeleteExistingKappControllerReturns(nil)
 		regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
 		err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
-		Expect(err).To(HaveOccurred())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(1))
+	})
+	When("spec.network.seucrityGroupOverrides is not nil for aws cluster", func() {
+		It("should return no error and should not try to add aws ingress rule", func() {
+			regionalClusterClient.GetResourceReturns(nil)
+			callIndex := 0
+			regionalClusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if callIndex < 1 { //in this test there is one call to GetResources before the call to check gert the awscluster
+					callIndex++
+					return nil
+				}
+				awsCluster := obj.(*capav1beta2.AWSCluster)
+				securityGroupOverride := make(map[capav1beta2.SecurityGroupRole]string)
+				securityGroupOverride["secgroup1"] = "secrules"
+				awsCluster.Spec.NetworkSpec.SecurityGroupOverrides = securityGroupOverride
+				return nil
+			}
+			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
+			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
+			Expect(err).ToNot(HaveOccurred())
+			callcount := regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()
+			Expect(callcount).To(Equal(0))
+		})
 	})
 })
 
