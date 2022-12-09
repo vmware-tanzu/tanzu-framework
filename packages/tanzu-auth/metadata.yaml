@@ -8,8 +8,8 @@ spec:
   shortDescription: "Tanzu Auth orchestrates the deployment of Pinniped packages"
   providerName: VMware
   maintainers:
-    - name: "Andrew Keesler"
-    - name: "Sarah Abbey"
     - name: "Benjamin A. Petersen"
+    - name: "Ryan Richard"
+    - name: "Joshua Casey"
   categories:
     - "auth"
