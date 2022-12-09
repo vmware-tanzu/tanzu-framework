@@ -5,6 +5,7 @@
 package tkgconfigbom
 
 import (
+	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
@@ -14,14 +15,16 @@ type client struct {
 	configDir             string
 	tkgConfigPathsClient  tkgconfigpaths.Client
 	tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter
+	log                   logr.Logger
 }
 
 // New creates new tkg configuration bom client
-func New(configDir string, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) Client {
+func New(configDir string, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter, log logr.Logger) Client {
 	tkgconfigclient := &client{
 		configDir:             configDir,
 		tkgConfigPathsClient:  tkgconfigpaths.New(configDir),
 		tkgConfigReaderWriter: tkgConfigReaderWriter,
+		log:                   log,
 	}
 
 	return tkgconfigclient

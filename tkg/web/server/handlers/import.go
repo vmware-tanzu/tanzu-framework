@@ -14,6 +14,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/azure"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/docker"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/vsphere"
+	"k8s.io/klog/v2/klogr"
 )
 
 // ImportVSphereConfig receives a config file as a string (in ImportTKGConfigForVsphereParams)
@@ -25,7 +26,7 @@ func (app *App) ImportVSphereConfig(params vsphere.ImportTKGConfigForVspherePara
 
 	var configPayload *models.VsphereRegionalClusterParams
 	if err == nil {
-		configPayload, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).CreateVSphereParams(configObject)
+		configPayload, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("vsphere-import-handler")).CreateVSphereParams(configObject)
 	}
 	if err == nil {
 		return vsphere.NewImportTKGConfigForVsphereOK().WithPayload(configPayload)
@@ -42,7 +43,7 @@ func (app *App) ImportAzureConfig(params azure.ImportTKGConfigForAzureParams) mi
 
 	var configPayload *models.AzureRegionalClusterParams
 	if err == nil {
-		configPayload, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).CreateAzureParams(configObject)
+		configPayload, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("azure-import-handler")).CreateAzureParams(configObject)
 	}
 	if err == nil {
 		return azure.NewImportTKGConfigForAzureOK().WithPayload(configPayload)
@@ -59,7 +60,7 @@ func (app *App) ImportAwsConfig(params aws.ImportTKGConfigForAWSParams) middlewa
 
 	var configPayload *models.AWSRegionalClusterParams
 	if err == nil {
-		configPayload, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).CreateAWSParams(configObject)
+		configPayload, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("aws-import-handler")).CreateAWSParams(configObject)
 	}
 
 	if err == nil {
@@ -77,7 +78,7 @@ func (app *App) ImportDockerConfig(params docker.ImportTKGConfigForDockerParams)
 
 	var configPayload *models.DockerRegionalClusterParams
 	if err == nil {
-		configPayload, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).CreateDockerParams(configObject)
+		configPayload, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("docker-import-handler")).CreateDockerParams(configObject)
 	}
 
 	if err == nil {

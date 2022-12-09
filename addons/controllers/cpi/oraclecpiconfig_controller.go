@@ -103,6 +103,24 @@ func (r *OracleCPIConfigReconciler) getOracleAuthSecret(ctx context.Context, cli
 	return &authSecret, nil
 }
 
+type oracleNetworkSecurityGroupIDs struct {
+	ControlPlaneEndpoint string `json:"controlPlaneEndpoint,omitempty"`
+	ControlPlane         string `json:"controlPlane,omitempty"`
+	Workers              string `json:"workers,omitempty"`
+}
+
+type oracleSubnetIds struct {
+	ControlPlaneEndpoint string `json:"controlPlaneEndpoint,omitempty"`
+	Compute         string `json:"compute,omitempty"`
+	PrivateServices      string `json:"privateServices,omitempty"`
+}
+
+type oracleClusterClassNetworkSpec struct {
+	VCNID                   string                        `json:"vcnID,omitempty"`
+	NetworkSecurityGroupIDs oracleNetworkSecurityGroupIDs `json:"networkSecurityGroupIds,omitempty"`
+	SubnetIDs               oracleSubnetIds               `json:"subnetIds,omitempty"`
+}
+
 // reconcileOracleCPIConfig reconciles OracleCPIConfig with its owner cluster
 // the owner cluster and the authentication secret are required to reconcile the OracleCPIConfig
 func (r *OracleCPIConfigReconciler) reconcileOracleCPIConfig(ctx context.Context, cpiConfig *cpiv1alpha1.OracleCPIConfig,
@@ -148,18 +166,23 @@ func (r *OracleCPIConfigReconciler) reconcileOracleCPIConfig(ctx context.Context
 	}
 	// the passphrase is optional, use zero value if not provided
 	passphrase := auth.Data["passphrase"]
+
+	networkInterface, err := util.ParseClusterVariable(cluster, "network")
+	if err != nil {
+		r.Log.Error(err, "Cannot extract network from cluster", "cluster", cluster.Name)
+		return ctrl.Result{}, err
+	}
+
+	network, ok := networkInterface.(oracleClusterClassNetworkSpec)
+	if !ok {
+		r.Log.Error(err, "Cannot parse network from cluster", "cluster", cluster.Name)
+		return ctrl.Result{}, fmt.Errorf("cannot parse network from cluster %s", cluster.Name)
+	}
+
 	compartment, err := util.ParseClusterVariableString(cluster, "compartmentId")
 	if err != nil {
 		r.Log.Error(err, "Cannot extract compartment from cluster", "cluster", cluster.Name)
-	}
-	vcn, err := util.ParseClusterVariableString(cluster, "externalVCNId")
-	if err != nil {
-		r.Log.Error(err, "Cannot extract vcn from cluster", "cluster", cluster.Name)
-	}
-
-	subnet, err := util.ParseClusterVariableString(cluster, "privateServiceSubnetId")
-	if err != nil {
-		r.Log.Error(err, "Cannot extract private subnet from cluster", "cluster", cluster.Name)
+		return ctrl.Result{}, err
 	}
 
 	// convert the CPIConfig CR to data values
@@ -173,13 +196,13 @@ func (r *OracleCPIConfigReconciler) reconcileOracleCPIConfig(ctx context.Context
 			Passphrase:  string(passphrase),
 		},
 		Compartment: compartment,
-		VCN:         vcn,
+		VCN:         network.VCNID,
 		LoadBalancer: struct {
 			Subnet1 string `yaml:"subnet1"`
 			Subnet2 string `yaml:"subnet2"`
 		}{
-			Subnet1: subnet,
-			Subnet2: subnet,
+			Subnet1: network.SubnetIDs.PrivateServices,
+			Subnet2: network.SubnetIDs.PrivateServices,
 		},
 	}
 

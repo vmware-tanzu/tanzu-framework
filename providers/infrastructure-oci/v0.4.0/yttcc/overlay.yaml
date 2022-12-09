@@ -5,7 +5,7 @@
 
 #@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:struct", "struct")
-#@ load("/lib/config_variable_association.star", "config_variable_association", "get_oci_vars", "oci_var_keys")
+#@ load("/lib/config_variable_association.star", "get_oci_vars")
 
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_default_tkg_bom_data")
 #@ load("lib/validate.star", "validate_configuration")
@@ -13,6 +13,8 @@
 #@ validate_configuration("oci")
 
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+
+#@ get_oci_vars()
 
 #@ bomData = get_default_tkg_bom_data()
 
@@ -90,8 +92,6 @@ spec:
     variables:
       #@ vars = get_oci_vars()
       #@ for configVariable in vars:
-      #@  if vars[configVariable] != None and configVariable in oci_var_keys:
       - name: #@ configVariable
         value: #@ vars[configVariable]
-      #@  end
       #@ end

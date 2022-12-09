@@ -29,6 +29,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework/exec"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
+	"k8s.io/klog/v2/klogr"
 )
 
 type E2ECommonCCSpecInput struct {
@@ -286,7 +287,7 @@ func getAvailableTKRs(ctx context.Context, mcProxy *framework.ClusterProxy, tkgC
 		defaultTKR, oldTKR *runv1alpha3.TanzuKubernetesRelease
 	)
 
-	tkgBOMConfigClient := tkgconfigbom.New(tkgConfigDir, nil)
+	tkgBOMConfigClient := tkgconfigbom.New(tkgConfigDir, nil, klogr.New().WithName("tkr-getter"))
 	defaultTKRVersion, err := tkgBOMConfigClient.GetDefaultTKRVersion()
 	Expect(err).ToNot(HaveOccurred(), "failed to get the default TKR version")
 
@@ -301,7 +302,7 @@ func getAvailableTKRs(ctx context.Context, mcProxy *framework.ClusterProxy, tkgC
 }
 
 func getDefaultBomTKGVersion(tkgConfigDir string) string {
-	tkgBOMConfigClient := tkgconfigbom.New(tkgConfigDir, nil)
+	tkgBOMConfigClient := tkgconfigbom.New(tkgConfigDir, nil, klogr.New().WithName("bom-getter"))
 	return tkgBOMConfigClient.GetCurrentTKGVersion()
 }
 

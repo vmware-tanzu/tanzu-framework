@@ -3057,7 +3057,7 @@ data:
   passphrase: ${OCI_CREDENTIALS_PASSPHRASE_B64:=""}
   region: ${OCI_REGION_B64:=""}
   tenancy: ${OCI_TENANCY_ID_B64:=""}
-  useInstancePrincipal: ${USE_INSTANCE_PRINCIPAL_B64:="ZmFsc2U="}
+  useInstancePrincipal: ${OCI_USE_INSTANCE_PRINCIPAL_B64:="ZmFsc2U="}
   user: ${OCI_USER_ID_B64:=""}
 kind: Secret
 metadata:

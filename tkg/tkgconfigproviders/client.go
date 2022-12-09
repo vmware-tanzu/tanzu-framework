@@ -8,20 +8,23 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
+	"github.com/go-logr/logr"
 )
 
 type client struct {
 	configDir             string
 	tkgBomClient          tkgconfigbom.Client
 	tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter
+	log logr.Logger
 }
 
 // New creates new tkgconfig providers client
-func New(configDir string, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) Client {
+func New(configDir string, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter, log logr.Logger) Client {
 	tkgConfigProvidersClient := &client{
 		configDir:             configDir,
-		tkgBomClient:          tkgconfigbom.New(configDir, tkgConfigReaderWriter),
+		tkgBomClient:          tkgconfigbom.New(configDir, tkgConfigReaderWriter, log),
 		tkgConfigReaderWriter: tkgConfigReaderWriter,
+		log: log,
 	}
 	return tkgConfigProvidersClient
 }

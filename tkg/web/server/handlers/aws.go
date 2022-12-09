@@ -17,6 +17,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/aws"
+	"k8s.io/klog/v2/klogr"
 )
 
 // SetAWSEndPoint verify and sets AWS account
@@ -82,7 +83,7 @@ func (app *App) GetAWSAvailabilityZones(params aws.GetAWSAvailabilityZonesParams
 
 // GetAWSRegions returns list of AWS regions
 func (app *App) GetAWSRegions(params aws.GetAWSRegionsParams) middleware.Responder {
-	bomConfig, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).GetDefaultTkrBOMConfiguration()
+	bomConfig, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("aws-handler")).GetDefaultTkrBOMConfiguration()
 	if err != nil {
 		return aws.NewGetAWSRegionsInternalServerError().WithPayload(Err(err))
 	}
@@ -139,7 +140,7 @@ func (app *App) GetAWSCredentialProfiles(params aws.GetAWSCredentialProfilesPara
 
 // GetAWSOSImages gets os information for AWS
 func (app *App) GetAWSOSImages(params aws.GetAWSOSImagesParams) middleware.Responder {
-	bomConfig, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).GetDefaultTkrBOMConfiguration()
+	bomConfig, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("aws-handler")).GetDefaultTkrBOMConfiguration()
 	if err != nil {
 		return aws.NewGetAWSOSImagesInternalServerError().WithPayload(Err(err))
 	}

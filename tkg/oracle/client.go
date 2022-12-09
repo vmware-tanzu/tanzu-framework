@@ -85,6 +85,23 @@ func (c *client) Region() (string, error) {
 	return c.configProvider.Region()
 }
 
+// Credentials returns the credentials that the Oracle Client uses
+func (c *client) Credentials() oraclecommon.ConfigurationProvider {
+	return c.configProvider
+}
+
+func (c *client) IsUsingInstancePrincipal() (bool, error) {
+	creds := c.Credentials()
+	authConfig, err := creds.AuthType()
+	if err != nil {
+		return false, err
+	}
+	if authConfig.AuthType == oraclecommon.InstancePrincipal || authConfig.AuthType == oraclecommon.InstancePrincipalDelegationToken {
+		return true, nil
+	}
+	return false, nil
+}
+
 // New creates an Oracle client
 func New() (_ Client, err error) {
 	c := &client{}

@@ -15,6 +15,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/azure"
+	"k8s.io/klog/v2/klogr"
 )
 
 // GetAzureEndpoint gets azure account info set in environment variables
@@ -139,7 +140,7 @@ func (app *App) GetAzureInstanceTypes(params azure.GetAzureInstanceTypesParams) 
 
 // GetAzureOSImages gets os information for Azure
 func (app *App) GetAzureOSImages(params azure.GetAzureOSImagesParams) middleware.Responder {
-	bomConfig, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).GetDefaultTkrBOMConfiguration()
+	bomConfig, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("azure-handler")).GetDefaultTkrBOMConfiguration()
 	if err != nil {
 		return azure.NewGetAzureOSImagesInternalServerError().WithPayload(Err(err))
 	}

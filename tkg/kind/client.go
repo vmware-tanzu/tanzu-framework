@@ -175,7 +175,7 @@ func (k *KindClusterProxy) GetKindClusterName() string {
 
 // GetKindNodeImageAndConfig return the Kind node Image full path and configuration details
 func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster, error) {
-	bomConfiguration, err := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter).GetDefaultTkgBOMConfiguration()
+	bomConfiguration, err := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter, log.GetLogr()).GetDefaultTkgBOMConfiguration()
 	if err != nil {
 		return "", nil, errors.Wrap(err, "unable to get default BoM file")
 	}
@@ -230,7 +230,7 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster,
 
 // Return the containerdConfigPatches field for kind Cluster object
 func (k *KindClusterProxy) getKindRegistryConfig() (string, error) {
-	tkgconfigClient := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter)
+	tkgconfigClient := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter, log.GetLogr())
 
 	customRepositoryCaCert, caCertErr := k.getDockerRegistryCACertFilePath()
 	customRepository, repoErr := tkgconfigClient.GetCustomRepository()

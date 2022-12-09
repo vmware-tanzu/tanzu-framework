@@ -17,6 +17,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+	"k8s.io/klog/v2/klogr"
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
@@ -51,7 +52,7 @@ func createTKGClientOpts(clusterConfigFile, configDir, defaultBomFile string, ti
 			RegionManagerFactory: region.NewFactory(),
 		},
 	}
-	allClients, err := clientcreator.CreateAllClients(appConfig, nil)
+	allClients, err := clientcreator.CreateAllClients(appConfig, nil, klogr.New().WithName("test"))
 	if err != nil {
 		return nil, err
 	}

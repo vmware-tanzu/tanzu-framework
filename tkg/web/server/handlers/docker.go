@@ -15,11 +15,12 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/docker"
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
+	"k8s.io/klog/v2/klogr"
 )
 
 // IsDockerDaemonAvailable validates docker daemon availability
 func (app *App) IsDockerDaemonAvailable(params docker.CheckIfDockerDaemonAvailableParams) middleware.Responder {
-	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter)
+	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter, klogr.New().WithName("docker-handler"))
 	if err != nil {
 		return docker.NewCheckIfDockerDaemonAvailableInternalServerError().WithPayload(Err(err))
 	}

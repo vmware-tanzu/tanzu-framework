@@ -13,13 +13,14 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/azure"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/docker"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/vsphere"
+	"k8s.io/klog/v2/klogr"
 )
 
 // ExportVSphereConfig creates return payload of config file string from incoming params object
 func (app *App) ExportVSphereConfig(params vsphere.ExportTKGConfigForVsphereParams) middleware.Responder {
 	var configString string
 	// create the provider object with the configuration data
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewVSphereConfig(params.Params)
+	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("vsphere-export-handler")).NewVSphereConfig(params.Params)
 	if err == nil {
 		configString, err = transformConfigToString(config)
 	}
@@ -33,7 +34,7 @@ func (app *App) ExportVSphereConfig(params vsphere.ExportTKGConfigForVspherePara
 func (app *App) ExportDockerConfig(params docker.ExportTKGConfigForDockerParams) middleware.Responder {
 	var configString string
 	// create the provider object with the configuration data
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewDockerConfig(params.Params)
+	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("docker-export-handler")).NewDockerConfig(params.Params)
 	if err == nil {
 		configString, err = transformConfigToString(config)
 	}
@@ -47,7 +48,7 @@ func (app *App) ExportDockerConfig(params docker.ExportTKGConfigForDockerParams)
 func (app *App) ExportAzureConfig(params azure.ExportTKGConfigForAzureParams) middleware.Responder {
 	var configString string
 	// create the provider object with the configuration data
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAzureConfig(params.Params)
+	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("azure-export-handler")).NewAzureConfig(params.Params)
 	if err == nil {
 		configString, err = transformConfigToString(config)
 	}
@@ -65,7 +66,7 @@ func (app *App) ExportAWSConfig(params aws.ExportTKGConfigForAWSParams) middlewa
 	encodedCreds, err := app.awsClient.EncodeCredentials()
 	if err == nil {
 		// create the provider object with the configuration data
-		config, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAWSConfig(params.Params, encodedCreds)
+		config, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("aws-export-handler")).NewAWSConfig(params.Params, encodedCreds)
 	}
 	if err == nil {
 		configString, err = transformConfigToString(config)

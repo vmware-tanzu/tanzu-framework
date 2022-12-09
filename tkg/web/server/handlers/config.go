@@ -14,11 +14,12 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/azure"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/docker"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/vsphere"
+	"k8s.io/klog/v2/klogr"
 )
 
 // ApplyTKGConfigForVsphere applies TKG configuration for vSphere
 func (app *App) ApplyTKGConfigForVsphere(params vsphere.ApplyTKGConfigForVsphereParams) middleware.Responder { // nolint:dupl
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewVSphereConfig(params.Params)
+	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("vsphere-config-handler")).NewVSphereConfig(params.Params)
 	if err != nil {
 		return vsphere.NewApplyTKGConfigForVsphereInternalServerError().WithPayload(Err(err))
 	}
@@ -40,7 +41,7 @@ func (app *App) ApplyTKGConfigForAWS(params aws.ApplyTKGConfigForAWSParams) midd
 		return aws.NewApplyTKGConfigForAWSInternalServerError().WithPayload(Err(err))
 	}
 
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAWSConfig(params.Params, encodedCreds)
+	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("aws-config-handler")).NewAWSConfig(params.Params, encodedCreds)
 	if err != nil {
 		return aws.NewApplyTKGConfigForAWSInternalServerError().WithPayload(Err(err))
 	}
@@ -59,7 +60,7 @@ func (app *App) ApplyTKGConfigForAzure(params azure.ApplyTKGConfigForAzureParams
 		return azure.NewApplyTKGConfigForAzureInternalServerError().WithPayload(Err(errors.New("azure client is not initialized properly")))
 	}
 
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAzureConfig(params.Params)
+	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("azure-config-handler")).NewAzureConfig(params.Params)
 	if err != nil {
 		return azure.NewApplyTKGConfigForAzureInternalServerError().WithPayload(Err(err))
 	}
@@ -74,7 +75,7 @@ func (app *App) ApplyTKGConfigForAzure(params azure.ApplyTKGConfigForAzureParams
 
 // ApplyTKGConfigForDocker applies TKG configuration for Docker
 func (app *App) ApplyTKGConfigForDocker(params docker.ApplyTKGConfigForDockerParams) middleware.Responder { // nolint:dupl
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewDockerConfig(params.Params)
+	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("docker-config-handler")).NewDockerConfig(params.Params)
 	if err != nil {
 		return docker.NewApplyTKGConfigForDockerInternalServerError().WithPayload(Err(err))
 	}

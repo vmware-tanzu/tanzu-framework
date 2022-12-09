@@ -13,8 +13,8 @@ spec:
     services:
       cidrBlocks: ["${SERVICE_CIDR}"]
   topology:
-    class: tkg-cluster-class-dev
-    version: v1.21.2
+    class: tkg-oci-default
+    version: v1.24.6+vmware.1
     controlPlane:
       replicas: ${CONTROL_PLANE_MACHINE_COUNT}
       metadata:
