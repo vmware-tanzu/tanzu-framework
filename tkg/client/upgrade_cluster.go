@@ -1188,7 +1188,7 @@ func addAWSIngressrule(regionalClusterClient clusterclient.Client, upgradeCluste
 		return nil
 	}
 	if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, newRule); err != nil {
-		log.Infof("unable to update AWS CNI ingress rules for %s/%s kapp-controller: %s", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName, err.Error())
+		log.Warningf("unable to update AWS CNI ingress rules for %s/%s kapp-controller: %s", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName, err.Error())
 	}
 	return nil
 }
