@@ -17,7 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/version"
 	apimachineryversion "k8s.io/apimachinery/pkg/version"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
@@ -323,9 +322,21 @@ func (c *TkgClient) SetAllowLegacyClusterConfiguration() string {
 		log.V(6).Infof("Setting %v to %q", constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
 		c.TKGConfigReaderWriter().Set(constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
 	} else {
-		log.V(6).Infof("Info: %v configuration already set to %q", constants.ConfigVariableAllowLegacyCluster, value)
 		// ALLOW_LEGACY_CLUSTER is explicitly set in cluster config file
-		allowLegacyCluster = value
+		log.V(6).Infof("Info: %v configuration already set to %q", constants.ConfigVariableAllowLegacyCluster, value)
+		if value != "true" && value != "false" {
+			log.Warningf("Seem like you have set %v, but it's not a valid value. It should be true or false", constants.ConfigVariableAllowLegacyCluster)
+			// Set ALLOW_LEGACY_CLUSTER to a valid value
+			if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
+				allowLegacyCluster = "false"
+			} else {
+				allowLegacyCluster = "true"
+			}
+			log.V(6).Infof("Setting %v to %q", constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
+		} else {
+			allowLegacyCluster = value
+		}
 	}
 
 	return allowLegacyCluster
@@ -346,7 +357,8 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		if isCustomOverlayPresent {
 			log.Warning("Warning: It seems like you have done some customizations to the template overlays. However, CLI might ignore those customizations when creating management-cluster.")
 		}
-		if !config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
+
+		if !c.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 			return false, nil
 		}
 		return true, nil
@@ -369,7 +381,7 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		log.Warning(constants.YTTBasedClusterWarning)
 	}
 
-	if config.IsFeatureActivated(constants.FeatureFlagForceDeployClusterWithClusterClass) {
+	if c.IsFeatureActivated(constants.FeatureFlagForceDeployClusterWithClusterClass) {
 		return true, nil
 	} else {
 		return false, nil

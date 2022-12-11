@@ -112,7 +112,7 @@ var _ = Describe("ensureAllowLegacyClusterConfiguration", func() {
 		})
 	})
 
-	Context("when ALLOW_LEGACY_CLUSTER is explicitly overridden", func() {
+	Context("when ALLOW_LEGACY_CLUSTER is explicitly overridden with a valid value", func() {
 		values = []string{"true", "false"}
 		It("Retain the value", func() {
 			for _, v := range values {
@@ -125,4 +125,129 @@ var _ = Describe("ensureAllowLegacyClusterConfiguration", func() {
 		})
 	})
 
+	Context("when ALLOW_LEGACY_CLUSTER is explicitly overridden with an invalid value", func() {
+		It("Should return true value", func() {
+			featureFlagClient.FeatureFlags[constants.FeatureFlagAllowLegacyCluster] = true
+			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableAllowLegacyCluster, "invalid value")
+			_ = tkgClient.SetAllowLegacyClusterConfiguration()
+			value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(value).To(Equal("true"))
+		})
+
+		It("Should return false value", func() {
+			featureFlagClient.FeatureFlags[constants.FeatureFlagAllowLegacyCluster] = false
+			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableAllowLegacyCluster, "invalid value")
+			_ = tkgClient.SetAllowLegacyClusterConfiguration()
+			value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(value).To(Equal("false"))
+		})
+	})
+
+})
+
+var _ = Describe("shouldDeployClusterCLass", func() {
+	var (
+		err                    error
+		tkgClient              *client.TkgClient
+		featureFlagClient      *MockFeatureFlag
+		tkgConfigUpdaterClient *fakes.TKGConfigUpdaterClient
+		testingDir             string
+		isManagementCluster    bool
+	)
+
+	BeforeEach(func() {
+		testingDir = helper.CreateTempTestingDirectory()
+		featureFlagClient = &MockFeatureFlag{map[string]bool{}}
+		tkgConfigUpdaterClient = &fakes.TKGConfigUpdaterClient{}
+		tkgClient, err = client.CreateTKGClientOptsMutator("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Second, func(o client.Options) client.Options {
+			o.FeatureFlagClient = featureFlagClient
+			o.TKGConfigUpdater = tkgConfigUpdaterClient
+			return o
+		})
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	AfterEach((func() {
+		helper.DeleteTempTestingDirectory(testingDir)
+	}))
+
+	Context("When cluster is mgmt cluster", func() {
+		BeforeEach(func() {
+			isManagementCluster = true
+			tkgConfigUpdaterClient.GetProvidersChecksumStub = func() (string, error) {
+				return "fakeFileSumIsSame", nil
+			}
+			tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFileStub = func() (string, error) {
+				return "fakeFileSumIsDifferent", nil
+			}
+		})
+
+		It("Should deploy classy based cluster with FeatureFlagPackageBasedCC is enabled", func() {
+			featureFlagClient.FeatureFlags[constants.FeatureFlagPackageBasedCC] = true
+			result, err := tkgClient.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(true))
+		})
+
+		It("Should return false with FeatureFlagPackageBasedCC is disabled", func() {
+			featureFlagClient.FeatureFlags[constants.FeatureFlagPackageBasedCC] = false
+			result, err := tkgClient.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(false))
+		})
+
+		It("Should return false when checkOverlay fails", func() {
+			tkgConfigUpdaterClient.GetProvidersChecksumStub = func() (string, error) {
+				return "fakeFileSumIsSame", errors.Errorf("fake error")
+			}
+			result, err := tkgClient.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+			Expect(err.Error()).To(Equal("fake error"))
+			Expect(result).To(Equal(false))
+		})
+	})
+
+	Context("When cluster is workload cluster", func() {
+		BeforeEach(func() {
+			isManagementCluster = false
+			tkgConfigUpdaterClient.GetProvidersChecksumStub = func() (string, error) {
+				return "fakeFileSumIsSame", nil
+			}
+			tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFileStub = func() (string, error) {
+				return "fakeFileSumIsDifferent", nil
+			}
+		})
+
+		It("Should return false and error with AllowLeagcyCluster is false when customization exists", func() {
+			result, err := tkgClient.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+			Expect(err.Error()).To(ContainSubstring("It seems like you have done some customizations to the template overlays"))
+			Expect(result).To(Equal(false))
+		})
+
+		It("Should return true with AllowLeagcyCluster is false when customization doesn't exist", func() {
+			tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFileStub = func() (string, error) {
+				return "fakeFileSumIsSame", nil
+			}
+			result, err := tkgClient.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(true))
+		})
+
+		It("Should return true and with AllowLeagcyCluster and ForceDeployClassyCluster are true", func() {
+			featureFlagClient.FeatureFlags[constants.FeatureFlagAllowLegacyCluster] = true
+			featureFlagClient.FeatureFlags[constants.FeatureFlagForceDeployClusterWithClusterClass] = true
+			result, err := tkgClient.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(true))
+		})
+
+		It("Should return false and with AllowLeagcyCluster is true and ForceDeployClassyCluster is false", func() {
+			featureFlagClient.FeatureFlags[constants.FeatureFlagAllowLegacyCluster] = true
+			featureFlagClient.FeatureFlags[constants.FeatureFlagForceDeployClusterWithClusterClass] = false
+			result, err := tkgClient.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(false))
+		})
+	})
 })
