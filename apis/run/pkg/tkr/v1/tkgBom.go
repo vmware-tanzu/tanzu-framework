@@ -114,6 +114,7 @@ func (b *TkgBom) GetBomContent() (TkgBomContent, error) {
 	return b.bom, nil
 }
 
+// nolint:revive,stylecheck
 func (b *TkgBom) GetTKRPackageRepo() (tkrPackageRepo, error) {
 	if !b.initialzed {
 		return tkrPackageRepo{}, errors.New("the tkg BOM is not initialized")
@@ -121,6 +122,7 @@ func (b *TkgBom) GetTKRPackageRepo() (tkrPackageRepo, error) {
 	return b.bom.TKRPackageRepo, nil
 }
 
+// nolint:revive,stylecheck
 func (b *TkgBom) GetTKRPackage() (tkrPackage, error) {
 	if !b.initialzed {
 		return tkrPackage{}, errors.New("the tkg BOM is not initialized")
