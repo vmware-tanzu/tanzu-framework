@@ -235,7 +235,6 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 }
 
 func (p *PublishImagesToTarOptions) DownloadTkgPackagesImages(tkrVersions []string) error {
-
 	tkgBomImagePath := path.Join(p.TkgImageRepo, "tkg-bom")
 	sourceImageName := tkgBomImagePath + ":" + p.TkgVersion
 	err := p.PkgClient.PullImage(sourceImageName, outputDir)

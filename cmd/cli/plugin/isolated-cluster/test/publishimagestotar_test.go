@@ -174,3 +174,44 @@ var _ = Describe("DownloadTkrBomAndComponentImages()", func() {
 	})
 
 })
+
+var _ = Describe("DownloadTkgPackagesImages()", func() {
+	var (
+		fake = &fakes.ImgpkgClientFake{}
+	)
+	pullImage := &imageop.PublishImagesToTarOptions{}
+	tkrVersions := []string{"v1.24.6+vmware.1-tkg.1-fc.1", "v1.22.11+vmware.2-tkg.2-fc.1", "v1.23.13+vmware.1-tkg.1-fc.1"}
+
+	JustBeforeEach(func() {
+		pullImage.ImageDetails = map[string]string{}
+		pullImage.TkgImageRepo = tkgImageRepo
+		pullImage.TkgVersion = tkgversion
+
+	})
+	When("Error while downloading tkr bom", func() {
+		It("should return err", func() {
+			fake.CopyImageToTarReturns(errors.New("error while downloading tkr bom"))
+			pullImage.PkgClient = fake
+			err := pullImage.DownloadTkgPackagesImages(tkrVersions)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("no such file or directory"))
+		})
+	})
+	When("DownloadTkgPackagesImages successful", func() {
+		It("should return nil", func() {
+			err := os.MkdirAll("./tmp", os.ModePerm)
+			Expect(err).ToNot(HaveOccurred())
+			fake.CopyImageToTarReturns(nil)
+			pullImage.PkgClient = fake
+			err = utils.CopyFile("./testdata/tkg-bom-v1.3.0.yaml", "./tmp/tkg-bom-v1.3.0.yaml")
+			Expect(err).ToNot(HaveOccurred())
+			err = pullImage.DownloadTkgPackagesImages(tkrVersions)
+			Expect(err).ToNot(HaveOccurred())
+			images := len(pullImage.ImageDetails)
+			Expect(images).To(Equal(18))
+			err = utils.DeleteFile("./tmp/tkg-bom-v1.3.0.yaml")
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+
+})
