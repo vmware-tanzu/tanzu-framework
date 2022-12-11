@@ -2970,6 +2970,18 @@ var _ = Describe("Cluster Client", func() {
 	Describe("UpdateAWSCNIIngressRules", func() {
 		var (
 			fakeClientSet crtclient.Client
+			antreaRule    = capav1beta2.CNIIngressRule{
+				Description: "antrea-controller",
+				Protocol:    capav1beta2.SecurityGroupProtocolTCP,
+				FromPort:    10349,
+				ToPort:      10349,
+			}
+			kappControllerRule = capav1beta2.CNIIngressRule{
+				Description: "kapp-controller",
+				Protocol:    capav1beta2.SecurityGroupProtocolTCP,
+				FromPort:    10100,
+				ToPort:      10100,
+			}
 		)
 
 		BeforeEach(func() {
@@ -2991,8 +3003,8 @@ var _ = Describe("Cluster Client", func() {
 		})
 
 		Context("When there are no existing CNI Ingress Rules", func() {
-			It("should have CNI Ingress rules for kapp-controller", func() {
-				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace")
+			It("should add new CNI rule", func() {
+				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace", kappControllerRule)
 				Expect(err).NotTo(HaveOccurred())
 
 				awsCluster := &capav1beta2.AWSCluster{}
@@ -3000,8 +3012,9 @@ var _ = Describe("Cluster Client", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				ingressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
-				expectedIngressRules := capav1beta2.CNIIngressRules{}
-				expectedIngressRules = append(expectedIngressRules, AWSIngressRules...)
+				expectedIngressRules := capav1beta2.CNIIngressRules{
+					kappControllerRule,
+				}
 				Expect(ingressRules).To(Equal(expectedIngressRules))
 			})
 		})
@@ -3014,20 +3027,15 @@ var _ = Describe("Cluster Client", func() {
 
 				awsCluster.Spec.NetworkSpec.CNI = &capav1beta2.CNISpec{
 					CNIIngressRules: capav1beta2.CNIIngressRules{
-						{
-							Description: "antrea-controller",
-							Protocol:    capav1beta2.SecurityGroupProtocolTCP,
-							FromPort:    10349,
-							ToPort:      10349,
-						},
+						antreaRule,
 					},
 				}
 				err = clstClient.UpdateResource(awsCluster, "fake-clusterName", "fake-namespace")
 				Expect(err).NotTo(HaveOccurred())
 			})
 
-			It("should have AWSIngressRules and existing one", func() {
-				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace")
+			It("should add new CNI rule", func() {
+				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace", kappControllerRule)
 				Expect(err).NotTo(HaveOccurred())
 
 				awsCluster := &capav1beta2.AWSCluster{}
@@ -3037,19 +3045,14 @@ var _ = Describe("Cluster Client", func() {
 				ingressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
 
 				expectedIngressRules := capav1beta2.CNIIngressRules{
-					{
-						Description: "antrea-controller",
-						Protocol:    capav1beta2.SecurityGroupProtocolTCP,
-						FromPort:    10349,
-						ToPort:      10349,
-					},
+					antreaRule,
+					kappControllerRule,
 				}
-				expectedIngressRules = append(expectedIngressRules, AWSIngressRules...)
 				Expect(ingressRules).To(Equal(expectedIngressRules))
 			})
 		})
 
-		Context("When one of the rules in AWSIngressRules already exists", func() {
+		Context("When CNI Ingress Rules already exist", func() {
 			JustBeforeEach(func() {
 				awsCluster := &capav1beta2.AWSCluster{}
 				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
@@ -3057,20 +3060,15 @@ var _ = Describe("Cluster Client", func() {
 
 				awsCluster.Spec.NetworkSpec.CNI = &capav1beta2.CNISpec{
 					CNIIngressRules: capav1beta2.CNIIngressRules{
-						{
-							Description: "kapp-controller",
-							Protocol:    capav1beta2.SecurityGroupProtocolTCP,
-							FromPort:    DefaultKappControllerHostPort,
-							ToPort:      DefaultKappControllerHostPort,
-						},
+						kappControllerRule,
 					},
 				}
 				err = clstClient.UpdateResource(awsCluster, "fake-clusterName", "fake-namespace")
 				Expect(err).NotTo(HaveOccurred())
 			})
 
-			It("should have all  CNI Ingress rules listed in AWSIngressRules", func() {
-				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace")
+			It("should keep same rule", func() {
+				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace", kappControllerRule)
 				Expect(err).NotTo(HaveOccurred())
 
 				awsCluster := &capav1beta2.AWSCluster{}
@@ -3078,7 +3076,10 @@ var _ = Describe("Cluster Client", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				ingressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
-				Expect(ingressRules).To(Equal(AWSIngressRules))
+				expectedIngressRules := capav1beta2.CNIIngressRules{
+					kappControllerRule,
+				}
+				Expect(ingressRules).To(Equal(expectedIngressRules))
 			})
 		})
 

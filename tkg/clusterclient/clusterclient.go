@@ -292,7 +292,7 @@ type Client interface {
 	// DeleteExistingKappController deletes the kapp-controller that already exists in the cluster.
 	DeleteExistingKappController() error
 	// UpdateAWSCNIIngressRules updates the cniIngressRules field for the AWSCluster resource.
-	UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error
+	UpdateAWSCNIIngressRules(clusterName, clusterNamespace string, newRule capav1beta2.CNIIngressRule) error
 	// AddCEIPTelemetryJob creates telemetry cronjob component on cluster
 	AddCEIPTelemetryJob(clusterName, providerName string, bomConfig *tkgconfigbom.BOMConfiguration, isProd, labels, httpProxy, httpsProxy, noProxy string) error
 	// RemoveCEIPTelemetryJob deletes telemetry cronjob component on cluster
@@ -2467,30 +2467,8 @@ func (c *client) DeleteExistingKappController() error {
 	return nil
 }
 
-const (
-	DefaultKappControllerHostPort = 10100
-	DefaultAddonsManagerHostPort  = 9865
-)
-
-// AWSIngressRules is a list of CNIIngressRules that need to be applied to an aws cluster to allow for control-plane pod network traffic
-var AWSIngressRules = capav1beta2.CNIIngressRules{
-	capav1beta2.CNIIngressRule{
-		Description: "kapp-controller",
-		Protocol:    capav1beta2.SecurityGroupProtocolTCP,
-		FromPort:    DefaultKappControllerHostPort,
-		ToPort:      DefaultKappControllerHostPort,
-	},
-	capav1beta2.CNIIngressRule{
-		Description: "addons-manager",
-		Protocol:    capav1beta2.SecurityGroupProtocolTCP,
-		FromPort:    DefaultAddonsManagerHostPort,
-		ToPort:      DefaultAddonsManagerHostPort,
-	},
-}
-
-// UpdateAWSCNIIngressRules updates the cniIngressRules field on an AWSCluster with rules listed under
-// AWSIngressRules
-func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) error {
+// UpdateAWSCNIIngressRules updates the cniIngressRules  for AWSCluster with the given new rule.
+func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string, newRule capav1beta2.CNIIngressRule) error {
 	awsCluster := &capav1beta2.AWSCluster{}
 	if err := c.GetResource(awsCluster, clusterName, clusterNamespace, nil, nil); err != nil {
 		return err
@@ -2505,44 +2483,32 @@ func (c *client) UpdateAWSCNIIngressRules(clusterName, clusterNamespace string) 
 	}
 
 	cniIngressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
-	cniIngressRulesNeedUpdate := false
-	for _, ingressRule := range AWSIngressRules {
-		if !containsIngressRule(cniIngressRules, ingressRule) {
-			cniIngressRules = append(cniIngressRules, ingressRule)
-			cniIngressRulesNeedUpdate = true
+	// first check if existing ingress rules already contain the new rule
+	for _, ingressRule := range cniIngressRules {
+		if ingressRule.Description != newRule.Description {
+			continue
 		}
+
+		if ingressRule.Protocol != newRule.Protocol {
+			continue
+		}
+
+		if ingressRule.FromPort != newRule.FromPort || ingressRule.ToPort != newRule.ToPort {
+			continue
+		}
+		// If we get here it means the rule exists, so we do nothing.
+		return nil
 	}
 
-	if cniIngressRulesNeedUpdate {
-		awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = cniIngressRules
-		err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-			return c.UpdateResource(awsCluster, clusterName, clusterNamespace)
-		})
-		if err != nil {
-			return err
-		}
-	}
+	// rule was not found so we add it
+	cniIngressRules = append(cniIngressRules, newRule)
 
-	return nil
-}
+	awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules = cniIngressRules
+	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		return c.UpdateResource(awsCluster, clusterName, clusterNamespace)
+	})
 
-func containsIngressRule(listOfRules capav1beta2.CNIIngressRules, rule capav1beta2.CNIIngressRule) bool {
-	for _, ingressRule := range listOfRules {
-		if ingressRule.Description != rule.Description {
-			continue
-		}
-		if ingressRule.Protocol != rule.Protocol {
-			continue
-		}
-		if ingressRule.FromPort != rule.FromPort {
-			continue
-		}
-		if ingressRule.ToPort != rule.ToPort {
-			continue
-		}
-		return true
-	}
-	return false
+	return err
 }
 
 // RemoveCEIPTelemetryJob removes installed telemetry job
