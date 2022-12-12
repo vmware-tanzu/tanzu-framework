@@ -66,7 +66,7 @@
 #@ end
 
 #@ def vspherecpi_configs_exist():
-#@   return data.values.PROVIDER_TYPE == "vsphere" and (data.values.VSPHERE_SERVER or data.values.NSXT_MANAGER_HOST or not data.values.VSPHERE_INSECURE or
+#@   return data.values.PROVIDER_TYPE == "vsphere" and (data.values.TKG_IP_FAMILY or data.values.VSPHERE_REGION or data.values.VSPHERE_ZONE or data.values.NSXT_MANAGER_HOST or
 #@               not data.values.AVI_CONTROL_PLANE_HA_PROVIDER or (data.values.TKG_HTTP_PROXY != "" or
 #@               data.values.TKG_HTTPS_PROXY != "" or
 #@               data.values.TKG_NO_PROXY != ""))
@@ -196,17 +196,7 @@ spec:
       skipCNIBinaries: true
 #@ end
 ---
-#@ if vspherecpi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
-#@ if data.values.VSPHERE_USERNAME or data.values.VSPHERE_PASSWORD:
-apiVersion: v1
-kind: Secret
-metadata:
-  name: #@ data.values.CLUSTER_NAME + "-vsphere-credential"
-  namespace: #@ data.values.NAMESPACE
-stringData:
-  username: #@ data.values.VSPHERE_USERNAME
-  password: #@ data.values.VSPHERE_PASSWORD
-#@ end
+#@ if vspherecpi_configs_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 #@ if data.values.NSXT_USERNAME or data.values.NSXT_PASSWORD:
 ---
 apiVersion: v1
@@ -227,25 +217,11 @@ metadata:
 spec:
   vsphereCPI:
     mode: vsphereCPI
-    vCenterAPIEndpoint: #@ data.values.VSPHERE_SERVER
-    #@ if data.values.VSPHERE_DATACENTER:
-    datacenter: #@ data.values.VSPHERE_DATACENTER
-    #@ end
-    #@ if data.values.VSPHERE_USERNAME or data.values.VSPHERE_PASSWORD:
-    vSphereCredentialLocalObjRef:
-      kind: Secret
-      name: #@ data.values.CLUSTER_NAME + "-vsphere-credential"
-    #@ end
     #@ if data.values.VSPHERE_REGION:
     region: #@ data.values.VSPHERE_REGION
     #@ end
     #@ if data.values.VSPHERE_ZONE:
     zone: #@ data.values.VSPHERE_ZONE
-    #@ end
-    #@ if data.values.VSPHERE_INSECURE:
-    insecure: #@ data.values.VSPHERE_INSECURE
-    #@ else:
-    tlsThumbprint: #@ data.values.VSPHERE_TLS_THUMBPRINT
     #@ end
     #@ if data.values.TKG_IP_FAMILY:
     ipFamily: #@ data.values.TKG_IP_FAMILY
