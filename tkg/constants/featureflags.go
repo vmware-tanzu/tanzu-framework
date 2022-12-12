@@ -40,7 +40,7 @@ const (
 	// FeatureFlagManagementClusterDeployInClusterIPAMProvider feature flag
 	// determines whether to apply the In-Cluster IPAM provider to the
 	// management cluster.
-	FeatureFlagManagementClusterDeployInClusterIPAMProvider = "features.management-cluster.deploy-in-cluster-ipam-provider-beta"
+	FeatureFlagManagementClusterDeployInClusterIPAMProvider = "features.management-cluster.deploy-in-cluster-ipam-provider"
 	// FeatureFlagAllowLegacyCluster is used to decide the workload cluster is clusterclass based or legayc based.
 	// By default, it's false. If it's true, then workload cluster is legacy based.
 	FeatureFlagAllowLegacyCluster = "features.cluster.allow-legacy-cluster"
