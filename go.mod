@@ -112,7 +112,7 @@ require (
 	knative.dev/pkg v0.0.0-20220302134643-d2cdc682d974
 	sigs.k8s.io/cluster-api v1.1.5
 	sigs.k8s.io/cluster-api-provider-aws v1.1.0
-	sigs.k8s.io/cluster-api-provider-azure v1.4.0
+	sigs.k8s.io/cluster-api-provider-azure v1.4.5
 	sigs.k8s.io/cluster-api-provider-vsphere v1.3.5
 	sigs.k8s.io/cluster-api/test v1.1.5
 	sigs.k8s.io/controller-runtime v0.11.2
