@@ -156,7 +156,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			return false, err
 		}
 	} else {
-		bytes, err = c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster, options.IsWindowsWorkloadCluster)
+		bytes, err = c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster)
 		if err != nil {
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
@@ -199,7 +199,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 }
 
 // getClusterConfigurationBytes returns cluster configuration by taking into consideration of legacy vs clusterclass based cluster creation
-func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, infraProviderName string, isManagementCluster, isWindowsWorkloadCluster bool) ([]byte, error) {
+func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, infraProviderName string, isManagementCluster bool) ([]byte, error) {
 	deployClusterClassBasedCluster, err := c.ShouldDeployClusterClassBasedCluster(isManagementCluster)
 	if err != nil {
 		return nil, err
@@ -215,7 +215,7 @@ func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, 
 	}
 
 	// Get the cluster configuration yaml bytes
-	return c.getClusterConfiguration(options, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)
+	return c.getClusterConfiguration(options, isManagementCluster, infraProviderName)
 }
 
 func getContentFromInputFile(fileName string) ([]byte, error) {
@@ -758,7 +758,7 @@ func (c *TkgClient) configureAndValidateProviderConfig(providerName string, opti
 		}
 	}
 
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, isProdPlan, false, providerName, false)
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, isProdPlan, false, providerName)
 	if err != nil {
 		return errors.Wrap(err, "failed to distribute machine deployments")
 	}
