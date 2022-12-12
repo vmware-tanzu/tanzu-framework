@@ -356,6 +356,16 @@ const (
 	// for example
 	// "run.tanzu.vmware.com/skip-packageinstall-deletion": "vsphere-cpi,antrea,load-balancer-and-ingress-service"
 	SkipDeletePackageInstallAnnotation = "run.tanzu.vmware.com/skip-packageinstall-deletion"
+
+	// TKGPlanAnnotation is the annotation that contains the cluster plan
+	// for example
+	// "tkg/plan": "dev"
+	TKGPlanAnnotation = "tkg/plan"
+
+	// TKGDevPlan is the tkg plan name, mean that that cluster is in a dev env
+	TKGDevPlan = "dev"
+	// TKGDevCCPan is the tkg plan name, mean that that cluster is in a dev env
+	TKGDevCCPan = "devcc"
 )
 
 var (
