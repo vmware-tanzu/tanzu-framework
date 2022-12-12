@@ -5,7 +5,7 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
-  name: tkg-oci-default
+  name: #@ "tkg-oci-default-{}".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   controlPlane:
