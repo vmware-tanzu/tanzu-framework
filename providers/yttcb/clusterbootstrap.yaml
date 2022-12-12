@@ -1,6 +1,9 @@
 #@ load("@ytt:assert", "assert")
 #@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:ip", "ip")
+
+#@ load("pinniped_addon_secret.lib.yaml", "getPinnipedDataValuesForMC")
 
 #@ vsphereControlPlaneEndpointAsCidr = ""
 #@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
@@ -13,6 +16,14 @@
 #@       vsphereControlPlaneEndpointAsCidr = vsphereControlPlaneEndpoint.string() + "/128"
 #@     end
 #@   end
+#@ end
+
+#@ def pinniped_configs_exist():
+#@   return data.values.IDENTITY_MANAGEMENT_TYPE == "oidc" or data.values.IDENTITY_MANAGEMENT_TYPE == "ldap"
+#@ end
+
+#@ def is_management_cluster():
+#@   return data.values.TKG_CLUSTER_ROLE == "management"
 #@ end
 
 #@ def split_comma_values(value):
@@ -86,7 +97,7 @@
 #@ end
 
 #@ def storage_class_configs_exist():
-#@   return data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker"
+#@   return data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE in ["azure","aws","vsphere"]
 #@ end
 
 #@ def azurefilecsi_configs_exist():
@@ -102,13 +113,46 @@
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_config_customized() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_configs_exist() or azurediskcsi_configs_exist() or azurefilecsi_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_config_customized() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_configs_exist() or azurediskcsi_configs_exist() or azurefilecsi_configs_exist()  or pinniped_configs_exist()
 #@ end
 
 #@ def kubevipcpiconfig_exist():
 #@   return data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE == "workload" and data.values.KUBEVIP_LOADBALANCER_ENABLE and (data.values.KUBEVIP_LOADBALANCER_CIDRS != "" or data.values.KUBEVIP_LOADBALANCER_IP_RANGES != "")
 #@ end
 
+#@ if pinniped_configs_exist() and is_management_cluster():
+---
+#! Only generate this Secret for management clusters which have data.values.IDENTITY_MANAGEMENT_TYPE
+#! configured to be equal to one of the two supported types ("ldap" or "oidc"). Otherwise,
+#! for management clusters with IDENTITY_MANAGEMENT_TYPE of "none" or "", do not create this Secret,
+#! so that the default Secret from the ClusterBootstrapTemplate may be used (and that Secret
+#! contains identity_management_type "none" to disable Pinniped).
+#! Never generate this Secret for workload clusters, so that the default Secret from the ClusterBootstrapTemplate
+#! may always be used. For workload clusters, the tanzu-auth-controller-manager's v3_cascade_controller will
+#! watch that default Secret or every cluster and will edit its contents to keep it up to date with the management cluster's
+#! pinniped-info configmap. The pinniped-info configmap contains the relevant Pinniped settings for workload clusters,
+#! created by the Pinniped package on the management cluster and updated by the Pinniped package's post-deploy-job on
+#! the management cluster. Note that when Pinniped was not configured on the management cluster, then the pinniped-info
+#! configmap will not exist, in which case the controller will edit the default Secret to give it the appropriate values
+#! to disable Pinniped on all the workload clusters too.
+apiVersion: v1
+kind: Secret
+metadata:
+  #! This is the same name which is the default used by the ClusterBootstrap below.
+  #! If this Secret is generated, then the cluster will use it instead of creating
+  #! a default version of this Secret.
+  name: #@ "{}-pinniped-package".format(data.values.CLUSTER_NAME)
+  namespace: #@ data.values.NAMESPACE
+  labels:
+    tkg.tanzu.vmware.com/addon-name: pinniped
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    clusterctl.cluster.x-k8s.io/move: ""
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "authentication/pinniped"
+type: clusterbootstrap-secret
+stringData:
+  values.yaml: #@ yaml.encode(getPinnipedDataValuesForMC())
+#@ end
 #@ if antrea_config_customized():
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1

@@ -7,5 +7,5 @@ metadata:
     tkg.tanzu.vmware.com/template-config: "true"
 spec:
   azureDiskCSIDriver:
-    namespace: tkg-system
-    deploymentReplicas: 1
+    namespace: kube-system
+    deploymentReplicas: 3
