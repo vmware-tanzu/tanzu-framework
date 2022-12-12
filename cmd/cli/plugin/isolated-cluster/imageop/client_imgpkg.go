@@ -51,8 +51,10 @@ func (c *imgpkgClient) CopyImageToTar(sourceImageName, destImageRepo, customImag
 	isBundle, _ := newBundle.IsBundle()
 	if isBundle {
 		copyOptions.BundleFlags = cmd.BundleFlags{Bundle: sourceImageName}
+		copyOptions.IncludeNonDistributable = true
 	} else {
 		copyOptions.ImageFlags = cmd.ImageFlags{Image: sourceImageName}
+		copyOptions.IncludeNonDistributable = true
 	}
 	copyOptions.TarFlags.TarDst = destImageRepo
 	if customImageRepoCertificate != "" {
