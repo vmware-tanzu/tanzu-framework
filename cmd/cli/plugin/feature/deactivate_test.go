@@ -4,14 +4,99 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"os"
 	"strings"
 	"testing"
 
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/kubernetes/scheme"
+	crclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
+	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient"
+	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient/fake"
 )
 
-func TestExecuteFeatureDectivateCommand(t *testing.T) {
+func TestDeactivateFeature(t *testing.T) {
+	tests := []struct {
+		description  string
+		featureName  string
+		wantErr      error
+		wantActivate bool
+	}{
+		{
+			description:  "deactivate a deprecated feature",
+			featureName:  "biz",
+			wantErr:      nil,
+			wantActivate: false,
+		},
+		{
+			description:  "deactivate a technical preview feature",
+			featureName:  "tuna",
+			wantErr:      nil,
+			wantActivate: false,
+		},
+		{
+			description:  "deactivate experimental feature",
+			featureName:  "cloud-event-listener",
+			wantErr:      nil,
+			wantActivate: false,
+		},
+		{
+			description:  "cannot deactivate a stable feature",
+			featureName:  "super-toaster",
+			wantErr:      featuregateclient.ErrTypeForbidden,
+			wantActivate: true,
+		},
+		{
+			description:  "cannot deactivate a feature that is not gated by feature gate",
+			featureName:  "hard-to-get",
+			wantErr:      featuregateclient.ErrTypeNotFound,
+			wantActivate: false,
+		},
+		{
+			description:  "cannot deactivate a feature that is gated by more than one feature gate",
+			featureName:  "bazzies",
+			wantErr:      featuregateclient.ErrTypeTooMany,
+			wantActivate: true,
+		},
+	}
+
+	objs, _, _ := fake.GetTestObjects()
+	s := scheme.Scheme
+	if err := corev1alpha2.AddToScheme(s); err != nil {
+		t.Fatalf("unable to add config scheme: (%v)", err)
+	}
+
+	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
+	fgClient, err := featuregateclient.NewFeatureGateClient(featuregateclient.WithClient(cl))
+	if err != nil {
+		t.Fatalf("unable to get FeatureGate client: %v", err)
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.description, func(t *testing.T) {
+			_, err := deactivateFeature(context.Background(), fgClient, tc.featureName)
+
+			if !errors.Is(err, tc.wantErr) {
+				t.Fatalf("got error: %v, want: %v", err, tc.wantErr)
+			}
+
+			gates, err := fgClient.GetFeatureGateList(context.Background())
+			if err != nil {
+				t.Errorf("get FeatureGate List: %v", err)
+			}
+			_, ref := featuregateclient.FeatureRefFromGateList(gates, tc.featureName)
+			if ref.Activate != tc.wantActivate {
+				t.Errorf("got activate: %t, want: %t", ref.Activate, tc.wantActivate)
+			}
+		})
+	}
+}
+
+func TestExecuteFeatureDeactivateCommand(t *testing.T) {
 	test := struct {
 		description string
 		cmd         *cobra.Command

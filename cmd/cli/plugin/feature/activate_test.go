@@ -101,13 +101,13 @@ func TestActivateFeature(t *testing.T) {
 	objs, _, _ := fake.GetTestObjects()
 	s := scheme.Scheme
 	if err := corev1alpha2.AddToScheme(s); err != nil {
-		t.Fatalf("add config scheme: (%v)", err)
+		t.Fatalf("unable to add config scheme: (%v)", err)
 	}
 
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
 	fgClient, err := featuregateclient.NewFeatureGateClient(featuregateclient.WithClient(cl))
 	if err != nil {
-		t.Fatalf("get FeatureGate client: %v", err)
+		t.Fatalf("unable to get FeatureGate client: %v", err)
 	}
 
 	for _, tc := range tests {

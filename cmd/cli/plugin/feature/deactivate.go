@@ -31,7 +31,7 @@ var FeatureDeactivateCmd = &cobra.Command{
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 		defer cancel()
 
-		gateName, err := fgClient.DeactivateFeature(ctx, featureName)
+		gateName, err := deactivateFeature(ctx, fgClient, featureName)
 		if err != nil {
 			return fmt.Errorf("could not deactivate Feature %s gated by FeatureGate %s: %w", featureName, gateName, err)
 		}
@@ -39,4 +39,8 @@ var FeatureDeactivateCmd = &cobra.Command{
 		cmd.Printf("Feature %s gated by FeatureGate %s is deactivated.\n", featureName, gateName)
 		return nil
 	},
+}
+
+func deactivateFeature(ctx context.Context, fgClient *featuregateclient.FeatureGateClient, featureName string) (string, error) {
+	return fgClient.DeactivateFeature(ctx, featureName)
 }

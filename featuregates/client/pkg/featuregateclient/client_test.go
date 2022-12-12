@@ -113,7 +113,7 @@ func TestGetFeatureList(t *testing.T) {
 	t.Run(test.description, func(t *testing.T) {
 		features, err := featureGateClient.GetFeatureList(ctx)
 		if err != nil {
-			t.Errorf("get FeatureList: %v", err)
+			t.Errorf("unable to get FeatureList: %v", err)
 		}
 
 		for _, feature := range test.want {
@@ -165,7 +165,7 @@ func TestGetFeaturegate(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			got, err := featureGateClient.GetFeatureGate(ctx, tc.featureGate)
 			if err != nil {
-				t.Errorf("get Feature %sGate: %v", tc.featureGate, err)
+				t.Errorf("unable to get FeatureGate %s: %v", tc.featureGate, err)
 			}
 
 			if got.Name != tc.wantGate {
