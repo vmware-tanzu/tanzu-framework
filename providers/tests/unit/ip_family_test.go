@@ -4,13 +4,12 @@
 package unit
 
 import (
-	"path/filepath"
-	"strings"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v3"
+	"path/filepath"
+	"strings"
 
 	. "github.com/vmware-tanzu/tanzu-framework/test/pkg/matchers"
 	"github.com/vmware-tanzu/tanzu-framework/test/pkg/ytt"
@@ -19,6 +18,8 @@ import (
 const (
 	capvVersion = "v1.5.1"
 	yamlRoot    = "../../"
+	// TODO we are overtesting a little bit here, but... well... we can sort the minimal required string pattern out later...
+	kubeadmIPString = "echo \"KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)\" >> /etc/sysconfig/kubelet"
 )
 
 var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
@@ -443,7 +444,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].owner", "root:root"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].path", "/etc/sysconfig/kubelet"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].permissions", "0640"))
-					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.preKubeadmCommands[6]", "echo \"KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)\" >> /etc/sysconfig/kubelet"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.preKubeadmCommands[4]", kubeadmIPString))
 				},
 					Entry("when the tkr is 1.22.8", "v1.22.8---vmware.1-tkg.1"),
 					Entry("when the tkr is 1.22.11", "v1.22.11---vmware.1-tkg.1"),
@@ -585,7 +586,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
 					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.files[1]"))
-					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.preKubeadmCommands[6]"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.preKubeadmCommands[4]"))
 				})
 			})
 
@@ -699,7 +700,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].owner", "root:root"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].path", "/etc/sysconfig/kubelet"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].permissions", "0640"))
-					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.preKubeadmCommands[6]", "echo \"KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)\" >> /etc/sysconfig/kubelet"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.preKubeadmCommands[4]", kubeadmIPString))
 				})
 			})
 		})
