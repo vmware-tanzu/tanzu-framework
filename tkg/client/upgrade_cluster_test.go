@@ -4,6 +4,7 @@
 package client_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -14,7 +15,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	apitypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/discovery"
@@ -972,6 +975,155 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 		})
 		It("should not return an error", func() {
 			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+})
+
+var _ = Describe("Unit test for prepareAddonsManagerUpgrade", func() {
+	var (
+		regionalClusterClient fakes.ClusterClient
+		upgradeClusterConfig  ClusterUpgradeInfo
+		tkgClient             TkgClient
+	)
+	BeforeEach(func() {
+		regionalClusterClient = fakes.ClusterClient{}
+	})
+	When("capa-system namespace is not found", func() {
+		It("Should return no error", func() {
+			regionalClusterClient.GetResourceReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "fake-namespace"}, "fake-cluster"))
+			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
+		})
+	})
+	When("cannot fetch capa-system namespace", func() {
+		It("should return error", func() {
+			regionalClusterClient.GetResourceReturns(fmt.Errorf("some-error"))
+			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
+			Expect(err).To(HaveOccurred())
+			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
+		})
+	})
+	When("capa-system is present", func() {
+		It("should return no error", func() {})
+		regionalClusterClient.GetResourceReturns(nil)
+		err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(1))
+	})
+	When("capa-system is present but can't add ingress rules", func() {
+		It("should return no error", func() {
+			regionalClusterClient.GetResourceReturns(nil)
+			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
+			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
+			Expect(err).ToNot(HaveOccurred())
+			callcount := regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()
+			Expect(callcount).To(Equal(1))
+		})
+	})
+	When("spec.network.seucrityGroupOverrides is not nil for aws cluster", func() {
+		It("should return no error and should not try to add aws ingress rule", func() {
+			regionalClusterClient.GetResourceReturns(nil)
+			callIndex := 0
+			regionalClusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if callIndex < 1 { //in this test there is one call to GetResources before the call to check gert the awscluster
+					callIndex++
+					return nil
+				}
+				awsCluster := obj.(*capav1beta2.AWSCluster)
+				securityGroupOverride := make(map[capav1beta2.SecurityGroupRole]string)
+				securityGroupOverride["secgroup1"] = "secrules"
+				awsCluster.Spec.NetworkSpec.SecurityGroupOverrides = securityGroupOverride
+				return nil
+			}
+			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
+			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
+			Expect(err).ToNot(HaveOccurred())
+			callcount := regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()
+			Expect(callcount).To(Equal(0))
+		})
+	})
+})
+
+var _ = Describe("Unit test for handleKappControllerUpgrade", func() {
+	var (
+		regionalClusterClient fakes.ClusterClient
+		currentClusterClient  fakes.ClusterClient
+		upgradeClusterConfig  ClusterUpgradeInfo
+		tkgClient             TkgClient
+	)
+	BeforeEach(func() {
+		regionalClusterClient = fakes.ClusterClient{}
+	})
+
+	When("existing kapp-controller cannot be deleted", func() {
+		It("should return error", func() {
+			regionalClusterClient := fakes.ClusterClient{}
+			regionalClusterClient.GetResourceReturns(nil)
+			currentClusterClient.DeleteExistingKappControllerReturns(fmt.Errorf("some-error"))
+			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
+			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
+			Expect(err).To(HaveOccurred())
+			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
+		})
+	})
+	When("capa-system namespace is not found", func() {
+		It("Should return no error", func() {
+			regionalClusterClient := fakes.ClusterClient{}
+			regionalClusterClient.GetResourceReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "fake-namespace"}, "fake-cluster"))
+			currentClusterClient.DeleteExistingKappControllerReturns(nil)
+			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
+		})
+	})
+	When("cannot fetch capa-system namespace", func() {
+		It("should return error", func() {
+			regionalClusterClient.GetResourceReturns(fmt.Errorf("some-error"))
+			currentClusterClient.DeleteExistingKappControllerReturns(nil)
+			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
+			Expect(err).To(HaveOccurred())
+			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
+		})
+	})
+	When("capa-system is present", func() {
+		It("should return no error", func() {
+			regionalClusterClient.GetResourceReturns(nil)
+			currentClusterClient.DeleteExistingKappControllerReturns(nil)
+			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(1))
+		})
+	})
+	When("capa-system is present but can't add ingress rules", func() {
+		It("should return no error", func() {})
+		regionalClusterClient.GetResourceReturns(nil)
+		currentClusterClient.DeleteExistingKappControllerReturns(nil)
+		regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
+		err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(1))
+	})
+	When("spec.network.seucrityGroupOverrides is not nil for aws cluster", func() {
+		It("should return no error and should not try to add aws ingress rule", func() {
+			regionalClusterClient.GetResourceReturns(nil)
+			callIndex := 0
+			regionalClusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if callIndex < 1 { //in this test there is one call to GetResources before the call to check gert the awscluster
+					callIndex++
+					return nil
+				}
+				awsCluster := obj.(*capav1beta2.AWSCluster)
+				securityGroupOverride := make(map[capav1beta2.SecurityGroupRole]string)
+				securityGroupOverride["secgroup1"] = "secrules"
+				awsCluster.Spec.NetworkSpec.SecurityGroupOverrides = securityGroupOverride
+				return nil
+			}
+			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
+			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
+			Expect(err).ToNot(HaveOccurred())
+			callcount := regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()
+			Expect(callcount).To(Equal(0))
 		})
 	})
 })

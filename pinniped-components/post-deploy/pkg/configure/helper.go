@@ -21,25 +21,60 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/supervisor"
 )
 
-// createOrUpdatePinnipedInfo creates Pinniped information or updates existing data.
-func createOrUpdatePinnipedInfo(ctx context.Context, pinnipedInfo supervisor.PinnipedInfo, k8sClientSet kubernetes.Interface) error {
+// createOrUpdateManagementClusterPinnipedInfo creates Pinniped information or updates existing data for a management cluster.
+func createOrUpdateManagementClusterPinnipedInfo(ctx context.Context, pinnipedInfo supervisor.PinnipedInfo, k8sClientSet kubernetes.Interface, supervisorNamespaceName string) error {
 	var err error
 	zap.S().Info("Creating the ConfigMap for Pinniped info")
+
 	data, err := json.Marshal(pinnipedInfo)
 	if err != nil {
 		err = fmt.Errorf("could not marshal Pinniped info into JSON: %w", err)
+		zap.S().Error(err)
 		return err
 	}
 	dataMap := make(map[string]string)
 	if err = json.Unmarshal(data, &dataMap); err != nil {
 		err = fmt.Errorf("could not unmarshal Pinniped info into map[string]string: %w", err)
+		zap.S().Error(err)
 		return err
 	}
+
+	// Get the Supervisor's namespace so we can use it as the ownerRef for the ConfigMap.
+	//
+	// In TKGm classy management clusters, the pinniped-info ConfigMap is created here by this Job.
+	// If the user configures the management cluster back to the default of identity_management_type=none,
+	// then the pinniped-supervisor namespace is deleted, but nothing deletes the pinniped-info ConfigMap.
+	// To cause the ConfigMap to be deleted in this case, we set its ownerRef to point to the pinniped-supervisor namespace.
+	// When the ConfigMap is deleted, the v3_cascade_controller will update the pinniped addon secret of all workload
+	// clusters to have the default content of identity_management_type=none.
+	//
+	// In TKGm legacy management clusters, the pinniped-info ConfigMap is created here by this Job.
+	// When the user deletes the pinniped addon secret, the pinniped addon will be deleted, including the
+	// pinniped-supervisor namespace. When the ConfigMap is deleted, the v1_cascade_controller will delete the pinniped
+	// addon secret of all workload clusters.
+	//
+	// In a TKGs management clusters, this Job is not used and something else is responsible for creating/updating/deleting
+	// the pinniped-info ConfigMap.
+	supervisorNamespace, err := k8sClientSet.CoreV1().Namespaces().Get(ctx, supervisorNamespaceName, metav1.GetOptions{})
+	if err != nil {
+		err = fmt.Errorf("could not get namespace %s: %w", supervisorNamespaceName, err)
+		zap.S().Error(err)
+		return err
+	}
+
 	// create configmap under kube-public namespace
 	pinnipedConfigMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      constants.PinnipedInfoConfigMapName,
 			Namespace: constants.KubePublicNamespace,
+			OwnerReferences: []metav1.OwnerReference{
+				{
+					APIVersion: corev1.SchemeGroupVersion.String(),
+					Kind:       "Namespace",
+					Name:       supervisorNamespace.Name,
+					UID:        supervisorNamespace.UID,
+				},
+			},
 		},
 		Data: dataMap,
 	}
@@ -69,6 +104,7 @@ func createOrUpdatePinnipedInfo(ctx context.Context, pinnipedInfo supervisor.Pin
 		if configMapUpdated, e = k8sClientSet.CoreV1().ConfigMaps(constants.KubePublicNamespace).Get(ctx, constants.PinnipedInfoConfigMapName, metav1.GetOptions{}); e != nil {
 			return e
 		}
+		configMapUpdated.OwnerReferences = pinnipedConfigMap.OwnerReferences
 		configMapUpdated.Data = pinnipedConfigMap.Data
 		_, e = k8sClientSet.CoreV1().ConfigMaps(constants.KubePublicNamespace).Update(ctx, configMapUpdated, metav1.UpdateOptions{})
 		return e

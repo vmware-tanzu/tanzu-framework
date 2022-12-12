@@ -9,6 +9,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
 	v1beta1a "sigs.k8s.io/cluster-api/api/v1beta1"
 	v1alpha3a "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -1058,11 +1059,12 @@ type ClusterClient struct {
 	scalePacificClusterWorkerNodesReturnsOnCall map[int]struct {
 		result1 error
 	}
-	UpdateAWSCNIIngressRulesStub        func(string, string) error
+	UpdateAWSCNIIngressRulesStub        func(string, string, v1beta2.CNIIngressRule) error
 	updateAWSCNIIngressRulesMutex       sync.RWMutex
 	updateAWSCNIIngressRulesArgsForCall []struct {
 		arg1 string
 		arg2 string
+		arg3 v1beta2.CNIIngressRule
 	}
 	updateAWSCNIIngressRulesReturns struct {
 		result1 error
@@ -6344,19 +6346,20 @@ func (fake *ClusterClient) ScalePacificClusterWorkerNodesReturnsOnCall(i int, re
 	}{result1}
 }
 
-func (fake *ClusterClient) UpdateAWSCNIIngressRules(arg1 string, arg2 string) error {
+func (fake *ClusterClient) UpdateAWSCNIIngressRules(arg1 string, arg2 string, arg3 v1beta2.CNIIngressRule) error {
 	fake.updateAWSCNIIngressRulesMutex.Lock()
 	ret, specificReturn := fake.updateAWSCNIIngressRulesReturnsOnCall[len(fake.updateAWSCNIIngressRulesArgsForCall)]
 	fake.updateAWSCNIIngressRulesArgsForCall = append(fake.updateAWSCNIIngressRulesArgsForCall, struct {
 		arg1 string
 		arg2 string
-	}{arg1, arg2})
+		arg3 v1beta2.CNIIngressRule
+	}{arg1, arg2, arg3})
 	stub := fake.UpdateAWSCNIIngressRulesStub
 	fakeReturns := fake.updateAWSCNIIngressRulesReturns
-	fake.recordInvocation("UpdateAWSCNIIngressRules", []interface{}{arg1, arg2})
+	fake.recordInvocation("UpdateAWSCNIIngressRules", []interface{}{arg1, arg2, arg3})
 	fake.updateAWSCNIIngressRulesMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -6370,17 +6373,17 @@ func (fake *ClusterClient) UpdateAWSCNIIngressRulesCallCount() int {
 	return len(fake.updateAWSCNIIngressRulesArgsForCall)
 }
 
-func (fake *ClusterClient) UpdateAWSCNIIngressRulesCalls(stub func(string, string) error) {
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesCalls(stub func(string, string, v1beta2.CNIIngressRule) error) {
 	fake.updateAWSCNIIngressRulesMutex.Lock()
 	defer fake.updateAWSCNIIngressRulesMutex.Unlock()
 	fake.UpdateAWSCNIIngressRulesStub = stub
 }
 
-func (fake *ClusterClient) UpdateAWSCNIIngressRulesArgsForCall(i int) (string, string) {
+func (fake *ClusterClient) UpdateAWSCNIIngressRulesArgsForCall(i int) (string, string, v1beta2.CNIIngressRule) {
 	fake.updateAWSCNIIngressRulesMutex.RLock()
 	defer fake.updateAWSCNIIngressRulesMutex.RUnlock()
 	argsForCall := fake.updateAWSCNIIngressRulesArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *ClusterClient) UpdateAWSCNIIngressRulesReturns(result1 error) {

@@ -307,12 +307,12 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 		}
 
 		// create configmap for Pinniped info
-		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
+		if err := createOrUpdateManagementClusterPinnipedInfo(ctx, supervisor.PinnipedInfo{
 			MgmtClusterName:          &p.ClusterName,
 			Issuer:                   &supervisorSvcEndpoint,
 			IssuerCABundleData:       &caData,
 			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
-		}, c.K8SClientset); err != nil {
+		}, c.K8SClientset, p.SupervisorSvcNamespace); err != nil {
 			return err
 		}
 	} else if p.ClusterType == constants.TKGWorkloadClusterType {

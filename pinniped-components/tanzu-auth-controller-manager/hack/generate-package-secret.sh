@@ -3,6 +3,9 @@
 # Copyright 2022 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# This script is typically invoked by a make target in the top-level Makefile.
+# For TKGm, that make target is called by the bolt CLI code during the build process.
+
 set -euo pipefail
 
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"

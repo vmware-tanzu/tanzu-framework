@@ -39,17 +39,17 @@ func (c *PinnipedV1Controller) SetupWithManager(manager ctrl.Manager) error {
 	err := ctrl.
 		NewControllerManagedBy(manager).
 		For(&clusterapiv1beta1.Cluster{},
-			withLabel(tkrLabel)).
+			withLabel(tkrLabel)). // any cluster with label "tanzuKubernetesRelease"
 		Watches(
 			&source.Kind{Type: &corev1.ConfigMap{}},
-			handler.EnqueueRequestsFromMapFunc(configMapHandler),
+			handler.EnqueueRequestsFromMapFunc(configMapHandler), // enqueues an empty ctrl.Request to indicate that the configmap changed
 			withNamespacedName(types.NamespacedName{Namespace: "kube-public", Name: "pinniped-info"}),
 		).
 		Watches(
 			&source.Kind{Type: &corev1.Secret{}},
-			handler.EnqueueRequestsFromMapFunc(c.addonSecretToCluster),
+			handler.EnqueueRequestsFromMapFunc(c.addonSecretToCluster), // enqueues value of "tkg.tanzu.vmware.com/cluster-name" label
 			builder.WithPredicates(
-				c.withAddonLabel("pinniped"),
+				c.withAddonLabel("pinniped"), // type="tkg.tanzu.vmware.com/addon" and "tkg.tanzu.vmware.com/addon-name" label has value equal to "pinniped"
 			),
 		).
 		Complete(c)
@@ -74,8 +74,9 @@ func (c *PinnipedV1Controller) Reconcile(ctx context.Context, req ctrl.Request) 
 	}
 
 	if (req == ctrl.Request{}) {
+		// The pinniped-info configmap has changed. Find all the Secrets for all the Clusters and update their contents.
 		log.V(1).Info("configmap changed, checking all clusters")
-		clusters, err := listClustersContainingLabel(ctx, c.client, tkrLabel)
+		clusters, err := listClustersContainingLabel(ctx, c.client, tkrLabel) // all clusters with label "tanzuKubernetesRelease"
 		if err != nil {
 			log.Error(err, "error retrieving clusters", "cluster label", tkrLabel)
 			return reconcile.Result{}, err
@@ -97,10 +98,12 @@ func (c *PinnipedV1Controller) Reconcile(ctx context.Context, req ctrl.Request) 
 		return reconcile.Result{}, nil
 	}
 
-	// Get cluster from rec
+	// Either a Cluster has changed, or a Secret with a label pointing to a Cluster has changed.
+	// Either way, get the Cluster name and namespace from req.
 	cluster := clusterapiv1beta1.Cluster{}
 	if err := c.client.Get(ctx, req.NamespacedName, &cluster); err != nil {
 		if k8serror.IsNotFound(err) {
+			// The Cluster must have been deleted.
 			secretNamespacedName := secretNameFromClusterName(req.NamespacedName)
 			log = log.WithValues(
 				secretNamespaceLogKey, secretNamespacedName.Namespace,
