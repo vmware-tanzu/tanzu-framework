@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# Versions synced with common.mk
+# Versions (note, might need to sync thes vals with common.mk for post-build tool checking) 
 YQ_VERSION=v4.5.0
 YTT_VERSION=v0.40.0
 KBLD_VERSION=v0.31.0
