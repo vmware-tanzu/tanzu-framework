@@ -1,0 +1,16 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.CAPBK_BOOTSTRAP_TOKEN_TTL != "":
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "capi-kubeadm-bootstrap-controller-manager"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name": "manager"})
+      #@overlay/append
+      - env:
+        - name: CAPBK_BOOTSTRAP_TOKEN_TTL
+          value: #@ data.values.CAPBK_BOOTSTRAP_TOKEN_TTL
+#@ end

@@ -477,6 +477,11 @@ ENABLE_MHC_CONTROL_PLANE: true
 MHC_UNKNOWN_STATUS_TIMEOUT: 5m
 MHC_FALSE_STATUS_TIMEOUT: 12m
 
+#! ---------------------------------------------------------------------
+#! Bootstrap Token Duration configuration
+#! ---------------------------------------------------------------------
+CAPBK_BOOTSTRAP_TOKEN_TTL: 15m
+
 #! Common configuration
 #! ---------------------------------------------------------------------
 
