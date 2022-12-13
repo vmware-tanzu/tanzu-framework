@@ -42,6 +42,7 @@ func (c *imgpkgClient) CopyImageToTar(sourceImageName, destImageRepo, customImag
 	confUI := ui.NewConfUI(ui.NewNoopLogger()) // TODO: this parameter should be given by the caller instead of being hardcoded
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.TarFlags.Resume = true
+	copyOptions.IncludeNonDistributable = true
 	copyOptions.Concurrency = 3
 	reg, err := registry.NewSimpleRegistry(registry.Opts{})
 	if err != nil {
@@ -51,10 +52,8 @@ func (c *imgpkgClient) CopyImageToTar(sourceImageName, destImageRepo, customImag
 	isBundle, _ := newBundle.IsBundle()
 	if isBundle {
 		copyOptions.BundleFlags = cmd.BundleFlags{Bundle: sourceImageName}
-		copyOptions.IncludeNonDistributable = true
 	} else {
 		copyOptions.ImageFlags = cmd.ImageFlags{Image: sourceImageName}
-		copyOptions.IncludeNonDistributable = true
 	}
 	copyOptions.TarFlags.TarDst = destImageRepo
 	if customImageRepoCertificate != "" {
