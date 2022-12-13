@@ -2,7 +2,7 @@
 #@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:data", "data")
 
-#@ if data.values.metadata.infraProvider == "aws":
+#@ if data.values.infraProvider == "aws":
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -14,7 +14,7 @@ provisioner: ebs.csi.aws.com
 allowVolumeExpansion: true
 #@ end
 
-#@ if data.values.metadata.infraProvider == "azure":
+#@ if data.values.infraProvider == "azure":
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -52,7 +52,7 @@ parameters:
   skuName: Premium_LRS
 #@ end
 
-#@ if data.values.metadata.infraProvider == "vsphere":
+#@ if data.values.infraProvider == "vsphere":
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
