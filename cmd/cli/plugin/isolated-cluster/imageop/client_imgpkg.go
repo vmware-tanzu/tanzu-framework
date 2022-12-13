@@ -42,7 +42,8 @@ func (c *imgpkgClient) CopyImageToTar(sourceImageName, destImageRepo, customImag
 	confUI := ui.NewConfUI(ui.NewNoopLogger()) // TODO: this parameter should be given by the caller instead of being hardcoded
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.TarFlags.Resume = true
-	copyOptions.Concurrency = 5
+	copyOptions.IncludeNonDistributable = true
+	copyOptions.Concurrency = 3
 	reg, err := registry.NewSimpleRegistry(registry.Opts{})
 	if err != nil {
 		return err
