@@ -122,3 +122,9 @@ spec:
     vSphereCredentialLocalObjRef:
       kind: Secret
       name: cpi-vsphere-credential
+    nsxt:
+      podRoutingEnabled: #@ data.values.NSXT_POD_ROUTING_ENABLED
+      credentialLocalObjRef:
+        kind: Secret
+        name: nsxt-credential
+
