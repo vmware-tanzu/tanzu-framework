@@ -328,24 +328,18 @@ spec:
 #@ end
 
 #@ def vsphere_storage_class():
-metadata:
-  infraProvider: vsphere
-  tkrVersion: #@ data.values.KUBERNETES_RELEASE
+infraProvider: vsphere
 #@ if data.values.VSPHERE_STORAGE_POLICY_ID != "":
 VSPHERE_STORAGE_POLICY_ID: #@ data.values.VSPHERE_STORAGE_POLICY_ID
 #@ end
 #@ end
 
 #@ def aws_storage_class():
-metadata:
-  infraProvider: aws
-  tkrVersion: #@ data.values.KUBERNETES_RELEASE
+infraProvider: aws
 #@ end
 
 #@ def azure_storage_class():
-metadata:
-  infraProvider: azure
-  tkrVersion: #@ data.values.KUBERNETES_RELEASE
+infraProvider: azure
 #@ end
 
 ---

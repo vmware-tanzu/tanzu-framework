@@ -2,9 +2,7 @@
 #@overlay/match-child-defaults missing_ok=True
 ---
 
-metadata:
-  infraProvider: "vsphere"
-  tkrVersion: ""
+infraProvider: "vsphere"
 #! User configurable values for VSPHERE_STORAGE_CLASS_ID
 
 VSPHERE_STORAGE_POLICY_ID: ""
