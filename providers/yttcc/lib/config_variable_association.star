@@ -125,12 +125,12 @@ return {
 "NODE_POOL_0_LABELS": ["tkg-service-vsphere"],
 "NODE_POOL_0_TAINTS": ["tkg-service-vsphere"],
 "CONTROL_PLANE_NODE_LABELS": ["vsphere", "aws", "azure"],
-"ETCD_EXTRA_ARGS": ["vsphere", "aws", "azure"],
-"APISERVER_EXTRA_ARGS": ["vsphere", "aws", "azure"],
-"KUBE_SCHEDULER_EXTRA_ARGS": ["vsphere", "aws", "azure"],
-"KUBE_CONTROLLER_MANAGER_EXTRA_ARGS": ["vsphere", "aws", "azure"],
-"CONTROLPLANE_KUBELET_EXTRA_ARGS": ["vsphere", "aws", "azure"],
-"WORKER_KUBELET_EXTRA_ARGS": ["vsphere", "aws", "azure"],
+"ETCD_EXTRA_ARGS": ["vsphere", "aws", "azure", "oci"],
+"APISERVER_EXTRA_ARGS": ["vsphere", "aws", "azure", "oci"],
+"KUBE_SCHEDULER_EXTRA_ARGS": ["vsphere", "aws", "azure", "oci"],
+"KUBE_CONTROLLER_MANAGER_EXTRA_ARGS": ["vsphere", "aws", "azure", "oci"],
+"CONTROLPLANE_KUBELET_EXTRA_ARGS": ["vsphere", "aws", "azure", "oci"],
+"WORKER_KUBELET_EXTRA_ARGS": ["vsphere", "aws", "azure", "oci"],
 
 "AZURE_ENVIRONMENT": ["azure"],
 "AZURE_TENANT_ID": ["azure"],
@@ -995,6 +995,25 @@ def get_oci_vars():
 
     vars = get_cluster_variables()
 
+    if data.values["ETCD_EXTRA_ARGS"] != None:
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
+    end
+    if data.values["APISERVER_EXTRA_ARGS"] != None:
+        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
+        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
+        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
+    end
+    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
+        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
+    end
+    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
+        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
+    end
+
     for key in simpleMapping:
         if data.values[key] != None:
             vars[simpleMapping[key]] = data.values[key]
@@ -1010,4 +1029,5 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "nodePvTransitEncryption", "controlPlaneMachineShape", "controlPlaneMachineOcpus",
         "controlPlanePvTransitEncryption",
         "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
-        "controlPlaneCertificateRotation", "podSecurityStandard"]
+        "controlPlaneCertificateRotation", "podSecurityStandard", "workerKubeletExtraArgs", "controlPlaneKubeletExtraArgs",
+        "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs"]
