@@ -1,4 +1,7 @@
-#! /bin/bash
+#!/usr/bin/env bash
+
+# Copyright 2022 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # Takes path , program, version as input
 # exit 0 if the program, when called from path, has the version in its output.
