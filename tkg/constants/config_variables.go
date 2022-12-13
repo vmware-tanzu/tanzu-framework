@@ -279,6 +279,7 @@ const (
 	ConfigVariableAviDataPlaneNetworkCIDR    = "AVI_DATA_NETWORK_CIDR"
 	ConfigVariableAviControlPlaneNetworkName = "AVI_CONTROL_PLANE_NETWORK"
 	ConfigVariableAviControlPlaneNetworkCIDR = "AVI_CONTROL_PLANE_NETWORK_CIDR"
+	ConfigVariableAviIngressNodeNetworkList  = "AVI_INGRESS_NODE_NETWORK_LIST"
 
 	ConfigVariableAviManagementClusterDataPlaneNetworkName       = "AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME"
 	ConfigVariableAviManagementClusterDataPlaneNetworkCIDR       = "AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR"

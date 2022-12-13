@@ -367,10 +367,14 @@ tkr-package:
 					"AVI_CONTROLLER":                "10.191.186.55",
 					"AVI_DATA_NETWORK":              "VM Network",
 					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
-					"AVI_PASSWORD":                  "Admin!23",
-					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
-					"AVI_USERNAME":                  "admin",
-					"PROVIDER_TYPE":                 "vsphere",
+					"AVI_INGRESS_NODE_NETWORK_LIST": `- networkName: node-network-name
+  cidrs:
+    - 10.191.176.0/20
+`,
+					"AVI_PASSWORD":             "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP": "Default-Group",
+					"AVI_USERNAME":             "admin",
+					"PROVIDER_TYPE":            "vsphere",
 				}
 			})
 			It("should not return error", func() {
@@ -380,6 +384,59 @@ tkr-package:
 				f2, err := os.ReadFile(outputFile)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(string(f1)).To(Equal(string(f2)))
+			})
+		})
+
+		Context("when AVI_ENABLE is set to true, AVI_INGRESS_NODE_NETWORK_LIST is not set", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				outputFile = "test/output_vsphere_with_avi_enabled_no_node_network_list.yaml"
+				// Configure user provider configuration
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_PASSWORD":                  "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
+					"AVI_USERNAME":                  "admin",
+					"PROVIDER_TYPE":                 "vsphere",
+					"VSPHERE_NETWORK":               "VM Network",
+				}
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+				f1, err := os.ReadFile(valuesFile)
+				Expect(err).NotTo(HaveOccurred())
+				f2, err := os.ReadFile(outputFile)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(f1)).To(Equal(string(f2)))
+			})
+		})
+
+		Context("when AVI_ENABLE is set to true, AVI_INGRESS_NODE_NETWORK_LIST is invalid", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				// Configure user provider configuration
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_INGRESS_NODE_NETWORK_LIST": "VM Network",
+					"AVI_PASSWORD":                  "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
+					"AVI_USERNAME":                  "admin",
+					"PROVIDER_TYPE":                 "vsphere",
+				}
+			})
+			It("should return error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Error set ako operator config"))
 			})
 		})
 
@@ -426,10 +483,14 @@ tkr-package:
 					"AVI_CONTROLLER":                "10.191.186.55",
 					"AVI_DATA_NETWORK":              "VM Network",
 					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
-					"AVI_PASSWORD":                  "Admin!23",
-					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
-					"AVI_USERNAME":                  "admin",
-					"PROVIDER_TYPE":                 "vsphere",
+					"AVI_INGRESS_NODE_NETWORK_LIST": `- networkName: node-network-name
+  cidrs:
+    - 10.191.176.0/20
+`,
+					"AVI_PASSWORD":             "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP": "Default-Group",
+					"AVI_USERNAME":             "admin",
+					"PROVIDER_TYPE":            "vsphere",
 				}
 			})
 			It("should not return error", func() {
