@@ -40,6 +40,8 @@ type E2ECommonCCSpecInput struct {
 	IsCustomCB            bool
 	DoUpgrade             bool
 	CheckAdmissionWebhook bool
+	Timeout               time.Duration
+	OtherConfig           map[string]string
 }
 
 func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInput) { //nolint:funlen
@@ -103,14 +105,18 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		Expect(err).To(BeNil())
 
 		options = framework.CreateClusterOptions{
-			ClusterName: clusterName,
-			Namespace:   namespace,
-			Plan:        "dev",
-			CniType:     input.Cni,
+			ClusterName:  clusterName,
+			Namespace:    namespace,
+			Plan:         "dev",
+			CniType:      input.Cni,
+			OtherConfigs: input.OtherConfig,
 		}
 
 		if input.Plan != "" {
 			options.Plan = input.Plan
+		}
+		if input.Timeout != time.Duration(0) {
+			options.Timeout = input.Timeout
 		}
 
 		if input.E2EConfig.InfrastructureName == "vsphere" {
