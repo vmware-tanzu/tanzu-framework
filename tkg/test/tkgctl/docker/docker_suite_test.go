@@ -99,6 +99,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 	// create management cluster
 	if !e2eConfig.UseExistingCluster {
+		os.Setenv("_ALLOW_CALICO_ON_MANAGEMENT_CLUSTER", "true")
 		err := cli.Init(tkgctl.InitRegionOptions{
 			Plan:                        e2eConfig.ManagementClusterOptions.Plan,
 			ClusterName:                 e2eConfig.ManagementClusterName,
@@ -114,6 +115,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 		Expect(err).To(BeNil())
 	}
+	os.Unsetenv("_ALLOW_CALICO_ON_MANAGEMENT_CLUSTER")
 
 	// Create initial workload cluster
 	clusterName = e2eConfig.ClusterPrefix + "wc"
