@@ -661,7 +661,7 @@ func disableKctrlCommandTree() {
 	By("disable kctrl command tree")
 	command := exec.NewCommand(
 		exec.WithCommand("tanzu"),
-		exec.WithArgs("config", "set", "features.package.kctrl-package-command-tree", "false"),
+		exec.WithArgs("config", "set", "features.package.kctrl-command-tree", "false"),
 		exec.WithStdout(GinkgoWriter),
 	)
 	err = command.RunAndRedirectOutput(context.Background())
