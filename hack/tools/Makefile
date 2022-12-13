@@ -1,6 +1,17 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Versions synced with common.mk
+YQ_VERSION=v4.5.0
+YTT_VERSION=v0.40.0
+KBLD_VERSION=v0.31.0
+KAPP_VERSION=v0.42.0
+VENDIR_VERSION=v0.23.0
+VALE_VERSION=2.20.1
+GOLANGCI_LINT_VERSION=1.46.0
+K8S_VERSION=1.23.5
+
+
 # Build tooling that is used for the main project
 
 # Ensure Make is run with bash shell as some syntax below is bash-specific
@@ -23,15 +34,6 @@ ROOT_DIR:=$(shell git rev-parse --show-toplevel)
 BIN_DIR := bin
 TOOLS_SCRIPTS_DIR := $(ROOT_DIR)/hack/tools
 SRCS := go.mod go.sum
-
-YQ_VERSION=v4.5.0
-YTT_VERSION=v0.40.0
-KBLD_VERSION=v0.31.0
-KAPP_VERSION=v0.42.0
-VENDIR_VERSION=v0.23.0
-VALE_VERSION=2.20.1
-GOLANGCI_LINT_VERSION=1.46.0
-K8S_VERSION=1.23.5
 
 # Host information.
 HOST_OS=$(shell go env GOOS)

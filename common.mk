@@ -1,6 +1,10 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Versions for checking installation, synced with common.mk
+# Otherwise developers have to remember to clean hack/tools/bin/ when running!
+YTT_VERSION=v0.40.0
+
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 GOHOSTOS ?= $(shell go env GOHOSTOS)
@@ -117,7 +121,13 @@ help: ## Display this help (default)
 ##@ Tooling Binaries
 ## --------------------------------------
 
-tools: $(TOOLING_BINARIES) ## Build tooling binaries
+check_tools:
+	# Check YTT Version or fail.
+	# Could do something more clever reusing versions in hack/tools/Makefile someday.
+	$(TOOLS_DIR)/check_version.sh $(TOOLS_BIN_DIR) ytt $(YTT_VERSION)
+
+tools: $(TOOLING_BINARIES) check_tools ## Build tooling binaries
+
 .PHONY: $(TOOLING_BINARIES)
 $(TOOLING_BINARIES):
 	make -C $(TOOLS_DIR) $(@F)
