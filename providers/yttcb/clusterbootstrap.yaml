@@ -120,15 +120,17 @@
 #@   return data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE == "workload" and data.values.KUBEVIP_LOADBALANCER_ENABLE and (data.values.KUBEVIP_LOADBALANCER_CIDRS != "" or data.values.KUBEVIP_LOADBALANCER_IP_RANGES != "")
 #@ end
 
-#@ if pinniped_configs_exist() and is_management_cluster():
+#@ if is_management_cluster():
 ---
-#! Only generate this Secret for management clusters which have data.values.IDENTITY_MANAGEMENT_TYPE
-#! configured to be equal to one of the two supported types ("ldap" or "oidc"). Otherwise,
-#! for management clusters with IDENTITY_MANAGEMENT_TYPE of "none" or "", do not create this Secret,
-#! so that the default Secret from the ClusterBootstrapTemplate may be used (and that Secret
-#! contains identity_management_type "none" to disable Pinniped).
-#! Never generate this Secret for workload clusters, so that the default Secret from the ClusterBootstrapTemplate
-#! may always be used. For workload clusters, the tanzu-auth-controller-manager's v3_cascade_controller will
+#! In order to maintain a consistent UX, the pinniped secret for a management cluster will always be created.  This is
+#! to ensure that a user can provide the --dry-run flag to "tanzu management-cluster create" whether they are
+#! configuring or disabling Pinniped.
+#! If data.values.IDENTITY_MANAGEMENT_TYPE is provided with values "ldap" or "oidc" then a secret with
+#! user provided configuration will be generated. If another unsupported value or no value is provided, then a default
+#! generic secret will be created which will result in pinniped being disabled.
+#! This secret will never be generated for workload clusters so that the default Secret from the ClusterBootstrapTemplate
+#! may always be used (and that Secret contains identity_management_type "none" to disable Pinniped).
+#! For workload clusters, the tanzu-auth-controller-manager's v3_cascade_controller will
 #! watch that default Secret or every cluster and will edit its contents to keep it up to date with the management cluster's
 #! pinniped-info configmap. The pinniped-info configmap contains the relevant Pinniped settings for workload clusters,
 #! created by the Pinniped package on the management cluster and updated by the Pinniped package's post-deploy-job on
