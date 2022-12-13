@@ -10,7 +10,7 @@ if echo $VERSION | `grep -q $3 | sed 's/v//g'` ; then
     echo "correct version *** $VERSION ***"
     exit 0
 else
-    echo "incorrect version of $0/$1: *** $VERSION *** "
+    echo "incorrect version of $2: *** $VERSION *** "
     echo "missing *** $3 ***"
     echo "delete $1/$2 and retry build"
     exit 1
