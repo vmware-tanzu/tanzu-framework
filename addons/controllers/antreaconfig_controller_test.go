@@ -136,6 +136,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster).Should(Equal(false))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork).Should(Equal(false))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.NodePortLocal).Should(Equal(true))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
