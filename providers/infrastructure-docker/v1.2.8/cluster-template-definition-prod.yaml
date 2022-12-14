@@ -2,7 +2,7 @@ apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
-    - path: providers/infrastructure-docker/v1.2.7/ytt
+    - path: providers/infrastructure-docker/v1.2.8/ytt
     - path: providers/infrastructure-docker/ytt
     - path: providers/ytt
     - path: bom
