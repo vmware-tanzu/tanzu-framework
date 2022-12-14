@@ -38,7 +38,7 @@ var PublishImagesfromtarCmd = &cobra.Command{
         tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp --insecure
 
         # upload images/bundle from tar files stored in local disk at path /tmp  to repo testing.io and authenticate destination repo with externally provided CACert
-        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp  --source-ca-certificate /tmp/cacert.crt
+        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp  --destination-ca-certificate /tmp/cacert.crt
 `,
 
 	RunE:         publishImagesFromTar,
