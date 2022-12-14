@@ -29,7 +29,18 @@ var pushImage = &PublishImagesFromTarOptions{}
 
 var PublishImagesfromtarCmd = &cobra.Command{
 	Use:          "upload-bundle",
-	Short:        "Upload images to private repository.",
+	Short:        "upload images/bundle to private repository from tar files stored in local disk.",
+        Example: `
+        # upload images/bundle from tar files stored in local disk at path /tmp to repo testing.io and authenticate destination repo with default system CA certificate
+        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp
+
+        # upload images/bundle from tar files stored in local disk at path /tmp  to repo testing.io without authenticating destination repo
+        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp --insecure
+
+        # upload images/bundle from tar files stored in local disk at path /tmp  to repo testing.io and authenticate destination repo with externally provided CACert
+        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp  --source-ca-certificate /tmp/cacert.crt
+`,
+
 	RunE:         publishImagesFromTar,
 	SilenceUsage: false,
 }

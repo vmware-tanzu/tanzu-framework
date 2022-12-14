@@ -16,7 +16,7 @@ import (
 
 var descriptor = cliapi.PluginDescriptor{
 	Name:        "isolated-cluster",
-	Description: "Isolated cluster image operation",
+	Description: "Prepopulating images/bundle for internet-restricted environments",
 	Group:       cliapi.RunCmdGroup,
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,
