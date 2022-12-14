@@ -4,6 +4,7 @@
 package client_test
 
 import (
+	"encoding/base64"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -11,7 +12,9 @@ import (
 	"github.com/pkg/errors"
 
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -483,6 +486,188 @@ var _ = Describe("Test RetrieveProxySettings", func() {
 				Expect(err).To(BeNil())
 				proxyEnabled, _ := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
 				Expect(proxyEnabled).NotTo(Equal("true"))
+			})
+		})
+	})
+})
+
+var _ = Describe("Test Retrieve CustomImageRepositoryConfiguration", func() {
+	var (
+		err                   error
+		regionalClusterClient *fakes.ClusterClient
+		workloadClusterClient *fakes.ClusterClient
+		tkgClient             *TkgClient
+	)
+
+	BeforeEach(func() {
+		regionalClusterClient = &fakes.ClusterClient{}
+		workloadClusterClient = &fakes.ClusterClient{}
+		tkgClient, err = CreateTKGClient("../fakes/config/config2.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
+		regionalClusterClient.ListResourcesCalls(func(clusterList interface{}, options ...client.ListOption) error {
+			if clusterList, ok := clusterList.(*capiv1alpha3.ClusterList); ok {
+				clusterList.Items = []capiv1alpha3.Cluster{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "regional-cluster-2",
+							Namespace: constants.DefaultNamespace,
+						},
+					},
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "workload-cluster",
+							Namespace: constants.DefaultNamespace,
+						},
+					},
+				}
+				return nil
+			}
+			return nil
+		})
+	})
+
+	var _ = Describe("Retrieve CustomImageRepositoryConfiguration For Management Cluster", func() {
+		JustBeforeEach(func() {
+			err = tkgClient.RetrieveRegionalClusterConfiguration(regionalClusterClient)
+		})
+
+		Context("When tkr-controller-config cm exists in tkg-system only", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if name == constants.TkrConfigMapName {
+						if namespace == constants.TkgNamespace {
+							cm := &corev1.ConfigMap{
+								ObjectMeta: metav1.ObjectMeta{
+									Name:      constants.TkrConfigMapName,
+									Namespace: constants.TkgNamespace,
+								},
+								Data: map[string]string{
+									"imageRepository": "fake-repo-1",
+									"caCerts":         "fake-ca-1",
+								},
+							}
+							cm.DeepCopyInto(obj.(*corev1.ConfigMap))
+							return nil
+						}
+
+						return apierrors.NewNotFound(schema.GroupResource{}, "")
+					}
+					return nil
+				}
+			})
+			It("should not return an error and image repo configs should be configured", func() {
+				Expect(err).To(BeNil())
+
+				imageRepo, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository)
+				Expect(imageRepo).To(Equal("fake-repo-1"))
+				Expect(err).To(BeNil())
+				caCerts, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+				Expect(caCerts).To(Equal(base64.StdEncoding.EncodeToString([]byte("fake-ca-1"))))
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("When tkr-controller-config cm exists in tkr-system only", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if name == constants.TkrConfigMapName {
+						if namespace == constants.TkrNamespace {
+							cm := &corev1.ConfigMap{
+								ObjectMeta: metav1.ObjectMeta{
+									Name:      constants.TkrConfigMapName,
+									Namespace: constants.TkrNamespace,
+								},
+								Data: map[string]string{
+									"imageRepository": "fake-repo-1",
+									"caCerts":         "fake-ca-1",
+								},
+							}
+							cm.DeepCopyInto(obj.(*corev1.ConfigMap))
+							return nil
+						}
+						return apierrors.NewNotFound(schema.GroupResource{}, "")
+					}
+					return nil
+				}
+			})
+			It("should not return an error and image repo configs should be configured", func() {
+				Expect(err).To(BeNil())
+
+				imageRepo, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository)
+				Expect(imageRepo).To(Equal("fake-repo-1"))
+				Expect(err).To(BeNil())
+				caCerts, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+				Expect(caCerts).To(Equal(base64.StdEncoding.EncodeToString([]byte("fake-ca-1"))))
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("When tkr-controller-config cm exists in both tkg-system and tkr-system namespace", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if name == constants.TkrConfigMapName {
+						if namespace == constants.TkrNamespace {
+							cm := &corev1.ConfigMap{
+								ObjectMeta: metav1.ObjectMeta{
+									Name:      constants.TkrConfigMapName,
+									Namespace: constants.TkrNamespace,
+								},
+								Data: map[string]string{
+									"imageRepository": "fake-repo-1",
+									"caCerts":         "fake-ca-1",
+								},
+							}
+							cm.DeepCopyInto(obj.(*corev1.ConfigMap))
+							return nil
+						}
+
+						if namespace == constants.TkgNamespace {
+							cm := &corev1.ConfigMap{
+								ObjectMeta: metav1.ObjectMeta{
+									Name:      constants.TkrConfigMapName,
+									Namespace: constants.TkgNamespace,
+								},
+								Data: map[string]string{
+									"imageRepository": "fake-repo-2",
+									"caCerts":         "fake-ca-2",
+								},
+							}
+							cm.DeepCopyInto(obj.(*corev1.ConfigMap))
+							return nil
+						}
+
+						return apierrors.NewNotFound(schema.GroupResource{}, "")
+					}
+					return nil
+				}
+			})
+			It("should not return an error and image repo configs should be configured from cm in tkg-system ns", func() {
+				Expect(err).To(BeNil())
+
+				imageRepo, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository)
+				Expect(imageRepo).To(Equal("fake-repo-2"))
+				Expect(err).To(BeNil())
+				caCerts, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+				Expect(caCerts).To(Equal(base64.StdEncoding.EncodeToString([]byte("fake-ca-2"))))
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("When tkr-controller-config cm not exists", func() {
+			BeforeEach(func() {
+				workloadClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if name == constants.TkrConfigMapName {
+						return apierrors.NewNotFound(schema.GroupResource{}, "")
+					}
+					return nil
+				}
+			})
+			It("should not return an error and proxy configuration should be empty", func() {
+				Expect(err).To(BeNil())
+
+				imageRepo, _ := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository)
+				Expect(imageRepo).To(Equal(""))
+				caCerts, _ := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
+				Expect(caCerts).To(Equal(""))
 			})
 		})
 	})
