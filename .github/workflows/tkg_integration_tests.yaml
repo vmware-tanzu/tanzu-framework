@@ -9,6 +9,7 @@ on:
     - '!cmd/cli/plugin/package/test/**'
     - 'providers/**'
     - '.github/workflows/tkg_integration_tests.yaml'
+    - 'all_tests.txt'
 
 concurrency:
   group: ${{ format('integration-tests-{0}', github.head_ref) }}

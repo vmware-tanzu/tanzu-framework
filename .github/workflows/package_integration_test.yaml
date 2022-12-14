@@ -9,6 +9,7 @@ on:
       - 'cmd/cli/plugin/package/**'
       - 'cmd/cli/plugin/secret/**'
       - 'tkg/tkgctl'
+      - 'all_tests.txt'
 
 concurrency:
   group: ${{ format('package-plugin-integration-tests-{0}', github.head_ref) }}
