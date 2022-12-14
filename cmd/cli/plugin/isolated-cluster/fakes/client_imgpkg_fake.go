@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imageop"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imgpkginterface"
 )
 
 type ImgpkgClientFake struct {
@@ -344,4 +344,4 @@ func (fake *ImgpkgClientFake) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ imageop.ImgpkgClient = new(ImgpkgClientFake)
+var _ imgpkginterface.ImgpkgClient = new(ImgpkgClientFake)

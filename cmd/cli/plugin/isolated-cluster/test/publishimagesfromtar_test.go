@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/fakes"
-	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imageop"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepushop"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
@@ -20,7 +20,7 @@ func TestAPIs(t *testing.T) {
 }
 
 var _ = Describe("pushImageToRepo()", func() {
-	pushImage := &imageop.PublishImagesFromTarOptions{}
+	pushImage := &imagepushop.PublishImagesFromTarOptions{}
 
 	BeforeEach(func() {
 		pushImage.PkgClient = &fakes.ImgpkgClientFake{}

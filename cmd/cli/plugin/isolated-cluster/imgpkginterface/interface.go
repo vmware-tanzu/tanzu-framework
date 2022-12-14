@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package imageop ImgPkgClient defines functions to pull/push/List images
-package imageop
+package imgpkginterface
 
 type ImgpkgClient interface {
 	CopyImageFromTar(sourceImageName string, destImageRepo string, customImageRepoCertificate string, insecureconnection bool) error

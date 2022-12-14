@@ -1,7 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package imageop
+package imagepushop
 
 import (
 	"fmt"
@@ -15,12 +15,14 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 	"sigs.k8s.io/yaml"
+
+	imgpkginterface "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imgpkginterface"
 )
 
 type PublishImagesFromTarOptions struct {
 	TkgTarFilePath             string
 	CustomImageRepoCertificate string
-	PkgClient                  ImgpkgClient
+	PkgClient                  imgpkginterface.ImgpkgClient
 	DestinationRepository      string
 	Insecure                   bool
 }
@@ -28,9 +30,9 @@ type PublishImagesFromTarOptions struct {
 var pushImage = &PublishImagesFromTarOptions{}
 
 var PublishImagesfromtarCmd = &cobra.Command{
-	Use:          "upload-bundle",
-	Short:        "upload images/bundle to private repository from tar files stored in local disk.",
-        Example: `
+	Use:   "upload-bundle",
+	Short: "upload images/bundle to private repository from tar files stored in local disk.",
+	Example: `
         # upload images/bundle from tar files stored in local disk at path /tmp to repo testing.io and authenticate destination repo with default system CA certificate
         tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp
 
@@ -38,7 +40,7 @@ var PublishImagesfromtarCmd = &cobra.Command{
         tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp --insecure
 
         # upload images/bundle from tar files stored in local disk at path /tmp  to repo testing.io and authenticate destination repo with externally provided CACert
-        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp  --destination-ca-certificate /tmp/cacert.crt
+        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp  --ca-certificate /tmp/cacert.crt
 `,
 
 	RunE:         publishImagesFromTar,
@@ -50,8 +52,8 @@ func init() {
 	_ = PublishImagesfromtarCmd.MarkFlagRequired("source-directory")
 	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.DestinationRepository, "destination-repo", "", "", "Private OCI repository where the images should be hosted in air-gapped (required)")
 	_ = PublishImagesfromtarCmd.MarkFlagRequired("destination-repo")
-	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.CustomImageRepoCertificate, "destination-ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
-	PublishImagesfromtarCmd.Flags().BoolVarP(&pushImage.Insecure, "destination-insecure", "", false, "Trusts the private repository’s certificate without validating it (optional)")
+	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.CustomImageRepoCertificate, "ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
+	PublishImagesfromtarCmd.Flags().BoolVarP(&pushImage.Insecure, "insecure", "", false, "Trusts the private repository’s certificate without validating it (optional)")
 }
 
 func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
@@ -89,7 +91,7 @@ func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
 }
 
 func publishImagesFromTar(cmd *cobra.Command, args []string) error {
-	pushImage.PkgClient = &imgpkgClient{}
+	pushImage.PkgClient = &imgpkginterface.Imgpkg{}
 	if !pushImage.Insecure && pushImage.CustomImageRepoCertificate == "" {
 		return fmt.Errorf("CA certificate is empty and Insecure option is disabled")
 	}

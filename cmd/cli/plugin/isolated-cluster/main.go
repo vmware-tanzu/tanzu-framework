@@ -11,7 +11,8 @@ import (
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imageop"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepullop"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepushop"
 )
 
 var descriptor = cliapi.PluginDescriptor{
@@ -35,8 +36,8 @@ func main() {
 	p.Cmd.PersistentFlags().StringVar(&logFile, "log-file", "", "Log file path")
 	p.Cmd.SilenceUsage = true
 	p.AddCommands(
-		imageop.PublishImagestotarCmd,
-		imageop.PublishImagesfromtarCmd,
+		imagepullop.PublishImagestotarCmd,
+		imagepushop.PublishImagesfromtarCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

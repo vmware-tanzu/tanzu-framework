@@ -1,7 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package imageop
+package imagepullop
 
 import (
 	"context"
@@ -18,6 +18,8 @@ import (
 	"golang.org/x/sync/errgroup"
 	"sigs.k8s.io/yaml"
 
+	imgpkginterface "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imgpkginterface"
+
 	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 )
 
@@ -28,7 +30,7 @@ const outputDir = "tmp"
 type PublishImagesToTarOptions struct {
 	TkgImageRepo  string
 	TkgVersion    string
-	PkgClient     ImgpkgClient
+	PkgClient     imgpkginterface.ImgpkgClient
 	ImageDetails  map[string]string
 	CaCertificate string
 	Insecure      bool
@@ -37,9 +39,9 @@ type PublishImagesToTarOptions struct {
 var pullImage = &PublishImagesToTarOptions{}
 
 var PublishImagestotarCmd = &cobra.Command{
-	Use:          "download-bundle",
-	Short:        "Download images/bundle from source repo into local disk (at current directory) as TAR files",
-        Example: `
+	Use:   "download-bundle",
+	Short: "Download images/bundle from source repo into local disk (at current directory) as TAR files",
+	Example: `
         # download images/bundle for TKG version v1.7.0 into local disk from repo projects.registry.vmware.com and authenticate source repo with default system CA certificate
 	tanzu isolated-cluster download-bundle --source-repo projects.registry.vmware.com --tkg-version v1.7.0 
 
@@ -47,7 +49,7 @@ var PublishImagestotarCmd = &cobra.Command{
         tanzu isolated-cluster download-bundle --source-repo projects.registry.vmware.com --tkg-version v1.7.0 --insecure
 
         # download images/bundle for TKG version v1.7.0 into local disk from repo projects.registry.vmware.com and authenticate source repo with externally provided CACert
-        tanzu isolated-cluster download-bundle --source-repo projects.registry.vmware.com --tkg-version v1.7.0 --source-ca-certificate /tmp/cacert.crt
+        tanzu isolated-cluster download-bundle --source-repo projects.registry.vmware.com --tkg-version v1.7.0 --ca-certificate /tmp/cacert.crt
 `,
 
 	RunE:         downloadImagesToTar,
@@ -58,8 +60,8 @@ func init() {
 	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgImageRepo, "source-repo", "", "projects.registry.vmware.com/tkg", "OCI repo where TKG bundles or images are hosted")
 	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgVersion, "tkg-version", "", "", "TKG version (required)")
 	_ = PublishImagestotarCmd.MarkFlagRequired("tkg-version")
-	PublishImagestotarCmd.Flags().BoolVarP(&pullImage.Insecure, "source-insecure", "", false, "Trusts the server certificate without validating it (optional)")
-	PublishImagestotarCmd.Flags().StringVarP(&pullImage.CaCertificate, "source-ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
+	PublishImagestotarCmd.Flags().BoolVarP(&pullImage.Insecure, "insecure", "", false, "Trusts the server certificate without validating it (optional)")
+	PublishImagestotarCmd.Flags().StringVarP(&pullImage.CaCertificate, "ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
 	pullImage.ImageDetails = map[string]string{}
 }
 
@@ -70,7 +72,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgCompatibilityImage() error {
 
 	tkgCompatibilityRelativeImagePath := "tkg-compatibility"
 
-	if !isTKGRTMVersion(p.TkgVersion) {
+	if !imgpkginterface.IsTKGRTMVersion(p.TkgVersion) {
 		tkgCompatibilityRelativeImagePath = path.Join(p.TkgVersion, tkgCompatibilityRelativeImagePath)
 	}
 	tkgCompatibilityImagePath := path.Join(p.TkgImageRepo, tkgCompatibilityRelativeImagePath)
@@ -124,7 +126,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgBomAndComponentImages() (string, 
 		for _, compInfo := range compInfos {
 			for _, imageInfo := range compInfo.Images {
 				sourceImageName = path.Join(p.TkgImageRepo, imageInfo.ImagePath) + ":" + imageInfo.Tag
-				imageInfo.ImagePath = replaceSlash(imageInfo.ImagePath)
+				imageInfo.ImagePath = imgpkginterface.ReplaceSlash(imageInfo.ImagePath)
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
 				tempImageDetails[tarname] = imageInfo.ImagePath
 				group.Go(func() error {
@@ -204,7 +206,7 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 	if p.TkgImageRepo == "" {
 		return errors.New("Source Repo is empty")
 	}
-	tkrTag := underscoredPlus(tkrVersion)
+	tkrTag := imgpkginterface.UnderscoredPlus(tkrVersion)
 	tkrBomImagePath := path.Join(p.TkgImageRepo, "tkr-bom")
 	sourceImageName := tkrBomImagePath + ":" + tkrTag
 	tarFilename := "tkr-bom" + "-" + tkrTag + ".tar"
@@ -234,7 +236,7 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 		for _, compInfo := range compInfos {
 			for _, imageInfo := range compInfo.Images {
 				sourceImageName = filepath.Join(p.TkgImageRepo, imageInfo.ImagePath) + ":" + imageInfo.Tag
-				imageInfo.ImagePath = replaceSlash(imageInfo.ImagePath)
+				imageInfo.ImagePath = imgpkginterface.ReplaceSlash(imageInfo.ImagePath)
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
 				tempImageDetails[tarname] = imageInfo.ImagePath
 				group.Go(func() error {
@@ -283,7 +285,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgPackagesImages(tkrVersions []stri
 	group, _ := errgroup.WithContext(context.Background())
 	group.SetLimit(30)
 	for _, tkrVersion := range tkrVersions {
-		tkrVersion = underscoredPlus(tkrVersion)
+		tkrVersion = imgpkginterface.UnderscoredPlus(tkrVersion)
 		for i := 0; i < tkgPackageRepoStruct.NumField(); i++ {
 			imageName := tkgPackageRepoStruct.Field(i).Interface().(string)
 			sourceImageName := filepath.Join(p.TkgImageRepo, imageName) + ":" + tkrVersion
@@ -312,7 +314,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgPackagesImages(tkrVersions []stri
 }
 
 func downloadImagesToTar(cmd *cobra.Command, args []string) error {
-	pullImage.PkgClient = &imgpkgClient{}
+	pullImage.PkgClient = &imgpkginterface.Imgpkg{}
 	if !strings.HasPrefix(pullImage.TkgVersion, "v") {
 		return fmt.Errorf("invalid TKG Tag %s", pullImage.TkgVersion)
 	}

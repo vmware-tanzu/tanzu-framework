@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/fakes"
-	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imageop"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepullop"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
@@ -23,7 +23,7 @@ var _ = Describe("DownloadTkgCompatibilityImage()", func() {
 		fake = &fakes.ImgpkgClientFake{}
 	)
 
-	pullImage := &imageop.PublishImagesToTarOptions{}
+	pullImage := &imagepullop.PublishImagesToTarOptions{}
 
 	JustBeforeEach(func() {
 		pullImage.ImageDetails = map[string]string{}
@@ -56,7 +56,7 @@ var _ = Describe("DownloadTkgBomAndComponentImages()", func() {
 	var (
 		fake = &fakes.ImgpkgClientFake{}
 	)
-	pullImage := &imageop.PublishImagesToTarOptions{}
+	pullImage := &imagepullop.PublishImagesToTarOptions{}
 	JustBeforeEach(func() {
 		pullImage.ImageDetails = map[string]string{}
 		pullImage.TkgImageRepo = tkgImageRepo
@@ -97,7 +97,7 @@ var _ = Describe("DownloadTkrCompatibilityImage()", func() {
 	var (
 		fake = &fakes.ImgpkgClientFake{}
 	)
-	pullImage := &imageop.PublishImagesToTarOptions{}
+	pullImage := &imagepullop.PublishImagesToTarOptions{}
 
 	JustBeforeEach(func() {
 		pullImage.ImageDetails = map[string]string{}
@@ -139,7 +139,7 @@ var _ = Describe("DownloadTkrBomAndComponentImages()", func() {
 	var (
 		fake = &fakes.ImgpkgClientFake{}
 	)
-	pullImage := &imageop.PublishImagesToTarOptions{}
+	pullImage := &imagepullop.PublishImagesToTarOptions{}
 
 	JustBeforeEach(func() {
 		pullImage.ImageDetails = map[string]string{}
@@ -179,7 +179,7 @@ var _ = Describe("DownloadTkgPackagesImages()", func() {
 	var (
 		fake = &fakes.ImgpkgClientFake{}
 	)
-	pullImage := &imageop.PublishImagesToTarOptions{}
+	pullImage := &imagepullop.PublishImagesToTarOptions{}
 	tkrVersions := []string{"v1.24.6+vmware.1-tkg.1-fc.1", "v1.22.11+vmware.2-tkg.2-fc.1", "v1.23.13+vmware.1-tkg.1-fc.1"}
 
 	JustBeforeEach(func() {
