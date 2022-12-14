@@ -1,6 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package imgpkginterface ImgPkgClient defines functions to pull/push/List images
 package imgpkginterface
 
 import (
@@ -65,7 +66,6 @@ func (c *Imgpkg) CopyImageToTar(sourceImageName, destImageRepo, customImageRepoC
 	if err != nil {
 		return err
 	}
-	//totalImgCopiedCounter++
 	return nil
 }
 

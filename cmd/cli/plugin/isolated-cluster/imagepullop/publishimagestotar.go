@@ -1,6 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package imagepullop define imgpkg pull command
 package imagepullop
 
 import (
@@ -18,12 +19,9 @@ import (
 	"golang.org/x/sync/errgroup"
 	"sigs.k8s.io/yaml"
 
-	imgpkginterface "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imgpkginterface"
-
 	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
+	imgpkginterface "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imgpkginterface"
 )
-
-var totalImgCopiedCounter int
 
 const outputDir = "tmp"
 

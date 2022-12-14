@@ -1,6 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package imagepushop define imgpkg push command
 package imagepushop
 
 import (
@@ -31,15 +32,15 @@ var pushImage = &PublishImagesFromTarOptions{}
 
 var PublishImagesfromtarCmd = &cobra.Command{
 	Use:   "upload-bundle",
-	Short: "upload images/bundle to private repository from tar files stored in local disk.",
+	Short: "upload images/bundle to private repository from tar files that are stored in local disk.",
 	Example: `
-        # upload images/bundle from tar files stored in local disk at path /tmp to repo testing.io and authenticate destination repo with default system CA certificate
+        # upload images/bundle from tar files that are stored in local disk at path /tmp to repo testing.io and authenticate destination repo with default system CA certificate
         tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp
 
-        # upload images/bundle from tar files stored in local disk at path /tmp  to repo testing.io without authenticating destination repo
+        # upload images/bundle from tar files that are stored in local disk at path /tmp  to repo testing.io without authenticating destination repo
         tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp --insecure
 
-        # upload images/bundle from tar files stored in local disk at path /tmp  to repo testing.io and authenticate destination repo with externally provided CACert
+        # upload images/bundle from tar files that are stored in local disk at path /tmp  to repo testing.io and authenticate destination repo with externally provided CACert
         tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp  --ca-certificate /tmp/cacert.crt
 `,
 
