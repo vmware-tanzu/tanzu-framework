@@ -6,6 +6,7 @@ package shared
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
@@ -15,6 +16,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -184,7 +186,12 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 		By(fmt.Sprintf("Creating a workload cluster %q", clusterName))
 
 		tkrVersionsSet, oldTKR, defaultTKR = getAvailableTKRs(context, mcProxy, input.E2EConfig.TkgConfigDir)
-
+		sTkr, _ := json.Marshal(tkrVersionsSet)
+		oTkr, _ := json.Marshal(oldTKR)
+		dTkr, _ := json.Marshal(defaultTKR)
+		log.Infof("xsguo sTkr :%v\n", string(sTkr))
+		log.Infof("xsguo oTkr :%v\n", string(oTkr))
+		log.Infof("xsguo defaultTKR :%v\n", string(dTkr))
 		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 			ClusterConfigFile: clusterConfigFile,
 			Edition:           "tkg",
