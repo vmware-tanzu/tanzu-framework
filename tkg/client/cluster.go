@@ -25,7 +25,6 @@ import (
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -161,7 +160,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		if !config.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
+		if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
 			clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
 			if err != nil {
 				return false, err
@@ -176,7 +175,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 
 			// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
 			// log command to use to create cluster using ClusterClass based config file and return
-			if !config.IsFeatureActivated(constants.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
+			if !c.IsFeatureActivated(constants.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
 				log.Warningf("\nTo create a cluster with it, use")
 				log.Warningf("    tanzu cluster create --file %v", configFilePath)
 				return false, nil

@@ -3,7 +3,10 @@
 package client_test
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -11,9 +14,11 @@ import (
 	"gopkg.in/yaml.v3"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/pointer"
+
 	"sigs.k8s.io/cluster-api/api/v1alpha3"
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
+	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/yamlprocessor"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
@@ -22,6 +27,35 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 )
+
+type MockClusterctlClient struct {
+	clusterctl.Client
+}
+
+func (m *MockClusterctlClient) GetClusterTemplate(options clusterctl.GetClusterTemplateOptions) (clusterctl.Template, error) {
+	templateMapYaml := []byte("cluster.x-k8s.io/v1alpha3\n" +
+		"kind: Cluster\n" +
+		"metadata:\n" +
+		fmt.Sprintf("  name: ${%s}\n", "foobar") +
+		"spec:\n" +
+		"  clusterNetwork:\n" +
+		"    pods:\n" +
+		"      cidrBlocks:\n" +
+		"        - 192.168.0.0/16\n" +
+		"  infrastructureRef:\n" +
+		"    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3\n" +
+		"    kind: vSphereCluster\n" +
+		"    name: tkg-region-vSphere-11111111111111")
+
+	targetNamespace := options.TargetNamespace
+	return repository.NewTemplate(repository.TemplateInput{
+		RawArtifact:           templateMapYaml,
+		ConfigVariablesClient: nil,
+		Processor:             yamlprocessor.NewSimpleProcessor(),
+		TargetNamespace:       targetNamespace,
+		SkipTemplateProcess:   true,
+	})
+}
 
 var _ = Describe("ValidateManagementClusterVersionWithCLI", func() {
 	const (
@@ -123,7 +157,9 @@ var _ = Describe("CreateCluster", func() {
 		vcClientFactory             *fakes.VcClientFactory
 		vcClient                    *fakes.VCClient
 		options                     CreateClusterOptions
+		clusterCtlClient            *MockClusterctlClient
 	)
+
 	BeforeEach(func() {
 		clusterClientFactory = &fakes.ClusterClientFactory{}
 		clusterClient = &fakes.ClusterClient{}
@@ -135,6 +171,7 @@ var _ = Describe("CreateCluster", func() {
 		tkgConfigReaderWriter = &fakes.TKGConfigReaderWriter{}
 		vcClientFactory = &fakes.VcClientFactory{}
 		vcClient = &fakes.VCClient{}
+		clusterCtlClient = &MockClusterctlClient{}
 
 		tkgConfigReaderWriterClient.TKGConfigReaderWriterReturns(tkgConfigReaderWriter)
 		vcClientFactory.NewClientReturns(vcClient, nil)
@@ -146,6 +183,7 @@ var _ = Describe("CreateCluster", func() {
 			o.TKGConfigUpdater = tkgConfigUpdaterClient
 			o.ReaderWriterConfigClient = tkgConfigReaderWriterClient
 			o.VcClientFactory = vcClientFactory
+			o.ClusterCtlClient = clusterCtlClient
 			return o
 		})
 		Expect(err).NotTo(HaveOccurred())
@@ -171,8 +209,8 @@ ova: []
 			},
 		}, nil)
 		clusterClient.ListResourcesCalls(func(clusterList interface{}, options ...client.ListOption) error {
-			if clusterList, ok := clusterList.(*capiv1alpha3.ClusterList); ok {
-				clusterList.Items = []capiv1alpha3.Cluster{
+			if clusterList, ok := clusterList.(*v1alpha3.ClusterList); ok {
+				clusterList.Items = []v1alpha3.Cluster{
 					{
 						ObjectMeta: v1.ObjectMeta{
 							Name:      clusterName,
@@ -274,7 +312,110 @@ ova: []
 
 		})
 	})
+
+	Context("ValidateFeatureFlagAllowLegacyClusterWhenCreateCluster", func() {
+		When("Feature gate is enabled", func() {
+			BeforeEach(func() {
+				featureFlagClient.IsConfigFeatureActivatedStub = func(featureFlagName string) (bool, error) {
+					if featureFlagName == constants.FeatureFlagForceDeployClusterWithClusterClass {
+						return false, nil
+					}
+					return true, nil
+				}
+				tkgConfigUpdaterClient.GetProvidersChecksumStub = func() (string, error) {
+					return "FakeFileShaIsSame", nil
+				}
+				tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFileStub = func() (string, error) {
+					return "FakeFileShaIsSame", nil
+				}
+			})
+
+			It("Should go to create a legacy based workload cluster directly", func() {
+				options = createClusterOptions(clusterName, "../fakes/config/config.yaml")
+				options.IsInputFileClusterClassBased = false
+				Expect(err).ToNot(HaveOccurred())
+
+				result := captureOutput(*tkgClient, options, false)
+				Expect(result).To(ContainSubstring(constants.YTTBasedClusterWarning))
+				Expect(result).To(ContainSubstring("creating workload cluster"))
+			})
+
+		})
+
+		When("Feature gate is disabled", func() {
+			BeforeEach(func() {
+				tkgConfigUpdaterClient.GetProvidersChecksumStub = func() (string, error) {
+					return "FakeFileShaIsSame", nil
+				}
+				tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFileStub = func() (string, error) {
+					return "FakeFileShaIsSame", nil
+				}
+			})
+
+			It("Should go to create a classy based workload cluster directly", func() {
+				featureFlagClient.IsConfigFeatureActivatedStub = func(featureFlagName string) (bool, error) {
+					if featureFlagName == constants.FeatureFlagAllowLegacyCluster {
+						return false, nil
+					}
+					return true, nil
+				}
+				options = createClusterOptions(clusterName, "../fakes/config/config.yaml")
+				options.IsInputFileClusterClassBased = false
+				Expect(err).ToNot(HaveOccurred())
+
+				result := captureOutput(*tkgClient, options, false)
+				Expect(result).To(ContainSubstring("Legacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration"))
+				Expect(result).To(ContainSubstring(fmt.Sprintf("Using this new Cluster configuration '%v", testingDir)))
+				Expect(result).To(ContainSubstring("creating workload cluster"))
+			})
+
+			It("Should return create a classy based workload cluster command", func() {
+				featureFlagClient.IsConfigFeatureActivatedStub = func(featureFlagName string) (bool, error) {
+					if featureFlagName == constants.FeatureFlagAllowLegacyCluster || featureFlagName == constants.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration {
+						return false, nil
+					}
+					return true, nil
+				}
+				options = createClusterOptions(clusterName, "../fakes/config/config.yaml")
+				options.IsInputFileClusterClassBased = false
+				Expect(err).ToNot(HaveOccurred())
+
+				result := captureOutput(*tkgClient, options, false)
+				Expect(result).To(ContainSubstring("Legacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration"))
+				Expect(result).To(ContainSubstring("To create a cluster with it, use"))
+			})
+
+		})
+	})
+
 })
+
+// captureOutput will capture logs and warnings
+func captureOutput(tkgClient TkgClient, options CreateClusterOptions, isManagementCluster bool) string {
+	r, w, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+
+	// stdout := os.Stdout
+	// os.Stdout = w
+	// defer func() {
+	// 	os.Stdout = stdout
+	// }()
+
+	stderr := os.Stderr
+	os.Stderr = w
+	defer func() {
+		os.Stderr = stderr
+	}()
+
+	_, _ = tkgClient.CreateCluster(&options, isManagementCluster)
+	w.Close()
+	var buf bytes.Buffer
+	io.Copy(&buf, r)
+
+	return buf.String()
+}
 
 func populateConfigMap() map[string]string {
 	configMap := make(map[string]string, 0)
@@ -302,6 +443,7 @@ func createClusterOptions(clusterName, configFile string) CreateClusterOptions {
 			TargetNamespace:   constants.DefaultNamespace,
 			ProviderRepositorySource: &clusterctl.ProviderRepositorySourceOptions{
 				InfrastructureProvider: VSphereProviderName,
+				Flavor:                 "dev",
 			},
 			WorkerMachineCount: pointer.Int64Ptr(0),
 		},
