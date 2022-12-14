@@ -36,11 +36,11 @@ var PublishImagesfromtarCmd = &cobra.Command{
 
 func init() {
 	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.TkgTarFilePath, "source-directory", "", "", "Path to the directory that contains the TAR file  (required)")
-	_ = PublishImagestotarCmd.MarkFlagRequired("source-directory")
+	_ = PublishImagesfromtarCmd.MarkFlagRequired("source-directory")
 	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.DestinationRepository, "destination-repo", "", "", "Private OCI repository where the images should be hosted in air-gapped (required)")
 	_ = PublishImagesfromtarCmd.MarkFlagRequired("destination-repo")
 	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.CustomImageRepoCertificate, "destination-ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
-	PublishImagestotarCmd.Flags().BoolVarP(&pullImage.Insecure, "destination-insecure", "", false, "Trusts the server certificate without validating it (optional)")
+	PublishImagesfromtarCmd.Flags().BoolVarP(&pushImage.Insecure, "destination-insecure", "", false, "Trusts the private repository’s certificate without validating it (optional)")
 }
 
 func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
@@ -80,7 +80,7 @@ func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
 func publishImagesFromTar(cmd *cobra.Command, args []string) error {
 	pushImage.PkgClient = &imgpkgClient{}
 	if !pushImage.Insecure && pushImage.CustomImageRepoCertificate == "" {
-		return fmt.Errorf("CA certificate is empty and Insecure option is disable")
+		return fmt.Errorf("CA certificate is empty and Insecure option is disabled")
 	}
 
 	err := pushImage.PushImageToRepo()

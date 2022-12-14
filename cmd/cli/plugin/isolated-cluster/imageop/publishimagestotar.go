@@ -44,8 +44,7 @@ var PublishImagestotarCmd = &cobra.Command{
 }
 
 func init() {
-	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgImageRepo, "source-repo", "", "projects.registry.vmware.com/tkg", "OCI repo where TKG bundles or images are hosted (required)")
-	_ = PublishImagestotarCmd.MarkFlagRequired("source-repo")
+	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgImageRepo, "source-repo", "", "projects.registry.vmware.com/tkg", "OCI repo where TKG bundles or images are hosted")
 	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgVersion, "tkg-version", "", "", "TKG version (required)")
 	_ = PublishImagestotarCmd.MarkFlagRequired("tkg-version")
 	PublishImagestotarCmd.Flags().BoolVarP(&pullImage.Insecure, "source-insecure", "", false, "Trusts the server certificate without validating it (optional)")
@@ -155,12 +154,12 @@ func (p *PublishImagesToTarOptions) DownloadTkrCompatibilityImage(tkrCompatibili
 		return nil, errors.Wrapf(err, "read directory tmp failed")
 	}
 	if len(files) != 1 || files[0].IsDir() {
-		return nil, fmt.Errorf("tkr-compatibility image should only has exact one file inside")
+		return nil, fmt.Errorf("tkr-compatibility image should only have exactly one file inside")
 	}
 	tkrCompatibilityFilePath := filepath.Join(outputDir, files[0].Name())
 	b, err := os.ReadFile(tkrCompatibilityFilePath)
 	if err != nil {
-		return nil, errors.Wrapf(err, "read tkr-compatibility file from %s faild", tkrCompatibilityFilePath)
+		return nil, errors.Wrapf(err, "read tkr-compatibility file from %s failed", tkrCompatibilityFilePath)
 	}
 	tkrCompatibility := &tkrv1.CompatibilityMetadata{}
 	if err := yaml.Unmarshal(b, tkrCompatibility); err != nil {
@@ -212,7 +211,7 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 	tkrBomFilePath := path.Join(outputDir, fmt.Sprintf("tkr-bom-%s.yaml", tkrVersion))
 	b, err := os.ReadFile(tkrBomFilePath)
 	if err != nil {
-		return errors.Wrapf(err, "read tkr-bom file from %s faild", tkrBomFilePath)
+		return errors.Wrapf(err, "read tkr-bom file from %s failed", tkrBomFilePath)
 	}
 	tkgBom, _ := tkrv1.NewBom(b)
 	// imgpkg copy each component's artifacts
@@ -305,7 +304,7 @@ func downloadImagesToTar(cmd *cobra.Command, args []string) error {
 	pullImage.PkgClient = &imgpkgClient{}
 
 	if !pullImage.Insecure && pullImage.CaCertificate == "" {
-		return fmt.Errorf("CA certificate is empty and Insecure option is disable")
+		return fmt.Errorf("CA certificate is empty and Insecure option is disabled")
 	}
 	if !strings.HasPrefix(pullImage.TkgVersion, "v") {
 		return fmt.Errorf("invalid TKG Tag %s", pullImage.TkgVersion)
