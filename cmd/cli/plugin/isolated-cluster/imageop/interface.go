@@ -5,8 +5,8 @@
 package imageop
 
 type ImgpkgClient interface {
-	CopyImageFromTar(sourceImageName string, destImageRepo string, customImageRepoCertificate string) error
-	CopyImageToTar(sourceImageName string, destImageRepo string, customImageRepoCertificate string) error
+	CopyImageFromTar(sourceImageName string, destImageRepo string, customImageRepoCertificate string, insecureconnection bool) error
+	CopyImageToTar(sourceImageName string, destImageRepo string, customImageRepoCertificate string, insecureconnection bool) error
 	PullImage(sourceImageName string, destDir string) error
 	GetImageTagList(sourceImageName string) []string
 }

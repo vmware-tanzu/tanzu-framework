@@ -62,7 +62,7 @@ func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
 		destPath := filepath.Join(p.DestinationRepository, path)
 		group.Go(
 			func() error {
-				err = p.PkgClient.CopyImageFromTar(fileName, destPath, p.CustomImageRepoCertificate)
+				err = p.PkgClient.CopyImageFromTar(fileName, destPath, p.CustomImageRepoCertificate, p.Insecure)
 				if err != nil {
 					return err
 				}

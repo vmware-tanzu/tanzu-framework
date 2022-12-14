@@ -69,7 +69,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgCompatibilityImage() error {
 	}
 	sourceImageName := tkgCompatibilityImagePath + ":" + imageTags[len(imageTags)-1]
 	tarFilename := "tkg-compatibility" + "-" + imageTags[len(imageTags)-1] + ".tar"
-	err := p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate)
+	err := p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate, p.Insecure)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgBomAndComponentImages() (string, 
 
 	sourceImageName := tkgBomImagePath + ":" + p.TkgVersion
 	tarnames := "tkg-bom" + "-" + p.TkgVersion + ".tar"
-	err := p.PkgClient.CopyImageToTar(sourceImageName, tarnames, p.CaCertificate)
+	err := p.PkgClient.CopyImageToTar(sourceImageName, tarnames, p.CaCertificate, p.Insecure)
 	if err != nil {
 		return "", errors.New("error while downloading tkg-bom")
 	}
@@ -117,7 +117,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgBomAndComponentImages() (string, 
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
 				tempImageDetails[tarname] = imageInfo.ImagePath
 				group.Go(func() error {
-					return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate)
+					return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
 				})
 			}
 		}
@@ -181,7 +181,7 @@ func (p *PublishImagesToTarOptions) DownloadTkrCompatibilityImage(tkrCompatibili
 	// imgpkg copy the tkr-compatibility image
 	sourceImageName = tkrCompatibilityImageURL
 	tarFilename := "tkr-compatibility" + "-" + imageTags[len(imageTags)-1] + ".tar"
-	err = p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate)
+	err = p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate, p.Insecure)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 	tkrBomImagePath := path.Join(p.TkgImageRepo, "tkr-bom")
 	sourceImageName := tkrBomImagePath + ":" + tkrTag
 	tarFilename := "tkr-bom" + "-" + tkrTag + ".tar"
-	err := p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate)
+	err := p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate, p.Insecure)
 	if err != nil {
 		return err
 	}
@@ -227,7 +227,7 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
 				tempImageDetails[tarname] = imageInfo.ImagePath
 				group.Go(func() error {
-					return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate)
+					return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
 				})
 			}
 		}
@@ -279,7 +279,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgPackagesImages(tkrVersions []stri
 			tarname := imageName + "-" + tkrVersion + ".tar"
 			tempImageDetails[tarname] = imageName
 			group.Go(func() error {
-				return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate)
+				return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
 			})
 		}
 		for i := 0; i < tkgPackageStruct.NumField(); i++ {
@@ -288,7 +288,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgPackagesImages(tkrVersions []stri
 			tarname := imageName + "-" + tkrVersion + ".tar"
 			tempImageDetails[tarname] = imageName
 			group.Go(func() error {
-				return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate)
+				return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
 			})
 		}
 	}
@@ -302,10 +302,6 @@ func (p *PublishImagesToTarOptions) DownloadTkgPackagesImages(tkrVersions []stri
 
 func downloadImagesToTar(cmd *cobra.Command, args []string) error {
 	pullImage.PkgClient = &imgpkgClient{}
-
-	if !pullImage.Insecure && pullImage.CaCertificate == "" {
-		return fmt.Errorf("CA certificate is empty and Insecure option is disabled")
-	}
 	if !strings.HasPrefix(pullImage.TkgVersion, "v") {
 		return fmt.Errorf("invalid TKG Tag %s", pullImage.TkgVersion)
 	}

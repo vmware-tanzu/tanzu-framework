@@ -22,12 +22,13 @@ import (
 type imgpkgClient struct {
 }
 
-func (c *imgpkgClient) CopyImageFromTar(sourceImageName, destImageRepo, customImageRepoCertificate string) error {
+func (c *imgpkgClient) CopyImageFromTar(sourceImageName, destImageRepo, customImageRepoCertificate string, insecureconnection bool) error {
 	confUI := ui.NewConfUI(ui.NewNoopLogger())
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.Concurrency = 1
 	copyOptions.TarFlags.TarSrc = sourceImageName
 	copyOptions.RepoDst = destImageRepo
+	copyOptions.RegistryFlags.Insecure = insecureconnection
 	if customImageRepoCertificate != "" {
 		copyOptions.RegistryFlags.CACertPaths = []string{customImageRepoCertificate}
 	}
@@ -38,12 +39,13 @@ func (c *imgpkgClient) CopyImageFromTar(sourceImageName, destImageRepo, customIm
 	return nil
 }
 
-func (c *imgpkgClient) CopyImageToTar(sourceImageName, destImageRepo, customImageRepoCertificate string) error {
+func (c *imgpkgClient) CopyImageToTar(sourceImageName, destImageRepo, customImageRepoCertificate string, insecureconnection bool) error {
 	confUI := ui.NewConfUI(ui.NewNoopLogger()) // TODO: this parameter should be given by the caller instead of being hardcoded
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.TarFlags.Resume = true
 	copyOptions.IncludeNonDistributable = true
 	copyOptions.Concurrency = 3
+	copyOptions.RegistryFlags.Insecure = insecureconnection
 	reg, err := registry.NewSimpleRegistry(registry.Opts{})
 	if err != nil {
 		return err
