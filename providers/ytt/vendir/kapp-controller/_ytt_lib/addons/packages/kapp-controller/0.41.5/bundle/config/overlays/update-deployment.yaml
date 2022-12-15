@@ -2,6 +2,18 @@
 #@ load("/values.star", "values", "generateBashCmdForDNS")
 #@ load("@ytt:yaml", "yaml")
 
+#@ def is_toleration_specified(toleration):
+#@   return toleration in yaml.decode(yaml.encode(values.kappController.deployment.tolerations))
+#@ end
+
+#@ default_tolerations = []
+#@ is_master_specified = is_toleration_specified({"effect":"NoSchedule", "key":"node-role.kubernetes.io/master"})
+#@ is_control_specified = is_toleration_specified({"effect":"NoSchedule", "key":"node-role.kubernetes.io/control-plane"})
+
+#@ if is_master_specified and not is_control_specified:
+#@   default_tolerations += [{"effect":"NoSchedule", "key":"node-role.kubernetes.io/control-plane"}]
+#@ end
+
 #@overlay/match by=overlay.subset({"kind":"Deployment","metadata":{"name": "kapp-controller"}})
 ---
 metadata:
@@ -50,7 +62,7 @@ spec:
         - /bin/sh
         #! Beware, update this image with each version bump!!!!!!!
         #! This image needs to be the same as the image used in basefile
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:320415138e1c7deec1e523c0a30901e54c3475736f82fb9985b76989e284fd79
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:1de0182159da1fe0b9a6aab838a23b4c5aac62090ff1df90cc08df7443137add
         name: init-kapp-controller
         securityContext:
           allowPrivilegeEscalation: false
@@ -64,7 +76,7 @@ spec:
       #@ if/end values.kappController.deployment.priorityClassName:
       priorityClassName: #@ values.kappController.deployment.priorityClassName
       #@ if hasattr(values.kappController.deployment, 'tolerations') and values.kappController.deployment.tolerations:
-      tolerations: #@ values.kappController.deployment.tolerations
+      tolerations: #@ default_tolerations + values.kappController.deployment.tolerations
       #@ end
       #@ if values.kappController.deployment.coreDNSIP:
       volumes:
