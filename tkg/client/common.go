@@ -310,7 +310,7 @@ func (c *TkgClient) isCustomOverlayPresent() (bool, error) {
 // Sets the appropriate AllowLegacyCluster configuration unless it has been explicitly overridden
 func (c *TkgClient) SetAllowLegacyClusterConfiguration() string {
 	var allowLegacyCluster string
-	value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+	value, err := c.allowLegacyCluster()
 	if err != nil {
 		// ALLOW_LEGACY_CLUSTER doesn't be explicitly set in cluster config file
 		if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
@@ -325,19 +325,7 @@ func (c *TkgClient) SetAllowLegacyClusterConfiguration() string {
 	} else {
 		// ALLOW_LEGACY_CLUSTER is explicitly set in cluster config file
 		log.V(6).Infof("Info: %v configuration already set to %q", constants.ConfigVariableAllowLegacyCluster, value)
-		if value != "true" && value != "false" {
-			log.Warningf("Seem like you have set %v, but it's not a valid value. It should be true or false", constants.ConfigVariableAllowLegacyCluster)
-			// Set ALLOW_LEGACY_CLUSTER to a valid value
-			if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
-				allowLegacyCluster = "false"
-			} else {
-				allowLegacyCluster = "true"
-			}
-			log.V(6).Infof("Setting %v to %q", constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
-		} else {
-			allowLegacyCluster = value
-		}
+		allowLegacyCluster = strconv.FormatBool(value)
 	}
 
 	return allowLegacyCluster
