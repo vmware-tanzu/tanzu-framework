@@ -57,7 +57,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     vSphereModalBody: string;
     thumbprint: string;
 
-    edition: AppEdition = AppEdition.TCE;
+    edition: AppEdition = AppEdition.TKG;
     enableIpv6: boolean = false;
 
     // As a hack to avoid onChange events where the value really hasn't changed, we track the field values ourselves
@@ -299,8 +299,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         AppServices.appDataService.setVsphereVersion(vsphereVerInfo.version);
         this.triggerStepDescriptionChange();
 
-        if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
-        && this.edition !== AppEdition.TCE) {
+        if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))) {
             // for 7 and newer and other potential anomalies, show modal suggesting upgrade
             this.showVSphereWithK8Modal();
         } else if (!isCompatible) {
