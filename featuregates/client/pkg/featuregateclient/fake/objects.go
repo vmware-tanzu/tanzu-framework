@@ -54,6 +54,19 @@ func GetTestObjects() ([]runtime.Object, map[string]*corev1alpha2.Feature, map[s
 		},
 	}
 
+	biz := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "biz",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "[Deprecated] Bizniz support",
+			Stability:   corev1alpha2.Deprecated,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: false,
+		},
+	}
+
 	bazzies := &corev1alpha2.Feature{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "bazzies",
@@ -72,11 +85,37 @@ func GetTestObjects() ([]runtime.Object, map[string]*corev1alpha2.Feature, map[s
 			Name: "cloud-event-listener",
 		},
 		Spec: corev1alpha2.FeatureSpec{
-			Description: "Open a port to listen for cloudevents. Highly experimental!",
+			Description: "Open a port to listen for cloud events. Highly experimental!",
 			Stability:   corev1alpha2.Experimental,
 		},
 		Status: corev1alpha2.FeatureStatus{
 			Activated: true,
+		},
+	}
+
+	cloudEventSpeaker := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "cloud-event-speaker",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "Open a port to speak for cloud events. Highly experimental!",
+			Stability:   corev1alpha2.Experimental,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: false,
+		},
+	}
+
+	cloudEventRelayer := &corev1alpha2.Feature{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "cloud-event-relayer",
+		},
+		Spec: corev1alpha2.FeatureSpec{
+			Description: "Open a port to relay cloud events. Highly experimental!",
+			Stability:   corev1alpha2.Experimental,
+		},
+		Status: corev1alpha2.FeatureStatus{
+			Activated: false,
 		},
 	}
 
@@ -162,8 +201,11 @@ func GetTestObjects() ([]runtime.Object, map[string]*corev1alpha2.Feature, map[s
 		"bar":                          bar,
 		"barries":                      barries,
 		"baz":                          baz,
+		"biz":                          biz,
 		"bazzies":                      bazzies,
 		"cloud-event-listener":         cloudEventListener,
+		"cloud-event-speaker":          cloudEventSpeaker,
+		"cloud-event-relayer":          cloudEventRelayer,
 		"dodgy-experimental-periscope": dodgyExperimentalPeriscope,
 		"foo":                          foo,
 		"tuner":                        tuner,
@@ -209,6 +251,18 @@ func GetTestObjects() ([]runtime.Object, map[string]*corev1alpha2.Feature, map[s
 					PermanentlyVoidAllSupportGuarantees: true,
 				},
 				{
+					// Experimental
+					Name:                                "cloud-event-speaker",
+					Activate:                            false,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
+					// Experimental
+					Name:                                "cloud-event-relayer",
+					Activate:                            false,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
 					// Feature is not in cluster and stability is unknown
 					Name:                                "hard-to-get",
 					Activate:                            false,
@@ -230,6 +284,12 @@ func GetTestObjects() ([]runtime.Object, map[string]*corev1alpha2.Feature, map[s
 					// Stable
 					Name:                                "super-toaster",
 					Activate:                            true,
+					PermanentlyVoidAllSupportGuarantees: false,
+				},
+				{
+					// Deprecated
+					Name:                                "biz",
+					Activate:                            false,
 					PermanentlyVoidAllSupportGuarantees: false,
 				},
 				{
@@ -303,7 +363,10 @@ func GetTestObjects() ([]runtime.Object, map[string]*corev1alpha2.Feature, map[s
 		barries,
 		baz,
 		bazzies,
+		biz,
 		cloudEventListener,
+		cloudEventSpeaker,
+		cloudEventRelayer,
 		dodgyExperimentalPeriscope,
 		emptyFeatureGate,
 		foo,
