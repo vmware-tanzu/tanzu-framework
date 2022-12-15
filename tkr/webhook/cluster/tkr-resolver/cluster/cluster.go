@@ -341,7 +341,11 @@ func withCustomImageRepository(customImageRepository string, k8sSpec *runv1.Kube
 			k8sSpec.KubeVIP,
 		} {
 			if imageInfo != nil {
-				imageInfo.ImageRepository = customImageRepository
+				// Set customImageRepository as the ImageRepository for k8sSpec.Component if and only if it does not
+				// already have ImageRepository set
+				if imageInfo.ImageRepository == "" {
+					imageInfo.ImageRepository = customImageRepository
+				}
 			}
 		}
 	}
