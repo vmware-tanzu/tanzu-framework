@@ -21,6 +21,7 @@ type Client interface {
 	ListRegionsByUser() ([]string, error)
 	GetSubnetGatewayAssociations(vpcID string) (map[string]bool, error)
 	ListSubnets(vpcID string) ([]*models.AWSSubnet, error)
+	ListEC2KeyPairs() ([]*models.AWSKeyPair, error)
 	CreateCloudFormationStack() error
 	CreateCloudFormationStackWithTemplate(template *bootstrap.Template) error
 	GenerateBootstrapTemplate(i GenerateBootstrapTemplateInput) (*bootstrap.Template, error)

@@ -34,7 +34,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     formName;
     formGroup: FormGroup;
 
-    edition: AppEdition = AppEdition.TCE;
+    edition: AppEdition = AppEdition.TKG;
     validatorEnum = ValidatorEnum;
     errorNotification: string = '';
     configFileNotification: Notification;

@@ -89,6 +89,7 @@ func (app *App) ConfigureHandlers(api middleware.RoutableAPI) { // nolint:funlen
 	a.AwsGetAWSSubnetsHandler = aws.GetAWSSubnetsHandlerFunc(app.GetAWSSubnets)
 	a.AwsApplyTKGConfigForAWSHandler = aws.ApplyTKGConfigForAWSHandlerFunc(app.ApplyTKGConfigForAWS)
 	a.AwsGetAWSNodeTypesHandler = aws.GetAWSNodeTypesHandlerFunc(app.GetAWSNodeTypes)
+	a.AwsGetAWSKeyPairsHandler = aws.GetAWSKeyPairsHandlerFunc(app.GetAWSKeyPairs)
 	a.AwsGetAWSCredentialProfilesHandler = aws.GetAWSCredentialProfilesHandlerFunc(app.GetAWSCredentialProfiles)
 	a.AwsGetAWSOSImagesHandler = aws.GetAWSOSImagesHandlerFunc(app.GetAWSOSImages)
 	a.AwsExportTKGConfigForAWSHandler = aws.ExportTKGConfigForAWSHandlerFunc(app.ExportAWSConfig)

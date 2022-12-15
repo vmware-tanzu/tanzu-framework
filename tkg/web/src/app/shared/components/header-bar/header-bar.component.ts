@@ -32,8 +32,7 @@ export class HeaderBarComponent extends BasicSubscriber implements OnInit {
     ngOnInit() {
         AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
                 this.edition = data.payload.edition;
-                this.docsUrl = (this.edition === AppEdition.TKG) ? 'https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html' :
-                    'http://tanzucommunityedition.io/docs';
+                this.docsUrl = 'https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html';
             }, this.unsubscribe);
     }
 
