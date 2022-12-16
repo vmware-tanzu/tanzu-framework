@@ -23,14 +23,14 @@ Usage:
 
 Examples:
     # copy image from projects.registry.vmware.com/tkg to /tmp folder
-    tanzu isolated-cluster download-bundle --source-repo mirror-registry.test/tkg --tkg-version v1.6.0
+    tanzu isolated-cluster download-bundle --source-repo mirror-registry.test/tkg --tkg-version v2.1.0
 
 
 Flags:
       ----source-repo         OCI repo where TKG bundles or images are hosted (required)
       --tkg-version           TKG version (required)
-      --source-insecure       Trusts the server certificate without validating it
-      --source-ca-certificate The private repository’s CA certificate
+      --insecure       Trusts the server certificate without validating it
+      --ca-certificate The private repository’s CA certificate
       -h, --help              help for image pull
 ```
 
@@ -53,7 +53,6 @@ Flags:
       --source-directory            Path to the directory that contains the TAR file  (required)
       --ca-certificate              The private repository’s CA certificate  (optional)
       --destination-repo            Private OCI repository where the images should be hosted in air-gapped (required)
-      --destination-insecure        Trusts the server certificate without validating it (optional)
-      --destination-ca-certificate  The private repository’s CA certificate  (optional)
+      --insecure        Trusts the server certificate without validating it (optional)
       -h, --help            help for image push
 ```
