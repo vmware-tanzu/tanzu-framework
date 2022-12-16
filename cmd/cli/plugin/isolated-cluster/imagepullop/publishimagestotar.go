@@ -55,7 +55,7 @@ var PublishImagestotarCmd = &cobra.Command{
 }
 
 func init() {
-	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgImageRepo, "source-repo", "", "projects.registry.vmware.com/tkg", "OCI repo where TKG bundles or images are hosted")
+	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgImageRepo, "source-repo", "", "mirror-registry.test/tkg", "OCI repo where TKG bundles or images are hosted")
 	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgVersion, "tkg-version", "", "", "TKG version (required)")
 	_ = PublishImagestotarCmd.MarkFlagRequired("tkg-version")
 	PublishImagestotarCmd.Flags().BoolVarP(&pullImage.Insecure, "insecure", "", false, "Trusts the server certificate without validating it (optional)")

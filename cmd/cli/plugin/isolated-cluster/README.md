@@ -23,7 +23,7 @@ Usage:
 
 Examples:
     # copy image from projects.registry.vmware.com/tkg to /tmp folder
-    tanzu isolated-cluster download-bundle --source-repo projects.registry.vmware.com/tkg --tkg-version v1.6.0
+    tanzu isolated-cluster download-bundle --source-repo mirror-registry.test/tkg --tkg-version v1.6.0
 
 
 Flags:
