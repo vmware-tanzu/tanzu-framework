@@ -34,14 +34,14 @@ var PublishImagesfromtarCmd = &cobra.Command{
 	Use:   "upload-bundle",
 	Short: "upload images/bundle to private repository from tar files that are stored in local disk.",
 	Example: `
-        # upload images/bundle from tar files that are stored in local disk at path /tmp to repo testing.io and authenticate destination repo with default system CA certificate
-        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp
+        # upload images/bundle from tar files that are stored in the relative directory ./tkg-images to a /tkg repository on a internal-registry.test mirror 
+        tanzu isolated-cluster upload-bundle --destination-repo  internal-registry.test/tkg --source-directory ./tkg-images
 
-        # upload images/bundle from tar files that are stored in local disk at path /tmp  to repo testing.io without authenticating destination repo
-        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp --insecure
+        # upload images/bundle from tar files that are stored in the relative directory ./tkg-images to a /tkg repository on a internal-registry.test mirror without any TLS validation of the certificate
+        tanzu isolated-cluster upload-bundle --destination-repo internal-registry.test/tkg --source-directory ./tkg-images --insecure
 
-        # upload images/bundle from tar files that are stored in local disk at path /tmp  to repo testing.io and authenticate destination repo with externally provided CACert
-        tanzu isolated-cluster upload-bundle --destination-repo  testing.io --source-directory /tmp  --ca-certificate /tmp/cacert.crt
+        # upload images/bundle from tar files that are stored in the relative directory ./tkg-images to a /tkg repository on a internal-registry.test mirror with a self-signed or internally approved CA Certificate.
+        tanzu isolated-cluster upload-bundle --destination-repo  internal-registry.test/tkg --source-directory ./tkg-images  --ca-certificate registry.crt
 `,
 
 	RunE:         publishImagesFromTar,

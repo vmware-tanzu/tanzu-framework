@@ -40,14 +40,14 @@ var PublishImagestotarCmd = &cobra.Command{
 	Use:   "download-bundle",
 	Short: "Download images/bundle from source repo into local disk (at current directory) as TAR files",
 	Example: `
-        # download images/bundle for TKG version v1.7.0 into local disk from repo projects.registry.vmware.com and authenticate source repo with default system CA certificate
-	tanzu isolated-cluster download-bundle --source-repo projects.registry.vmware.com --tkg-version v1.7.0 
+        # download images/bundle for TKG version v2.1.0 into local disk from repo projects.registry.vmware.com and authenticate source repo with default system CA certificate
+	tanzu isolated-cluster download-bundle --source-repo mirror-registry.test --tkg-version v2.1.0 
 
-        # download images/bundle for TKG version v1.7.0 into local disk from repo projects.registry.vmware.com without authenticating source repo 
-        tanzu isolated-cluster download-bundle --source-repo projects.registry.vmware.com --tkg-version v1.7.0 --insecure
+	# download images/bundle for TKG version v2.1.0 into local disk from an internal registry without validating the certificate
+        tanzu isolated-cluster download-bundle --source-repo mirror-registry.test --tkg-version v2.1.0 --insecure
 
-        # download images/bundle for TKG version v1.7.0 into local disk from repo projects.registry.vmware.com and authenticate source repo with externally provided CACert
-        tanzu isolated-cluster download-bundle --source-repo projects.registry.vmware.com --tkg-version v1.7.0 --ca-certificate /tmp/cacert.crt
+	# download images/bundle for TKG version v2.1.0 into local disk from an internal mirror using a self-signed certificate
+        tanzu isolated-cluster download-bundle --source-repo mirror-registry.test --tkg-version v2.1.0 --ca-certificate registry.crt
 `,
 
 	RunE:         downloadImagesToTar,
