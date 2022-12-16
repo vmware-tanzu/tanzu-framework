@@ -3,6 +3,7 @@ module github.com/vmware-tanzu/tanzu-framework/capabilities/controller
 go 1.18
 
 replace (
+	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../apis/core
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ../client
@@ -65,11 +66,11 @@ require (
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/net v0.4.0 // indirect
-	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
+	golang.org/x/oauth2 v0.3.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/term v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
-	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
+	golang.org/x/time v0.3.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
