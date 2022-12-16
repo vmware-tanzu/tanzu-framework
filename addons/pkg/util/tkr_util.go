@@ -49,6 +49,10 @@ func GetTKRByNameV1Alpha3(ctx context.Context, c client.Client, tkrName string) 
 
 	if err := c.Get(ctx, tkrNamespaceName, tkrV1Alpha3); err != nil {
 		if apierrors.IsNotFound(err) {
+			tkrV1Alpha3, err = FetchTKRSpecFromAnnotations(cluster.Annotations)
+			if tkrV1Alpha3 != nil {
+				return tkrV1Alpha3, nil
+			}
 			return nil, nil
 		}
 		return nil, err
@@ -89,4 +93,37 @@ func GetBootstrapPackageNameFromTKR(ctx context.Context, clt client.Client, pkgR
 	}
 
 	return "", pkgNamePrefix, fmt.Errorf("no bootstrap package prefixed with '%s' is found in the TKR object", pkgNamePrefix)
+}
+
+func FetchTKRSpecFromAnnotations(tkc map[string]string) (*runtanzuv1alpha3.TanzuKubernetesRelease, error) {
+	controlPlaneTKR := &runtanzuv1alpha3.TanzuKubernetesRelease{}
+
+	tkrSpec, ok := tkc["run.tanzu.vmware.com/tkr-spec"]
+	if ok {
+		unzipOut, err := gunzipAndBase64Decode(tkrSpec)
+		if err != nil {
+			return nil, err
+		}
+
+		err = yaml.Unmarshal(unzipOut, controlPlaneTKR)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return controlPlaneTKR, nil
+}
+
+// GunzipAndBase64Decode extracts a gzip archive to a byte array
+func gunzipAndBase64Decode(input string) ([]byte, error) {
+	decodedData, err := base64.StdEncoding.DecodeString(input)
+	if err != nil {
+		return nil, err
+	}
+
+	r, err := gzip.NewReader(bytes.NewReader(decodedData))
+	if err != nil {
+		return nil, err
+	}
+
+	return ioutil.ReadAll(r)
 }
