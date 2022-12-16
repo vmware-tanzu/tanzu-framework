@@ -4,8 +4,12 @@
 package controllers
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"time"
 
@@ -158,8 +162,11 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// if tkr is not found, should not requeue for the reconciliation
 	if tkr == nil {
-		log.Info("TKR object not found", "name", tkrName)
-		return ctrl.Result{}, nil
+		tkr, err = FetchTKRSpecFromAnnotations(cluster.Annotations)
+		if err != nil {
+			log.Info("TKR object not found", "name", tkrName)
+			return ctrl.Result{}, nil
+		}
 	}
 
 	if _, labelFound := tkr.Labels[constants.TKRLabelLegacyClusters]; labelFound {
@@ -1619,4 +1626,37 @@ func (r *ClusterBootstrapReconciler) generateSecretForPackagesWithEmptyValuesFro
 
 	r.Log.Info(fmt.Sprintf("created secret %v for ClusterBootstrapPackage.RefName: %s", packageSecret.Name, cbPkg.RefName))
 	return packageSecret.Name, nil
+}
+
+func FetchTKRSpecFromAnnotations(tkc map[string]string) (*runtanzuv1alpha3.TanzuKubernetesRelease, error) {
+	controlPlaneTKR := &runtanzuv1alpha3.TanzuKubernetesRelease{}
+
+	tkrSpec, ok := tkc["run.tanzu.vmware.com/tkr-spec"]
+	if ok {
+		unzipOut, err := gunzipAndBase64Decode(tkrSpec)
+		if err != nil {
+			return nil, err
+		}
+
+		err = yaml.Unmarshal(unzipOut, controlPlaneTKR)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return controlPlaneTKR, nil
+}
+
+// GunzipAndBase64Decode extracts a gzip archive to a byte array
+func gunzipAndBase64Decode(input string) ([]byte, error) {
+	decodedData, err := base64.StdEncoding.DecodeString(input)
+	if err != nil {
+		return nil, err
+	}
+
+	r, err := gzip.NewReader(bytes.NewReader(decodedData))
+	if err != nil {
+		return nil, err
+	}
+
+	return ioutil.ReadAll(r)
 }
