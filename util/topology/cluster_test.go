@@ -168,7 +168,7 @@ var _ = Describe("Cluster variable getters and setters", func() {
 			})
 		})
 		When("the Cluster variable of map type does not exist", func() {
-			FIt("should populate the Cluster variable with an empty map", func() {
+			It("should populate the Cluster variable with an empty map", func() {
 				var aData *AData
 
 				// The Cluster level variable named C should not exist
