@@ -197,7 +197,6 @@ var _ = Describe("Package plugin integration test", func() {
 				ClusterName:            config.ClusterNameMC,
 				InfrastructureProvider: "docker",
 				Timeout:                clusterCreationTimeout,
-				CniType:                "calico",
 				Edition:                "tkg",
 			})
 			Expect(err).NotTo(HaveOccurred())
