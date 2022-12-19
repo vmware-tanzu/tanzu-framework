@@ -2,10 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Update the cpi 1.23.1's tolerations and affinity (#5332)
-      sha: b04f47f5c009ea4d560ec1e87c204e77818de960
+      commitTitle: Adds Contour 1.22.3 (#5603)...
+      sha: 95ef4138317d8777ca29730a156cb229333811a9
       tags:
-      - v0.13.0-dev.2-331-gb04f47f5
+      - v0.13.0-dev.2-521-g95ef4138
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:

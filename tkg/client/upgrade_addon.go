@@ -352,11 +352,19 @@ func (c *TkgClient) setProxyConfiguration(clusterClusterClient clusterclient.Cli
 
 func (c *TkgClient) setCustomImageRepositoryConfiguration(regionalClusterClient clusterclient.Client) error {
 	configmap := &corev1.ConfigMap{}
-	if err := regionalClusterClient.GetResource(configmap, constants.TkrConfigMapName, constants.TkrNamespace, nil, nil); err != nil {
+	if err := regionalClusterClient.GetResource(configmap, constants.TkrConfigMapName, constants.TkgNamespace, nil, nil); err != nil {
 		if apierrors.IsNotFound(err) {
-			return nil
+			// read cm from tkr-system namespace if not found in tkg-system
+			if err := regionalClusterClient.GetResource(configmap, constants.TkrConfigMapName, constants.TkrNamespace, nil, nil); err != nil {
+				if apierrors.IsNotFound(err) {
+					return nil
+				} else {
+					return errors.Wrapf(err, "unable to get object '%v' in namespace '%v'", constants.TkrConfigMapName, constants.TkrNamespace)
+				}
+			}
+		} else {
+			return errors.Wrapf(err, "unable to get object '%v' in namespace '%v'", constants.TkrConfigMapName, constants.TkgNamespace)
 		}
-		return errors.Wrapf(err, "unable to get object '%v' in namespace '%v'", constants.TkrConfigMapName, constants.TkrNamespace)
 	}
 
 	if configmap.Data == nil {

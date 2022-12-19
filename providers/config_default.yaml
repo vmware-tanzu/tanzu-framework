@@ -33,6 +33,10 @@ CLUSTER_API_SERVER_PORT:
 
 CLUSTER_CLASS:
 
+#! ALLOW_LEGACY_CLUSTER will allow legacy based workload cluster creation.
+#! Supported values are "false", "true". By default, it's "false".
+ALLOW_LEGACY_CLUSTER:
+
 #! Instance size configuration
 #! Instance size options available for vSphere are as follows:
 #!   vSphere: [extra-large,large,medium,small]

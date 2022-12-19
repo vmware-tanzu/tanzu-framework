@@ -8,3 +8,5 @@ directories:
         manual: {}
       - path: overlay.yaml
         manual: {}
+      - path: overlay-pod-security-admission.yaml
+        manual: {}

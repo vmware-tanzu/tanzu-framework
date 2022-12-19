@@ -220,6 +220,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
+	if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) && providerName == constants.InfrastructureProviderVSphere {
+		ipamProvider, err := c.tkgConfigUpdaterClient.CheckInfrastructureVersion("ipam-in-cluster")
+		if err != nil {
+			return err
+		}
+		options.IPAMProvider = ipamProvider
+	}
+
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnBootstrapCluster, InitRegionSteps)
 	log.Info("Installing providers on bootstrapper...")
 	// Initialize bootstrap cluster with providers
@@ -338,7 +346,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
-	if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) {
+	if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) && providerName == constants.InfrastructureProviderVSphere {
 		ipamProvider, err := c.tkgConfigUpdaterClient.CheckInfrastructureVersion("ipam-in-cluster")
 		if err != nil {
 			return err
@@ -815,9 +823,9 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 		dryRunMode, _ := c.readerwriterConfigClient.TKGConfigReaderWriter().Get(constants.ConfigVariableDryRunMode)
 		filter, _ := c.readerwriterConfigClient.TKGConfigReaderWriter().Get(constants.ConfigVariableFilterByAddonType)
 		if options.GenerateOnly && dryRunMode == "legacy" && filter != "" {
-			bytes, err = c.getClusterConfiguration(&clusterConfigOptions, true, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, false)
+			bytes, err = c.getClusterConfiguration(&clusterConfigOptions, true, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider)
 		} else {
-			bytes, err = c.getClusterConfigurationBytes(&clusterConfigOptions, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, true, false)
+			bytes, err = c.getClusterConfigurationBytes(&clusterConfigOptions, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, true)
 		}
 		if err != nil {
 			return bytes, options.ClusterName, "", err

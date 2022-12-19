@@ -25,12 +25,12 @@ func TestGetFeature(t *testing.T) {
 	objs, features, _ := fake.GetTestObjects()
 	s := scheme.Scheme
 	if err := corev1alpha2.AddToScheme(s); err != nil {
-		t.Fatalf("Unable to add config scheme: (%v)", err)
+		t.Fatalf("unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
 	featureGateClient, err := NewFeatureGateClient(WithClient(cl))
 	if err != nil {
-		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
+		t.Fatalf("unable to get FeatureGateClient: (%v)", err)
 	}
 
 	getFeatureTestCases := []struct {
@@ -71,6 +71,58 @@ func TestGetFeature(t *testing.T) {
 		})
 	}
 }
+func TestGetFeatureList(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	objs, _, _ := fake.GetTestObjects()
+	s := scheme.Scheme
+	if err := corev1alpha2.AddToScheme(s); err != nil {
+		t.Fatalf("unable to add config scheme: (%v)", err)
+	}
+	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
+	featureGateClient, err := NewFeatureGateClient(WithClient(cl))
+	if err != nil {
+		t.Fatalf("unable to get FeatureGateClient: (%v)", err)
+	}
+
+	test := struct {
+		description string
+		want        []string
+		returnErr   bool
+	}{
+		description: "should successfully return features on cluster",
+		want: []string{
+			"bar",
+			"barries",
+			"baz",
+			"bazzies",
+			"biz",
+			"cloud-event-listener",
+			"cloud-event-speaker",
+			"cloud-event-relayer",
+			"dodgy-experimental-periscope",
+			"foo",
+			"super-toaster",
+			"tuna",
+			"tuner",
+		},
+		returnErr: false,
+	}
+
+	t.Run(test.description, func(t *testing.T) {
+		features, err := featureGateClient.GetFeatureList(ctx)
+		if err != nil {
+			t.Errorf("unable to get FeatureList: %v", err)
+		}
+
+		for _, feature := range test.want {
+			if !featureListContainsFeature(features, feature) {
+				t.Errorf("got: %#v, want: %s feature in list", features.Items, feature)
+			}
+		}
+	})
+}
 
 func TestGetFeaturegate(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
@@ -79,12 +131,12 @@ func TestGetFeaturegate(t *testing.T) {
 	objs, _, _ := fake.GetTestObjects()
 	s := scheme.Scheme
 	if err := corev1alpha2.AddToScheme(s); err != nil {
-		t.Fatalf("Unable to add config scheme: (%v)", err)
+		t.Fatalf("unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
 	featureGateClient, err := NewFeatureGateClient(WithClient(cl))
 	if err != nil {
-		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
+		t.Fatalf("unable to get FeatureGateClient: (%v)", err)
 	}
 
 	tests := []struct {
@@ -113,7 +165,7 @@ func TestGetFeaturegate(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			got, err := featureGateClient.GetFeatureGate(ctx, tc.featureGate)
 			if err != nil {
-				t.Errorf("get Feature %sGate: %v", tc.featureGate, err)
+				t.Errorf("unable to get FeatureGate %s: %v", tc.featureGate, err)
 			}
 
 			if got.Name != tc.wantGate {
@@ -136,12 +188,12 @@ func TestGetFeaturegateList(t *testing.T) {
 	objs, _, _ := fake.GetTestObjects()
 	s := scheme.Scheme
 	if err := corev1alpha2.AddToScheme(s); err != nil {
-		t.Fatalf("Unable to add config scheme: (%v)", err)
+		t.Fatalf("unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
 	featureGateClient, err := NewFeatureGateClient(WithClient(cl))
 	if err != nil {
-		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
+		t.Fatalf("unable to get FeatureGateClient: (%v)", err)
 	}
 
 	tests := []struct {
@@ -180,12 +232,12 @@ func TestActivateFeature(t *testing.T) {
 	objs, _, _ := fake.GetTestObjects()
 	testScheme := scheme.Scheme
 	if err := corev1alpha2.AddToScheme(testScheme); err != nil {
-		t.Fatalf("Unable to add config scheme: (%v)", err)
+		t.Fatalf("unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
 	featureGateClient, err := NewFeatureGateClient(WithClient(cl))
 	if err != nil {
-		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
+		t.Fatalf("unable to get FeatureGateClient: (%v)", err)
 	}
 
 	tests := []struct {
@@ -320,12 +372,12 @@ func TestDeactivateFeature(t *testing.T) {
 	objs, _, _ := fake.GetTestObjects()
 	s := scheme.Scheme
 	if err := corev1alpha2.AddToScheme(s); err != nil {
-		t.Fatalf("Unable to add config scheme: (%v)", err)
+		t.Fatalf("unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
 	featureGateClient, err := NewFeatureGateClient(WithClient(cl))
 	if err != nil {
-		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
+		t.Fatalf("unable to get FeatureGateClient: (%v)", err)
 	}
 
 	tests := []struct {
@@ -444,6 +496,15 @@ func featureGateContainsFeature(gate *corev1alpha2.FeatureGate, feature string) 
 func featureGateListContainsFeatureGate(gates *corev1alpha2.FeatureGateList, feature string) bool {
 	for _, gate := range gates.Items {
 		if feature == gate.Name {
+			return true
+		}
+	}
+	return false
+}
+
+func featureListContainsFeature(features *corev1alpha2.FeatureList, feature string) bool {
+	for _, feat := range features.Items {
+		if feature == feat.Name {
 			return true
 		}
 	}

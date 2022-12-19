@@ -120,6 +120,12 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	optionsIR := t.populateClientInitRegionOptions(&options, nodeSizeOptions, ceipOptIn)
 	optionsIR.IsInputFileClusterClassBased = isInputFileClusterClassBased
 
+	// Forbid calico management-cluster creation
+	// TODO: _ALLOW_CALICO_ON_MANAGEMENT_CLUSTER parameter is just used for internal debugging.
+	//  After the migration from calico to antrea management-cluster is done, it will be removed.
+	if optionsIR.CniType == "calico" && os.Getenv("_ALLOW_CALICO_ON_MANAGEMENT_CLUSTER") != "true" {
+		return errors.Errorf("Calico management-cluster creation is forbidden...")
+	}
 	// take the provided hidden flags and enable the related feature flags
 	t.tkgClient.ParseHiddenArgsAsFeatureFlags(&optionsIR)
 

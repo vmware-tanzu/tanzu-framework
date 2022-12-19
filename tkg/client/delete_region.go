@@ -20,6 +20,7 @@ import (
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -134,6 +135,21 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		cleanupClusterClient, err := clusterclient.NewClient(cleanupClusterKubeconfigPath, "", clusterclientOptions)
 		if err != nil {
 			return errors.Wrap(err, "cannot create cleanup cluster client")
+		}
+
+		if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) {
+			providerName, _, err := ParseProviderName(initOptionsForCleanupCluster.InfrastructureProvider)
+			if err != nil {
+				return errors.Wrap(err, "unable to parse provider name")
+			}
+
+			if providerName == constants.InfrastructureProviderVSphere {
+				ipamProvider, err := c.tkgConfigUpdaterClient.CheckInfrastructureVersion("ipam-in-cluster")
+				if err != nil {
+					return err
+				}
+				initOptionsForCleanupCluster.IPAMProvider = ipamProvider
+			}
 		}
 
 		log.Info("Installing providers to cleanup cluster...")

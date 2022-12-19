@@ -52,6 +52,9 @@ LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo.D
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo.SHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo.Version=$(BUILD_VERSION)'
 
+ifndef TKG_DEFAULT_IMAGE_REPOSITORY
+TKG_DEFAULT_IMAGE_REPOSITORY = "projects-stg.registry.vmware.com/tkg"
+endif
 ifndef ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY
 ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY = "true"
 endif
@@ -202,7 +205,7 @@ choco-package: ## Build a Chocolatey package
 
 .PHONY: test
 test: fmt vet ## Run Tests
-	${GO} test ./... -timeout 60m -race -coverprofile coverage.txt -v
+	${GO} test `go list ./... | grep -v test/e2e` -timeout 60m -race -coverprofile coverage.txt -v
 
 .PHONY: vet
 vet: ## Vet codebase
@@ -216,6 +219,11 @@ fmt: $(GOIMPORTS) ## Run goimports
 generate-fakes: ## Generate fakes for writing unit tests
 	$(GO) generate ./...
 	$(MAKE) fmt
+
+.PHONY: test-e2e
+test-e2e: fmt vet ## Run CLI Core E2E Tests
+	${GO} test ./test/e2e/... -timeout 60m -race -coverprofile coverage.txt -v
+
 ## --------------------------------------
 ## Tooling Binaries
 ## --------------------------------------

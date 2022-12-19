@@ -636,7 +636,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(int64(workerMachineCount), isProdPlan, true, name, false)
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(int64(workerMachineCount), isProdPlan, true, name)
 	if err != nil {
 		return NewValidationError(ValidationErrorCode, errors.Wrap(err, "failed to distribute machine deployments").Error())
 	}
@@ -1416,9 +1416,9 @@ func (c *TkgClient) ConfigureAndValidateCNIType(cniType string) error {
 }
 
 // DistributeMachineDeploymentWorkers distributes machine deployment for worker nodes
-func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string, isWindowsWorkloadCluster bool) ([]int, error) { // nolint:gocyclo
+func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string) ([]int, error) { // nolint:gocyclo
 	workerCounts := make([]int, 3)
-	if infraProviderName == DockerProviderName || isWindowsWorkloadCluster {
+	if infraProviderName == DockerProviderName {
 		workerCounts[0] = int(workerMachineCount)
 		return workerCounts, nil
 	}

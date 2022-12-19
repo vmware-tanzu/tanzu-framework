@@ -1,7 +1,8 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package imageop
+// Package imagepullop define imgpkg pull command
+package imagepullop
 
 import (
 	"context"
@@ -9,24 +10,25 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/maps"
 	"golang.org/x/sync/errgroup"
 	"sigs.k8s.io/yaml"
 
 	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
+	imgpkginterface "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imgpkginterface"
 )
-
-var totalImgCopiedCounter int
 
 const outputDir = "tmp"
 
 type PublishImagesToTarOptions struct {
 	TkgImageRepo  string
 	TkgVersion    string
-	PkgClient     ImgpkgClient
+	PkgClient     imgpkginterface.ImgpkgClient
 	ImageDetails  map[string]string
 	CaCertificate string
 	Insecure      bool
@@ -35,19 +37,29 @@ type PublishImagesToTarOptions struct {
 var pullImage = &PublishImagesToTarOptions{}
 
 var PublishImagestotarCmd = &cobra.Command{
-	Use:          "download-bundle",
-	Short:        "Download images/bundle into local disk as TAR",
+	Use:   "download-bundle",
+	Short: "Download images/bundle from source repo into local disk (at current directory) as TAR files",
+	Example: `
+        # download images/bundle for TKG version v2.1.0 into local disk from repo projects.registry.vmware.com and authenticate source repo with default system CA certificate
+	tanzu isolated-cluster download-bundle --source-repo mirror-registry.test/tkg --tkg-version v2.1.0 
+
+	# download images/bundle for TKG version v2.1.0 into local disk from an internal registry without validating the certificate
+        tanzu isolated-cluster download-bundle --source-repo mirror-registry.test/tkg --tkg-version v2.1.0 --insecure
+
+	# download images/bundle for TKG version v2.1.0 into local disk from an internal mirror using a self-signed certificate
+        tanzu isolated-cluster download-bundle --source-repo mirror-registry.test/tkg --tkg-version v2.1.0 --ca-certificate registry.crt
+`,
+
 	RunE:         downloadImagesToTar,
 	SilenceUsage: true,
 }
 
 func init() {
-	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgImageRepo, "source-repo", "", "projects.registry.vmware.com/tkg", "OCI repo where TKG bundles or images are hosted (required)")
-	_ = PublishImagestotarCmd.MarkFlagRequired("source-repo")
+	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgImageRepo, "source-repo", "", "projects.registry.vmware.com/tkg", "OCI repo where TKG bundles or images are hosted")
 	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgVersion, "tkg-version", "", "", "TKG version (required)")
 	_ = PublishImagestotarCmd.MarkFlagRequired("tkg-version")
-	PublishImagestotarCmd.Flags().BoolVarP(&pullImage.Insecure, "source-insecure", "", false, "Trusts the server certificate without validating it (optional)")
-	PublishImagestotarCmd.Flags().StringVarP(&pullImage.CaCertificate, "source-ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
+	PublishImagestotarCmd.Flags().BoolVarP(&pullImage.Insecure, "insecure", "", false, "Trusts the server certificate without validating it (optional)")
+	PublishImagestotarCmd.Flags().StringVarP(&pullImage.CaCertificate, "ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
 	pullImage.ImageDetails = map[string]string{}
 }
 
@@ -58,7 +70,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgCompatibilityImage() error {
 
 	tkgCompatibilityRelativeImagePath := "tkg-compatibility"
 
-	if !isTKGRTMVersion(p.TkgVersion) {
+	if !imgpkginterface.IsTKGRTMVersion(p.TkgVersion) {
 		tkgCompatibilityRelativeImagePath = path.Join(p.TkgVersion, tkgCompatibilityRelativeImagePath)
 	}
 	tkgCompatibilityImagePath := path.Join(p.TkgImageRepo, tkgCompatibilityRelativeImagePath)
@@ -68,7 +80,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgCompatibilityImage() error {
 	}
 	sourceImageName := tkgCompatibilityImagePath + ":" + imageTags[len(imageTags)-1]
 	tarFilename := "tkg-compatibility" + "-" + imageTags[len(imageTags)-1] + ".tar"
-	err := p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate)
+	err := p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate, p.Insecure)
 	if err != nil {
 		return err
 	}
@@ -84,11 +96,11 @@ func (p *PublishImagesToTarOptions) DownloadTkgBomAndComponentImages() (string, 
 
 	sourceImageName := tkgBomImagePath + ":" + p.TkgVersion
 	tarnames := "tkg-bom" + "-" + p.TkgVersion + ".tar"
-	p.ImageDetails[tarnames] = tkgBomImagePath
-	err := p.PkgClient.CopyImageToTar(sourceImageName, tarnames, p.CaCertificate)
+	err := p.PkgClient.CopyImageToTar(sourceImageName, tarnames, p.CaCertificate, p.Insecure)
 	if err != nil {
 		return "", errors.New("error while downloading tkg-bom")
 	}
+	p.ImageDetails[tarnames] = tkgBomImagePath
 	err = p.PkgClient.PullImage(sourceImageName, outputDir)
 	if err != nil {
 		return "", err
@@ -102,18 +114,21 @@ func (p *PublishImagesToTarOptions) DownloadTkgBomAndComponentImages() (string, 
 		return "", errors.Wrapf(err, "read tkg-bom file from %s faild", tkgBomFilePath)
 	}
 	tkgBom, _ := tkrv1.NewBom(b)
+	tempImageDetails := map[string]string{}
+
 	// imgpkg copy each component's artifacts
 	components, _ := tkgBom.Components()
 	group, _ := errgroup.WithContext(context.Background())
+	group.SetLimit(30)
 	for _, compInfos := range components {
 		for _, compInfo := range compInfos {
 			for _, imageInfo := range compInfo.Images {
 				sourceImageName = path.Join(p.TkgImageRepo, imageInfo.ImagePath) + ":" + imageInfo.Tag
-				imageInfo.ImagePath = replaceSlash(imageInfo.ImagePath)
+				imageInfo.ImagePath = imgpkginterface.ReplaceSlash(imageInfo.ImagePath)
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
-				p.ImageDetails[tarname] = imageInfo.ImagePath
+				tempImageDetails[tarname] = imageInfo.ImagePath
 				group.Go(func() error {
-					return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate)
+					return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
 				})
 			}
 		}
@@ -122,7 +137,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgBomAndComponentImages() (string, 
 	if err != nil {
 		return "", errors.Wrap(err, "error while downloading images")
 	}
-
+	maps.Copy(p.ImageDetails, tempImageDetails)
 	return tkgBom.GetCompatibility(), nil
 }
 
@@ -150,12 +165,12 @@ func (p *PublishImagesToTarOptions) DownloadTkrCompatibilityImage(tkrCompatibili
 		return nil, errors.Wrapf(err, "read directory tmp failed")
 	}
 	if len(files) != 1 || files[0].IsDir() {
-		return nil, fmt.Errorf("tkr-compatibility image should only has exact one file inside")
+		return nil, fmt.Errorf("tkr-compatibility image should only have exactly one file inside")
 	}
 	tkrCompatibilityFilePath := filepath.Join(outputDir, files[0].Name())
 	b, err := os.ReadFile(tkrCompatibilityFilePath)
 	if err != nil {
-		return nil, errors.Wrapf(err, "read tkr-compatibility file from %s faild", tkrCompatibilityFilePath)
+		return nil, errors.Wrapf(err, "read tkr-compatibility file from %s failed", tkrCompatibilityFilePath)
 	}
 	tkrCompatibility := &tkrv1.CompatibilityMetadata{}
 	if err := yaml.Unmarshal(b, tkrCompatibility); err != nil {
@@ -177,11 +192,11 @@ func (p *PublishImagesToTarOptions) DownloadTkrCompatibilityImage(tkrCompatibili
 	// imgpkg copy the tkr-compatibility image
 	sourceImageName = tkrCompatibilityImageURL
 	tarFilename := "tkr-compatibility" + "-" + imageTags[len(imageTags)-1] + ".tar"
-	p.ImageDetails[tarFilename] = tkrCompatibilityRelativeImagePath
-	err = p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate)
+	err = p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate, p.Insecure)
 	if err != nil {
 		return nil, err
 	}
+	p.ImageDetails[tarFilename] = tkrCompatibilityRelativeImagePath
 	return tkrVersions, nil
 }
 
@@ -189,15 +204,15 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 	if p.TkgImageRepo == "" {
 		return errors.New("Source Repo is empty")
 	}
-	tkrTag := underscoredPlus(tkrVersion)
+	tkrTag := imgpkginterface.UnderscoredPlus(tkrVersion)
 	tkrBomImagePath := path.Join(p.TkgImageRepo, "tkr-bom")
 	sourceImageName := tkrBomImagePath + ":" + tkrTag
 	tarFilename := "tkr-bom" + "-" + tkrTag + ".tar"
-	p.ImageDetails[tarFilename] = "tkr-bom"
-	err := p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate)
+	err := p.PkgClient.CopyImageToTar(sourceImageName, tarFilename, p.CaCertificate, p.Insecure)
 	if err != nil {
 		return err
 	}
+	p.ImageDetails[tarFilename] = "tkr-bom"
 	sourceImageName = tkrBomImagePath + ":" + tkrTag
 	err = p.PkgClient.PullImage(sourceImageName, outputDir)
 	if err != nil {
@@ -207,33 +222,97 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 	tkrBomFilePath := path.Join(outputDir, fmt.Sprintf("tkr-bom-%s.yaml", tkrVersion))
 	b, err := os.ReadFile(tkrBomFilePath)
 	if err != nil {
-		return errors.Wrapf(err, "read tkr-bom file from %s faild", tkrBomFilePath)
+		return errors.Wrapf(err, "read tkr-bom file from %s failed", tkrBomFilePath)
 	}
 	tkgBom, _ := tkrv1.NewBom(b)
 	// imgpkg copy each component's artifacts
 	components, _ := tkgBom.Components()
+	tempImageDetails := map[string]string{}
+	group, _ := errgroup.WithContext(context.Background())
+	group.SetLimit(30)
 	for _, compInfos := range components {
 		for _, compInfo := range compInfos {
 			for _, imageInfo := range compInfo.Images {
 				sourceImageName = filepath.Join(p.TkgImageRepo, imageInfo.ImagePath) + ":" + imageInfo.Tag
-				imageInfo.ImagePath = replaceSlash(imageInfo.ImagePath)
+				imageInfo.ImagePath = imgpkginterface.ReplaceSlash(imageInfo.ImagePath)
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
-				p.ImageDetails[tarname] = imageInfo.ImagePath
-				err = p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate)
-				if err != nil {
-					return err
-				}
+				tempImageDetails[tarname] = imageInfo.ImagePath
+				group.Go(func() error {
+					return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
+				})
 			}
 		}
 	}
+	err = group.Wait()
+	if err != nil {
+		return errors.Wrap(err, "error while downloading images")
+	}
+	maps.Copy(p.ImageDetails, tempImageDetails)
+	return nil
+}
+
+func (p *PublishImagesToTarOptions) DownloadTkgPackagesImages(tkrVersions []string) error {
+	tkgBomImagePath := path.Join(p.TkgImageRepo, "tkg-bom")
+	sourceImageName := tkgBomImagePath + ":" + p.TkgVersion
+	err := p.PkgClient.PullImage(sourceImageName, outputDir)
+	if err != nil {
+		return err
+	}
+	tkgBomFilePath := filepath.Join(outputDir, fmt.Sprintf("tkg-bom-%s.yaml", p.TkgVersion))
+	b, err := os.ReadFile(tkgBomFilePath)
+
+	// read the tkg-bom file
+	if err != nil {
+		return errors.Wrapf(err, "read tkg-bom file from %s faild", tkgBomFilePath)
+	}
+
+	tkgBom, _ := tkrv1.NewTkgBom(b)
+
+	tkgPackageRepo, err := tkgBom.GetTKRPackageRepo()
+	if err != nil {
+		return err
+	}
+	tkgPackageRepoStruct := reflect.ValueOf(tkgPackageRepo)
+
+	tkgPackage, err := tkgBom.GetTKRPackage()
+	if err != nil {
+		return err
+	}
+	tkgPackageStruct := reflect.ValueOf(tkgPackage)
+	tempImageDetails := map[string]string{}
+	group, _ := errgroup.WithContext(context.Background())
+	group.SetLimit(30)
+	for _, tkrVersion := range tkrVersions {
+		tkrVersion = imgpkginterface.UnderscoredPlus(tkrVersion)
+		for i := 0; i < tkgPackageRepoStruct.NumField(); i++ {
+			imageName := tkgPackageRepoStruct.Field(i).Interface().(string)
+			sourceImageName := filepath.Join(p.TkgImageRepo, imageName) + ":" + tkrVersion
+			tarname := imageName + "-" + tkrVersion + ".tar"
+			tempImageDetails[tarname] = imageName
+			group.Go(func() error {
+				return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
+			})
+		}
+		for i := 0; i < tkgPackageStruct.NumField(); i++ {
+			imageName := tkgPackageStruct.Field(i).Interface().(string)
+			sourceImageName := filepath.Join(p.TkgImageRepo, imageName) + ":" + tkrVersion
+			tarname := imageName + "-" + tkrVersion + ".tar"
+			tempImageDetails[tarname] = imageName
+			group.Go(func() error {
+				return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
+			})
+		}
+	}
+	err = group.Wait()
+	if err != nil {
+		return errors.Wrap(err, "error while downloading images")
+	}
+	maps.Copy(p.ImageDetails, tempImageDetails)
 	return nil
 }
 
 func downloadImagesToTar(cmd *cobra.Command, args []string) error {
-	pullImage.PkgClient = &imgpkgClient{}
-	if !pullImage.Insecure && pullImage.CaCertificate == "" {
-		return fmt.Errorf("CA certificate is empty and Insecure option is disable")
-	}
+	pullImage.PkgClient = &imgpkginterface.Imgpkg{}
 	if !strings.HasPrefix(pullImage.TkgVersion, "v") {
 		return fmt.Errorf("invalid TKG Tag %s", pullImage.TkgVersion)
 	}
@@ -249,6 +328,11 @@ func downloadImagesToTar(cmd *cobra.Command, args []string) error {
 	tkrVersions, err := pullImage.DownloadTkrCompatibilityImage(tkrCompatibilityRelativeImagePath)
 	if err != nil {
 		return errors.Wrapf(err, "Error while retrieving tkrVersions")
+	}
+
+	err = pullImage.DownloadTkgPackagesImages(tkrVersions)
+	if err != nil {
+		fmt.Printf("TkgPackagesImages Not found %s", err)
 	}
 
 	for _, tkrVersion := range tkrVersions {

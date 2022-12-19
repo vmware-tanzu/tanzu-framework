@@ -292,7 +292,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
-			By("patching cpi with ownerRef")
+			By("cpi doesn't have ownerRef")
 			config := &cpiv1alpha1.VSphereCPIConfig{}
 			cpiConfigKey := client.ObjectKey{
 				Namespace: defaultString,
@@ -369,6 +369,46 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			By("vsphere and nsx-t secret should have cluster ownerRef")
+			vsphereSecretKey := client.ObjectKey{
+				Namespace: defaultString,
+				Name:      "cpi-vsphere-credential",
+			}
+			vsecret := &v1.Secret{}
+			Eventually(func() error {
+				if err := k8sClient.Get(ctx, vsphereSecretKey, vsecret); err != nil {
+					return err
+				}
+
+				if len(vsecret.OwnerReferences) == 0 {
+					return fmt.Errorf("ownerRef is 0")
+				}
+				Expect(len(vsecret.OwnerReferences)).Should(Equal(1))
+
+				Expect(vsecret.OwnerReferences[0].Name).Should(Equal(clusterName))
+				return nil
+			}, waitTimeout, pollingInterval).Should(BeNil())
+
+			nsxtSecretKey := client.ObjectKey{
+				Namespace: defaultString,
+				Name:      "nsxt-credential",
+			}
+
+			nsecret := &v1.Secret{}
+			Eventually(func() error {
+				if err := k8sClient.Get(ctx, nsxtSecretKey, nsecret); err != nil {
+					return err
+				}
+
+				if len(nsecret.OwnerReferences) == 0 {
+					return fmt.Errorf("ownerRef is 0")
+				}
+				Expect(len(nsecret.OwnerReferences)).Should(Equal(1))
+
+				Expect(nsecret.OwnerReferences[0].Name).Should(Equal(clusterName))
+				return nil
+			}, waitTimeout, pollingInterval).Should(BeNil())
 
 			// eventually the secret ref to the data values should be updated
 			Eventually(func() bool {

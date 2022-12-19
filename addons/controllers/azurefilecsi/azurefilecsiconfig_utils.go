@@ -52,7 +52,6 @@ func (r *AzureFileCSIConfigReconciler) getOwnerCluster(ctx context.Context,
 func (r *AzureFileCSIConfigReconciler) mapAzureFileCSIConfigToDataValues(ctx context.Context,
 	azureFileCSIConfig *csiv1alpha1.AzureFileCSIConfig,
 	cluster *clusterapiv1beta1.Cluster) (*DataValues, error) {
-
 	dvs := &DataValues{
 		AzureFileCSI: &DataValuesAzureFileCSI{
 			Namespace:          defaultDataValueNameSpace,
@@ -73,6 +72,14 @@ func (r *AzureFileCSIConfigReconciler) mapAzureFileCSIConfigToDataValues(ctx con
 
 	if azureFileCSIConfig.Spec.AzureFileCSI.DeploymentReplicas != nil {
 		dvs.AzureFileCSI.DeploymentReplicas = *azureFileCSIConfig.Spec.AzureFileCSI.DeploymentReplicas
+	}
+
+	if tkgPlan, ok := cluster.Annotations[constants.TKGPlanAnnotation]; ok {
+		// because there is no way to get the plan input by the customization, it is mandatory to set the replica of dev to 1
+		// todo: Looking for a way to better differentiate between customization and default values
+		if tkgPlan == constants.TKGDevPlan || tkgPlan == constants.TKGDevCCPan {
+			dvs.AzureFileCSI.DeploymentReplicas = 1
+		}
 	}
 
 	return dvs, nil

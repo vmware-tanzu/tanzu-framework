@@ -296,3 +296,11 @@ extensions:
     managedBy: user
 tkr-compatibility:
   imagePath: tkr-compatibility
+tkr-package-repo:
+  aws: tkr-repository-aws
+  azure: tkr-repository-azure
+  vsphere-nonparavirt: tkr-repository-vsphere-nonparavirt
+tkr-package:
+  aws: tkr-aws
+  azure: tkr-azure
+  vsphere-nonparavirt: tkr-vsphere-nonparavirt

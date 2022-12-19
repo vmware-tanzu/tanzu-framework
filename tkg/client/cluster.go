@@ -25,7 +25,6 @@ import (
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -156,12 +155,12 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			return false, err
 		}
 	} else {
-		bytes, err = c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster, options.IsWindowsWorkloadCluster)
+		bytes, err = c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster)
 		if err != nil {
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		if !config.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
+		if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
 			clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
 			if err != nil {
 				return false, err
@@ -176,7 +175,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 
 			// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
 			// log command to use to create cluster using ClusterClass based config file and return
-			if !config.IsFeatureActivated(constants.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
+			if !c.IsFeatureActivated(constants.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
 				log.Warningf("\nTo create a cluster with it, use")
 				log.Warningf("    tanzu cluster create --file %v", configFilePath)
 				return false, nil
@@ -199,7 +198,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 }
 
 // getClusterConfigurationBytes returns cluster configuration by taking into consideration of legacy vs clusterclass based cluster creation
-func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, infraProviderName string, isManagementCluster, isWindowsWorkloadCluster bool) ([]byte, error) {
+func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, infraProviderName string, isManagementCluster bool) ([]byte, error) {
 	deployClusterClassBasedCluster, err := c.ShouldDeployClusterClassBasedCluster(isManagementCluster)
 	if err != nil {
 		return nil, err
@@ -215,7 +214,7 @@ func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, 
 	}
 
 	// Get the cluster configuration yaml bytes
-	return c.getClusterConfiguration(options, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)
+	return c.getClusterConfiguration(options, isManagementCluster, infraProviderName)
 }
 
 func getContentFromInputFile(fileName string) ([]byte, error) {
@@ -758,7 +757,7 @@ func (c *TkgClient) configureAndValidateProviderConfig(providerName string, opti
 		}
 	}
 
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, isProdPlan, false, providerName, false)
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, isProdPlan, false, providerName)
 	if err != nil {
 		return errors.Wrap(err, "failed to distribute machine deployments")
 	}

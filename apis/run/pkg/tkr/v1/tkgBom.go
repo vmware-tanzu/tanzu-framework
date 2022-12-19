@@ -79,17 +79,17 @@ type tkrPackage struct {
 
 // TkgBomContent defines the struct to represent BOM information
 type TkgBomContent struct {
-	Default               *defaultInfo                `yaml:"default"`
-	Release               *ReleaseInfo                `yaml:"release"`
-	Components            map[string][]*ComponentInfo `yaml:"components"`
-	KindKubeadmConfigSpec []string                    `yaml:"kindKubeadmConfigSpec"`
-	KubeadmConfigSpec     *kubeadmConfig              `yaml:"kubeadmConfigSpec"`
-	ImageConfig           *imageConfig                `yaml:"imageConfig"`
-	Extensions            map[string]*extensionInfo   `yaml:"extensions,omitempty"`
-	TKRBOM                *tkrBOMInfo                 `yaml:"tkr-bom"`
-	TKRCompatibility      *tkrCompatibilityInfo       `yaml:"tkr-compatibility"`
-	TKRPackageRepo        *tkrPackageRepo             `yaml:"tkr-package-repo"`
-	TKRPackage            *tkrPackage                 `yaml:"tkr-package"`
+	Default               *defaultInfo               `yaml:"default"`
+	Release               *ReleaseInfo               `yaml:"release"`
+	Components            map[string][]ComponentInfo `yaml:"components"`
+	KindKubeadmConfigSpec []string                   `yaml:"kindKubeadmConfigSpec"`
+	KubeadmConfigSpec     *kubeadmConfig             `yaml:"kubeadmConfigSpec"`
+	ImageConfig           *imageConfig               `yaml:"imageConfig"`
+	Extensions            map[string]*extensionInfo  `yaml:"extensions,omitempty"`
+	TKRBOM                *tkrBOMInfo                `yaml:"tkr-bom"`
+	TKRCompatibility      *tkrCompatibilityInfo      `yaml:"tkr-compatibility"`
+	TKRPackageRepo        tkrPackageRepo             `yaml:"tkr-package-repo"`
+	TKRPackage            tkrPackage                 `yaml:"tkr-package"`
 }
 
 // DNSAddOnType defines string identifying DNS add-on types
@@ -112,4 +112,20 @@ func (b *TkgBom) GetBomContent() (TkgBomContent, error) {
 		return TkgBomContent{}, errors.New("the tkg BOM is not initialized")
 	}
 	return b.bom, nil
+}
+
+// nolint:revive,stylecheck
+func (b *TkgBom) GetTKRPackageRepo() (tkrPackageRepo, error) {
+	if !b.initialzed {
+		return tkrPackageRepo{}, errors.New("the tkg BOM is not initialized")
+	}
+	return b.bom.TKRPackageRepo, nil
+}
+
+// nolint:revive,stylecheck
+func (b *TkgBom) GetTKRPackage() (tkrPackage, error) {
+	if !b.initialzed {
+		return tkrPackage{}, errors.New("the tkg BOM is not initialized")
+	}
+	return b.bom.TKRPackage, nil
 }
