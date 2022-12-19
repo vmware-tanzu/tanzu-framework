@@ -30,6 +30,7 @@ import (
 )
 
 var fakeClientSet *fake.Clientset
+var fakeReaderWriter *fake.Clientset
 
 var _ = Describe("WaitForCRDs", func() {
 
@@ -46,9 +47,12 @@ var _ = Describe("WaitForCRDs", func() {
 
 	BeforeEach(func() {
 		fakeClientSet = fake.NewSimpleClientset(pod)
+		// TODO @randomvariable: Fake APIReader
+
 		crdWaiter = CRDWaiter{
 			Ctx:         ctx,
-			ClientSetFn: getFakeClientSet,
+			Client: 		fakeClientSet,
+			APIReader: fakeReaderWriter,
 			Logger:      klogr.New(),
 			Scheme:      scheme,
 		}
