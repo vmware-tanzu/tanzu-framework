@@ -24,7 +24,6 @@ import (
 	authv1alpha1 "go.pinniped.dev/generated/1.20/apis/concierge/authentication/v1alpha1"
 	configv1alpha1 "go.pinniped.dev/generated/1.20/apis/supervisor/config/v1alpha1"
 	idpv1alpha1 "go.pinniped.dev/generated/1.20/apis/supervisor/idp/v1alpha1"
-	supervisoridpv1alpha1 "go.pinniped.dev/generated/1.20/apis/supervisor/idp/v1alpha1"
 	pinnipedconciergefake "go.pinniped.dev/generated/1.20/client/concierge/clientset/versioned/fake"
 	pinnipedsupervisorfake "go.pinniped.dev/generated/1.20/client/supervisor/clientset/versioned/fake"
 
@@ -177,28 +176,29 @@ func TestTKGAuthentication(t *testing.T) {
 	}
 
 	oidcIdentityProviderGVR := idpv1alpha1.SchemeGroupVersion.WithResource("oidcidentityproviders")
-	upstreamIdentityProvider := &supervisoridpv1alpha1.OIDCIdentityProvider{
+	upstreamIdentityProvider := &idpv1alpha1.OIDCIdentityProvider{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "pinniped-supervisor",
 			Name:      "upstream-oidc-identity-provider",
 		},
-		Spec: supervisoridpv1alpha1.OIDCIdentityProviderSpec{
+		Spec: idpv1alpha1.OIDCIdentityProviderSpec{
 			Issuer: "https://identityforall.com",
-			Claims: supervisoridpv1alpha1.OIDCClaims{
+			Claims: idpv1alpha1.OIDCClaims{
 				Username: "email",
 			},
-			Client: supervisoridpv1alpha1.OIDCClient{
+			Client: idpv1alpha1.OIDCClient{
 				SecretName: "some-upstream-oidc-client",
 			},
 		},
-		Status: supervisoridpv1alpha1.OIDCIdentityProviderStatus{
-			Phase: supervisoridpv1alpha1.PhaseReady,
+		Status: idpv1alpha1.OIDCIdentityProviderStatus{
+			Phase: idpv1alpha1.PhaseReady,
 		},
 	}
 
 	// NOTE: these tests exercise what is essentially glue code between TKGs & TKGm to make uTKG functional for the Pinniped Package.
 	// There is a combination of flags, defaulting values and querying a configmap on cluster that can ultimately lead to a functioning
 	// pinniped installation.  These tests are valuable as this is difficult to reason about without knowledge if the external factors.
+	issuer := "https://1.2.3.4:12345"
 	tests := []struct {
 		name                        string
 		newKubeClient               func() *kubefake.Clientset
@@ -250,7 +250,7 @@ func TestTKGAuthentication(t *testing.T) {
 			// it would invalidate existing deployed kubeconfigs.  Proceed with caution!
 			wantConciergeClientActions: []kubetesting.Action{
 				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator("").Name),
-				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator("https://1.2.3.4:12345")),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator(issuer)),
 			},
 			wantSupervisorClientActions: []kubetesting.Action{
 				kubetesting.NewGetAction(oidcIdentityProviderGVR, upstreamIdentityProvider.Namespace, upstreamIdentityProvider.Name),
@@ -261,7 +261,7 @@ func TestTKGAuthentication(t *testing.T) {
 						Namespace: "pinniped-supervisor",
 					},
 					Spec: configv1alpha1.FederationDomainSpec{
-						Issuer: "https://1.2.3.4:12345",
+						Issuer: issuer,
 						TLS:    nil, // when nil, Pinniped will use trusted CA's compiled into the container image
 					},
 				}),
@@ -304,7 +304,7 @@ func TestTKGAuthentication(t *testing.T) {
 			// this is not a mgmt cluster, so no supervisor actions should take place
 			wantSupervisorClientActions: []kubetesting.Action{},
 			finalSetup: func() {
-				vars.SupervisorSvcEndpoint = "https://1.2.3.4:12345" // mgmt cluster figures this out by itself, but workload does not.
+				vars.SupervisorSvcEndpoint = issuer // mgmt cluster figures this out by itself, but workload does not.
 			},
 			cleanup: func() {
 				vars.SupervisorSvcEndpoint = ""
@@ -346,7 +346,7 @@ func TestTKGAuthentication(t *testing.T) {
 				// - audience=amazing.cluster-1234567890 is set as Audience
 				// - Cluster.Type is inferred to be "workload"
 				vars.JWTAuthenticatorAudience = "amazing.cluster-1234567890"
-				vars.SupervisorSvcEndpoint = "https://1.2.3.4:12345" // mgmt cluster figures this out by itself, but workload does not.
+				vars.SupervisorSvcEndpoint = issuer // mgmt cluster figures this out by itself, but workload does not.
 			},
 			cleanup: func() {
 				vars.JWTAuthenticatorAudience = ""

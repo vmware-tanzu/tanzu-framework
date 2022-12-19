@@ -1,6 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package controllers awsebscsi
 package controllers
 
 import (
@@ -101,9 +102,7 @@ func (r *AwsEbsCSIConfigReconciler) reconcileAwsEbsCSIConfig(ctx context.Context
 	return result, nil
 }
 
-func (r *AwsEbsCSIConfigReconciler) reconcileAwsEbsCSIConfigNormal(ctx context.Context,
-	csiCfg *csiv1alpha1.AwsEbsCSIConfig,
-	cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
+func (r *AwsEbsCSIConfigReconciler) reconcileAwsEbsCSIConfigNormal(ctx context.Context, csiCfg *csiv1alpha1.AwsEbsCSIConfig, cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
 	ownerRef := metav1.OwnerReference{
@@ -155,8 +154,7 @@ func (r *AwsEbsCSIConfigReconciler) reconcileAwsEbsCSIConfigNormal(ctx context.C
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *AwsEbsCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager,
-	options controller.Options) error {
+func (r *AwsEbsCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&csiv1alpha1.AwsEbsCSIConfig{}).
 		WithOptions(options).

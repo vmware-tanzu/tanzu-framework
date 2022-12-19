@@ -65,7 +65,7 @@ func convertVersionToStringArray(arrOsArchInfo []osArch) []string {
 	return oa
 }
 
-func createDummyArtifactDir(directoryBasePath, pluginName, recommendedVersion, description string, versions []string) { //nolint:unparam // `pluginName` always receives `"fake-plugin-foo"
+func createDummyArtifactDir(directoryBasePath, pluginName, recommendedVersion, description string, versions []string) { // `pluginName` always receives `"fake-plugin-foo"
 	var err error
 
 	for _, v := range versions {
