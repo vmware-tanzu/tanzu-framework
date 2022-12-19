@@ -273,6 +273,20 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		targetClusterNamespace = options.Namespace
 	}
 
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
+		// for cc based cluster, check if tkr/cbt is reconciled to avoid package not found error by addons-controller
+		tkrVersion, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableTkrName)
+		if err != nil {
+			return errors.Wrap(err, "unable to get tkr version for cluster")
+		}
+		log.Infof("Checking Tkr %s in bootstrap cluster...", tkrVersion)
+
+		pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: clusterclient.PackageInstallTimeout}
+		if err := bootStrapClusterClient.GetResource(&v1alpha3.TanzuKubernetesRelease{}, tkrVersion, "", nil, pollOptions); err != nil {
+			return errors.Wrap(err, "unable to check tkr in bootstrap cluster")
+		}
+	}
+
 	log.SendProgressUpdate(statusRunning, StepCreateManagementCluster, InitRegionSteps)
 	log.Info("Start creating management cluster...")
 	err = c.DoCreateCluster(bootStrapClusterClient, options.ClusterName, targetClusterNamespace, string(regionalConfigBytes))
