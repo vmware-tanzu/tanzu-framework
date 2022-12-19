@@ -1,0 +1,29 @@
+name: Check - actionlint
+
+on:
+  pull_request:
+    types:
+      - assigned
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - ".github/workflows/**"
+
+jobs:
+  checkactionlint:
+    name: Check actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.17"
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+
+      - name: Run actionlint
+        run: |
+          make actionlint
