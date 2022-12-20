@@ -1,7 +1,8 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package imageop
+// Package imagepushop define imgpkg push command
+package imagepushop
 
 import (
 	"fmt"
@@ -15,12 +16,14 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 	"sigs.k8s.io/yaml"
+
+	imgpkginterface "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imgpkginterface"
 )
 
 type PublishImagesFromTarOptions struct {
 	TkgTarFilePath             string
 	CustomImageRepoCertificate string
-	PkgClient                  ImgpkgClient
+	PkgClient                  imgpkginterface.ImgpkgClient
 	DestinationRepository      string
 	Insecure                   bool
 }
@@ -28,8 +31,19 @@ type PublishImagesFromTarOptions struct {
 var pushImage = &PublishImagesFromTarOptions{}
 
 var PublishImagesfromtarCmd = &cobra.Command{
-	Use:          "upload-bundle",
-	Short:        "Upload images to private repository.",
+	Use:   "upload-bundle",
+	Short: "upload images/bundle to private repository from tar files that are stored in local disk.",
+	Example: `
+        # upload images/bundle from tar files that are stored in the relative directory ./tkg-images to a /tkg repository on a internal-registry.test mirror 
+        tanzu isolated-cluster upload-bundle --destination-repo  internal-registry.test/tkg --source-directory ./tkg-images
+
+        # upload images/bundle from tar files that are stored in the relative directory ./tkg-images to a /tkg repository on a internal-registry.test mirror without any TLS validation of the certificate
+        tanzu isolated-cluster upload-bundle --destination-repo internal-registry.test/tkg --source-directory ./tkg-images --insecure
+
+        # upload images/bundle from tar files that are stored in the relative directory ./tkg-images to a /tkg repository on a internal-registry.test mirror with a self-signed or internally approved CA Certificate.
+        tanzu isolated-cluster upload-bundle --destination-repo  internal-registry.test/tkg --source-directory ./tkg-images  --ca-certificate registry.crt
+`,
+
 	RunE:         publishImagesFromTar,
 	SilenceUsage: false,
 }
@@ -39,8 +53,8 @@ func init() {
 	_ = PublishImagesfromtarCmd.MarkFlagRequired("source-directory")
 	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.DestinationRepository, "destination-repo", "", "", "Private OCI repository where the images should be hosted in air-gapped (required)")
 	_ = PublishImagesfromtarCmd.MarkFlagRequired("destination-repo")
-	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.CustomImageRepoCertificate, "destination-ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
-	PublishImagesfromtarCmd.Flags().BoolVarP(&pushImage.Insecure, "destination-insecure", "", false, "Trusts the private repository’s certificate without validating it (optional)")
+	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.CustomImageRepoCertificate, "ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
+	PublishImagesfromtarCmd.Flags().BoolVarP(&pushImage.Insecure, "insecure", "", false, "Trusts the private repository’s certificate without validating it (optional)")
 }
 
 func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
@@ -62,7 +76,7 @@ func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
 		destPath := filepath.Join(p.DestinationRepository, path)
 		group.Go(
 			func() error {
-				err = p.PkgClient.CopyImageFromTar(fileName, destPath, p.CustomImageRepoCertificate)
+				err = p.PkgClient.CopyImageFromTar(fileName, destPath, p.CustomImageRepoCertificate, p.Insecure)
 				if err != nil {
 					return err
 				}
@@ -78,7 +92,7 @@ func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
 }
 
 func publishImagesFromTar(cmd *cobra.Command, args []string) error {
-	pushImage.PkgClient = &imgpkgClient{}
+	pushImage.PkgClient = &imgpkginterface.Imgpkg{}
 	if !pushImage.Insecure && pushImage.CustomImageRepoCertificate == "" {
 		return fmt.Errorf("CA certificate is empty and Insecure option is disabled")
 	}

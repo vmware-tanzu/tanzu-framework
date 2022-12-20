@@ -1,7 +1,8 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package imageop
+// Package imgpkginterface ImgPkgClient defines functions to pull/push/List images
+package imgpkginterface
 
 import (
 	"bytes"
@@ -19,15 +20,16 @@ import (
 	v1 "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/v1"
 )
 
-type imgpkgClient struct {
+type Imgpkg struct {
 }
 
-func (c *imgpkgClient) CopyImageFromTar(sourceImageName, destImageRepo, customImageRepoCertificate string) error {
+func (c *Imgpkg) CopyImageFromTar(sourceImageName, destImageRepo, customImageRepoCertificate string, insecureconnection bool) error {
 	confUI := ui.NewConfUI(ui.NewNoopLogger())
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.Concurrency = 1
 	copyOptions.TarFlags.TarSrc = sourceImageName
 	copyOptions.RepoDst = destImageRepo
+	copyOptions.RegistryFlags.Insecure = insecureconnection
 	if customImageRepoCertificate != "" {
 		copyOptions.RegistryFlags.CACertPaths = []string{customImageRepoCertificate}
 	}
@@ -38,12 +40,13 @@ func (c *imgpkgClient) CopyImageFromTar(sourceImageName, destImageRepo, customIm
 	return nil
 }
 
-func (c *imgpkgClient) CopyImageToTar(sourceImageName, destImageRepo, customImageRepoCertificate string) error {
+func (c *Imgpkg) CopyImageToTar(sourceImageName, destImageRepo, customImageRepoCertificate string, insecureconnection bool) error {
 	confUI := ui.NewConfUI(ui.NewNoopLogger()) // TODO: this parameter should be given by the caller instead of being hardcoded
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.TarFlags.Resume = true
 	copyOptions.IncludeNonDistributable = true
 	copyOptions.Concurrency = 3
+	copyOptions.RegistryFlags.Insecure = insecureconnection
 	reg, err := registry.NewSimpleRegistry(registry.Opts{})
 	if err != nil {
 		return err
@@ -63,11 +66,10 @@ func (c *imgpkgClient) CopyImageToTar(sourceImageName, destImageRepo, customImag
 	if err != nil {
 		return err
 	}
-	totalImgCopiedCounter++
 	return nil
 }
 
-func (c *imgpkgClient) PullImage(sourceImageName, destDir string) error {
+func (c *Imgpkg) PullImage(sourceImageName, destDir string) error {
 	var outputBuf, errorBuf bytes.Buffer
 	writerUI := ui.NewWriterUI(&outputBuf, &errorBuf, nil) // TODO: this parameter should be given by the caller instead of being hardcoded
 	pullOptions := cmd.NewPullOptions(writerUI)
@@ -80,7 +82,7 @@ func (c *imgpkgClient) PullImage(sourceImageName, destDir string) error {
 	return nil
 }
 
-func (c *imgpkgClient) GetImageTagList(sourceImageName string) []string {
+func (c *Imgpkg) GetImageTagList(sourceImageName string) []string {
 	tagInfo, _ := v1.TagList(sourceImageName, false, registry.Opts{})
 	var imageTags []string
 	for _, tag := range tagInfo.Tags {
@@ -89,11 +91,11 @@ func (c *imgpkgClient) GetImageTagList(sourceImageName string) []string {
 	sort.SliceStable(imageTags, func(i, j int) bool {
 		vi, err := strconv.Atoi(strings.TrimPrefix(imageTags[i], "v"))
 		if err != nil {
-			printErrorAndExit(errors.Wrapf(err, "parse tkg-compatibility image tag %s failed", imageTags[i]))
+			PrintErrorAndExit(errors.Wrapf(err, "parse tkg-compatibility image tag %s failed", imageTags[i]))
 		}
 		vj, err := strconv.Atoi(strings.TrimPrefix(imageTags[j], "v"))
 		if err != nil {
-			printErrorAndExit(errors.Wrapf(err, "parse tkg-compatibility image tag %s failed", imageTags[j]))
+			PrintErrorAndExit(errors.Wrapf(err, "parse tkg-compatibility image tag %s failed", imageTags[j]))
 		}
 		return vi < vj
 	})

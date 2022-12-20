@@ -4,16 +4,17 @@ package fakes
 import (
 	"sync"
 
-	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imageop"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imgpkginterface"
 )
 
 type ImgpkgClientFake struct {
-	CopyImageFromTarStub        func(string, string, string) error
+	CopyImageFromTarStub        func(string, string, string, bool) error
 	copyImageFromTarMutex       sync.RWMutex
 	copyImageFromTarArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
+		arg4 bool
 	}
 	copyImageFromTarReturns struct {
 		result1 error
@@ -21,12 +22,13 @@ type ImgpkgClientFake struct {
 	copyImageFromTarReturnsOnCall map[int]struct {
 		result1 error
 	}
-	CopyImageToTarStub        func(string, string, string) error
+	CopyImageToTarStub        func(string, string, string, bool) error
 	copyImageToTarMutex       sync.RWMutex
 	copyImageToTarArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
+		arg4 bool
 	}
 	copyImageToTarReturns struct {
 		result1 error
@@ -61,20 +63,21 @@ type ImgpkgClientFake struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *ImgpkgClientFake) CopyImageFromTar(arg1 string, arg2 string, arg3 string) error {
+func (fake *ImgpkgClientFake) CopyImageFromTar(arg1 string, arg2 string, arg3 string, arg4 bool) error {
 	fake.copyImageFromTarMutex.Lock()
 	ret, specificReturn := fake.copyImageFromTarReturnsOnCall[len(fake.copyImageFromTarArgsForCall)]
 	fake.copyImageFromTarArgsForCall = append(fake.copyImageFromTarArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
-	}{arg1, arg2, arg3})
+		arg4 bool
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.CopyImageFromTarStub
 	fakeReturns := fake.copyImageFromTarReturns
-	fake.recordInvocation("CopyImageFromTar", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("CopyImageFromTar", []interface{}{arg1, arg2, arg3, arg4})
 	fake.copyImageFromTarMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -88,17 +91,17 @@ func (fake *ImgpkgClientFake) CopyImageFromTarCallCount() int {
 	return len(fake.copyImageFromTarArgsForCall)
 }
 
-func (fake *ImgpkgClientFake) CopyImageFromTarCalls(stub func(string, string, string) error) {
+func (fake *ImgpkgClientFake) CopyImageFromTarCalls(stub func(string, string, string, bool) error) {
 	fake.copyImageFromTarMutex.Lock()
 	defer fake.copyImageFromTarMutex.Unlock()
 	fake.CopyImageFromTarStub = stub
 }
 
-func (fake *ImgpkgClientFake) CopyImageFromTarArgsForCall(i int) (string, string, string) {
+func (fake *ImgpkgClientFake) CopyImageFromTarArgsForCall(i int) (string, string, string, bool) {
 	fake.copyImageFromTarMutex.RLock()
 	defer fake.copyImageFromTarMutex.RUnlock()
 	argsForCall := fake.copyImageFromTarArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *ImgpkgClientFake) CopyImageFromTarReturns(result1 error) {
@@ -124,20 +127,21 @@ func (fake *ImgpkgClientFake) CopyImageFromTarReturnsOnCall(i int, result1 error
 	}{result1}
 }
 
-func (fake *ImgpkgClientFake) CopyImageToTar(arg1 string, arg2 string, arg3 string) error {
+func (fake *ImgpkgClientFake) CopyImageToTar(arg1 string, arg2 string, arg3 string, arg4 bool) error {
 	fake.copyImageToTarMutex.Lock()
 	ret, specificReturn := fake.copyImageToTarReturnsOnCall[len(fake.copyImageToTarArgsForCall)]
 	fake.copyImageToTarArgsForCall = append(fake.copyImageToTarArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
-	}{arg1, arg2, arg3})
+		arg4 bool
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.CopyImageToTarStub
 	fakeReturns := fake.copyImageToTarReturns
-	fake.recordInvocation("CopyImageToTar", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("CopyImageToTar", []interface{}{arg1, arg2, arg3, arg4})
 	fake.copyImageToTarMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -151,17 +155,17 @@ func (fake *ImgpkgClientFake) CopyImageToTarCallCount() int {
 	return len(fake.copyImageToTarArgsForCall)
 }
 
-func (fake *ImgpkgClientFake) CopyImageToTarCalls(stub func(string, string, string) error) {
+func (fake *ImgpkgClientFake) CopyImageToTarCalls(stub func(string, string, string, bool) error) {
 	fake.copyImageToTarMutex.Lock()
 	defer fake.copyImageToTarMutex.Unlock()
 	fake.CopyImageToTarStub = stub
 }
 
-func (fake *ImgpkgClientFake) CopyImageToTarArgsForCall(i int) (string, string, string) {
+func (fake *ImgpkgClientFake) CopyImageToTarArgsForCall(i int) (string, string, string, bool) {
 	fake.copyImageToTarMutex.RLock()
 	defer fake.copyImageToTarMutex.RUnlock()
 	argsForCall := fake.copyImageToTarArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *ImgpkgClientFake) CopyImageToTarReturns(result1 error) {
@@ -340,4 +344,4 @@ func (fake *ImgpkgClientFake) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ imageop.ImgpkgClient = new(ImgpkgClientFake)
+var _ imgpkginterface.ImgpkgClient = new(ImgpkgClientFake)

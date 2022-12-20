@@ -1,7 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package imageop
+package imgpkginterface
 
 import (
 	"fmt"
@@ -10,12 +10,12 @@ import (
 	"strings"
 )
 
-func printErrorAndExit(err error) {
+func PrintErrorAndExit(err error) {
 	fmt.Printf("failed with error %s\n", err.Error())
 	os.Exit(1)
 }
 
-func isTKGRTMVersion(tag string) bool {
+func IsTKGRTMVersion(tag string) bool {
 	tag = strings.TrimPrefix(tag, "v")
 	versions := strings.Split(tag, ".")
 	if len(versions) != 3 {
@@ -29,10 +29,10 @@ func isTKGRTMVersion(tag string) bool {
 	return true
 }
 
-func underscoredPlus(s string) string {
+func UnderscoredPlus(s string) string {
 	return strings.Replace(s, "+", "_", -1)
 }
 
-func replaceSlash(s string) string {
+func ReplaceSlash(s string) string {
 	return strings.Replace(s, "/", "-", -1)
 }
