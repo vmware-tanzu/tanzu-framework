@@ -19,7 +19,7 @@ require (
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
 	github.com/fatih/color v1.13.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/google/gnostic v0.5.7-v3refs
+	github.com/google/gnostic v0.6.9
 	github.com/google/go-containerregistry v0.7.0
 	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.12
