@@ -1044,7 +1044,8 @@ func (c *client) PatchClusterObjectWithPollOptions(clusterName, clusterNamespace
 }
 
 func (c *client) PatchClusterObject(clusterName, clusterNamespace, patchJSONString string) error {
-	return c.PatchClusterObjectWithPollOptions(clusterName, clusterNamespace, patchJSONString, nil)
+	pollOptions := &PollOptions{Interval: upgradePatchInterval, Timeout: upgradePatchTimeout}
+	return c.PatchClusterObjectWithPollOptions(clusterName, clusterNamespace, patchJSONString, pollOptions)
 }
 
 func (c *client) GetClusterStatusInfo(clusterName, namespace string, workloadClusterClient Client) ClusterStatusInfo {

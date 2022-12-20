@@ -14,6 +14,7 @@ import (
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/util/retry"
 
 	packageclientfakes "github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
@@ -31,6 +32,42 @@ func Test(t *testing.T) {
 	RunSpecs(t, "ManagementComponent Suite")
 }
 
+var _ = Describe("Test InstallManagementPackagesRepo", func() {
+	var (
+		fakePkgClient *packageclientfakes.PackageClient
+		mprOptions    ManagementPackageRepositoryOptions
+		err           error
+	)
+
+	BeforeEach(func() {
+		fakePkgClient = &packageclientfakes.PackageClient{}
+		mprOptions = ManagementPackageRepositoryOptions{ManagementPackageRepoImage: "", TKGPackageValuesFile: ""}
+	})
+
+	JustBeforeEach(func() {
+		err = InstallManagementPackagesRepo(fakePkgClient, mprOptions, retry.DefaultRetry)
+	})
+
+	Context("when update repository throws error", func() {
+		BeforeEach(func() {
+			fakePkgClient.UpdateRepositorySyncReturns(errors.New("fake error update repository"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("fake error update repository"))
+		})
+	})
+
+	Context("when update repository is successful", func() {
+		BeforeEach(func() {
+			fakePkgClient.UpdateRepositorySyncReturns(nil)
+		})
+		It("should not return error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+})
+
 var _ = Describe("Test InstallManagementPackages", func() {
 	var (
 		fakePkgClient *packageclientfakes.PackageClient
@@ -44,23 +81,11 @@ var _ = Describe("Test InstallManagementPackages", func() {
 	})
 
 	JustBeforeEach(func() {
-		err = InstallManagementPackages(fakePkgClient, mprOptions)
-	})
-
-	Context("when update repository throws error", func() {
-		BeforeEach(func() {
-			fakePkgClient.UpdateRepositorySyncReturns(errors.New("fake error update repository"))
-			fakePkgClient.InstallPackageSyncReturns(nil)
-		})
-		It("should return error", func() {
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("fake error update repository"))
-		})
+		err = InstallManagementPackages(fakePkgClient, mprOptions, retry.DefaultRetry)
 	})
 
 	Context("when install package throws error", func() {
 		BeforeEach(func() {
-			fakePkgClient.UpdateRepositorySyncReturns(nil)
 			fakePkgClient.InstallPackageSyncReturns(errors.New("fake error install package"))
 		})
 		It("should return error", func() {
@@ -69,9 +94,8 @@ var _ = Describe("Test InstallManagementPackages", func() {
 		})
 	})
 
-	Context("when update repository and install package are successful", func() {
+	Context("when install package are successful", func() {
 		BeforeEach(func() {
-			fakePkgClient.UpdateRepositorySyncReturns(nil)
 			fakePkgClient.InstallPackageSyncReturns(nil)
 		})
 		It("should not return error", func() {
