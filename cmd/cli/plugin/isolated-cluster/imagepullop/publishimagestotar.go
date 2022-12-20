@@ -127,8 +127,10 @@ func (p *PublishImagesToTarOptions) DownloadTkgBomAndComponentImages() (string, 
 				imageInfo.ImagePath = imgpkginterface.ReplaceSlash(imageInfo.ImagePath)
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
 				tempImageDetails[tarname] = imageInfo.ImagePath
+				i := sourceImageName
+				j := tarname
 				group.Go(func() error {
-					return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
+					return p.PkgClient.CopyImageToTar(i, j, p.CaCertificate, p.Insecure)
 				})
 			}
 		}
@@ -237,8 +239,10 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 				imageInfo.ImagePath = imgpkginterface.ReplaceSlash(imageInfo.ImagePath)
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
 				tempImageDetails[tarname] = imageInfo.ImagePath
+				i := sourceImageName
+				j := tarname
 				group.Go(func() error {
-					return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
+					return p.PkgClient.CopyImageToTar(i, j, p.CaCertificate, p.Insecure)
 				})
 			}
 		}
@@ -289,8 +293,10 @@ func (p *PublishImagesToTarOptions) DownloadTkgPackagesImages(tkrVersions []stri
 			sourceImageName := filepath.Join(p.TkgImageRepo, imageName) + ":" + tkrVersion
 			tarname := imageName + "-" + tkrVersion + ".tar"
 			tempImageDetails[tarname] = imageName
+			i := sourceImageName
+			j := tarname
 			group.Go(func() error {
-				return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
+				return p.PkgClient.CopyImageToTar(i, j, p.CaCertificate, p.Insecure)
 			})
 		}
 		for i := 0; i < tkgPackageStruct.NumField(); i++ {
@@ -298,8 +304,10 @@ func (p *PublishImagesToTarOptions) DownloadTkgPackagesImages(tkrVersions []stri
 			sourceImageName := filepath.Join(p.TkgImageRepo, imageName) + ":" + tkrVersion
 			tarname := imageName + "-" + tkrVersion + ".tar"
 			tempImageDetails[tarname] = imageName
+			i := sourceImageName
+			j := tarname
 			group.Go(func() error {
-				return p.PkgClient.CopyImageToTar(sourceImageName, tarname, p.CaCertificate, p.Insecure)
+				return p.PkgClient.CopyImageToTar(i, j, p.CaCertificate, p.Insecure)
 			})
 		}
 	}

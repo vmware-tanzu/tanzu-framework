@@ -5,7 +5,6 @@
 package imagepushop
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -74,14 +73,11 @@ func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
 	for tarfile, path := range data {
 		fileName := filepath.Join(p.TkgTarFilePath, tarfile)
 		destPath := filepath.Join(p.DestinationRepository, path)
-		group.Go(
-			func() error {
-				err = p.PkgClient.CopyImageFromTar(fileName, destPath, p.CustomImageRepoCertificate, p.Insecure)
-				if err != nil {
-					return err
-				}
-				return nil
-			})
+		i := fileName
+		j := destPath
+		group.Go(func() error {
+			return p.PkgClient.CopyImageFromTar(i, j, p.CustomImageRepoCertificate, p.Insecure)
+		})
 	}
 	err = group.Wait()
 	if err != nil {
@@ -93,9 +89,6 @@ func (p *PublishImagesFromTarOptions) PushImageToRepo() error {
 
 func publishImagesFromTar(cmd *cobra.Command, args []string) error {
 	pushImage.PkgClient = &imgpkginterface.Imgpkg{}
-	if !pushImage.Insecure && pushImage.CustomImageRepoCertificate == "" {
-		return fmt.Errorf("CA certificate is empty and Insecure option is disabled")
-	}
 
 	err := pushImage.PushImageToRepo()
 	if err != nil {
