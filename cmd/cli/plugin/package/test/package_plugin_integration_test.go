@@ -183,6 +183,20 @@ var _ = Describe("Package plugin integration test", func() {
 
 		if !config.UseExistingCluster {
 			By(fmt.Sprintf("Creating management cluster %q", config.ClusterNameMC))
+
+			// CAPD cluster creation on classy clusters doesnt work. So need to create legacy cluster.
+			// Below hack enables legacy cluster creation.
+			hackCmd := exec.NewCommand(
+				exec.WithCommand("./scripts/legacy_hack.sh"),
+				exec.WithStdout(GinkgoWriter),
+			)
+
+			fmt.Println("Executing the legacy hack script")
+			_, _, err := hackCmd.Run(context.Background())
+			Expect(err).To(BeNil())
+
+			os.Setenv("_ALLOW_CALICO_ON_MANAGEMENT_CLUSTER", "true")
+
 			cli, err := tkgctl.New(tkgctl.Options{
 				ConfigDir: tkgCfgDir,
 				LogOptions: tkgctl.LoggingOptions{
@@ -202,6 +216,8 @@ var _ = Describe("Package plugin integration test", func() {
 			})
 			Expect(err).NotTo(HaveOccurred())
 
+			os.Unsetenv("_ALLOW_CALICO_ON_MANAGEMENT_CLUSTER")
+
 			By(fmt.Sprintf("Creating workload cluster %q", config.ClusterNameWLC))
 			tkgCtlClient, err := tkgctl.New(tkgctl.Options{
 				ConfigDir: tkgCfgDir,
@@ -215,6 +231,7 @@ var _ = Describe("Package plugin integration test", func() {
 				ClusterName: config.ClusterNameWLC,
 				Namespace:   packagedatamodel.DefaultNamespace,
 				Plan:        "dev",
+				CniType:     "calico",
 			}
 			clusterConfigFile, err = framework.GetTempClusterConfigFile("", &options)
 			Expect(err).To(BeNil())
@@ -610,12 +627,33 @@ func pauseKappControllerPackage(clusterName, clusterNamespace, mgmtClusterKubeco
 	By("pausing kapp controller app")
 	mgmtClusterKubeCtx := mgmtClusterName + "-admin@" + mgmtClusterName
 
+	var (
+		carvelKind          string
+		packageInstallFound bool
+	)
+
 	command := exec.NewCommand(
 		exec.WithCommand("kubectl"),
-		exec.WithArgs("patch", "app", fmt.Sprintf("%s-kapp-controller", clusterName), "-n", clusterNamespace, "--type", "merge", "-p", fmt.Sprintf("{\"spec\":{\"paused\":%t}}", pause), "--context", mgmtClusterKubeCtx, "--kubeconfig", mgmtClusterKubeconfigPath),
+		exec.WithArgs("get", "packageinstall", fmt.Sprintf("%s-kapp-controller", clusterName), "-n", clusterNamespace, "--context", mgmtClusterKubeCtx, "--kubeconfig", mgmtClusterKubeconfigPath),
 		exec.WithStdout(GinkgoWriter),
 	)
 	err := command.RunAndRedirectOutput(context.Background())
+	if err == nil {
+		packageInstallFound = true
+	}
+
+	if packageInstallFound {
+		carvelKind = "packageinstall"
+	} else {
+		carvelKind = "app"
+	}
+
+	command = exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("patch", carvelKind, fmt.Sprintf("%s-kapp-controller", clusterName), "-n", clusterNamespace, "--type", "merge", "-p", fmt.Sprintf("{\"spec\":{\"paused\":%t}}", pause), "--context", mgmtClusterKubeCtx, "--kubeconfig", mgmtClusterKubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err = command.RunAndRedirectOutput(context.Background())
 	Expect(err).ToNot(HaveOccurred())
 }
 
