@@ -96,8 +96,8 @@
 #@                                                  data.values.TKG_NO_PROXY != "")
 #@ end
 
-#@ def storage_class_configs_exist():
-#@   return data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE in ["azure","aws","vsphere"]
+#@ def storage_class_customized():
+#@   return not data.values.ENABLE_DEFAULT_STORAGE_CLASS or data.values.VSPHERE_STORAGE_POLICY_ID != ""
 #@ end
 
 #@ def azurefilecsi_configs_exist():
@@ -113,7 +113,7 @@
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_config_customized() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_configs_exist() or azurediskcsi_configs_exist() or azurefilecsi_configs_exist()  or pinniped_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_config_customized() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or awsebscsi_configs_exist() or storage_class_customized() or azurediskcsi_configs_exist() or azurefilecsi_configs_exist()  or pinniped_configs_exist()
 #@ end
 
 #@ def kubevipcpiconfig_exist():
@@ -334,12 +334,8 @@ VSPHERE_STORAGE_POLICY_ID: #@ data.values.VSPHERE_STORAGE_POLICY_ID
 #@ end
 #@ end
 
-#@ def aws_storage_class():
-infraProvider: aws
-#@ end
-
-#@ def azure_storage_class():
-infraProvider: azure
+#@ def no_storage_class():
+infraProvider: ""
 #@ end
 
 ---
@@ -487,15 +483,13 @@ spec:
     - refName: pinniped*
     #@ if/end data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
     - refName: tkg-windows*
-    #@ if storage_class_configs_exist():
+    #@ if storage_class_customized():
     - refName: tkg-storageclass*
       valuesFrom:
-        #@ if data.values.PROVIDER_TYPE == "vsphere":
+        #@ if not data.values.ENABLE_DEFAULT_STORAGE_CLASS:
+        inline: #@ no_storage_class()
+        #@ elif data.values.VSPHERE_STORAGE_POLICY_ID != "":
         inline: #@ vsphere_storage_class()
-        #@ elif data.values.PROVIDER_TYPE == "aws":
-        inline: #@  aws_storage_class()
-        #@ elif data.values.PROVIDER_TYPE == "azure":
-        inline: #@ azure_storage_class()
         #@ end
     #@ end
     #@ if azurefilecsi_configs_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:

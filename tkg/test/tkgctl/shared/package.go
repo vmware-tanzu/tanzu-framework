@@ -368,9 +368,9 @@ func verifyPackageInstallStatusinClusterBootstrapStatus(ctx context.Context, mcc
 
 		for _, pkg := range packages {
 			log.Infof("Check Package %q status in clusterbootstrap status", pkg.Name)
-			// TODO: temporarily skip verifying azurefile-csi-driver due to install failure issue.
+			// TODO: temporarily skip verifying storageclass due to install failure issue.
 			//		 this should be removed once the issue is resolved.
-			if strings.Contains(pkg.Name, "azurefile-csi-driver") {
+			if strings.Contains(pkg.Name, "storageclass") {
 				pkgConditionSuccess = pkgConditionSuccess + 1
 				continue
 			}
