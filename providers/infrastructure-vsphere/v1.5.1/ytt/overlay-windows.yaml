@@ -314,6 +314,9 @@ spec:
               return $SaToken
           }
 
+          # Disable firewall temporarily for SSH and other internal ports access
+          Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+
           $TempFolder = 'C:\programdata\temp'
           $AntreaInTempFolder = "$TempFolder\antrea-windows-advanced.zip"
           $KubeproxyInTempFolder = "$TempFolder\kube-proxy.exe"
@@ -379,13 +382,12 @@ spec:
           # TODO:
           #   Install-AntreaAgent is too heavy, since Kubernetes and Antrea binaries have already been pre-installed, we don't
           #   depend on Install-AntreaAgent to downloading them, KubernetesVersion and AntreaVersion are not used anymore, will
-          #   refine the invoke of Install-AntreaAgent in the future. Keep AntreaVersion for 1.2.3, guessing latest from the script
+          #   refine the invoke of Install-AntreaAgent in the future. Keep AntreaVersion for 1.7.1, guessing latest from the script
           #   on this version is breaking the installation.
           Import-Module C:\k\antrea\helper.psm1
-          & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "v1.2.3"
+          & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "v1.7.1"
           New-KubeProxyServiceInterface
           & C:\k\antrea\Install-OVS.ps1 -ImportCertificate $false -LocalFile C:\k\antrea\ovs-win64.zip
-          Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
           # Setup Services
           $nssm = (Get-Command nssm).Source
