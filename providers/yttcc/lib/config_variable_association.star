@@ -315,6 +315,11 @@ return {
 "KUBEVIP_LOADBALANCER_CIDRS": ["vsphere"],
 "KUBEVIP_LOADBALANCER_IP_RANGES": ["vsphere"],
 
+"POD_SECURITY_STANDARD_DEACTIVATED": ["vsphere", "aws", "azure", "docker", "oci"],
+"POD_SECURITY_STANDARD_AUDIT": ["vsphere", "aws", "azure", "docker", "oci"],
+"POD_SECURITY_STANDARD_WARN": ["vsphere", "aws", "azure", "docker", "oci"],
+"POD_SECURITY_STANDARD_ENFORCE": ["vsphere", "aws", "azure", "docker", "oci"],
+
 "PROVIDER_TYPE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "TKG_CLUSTER_ROLE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "TKG_VERSION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
@@ -425,6 +430,23 @@ def get_cluster_variables():
 
     if data.values["TKR_DATA"] != "":
         vars["TKR_DATA"] = data.values["TKR_DATA"]
+    end
+
+    podSecurityStandard = {}
+    if data.values["POD_SECURITY_STANDARD_DEACTIVATED"] != "":
+        podSecurityStandard["deactivated"] = data.values["POD_SECURITY_STANDARD_DEACTIVATED"]
+    end
+    if data.values["POD_SECURITY_STANDARD_AUDIT"] != "":
+        podSecurityStandard["audit"] = data.values["POD_SECURITY_STANDARD_AUDIT"]
+    end
+    if data.values["POD_SECURITY_STANDARD_WARN"] != "":
+        podSecurityStandard["warn"] = data.values["POD_SECURITY_STANDARD_WARN"]
+    end
+    if data.values["POD_SECURITY_STANDARD_ENFORCE"] != "":
+        podSecurityStandard["enforce"] = data.values["POD_SECURITY_STANDARD_ENFORCE"]
+    end
+    if podSecurityStandard != {}:
+      vars["podSecurityStandard"] = podSecurityStandard
     end
 
     return vars
