@@ -63,18 +63,18 @@ const local = "local"
 
 var minConcurrent = 2
 var identifiers = []string{
-	"lion   ",
-	"tiger  ",
-	"cobra  ",
-	"dog    ",
-	"wolf   ",
-	"pig    ",
-	"sheep  ",
-	"pony   ",
-	"chicken",
-	"dragon ",
-	"warthog",
-	"rabbit ",
+	"T1",
+	"T2",
+	"T3",
+	"T4",
+	"T5",
+	"T6",
+	"T7",
+	"T8",
+	"T9",
+	"T10",
+	"T11",
+	"T12",
 }
 
 func getID(i int) string {
