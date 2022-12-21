@@ -1,6 +1,11 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
 
+#@ def get_unsupported_ns():
+#@   unsupported_ns = "(cert-manager, kube-node-lease, kube-public, kube-system, tanzu-auth, tkg-system-public, tkg-system-telemetry, tkr-system)"
+#@   return "!cluster.x-k8s.io/provider, kubernetes.io/metadata.name notin " + unsupported_ns
+#@ end
+
 #@ def getObjectPropagationConfig():
 
 #! generic resources from CAPI
@@ -10,7 +15,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -18,7 +23,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
@@ -26,7 +31,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: '!topology.cluster.x-k8s.io/owned'
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 
 #@ if data.values.clusterclassInfraPackageValues.infraProvider == "docker":
@@ -37,7 +42,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -45,7 +50,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: '!topology.cluster.x-k8s.io/owned'
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 #@ end
 
@@ -57,7 +62,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -65,7 +70,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: '!topology.cluster.x-k8s.io/owned'
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 #@ end
 
@@ -77,7 +82,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -85,7 +90,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: '!topology.cluster.x-k8s.io/owned'
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 #@ end
 
@@ -98,7 +103,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -106,7 +111,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 #@ end
 
@@ -118,7 +123,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -126,7 +131,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: '!topology.cluster.x-k8s.io/owned'
   target:
-    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: #@ get_unsupported_ns()
     detectAndReplaceSourceNSRef: true
 #@ end
 
