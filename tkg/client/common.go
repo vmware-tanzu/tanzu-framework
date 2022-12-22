@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -364,11 +365,14 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		return true, nil
 	}
 
+	// Ignore the checksum check if config variable 'SUPPRESS_PROVIDERS_UPDATE' is set.
+	isSuppressProvidersUpdateSet := os.Getenv(constants.SuppressProvidersUpdate) != ""
+
 	allowLegacyClusterCreated = c.SetAllowLegacyClusterConfiguration()
 	if allowLegacyClusterCreated == "false" {
 		// Return error if user has customized template overlays
 		// but the feature gate FeatureFlagAllowLegacyCluster or ALLOW_LEGACY_CLUSTER parameter is disabled for workload cluster
-		if isCustomOverlayPresent {
+		if isCustomOverlayPresent && !isSuppressProvidersUpdateSet {
 			return false, errors.Errorf("It seems like you have done some customizations to the template overlays. However, the feature gate %v is %v. Please enabe it and try again", constants.FeatureFlagAllowLegacyCluster, allowLegacyClusterCreated)
 		} else {
 			// Deploy clusterclass based workload cluster when template overlays don't be customized
