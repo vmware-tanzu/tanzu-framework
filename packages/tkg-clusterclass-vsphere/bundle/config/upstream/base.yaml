@@ -1870,6 +1870,15 @@ spec:
       - op: add
         path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/register-with-taints
         value: os=windows:NoSchedule
+      - op: replace
+        path: /spec/template/spec/joinConfiguration/nodeRegistration/name
+        value: '{{ ds.meta_data.hostname }}'
+      - op: replace
+        path: /spec/template/spec/preKubeadmCommands
+        valueFrom:
+          template: |
+            - echo | set /p="::1         ipv6-localhost ipv6-loopback localhost6 localhost6.localdomain6" > C:\etc\hosts & echo. >> C:\etc\hosts
+            - echo | set /p="127.0.0.1   {{" {{ ds.meta_data.hostname }} "}} localhost localhost.localdomain localhost4 localhost4.localdomain4" >> C:\etc\hosts
       - op: add
         path: /spec/template/spec/files/-
         value:
@@ -1919,6 +1928,9 @@ spec:
                 } while ($SaToken -eq $null)
                 return $SaToken
             }
+
+            # Disable firewall temporarily for SSH and other internal ports access
+            Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
             $TempFolder = 'C:\programdata\temp'
             $AntreaInTempFolder = "$TempFolder\antrea-windows-advanced.zip"
@@ -1986,7 +1998,6 @@ spec:
             & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "1.7.1"
             New-KubeProxyServiceInterface
             & C:\k\antrea\Install-OVS.ps1 -ImportCertificate $false -LocalFile C:\k\antrea\ovs-win64.zip
-            Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
             # Setup Services
             $nssm = (Get-Command nssm).Source
