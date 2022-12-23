@@ -103,7 +103,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 		},
 	}
 
-	//Auto fill empty fields in AkoOperatorConfig
+	// Auto fill empty fields in AkoOperatorConfig
 	setAkoOperatorConfig(&tkgPackageConfig, userProviderConfigValues, onBootstrapCluster)
 	setProxyConfiguration(&tkgPackageConfig, userProviderConfigValues)
 
