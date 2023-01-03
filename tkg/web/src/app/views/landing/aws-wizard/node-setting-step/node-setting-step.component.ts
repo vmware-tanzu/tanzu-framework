@@ -431,14 +431,6 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
             ].forEach(field => {
                 this.resurrectFieldWithStoredValue(field.toString(), this.supplyStepMapping(), [Validators.required]);
             });
-            // [
-            //     AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
-            //     AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3,
-            //     AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2,
-            //     AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3
-            // ].forEach(field => {
-            //     this.disarmField(field.toString(), false);
-            // });
         }
 
         if (this.airgappedVPC) {
