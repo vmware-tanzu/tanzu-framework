@@ -105,9 +105,9 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 		},
 	}
 
-	//Auto fill empty fields in AkoOperatorConfig
+	// fill in nsx advanced load balancer(a.k.a avi) config
 	if err := setAkoOperatorConfig(&tkgPackageConfig, userProviderConfigValues, onBootstrapCluster); err != nil {
-		return "", errors.Errorf("Error set ako operator config")
+		return "", err
 	}
 	setProxyConfiguration(&tkgPackageConfig, userProviderConfigValues)
 
@@ -168,6 +168,18 @@ func convertToBool(config interface{}) bool {
 	return false
 }
 
+// convertToJsonString converts config into string type, and return empty string if config is not set
+func convertToJsonString(config interface{}) (string, error) {
+	if config != nil {
+		jsonBytes, err := json.Marshal(fmt.Sprint(config))
+		if err != nil {
+			return "", err
+		}
+		return string(jsonBytes), nil
+	}
+	return "", nil
+}
+
 // autofillAkoOperatorConfig autofills empty fields in AkoOperatorConfig
 func setAkoOperatorConfig(tkgPackageConfig *TKGPackageConfig, userProviderConfigValues map[string]interface{}, onBootstrapCluster bool) error {
 	if !convertToBool(userProviderConfigValues[constants.ConfigVariableAviEnable]) {
@@ -199,13 +211,22 @@ func setAkoOperatorConfig(tkgPackageConfig *TKGPackageConfig, userProviderConfig
 				AviManagementClusterDataPlaneNetworkCIDR:       convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR]),
 				AviManagementClusterControlPlaneVipNetworkName: convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName]),
 				AviManagementClusterControlPlaneVipNetworkCIDR: convertToString(userProviderConfigValues[constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR]),
+				AviNSXTT1Router:                                convertToString(userProviderConfigValues[constants.ConfigVariableAviNSXTT1Router]),
 				AviControlPlaneHaProvider:                      convertToBool(userProviderConfigValues[constants.ConfigVariableVsphereHaProvider]),
 				AviIngressNodeNetworkList:                      nodeNetworkList,
 			},
 		},
 	}
 
+	// auto fill in vip networks
 	autofillAkoOperatorConfig(&tkgPackageConfig.AkoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig)
+	// fill in avi labels
+	aviLabelsJsonString, err := convertToJsonString(userProviderConfigValues[constants.ConfigVariableAviLabels])
+	if err != nil {
+		return err
+	}
+	tkgPackageConfig.AkoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviLabels = aviLabelsJsonString
+
 	return nil
 }
 
