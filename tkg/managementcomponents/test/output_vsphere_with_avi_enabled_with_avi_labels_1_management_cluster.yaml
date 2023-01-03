@@ -7,7 +7,8 @@ configvalues:
     AVI_DATA_NETWORK: VM Network
     AVI_DATA_NETWORK_CIDR: 10.191.176.0/20
     AVI_ENABLE: true
-    AVI_LABELS: '{"foo": bar}'
+    AVI_LABELS:
+        foo: bar
     AVI_PASSWORD: Admin!23
     AVI_SERVICE_ENGINE_GROUP: Default-Group
     AVI_USERNAME: admin
@@ -61,5 +62,5 @@ akoOperatorPackage:
             avi_management_cluster_vip_network_cidr: 10.191.176.0/20
             avi_management_cluster_control_plane_vip_network_name: VM Network
             avi_management_cluster_control_plane_vip_network_cidr: 10.191.176.0/20
-            avi_labels: '"{\"foo\": bar}"'
+            avi_labels: '{"foo":"bar"}'
             avi_control_plane_ha_provider: true

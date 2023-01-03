@@ -572,7 +572,7 @@ tkr-package:
 		Context("when AVI_ENABLE is set to true", func() {
 			BeforeEach(func() {
 				managementPackageVersion = verStr
-				outputFile = "test/output_vsphere_with_avi_enabled_with_avi_labels_management_cluster.yaml"
+				outputFile = "test/output_vsphere_with_avi_enabled_with_avi_labels_0_management_cluster.yaml"
 				userProviderConfigValues = map[string]interface{}{
 					"AVI_ENABLE":                    true,
 					"AVI_CLOUD_NAME":                "Default-Cloud",
@@ -583,7 +583,35 @@ tkr-package:
 					"AVI_PASSWORD":                  "Admin!23",
 					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
 					"AVI_USERNAME":                  "admin",
-					"AVI_LABELS":                    "{\"foo\": bar}",
+					"AVI_LABELS":                    `{"foo":"bar"}`,
+					"PROVIDER_TYPE":                 "vsphere",
+				}
+			})
+			It("set AVI_LABELS, it should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+				f1, err := os.ReadFile(valuesFile)
+				Expect(err).NotTo(HaveOccurred())
+				f2, err := os.ReadFile(outputFile)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(f1)).To(Equal(string(f2)))
+			})
+		})
+
+		Context("when AVI_ENABLE is set to true", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				outputFile = "test/output_vsphere_with_avi_enabled_with_avi_labels_1_management_cluster.yaml"
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_PASSWORD":                  "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
+					"AVI_USERNAME":                  "admin",
+					"AVI_LABELS":                    map[string]string{"foo": "bar"},
 					"PROVIDER_TYPE":                 "vsphere",
 				}
 			})
