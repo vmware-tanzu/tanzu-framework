@@ -4,51 +4,6 @@
     </h4>
     <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
     <div class="clr-row">
-        <div class="clr-col-8">
-            <clr-radio-container clrInline>
-                <clr-radio-wrapper>
-                    <input type="radio" name="vpcType" clrRadio value="existing" formControlName="vpcType">
-                    <label>
-                        Select an existing VPC
-                    </label>
-                </clr-radio-wrapper>
-                <clr-radio-wrapper>
-                    <input type="radio" name="vpcType" clrRadio value="new" formControlName="vpcType">
-                    <label>
-                        Create new VPC on AWS
-                    </label>
-                </clr-radio-wrapper>
-            </clr-radio-container>
-        </div>
-    </div>
-
-    <div class="clr-row" *ngIf="formGroup.value.vpcType == 'new'">
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container>
-                <label i18n="aws vpc cidr label" clr-control-label>
-                    {{htmlFieldLabels['vpc']}}
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span>
-                                The CIDR block to be used when the provider creates a managed VPC.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <input clrInput formControlName="vpc" placeholder="" />
-                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error i18n="aws vpc cidr required msg" *clrIfError="validatorEnum.REQUIRED">
-                    VPC CIDR cannot be empty
-                </clr-control-error>
-                <clr-control-error i18n="aws vpc cidr invalid msg" *clrIfError="validatorEnum.VALID_IP">
-                    VPC CIDR format is invalid
-                </clr-control-error>
-            </clr-input-container>
-        </div>
-    </div>
-    <div class="clr-row" *ngIf="formGroup.value.vpcType == 'existing'">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container>
                 <label i18n="existing vpc label">
@@ -96,7 +51,7 @@
         </div>
     </div>
 
-    <div class="clr-row" *ngIf="formGroup.value.vpcType == 'existing'">
+    <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container>
                 <clr-checkbox-wrapper>

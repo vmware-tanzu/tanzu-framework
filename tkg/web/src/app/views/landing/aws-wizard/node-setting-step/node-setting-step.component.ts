@@ -73,7 +73,7 @@ enum vpcType {
 export class NodeSettingStepComponent extends NodeSettingStepDirective<string> implements OnInit {
     APP_EDITION: any = AppEdition;
 
-    vpcType: string;
+    vpcType: string = vpcType.EXISTING;
     nodeAzs: Array<AWSNodeAz> = [];
     azNodeTypes: AzNodeTypes = {
         awsNodeAz1: [],
@@ -251,16 +251,6 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
             ]);
             this.setFieldWithStoredValue(thisAZ, this.supplyStepMapping());
         }
-        if (!this.modeClusterStandalone) {
-            WORKER_NODE_INSTANCE_TYPES.forEach((field, index) => {
-                // only populated the worker node instance type if the associated AZ has a value
-                if (this.getFieldValue(AZS[index])) {
-                    this.resurrectFieldWithStoredValue(field.toString(), this.supplyStepMapping(), [Validators.required]);
-                } else {
-                    this.resurrectField(field.toString(), [Validators.required]);
-                }
-            });
-        }
     }
 
     protected setControlPlaneToDev() {
@@ -317,7 +307,7 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
     }
 
     filterSubnetsByAZ(azControlName, az): void {
-        if (this.vpcType === vpcType.EXISTING && azControlName !== '' && az !== '') {
+        if (azControlName !== '' && az !== '') {
             this.filteredAzs[azControlName].publicSubnets = this.filterSubnetArrayByAZ(az, this.publicSubnets);
             this.filteredAzs[azControlName].privateSubnets = this.filterSubnetArrayByAZ(az, this.privateSubnets);
         }
@@ -328,7 +318,7 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
     }
 
     private setSubnetFieldsWithOnlyOneOption(azControlName) {
-        if (this.vpcType === vpcType.EXISTING && azControlName !== '') {
+        if (azControlName !== '') {
             const filteredPublicSubnets = this.filteredAzs[azControlName].publicSubnets;
             if (filteredPublicSubnets.length === 1 && !this.airgappedVPC) {
                 this.setControlValueSafely(this.getPublicSubnetFromAz(azControlName), filteredPublicSubnets[0].id);
@@ -413,23 +403,15 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
     }
 
     updateVpcSubnets() {
-        if (this.vpcType !== vpcType.EXISTING) {   // validations should be disabled for all public/private subnets
-            [
-                AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
-                AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
-                AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3,
-                AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1,
-                AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2,
-                AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3
-            ].forEach(field => {
-                this.disarmField(field.toString(), false);
-            });
-            return;
-        }
-
         if (this.isClusterPlanProd) {
             // in PROD deployments, all three subnets are used
             [
+                AwsField.NODESETTING_AZ_1,
+                AwsField.NODESETTING_AZ_2,
+                AwsField.NODESETTING_AZ_3,
+                NodeSettingField.WORKER_NODE_INSTANCE_TYPE,
+                AwsField.NODESETTING_WORKERTYPE_2,
+                AwsField.NODESETTING_WORKERTYPE_3,
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3,
@@ -442,19 +424,21 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
         } else if (this.isClusterPlanDev) {
             // in DEV deployments, only one subnet is used
             [
+                AwsField.NODESETTING_AZ_1,
+                NodeSettingField.WORKER_NODE_INSTANCE_TYPE,
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
                 AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1,
             ].forEach(field => {
                 this.resurrectFieldWithStoredValue(field.toString(), this.supplyStepMapping(), [Validators.required]);
             });
-            [
-                AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
-                AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3,
-                AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2,
-                AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3
-            ].forEach(field => {
-                this.disarmField(field.toString(), false);
-            });
+            // [
+            //     AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
+            //     AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3,
+            //     AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2,
+            //     AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3
+            // ].forEach(field => {
+            //     this.disarmField(field.toString(), false);
+            // });
         }
 
         if (this.airgappedVPC) {
@@ -470,13 +454,12 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
 
     getVpcSubnetTooltip(access: string): string {
         return `Choose a VPC ${access} subnet associated with the selected AWS availability zone. If no
-            option is available, please add a ${access} subnet to this availability zone or create a new VPC in the
-            previous step.`;
+            option is available, please add a ${access} subnet to this availability zone or create a new VPC on AWS.`;
     }
 
     getVpcSubnetErrorMsg(access: string): string {
         return `Selecting a VPC ${access} subnet is required. If no subnets are available, please add a ${access} subnet to this
-            subregion or create a new VPC in the previous step.`;
+            subregion or create a new VPC on AWS.`;
     }
 
     get isVpcTypeExisting(): boolean {
