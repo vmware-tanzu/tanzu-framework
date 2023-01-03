@@ -96,7 +96,6 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
 
         this.registerOnValueChange(AwsField.VPC_TYPE, this.onVpcTypeChange.bind(this));
 
-        // const cidrFields = [AwsField.VPC_NEW_CIDR, AwsField.VPC_EXISTING_CIDR];
         const cidrFields = [AwsField.VPC_EXISTING_CIDR];
         cidrFields.forEach(cidrField => {
             this.registerOnValueChange(cidrField, (cidr) => {
@@ -140,7 +139,6 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     chooseInitialVpcType() {
-        // const vpcType = this.getStoredValue(AwsField.VPC_NEW_CIDR, AwsVpcStepMapping) ? VpcType.NEW : VpcType.EXISTING;
         const vpcType = VpcType.EXISTING;
         this.formGroup.get(AwsField.VPC_TYPE).setValue(vpcType);
     }
@@ -152,13 +150,6 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
      */
     setNewVpcValidators() {
         this.defaultVpcHasChanged = false;
-
-        // this.setFieldWithStoredValue(AwsField.VPC_NEW_CIDR, AwsVpcStepMapping, this.defaultVpcAddress);
-        // this.formGroup.get(AwsField.VPC_NEW_CIDR).setValidators([
-        //     Validators.required,
-        //     this.validationService.noWhitespaceOnEnds(),
-        //     this.validationService.isValidIpNetworkSegment()
-        // ]);
     }
 
     setExistingVpcValidators() {
