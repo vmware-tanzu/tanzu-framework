@@ -503,7 +503,7 @@ func runDownloadGoDep(targetPath, prefix string) error {
 	cmdgomoddownload := goCommand("mod", "download")
 	cmdgomoddownload.Dir = targetPath
 
-	log.Infof("%s$ %s", prefix, cmdgomoddownload.String())
+	log.Infof("%s %s", prefix, cmdgomoddownload.String())
 	output, err := cmdgomoddownload.CombinedOutput()
 	if err != nil {
 		log.Errorf("%serror: %v", prefix, err)
