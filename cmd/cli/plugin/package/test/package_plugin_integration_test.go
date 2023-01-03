@@ -630,6 +630,7 @@ func pauseKappControllerPackage(clusterName, clusterNamespace, mgmtClusterKubeco
 	var (
 		carvelKind          string
 		packageInstallFound bool
+		appStatus           string
 	)
 
 	command := exec.NewCommand(
@@ -654,6 +655,41 @@ func pauseKappControllerPackage(clusterName, clusterNamespace, mgmtClusterKubeco
 		exec.WithStdout(GinkgoWriter),
 	)
 	err = command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+
+	backOff := wait.Backoff{
+		Steps:    10,
+		Duration: 15 * time.Second,
+		Factor:   1.0,
+		Jitter:   0.1,
+	}
+
+	if pause {
+		appStatus = "Canceled/paused"
+	} else {
+		appStatus = "Reconcile succeeded"
+	}
+
+	err = retry.OnError(
+		backOff,
+		func(err error) bool {
+			return err != nil
+		},
+		func() error {
+			command = exec.NewCommand(
+				exec.WithCommand("kubectl"),
+				exec.WithArgs("get", "app", fmt.Sprintf("%s-kapp-controller", clusterName), "-n", clusterNamespace, "--context", mgmtClusterKubeCtx, "--kubeconfig", mgmtClusterKubeconfigPath),
+				exec.WithStdout(GinkgoWriter),
+			)
+			output, errout, err := command.Run(context.Background())
+			if string(errout) != "" {
+				return errors.New(string(errout))
+			}
+			if !strings.Contains(string(output), appStatus) {
+				return errors.New("App status not reached")
+			}
+			return err
+		})
 	Expect(err).ToNot(HaveOccurred())
 }
 
