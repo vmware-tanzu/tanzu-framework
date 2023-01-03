@@ -63,15 +63,15 @@ const local = "local"
 
 var minConcurrent = 2
 var identifiers = []string{
-	"T1",
-	"T2",
-	"T3",
-	"T4",
-	"T5",
-	"T6",
-	"T7",
-	"T8",
-	"T9",
+	"T01",
+	"T02",
+	"T03",
+	"T04",
+	"T05",
+	"T06",
+	"T07",
+	"T08",
+	"T09",
 	"T10",
 	"T11",
 	"T12",
@@ -182,7 +182,7 @@ func Compile(compileArgs *PluginCompileArgs) error {
 		if f.IsDir() {
 			if g.Match(f.Name()) {
 				wg.Add(1)
-				log.Infof("\tstarting compile thread %v for %v", i, f)
+				log.Infof("\tstarting compile thread %v for %v", identifiers[i], f.Name())
 				guard <- struct{}{}
 				go func(fullPath, id string) {
 					defer wg.Done()
@@ -339,7 +339,7 @@ func (t target) build(targetPath, prefix, modPath, ldflags, tags string) error {
 
 	cmd.Args = append(cmd.Args, fmt.Sprintf("./%s", targetPath))
 
-	log.Infof("%s$ %s", prefix, cmd.String())
+	log.Infof("%s %s", prefix, cmd.String())
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Errorf("%serror: %v", prefix, err)
