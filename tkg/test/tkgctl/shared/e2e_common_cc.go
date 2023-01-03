@@ -6,6 +6,7 @@ package shared
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
@@ -14,6 +15,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/client-go/discovery"
@@ -293,6 +295,13 @@ func getAvailableTKRs(ctx context.Context, mcProxy *framework.ClusterProxy, tkgC
 	Eventually(func() bool {
 		tkrs = mcProxy.GetTKRs(ctx)
 		defaultTKR, oldTKR = getTKRsForUpgrade(defaultTKRVersion, tkrs)
+		deJ, _ := json.Marshal(defaultTKR)
+		oldJ, _ := json.Marshal(oldTKR)
+		tkrsJ, _ := json.Marshal(tkrs)
+		log.Infof("xsguo defaultTKR :%v\n", string(deJ))
+		log.Infof("xsguo oldTKR :%v\n", string(oldJ))
+		log.Infof("xsguo tkrs :%v\n", string(tkrsJ))
+		log.Infof("xsguo defaultTKRVersion :%v\n", defaultTKRVersion)
 		return defaultTKR != nil && oldTKR != nil
 	}, waitTimeout, pollingInterval).Should(BeTrue(), "failed to get at least 2 TKRs(upgradable) to perform upgrade tests")
 	tkrVersions := getTKRVersions(tkrs)
