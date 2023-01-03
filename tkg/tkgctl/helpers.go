@@ -382,8 +382,8 @@ func processYamlObjectArrayInterfaceType(value []interface{}, clusterAttributePa
 				varName := nameValueMap["name"]
 				varValue := nameValueMap["value"]
 				nextLevelName := clusterAttributePath + "." + varName.(string)
-				// The attribute path "spec.topology.variables.trust.*" has value of type array, each array element is of type map, map has keys - "name" and "data",
-				// need to process "spec.topology.variables.trust."+ (value of "name") as attribute path and value of "data" next level value, process it again.
+				// The attribute path "spec.topology.variables.trust.additionalTrustedCAs.*" has value of type array, each array element is of type map, map has keys - "name" and "data",
+				// need to process "spec.topology.variables.trust.additionalTrustedCAs."+ (value of "name") as attribute path and value of "data" next level value, process it again.
 				if varName == "trust" {
 					trustValArr := varValue.([]interface{})
 					for trustIndex := range trustValArr {
