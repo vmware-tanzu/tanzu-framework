@@ -1779,10 +1779,10 @@ spec:
           - /var/lib/etcddisk
         useExperimentalRetryJoin: true
         postKubeadmCommands:
-        - echo "running postKubeadmCommands…"
+        - echo "running postKubeadmCommands..."
         preKubeadmCommands:
         #! Ensure a non-empty preKubeadmCommands array is present to facilitate patching
-        - echo "running preKubeadmCommands…"
+        - echo "running preKubeadmCommands..."
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AzureMachineTemplate
@@ -1842,4 +1842,4 @@ spec:
           name: '{{ ds.meta_data["local_hostname"] }}'
       useExperimentalRetryJoin: true
       preKubeadmCommands:
-      - echo "running preKubeadmCommands…"
+      - echo "running preKubeadmCommands..."
