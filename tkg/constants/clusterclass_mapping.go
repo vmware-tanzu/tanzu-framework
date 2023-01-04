@@ -31,8 +31,8 @@ var ClusterAttributesToLegacyVariablesMapCommon = map[string]string{
 
 	"spec.topology.variables.auditLogging.enabled": EnableAuditLogging, // ENABLE_AUDIT_LOGGING
 
-	"spec.topology.variables.trust.proxy":           TKGProxyCACert,                                   // TKG_PROXY_CA_CERT
-	"spec.topology.variables.trust.imageRepository": ConfigVariableCustomImageRepositoryCaCertificate, // TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+	"spec.topology.variables.trust.additionalTrustedCAs.proxy":           TKGProxyCACert,                                   // TKG_PROXY_CA_CERT
+	"spec.topology.variables.trust.additionalTrustedCAs.imageRepository": ConfigVariableCustomImageRepositoryCaCertificate, // TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
 
 	"spec.topology.variables.apiServerPort": ConfigVariableClusterAPIServerPort, // CLUSTER_API_SERVER_PORT
 
