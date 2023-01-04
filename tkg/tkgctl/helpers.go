@@ -397,7 +397,6 @@ func processYamlObjectArrayInterfaceType(value []interface{}, clusterAttributePa
 								return err
 							}
 						}
-						log.Warningf("####processed certificate")
 
 						continue // we are done processing "trust" variable, so process next variable
 					}
