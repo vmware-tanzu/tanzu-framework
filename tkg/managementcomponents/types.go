@@ -94,9 +94,16 @@ type FeaturegatePackageValues struct {
 }
 
 type TKRServicePackageValues struct {
-	Namespace          string `yaml:"namespace,omitempty"`
-	CreateNamespace    string `yaml:"createNamespace,omitempty"`
-	VersionConstraints string `yaml:"versionConstraints,omitempty"`
+	Namespace          string                            `yaml:"namespace,omitempty"`
+	CreateNamespace    string                            `yaml:"createNamespace,omitempty"`
+	VersionConstraints string                            `yaml:"versionConstraints,omitempty"`
+	Deployment         TKRServicePackageValuesDeployment `yaml:"deployment,omitempty"`
+}
+
+type TKRServicePackageValuesDeployment struct {
+	HttpProxy  string `yaml:"httpProxy,omitempty"`
+	HttpsProxy string `yaml:"httpsProxy,omitempty"`
+	NoProxy    string `yaml:"noProxy,omitempty"`
 }
 
 type CLIPluginsPackageValues struct {

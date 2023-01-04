@@ -13,3 +13,6 @@ deployment:
   tolerations: []
   #! If hostNetwork is set to true the below two ports should be different
   tkrVsphereResolverWebhookServerPort: 9443
+  httpProxy:
+  httpsProxy:
+  noProxy:

@@ -250,11 +250,21 @@ func setProxyConfiguration(tkgPackageConfig *TKGPackageConfig, userProviderConfi
 	}
 
 	setProxyInTKRSourceControllerPackage(tkgPackageConfig, httpProxy, httpsProxy, noProxy)
+	setProxyInTKRServicePackage(tkgPackageConfig, httpProxy, httpsProxy, noProxy)
 }
 
 func setProxyInTKRSourceControllerPackage(tkgPackageConfig *TKGPackageConfig, httpProxy, httpsProxy, noProxy string) {
 	tkgPackageConfig.TKRSourceControllerPackage.TKRSourceControllerPackageValues.Deployment =
 		TKRSourceControllerPackageValuesDeployment{
+			HttpProxy:  httpProxy,
+			HttpsProxy: httpsProxy,
+			NoProxy:    noProxy,
+		}
+}
+
+func setProxyInTKRServicePackage(tkgPackageConfig *TKGPackageConfig, httpProxy, httpsProxy, noProxy string) {
+	tkgPackageConfig.FrameworkPackage.TKRServicePackageValues.Deployment =
+		TKRServicePackageValuesDeployment{
 			HttpProxy:  httpProxy,
 			HttpsProxy: httpsProxy,
 			NoProxy:    noProxy,
