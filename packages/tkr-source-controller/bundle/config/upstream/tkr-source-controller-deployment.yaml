@@ -28,7 +28,7 @@ spec:
         app: tkr-source-controller
     spec:
       containers:
-      - image: tkr-source-controller:latest
+      - image: tkr-source-controller-manager:latest
         imagePullPolicy: IfNotPresent
         name: manager
         command:
