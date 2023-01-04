@@ -13,6 +13,10 @@ frameworkPackage:
         versionConstraints: v0.21.0
     tkrServicePackageValues:
         versionConstraints: v0.21.0
+        deployment:
+            httpProxy: http://192.168.116.1:3128
+            httpsProxy: http://192.168.116.1:3128
+            noProxy: .svc,100.64.0.0/13,192.168.118.0/24,192.168.119.0/24,192.168.120.0/24
     clipluginsPackageValues:
         versionConstraints: v0.21.0
     addonsManagerPackageValues:
