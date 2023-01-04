@@ -122,9 +122,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         const machineHealthChecksEnabled = this.getFieldValue(AwsForm.NODESETTING, NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED);
         payload.machineHealthCheckEnabled = (machineHealthChecksEnabled === true);
         payload.vpc = {
-            cidr: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.EXISTING) ?
-                this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR) :
-                this.getFieldValue(AwsForm.VPC, AwsField.VPC_NEW_CIDR),
+            cidr: this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR),
             vpcID: this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_ID),
             azs: this.getAwsNodeAzs(payload)
         };

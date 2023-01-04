@@ -54,6 +54,10 @@ clr-select-container.ldap-header {
         color: properties.$label-color-light-theme;
     }
 
+    .inline-block-override {
+        display: inline-block;
+    }
+
     .clr-input-wrapper {
         display: inline-block;
 
