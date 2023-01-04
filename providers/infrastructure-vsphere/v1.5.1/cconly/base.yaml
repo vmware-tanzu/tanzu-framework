@@ -135,7 +135,7 @@ spec:
       - echo "::1         ipv6-localhost ipv6-loopback localhost6 localhost6.localdomain6" >/etc/hosts
       - echo "127.0.0.1   {{ ds.meta_data.hostname }} {{ local_hostname }} localhost localhost.localdomain localhost4 localhost4.localdomain4" >>/etc/hosts
       postKubeadmCommands:
-      - echo "running postKubeadmCommands…"
+      - echo "running postKubeadmCommands..."
       files:
       - path: /tmp/empty.txt
         owner: "root:root"

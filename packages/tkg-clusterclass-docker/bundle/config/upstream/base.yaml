@@ -283,7 +283,7 @@ spec:
     spec:
       kubeadmConfigSpec:
         preKubeadmCommands:
-          - echo "running preKubeadmCommands…"
+          - echo "running preKubeadmCommands..."
         clusterConfiguration:
           controllerManager:
             extraArgs: { enable-hostpath-provisioner: 'true' }
@@ -344,7 +344,7 @@ spec:
   template:
     spec:
       preKubeadmCommands:
-        - echo "running preKubeadmCommands…"
+        - echo "running preKubeadmCommands..."
       joinConfiguration:
         nodeRegistration:
           criSocket: unix:///var/run/containerd/containerd.sock
