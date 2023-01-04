@@ -179,7 +179,6 @@ func convertAVILabels(config interface{}) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			println(string(jsonBytes))
 			return string(jsonBytes), nil
 		}
 	}
