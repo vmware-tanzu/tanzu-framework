@@ -436,7 +436,7 @@ tkr-package:
 			})
 			It("should return error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("Error set ako operator config"))
+				Expect(err.Error()).To(ContainSubstring("Error convert node network list"))
 			})
 		})
 
@@ -557,6 +557,7 @@ tkr-package:
 					"AVI_USERNAME":                  "admin",
 					"AVI_NSXT_T1LR":                 "/infra/test_t1",
 					"PROVIDER_TYPE":                 "vsphere",
+					"VSPHERE_NETWORK":               "VM Network",
 				}
 			})
 			It("when set NSX-T T1 router, it should not return error", func() {
@@ -585,6 +586,7 @@ tkr-package:
 					"AVI_USERNAME":                  "admin",
 					"AVI_LABELS":                    `{"foo":"bar"}`,
 					"PROVIDER_TYPE":                 "vsphere",
+					"VSPHERE_NETWORK":               "VM Network",
 				}
 			})
 			It("set AVI_LABELS, it should not return error", func() {
@@ -613,6 +615,7 @@ tkr-package:
 					"AVI_USERNAME":                  "admin",
 					"AVI_LABELS":                    map[string]string{"foo": "bar"},
 					"PROVIDER_TYPE":                 "vsphere",
+					"VSPHERE_NETWORK":               "VM Network",
 				}
 			})
 			It("set AVI_LABELS, it should not return error", func() {

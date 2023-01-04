@@ -133,8 +133,8 @@ func convertToString(config interface{}) string {
 	return ""
 }
 
-// convertToNodeNetworkList converts config into avi node network list type, and return default value if config is not set
-func convertToNodeNetworkList(userProviderConfigValues map[string]interface{}) (string, error) {
+// convertNodeNetworkList converts config into avi node network list type, and return default value if config is not set
+func convertNodeNetworkList(userProviderConfigValues map[string]interface{}) (string, error) {
 	var nodeNetworkList []NodeNetwork
 	config := userProviderConfigValues[constants.ConfigVariableAviIngressNodeNetworkList]
 	if config != nil {
@@ -146,7 +146,7 @@ func convertToNodeNetworkList(userProviderConfigValues map[string]interface{}) (
 		network_pathes := strings.Split(convertToString(userProviderConfigValues[constants.ConfigVariableVsphereNetwork]), "/")
 		network := network_pathes[len(network_pathes)-1]
 		nodeNetworkList = []NodeNetwork{
-			NodeNetwork{
+			{
 				NetworkName: network,
 			},
 		}
@@ -185,12 +185,12 @@ func convertAVILabels(config interface{}) (string, error) {
 	return "", nil
 }
 
-// autofillAkoOperatorConfig autofills empty fields in AkoOperatorConfig
 func setAkoOperatorConfig(tkgPackageConfig *TKGPackageConfig, userProviderConfigValues map[string]interface{}, onBootstrapCluster bool) error {
 	if !convertToBool(userProviderConfigValues[constants.ConfigVariableAviEnable]) {
 		return nil
 	}
-	nodeNetworkList, err := convertToNodeNetworkList(userProviderConfigValues)
+
+	nodeNetworkList, err := convertNodeNetworkList(userProviderConfigValues)
 	if err != nil {
 		return errors.Errorf("Error convert node network list")
 	}
@@ -199,6 +199,7 @@ func setAkoOperatorConfig(tkgPackageConfig *TKGPackageConfig, userProviderConfig
 	if err != nil {
 		return err
 	}
+
 	tkgPackageConfig.AkoOperatorPackage = AkoOperatorPackage{
 		AkoOperatorPackageValues: AkoOperatorPackageValues{
 			AviEnable:          convertToBool(userProviderConfigValues[constants.ConfigVariableAviEnable]),
@@ -233,6 +234,7 @@ func setAkoOperatorConfig(tkgPackageConfig *TKGPackageConfig, userProviderConfig
 	return nil
 }
 
+// autofillAkoOperatorConfig autofills empty fields in AkoOperatorConfig
 func autofillAkoOperatorConfig(akoOperatorConfig *AkoOperatorConfig) {
 	if akoOperatorConfig.AviManagementClusterServiceEngineGroup == "" {
 		akoOperatorConfig.AviManagementClusterServiceEngineGroup = akoOperatorConfig.AviServiceEngineGroup
@@ -243,7 +245,7 @@ func autofillAkoOperatorConfig(akoOperatorConfig *AkoOperatorConfig) {
 		akoOperatorConfig.AviManagementClusterDataPlaneNetworkName = akoOperatorConfig.AviDataPlaneNetworkName
 		akoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR = akoOperatorConfig.AviDataPlaneNetworkCIDR
 	}
-	// fill workload clusters' control plane VIP network
+	// fill in workload clusters' control plane VIP network
 	if akoOperatorConfig.AviControlPlaneNetworkName == "" || akoOperatorConfig.AviControlPlaneNetworkCIDR == "" {
 		akoOperatorConfig.AviControlPlaneNetworkName = akoOperatorConfig.AviManagementClusterDataPlaneNetworkName
 		akoOperatorConfig.AviControlPlaneNetworkCIDR = akoOperatorConfig.AviManagementClusterDataPlaneNetworkCIDR

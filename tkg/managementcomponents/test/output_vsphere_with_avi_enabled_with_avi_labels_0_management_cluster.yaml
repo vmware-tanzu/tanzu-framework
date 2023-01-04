@@ -12,6 +12,7 @@ configvalues:
     AVI_SERVICE_ENGINE_GROUP: Default-Group
     AVI_USERNAME: admin
     PROVIDER_TYPE: vsphere
+    VSPHERE_NETWORK: VM Network
 frameworkPackage:
     versionConstraints: v0.21.0
     featureGatesPackageValues:
@@ -63,3 +64,4 @@ akoOperatorPackage:
             avi_management_cluster_control_plane_vip_network_cidr: 10.191.176.0/20
             avi_labels: '{"foo":"bar"}'
             avi_control_plane_ha_provider: true
+            avi_ingress_node_network_list: '[{"networkName":"VM Network"}]'

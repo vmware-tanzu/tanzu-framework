@@ -127,8 +127,8 @@ type AkoOperatorPackageValues struct {
 
 // NodeNetwork
 type NodeNetwork struct {
-	NetworkName string   `yaml:"networkName,omitempty"`
-	Cidrs       []string `yaml:"cidrs,omitempty"`
+	NetworkName string   `yaml:"networkName,omitempty" json:"networkName,omitempty"`
+	Cidrs       []string `yaml:"cidrs,omitempty" json:"cidrs,omitempty"`
 }
 
 // AkoOperatorConfig
