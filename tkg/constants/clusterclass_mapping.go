@@ -217,6 +217,7 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	"spec.topology.variables.vcenter.datastore":     ConfigVariableVsphereDatastore,     // VSPHERE_DATASTORE
 	"spec.topology.variables.vcenter.folder":        ConfigVariableVsphereFolder,        // VSPHERE_FOLDER
 	"spec.topology.variables.vcenter.server":        ConfigVariableVsphereServer,        // VSPHERE_SERVER
+	"spec.topology.variables.vcenter.insecure":      ConfigVariableVsphereInsecure,      // VSPHERE_INSECURE this variable doesn't exist in clusterclass, will be infer from tlsThumbprint
 
 	"spec.topology.variables.user.sshAuthorizedKeys": ConfigVariableVsphereSSHAuthorizedKey, // VSPHERE_SSH_AUTHORIZED_KEY
 

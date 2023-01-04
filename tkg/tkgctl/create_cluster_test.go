@@ -29,6 +29,7 @@ const inputFileAwsEmptyClass = "../fakes/config/cluster_aws_emptyClass.yaml"
 const inputFileMultipleObjectsAws = "../fakes/config/cluster_aws_multipleObjects.yaml"
 const inputFileAzure = "../fakes/config/cluster_azure.yaml"
 const inputFileVsphere = "../fakes/config/cluster_vsphere.yaml"
+const inputFileVsphereInsecure = "../fakes/config/cluster_vsphere_insecure.yaml"
 const inputFileTKGSClusterClass = "../fakes/config/cluster_tkgs.yaml"
 const inputFileTKGSTKC = "../fakes/config/cluster_tkgs_tkc.yaml"
 const inputFileLegacy = "../fakes/config/cluster1_config.yaml"
@@ -495,6 +496,42 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 			// check value for ".network.addressesFromPools": NODE_IPAM_IP_POOL_NAME
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeIPAMIPPoolName)
 			Expect("inclusterpool").To(Equal(fmt.Sprintf("%v", mappedVal)))
+		})
+	})
+
+	Context("When input file is valid Cluster Class, plan devcc, but no tlsThumbprint is passed:", func() {
+		BeforeEach(func() {
+			options = CreateClusterOptions{
+				ClusterName:            "test-cluster",
+				Plan:                   "devcc",
+				InfrastructureProvider: "",
+				Namespace:              "",
+				GenerateOnly:           false,
+				TkrVersion:             fakeTKRVersion,
+				SkipPrompt:             true,
+				Edition:                "tkg",
+				ClusterConfigFile:      inputFileVsphereInsecure,
+			}
+		})
+		It("Environment should be updated with legacy variables with input cluster attribute values:", func() {
+
+			// Process input cluster.yaml file, this should process input cluster.yaml file
+			// and update the environment with legacy name and values
+			// most of cluster.yaml attributes are mapped to legacy variable for more look this - constants.ClusterToLegacyVariablesMapVsphere
+			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options, isTKGSCluster)
+			Expect(IsInputFileClusterClassBased).Should(BeTrue())
+			Expect(err).To(BeNil())
+
+			// process input file and get map, which has all attribute's path and its values
+			inputVariablesMap := getInputAttributesMap(options.ClusterConfigFile)
+
+			// validate input Cluster Object yaml file attributes values with corresponding legacy variable values in environment, both should be same, as we have already updated the environment with Cluster Object attribute values.
+			validateFileInputAttributeValuesWithEnvironmentValues(&ctl, inputVariablesMap, constants.ClusterAttributesToLegacyVariablesMapVsphere)
+
+			// checking manually for some variables mapping values
+			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereInsecure)
+			Expect("true").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
 		})
 	})
 })

@@ -356,6 +356,9 @@ func processYamlObjectAndAddToMap(value interface{}, clusterAttributePath string
 			if strings.HasPrefix(clusterAttributePath, "spec.topology.variables.proxy") {
 				inputVariablesMap["spec.topology.variables.proxy"] = true
 			}
+		} else if clusterAttributePath == "spec.topology.variables.vcenter.tlsThumbprint" {
+			// if tlsThumbprint is empty, then insecure is true
+			inputVariablesMap["spec.topology.variables.vcenter.insecure"] = true
 		}
 	default:
 		if value != nil {
