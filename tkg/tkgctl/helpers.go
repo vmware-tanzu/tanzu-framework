@@ -397,9 +397,8 @@ func processYamlObjectArrayInterfaceType(value []interface{}, clusterAttributePa
 								return err
 							}
 						}
-
-						continue // we are done processing "trust" variable, so process next variable
 					}
+					continue // we are done processing "trust" variable, so process next variable
 				} else if varName == "TKR_DATA" { // no need to process TKR_DATA, because there is no mapping as of now
 					continue
 				}
