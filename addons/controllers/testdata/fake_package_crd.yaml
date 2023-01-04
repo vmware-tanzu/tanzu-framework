@@ -430,3 +430,70 @@ spec:
       storage: true
       subresources:
         status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: packagemetadatas.data.packaging.carvel.dev
+spec:
+  group: data.packaging.carvel.dev
+  names:
+    kind: PackageMetadata
+    listKind: PackageMetadataList
+    plural: packagemetadatas
+    singular: packagemetadata
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            spec:
+              properties:
+                categories:
+                  description: Classifiers of the package (optional; Array of strings)
+                  items:
+                    type: string
+                  type: array
+                displayName:
+                  description: Human friendly name of the package (optional; string)
+                  type: string
+                iconSVGBase64:
+                  description: Base64 encoded icon (optional; string)
+                  type: string
+                longDescription:
+                  description: Long description of the package (optional; string)
+                  type: string
+                maintainers:
+                  description: List of maintainer info for the package. Currently only supports the name key. (optional; array of maintner info)
+                  items:
+                    properties:
+                      name:
+                        type: string
+                    type: object
+                  type: array
+                providerName:
+                  description: Name of the entity distributing the package (optional; string)
+                  type: string
+                shortDescription:
+                  description: Short desription of the package (optional; string)
+                  type: string
+                supportDescription:
+                  description: Description of the support available for the package (optional; string)
+                  type: string
+              type: object
+          required:
+            - spec
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
