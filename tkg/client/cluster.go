@@ -160,7 +160,11 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
+		allowLegacyCluster, err := c.allowLegacyCluster()
+		if err != nil {
+			return false, err
+		}
+		if !allowLegacyCluster {
 			clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
 			if err != nil {
 				return false, err
@@ -195,6 +199,16 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		return false, nil
 	}
 	return true, c.waitForClusterCreation(regionalClusterClient, options)
+}
+
+func (c *TkgClient) allowLegacyCluster() (bool, error) {
+	allowLegacyCluster, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+	if err != nil {
+		log.V(6).Infof("failed getting variable ALLOW_LEGACY_CLUSTER, %s", err.Error())
+		return false, err
+	}
+
+	return strconv.ParseBool(allowLegacyCluster)
 }
 
 // getClusterConfigurationBytes returns cluster configuration by taking into consideration of legacy vs clusterclass based cluster creation
