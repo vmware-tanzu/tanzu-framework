@@ -581,7 +581,7 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 	maxTimeout := 3 * c.operationTimeout
 	maxTimeoutCounter := 0
 	errorRetry := 0
-	maxErrorRetry := 3
+	maxErrorRetry := 20
 
 	getterFunc := func() (interface{}, error) {
 		currentClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, nil)
@@ -595,14 +595,18 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 				reason := conditions.GetReason(currentClusterInfo.ClusterObject, capi.ReadyCondition)
 				message := conditions.GetMessage(currentClusterInfo.ClusterObject, capi.ReadyCondition)
 				maxTimeoutCounter++
-				if errorRetry < maxErrorRetry {
-					errorRetry++
-					return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
+				if errorRetry >= maxErrorRetry {
+					return true, errors.Errorf("cluster creation failed, reason:'%s', message:'%s'",
+						reason,
+						message)
 				}
-				return true, errors.Errorf("cluster creation failed, reason:'%s', message:'%s'",
-					reason,
-					message)
+				if !(strings.Contains(message, "context deadline exceeded") || strings.Contains(message, "context canceled")) {
+					errorRetry++
+				}
+				return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
 			}
+			// reset errorRetry to 0 if recover from last error
+			errorRetry = 0
 			// Could have checked cluster's ReadyCondition is True which is currently aggregation of ControlPlaneReadyCondition
 			// and InfrastructureReadyCondition, however in future if capi adds WorkersReadyCondition into aggregation, it would
 			// hold this method to wait till the workers are also ready which is not necessary for getting kubeconfig secret
@@ -981,7 +985,7 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 	maxTimeout := 3 * c.operationTimeout
 	maxTimeoutCounter := 0
 	errorRetry := 0
-	maxErrorRetry := 3
+	maxErrorRetry := 20
 
 	getterFunc := func() (interface{}, error) {
 		curClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, workloadClusterClient)
@@ -993,14 +997,18 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 			reason := conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition)
 			message := conditions.GetMessage(curClusterInfo.ClusterObject, capi.ReadyCondition)
 			maxTimeoutCounter++
-			if errorRetry < maxErrorRetry {
-				errorRetry++
-				return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
+			if errorRetry >= maxErrorRetry {
+				return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s'",
+					reason,
+					message)
 			}
-			return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s'",
-				reason,
-				message)
+			if !(strings.Contains(message, "context deadline exceeded") || strings.Contains(message, "context canceled")) {
+				errorRetry++
+			}
+			return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
 		}
+		// reset errorRetry to 0 if recover from last error
+		errorRetry = 0
 		err = verifyKubernetesUpgradeFunc(&curClusterInfo, newK8sVersion)
 		if err == nil {
 			return false, nil
