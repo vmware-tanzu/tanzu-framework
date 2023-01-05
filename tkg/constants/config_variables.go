@@ -274,6 +274,8 @@ const (
 	ConfigVariableAviCloudName                           = "AVI_CLOUD_NAME"
 	ConfigVariableAviServiceEngineGroup                  = "AVI_SERVICE_ENGINE_GROUP"
 	ConfigVariableAviManagementClusterServiceEngineGroup = "AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP"
+	ConfigVariableAviLabels                              = "AVI_LABELS"
+	ConfigVariableAviNSXTT1Router                        = "AVI_NSXT_T1LR"
 
 	ConfigVariableAviDataPlaneNetworkName    = "AVI_DATA_NETWORK"
 	ConfigVariableAviDataPlaneNetworkCIDR    = "AVI_DATA_NETWORK_CIDR"

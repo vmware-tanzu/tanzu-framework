@@ -134,8 +134,8 @@ type AkoOperatorPackageValues struct {
 
 // NodeNetwork
 type NodeNetwork struct {
-	NetworkName string   `yaml:"networkName,omitempty"`
-	Cidrs       []string `yaml:"cidrs,omitempty"`
+	NetworkName string   `yaml:"networkName,omitempty" json:"networkName,omitempty"`
+	Cidrs       []string `yaml:"cidrs,omitempty" json:"cidrs,omitempty"`
 }
 
 // AkoOperatorConfig
@@ -156,6 +156,8 @@ type AkoOperatorConfig struct {
 	AviManagementClusterDataPlaneNetworkCIDR       string `yaml:"avi_management_cluster_vip_network_cidr,omitempty"`
 	AviManagementClusterControlPlaneVipNetworkName string `yaml:"avi_management_cluster_control_plane_vip_network_name,omitempty"`
 	AviManagementClusterControlPlaneVipNetworkCIDR string `yaml:"avi_management_cluster_control_plane_vip_network_cidr,omitempty"`
+	AviLabels                                      string `yaml:"avi_labels,omitempty"`
+	AviNSXTT1Router                                string `yaml:"avi_nsxt_t1_lr,omitempty"`
 	AviControlPlaneHaProvider                      bool   `yaml:"avi_control_plane_ha_provider,omitempty"`
 	AviIngressNodeNetworkList                      string `yaml:"avi_ingress_node_network_list,omitempty"`
 }
