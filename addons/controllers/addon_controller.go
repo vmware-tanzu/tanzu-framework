@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -558,7 +559,7 @@ func (r *AddonReconciler) GetAddonKappResourceReconciler(
 }
 
 // GetExternalCRDs returns all external custom resources that addon controller depends on
-func GetExternalCRDs() map[schema.GroupVersion]*sets.String {
+func GetExternalCRDs() (map[schema.GroupVersion]*sets.String, []client.Object) {
 	var crds = map[schema.GroupVersion]*sets.String{}
 	// cluster-api
 	clusterapiv1alpha3Resources := sets.NewString("clusters")
@@ -578,5 +579,40 @@ func GetExternalCRDs() map[schema.GroupVersion]*sets.String {
 	kapppkgv1alpha1Resources := sets.NewString("packageinstalls", "packagerepositories")
 	crds[kapppkg.SchemeGroupVersion] = &kapppkgv1alpha1Resources
 
-	return crds
+	// Add CustomResourceDefinition for the above apis
+	clusterCRD := &apiextensionsv1.CustomResourceDefinition{
+		ObjectMeta: metav1.ObjectMeta{Name: "clusters.cluster.x-k8s.io"},
+		Spec:       apiextensionsv1.CustomResourceDefinitionSpec{Group: "cluster.x-k8s.io", Versions: []apiextensionsv1.CustomResourceDefinitionVersion{{Name: "v1beta1"}}},
+	}
+
+	kubeadmcontrolplaneCRD := &apiextensionsv1.CustomResourceDefinition{
+		ObjectMeta: metav1.ObjectMeta{Name: "kubeadmcontrolplanes.controlplane.cluster.x-k8s.io"},
+	}
+
+	PackageInstallCRD := &apiextensionsv1.CustomResourceDefinition{
+		ObjectMeta: metav1.ObjectMeta{Name: "packageinstalls.packaging.carvel.dev"},
+	}
+
+	tanzukubernetesreleaseCRD := &apiextensionsv1.CustomResourceDefinition{
+		ObjectMeta: metav1.ObjectMeta{Name: "tanzukubernetesreleases.run.tanzu.vmware.com"},
+	}
+
+	packagerepositorieCRD := &apiextensionsv1.CustomResourceDefinition{
+		ObjectMeta: metav1.ObjectMeta{Name: "packagerepositories.packaging.carvel.dev"},
+	}
+
+	appCRD := &apiextensionsv1.CustomResourceDefinition{
+		ObjectMeta: metav1.ObjectMeta{Name: "apps.kappctrl.k14s.io"},
+	}
+
+	initObjs := []client.Object{
+		clusterCRD.DeepCopy(),
+		kubeadmcontrolplaneCRD.DeepCopy(),
+		PackageInstallCRD.DeepCopy(),
+		tanzukubernetesreleaseCRD.DeepCopy(),
+		packagerepositorieCRD.DeepCopy(),
+		appCRD.DeepCopy(),
+	}
+
+	return crds, initObjs
 }
