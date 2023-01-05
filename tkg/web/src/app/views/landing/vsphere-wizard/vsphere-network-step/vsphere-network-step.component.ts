@@ -1,6 +1,10 @@
 // Angular imports
 import { Component } from '@angular/core';
 import { Validators } from '@angular/forms';
+
+// Library imports
+import * as sortPaths from 'sort-paths';
+
 // App imports
 import AppServices from '../../../../shared/service/appServices';
 import { NetworkField } from '../../wizard/shared/components/steps/network-step/network-step.fieldmapping';
@@ -12,7 +16,6 @@ import { VsphereField } from '../vsphere-wizard.constants';
 import { VSphereNetwork } from '../../../../swagger/models';
 import { VsphereNetworkFieldMappings } from './vsphere-network-step.fieldmapping';
 
-declare var sortPaths: any;
 @Component({
     selector: 'app-vsphere-network-step',
     templateUrl: '../../wizard/shared/components/steps/network-step/network-step.component.html',
