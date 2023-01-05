@@ -3,8 +3,7 @@
 ---
 
 metadata:
-  infraProvider: "vsphere"
-  tkrVersion: ""
+  infraProvider: ""
 #! User configurable values for VSPHERE_STORAGE_CLASS_ID
 
 VSPHERE_STORAGE_POLICY_ID: ""
