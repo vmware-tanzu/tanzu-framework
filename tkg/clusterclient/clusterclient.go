@@ -595,6 +595,11 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 				reason := conditions.GetReason(currentClusterInfo.ClusterObject, capi.ReadyCondition)
 				message := conditions.GetMessage(currentClusterInfo.ClusterObject, capi.ReadyCondition)
 				maxTimeoutCounter++
+				if interval*time.Duration(maxTimeoutCounter) > maxTimeout {
+					return true, errors.Errorf("timed out waiting for cluster creation, reason:'%s', message:'%s'",
+						reason,
+						message)
+				}
 				if errorRetry >= maxErrorRetry {
 					return true, errors.Errorf("cluster creation failed, reason:'%s', message:'%s'",
 						reason,
@@ -997,6 +1002,11 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 			reason := conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition)
 			message := conditions.GetMessage(curClusterInfo.ClusterObject, capi.ReadyCondition)
 			maxTimeoutCounter++
+			if interval*time.Duration(maxTimeoutCounter) > maxTimeout {
+				return true, errors.Errorf("timed out waiting for kubernetes version update, reason:'%s', message:'%s'",
+					reason,
+					message)
+			}
 			if errorRetry >= maxErrorRetry {
 				return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s'",
 					reason,
