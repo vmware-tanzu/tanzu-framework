@@ -102,6 +102,9 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 		},
 		CoreManagementPluginsPackage: CoreManagementPluginsPackage{
 			VersionConstraints: managementPackageVersion,
+			CoreManagementPluginsPackageValue: CoreManagementPluginsPackageValue{
+				DeployCLIPluginCRD: false,
+			},
 		},
 	}
 
