@@ -8,7 +8,6 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 // ScaleClusterOptions options that can be passed while scaling a cluster
@@ -43,7 +42,5 @@ func (t *tkgctl) ScaleCluster(options ScaleClusterOptions) error {
 	if err != nil {
 		return err
 	}
-
-	log.Infof("Workload cluster '%s' is being scaled\n", scaleClusterOptions.ClusterName)
 	return nil
 }
