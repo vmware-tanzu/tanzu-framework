@@ -83,11 +83,11 @@ data:
             imagePath: azure-cloud-node-manager
             tag: v0.7.4_vmware.1
       cluster-api-provider-azure:
-      - version: v1.5.3+vmware.1
+      - version: v1.6.1+vmware.1
         images:
           capzControllerImage:
             imagePath: cluster-api/cluster-api-azure-controller
-            tag: v1.5.3_vmware.1
+            tag: v1.6.1_vmware.1
       cluster-api-provider-bringyourownhost:
       - version: v0.2.0+vmware.4
         images:
