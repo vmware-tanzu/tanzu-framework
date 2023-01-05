@@ -217,7 +217,9 @@ func main() {
 		PollInterval: constants.CRDWaitPollInterval,
 		PollTimeout:  constants.CRDWaitPollTimeout,
 	}
-	if err := crdwaiter.WaitForCRDs(controllers.GetExternalCRDs(),
+
+	crds, _ := controllers.GetExternalCRDs()
+	if err := crdwaiter.WaitForCRDs(crds,
 		&corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: os.Getenv("POD_NAME"), Namespace: os.Getenv("POD_NAMESPACE")}},
 		constants.AddonControllerName,
 	); err != nil {
