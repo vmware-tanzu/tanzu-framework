@@ -1,9 +1,8 @@
 load("@ytt:data", "data")
 load("@ytt:overlay", "overlay")
 load("@ytt:yaml", "yaml")
-load("/lib/helpers.star", "get_default_tkg_bom_data")
-load("/lib/helpers.star", "get_labels_array_from_string")
-load("/lib/helpers.star", "get_extra_args_map_from_string")
+load("/lib/helpers.star", "get_default_tkg_bom_data", "get_labels_array_from_string", "get_extra_args_map_from_string")
+load("/lib/helpers.star",  "get_custom_keys", "valid_pci_devices_list", "get_pci_devices")
 
 #! This file contains function 'config_variable_association' which specifies all configuration variables
 #! mentioned in 'config_default.yaml' and describes association of each configuration variable with
@@ -60,6 +59,13 @@ return {
 "VSPHERE_INSECURE": ["vsphere"],
 "VSPHERE_CONTROL_PLANE_ENDPOINT": ["vsphere"],
 "VSPHERE_CONTROL_PLANE_ENDPOINT_PORT": ["vsphere"],
+"VSPHERE_WORKER_PCI_DEVICES": ["vsphere"],
+"VSPHERE_CONTROL_PLANE_PCI_DEVICES": ["vsphere"],
+"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST": ["vsphere"],
+"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS": ["vsphere"],
+"VSPHERE_WORKER_CUSTOM_VMX_KEYS": ["vsphere"],
+"VSPHERE_CONTROL_PLANE_HARDWARE_VERSION": ["vsphere"],
+"VSPHERE_WORKER_HARDWARE_VERSION": ["vsphere"],
 
 "NSXT_POD_ROUTING_ENABLED": ["vsphere"],
 "NSXT_ROUTER_PATH": ["vsphere"],
@@ -896,6 +902,9 @@ def get_vsphere_vars():
     if data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"] != "":
         machine["memoryMiB"] = data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"]
     end
+    if data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"] != None:
+        machine["customVMXKeys"] = get_custom_keys(data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"])
+    end
     if machine != {}:
         controlPlane["machine"] = machine
     end
@@ -932,6 +941,9 @@ def get_vsphere_vars():
     end
     if data.values["VSPHERE_WORKER_MEM_MIB"] != "":
         machine["memoryMiB"] = data.values["VSPHERE_WORKER_MEM_MIB"]
+    end
+    if data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"] != None:
+        machine["customVMXKeys"] = get_custom_keys(data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"])
     end
     if machine != {}:
         worker["machine"] = machine
@@ -970,6 +982,33 @@ def get_vsphere_vars():
     end
     if customTDNFRepository != {}:
         vars["customTDNFRepository"] = customTDNFRepository
+    end
+
+    pci = {}
+    pciControlPlane = {}
+    if data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"] != None:
+        pciControlPlane["devices"] = get_pci_devices(data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"], data.values["VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"])
+    end
+    if data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"] != None:
+        pciControlPlane["hardwareVersion"] = data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"]
+    end
+    if pciControlPlane != {}:
+        pci["controlPlane"] = pciControlPlane
+    end
+
+    pciWorker = {}
+    if data.values["VSPHERE_WORKER_PCI_DEVICES"] != None:
+        pciWorker["devices"] = get_pci_devices(data.values["VSPHERE_WORKER_PCI_DEVICES"], data.values["VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"])
+    end
+    if data.values["VSPHERE_WORKER_HARDWARE_VERSION"] != None:
+        pciWorker["hardwareVersion"] = data.values["VSPHERE_WORKER_HARDWARE_VERSION"]
+    end
+    if pciWorker != {}:
+        pci["worker"] = pciWorker
+    end
+
+    if pci != {}:
+        vars["pci"] = pci
     end
 
     return vars
