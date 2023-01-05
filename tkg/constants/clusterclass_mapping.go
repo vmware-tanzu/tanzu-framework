@@ -232,6 +232,9 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	"spec.topology.variables.worker.machine.numCPUs":     ConfigVariableVsphereWorkerNumCpus,  // VSPHERE_WORKER_NUM_CPUS
 	"spec.topology.variables.worker.network.nameservers": ConfigVariableWorkerNodeNameservers, // WORKER_NODE_NAMESERVERS
 
+	"spec.topology.variables.pci.controlPlane.hardwareVersion": ConfigVariableVSphereControlPlaneHardwareVersion, // VSPHERE_CONTROL_PLANE_HARDWARE_VERSION
+	"spec.topology.variables.pci.worker.hardwareVersion":       ConfigVariableVSphereWorkerHardwareVersion,       // VSPHERE_WORKER_HARDWARE_VERSION
+
 	TopologyWorkersMachineDeploymentsClass0:         "",
 	TopologyWorkersMachineDeploymentsName0:          "",
 	TopologyWorkersMachineDeploymentsReplicas0:      ConfigVariableWorkerMachineCount,
