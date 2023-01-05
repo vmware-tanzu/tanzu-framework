@@ -385,16 +385,20 @@ func processYamlObjectArrayInterfaceType(value []interface{}, clusterAttributePa
 				varName := nameValueMap["name"]
 				varValue := nameValueMap["value"]
 				nextLevelName := clusterAttributePath + "." + varName.(string)
-				// The attribute path "spec.topology.variables.trust.*" has value of type array, each array element is of type map, map has keys - "name" and "data",
-				// need to process "spec.topology.variables.trust."+ (value of "name") as attribute path and value of "data" next level value, process it again.
+				// The attribute path "spec.topology.variables.trust.additionalTrustedCAs.*" has value of type array, each array element is of type map, map has keys - "name" and "data",
+				// need to process "spec.topology.variables.trust.additionalTrustedCAs."+ (value of "name") as attribute path and value of "data" next level value, process it again.
 				if varName == "trust" {
-					trustValArr := varValue.([]interface{})
-					for trustIndex := range trustValArr {
-						trustName := trustValArr[trustIndex].(map[string]interface{})["name"].(string)
-						trustData := trustValArr[trustIndex].(map[string]interface{})["data"]
-						err = processYamlObjectAndAddToMap(trustData, nextLevelName+"."+trustName, inputVariablesMap)
-						if err != nil {
-							return err
+					trustVal := varValue.(map[string]interface{})
+					if cas, ok := trustVal["additionalTrustedCAs"]; ok {
+						additionalTrustedCAsVarArr := cas.([]interface{})
+						nextLevelName += ".additionalTrustedCAs"
+						for i := range additionalTrustedCAsVarArr {
+							certName := additionalTrustedCAsVarArr[i].(map[string]interface{})["name"].(string)
+							certData := additionalTrustedCAsVarArr[i].(map[string]interface{})["data"]
+							err = processYamlObjectAndAddToMap(certData, nextLevelName+"."+certName, inputVariablesMap)
+							if err != nil {
+								return err
+							}
 						}
 					}
 					continue // we are done processing "trust" variable, so process next variable
