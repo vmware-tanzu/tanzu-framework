@@ -5,6 +5,7 @@ import { Validators } from '@angular/forms';
 // Third party imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
+import * as sortPaths from 'sort-paths';
 import { ClrLoadingState } from '@clr/angular';
 // App imports
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
@@ -20,8 +21,6 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
 import { VsphereField } from "../vsphere-wizard.constants";
 import { VsphereProviderStepFieldMapping } from './vsphere-provider-step.fieldmapping';
-
-declare var sortPaths: any;
 
 const SupervisedField = [VsphereField.PROVIDER_VCENTER_ADDRESS, VsphereField.PROVIDER_USER_NAME, VsphereField.PROVIDER_USER_PASSWORD];
 

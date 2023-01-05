@@ -1,6 +1,10 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
+
+// Library imports
+import * as sortPaths from 'sort-paths';
+
 // App imports
 import AppServices from '../../../../shared/service/appServices';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
@@ -11,8 +15,6 @@ import { VsphereField } from "../vsphere-wizard.constants";
 import { VSphereFolder } from '../../../../swagger/models/v-sphere-folder.model';
 import { VSphereResourcePool } from '../../../../swagger/models';
 import { VsphereResourceStepMapping } from './resource-step.fieldmapping';
-
-declare var sortPaths: any;
 
 export interface ResourcePool {
     moid?: string;

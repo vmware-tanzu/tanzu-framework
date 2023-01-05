@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
 
@@ -65,6 +67,7 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 		TKGConfigUpdater:         allClients.TKGConfigUpdaterClient,
 		TKGPathsClient:           allClients.TKGConfigPathsClient,
 		ClusterClientFactory:     clusterclient.NewClusterClientFactory(),
+		VcClientFactory:          vc.NewVcClientFactory(),
 		FeatureFlagClient:        getFeatureFlagClient(),
 	})
 	if err != nil {
