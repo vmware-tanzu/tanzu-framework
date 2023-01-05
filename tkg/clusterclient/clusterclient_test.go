@@ -170,7 +170,7 @@ var _ = Describe("Cluster Client", func() {
 			return getterFunc()
 		})
 		poller.PollImmediateInfiniteWithGetterCalls(func(interval time.Duration, getterFunc GetterFunc) error {
-			pollMaxRetry := 10
+			pollMaxRetry := 40
 			timeout, err := getterFunc()
 			for i := 0; i <= pollMaxRetry; i++ {
 				timeoutBool := timeout.(bool)
