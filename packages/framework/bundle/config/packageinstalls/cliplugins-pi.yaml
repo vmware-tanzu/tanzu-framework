@@ -21,3 +21,18 @@ spec:
       #@ if data.values.clipluginsPackageValues.versionConstraints:
       constraints: #@ data.values.clipluginsPackageValues.versionConstraints
       #@ end
+  values:
+    - secretRef:
+        name: tanzu-cliplugins-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tanzu-cliplugins-values
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting cliplugins-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting cliplugins-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.clipluginsPackageValues)

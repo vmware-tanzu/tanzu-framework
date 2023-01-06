@@ -61,6 +61,7 @@ frameworkPackage:
   clipluginsPackageValues:
     namespace: tkg-system
     versionConstraints:
+    deployCLIPluginCRD: false
   tanzuAuthPackageValues:
     namespace: tanzu-auth
     versionConstraints:
@@ -101,8 +102,6 @@ tkrSourceControllerPackage:
 coreManagementPluginsPackage:
   namespaceForPackageInstallation: tkg-system
   versionConstraints:
-  coreManagementPluginsPackageValues:
-    deployCLIPluginCRD: false
 
 akoOperatorPackage:
   akoOperator:
