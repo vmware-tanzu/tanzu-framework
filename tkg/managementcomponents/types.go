@@ -79,7 +79,6 @@ type CoreManagementPluginsPackage struct {
 }
 
 type CoreManagementPluginsPackageValue struct {
-	DeployCLIPluginCRD bool `yaml:"deployCLIPluginCRD,omitempty"`
 }
 
 type AddonsManagerPackageValues struct {
