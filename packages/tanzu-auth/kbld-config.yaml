@@ -2,4 +2,4 @@ apiVersion: kbld.k14s.io/v1alpha1
 kind: Config
 overrides:
 - image: tanzu-auth-controller-manager:latest
-  newImage: ""
+  newImage: us-east4-docker.pkg.dev/stone-poetry-490/tkg/tanzu-auth-controller-manager:v0.28.0-dev

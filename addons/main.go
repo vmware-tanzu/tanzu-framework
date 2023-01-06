@@ -182,23 +182,6 @@ func main() {
 		}()
 	}
 
-	crdwaiter := crdwait.CRDWaiter{
-		Ctx: ctx,
-		ClientSetFn: func() (kubernetes.Interface, error) {
-			return kubernetes.NewForConfig(ctrl.GetConfigOrDie())
-		},
-		Logger:       setupLog,
-		Scheme:       scheme,
-		PollInterval: constants.CRDWaitPollInterval,
-		PollTimeout:  constants.CRDWaitPollTimeout,
-	}
-	if err := crdwaiter.WaitForCRDs(controllers.GetExternalCRDs(),
-		&corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: os.Getenv("POD_NAME"), Namespace: os.Getenv("POD_NAMESPACE")}},
-		constants.AddonControllerName,
-	); err != nil {
-		setupLog.Error(err, "unable to wait for CRDs")
-		os.Exit(1)
-	}
 	if flags.featureGateClusterBootstrap {
 		if err := os.MkdirAll(constants.WebhookCertDir, 0755); err != nil {
 			setupLog.Error(err, "unable to create directory for webhook certificates", "directory", constants.WebhookCertDir)
@@ -218,6 +201,30 @@ func main() {
 		SyncPeriod:             &flags.syncPeriod,
 		HealthProbeBindAddress: flags.healthdAddr,
 	})
+
+	clientSet, err := kubernetes.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		setupLog.Error(err, "unable to create kubernetes clientset")
+		os.Exit(1)
+	}
+
+	crdwaiter := crdwait.CRDWaiter{
+		Ctx:          ctx,
+		APIReader:    mgr.GetAPIReader(),
+		ClientSet:    clientSet,
+		Logger:       setupLog,
+		Scheme:       scheme,
+		PollInterval: constants.CRDWaitPollInterval,
+		PollTimeout:  constants.CRDWaitPollTimeout,
+	}
+	if err := crdwaiter.WaitForCRDs(controllers.GetExternalCRDs(),
+		&corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: os.Getenv("POD_NAME"), Namespace: os.Getenv("POD_NAMESPACE")}},
+		constants.AddonControllerName,
+	); err != nil {
+		setupLog.Error(err, "unable to wait for CRDs")
+		os.Exit(1)
+	}
+
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)

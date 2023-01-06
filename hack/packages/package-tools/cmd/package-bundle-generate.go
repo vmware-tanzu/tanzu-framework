@@ -188,6 +188,8 @@ func generatePackageBundle(pkg *Package, projectRootDir, toolsBinDir, packageNam
 			filepath.Join(toolsBinDir, "imgpkg"),
 			"copy",
 			"-b", packageURL,
+			"--repo-based-tags",
+			"--resume",
 			"--to-tar", filepath.Join(tarBallPath, tarBallFileName),
 		) // #nosec G204
 		imgpkgCopyCmd.Stderr = &cmdErr

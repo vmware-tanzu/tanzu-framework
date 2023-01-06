@@ -18,6 +18,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/vsphere"
+	"k8s.io/klog/v2/klogr"
 )
 
 const trueString = "true"
@@ -158,7 +159,7 @@ func (app *App) GetVsphereOSImages(params vsphere.GetVSphereOSImagesParams) midd
 		return vsphere.NewGetVSphereOSImagesInternalServerError().WithPayload(Err(err))
 	}
 
-	defaultTKRBom, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).GetDefaultTkrBOMConfiguration()
+	defaultTKRBom, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("vsphere-os-handler")).GetDefaultTkrBOMConfiguration()
 	if err != nil {
 		return vsphere.NewGetVSphereOSImagesInternalServerError().WithPayload(Err(errors.Wrap(err, "unable to get the default TanzuKubernetesRelease")))
 	}

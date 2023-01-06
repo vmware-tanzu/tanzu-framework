@@ -309,6 +309,10 @@ func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterCl
 		if _, err := c.EncodeAWSCredentialsAndGetClient(regionalClusterClient); err != nil {
 			return errors.Wrap(err, "failed to encode AWS credentials")
 		}
+	case OracleProviderName:
+		if err := c.EncodeOracleCredentials(); err != nil {
+			return errors.Wrap(err, "failed to encode Oracle credentials")
+		}
 	case VSphereProviderName:
 		if err := c.configureVsphereCredentialsFromCluster(regionalClusterClient); err != nil {
 			return errors.Wrap(err, "failed to configure Vsphere credentials")

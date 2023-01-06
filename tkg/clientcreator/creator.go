@@ -18,6 +18,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
+	"github.com/go-logr/logr"
 )
 
 // Clients is a combination structure of clients
@@ -34,7 +35,7 @@ type Clients struct {
 }
 
 // CreateAllClients creates all clients and returns Clients struct
-func CreateAllClients(appConfig types.AppConfig, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (Clients, error) {
+func CreateAllClients(appConfig types.AppConfig, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter, log logr.Logger) (Clients, error) {
 	var err error
 	tkgConfigPathsClient := tkgconfigpaths.New(appConfig.TKGConfigDir)
 
@@ -58,9 +59,9 @@ func CreateAllClients(appConfig types.AppConfig, tkgConfigReaderWriter tkgconfig
 		return Clients{}, errors.Wrap(err, "unable to create tkg config Client")
 	}
 
-	tkgConfigUpdaterClient := tkgconfigupdater.New(appConfig.TKGConfigDir, appConfig.ProviderGetter, configClient.TKGConfigReaderWriter())
-	tkgBomClient := tkgconfigbom.New(appConfig.TKGConfigDir, configClient.TKGConfigReaderWriter())
-	tkgConfigProvidersClient := tkgconfigproviders.New(appConfig.TKGConfigDir, configClient.TKGConfigReaderWriter())
+	tkgConfigUpdaterClient := tkgconfigupdater.New(appConfig.TKGConfigDir, appConfig.ProviderGetter, configClient.TKGConfigReaderWriter(), log)
+	tkgBomClient := tkgconfigbom.New(appConfig.TKGConfigDir, configClient.TKGConfigReaderWriter(), log)
+	tkgConfigProvidersClient := tkgconfigproviders.New(appConfig.TKGConfigDir, configClient.TKGConfigReaderWriter(), log)
 
 	// Create clusterctl client
 	clusterctlClient, err := clusterctl.New("", clusterctl.InjectConfig(configClient.ClusterConfigClient()))

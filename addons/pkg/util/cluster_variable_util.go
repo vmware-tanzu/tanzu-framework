@@ -15,7 +15,7 @@ import (
 
 func ParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName string) (bool, error) {
 	var result interface{}
-	result, err := parseClusterVariable(cluster, variableName)
+	result, err := ParseClusterVariable(cluster, variableName)
 	if err != nil || result == nil {
 		return false, err
 	}
@@ -24,7 +24,7 @@ func ParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName s
 
 func ParseClusterVariableString(cluster *clusterapiv1beta1.Cluster, variableName string) (string, error) {
 	var result interface{}
-	result, err := parseClusterVariable(cluster, variableName)
+	result, err := ParseClusterVariable(cluster, variableName)
 	if err != nil || result == nil {
 		return "", err
 	}
@@ -34,7 +34,7 @@ func ParseClusterVariableString(cluster *clusterapiv1beta1.Cluster, variableName
 func ParseClusterVariableInterface(cluster *clusterapiv1beta1.Cluster, variableName, keyName string) (string, error) {
 	var result interface{}
 
-	result, err := parseClusterVariable(cluster, variableName)
+	result, err := ParseClusterVariable(cluster, variableName)
 	if err != nil || result == nil {
 		return "", err
 	}
@@ -51,7 +51,7 @@ func ParseClusterVariableInterface(cluster *clusterapiv1beta1.Cluster, variableN
 func ParseClusterVariableInterfaceArray(cluster *clusterapiv1beta1.Cluster, variableName, keyName string) ([]string, error) {
 	var result interface{}
 
-	result, err := parseClusterVariable(cluster, variableName)
+	result, err := ParseClusterVariable(cluster, variableName)
 	if err != nil || result == nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func ParseClusterVariableInterfaceArray(cluster *clusterapiv1beta1.Cluster, vari
 func ParseClusterVariableList(cluster *clusterapiv1beta1.Cluster, variableName string) (string, error) {
 	var result interface{}
 
-	result, err := parseClusterVariable(cluster, variableName)
+	result, err := ParseClusterVariable(cluster, variableName)
 	if err != nil || result == nil {
 		return "", err
 	}
@@ -95,7 +95,7 @@ func ParseClusterVariableCert(cluster *clusterapiv1beta1.Cluster, variableName, 
 	var result interface{}
 	var sb strings.Builder
 
-	result, err := parseClusterVariable(cluster, variableName)
+	result, err := ParseClusterVariable(cluster, variableName)
 	if err != nil || result == nil {
 		return "", err
 	}
@@ -120,7 +120,7 @@ func ParseClusterVariableCert(cluster *clusterapiv1beta1.Cluster, variableName, 
 	return base64.StdEncoding.EncodeToString([]byte(sb.String())), err
 }
 
-func parseClusterVariable(cluster *clusterapiv1beta1.Cluster, variableName string) (interface{}, error) {
+func ParseClusterVariable(cluster *clusterapiv1beta1.Cluster, variableName string) (interface{}, error) {
 	var (
 		clusterVariableValue interface{}
 		result               interface{}

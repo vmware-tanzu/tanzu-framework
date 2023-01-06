@@ -32,6 +32,7 @@ VENDIR_VERSION=v0.23.0
 VALE_VERSION=2.20.1
 GOLANGCI_LINT_VERSION=1.46.0
 K8S_VERSION=1.23.5
+IMGPKG_VERSION=v0.34.1
 
 # Host information.
 HOST_OS=$(shell go env GOOS)
@@ -155,7 +156,7 @@ $(VENDIR):
 imgpkg: $(IMGPKG) ## Download imgpkg
 $(IMGPKG):
 	mkdir -p $(BIN_DIR)
-	curl -LO https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/v0.11.0/imgpkg-$(HOST_OS)-$(HOST_ARCH)
+	curl -LO https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/$(IMGPKG_VERSION)/imgpkg-$(HOST_OS)-$(HOST_ARCH)
 	mv imgpkg-$(HOST_OS)-$(HOST_ARCH) $(@)
 	chmod a+x $(@)
 

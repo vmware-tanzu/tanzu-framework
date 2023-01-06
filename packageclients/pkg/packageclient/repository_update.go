@@ -25,7 +25,7 @@ func (p *pkgClient) UpdateRepositorySync(o *packagedatamodel.RepositoryOptions, 
 
 	go p.updateRepository(o, pp, operationType)
 
-	initialMsg := fmt.Sprintf("Updating package repository '%s'", o.RepositoryName)
+	initialMsg := fmt.Sprintf("Updating package repository '%s' from '%s'", o.RepositoryName, o.RepositoryURL)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
 		if err.Error() == packagedatamodel.ErrRepoNotExists {
 			log.Warningf("package repository '%s' does not exist in namespace '%s'", o.RepositoryName, o.Namespace)

@@ -4,3 +4,4 @@ hack/
 packages/
 docs/
 test/
+build/

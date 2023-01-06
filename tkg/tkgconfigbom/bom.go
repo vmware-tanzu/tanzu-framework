@@ -61,6 +61,7 @@ func (c *client) GetBOMConfigurationFromTkrVersion(tkrVersion string) (*BOMConfi
 // GetDefaultBOMConfiguration reads BOM file from ~/.tkg/bom/${TKGDefaultBOMFileName} location
 func (c *client) GetDefaultTkgBOMConfiguration() (*BOMConfiguration, error) {
 	bomFilePath, err := c.GetDefaultBoMFilePath()
+	log.V(6).Info("Loading BOM file from path: " + bomFilePath)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to find default TKG BOM file")
 	}
@@ -373,7 +374,7 @@ func GetTKRBOMImageTagNameFromTKRVersion(tkrVersion string) string {
 }
 
 var errorDownloadingDefaultBOMFiles = `failed to download the BOM file from image name '%s':%v
-If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s 
+If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s
 `
 
 // DownloadDefaultBOMFilesFromRegistry retrieves the bill of materials (BOM)
@@ -450,7 +451,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRepo string, bomRegistry
 }
 
 var errorDownloadingTKGCompatibilityFile = `failed to download the TKG Compatibility file from image name '%s':%v
-If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s 
+If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s
 `
 
 // DownloadTKGCompatibilityFileFromRegistry resolves the compatibility file
@@ -655,6 +656,7 @@ func (c *client) getDefaultBOMFileImagePathAndTagFromCompatabilityFile() (string
 
 // GetManagementPackageRepositoryImage returns management package repository image
 func (c *client) GetManagementPackageRepositoryImage() (string, error) {
+	log.V(9).Info("Reading tanzu-framework-management-packages from Default TKG BOM Configuration")
 	bomConfiguration, err := c.GetDefaultTkgBOMConfiguration()
 	if err != nil {
 		return "", err
@@ -664,7 +666,6 @@ func (c *client) GetManagementPackageRepositoryImage() (string, error) {
 	if !ok || len(tfmpComponent) == 0 {
 		return "", errors.New("unable to find 'tanzu-framework-management-packages' component in BoM file")
 	}
-
 	tfmprImage, ok := tfmpComponent[0].Images["tanzuFrameworkManagementPackageRepositoryImageUTKG"]
 	if !ok || tfmprImage == nil {
 		return "", errors.New("unable to find 'tanzuFrameworkManagementPackageRepositoryImageUTKG' image in BoM file")
@@ -699,7 +700,6 @@ func (c *client) GetKappControllerPackageImage() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	if tkrBomConfig == nil {
 		return "", errors.New("invalid BoM configuration")
 	}
@@ -723,5 +723,6 @@ func (c *client) GetKappControllerPackageImage() (string, error) {
 	}
 
 	kappControllerImage := fmt.Sprintf("%s/%s:%s", tkrBomConfig.ImageConfig.ImageRepository, kappControllerImageInfo.ImagePath, kappControllerImageInfo.Tag)
+	log.Info("kapp-controller package image", "image", kappControllerImage)
 	return kappControllerImage, nil
 }

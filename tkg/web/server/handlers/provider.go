@@ -10,11 +10,12 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/provider"
+	"k8s.io/klog/v2/klogr"
 )
 
 // GetProvider gets provider information
 func (app *App) GetProvider(params provider.GetProviderParams) middleware.Responder {
-	defaultTKRBom, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).GetDefaultTkrBOMConfiguration()
+	defaultTKRBom, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("provider-handler")).GetDefaultTkrBOMConfiguration()
 	if err != nil {
 		return provider.NewGetProviderInternalServerError().WithPayload(Err(errors.Wrap(err, "unable to get the default TanzuKubernetesRelease")))
 	}

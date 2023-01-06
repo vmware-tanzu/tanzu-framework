@@ -9,6 +9,7 @@ import (
 
 	oraclecore "github.com/oracle/oci-go-sdk/v49/core"
 	oracleidentity "github.com/oracle/oci-go-sdk/v49/identity"
+	oraclecommon "github.com/oracle/oci-go-sdk/v49/common"
 )
 
 // Client defines methods to access Oracle Cloud inventory
@@ -17,4 +18,6 @@ type Client interface {
 	ImportImageSync(ctx context.Context, displayName, compartment, image string) (*oraclecore.Image, error)
 	EnsureCompartmentExists(ctx context.Context, compartment string) (*oracleidentity.Compartment, error)
 	Region() (string, error)
+	Credentials() oraclecommon.ConfigurationProvider
+	IsUsingInstancePrincipal() (bool, error)
 }

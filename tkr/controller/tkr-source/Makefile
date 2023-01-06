@@ -3,7 +3,7 @@
 
 include ../../../common.mk
 
-IMG_DEFAULT_NAME := tkr-source-controller
+IMG_DEFAULT_NAME := tkr-source-controller-manager
 IMG_DEFAULT_TAG := latest
 IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
 

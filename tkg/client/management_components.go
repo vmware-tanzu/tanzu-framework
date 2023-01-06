@@ -106,23 +106,30 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 		return errors.Wrap(err, "unable to get management package repository image")
 	}
 
+	mlog := log.WithName("InstallOrUpgradeManagementComponents")
+
 	managementPackageVersion := ""
 
 	// Override management package repository image if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
 	mprImage := os.Getenv("_MANAGEMENT_PACKAGE_REPO_IMAGE")
+	mlog = mlog.WithValues("ENV_VAR__MANAGEMENT_PACKAGE_REPO_IMAGE", mprImage)
+	mpVersion := os.Getenv("ENV_VAR__MANAGEMENT_PACKAGE_VERSION")
+	mlog = mlog.WithValues("ENV_VAR__MANAGEMENT_PACKAGE_VERSION", mpVersion)
 	if mprImage != "" {
 		managementPackageRepoImage = mprImage
 	}
 
 	// Override the version to use for management packages if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
-	mpVersion := os.Getenv("_MANAGEMENT_PACKAGE_VERSION")
 	if mpVersion != "" {
 		managementPackageVersion = mpVersion
 	}
 
 	managementPackageVersion = strings.TrimLeft(managementPackageVersion, "v")
+
+	mlog = mlog.WithValues("managementPackageRepoImage", managementPackageRepoImage)
+	mlog = mlog.WithValues("managementPackageVersion", managementPackageVersion)
 
 	var addonsManagerPackageVersion string
 	if upgrade {
@@ -133,6 +140,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 	} else {
 		addonsManagerPackageVersion = managementPackageVersion
 		envDefinedVersion := os.Getenv("_ADDONS_MANAGER_PACKAGE_VERSION")
+		mlog = mlog.WithValues("ENV_VAR__ADDONS_MANAGER_PACKAGE_VERSION", envDefinedVersion)
 		if envDefinedVersion != "" {
 			addonsManagerPackageVersion = strings.TrimLeft(envDefinedVersion, "v")
 		}
@@ -148,6 +156,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 	if err != nil {
 		return err
 	}
+	mlog = mlog.WithValues("tkgPackageValuesFile", tkgPackageValuesFile)
 
 	managementcomponentsInstallOptions := managementcomponents.ManagementComponentsInstallOptions{
 		ClusterOptions: managementcomponents.ClusterOptions{
@@ -160,6 +169,8 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(mcClient clusterclient.
 			PackageInstallTimeout:      c.getPackageInstallTimeoutFromConfig(),
 		},
 	}
+
+	mlog.V(4).Info("Installing management components")
 
 	err = managementcomponents.InstallManagementComponents(mcClient, pkgClient, &managementcomponentsInstallOptions)
 

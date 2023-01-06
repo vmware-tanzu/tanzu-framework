@@ -1,5 +1,5 @@
 apiVersion: kbld.k14s.io/v1alpha1
 kind: Config
 overrides:
-  - image: tkr-source-controller:latest
-    newImage: ""
+- image: tkr-source-controller-manager:latest
+  newImage: us-east4-docker.pkg.dev/stone-poetry-490/tkg/tkr-source-controller-manager:v0.28.0-dev

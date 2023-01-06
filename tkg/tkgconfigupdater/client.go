@@ -7,6 +7,7 @@ package tkgconfigupdater
 import (
 	"gopkg.in/yaml.v3"
 
+	"github.com/go-logr/logr"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/providerinterface"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
@@ -19,18 +20,20 @@ type client struct {
 	tkgBomClient          tkgconfigbom.Client
 	providerGetter        providerinterface.ProviderInterface
 	tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter
+	log                   logr.Logger
 }
 
 // New creates new tkgconfig updater client
 func New(configDir string, providerGetter providerinterface.ProviderInterface,
-	tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) Client {
+	tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter, log logr.Logger) Client {
 
 	tkgconfigupdaterclient := &client{
 		configDir:             configDir,
 		tkgConfigPathsClient:  tkgconfigpaths.New(configDir),
-		tkgBomClient:          tkgconfigbom.New(configDir, tkgConfigReaderWriter),
+		tkgBomClient:          tkgconfigbom.New(configDir, tkgConfigReaderWriter, log),
 		providerGetter:        providerGetter,
 		tkgConfigReaderWriter: tkgConfigReaderWriter,
+		log:                   log,
 	}
 	return tkgconfigupdaterclient
 }

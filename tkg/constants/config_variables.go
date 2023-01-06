@@ -57,6 +57,14 @@ const (
 	ConfigVariableAWSSecurityGroupLb           = "AWS_SECURITY_GROUP_LB"
 	ConfigVariableAWSControlplaneOsDiskSizeGib = "AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB"
 
+	ConfigVariableOracleTenancyIDB64              = "OCI_TENANCY_ID_B64"
+	ConfigVariableOracleCredentialsFingerprintB64 = "OCI_CREDENTIALS_FINGERPRINT_B64"
+	ConfigVariableOracleCredentialsKeyB64         = "OCI_CREDENTIALS_KEY_B64"
+	ConfigVariableOracleUserIDB64                 = "OCI_USER_ID_B64"
+	ConfigVariableOracleRegionB64                 = "OCI_REGION_B64"
+	ConfigVariableOracleUseInstancePrincipalB64   = "OCI_USE_INSTANCE_PRINCIPAL_B64"
+	ConfigVariableOracleSSHPublicKeyB64           = "OCI_SSH_PUBLIC_KEY_B64"
+
 	ConfigVariableVsphereAz0                         = "VSPHERE_AZ_0"
 	ConfigVariableVsphereAz1                         = "VSPHERE_AZ_1"
 	ConfigVariableVsphereAz2                         = "VSPHERE_AZ_2"
@@ -241,7 +249,6 @@ const (
 	ConfigVariableOIDCIdentiryProviderClientSecret = "OIDC_IDENTITY_PROVIDER_CLIENT_SECRET" //nolint:gosec
 
 	// Config variables for image tags used for provider installation
-	ConfigVariableInternalKubeRBACProxyImageTag             = "KUBE_RBAC_PROXY_IMAGE_TAG"
 	ConfigVariableInternalCABPKControllerImageTag           = "CABPK_CONTROLLER_IMAGE_TAG"
 	ConfigVariableInternalCAPIControllerImageTag            = "CAPI_CONTROLLER_IMAGE_TAG"
 	ConfigVariableInternalKCPControllerImageTag             = "KCP_CONTROLLER_IMAGE_TAG"

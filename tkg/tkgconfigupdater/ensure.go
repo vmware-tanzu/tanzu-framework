@@ -46,6 +46,7 @@ var KeysToNeverPersist = []string{
 	constants.ConfigVariableAWSSecretAccessKey,
 	constants.ConfigVariableAWSSessionToken,
 	constants.ConfigVariableAWSB64Credentials,
+	constants.ConfigVariableOracleCredentialsKeyB64,
 }
 
 // DefaultConfigMap default configuration map

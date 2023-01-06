@@ -26,6 +26,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/azure"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/docker"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/vsphere"
+	"k8s.io/klog/v2/klogr"
 )
 
 // infrastructure name constants
@@ -40,7 +41,7 @@ const sleepTimeForLogsPropogation = 2 * time.Second
 
 // CreateVSphereRegionalCluster creates vSphere management cluster
 func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegionalClusterParams) middleware.Responder {
-	vsphereConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewVSphereConfig(params.Params)
+	vsphereConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("vsphere-init-handler")).NewVSphereConfig(params.Params)
 	if err != nil {
 		return vsphere.NewCreateVSphereRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -50,7 +51,7 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 		return vsphere.NewCreateVSphereRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter)
+	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter, klogr.New().WithName("clients-init-handler"))
 	if err != nil {
 		return vsphere.NewCreateVSphereRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -119,7 +120,7 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 		return aws.NewCreateAWSRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	awsConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAWSConfig(params.Params, encodedCreds)
+	awsConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("aws-init-handler")).NewAWSConfig(params.Params, encodedCreds)
 	if err != nil {
 		return aws.NewCreateAWSRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -129,7 +130,7 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 		return aws.NewCreateAWSRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter)
+	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter, klogr.New().WithName("clients-init-handler"))
 	if err != nil {
 		return aws.NewCreateAWSRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -200,7 +201,7 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 		return azure.NewCreateAzureRegionalClusterInternalServerError().WithPayload(Err(errors.New("azure client is not initialized properly")))
 	}
 
-	azureConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAzureConfig(params.Params)
+	azureConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("azure-init-handler")).NewAzureConfig(params.Params)
 	if err != nil {
 		return azure.NewCreateAzureRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -210,7 +211,7 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 		return azure.NewCreateAzureRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter)
+	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter, klogr.New().WithName("clients-init-handler"))
 	if err != nil {
 		return azure.NewCreateAzureRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -300,7 +301,7 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 
 // CreateDockerRegionalCluster creates docker management cluster
 func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalClusterParams) middleware.Responder {
-	dockerConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewDockerConfig(params.Params)
+	dockerConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter, klogr.New().WithName("docker-init-handler")).NewDockerConfig(params.Params)
 	if err != nil {
 		return docker.NewCreateDockerRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -310,7 +311,7 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 		return docker.NewCreateDockerRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter)
+	allClients, err := clientcreator.CreateAllClients(app.AppConfig, app.TKGConfigReaderWriter, klogr.New().WithName("clients-init-handler"))
 	if err != nil {
 		return docker.NewCreateDockerRegionalClusterInternalServerError().WithPayload(Err(err))
 	}

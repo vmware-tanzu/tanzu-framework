@@ -111,7 +111,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 		return nil, err
 	}
 
-	allClients, err := clientcreator.CreateAllClients(appConfig, nil)
+	allClients, err := clientcreator.CreateAllClients(appConfig, nil, log.GetLogr())
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func ensureTKGConfigFile(configDir string, providerGetter providerinterface.Prov
 		}
 	}()
 
-	_, err = tkgconfigupdater.New(configDir, providerGetter, nil).EnsureTKGConfigFile()
+	_, err = tkgconfigupdater.New(configDir, providerGetter, nil, log.GetLogr()).EnsureTKGConfigFile()
 	return err
 }
 

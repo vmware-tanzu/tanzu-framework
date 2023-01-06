@@ -400,22 +400,22 @@ def get_cluster_variables():
 
     if data.values["ENABLE_AUDIT_LOGGING"] != "":
         vars["auditLogging"] = {
-            "enabled": data.values["ENABLE_AUDIT_LOGGING"]
+            "enabled": data.values["ENABLE_AUDIT_LOGGING"],
         }
     end
 
-
     additionalTrustedCAs = []
+
     #! TKG_PROXY_CA_CERT has higher priority than TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
     if data.values["TKG_PROXY_CA_CERT"] != "":
         additionalTrustedCAs.append({
             "name": "proxy",
-            "data": data.values["TKG_PROXY_CA_CERT"]
+            "data": data.values["TKG_PROXY_CA_CERT"],
         })
     elif data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"] != "":
         additionalTrustedCAs.append({
             "name": "imageRepository",
-            "data": data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"]
+            "data": data.values["TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"],
         })
     end
     if len(additionalTrustedCAs) > 0:
@@ -450,6 +450,53 @@ def get_cluster_variables():
     end
 
     return vars
+
+end
+
+def get_oci_vars():
+    vars = get_cluster_variables()
+    simpleMapping = {}
+    simpleMapping["OCI_SSH_PUBLIC_KEY_B64"] = "sshPublicKeyBase64"
+    simpleMapping["OCI_COMPARTMENT_ID"] = "compartmentID"
+    simpleMapping["OCI_VOLUME_IN_TRANSIT_ENCRYPTION_ENABLED"] = "volumeInTransitEncryptionEnabled"
+
+
+    for key in simpleMapping:
+        if data.values[key] != None:
+            vars[simpleMapping[key]] = data.values[key]
+        end
+    end
+
+    vars["network"] = {
+        "vcnID": data.values["OCI_VCN_ID"],
+        "securityGroupIds": {
+            "controlPlaneEndpoint": data.values["OCI_CONTROL_PLANE_ENDPOINT_NSG_ID"],
+            "controlPlane": data.values["OCI_CONTROL_PLANE_NSG_ID"],
+            "workers": data.values["OCI_WORKERS_NSG_ID"],
+        },
+        "subnetIds": {
+            "controlPlaneEndpoint": data.values["OCI_CONTROL_PLANE_ENDPOINT_SUBNET_ID"],
+            "compute": data.values["OCI_COMPUTE_SUBNET_ID"],
+            "privateServices": data.values["OCI_PRIVATE_SERVICES_SUBNET_ID"],
+        },
+    }
+
+    vars["controlPlaneMachineSpec"] = {
+      "shape": data.values["OCI_CONTROL_PLANE_MACHINE_SHAPE"],
+      "oCpus": data.values["OCI_CONTROL_PLANE_MACHINE_OCPUS"]
+    }
+
+    vars["workerMachineSpec"] = {
+      "shape": data.values["OCI_WORKER_MACHINE_SHAPE"],
+      "oCpus": data.values["OCI_WORKER_MACHINE_OCPUS"]
+    }
+
+    if data.values["OCI_PUBLIC_SERVICES_SUBNET_ID"] != "":
+        vars["network"]["subnetIds"]["publicServices"] = data.values["OCI_PUBLIC_SERVICES_SUBNET_ID"]
+    end
+
+    return vars
+
 end
 
 def get_aws_vars():
@@ -465,9 +512,8 @@ def get_aws_vars():
         end
     end
 
-
     vars["bastion"] = {
-        "enabled": data.values["BASTION_HOST_ENABLED"]
+        "enabled": data.values["BASTION_HOST_ENABLED"],
     }
 
     if vars.get("network") == None:
@@ -656,6 +702,7 @@ def get_aws_vars():
     vars["controlPlane"] = controlPlane
 
     return vars
+
 end
 
 def get_azure_vars():
@@ -676,13 +723,13 @@ def get_azure_vars():
     end
 
     if data.values["AZURE_ENABLE_ACCELERATED_NETWORKING"] != "":
-        vars["acceleratedNetworking"] =  {
-            "enabled": data.values["AZURE_ENABLE_ACCELERATED_NETWORKING"]
+        vars["acceleratedNetworking"] = {
+            "enabled": data.values["AZURE_ENABLE_ACCELERATED_NETWORKING"],
         }
     end
     if data.values["AZURE_ENABLE_PRIVATE_CLUSTER"] != "":
         vars["privateCluster"] = {
-            "enabled": data.values["AZURE_ENABLE_PRIVATE_CLUSTER"]
+            "enabled": data.values["AZURE_ENABLE_PRIVATE_CLUSTER"],
         }
     end
 
@@ -696,7 +743,7 @@ def get_azure_vars():
     end
     if data.values["AZURE_VNET_CIDR"] != "":
         vnet["cidrBlocks"] = [
-            data.values["AZURE_VNET_CIDR"]
+            data.values["AZURE_VNET_CIDR"],
         ]
     end
     if data.values["AZURE_VNET_RESOURCE_GROUP"] != "":
@@ -848,6 +895,7 @@ def get_azure_vars():
     end
 
     return vars
+
 end
 
 def get_vsphere_vars():
@@ -889,7 +937,7 @@ def get_vsphere_vars():
 
     if data.values["VSPHERE_SSH_AUTHORIZED_KEY"] != None:
         vars["user"] = {
-            "sshAuthorizedKeys": [data.values["VSPHERE_SSH_AUTHORIZED_KEY"]]
+            "sshAuthorizedKeys": [data.values["VSPHERE_SSH_AUTHORIZED_KEY"]],
         }
     end
 
@@ -992,64 +1040,5 @@ def get_vsphere_vars():
     end
 
     return vars
+
 end
-
-def get_oci_vars():
-
-    simpleMapping = {}
-    simpleMapping["OCI_COMPARTMENT_ID"] = "compartmentId"
-    simpleMapping["OCI_SSH_KEY"] = "sshKey"
-    simpleMapping["OCI_NODE_MACHINE_TYPE"] = "nodeMachineShape"
-    simpleMapping["OCI_NODE_MACHINE_TYPE_OCPUS"] = "nodeMachineOcpus"
-    simpleMapping["OCI_NODE_PV_TRANSIT_ENCRYPTION"] = "nodePvTransitEncryption"
-    simpleMapping["OCI_CONTROL_PLANE_MACHINE_TYPE"] = "controlPlaneMachineShape"
-    simpleMapping["OCI_CONTROL_PLANE_MACHINE_TYPE_OCPUS"] = "controlPlaneMachineOcpus"
-    simpleMapping["OCI_CONTROL_PLANE_PV_TRANSIT_ENCRYPTION"] = "controlPlanePvTransitEncryption"
-
-    simpleMapping["OCI_PRIVATE_SERVICE_SUBNET_ID"] = "privateServiceSubnetId"
-    simpleMapping["OCI_EXTERNAL_VCN_ID"] = "externalVCNId"
-    simpleMapping["OCI_EXTERNAL_CONTROL_PLANE_EP_NSG_ID"] = "externalControlPlaneEndpointNSGId"
-    simpleMapping["OCI_EXTERNAL_CONTROL_PLANE_NSG_ID"] = "externalControlPlaneNSGId"
-    simpleMapping["OCI_EXTERNAL_WORKER_NSG_ID"] = "externalWorkerNSGId"
-    simpleMapping["OCI_EXTERNAL_CONTROL_PLANE_EP_SUBNET_ID"] = "externalControlPlaneEndpointSubnetId"
-    simpleMapping["OCI_EXTERNAL_CONTROL_PLANE_SUBNET_ID"] = "externalControlPlaneSubnetId"
-    simpleMapping["OCI_EXTERNAL_WORKER_SUBNET_ID"] = "externalWorkerSubnetId"
-
-    vars = get_cluster_variables()
-
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
-    for key in simpleMapping:
-        if data.values[key] != None:
-            vars[simpleMapping[key]] = data.values[key]
-        end
-    end
-    return vars
-end
-
-oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus",
-        "privateServiceSubnetId", "externalVCNId",
-        "externalControlPlaneEndpointNSGId", "externalControlPlaneNSGId", "externalWorkerNSGId",
-        "externalControlPlaneEndpointSubnetId", "externalControlPlaneSubnetId", "externalWorkerSubnetId",
-        "nodePvTransitEncryption", "controlPlaneMachineShape", "controlPlaneMachineOcpus",
-        "controlPlanePvTransitEncryption",
-        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
-        "controlPlaneCertificateRotation", "podSecurityStandard", "workerKubeletExtraArgs", "controlPlaneKubeletExtraArgs",
-        "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs"]
