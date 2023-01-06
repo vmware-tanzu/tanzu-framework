@@ -358,5 +358,5 @@ spec:
     name: #@ "{}-identity-secret".format(data.values.CLUSTER_NAME)
     namespace: tkg-system
   tenantID: #@ data.values.AZURE_TENANT_ID
-  type: ServicePrincipal
+  type: ManualServicePrincipal
 #@ end
