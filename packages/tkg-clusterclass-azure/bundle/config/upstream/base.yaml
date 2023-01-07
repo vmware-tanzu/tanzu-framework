@@ -1726,7 +1726,8 @@ spec:
           scheduler:
             extraArgs: {}
           controllerManager:
-            extraArgs: {}
+            extraArgs:
+              configure-cloud-routes: "false"
             extraVolumes:
             - hostPath: /etc/kubernetes/azure.json
               mountPath: /etc/kubernetes/azure.json
