@@ -124,8 +124,7 @@ func (p *PublishImagesToTarOptions) DownloadTkgBomAndComponentImages() (string, 
 		for _, compInfo := range compInfos {
 			for _, imageInfo := range compInfo.Images {
 				sourceImageName = path.Join(p.TkgImageRepo, imageInfo.ImagePath) + ":" + imageInfo.Tag
-				imageInfo.ImagePath = imgpkginterface.ReplaceSlash(imageInfo.ImagePath)
-				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
+				tarname := imgpkginterface.ReplaceSlash(imageInfo.ImagePath) + "-" + imageInfo.Tag + ".tar"
 				tempImageDetails[tarname] = imageInfo.ImagePath
 				i := sourceImageName
 				j := tarname
@@ -236,8 +235,7 @@ func (p *PublishImagesToTarOptions) DownloadTkrBomAndComponentImages(tkrVersion 
 		for _, compInfo := range compInfos {
 			for _, imageInfo := range compInfo.Images {
 				sourceImageName = filepath.Join(p.TkgImageRepo, imageInfo.ImagePath) + ":" + imageInfo.Tag
-				imageInfo.ImagePath = imgpkginterface.ReplaceSlash(imageInfo.ImagePath)
-				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
+				tarname := imgpkginterface.ReplaceSlash(imageInfo.ImagePath) + "-" + imageInfo.Tag + ".tar"
 				tempImageDetails[tarname] = imageInfo.ImagePath
 				i := sourceImageName
 				j := tarname
