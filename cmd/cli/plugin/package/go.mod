@@ -29,7 +29,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
 	github.com/vmware-tanzu/carvel-kapp-controller v0.39.0
-	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20221214062743-6b0843a3db36
+	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20230106043644-ad24bdc3e412
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret v0.0.0-00010101000000-000000000000
