@@ -17,7 +17,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
-	github.com/vmware-tanzu/carvel-vendir v0.26.0
+	github.com/vmware-tanzu/carvel-vendir v0.32.2
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs v0.0.0-20220907220230-c1137d344dd3
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20220907220230-c1137d344dd3
 	github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd
