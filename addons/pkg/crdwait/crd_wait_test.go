@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -23,6 +24,8 @@ import (
 	"k8s.io/klog/v2/klogr"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	ctrlruntimefake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -30,6 +33,7 @@ import (
 )
 
 var fakeClientSet *fake.Clientset
+var fakeApiReader client.Reader
 
 var _ = Describe("WaitForCRDs", func() {
 
@@ -37,7 +41,10 @@ var _ = Describe("WaitForCRDs", func() {
 	var crdWaiter CRDWaiter
 	var fakeRecorder *record.FakeRecorder
 	scheme = runtime.NewScheme()
-	_ = clientgoscheme.AddToScheme(scheme)
+	err := clientgoscheme.AddToScheme(scheme)
+	Expect(err).ToNot(HaveOccurred())
+	err = apiextensionsv1.AddToScheme(scheme)
+	Expect(err).ToNot(HaveOccurred())
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "foo",
@@ -46,11 +53,16 @@ var _ = Describe("WaitForCRDs", func() {
 
 	BeforeEach(func() {
 		fakeClientSet = fake.NewSimpleClientset(pod)
+
+		initObjs := []client.Object{pod.DeepCopy()}
+		fakeApiReader := ctrlruntimefake.NewClientBuilder().WithScheme(scheme).WithObjects(initObjs...).Build()
+
 		crdWaiter = CRDWaiter{
-			Ctx:         ctx,
-			ClientSetFn: getFakeClientSet,
-			Logger:      klogr.New(),
-			Scheme:      scheme,
+			Ctx:       ctx,
+			ClientSet: fakeClientSet,
+			APIReader: fakeApiReader,
+			Logger:    klogr.New(),
+			Scheme:    scheme,
 		}
 		fakeRecorder = record.NewFakeRecorder(50)
 		crdWaiter.eventRecorder = fakeRecorder
@@ -95,8 +107,14 @@ var _ = Describe("WaitForCRDs", func() {
 			crdWaiter.PollInterval = time.Second
 			crdWaiter.PollTimeout = time.Second
 
-			Expect(crdWaiter.WaitForCRDs(crds, pod, "foo")).NotTo(HaveOccurred())
+			clusterCRD := &apiextensionsv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{Name: "clusters.cluster.x-k8s.io"},
+				Spec:       apiextensionsv1.CustomResourceDefinitionSpec{Group: "cluster.x-k8s.io", Versions: []apiextensionsv1.CustomResourceDefinitionVersion{{Name: "v1beta1"}}}}
 
+			initObjs := []client.Object{clusterCRD.DeepCopy(), pod.DeepCopy()}
+			crdWaiter.APIReader = ctrlruntimefake.NewClientBuilder().WithScheme(scheme).WithObjects(initObjs...).Build()
+
+			Expect(crdWaiter.WaitForCRDs(crds, pod, "foo")).NotTo(HaveOccurred())
 		})
 	})
 
@@ -138,6 +156,42 @@ var _ = Describe("WaitForCRDs", func() {
 			crdWaiter.PollInterval = time.Second
 			crdWaiter.PollTimeout = time.Second
 
+			clusterCRD := &apiextensionsv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{Name: "clusters.cluster.x-k8s.io"},
+				Spec:       apiextensionsv1.CustomResourceDefinitionSpec{Group: "cluster.x-k8s.io", Versions: []apiextensionsv1.CustomResourceDefinitionVersion{{Name: "v1beta1"}}},
+			}
+
+			kubeadmcontrolplaneCRD := &apiextensionsv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{Name: "kubeadmcontrolplanes.controlplane.cluster.x-k8s.io"},
+			}
+
+			PackageInstallCRD := &apiextensionsv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{Name: "packageinstalls.packaging.carvel.dev"},
+			}
+
+			tanzukubernetesreleaseCRD := &apiextensionsv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{Name: "tanzukubernetesreleases.run.tanzu.vmware.com"},
+			}
+
+			packagerepositorieCRD := &apiextensionsv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{Name: "packagerepositories.packaging.carvel.dev"},
+			}
+
+			appCRD := &apiextensionsv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{Name: "apps.kappctrl.k14s.io"},
+			}
+
+			initObjs := []client.Object{
+				clusterCRD.DeepCopy(),
+				kubeadmcontrolplaneCRD.DeepCopy(),
+				PackageInstallCRD.DeepCopy(),
+				tanzukubernetesreleaseCRD.DeepCopy(),
+				packagerepositorieCRD.DeepCopy(),
+				appCRD.DeepCopy(),
+				pod.DeepCopy(),
+			}
+			crdWaiter.APIReader = ctrlruntimefake.NewClientBuilder().WithScheme(scheme).WithObjects(initObjs...).Build()
+
 			Expect(crdWaiter.WaitForCRDs(getCRDs(), pod, "foo")).NotTo(HaveOccurred())
 		})
 	})
@@ -153,14 +207,28 @@ var _ = Describe("WaitForCRDs", func() {
 				return true, nil, nil
 			})
 
+			clusterCRD := &apiextensionsv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{Name: "clusters.cluster.x-k8s.io"},
+				Spec:       apiextensionsv1.CustomResourceDefinitionSpec{Group: "cluster.x-k8s.io", Versions: []apiextensionsv1.CustomResourceDefinitionVersion{{Name: "v1beta1"}}},
+			}
+			initObjs := []client.Object{clusterCRD.DeepCopy(), pod.DeepCopy()}
+			client := ctrlruntimefake.NewClientBuilder().WithScheme(scheme).WithObjects(initObjs...).Build()
+			err = client.Delete(ctx, clusterCRD)
+			Expect(err).ToNot(HaveOccurred())
+
 			go func() {
 				time.Sleep(time.Second * 3)
+
 				fakeClientSet.Resources = append(fakeClientSet.Resources,
 					&metav1.APIResourceList{GroupVersion: clusterapiv1beta1.GroupVersion.String(),
 						APIResources: []metav1.APIResource{
 							{Name: "clusters", Namespaced: true, Kind: "Cluster"},
 						},
 					})
+
+				err = client.Create(ctx, clusterCRD)
+				Expect(err).ToNot(HaveOccurred())
+				crdWaiter.APIReader = client
 			}()
 
 			crdWaiter.PollInterval = time.Second
@@ -182,29 +250,7 @@ var _ = Describe("WaitForCRDs", func() {
 			crdWaiter.PollTimeout = time.Second * 2
 
 			Expect(crdWaiter.WaitForCRDs(crds, pod, "foo")).To(HaveOccurred())
-			Expect(<-fakeRecorder.Events).To(ContainSubstring(fmt.Sprintf("The GroupVersion '%s' is not available yet", clusterapiv1beta1.GroupVersion.String())))
-
-		})
-	})
-
-	Context("when GroupVersion exists but not all api-resources exist ", func() {
-		It("should fail and emit events for missing api-resources", func() {
-			var crds = map[schema.GroupVersion]*sets.String{}
-			// cluster-api
-			clusterapiv1alpha3Resources := sets.NewString("clusters")
-			crds[clusterapiv1beta1.GroupVersion] = &clusterapiv1alpha3Resources
-
-			fakeClientSet.Resources = append(fakeClientSet.Resources,
-				&metav1.APIResourceList{GroupVersion: clusterapiv1beta1.GroupVersion.String(),
-					APIResources: []metav1.APIResource{
-						{Name: "foo", Namespaced: true, Kind: "Cluster"},
-					},
-				})
-			crdWaiter.PollInterval = time.Second
-			crdWaiter.PollTimeout = time.Second * 2
-
-			Expect(crdWaiter.WaitForCRDs(crds, pod, "foo")).To(HaveOccurred())
-			Expect(<-fakeRecorder.Events).To(ContainSubstring(fmt.Sprintf("The api-resources '[clusters]' in GroupVersion '%s' are not available yet", clusterapiv1beta1.GroupVersion.String())))
+			Expect(<-fakeRecorder.Events).To(ContainSubstring(fmt.Sprintf("The CRD 'clusters.cluster.x-k8s.io' is not available yet")))
 
 		})
 	})
