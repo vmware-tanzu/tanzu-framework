@@ -214,6 +214,8 @@ return {
 
 "CUSTOM_TDNF_REPOSITORY_CERTIFICATE": ["vsphere"],
 
+"WORKER_ROLLOUT_STRATEGY": ["vsphere", "aws", "azure", "docker", "oci"],
+
 "TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker", "oci"],
 
 "ENABLE_AUDIT_LOGGING": ["vsphere", "aws", "azure", "docker", "oci"],

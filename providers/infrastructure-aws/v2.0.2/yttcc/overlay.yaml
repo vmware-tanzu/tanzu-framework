@@ -1,6 +1,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region", "get_default_tkg_bom_data","get_tkr_version_from_tkr_name")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region", "get_default_tkg_bom_data","get_tkr_version_from_tkr_name", "verify_and_configure_machine_deployment_rollout_strategy")
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("/lib/config_variable_association.star", "config_variable_association", "get_cluster_variables", "get_aws_vars")
 
@@ -63,6 +63,10 @@ spec:
         replicas: #@ data.values.WORKER_MACHINE_COUNT_0
         #@overlay/match missing_ok=True
         failureDomain: #@ default_az_0
+        #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+        strategy:
+          type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+        #@ end
         metadata:
           annotations:
             #! VVV TODO(tenczar) os-version handling (also handle empty values?)
@@ -73,6 +77,10 @@ spec:
         name: md-1
         replicas: #@ data.values.WORKER_MACHINE_COUNT_1
         failureDomain: #@ default_az_1
+        #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+        strategy:
+          type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+        #@ end
         metadata:
           annotations:
             #! VVV TODO(tenczar) os-version handling (also handle empty values?)
@@ -91,6 +99,10 @@ spec:
         name: md-2
         replicas: #@ data.values.WORKER_MACHINE_COUNT_2
         failureDomain: #@ default_az_2
+        #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+        strategy:
+          type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+        #@ end
         metadata:
           annotations:
             #! VVV TODO(tenczar) os-version handling (also handle empty values?)

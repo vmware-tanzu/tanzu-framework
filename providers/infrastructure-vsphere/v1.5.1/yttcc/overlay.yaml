@@ -1,7 +1,7 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint","get_tkr_version_from_tkr_name")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint","get_tkr_version_from_tkr_name", "verify_and_configure_machine_deployment_rollout_strategy")
 
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
@@ -67,6 +67,10 @@ spec:
         #@overlay/match missing_ok=True
         failureDomain: #@ data.values.VSPHERE_AZ_0
         #@ end
+        #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+        strategy:
+          type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+        #@ end
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker
@@ -79,6 +83,10 @@ spec:
         #@ if data.values.VSPHERE_AZ_1:
         failureDomain: #@ data.values.VSPHERE_AZ_1
         #@ end
+        #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+        strategy:
+          type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+        #@ end
       #@overlay/append
       - class: tkg-worker
         name: md-2
@@ -89,6 +97,10 @@ spec:
             run.tanzu.vmware.com/resolve-os-image: #@ "image-type=ova,os-name={}".format(data.values.OS_NAME)
         #@ if data.values.VSPHERE_AZ_2:
         failureDomain: #@ data.values.VSPHERE_AZ_2
+        #@ end
+        #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+        strategy:
+          type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
         #@ end
       #@ end
       #@ else:
@@ -110,6 +122,10 @@ spec:
         #@overlay/match missing_ok=True
         failureDomain: #@ data.values.VSPHERE_AZ_0
         #@ end
+        #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+        strategy:
+          type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+        #@ end
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker-windows
@@ -122,6 +138,10 @@ spec:
         #@ if data.values.VSPHERE_AZ_1:
         failureDomain: #@ data.values.VSPHERE_AZ_1
         #@ end
+        #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+        strategy:
+          type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+        #@ end
       #@overlay/append
       - class: tkg-worker-windows
         name: md-2
@@ -131,6 +151,10 @@ spec:
             run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=windows
         #@ if data.values.VSPHERE_AZ_2:
         failureDomain: #@ data.values.VSPHERE_AZ_2
+        #@ end
+        #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+        strategy:
+          type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
         #@ end
       #@ end
       #@ end
