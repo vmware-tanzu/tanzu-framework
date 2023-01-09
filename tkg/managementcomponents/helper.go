@@ -68,6 +68,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 			},
 			CLIPluginsPackageValues: CLIPluginsPackageValues{
 				VersionConstraints: managementPackageVersion,
+				DeployCLIPluginCRD: false,
 			},
 			AddonsManagerPackageValues: AddonsManagerPackageValues{
 				VersionConstraints: addonsManagerPackageVersion,
@@ -102,9 +103,6 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 		},
 		CoreManagementPluginsPackage: CoreManagementPluginsPackage{
 			VersionConstraints: managementPackageVersion,
-			CoreManagementPluginsPackageValue: CoreManagementPluginsPackageValue{
-				DeployCLIPluginCRD: false,
-			},
 		},
 	}
 

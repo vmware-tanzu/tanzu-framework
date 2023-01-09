@@ -23,18 +23,3 @@ spec:
       #@ if data.values.coreManagementPluginsPackage.versionConstraints:
       constraints: #@ data.values.coreManagementPluginsPackage.versionConstraints
       #@ end
-  values:
-    - secretRef:
-        name: core-management-plugins-values
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: core-management-plugins-values
-  namespace: #@ data.values.coreManagementPluginsPackage.namespaceForPackageInstallation
-  annotations:
-    kapp.k14s.io/change-rule.0: "upsert after upserting core-management-plugins-packageinstall/serviceaccount"
-    kapp.k14s.io/change-rule.1: "delete before deleting core-management-plugins-packageinstall/serviceaccount"
-type: Opaque
-stringData:
-  values.yaml: #@ yaml.encode(data.values.coreManagementPluginsPackage.coreManagementPluginsPackageValues)

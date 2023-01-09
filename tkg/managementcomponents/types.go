@@ -73,13 +73,8 @@ type TanzuAddonsManager struct {
 	FeatureGates AddonsFeatureGates `yaml:"featureGates,omitempty"`
 }
 type CoreManagementPluginsPackage struct {
-	NamespaceForPackageInstallation   string                            `yaml:"namespaceForPackageInstallation,omitempty"`
-	VersionConstraints                string                            `yaml:"versionConstraints,omitempty"`
-	CoreManagementPluginsPackageValue CoreManagementPluginsPackageValue `yaml:"clusterclassInfraPackageValues,omitempty"`
-}
-
-type CoreManagementPluginsPackageValue struct {
-	DeployCLIPluginCRD bool `yaml:"deployCLIPluginCRD,omitempty"`
+	NamespaceForPackageInstallation string `yaml:"namespaceForPackageInstallation,omitempty"`
+	VersionConstraints              string `yaml:"versionConstraints,omitempty"`
 }
 
 type AddonsManagerPackageValues struct {
@@ -110,6 +105,7 @@ type CLIPluginsPackageValues struct {
 	Namespace          string `yaml:"namespace,omitempty"`
 	CreateNamespace    string `yaml:"createNamespace,omitempty"`
 	VersionConstraints string `yaml:"versionConstraints,omitempty"`
+	DeployCLIPluginCRD bool   `yaml:"deployCLIPluginCRD,omitempty"`
 }
 
 type ClusterClassInfraPackageValues struct {
