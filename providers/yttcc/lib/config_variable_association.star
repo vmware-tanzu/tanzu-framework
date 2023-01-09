@@ -325,6 +325,8 @@ return {
 "TKG_VERSION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "CNI": ["vsphere", "aws", "azure", "docker", "oci"],
 "VSPHERE_VERSION": ["vsphere"],
+
+"APISERVER_EVENT_RATE_LIMIT_CONF_BASE64": ["vsphere", "aws", "azure", "docker", "oci"]
 }
 
 end
@@ -448,6 +450,9 @@ def get_cluster_variables():
     if podSecurityStandard != {}:
       vars["podSecurityStandard"] = podSecurityStandard
     end
+    if data.values["APISERVER_EVENT_RATE_LIMIT_CONF_BASE64"] != "":
+        vars["eventRateLimitConf"] = data.values["APISERVER_EVENT_RATE_LIMIT_CONF_BASE64"]
+    end
 
     return vars
 end
@@ -457,6 +462,7 @@ def get_aws_vars():
     simpleMapping["AWS_REGION"] = "region"
     simpleMapping["AWS_SSH_KEY_NAME"] = "sshKeyName"
     simpleMapping["AWS_LOAD_BALANCER_SCHEME_INTERNAL"] = "loadBalancerSchemeInternal"
+
     vars = get_cluster_variables()
 
     for key in simpleMapping:
@@ -1052,4 +1058,4 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "controlPlanePvTransitEncryption",
         "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
         "controlPlaneCertificateRotation", "podSecurityStandard", "workerKubeletExtraArgs", "controlPlaneKubeletExtraArgs",
-        "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs"]
+        "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs", "eventRateLimitConf"]

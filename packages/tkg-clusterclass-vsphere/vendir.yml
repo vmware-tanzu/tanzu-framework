@@ -8,5 +8,5 @@ directories:
         manual: {}
       - path: overlay.yaml
         manual: {}
-      - path: overlay-pod-security-admission.yaml
+      - path: overlay-kube-apiserver-admission.yaml
         manual: {}
