@@ -496,7 +496,12 @@ def get_aws_vars():
     if data.values["AWS_VPC_CIDR"]:
         vpc["cidr"] = data.values["AWS_VPC_CIDR"]
     end
-    vars["network"]["vpc"] = vpc
+
+    if data.values["AWS_VPC_ID"] == "":
+        vars["network"]["vpc"] = {}
+    else:
+        vars["network"]["vpc"] = vpc
+    end
 
     securityGroup = {}
     if data.values["AWS_SECURITY_GROUP_BASTION"] != "":
@@ -612,7 +617,11 @@ def get_aws_vars():
         end
     end
 
-    vars["network"]["subnets"] = subnets
+    if data.values["AWS_VPC_ID"] == "":
+        vars["network"]["subnets"] = []
+    else:
+        vars["network"]["subnets"] = subnets
+    end
 
     worker = {}
     if data.values["NODE_MACHINE_TYPE"] != None:
