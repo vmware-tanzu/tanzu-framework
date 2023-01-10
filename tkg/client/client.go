@@ -106,7 +106,7 @@ type FeatureFlagClient interface {
 // Client is used to interact with the tkg client library
 type Client interface {
 	// InitRegion creates and initializes a management cluster via a
-	// self-provisioned bootstrap cluster if necessary
+	// self-provisioned bootstrap cluster if necessary in a given region.
 	InitRegion(options *InitRegionOptions) error
 	// InitRegionDryRun generates the management cluster manifest that would be
 	// used by InitRegion to provision a new cluster

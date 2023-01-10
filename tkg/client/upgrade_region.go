@@ -463,10 +463,10 @@ func (c *TkgClient) WaitForAddonsDeployments(clusterClient clusterclient.Client)
 	return nil
 }
 
-// WaitForPackages wait for packages to be up and running
+// WaitForPackages wait for packages to be up and running.  It is a legacy function (pre-clusterclass)...
 func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient clusterclient.Client, clusterName, namespace string, isRegionalCluster bool) error {
 	// Adding kapp-controller package to the exclude list
-	// For management cluster, kapp-controller is deployed using CRS and addon secret does not exist
+	// For legacy management clusters, kapp-controller is deployed using CRS and addon secret does not exist
 	// For workload cluster, kapp-controller is deployed by addons manager. Even though the
 	// addon secret for kapp-controller exists, it is not deployed using PackageInstall.
 	// Hence skipping it while waiting for packages.
@@ -476,7 +476,7 @@ func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient 
 	secretList := &corev1.SecretList{}
 	err := regionalClusterClient.ListResources(secretList, &crtclient.ListOptions{Namespace: namespace})
 	if err != nil {
-		return errors.Wrap(err, "unable to get list of secrets")
+		return errors.Wrap(err, "(legacy mode) unable to get list of secrets while waiting for packages")
 	}
 
 	// From the addons secret get the names of package installs for each addon secret

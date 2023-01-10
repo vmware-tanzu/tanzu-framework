@@ -30,6 +30,8 @@ func (c *TkgClient) GetClusterConfiguration(options *CreateClusterOptions) ([]by
 		// given that tkg stores the providers templates locally,
 		// Note: If namespace is not provided in options, it defaults to constants.DefaultNamespace namespace
 		if provider != "" && version != "" {
+
+			// Wait, we don't support  pacific clusters anymore, do we ?
 			if provider == PacificProviderName {
 				if options.NodeSizeOptions.Size != "" || options.NodeSizeOptions.ControlPlaneSize != "" || options.NodeSizeOptions.WorkerSize != "" {
 					return nil, errors.New("creating Tanzu Kubernetes Cluster is not compatible with the node size options: --size, --controlplane-size, and --worker-size")

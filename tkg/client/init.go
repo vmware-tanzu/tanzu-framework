@@ -97,7 +97,13 @@ func (c *TkgClient) InitRegionDryRun(options *InitRegionOptions) ([]byte, error)
 	return regionalConfigBytes, nil
 }
 
-// InitRegion create management cluster
+// InitRegion is named obtusely because it implements an interface... It creates management cluster, and bootstraps kind if necessary before doing so.
+// There are many intricately ordered steps which do this, and it all happens in one shot.
+// There are steps duplicated across the bootstrap and mgmt cluster. For example:
+// Both the bootstrap and mgmt cluster:
+// - will need to have "tkg-pkg" repo put onto them.
+// - will need to wait for N providers/packages to come up
+// and so on.
 func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funlen,gocyclo
 	var err error
 	var regionalConfigBytes []byte
@@ -109,102 +115,41 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	var filelock *fslock.Lock
 	var configFilePath string
 
-	bootstrapClusterKubeconfigPath, err := getTKGKubeConfigPath(false)
-	if err != nil {
-		return err
+	// Setup the kubeconfig for the bootstrap cluster.  Encapsulated to avoid using boot
+	{
+		bootstrapClusterKubeconfigPath, err := getTKGKubeConfigPath(false)
+		if err != nil {
+			return err
+		}
+
+		// Configure kubeconfig as part of options as bootstrap cluster kubeconfig
+		options.Kubeconfig = bootstrapClusterKubeconfigPath
 	}
 
 	log.SendProgressUpdate(statusRunning, StepValidateConfiguration, InitRegionSteps)
 
-	log.Info("Validating configuration...")
+	log.Info("Pre-bootstrap cluster: Validating configuration...")
 	defer func() {
-		if regionContext != (region.RegionContext{}) {
-			filelock, err = utils.GetFileLockWithTimeOut(filepath.Join(c.tkgConfigDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
-			if err != nil {
-				log.Warningf("cannot acquire lock for updating management cluster configuration, %s", err.Error())
-			}
-			err := c.regionManager.SaveRegionContext(regionContext)
-			if err != nil {
-				log.Warningf("Unable to persist management cluster %s info to tkg config", regionContext.ClusterName)
-			}
-
-			err = c.regionManager.SetCurrentContext(regionContext.ClusterName, regionContext.ContextName)
-			if err != nil {
-				log.Warningf("Unable to use context %s as current tkg context", regionContext.ContextName)
-			}
-			if err := filelock.Unlock(); err != nil {
-				log.Warningf("unable to release lock for updating management cluster configuration, %s", err.Error())
-			}
-		}
-
-		if isSuccessful {
-			log.SendProgressUpdate(statusSuccessful, "", InitRegionSteps)
-		} else {
-			log.SendProgressUpdate(statusFailed, "", InitRegionSteps)
-		}
-
-		// if management cluster creation failed after bootstrap kind cluster was successfully created
-		if !isSuccessful && isStartedRegionalClusterCreation {
-			c.displayHelpTextOnFailure(options, isBootstrapClusterCreated, bootstrapClusterKubeconfigPath)
-			return
-		}
-
-		if isBootstrapClusterCreated {
-			if err := c.teardownKindCluster(bootstrapClusterName, bootstrapClusterKubeconfigPath, options.UseExistingCluster); err != nil {
-				log.Warning(err.Error())
-			}
-		}
-		_ = utils.DeleteFile(bootstrapClusterKubeconfigPath)
+		postRegionCompletion(regionContext, filelock, err, c, isSuccessful, isStartedRegionalClusterCreation, options, isBootstrapClusterCreated, options.Kubeconfig, bootstrapClusterName)
 	}()
 
-	if customImageRepo, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository); err != nil && customImageRepo != "" && tkgconfighelper.IsCustomRepository(customImageRepo) {
-		log.Infof("Using custom image repository: %s", customImageRepo)
+	// Part 1: First we determine the provider and make sure basic config is ok.
+	providerName, errWithProviderConfig := c.DetermineProviderAndValidate(options, err)
+	if errWithProviderConfig != nil {
+		return errWithProviderConfig
 	}
 
-	c.ensureClusterTopologyConfiguration()
-
-	providerName, _, err := ParseProviderName(options.InfrastructureProvider)
-	if err != nil {
-		return errors.Wrap(err, "unable to parse provider name")
-	}
-
-	// validate docker only if user is not using an existing cluster
-	// Note: Validating in client code as well to cover the usecase where users use client code instead of command line.
-
-	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
-		return err
-	}
-
-	// validate docker resources if provider is docker
-	if providerName == "docker" {
-		if err := c.ValidateDockerResourcePrerequisites(); err != nil {
-			return err
-		}
-	}
-
-	log.Infof("Using infrastructure provider %s", options.InfrastructureProvider)
-	log.SendProgressUpdate(statusRunning, StepGenerateClusterConfiguration, InitRegionSteps)
-	log.Info("Generating cluster configuration...")
+	log.Infof("Pre-bootstrap cluster: Using infrastructure provider %s", options.InfrastructureProvider)
 
 	log.SendProgressUpdate(statusRunning, StepSetupBootstrapCluster, InitRegionSteps)
-	log.Info("Setting up bootstrapper...")
-	// Ensure bootstrap cluster and copy boostrap cluster kubeconfig to ~/kube-tkg directory
-	if bootstrapClusterName, err = c.ensureKindCluster(options.Kubeconfig, options.UseExistingCluster, bootstrapClusterKubeconfigPath); err != nil {
-		return errors.Wrap(err, "unable to create bootstrap cluster")
-	}
+	log.Info("Pre-bootstrap cluster: Ensuring kind cluster is up and running ...")
 
-	// Configure kubeconfig as part of options as bootstrap cluster kubeconfig
-	options.Kubeconfig = bootstrapClusterKubeconfigPath
-
-	isBootstrapClusterCreated = true
-	log.Infof("Bootstrapper created. Kubeconfig: %s", bootstrapClusterKubeconfigPath)
-	bootStrapClusterClient, err := clusterclient.NewClient(bootstrapClusterKubeconfigPath, "", clusterclient.Options{OperationTimeout: c.timeout})
-	if err != nil {
-		return errors.Wrap(err, "unable to get bootstrap cluster client")
-	}
-	bootstrapPkgClient, err := packageclient.NewPackageClientForContext(bootstrapClusterKubeconfigPath, "")
-	if err != nil {
-		return errors.Wrap(err, "unable to get a PackageClient")
+	// Part 2: First we determine the provider and make sure basic config is ok.
+	// Next we create bootstrap cluster clients and
+	// ensure bootstrap cluster and copy boostrap cluster kubeconfig to ~/kube-tkg directory
+	bootstrapClusterName, err, bootStrapClusterClient, bootstrapPkgClient, err3 := c.CreateBootstrapClusterClients(options, bootstrapClusterName, err, isBootstrapClusterCreated)
+	if err3 != nil {
+		return err3
 	}
 
 	// configure variables required to deploy providers
@@ -212,18 +157,82 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to configure variables for provider installation")
 	}
 
+	// Part 3: First we determine the provider and make sure basic config is ok.
+	err, regionalConfigBytes, targetClusterNamespace, err4 := c.setupBootstrapCluster(options, err, bootStrapClusterClient, providerName, options.Kubeconfig, bootstrapPkgClient, regionalConfigBytes, configFilePath, isStartedRegionalClusterCreation)
+	if err4 != nil {
+		return err4
+	}
+
+	log.SendProgressUpdate(statusRunning, StepCreateManagementCluster, InitRegionSteps)
+	log.Info("Start creating management cluster...")
+
+	// Part 4: Finally, we create the management cluster.  This is likely the time consuming step.
+	return c.CreateManagementCluster(options, err, bootStrapClusterClient, targetClusterNamespace, regionalConfigBytes, bootstrapClusterName, regionContext, options.Kubeconfig, filelock, providerName, isSuccessful)
+}
+
+// CreateBootstrapClusterClients makes the bootstrap and package clients which we will use when setting up the bootstrapped kind cluster.
+func (c *TkgClient) CreateBootstrapClusterClients(options *InitRegionOptions, bootstrapClusterName string, err error, isBootstrapClusterCreated bool) (string, error, clusterclient.Client, packageclient.PackageClient, error) {
+	if bootstrapClusterName, err = c.ensureKindCluster(options.Kubeconfig, options.UseExistingCluster, options.Kubeconfig); err != nil {
+		return "", nil, nil, nil, errors.Wrap(err, "unable to create bootstrap cluster")
+	}
+	isBootstrapClusterCreated = true
+	log.Infof("Bootstrapper created. Kubeconfig: %s", options.Kubeconfig)
+
+	bootStrapClusterClient, err := clusterclient.NewClient(options.Kubeconfig, "", clusterclient.Options{OperationTimeout: c.timeout})
+	if err != nil {
+		return "", nil, nil, nil, errors.Wrap(err, "unable to get bootstrap cluster client")
+	}
+	bootstrapPkgClient, err := packageclient.NewPackageClientForContext(options.Kubeconfig, "")
+	if err != nil {
+		return "", nil, nil, nil, errors.Wrap(err, "unable to get a PackageClient")
+	}
+	return bootstrapClusterName, err, bootStrapClusterClient, bootstrapPkgClient, nil
+}
+
+// DetermineProviderAndValidate returns the providerName, and any errors that happened along the way.  It is meant to be called before we do later steps, i.e. creating the Bootstrap cluster client.
+func (c *TkgClient) DetermineProviderAndValidate(options *InitRegionOptions, err error) (string, error) {
+	if customImageRepo, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository); err != nil && customImageRepo != "" && tkgconfighelper.IsCustomRepository(customImageRepo) {
+		log.Infof("Pre-bootstrap cluster: Using custom image repository: %s", customImageRepo)
+	}
+
+	c.ensureClusterTopologyConfiguration()
+
+	providerName, _, err := ParseProviderName(options.InfrastructureProvider)
+	if err != nil {
+		return "", errors.Wrap(err, "unable to parse provider name")
+	}
+
+	// validate docker only if user is not using an existing cluster
+	// Note: Validating in client code as well to cover the usecase where users use client code instead of command line.
+
+	if err := c.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
+		return "", err
+	}
+
+	// validate docker resources if provider is docker
+	if providerName == "docker" {
+		if err := c.ValidateDockerResourcePrerequisites(); err != nil {
+			return "", err
+		}
+	}
+	return providerName, nil
+}
+
+// setupBootstrapCluster adds the stuff we need to the bootstrap cluster in order to proceed w/ ManagementCluster creation, including things like providers, AKO checking, and so on.
+// once done setting up, it makes sure the bootstrap cluster is ready to use for the management cluster creation steps, i.e. that it has TKRs and so on.
+func (c *TkgClient) setupBootstrapCluster(options *InitRegionOptions, err error, bootStrapClusterClient clusterclient.Client, providerName string, bootstrapClusterKubeconfigPath string, bootstrapPkgClient packageclient.PackageClient, regionalConfigBytes []byte, configFilePath string, isStartedRegionalClusterCreation bool) (error, []byte, string, error) {
 	// If clusterclass feature flag is enabled then deploy kapp-controller
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Installing kapp-controller on bootstrap cluster...")
 		if err = c.InstallOrUpgradeKappController(bootStrapClusterClient, constants.OperationTypeInstall, false); err != nil {
-			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
+			return nil, nil, "", errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
 		}
 	}
 
 	if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) && providerName == constants.InfrastructureProviderVSphere {
 		ipamProvider, err := c.tkgConfigUpdaterClient.CheckInfrastructureVersion("ipam-in-cluster")
 		if err != nil {
-			return err
+			return nil, nil, "", err
 		}
 		options.IPAMProvider = ipamProvider
 	}
@@ -232,23 +241,23 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	log.Info("Installing providers on bootstrapper...")
 	// Initialize bootstrap cluster with providers
 	if err = c.InitializeProviders(options, bootStrapClusterClient, bootstrapClusterKubeconfigPath); err != nil {
-		return errors.Wrap(err, "unable to initialize providers")
+		return nil, nil, "", errors.Wrap(err, "unable to initialize providers")
 	}
 
 	// If clusterclass feature flag is enabled then deploy management components
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		if err = c.InstallOrUpgradeManagementComponents(bootStrapClusterClient, bootstrapPkgClient, "", false); err != nil {
-			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
+			return nil, nil, "", errors.Wrap(err, "unable to install management components to bootstrap cluster")
 		}
 
 		akoRequired, err := c.isAKORequiredInBootstrapCluster()
 		if err != nil {
-			return errors.Wrap(err, "unable to check whether avi ha is enabled")
+			return nil, nil, "", errors.Wrap(err, "unable to check whether avi ha is enabled")
 		}
 		if akoRequired {
 			log.Info("Installing AKO on bootstrapper...")
 			if err = c.InstallAKO(bootStrapClusterClient); err != nil {
-				return errors.Wrap(err, "unable to install ako")
+				return nil, nil, "", errors.Wrap(err, "unable to install ako")
 			}
 		}
 	}
@@ -256,13 +265,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	if options.AdditionalTKGManifests != "" {
 		log.Infof("Apply additional manifests %s for the bootstrap cluster in tkg-system", options.AdditionalTKGManifests)
 		if err = bootStrapClusterClient.ApplyFileRecursively(options.AdditionalTKGManifests, "tkg-system"); err != nil {
-			return errors.Wrap(err, "unable to apply additional manifests")
+			return nil, nil, "", errors.Wrap(err, "unable to apply additional manifests")
 		}
 	}
 
 	// Obtain management cluster configuration of a provided flavor
 	if regionalConfigBytes, options.ClusterName, configFilePath, err = c.BuildRegionalClusterConfiguration(options); err != nil {
-		return errors.Wrap(err, "unable to build management cluster configuration")
+		return nil, nil, "", errors.Wrap(err, "unable to build management cluster configuration")
 	}
 	log.Infof("Management cluster config file has been generated and stored at: '%v'", configFilePath)
 
@@ -273,22 +282,66 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		targetClusterNamespace = options.Namespace
 	}
 
+	// finally check the TKR creation inside bootstrap cluster
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		// for cc based cluster, check if tkr/cbt is reconciled to avoid package not found error by addons-controller
 		tkrName, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableTkrName)
 		if err != nil {
-			return errors.Wrap(err, "unable to get tkr name for cluster")
+			return nil, nil, "", errors.Wrap(err, "unable to get tkr name for cluster")
 		}
 		log.Infof("Checking Tkr %s in bootstrap cluster...", tkrName)
 
 		pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: clusterclient.PackageInstallTimeout}
 		if err := bootStrapClusterClient.GetResource(&v1alpha3.TanzuKubernetesRelease{}, tkrName, "", nil, pollOptions); err != nil {
-			return errors.Wrap(err, "unable to check tkr in bootstrap cluster")
+			return nil, nil, "", errors.Wrap(err, "unable to check tkr in bootstrap cluster")
 		}
 	}
 
-	log.SendProgressUpdate(statusRunning, StepCreateManagementCluster, InitRegionSteps)
-	log.Info("Start creating management cluster...")
+	return err, regionalConfigBytes, targetClusterNamespace, nil
+}
+
+func postRegionCompletion(regionContext region.RegionContext, filelock *fslock.Lock, err error, c *TkgClient, isSuccessful bool, isStartedRegionalClusterCreation bool, options *InitRegionOptions, isBootstrapClusterCreated bool, bootstrapClusterKubeconfigPath string, bootstrapClusterName string) {
+	if regionContext != (region.RegionContext{}) {
+		filelock, err = utils.GetFileLockWithTimeOut(filepath.Join(c.tkgConfigDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
+		if err != nil {
+			log.Warningf("cannot acquire lock for updating management cluster configuration, %s", err.Error())
+		}
+		err := c.regionManager.SaveRegionContext(regionContext)
+		if err != nil {
+			log.Warningf("Unable to persist management cluster %s info to tkg config", regionContext.ClusterName)
+		}
+
+		err = c.regionManager.SetCurrentContext(regionContext.ClusterName, regionContext.ContextName)
+		if err != nil {
+			log.Warningf("Unable to use context %s as current tkg context", regionContext.ContextName)
+		}
+		if err := filelock.Unlock(); err != nil {
+			log.Warningf("unable to release lock for updating management cluster configuration, %s", err.Error())
+		}
+	}
+
+	if isSuccessful {
+		log.SendProgressUpdate(statusSuccessful, "", InitRegionSteps)
+	} else {
+		log.SendProgressUpdate(statusFailed, "", InitRegionSteps)
+	}
+
+	// if management cluster creation failed after bootstrap kind cluster was successfully created
+	if !isSuccessful && isStartedRegionalClusterCreation {
+		c.displayHelpTextOnFailure(options, isBootstrapClusterCreated, bootstrapClusterKubeconfigPath)
+		return
+	}
+
+	if isBootstrapClusterCreated {
+		if err := c.teardownKindCluster(bootstrapClusterName, bootstrapClusterKubeconfigPath, options.UseExistingCluster); err != nil {
+			log.Warning(err.Error())
+		}
+	}
+	_ = utils.DeleteFile(bootstrapClusterKubeconfigPath)
+}
+
+// CreateManagementCluster creates a management cluster.
+func (c *TkgClient) CreateManagementCluster(options *InitRegionOptions, err error, bootStrapClusterClient clusterclient.Client, targetClusterNamespace string, regionalConfigBytes []byte, bootstrapClusterName string, regionContext region.RegionContext, bootstrapClusterKubeconfigPath string, filelock *fslock.Lock, providerName string, isSuccessful bool) error {
 	err = c.DoCreateCluster(bootStrapClusterClient, options.ClusterName, targetClusterNamespace, string(regionalConfigBytes))
 	if err != nil {
 		return errors.Wrap(err, "unable to create management cluster")
@@ -395,7 +448,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to wait for cluster getting ready for move")
 	}
 
-	log.Info("Waiting for addons installation...")
+	log.Info("Waiting for addons installation... including CNI")
 	if err := c.WaitForAddons(waitForAddonsOptions{
 		regionalClusterClient: bootStrapClusterClient,
 		workloadClusterClient: regionalClusterClient,
@@ -494,6 +547,8 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 // PatchClusterInitOperations Patches cluster
 func (c *TkgClient) PatchClusterInitOperations(regionalClusterClient clusterclient.Client, options *InitRegionOptions, targetClusterNamespace string) error {
+	log.Info("Tanzu: Now patching cluster so that TKGVERSION, and other critical annotations for managing TKG's state are associated with it.")
+
 	// Patch management cluster with the TKG version
 	err := regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, targetClusterNamespace, c.tkgBomClient.GetCurrentTKGVersion())
 	if err != nil {
@@ -595,6 +650,7 @@ func (c *TkgClient) ApplyClusterBootstrapObjects(fromClusterClient, toClusterCli
 // CopyNeededTKRAndOSImages moves the resolved TKR and associated OSImage CR for a Cluster resource
 // from namespaceto a target management
 func (c *TkgClient) CopyNeededTKRAndOSImages(fromClusterClient, toClusterClient clusterclient.Client) error {
+	log.Infof("Copying TKR and OS Images to the target management environment...")
 	tkr, err := fromClusterClient.GetClusterResolvedTanzuKubernetesRelease()
 	if tkr == nil {
 		return err // error occurs or management cluster does not have resolved TKR
@@ -718,13 +774,14 @@ func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClien
 		TargetNamespace:         options.Namespace,
 	}
 
+	// Init returns back the componentsList.  We will read these back out to the user when done.
 	componentsList, err := c.clusterctlClient.Init(clusterctlClientInitOptions)
 	if err != nil {
 		return errors.Errorf("%s, this can be possible because of the outbound connectivity issue. Please check deployed nodes for outbound connectivity.", err.Error())
 	}
 
 	for _, components := range componentsList {
-		log.V(3).Info("installed", " Component=", components.Name(), " Type=", components.Type(), " Version=", components.Version())
+		log.V(3).Info("Clusterctl succesfully has installed", " Component=", components.Name(), " Type=", components.Type(), " Version=", components.Version())
 	}
 
 	if err = clusterClient.CreateNamespace(defaultTkgNamespace); err != nil {
@@ -769,6 +826,7 @@ func (c *TkgClient) configureImageTagsForProviderInstallation() error {
 		c.TKGConfigReaderWriter().Set(configVariable, image.Tag)
 	}
 
+	// TODO: Can we remove this ?
 	configImageTag(constants.ConfigVariableInternalKubeRBACProxyImageTag, "kube_rbac_proxy", "kubeRbacProxyControllerImageCapi")
 	configImageTag(constants.ConfigVariableInternalCABPKControllerImageTag, "cluster_api", "cabpkControllerImage")
 	configImageTag(constants.ConfigVariableInternalCAPIControllerImageTag, "cluster_api", "capiControllerImage")
@@ -892,6 +950,7 @@ func (c *TkgClient) WaitForProviders(clusterClient clusterclient.Client, options
 				providerNameVersion := provider.ProviderName + ":" + provider.Version
 				return c.waitForProvider(clusterClient, providerNameVersion, provider.Type, options.TargetNamespace)
 			})
+			// TODO reduce decimal precision "finished waiting for provider X after 3.1901204120s" confusing to read.
 			if err != nil {
 				log.V(3).Warningf("Failed waiting for provider %v after %v", provider.Name, t)
 				results <- err

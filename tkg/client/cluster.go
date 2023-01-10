@@ -198,6 +198,8 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	if !waitForCluster {
 		return false, nil
 	}
+	log.Infof("... done requesting creation of workload cluster '%s' (will now wait for its completion)", options.ClusterName)
+
 	return true, c.waitForClusterCreation(regionalClusterClient, options)
 }
 
@@ -239,8 +241,9 @@ func getContentFromInputFile(fileName string) ([]byte, error) {
 	return content, nil
 }
 
+// waitForClusterCreation
 func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.Client, options *CreateClusterOptions) error {
-	log.Info("waiting for cluster to be initialized...")
+	log.Infof("waiting for cluster %s to be initialized...", options.ClusterName)
 	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(regionalClusterClient, options.ClusterName, options.TargetNamespace)
 	if err != nil {
 		return errors.Wrap(err, "unable to wait for cluster and get the cluster kubeconfig")
@@ -280,7 +283,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return err
 	}
 	if isClusterClassBased {
-		log.Info("waiting for addons core packages installation...")
+		log.Infof("(classy) waiting for addons core packages installation on cluster %v, will also wait for CNI to come up.", options.ClusterName)
 		if err := c.WaitForAddonsCorePackagesInstallation(waitForAddonsOptions{
 			regionalClusterClient: regionalClusterClient,
 			workloadClusterClient: workloadClusterClient,
@@ -292,7 +295,8 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 			return errors.Wrap(err, "error waiting for addons to get installed")
 		}
 	} else {
-		log.Info("waiting for addons installation...")
+		log.Infof("(legacy) waiting for addons installation on cluster %v, will also wait for CNI to come up", options.ClusterName)
+
 		if err := c.WaitForAddons(waitForAddonsOptions{
 			regionalClusterClient: regionalClusterClient,
 			workloadClusterClient: workloadClusterClient,
@@ -302,7 +306,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		}); err != nil {
 			return errors.Wrap(err, "error waiting for addons to get installed")
 		}
-		log.Info("waiting for packages to be up and running...")
+		log.Info("(legacy) waiting for packages to be up and running...")
 		if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace, false); err != nil {
 			log.Warningf("warning: Cluster is created successfully, but some packages are failing. %v", err)
 		}
@@ -335,7 +339,7 @@ func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clustercli
 	if isClusterClassBased {
 		autoscalerDeployment, err := regionalClusterClient.GetDeployment(autoscalerDeploymentName, targetNamespace)
 		if autoscalerDeployment.Name == "" || err != nil {
-			log.Warning("unable to get the autoscaler deployment, maybe it is not exist")
+			log.Warning("unable to get the autoscaler deployment (autoscaler may not be configured).")
 			return
 		}
 		isEnabled = true
@@ -421,7 +425,12 @@ func (c *TkgClient) WaitForClusterReadyAfterReverseMove(clusterClient clustercli
 
 // WaitForAddons wait for addons to be installed
 func (c *TkgClient) WaitForAddons(options waitForAddonsOptions) error {
+	log.Info("Waiting for Addons: CRS and CNI...")
+
+	// we don't do extra log of the CRS/CNI phases here, instead we on logging of waitForCNI and waitForCRS instead...
+
 	if err := c.waitForCRS(options); err != nil {
+		log.Warning("Wait for Addons: Terminating early, waiting for CRS failed")
 		return err
 	}
 	if options.waitForCNI {
@@ -437,6 +446,8 @@ func (c *TkgClient) waitForCNI(options waitForAddonsOptions) error {
 	if err != nil {
 		log.Info("Warning: unable to get CNI, skipping CNI installation verification")
 	}
+
+	log.Infof("Waiting for CNI: %f", cni)
 
 	if cni == "antrea" {
 		if err := options.workloadClusterClient.WaitForDeployment(
@@ -455,6 +466,8 @@ func (c *TkgClient) waitForCNI(options waitForAddonsOptions) error {
 }
 
 func (c *TkgClient) waitForCRS(options waitForAddonsOptions) error {
+	log.Infof("Waiting for CRS")
+
 	crsList := &addonsv1.ClusterResourceSetList{}
 	err := options.regionalClusterClient.GetResourceList(crsList,
 		options.clusterName,

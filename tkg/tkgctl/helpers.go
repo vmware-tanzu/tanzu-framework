@@ -214,6 +214,9 @@ func getFieldfromUnstructuredObject(obj unstructured.Unstructured, fields ...str
 }
 
 func setVSphereCredentialFromInputfile(legacyVarMap *map[string]string, clusterConfigFile, clusterName, namespace string) error {
+	if clusterName == "" {
+		return errors.New(fmt.Sprintf("cluster name cannot be empty for this operation"))
+	}
 	content, err := os.ReadFile(clusterConfigFile)
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("Unable to read input file: %s", clusterConfigFile))
