@@ -136,6 +136,8 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 	// Get the helper ready for the defaulting logic
 	helper := clusterbootstrapclone.Helper{Logger: clusterbootstraplog}
 
+	_, unmanagedCNI := clusterBootstrap.Annotations[constants.UnmanagedCNI]
+
 	// Attempt to complete the partial filled ClusterBootstrapPackage RefName
 	if err := helper.CompleteCBPackageRefNamesFromTKR(tkr, clusterBootstrap); err != nil {
 		clusterbootstraplog.Error(err, "unable to complete the RefNames for ClusterBootstrapPackages due to errors")
@@ -149,6 +151,10 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
 			clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return err
+	}
+
+	if unmanagedCNI {
+		clusterBootstrap.Spec.CNI = nil
 	}
 	return nil
 }
@@ -168,8 +174,16 @@ func (wh *ClusterBootstrap) ValidateCreate(ctx context.Context, obj runtime.Obje
 	var allErrs field.ErrorList
 	// Iterating one by one because we need field info for getFieldPath, and some core packages can be nil
 
-	if err := wh.validateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CNI, clusterBootstrap.Namespace, getFieldPath("cni")); err != nil {
-		allErrs = append(allErrs, err)
+	// If  spec.cni == nil and clusterbootstrap is  annotated,  it is using unmanaged CNI, and we do not need to validate CNI
+	_, unmanagedCNI := clusterBootstrap.Annotations[constants.UnmanagedCNI]
+
+	if unmanagedCNI && clusterBootstrap.Spec.CNI != nil {
+		return apierrors.NewBadRequest("Spec.CNI should be empty if the clusterbootstrap is annotated to use unmanaged CNI.")
+	}
+	if !unmanagedCNI {
+		if err := wh.validateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CNI, clusterBootstrap.Namespace, getFieldPath("cni")); err != nil {
+			allErrs = append(allErrs, err)
+		}
 	}
 
 	if err := wh.validateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.Kapp, clusterBootstrap.Namespace, getFieldPath("kapp")); err != nil {
@@ -381,8 +395,17 @@ func (wh *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj r
 
 	var allErrs field.ErrorList
 	namespace := newClusterBootstrap.Namespace
-	if err := wh.validateMandatoryCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CNI, newClusterBootstrap.Spec.CNI, namespace, getFieldPath("cni")); err != nil {
-		allErrs = append(allErrs, err)
+
+	// If  spec.cni == nil and clusterbootstrap is  annotated,  it is using unmanaged CNI, and we do not need to validate CNI
+	_, unmanagedCNI := newClusterBootstrap.Annotations[constants.UnmanagedCNI]
+
+	if unmanagedCNI && newClusterBootstrap.Spec.CNI != nil {
+		return apierrors.NewBadRequest("Spec.CNI should be empty if the clusterbootstrap is annotated to use unmanaged CNI.")
+	}
+	if !unmanagedCNI {
+		if err := wh.validateMandatoryCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CNI, newClusterBootstrap.Spec.CNI, namespace, getFieldPath("cni")); err != nil {
+			allErrs = append(allErrs, err)
+		}
 	}
 
 	if err := wh.validateMandatoryCorePackageUpdate(ctx, oldClusterBootstrap.Spec.Kapp, newClusterBootstrap.Spec.Kapp, namespace, getFieldPath("kapp")); err != nil {

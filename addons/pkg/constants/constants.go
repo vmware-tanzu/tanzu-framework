@@ -282,6 +282,9 @@ const (
 	// logic
 	AddCBMissingFieldsAnnotationKey = "tkg.tanzu.vmware.com/add-missing-fields-from-tkr"
 
+	// UnmanagedCNI is the label for clusters that use unmanaged CNI
+	UnmanagedCNI = "tkg.tanzu.vmware.com/unmanaged-cni"
+
 	// VsphereCPIProviderServiceAccountAggregatedClusterRole is the name of ClusterRole created by controllers that use ProviderServiceAccount
 	VsphereCPIProviderServiceAccountAggregatedClusterRole = "addons-vsphere-cpi-providerserviceaccount-aggregatedrole"
 

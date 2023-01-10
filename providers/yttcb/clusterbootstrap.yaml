@@ -421,6 +421,8 @@ metadata:
   namespace: #@ data.values.NAMESPACE
   annotations:
     tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
+    #@ if/end data.values.CNI == "none":
+    tkg.tanzu.vmware.com/unmanaged-cni: ""
 spec:
   #@ if data.values.CNI == "antrea" and antrea_config_customized():
   cni:
