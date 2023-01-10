@@ -5,19 +5,19 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
-  name: tkg-oci-default
+  name: #@ "tkg-oci-default-{}".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   controlPlane:
     ref:
       apiVersion: controlplane.cluster.x-k8s.io/v1beta1
       kind: KubeadmControlPlaneTemplate
-      name: tkg-oci-kcp
+      name: #@ "tkg-oci-default-{}-controlplane".format(data.values.OCI_CLUSTER_CLASS_VERSION)
     machineInfrastructure:
       ref:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: OCIMachineTemplate
-        name: tkg-controlplane-oci-template
+        name: #@ "tkg-oci-default-{}-controlplane-template".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   workers:
     machineDeployments:
       - class: tkg-worker
@@ -26,17 +26,17 @@ spec:
             ref:
               apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
               kind: KubeadmConfigTemplate
-              name: tkg-oci-bootstrap-template
+              name: #@ "tkg-oci-default-{}-bootstrap-template".format(data.values.OCI_CLUSTER_CLASS_VERSION)
           infrastructure:
             ref:
               apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
               kind: OCIMachineTemplate
-              name: tkg-oci-worker-template
+              name: #@ "tkg-oci-default-{}-worker-template".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   infrastructure:
     ref:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: OCIClusterTemplate
-      name: oci-cluster-template
+      name: #@ "tkg-oci-default-{}-cluster-template".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   variables:
     - name: sshKey
       required: false
@@ -743,7 +743,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: OCIClusterTemplate
 metadata:
-  name: oci-cluster-template
+  name: #@ "tkg-oci-default-{}-cluster-template".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -968,7 +968,7 @@ spec:
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
 metadata:
-  name: tkg-oci-kcp
+  name: #@ "tkg-oci-default-{}-controlplane".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -1010,7 +1010,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: OCIMachineTemplate
 metadata:
-  name: tkg-controlplane-oci-template
+  name: #@ "tkg-oci-default-{}-controlplane-template".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -1024,7 +1024,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: OCIMachineTemplate
 metadata:
-  name: tkg-oci-worker-template
+  name: #@ "tkg-oci-default-{}-worker-template".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -1037,7 +1037,7 @@ spec:
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: tkg-oci-bootstrap-template
+  name: #@ "tkg-oci-default-{}-bootstrap-template".format(data.values.OCI_CLUSTER_CLASS_VERSION)
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
