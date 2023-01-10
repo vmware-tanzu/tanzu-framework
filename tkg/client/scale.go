@@ -66,7 +66,11 @@ func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *
 		if err := clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
 			return errors.Wrap(err, "Unable to retrieve cluster resource")
 		}
-		return DoScaleCCCluster(clusterClient, &cluster, options)
+		err := DoScaleCCCluster(clusterClient, &cluster, options)
+		if err == nil {
+			log.Infof("Cluster '%s' is being scaled, describe cluster object to get results\n", options.ClusterName)
+		}
+		return err
 	}
 
 	isPacific, err := clusterClient.IsPacificRegionalCluster()
@@ -102,6 +106,7 @@ func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *
 	}
 
 	if len(errList) == 0 {
+		log.Infof("Cluster '%s' is being scaled\n", options.ClusterName)
 		return nil
 	}
 	return kerrors.NewAggregate(errList)
