@@ -137,6 +137,29 @@ func (app *App) GetAWSCredentialProfiles(params aws.GetAWSCredentialProfilesPara
 	return aws.NewGetAWSCredentialProfilesOK().WithPayload(res)
 }
 
+// GetAWSKeyPairs gets the EC2 key pairs for the user.
+func (app *App) GetAWSKeyPairs(params aws.GetAWSKeyPairsParams) middleware.Responder {
+	if app.awsClient == nil {
+		return aws.NewGetAWSKeyPairsBadRequest().WithPayload(Err(errors.New("aws client is not initialized properly")))
+	}
+
+	keyPairs, err := app.awsClient.ListEC2KeyPairs()
+	if err != nil {
+		return aws.NewGetAWSKeyPairsBadRequest().WithPayload(Err(err))
+	}
+
+	result := []*models.AWSKeyPair{}
+	for _, kp := range keyPairs {
+		result = append(result, &models.AWSKeyPair{
+			ID:         kp.ID,
+			Name:       kp.Name,
+			Thumbprint: kp.Thumbprint,
+		})
+	}
+
+	return aws.NewGetAWSKeyPairsOK().WithPayload(result)
+}
+
 // GetAWSOSImages gets os information for AWS
 func (app *App) GetAWSOSImages(params aws.GetAWSOSImagesParams) middleware.Responder {
 	bomConfig, err := tkgconfigbom.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).GetDefaultTkrBOMConfiguration()

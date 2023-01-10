@@ -7,7 +7,7 @@ ARG BUILDER_BASE_IMAGE=node:16
 
 # Build the manager binary
 FROM $BUILDER_BASE_IMAGE as builder
-
+RUN npm install -g npm@9.2.0
 WORKDIR /workspace
 
 COPY api/spec.yaml /workspace/api/spec.yaml
