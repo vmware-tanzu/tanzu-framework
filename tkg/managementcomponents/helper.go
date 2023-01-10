@@ -17,6 +17,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
@@ -33,6 +34,8 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 	// that fetches these values from tkg-bom(for bom related urls) and set the TKR source controller package values
 	var tkrRepoImagePath string
 	providerType := userProviderConfigValues[constants.ConfigVariableProviderType]
+	fmt.Printf("provider type is %v\n", providerType)
+	log.V(3).Info("provider type is", "provider", providerType)
 	switch providerType {
 	case constants.InfrastructureProviderVSphere:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.VSphereNonparavirt)
