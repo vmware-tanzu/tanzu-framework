@@ -27,6 +27,7 @@ import (
 
 	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
+	"github.com/vmware-tanzu/tanzu-framework/tkr/controller/tkr-source/imgpkgutil"
 	"github.com/vmware-tanzu/tanzu-framework/tkr/controller/tkr-source/registry"
 	"github.com/vmware-tanzu/tanzu-framework/util/patchset"
 )
@@ -191,6 +192,12 @@ func (r *Reconciler) doInstall(ctx context.Context, pkg *kapppkgv1.Package, cm *
 	if err != nil {
 		return false, err
 	}
+
+	imageMap, err := imgpkgutil.ParseImagesLock(packageContent[".imgpkg/images.yml"])
+	if err != nil {
+		r.Log.Error(err, "failed to parse .imgpkg/images.yml")
+	}
+	imgpkgutil.ResolveImages(imageMap, packageContent)
 
 	for path, bytes := range packageContent {
 		if strings.HasPrefix(path, ".") {
