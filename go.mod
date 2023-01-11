@@ -32,7 +32,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
-	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20230119181514-3c34115bc248
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20221114124829-a8c2eac58dbf
