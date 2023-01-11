@@ -24,7 +24,7 @@ spec:
       #@overlay/append
       - '! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)'
       #@overlay/append
-      - systemctl restart containerd
+      - systemctl restart containerd && while [ ! -S /var/run/containerd/containerd.sock ]; do sleep 1; done
     #@overlay/match missing_ok=True
     files:
       #@overlay/append
@@ -51,7 +51,7 @@ spec:
         #@overlay/append
         - '! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)'
         #@overlay/append
-        - systemctl restart containerd
+        - systemctl restart containerd && while [ ! -S /var/run/containerd/containerd.sock ]; do sleep 1; done
       #@overlay/match missing_ok=True
       files:
         #@overlay/append

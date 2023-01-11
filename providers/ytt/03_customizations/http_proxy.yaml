@@ -71,7 +71,7 @@ spec:
         #@overlay/append
         - systemctl daemon-reload
         #@overlay/append
-        - systemctl restart containerd
+        - systemctl restart containerd && while [ ! -S /var/run/containerd/containerd.sock ]; do sleep 1; done
         #@overlay/append
         - #@ exportEnvvar("HTTP_PROXY", data.values.TKG_HTTP_PROXY)
         #@overlay/append

@@ -16,7 +16,7 @@ spec:
       #@overlay/append
       - #@ "echo '  ca_file = \"/etc/containerd/" + tkg_image_repo_hostname() + ".crt\"' >> /etc/containerd/config.toml"
       #@overlay/append
-      - systemctl restart containerd
+      - systemctl restart containerd && while [ ! -S /var/run/containerd/containerd.sock ]; do sleep 1; done
     #@overlay/match missing_ok=True
     files:
       #@overlay/append
@@ -39,7 +39,7 @@ spec:
         #@overlay/append
         - #@ "echo '  ca_file = \"/etc/containerd/" + tkg_image_repo_hostname() + ".crt\"' >> /etc/containerd/config.toml"
         #@overlay/append
-        - systemctl restart containerd
+        - systemctl restart containerd && while [ ! -S /var/run/containerd/containerd.sock ]; do sleep 1; done
       #@overlay/match missing_ok=True
       files:
         #@overlay/append
