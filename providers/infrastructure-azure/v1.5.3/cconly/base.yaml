@@ -1140,12 +1140,14 @@ spec:
           template: |
             {{ $first := true }}
             {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels }}
+            {{- if regexMatch "^(?:[a-zA-z])(?:[-\\w\\.]*[a-zA-z])$" $val }}
             {{- if $first }}
               {{- $first = false }}
             {{- else -}}
               ,
             {{- end }}
             {{- $key -}} = {{- $val }}
+            {{- end }}
             {{- end }}
             {{- if .controlPlane.nodeLabels -}}
               {{- if (index .TKR_DATA .builtin.controlPlane.version).labels -}}
@@ -1175,13 +1177,15 @@ spec:
           template: |
             {{ $first := true }}
             {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels }}
+            {{- if regexMatch "^(?:[a-zA-z])(?:[-\\w\\.]*[a-zA-z])$" $val }}
             {{- if $first }}
               {{- $first = false }}
             {{- else -}}
               ,
             {{- end }}
             {{- $key -}} = {{- $val }}
-            {{- end}}
+            {{- end }}
+            {{- end }}
             {{- if .nodePoolLabels -}}
               ,
               {{- $first := true }}
@@ -1801,7 +1805,7 @@ spec:
         managedDisk:
           storageAccountType: Premium_LRS
         osType: Linux
-      sshPublicKey: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBQkl3QUFBUUVBdXR2WGhHWFhzN0t5cFV3c1F1dmc3MCtHclVJUXg1YS9QOFBROGhPbWVzZFAwb1hFMElSKzNuN0NGRzhpK0IwV08rdkhCYnc2b3VkSnR6bmNLaE5hU2N3ZFllT1JVbFVLcVN1QXJtU0NjQnpaZDFTTlVSY2NPRWlocjBEUVg5NXk0YjFUS3QxNjl3eVlzZ0JQeDNHcmprc2xJalRDblZKZmdoWlZOZFdKWWJrRVNuck9ySW05KzFsL3JLT09UOWpsR1NER3M1RW5mM2sxTEY3WThTUVVwdXVOZlNKTU9GRlVHTlVxNjY5L0Fod1FJSDJJYjhPQjY5cmV4ajdwQmdCWjFpd3l6eFlWUGZ3aUZSWXR0eFNDRVJiNk82alh4U21KS3FhTkdNcS9QdlJrTVUzTndxNDV1anN1M3l2NmVFSTVLZGpIV0pFdGd3ZWhXa0ZGL2NGcWd3PT0gd2p1bkB2bXdhcmUuY29t
+      sshPublicKey: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCQVFEWXcvKzlZQnBCSWZ0Tkl5Z09CNFNCalQ5bisxbEYxYVYweUtSWDB4MGllSjZ5eDFOZ25PWTVzUWlHcXpoZ3JPRDZNWHBvV2ZoR3FmOVVYR2xyVWxJZjhSMmo5YUd3YXVEazBlbUpXSi9TTVRLS2RmTzMyZkgyRkVobE5vMzVhdGJyQTZraVBiVHYzeXdCSGhHbTBzU2czVy80SzZUb0RpcHNLemEzK3VwQXFLZnptb05rdUxTSVh6Yk5WeTZrQzlSU3RobFJuV2xJOEtzQnVpeXlGS082aUVtY0pzWkIwTTZPUWQzNWpSbGI3R1htckh0aVZ0Y1F4SXJkRnNrSEVPWnJZcU5Sb2FPa3doY3VxdXFYcWw4bmJlQjdaUE9YSmxsS29CWXYvRFBGdFFsd010N055ZXRNY0dMOVdPcm81QnJNNWFCdm1JNGdWVjRlSERBbm1UMWQK
       vmSize: #@ data.values.AZURE_CONTROL_PLANE_MACHINE_TYPE
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -1817,7 +1821,7 @@ spec:
         managedDisk:
           storageAccountType: Premium_LRS
         osType: Linux
-      sshPublicKey: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBQkl3QUFBUUVBdXR2WGhHWFhzN0t5cFV3c1F1dmc3MCtHclVJUXg1YS9QOFBROGhPbWVzZFAwb1hFMElSKzNuN0NGRzhpK0IwV08rdkhCYnc2b3VkSnR6bmNLaE5hU2N3ZFllT1JVbFVLcVN1QXJtU0NjQnpaZDFTTlVSY2NPRWlocjBEUVg5NXk0YjFUS3QxNjl3eVlzZ0JQeDNHcmprc2xJalRDblZKZmdoWlZOZFdKWWJrRVNuck9ySW05KzFsL3JLT09UOWpsR1NER3M1RW5mM2sxTEY3WThTUVVwdXVOZlNKTU9GRlVHTlVxNjY5L0Fod1FJSDJJYjhPQjY5cmV4ajdwQmdCWjFpd3l6eFlWUGZ3aUZSWXR0eFNDRVJiNk82alh4U21KS3FhTkdNcS9QdlJrTVUzTndxNDV1anN1M3l2NmVFSTVLZGpIV0pFdGd3ZWhXa0ZGL2NGcWd3PT0gd2p1bkB2bXdhcmUuY29t
+      sshPublicKey: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCQVFEWXcvKzlZQnBCSWZ0Tkl5Z09CNFNCalQ5bisxbEYxYVYweUtSWDB4MGllSjZ5eDFOZ25PWTVzUWlHcXpoZ3JPRDZNWHBvV2ZoR3FmOVVYR2xyVWxJZjhSMmo5YUd3YXVEazBlbUpXSi9TTVRLS2RmTzMyZkgyRkVobE5vMzVhdGJyQTZraVBiVHYzeXdCSGhHbTBzU2czVy80SzZUb0RpcHNLemEzK3VwQXFLZnptb05rdUxTSVh6Yk5WeTZrQzlSU3RobFJuV2xJOEtzQnVpeXlGS082aUVtY0pzWkIwTTZPUWQzNWpSbGI3R1htckh0aVZ0Y1F4SXJkRnNrSEVPWnJZcU5Sb2FPa3doY3VxdXFYcWw4bmJlQjdaUE9YSmxsS29CWXYvRFBGdFFsd010N055ZXRNY0dMOVdPcm81QnJNNWFCdm1JNGdWVjRlSERBbm1UMWQK
       vmSize: #@ data.values.AZURE_NODE_MACHINE_TYPE
 
 ---
