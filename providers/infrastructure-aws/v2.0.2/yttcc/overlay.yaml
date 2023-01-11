@@ -16,6 +16,12 @@
 #@ return tkr_version.split('+')[0]
 #@ end
 
+
+#@ def get_aws_os_version(version):
+#@ return "1804" if version == 18.04 else "2004"
+#@ end
+
+
 #@ bomData = get_default_tkg_bom_data()
 
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
@@ -53,7 +59,7 @@ spec:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
       metadata:
         annotations:
-          run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH)
+          run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={},os-version={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH, get_aws_os_version(data.values.OS_VERSION))
     workers:
       machineDeployments:
       #@overlay/match by=overlay.index(0)
@@ -64,8 +70,7 @@ spec:
         failureDomain: #@ default_az_0
         metadata:
           annotations:
-            #! VVV TODO(tenczar) os-version handling (also handle empty values?)
-            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH)
+            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={},os-version={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH, get_aws_os_version(data.values.OS_VERSION))
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker
@@ -74,8 +79,7 @@ spec:
         failureDomain: #@ default_az_1
         metadata:
           annotations:
-            #! VVV TODO(tenczar) os-version handling (also handle empty values?)
-            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH)
+            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={},os-version={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH, get_aws_os_version(data.values.OS_VERSION))
         #@ if data.values.NODE_MACHINE_TYPE_1:
         variables:
           overrides:
@@ -92,8 +96,7 @@ spec:
         failureDomain: #@ default_az_2
         metadata:
           annotations:
-            #! VVV TODO(tenczar) os-version handling (also handle empty values?)
-            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH)
+            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={},os-version={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH, get_aws_os_version(data.values.OS_VERSION))
         #@ if data.values.NODE_MACHINE_TYPE_2:
         variables:
           overrides:
