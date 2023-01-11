@@ -2,11 +2,9 @@ module github.com/vmware-tanzu/tanzu-framework/capabilities/client
 
 go 1.18
 
-replace github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
-
 require (
 	github.com/google/gnostic v0.5.7-v3refs
-	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20230119181514-3c34115bc248
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.24.2
 	k8s.io/apimachinery v0.24.2
