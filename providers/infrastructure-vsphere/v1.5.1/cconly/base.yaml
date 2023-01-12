@@ -100,16 +100,18 @@ spec:
           nodeRegistration:
             criSocket: /var/run/containerd/containerd.sock
             kubeletExtraArgs: {}
-            name: '{{ local_hostname }}'
+            name: '{{ ds.meta_data.hostname }}'
         joinConfiguration:
           nodeRegistration:
             criSocket: /var/run/containerd/containerd.sock
             kubeletExtraArgs: {}
-            name: '{{ local_hostname }}'
+            name: '{{ ds.meta_data.hostname }}'
         preKubeadmCommands:
-        - hostnamectl set-hostname "{{ ds.meta_data.hostname }}"
-        - echo "::1         ipv6-localhost ipv6-loopback localhost6 localhost6.localdomain6" >/etc/hosts
-        - echo "127.0.0.1   {{ ds.meta_data.hostname }} {{ local_hostname }} localhost localhost.localdomain localhost4 localhost4.localdomain4" >>/etc/hosts
+        - hostname "{{ ds.meta_data.hostname }}"
+        - echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
+        - echo "127.0.0.1   localhost" >>/etc/hosts
+        - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
+        - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
         users:
         - name: capv
           sshAuthorizedKeys:
@@ -129,11 +131,13 @@ spec:
         nodeRegistration:
           criSocket: /var/run/containerd/containerd.sock
           kubeletExtraArgs: {}
-          name: '{{ local_hostname }}'
+          name: '{{ ds.meta_data.hostname }}'
       preKubeadmCommands:
-      - hostnamectl set-hostname "{{ ds.meta_data.hostname }}"
-      - echo "::1         ipv6-localhost ipv6-loopback localhost6 localhost6.localdomain6" >/etc/hosts
-      - echo "127.0.0.1   {{ ds.meta_data.hostname }} {{ local_hostname }} localhost localhost.localdomain localhost4 localhost4.localdomain4" >>/etc/hosts
+      - hostname "{{ ds.meta_data.hostname }}"
+      - echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
+      - echo "127.0.0.1   localhost" >>/etc/hosts
+      - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
+      - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
       postKubeadmCommands:
       - echo "running postKubeadmCommands..."
       files:
