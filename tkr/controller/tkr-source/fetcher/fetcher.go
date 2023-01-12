@@ -396,7 +396,7 @@ func (f *Fetcher) filterTKRPackages(imageName string, bundleContent map[string][
 		f.Log.Error(err, "failed to parse .imgpkg/images.yml")
 	}
 	imgpkgutil.ResolveImages(imageMap, bundleContent)
-	f.Log.Info("$$$$$ Replaced images in the TKR package", "imageMap", imageMap, "bundleContent", bundleContent)
+	f.Log.Info("Replaced images in the TKR package", "imageMap", imageMap)
 
 	result := make([]*kapppkgv1.Package, 0, len(bundleContent))
 	for path, bytes := range bundleContent {

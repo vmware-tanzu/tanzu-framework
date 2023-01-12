@@ -198,7 +198,7 @@ func (r *Reconciler) doInstall(ctx context.Context, pkg *kapppkgv1.Package, cm *
 		r.Log.Error(err, "failed to parse .imgpkg/images.yml")
 	}
 	imgpkgutil.ResolveImages(imageMap, packageContent)
-	r.Log.Info("$$$$$ Replaced images in the TKR package", "imageMap", imageMap, "bundleContent", packageContent)
+	r.Log.Info("Replaced images in the TKR package", "imageMap", imageMap)
 
 	for path, bytes := range packageContent {
 		if strings.HasPrefix(path, ".") {
