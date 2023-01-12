@@ -227,7 +227,7 @@ func (q *QueryGVR) unmatchedGroupVersionResources(cfg *clusterQueryClientConfig)
 				return nil, err
 			}
 		}
-		if !q.resourceExists(resources) {
+		if !q.resourceExists([]*metav1.APIResourceList{resources}) {
 			unmatched = append(unmatched, gvr.String())
 		}
 	}
@@ -246,7 +246,8 @@ func (q *QueryGVR) containsGroup(groups []*metav1.APIGroup, group string) bool {
 
 // resourceListInGroup looks within a slice of APIResourceList for an
 // APIResourceList that is in a specified group.
-func (q *QueryGVR) resourceListInGroup(resourceLists []*metav1.APIResourceList, group string) (*metav1.APIResourceList, error) {
+func (q *QueryGVR) resourceListInGroup(resourceLists []*metav1.APIResourceList, group string) ([]*metav1.APIResourceList, error) {
+	var list []*metav1.APIResourceList
 	for _, rscList := range resourceLists {
 		gv, err := schema.ParseGroupVersion(rscList.GroupVersion)
 		if err != nil {
@@ -254,10 +255,10 @@ func (q *QueryGVR) resourceListInGroup(resourceLists []*metav1.APIResourceList, 
 		}
 
 		if strings.EqualFold(gv.Group, group) {
-			return rscList, nil
+			list = append(list, rscList)
 		}
 	}
-	return nil, nil
+	return list, nil
 }
 
 // groupFromGroupList looks for a particular group from an APIGroupList.
@@ -270,14 +271,18 @@ func (q *QueryGVR) groupFromGroupList(groupList *metav1.APIGroupList) *metav1.AP
 	return nil
 }
 
-func (q *QueryGVR) resourceExists(resources *metav1.APIResourceList) bool {
-	if resources == nil {
+// resourceExists iterates over a slice of APIResourceList and checks if the resource in the query exists
+func (q *QueryGVR) resourceExists(resources []*metav1.APIResourceList) bool {
+	if len(resources) == 0 {
 		return false
 	}
-
-	for i := range resources.APIResources {
-		if resources.APIResources[i].Name == q.resource.String {
-			return true
+	for i := range resources {
+		if resources[i] != nil {
+			for j := range resources[i].APIResources {
+				if resources[i].APIResources[j].Name == q.resource.String {
+					return true
+				}
+			}
 		}
 	}
 	return false
