@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -309,7 +310,7 @@ func (c *TkgClient) isCustomOverlayPresent() (bool, error) {
 // Sets the appropriate AllowLegacyCluster configuration unless it has been explicitly overridden
 func (c *TkgClient) SetAllowLegacyClusterConfiguration() string {
 	var allowLegacyCluster string
-	value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAllowLegacyCluster)
+	value, err := c.allowLegacyCluster()
 	if err != nil {
 		// ALLOW_LEGACY_CLUSTER doesn't be explicitly set in cluster config file
 		if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
@@ -324,19 +325,7 @@ func (c *TkgClient) SetAllowLegacyClusterConfiguration() string {
 	} else {
 		// ALLOW_LEGACY_CLUSTER is explicitly set in cluster config file
 		log.V(6).Infof("Info: %v configuration already set to %q", constants.ConfigVariableAllowLegacyCluster, value)
-		if value != "true" && value != "false" {
-			log.Warningf("Seem like you have set %v, but it's not a valid value. It should be true or false", constants.ConfigVariableAllowLegacyCluster)
-			// Set ALLOW_LEGACY_CLUSTER to a valid value
-			if !c.IsFeatureActivated(constants.FeatureFlagAllowLegacyCluster) {
-				allowLegacyCluster = "false"
-			} else {
-				allowLegacyCluster = "true"
-			}
-			log.V(6).Infof("Setting %v to %q", constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableAllowLegacyCluster, allowLegacyCluster)
-		} else {
-			allowLegacyCluster = value
-		}
+		allowLegacyCluster = strconv.FormatBool(value)
 	}
 
 	return allowLegacyCluster
@@ -364,11 +353,14 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		return true, nil
 	}
 
+	// Ignore the checksum check if config variable 'SUPPRESS_PROVIDERS_UPDATE' is set.
+	isSuppressProvidersUpdateSet := os.Getenv(constants.SuppressProvidersUpdate) != ""
+
 	allowLegacyClusterCreated = c.SetAllowLegacyClusterConfiguration()
 	if allowLegacyClusterCreated == "false" {
 		// Return error if user has customized template overlays
 		// but the feature gate FeatureFlagAllowLegacyCluster or ALLOW_LEGACY_CLUSTER parameter is disabled for workload cluster
-		if isCustomOverlayPresent {
+		if isCustomOverlayPresent && !isSuppressProvidersUpdateSet {
 			return false, errors.Errorf("It seems like you have done some customizations to the template overlays. However, the feature gate %v is %v. Please enabe it and try again", constants.FeatureFlagAllowLegacyCluster, allowLegacyClusterCreated)
 		} else {
 			// Deploy clusterclass based workload cluster when template overlays don't be customized

@@ -47,7 +47,7 @@ clientOptions:
       import: 'false'
       standalone-cluster-mode: 'false'
     package:
-      kctrl-package-command-tree: 'true'
+      kctrl-command-tree: 'true'
 kind: ClientConfig
 metadata:
   creationTimestamp: null
@@ -135,7 +135,7 @@ clientOptions:
             import: 'false'
             standalone-cluster-mode: 'false'
         package:
-            kctrl-package-command-tree: 'true'
+            kctrl-command-tree: 'true'
 kind: ClientConfig
 metadata:
     creationTimestamp: null
@@ -538,7 +538,7 @@ clientOptions:
       import: 'false'
       standalone-cluster-mode: 'false'
     package:
-      kctrl-package-command-tree: 'true'
+      kctrl-command-tree: 'true'
 contexts:
   - name: test-mc
     target: kubernetes
@@ -608,7 +608,7 @@ clientOptions:
             import: 'false'
             standalone-cluster-mode: 'false'
         package:
-            kctrl-package-command-tree: 'true'
+            kctrl-command-tree: 'true'
 `,
 		},
 		{
@@ -645,7 +645,7 @@ clientOptions:
       import: 'false'
       standalone-cluster-mode: 'false'
     package:
-      kctrl-package-command-tree: 'true'
+      kctrl-command-tree: 'true'
 contexts:
   - name: test-mc
     target: kubernetes
@@ -745,7 +745,7 @@ clientOptions:
             import: 'false'
             standalone-cluster-mode: 'false'
         package:
-            kctrl-package-command-tree: 'true'
+            kctrl-command-tree: 'true'
 contexts:
     - name: test-mc
       target: kubernetes
@@ -812,7 +812,7 @@ clientOptions:
       import: 'false'
       standalone-cluster-mode: 'false'
     package:
-      kctrl-package-command-tree: 'true'
+      kctrl-command-tree: 'true'
 contexts:
   - name: test-mc
     target: kubernetes
@@ -912,7 +912,7 @@ clientOptions:
             import: 'false'
             standalone-cluster-mode: 'false'
         package:
-            kctrl-package-command-tree: 'true'
+            kctrl-command-tree: 'true'
 contexts:
     - name: test-mc
       target: kubernetes
@@ -979,7 +979,7 @@ clientOptions:
       import: 'false'
       standalone-cluster-mode: 'false'
     package:
-      kctrl-package-command-tree: 'true'
+      kctrl-command-tree: 'true'
 contexts:
   - name: test-mc
     target: kubernetes
@@ -1051,7 +1051,7 @@ clientOptions:
             import: 'false'
             standalone-cluster-mode: 'false'
         package:
-            kctrl-package-command-tree: 'true'
+            kctrl-command-tree: 'true'
 contexts: []
 currentContext: {}
 `,
@@ -1113,7 +1113,7 @@ clientOptions:
       import: 'false'
       standalone-cluster-mode: 'false'
     package:
-      kctrl-package-command-tree: 'true'
+      kctrl-command-tree: 'true'
 contexts:
   - name: test-mc
     target: kubernetes
@@ -1186,7 +1186,7 @@ clientOptions:
             import: 'false'
             standalone-cluster-mode: 'false'
         package:
-            kctrl-package-command-tree: 'true'
+            kctrl-command-tree: 'true'
 contexts: []
 currentContext: {}
 current:

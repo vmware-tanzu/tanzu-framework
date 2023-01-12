@@ -324,12 +324,21 @@ func (cache *cache) filterOSImageDetails(osImageQuery *data.OSImageQuery) *osIma
 	}
 
 	consideredTKRs := cache.consideredTKRs(*osImageQuery)
+	consideredTKRs = possiblyNarrowToExactMatch(*osImageQuery, consideredTKRs)
 	filteredOSImagesByTKR := cache.filterOSImagesByTKR(*osImageQuery, consideredTKRs)
 
 	return &osImageDetails{
 		tkrs:          filterTKRsWithOSImages(filteredOSImagesByTKR, consideredTKRs),
 		osImagesByTKR: filteredOSImagesByTKR,
 	}
+}
+
+func possiblyNarrowToExactMatch(osImageQuery data.OSImageQuery, consideredTKRs data.TKRs) data.TKRs {
+	name := version.Label(osImageQuery.K8sVersionPrefix)
+	if tkr := consideredTKRs[name]; tkr != nil {
+		return data.TKRs{name: tkr}
+	}
+	return consideredTKRs
 }
 
 // consideredTKRs returns the initial set of TKRs satisfying the query.

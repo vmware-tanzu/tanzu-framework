@@ -170,8 +170,20 @@ var _ = Describe("Cluster Client", func() {
 			return getterFunc()
 		})
 		poller.PollImmediateInfiniteWithGetterCalls(func(interval time.Duration, getterFunc GetterFunc) error {
-			_, errGetter := getterFunc()
-			return errGetter
+			pollMaxRetry := 40
+			timeout, err := getterFunc()
+			for i := 0; i <= pollMaxRetry; i++ {
+				timeoutBool := timeout.(bool)
+				if timeoutBool {
+					return err
+				}
+				if err == nil {
+					return nil
+				}
+				time.Sleep(time.Second * interval)
+				timeout, err = getterFunc()
+			}
+			return err
 		})
 		clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 		discoveryClient.ServerVersionReturns(&version.Info{}, nil)
