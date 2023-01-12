@@ -5,6 +5,7 @@ package imgpkgutil
 
 import (
 	"bytes"
+	"strings"
 
 	"sigs.k8s.io/yaml"
 )
@@ -20,10 +21,12 @@ type image struct {
 
 const annotKbldID = "kbld.carvel.dev/id"
 
-func ParseImagesLock(imagesLockBytes []byte) (map[string]string, error) {
+func ParseImagesLock(bundleImageName string, imagesLockBytes []byte) (map[string]string, error) {
 	if imagesLockBytes == nil {
 		return nil, nil
 	}
+
+	bundleImageNamePrefix := bundleImagePrefix(bundleImageName)
 
 	var imagesLock imagesLock
 	if err := yaml.Unmarshal(imagesLockBytes, &imagesLock); err != nil {
@@ -32,9 +35,23 @@ func ParseImagesLock(imagesLockBytes []byte) (map[string]string, error) {
 
 	imageMap := make(map[string]string, len(imagesLock.Images))
 	for _, image := range imagesLock.Images {
-		imageMap[image.Annotations[annotKbldID]] = image.Image
+		targetImage := replaceImagePrefix(bundleImageNamePrefix, image.Image)
+		imageMap[image.Annotations[annotKbldID]] = targetImage
 	}
 	return imageMap, nil
+}
+
+func replaceImagePrefix(imagePrefix string, image string) string {
+	shaTagIndex := strings.Index(image, "@sha256:")
+	return imagePrefix + image[shaTagIndex:]
+}
+
+func bundleImagePrefix(bundleImageName string) string {
+	lastIndex := strings.LastIndex(bundleImageName, ":")
+	if lastIndex == -1 {
+		return bundleImageName
+	}
+	return bundleImageName[:lastIndex]
 }
 
 func ResolveImages(imageMap map[string]string, bundleContent map[string][]byte) {
