@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"testing"
 
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
+	ctlimg "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/registry"
 
 	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 )

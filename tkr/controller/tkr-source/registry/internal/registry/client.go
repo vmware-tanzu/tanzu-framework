@@ -11,8 +11,8 @@ import (
 	"github.com/cppforlife/go-cli-ui/ui"
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
-	"github.com/k14s/imgpkg/pkg/imgpkg/cmd"
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
+	"github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/cmd"
+	ctlimg "github.com/vmware-tanzu/carvel-imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 )
 
@@ -23,7 +23,7 @@ type registry struct {
 
 // New instantiates a new Registry
 func New(opts *ctlimg.Opts) (Registry, error) {
-	reg, err := ctlimg.NewRegistry(*opts)
+	reg, err := ctlimg.NewSimpleRegistry(*opts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to initialze registry client")
 	}
