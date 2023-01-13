@@ -324,6 +324,10 @@ type Client interface {
 	UpdateVsphereCsiConfigSecret(clusterName string, namespace string, username string, password string) error
 	// UpdateCapzManagerBootstrapCredentialsSecret updates the azure creds used by the capz provider
 	UpdateCapzManagerBootstrapCredentialsSecret(tenantID string, clientID string, clientSecret string) error
+	// GetAzureClusterName gets AzureCluster Name and Namespace
+	GetAzureClusterName(clusterName string, namespace string) (string, string, error)
+	// GetKubeadmControlPlaneName gets KubeadmControlPlane Name and Namespace
+	GetKubeadmControlPlaneName(clusterName, namespace string) (string, string, error)
 	// UpdateAzureClusterIdentity returns whether the cluster used the same azure cluster identityRef with the management cluster
 	CheckUnifiedAzureClusterIdentity(clusterName string, namespace string) (bool, error)
 	// UpdateAzureClusterIdentity updates the azure cluster identityRef used by the capz provider

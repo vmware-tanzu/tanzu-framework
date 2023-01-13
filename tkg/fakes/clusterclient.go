@@ -222,6 +222,22 @@ type ClusterClient struct {
 		result1 string
 		result2 error
 	}
+	GetAzureClusterNameStub        func(string, string) (string, string, error)
+	getAzureClusterNameMutex       sync.RWMutex
+	getAzureClusterNameArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	getAzureClusterNameReturns struct {
+		result1 string
+		result2 string
+		result3 error
+	}
+	getAzureClusterNameReturnsOnCall map[int]struct {
+		result1 string
+		result2 string
+		result3 error
+	}
 	GetAzureCredentialsFromSecretStub        func() (azure.Credentials, error)
 	getAzureCredentialsFromSecretMutex       sync.RWMutex
 	getAzureCredentialsFromSecretArgsForCall []struct {
@@ -420,6 +436,22 @@ type ClusterClient struct {
 	getKubeConfigForClusterReturnsOnCall map[int]struct {
 		result1 []byte
 		result2 error
+	}
+	GetKubeadmControlPlaneNameStub        func(string, string) (string, string, error)
+	getKubeadmControlPlaneNameMutex       sync.RWMutex
+	getKubeadmControlPlaneNameArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	getKubeadmControlPlaneNameReturns struct {
+		result1 string
+		result2 string
+		result3 error
+	}
+	getKubeadmControlPlaneNameReturnsOnCall map[int]struct {
+		result1 string
+		result2 string
+		result3 error
 	}
 	GetKubernetesVersionStub        func() (string, error)
 	getKubernetesVersionMutex       sync.RWMutex
@@ -2389,6 +2421,74 @@ func (fake *ClusterClient) GetAWSCredentialsFromSecretReturnsOnCall(i int, resul
 	}{result1, result2}
 }
 
+func (fake *ClusterClient) GetAzureClusterName(arg1 string, arg2 string) (string, string, error) {
+	fake.getAzureClusterNameMutex.Lock()
+	ret, specificReturn := fake.getAzureClusterNameReturnsOnCall[len(fake.getAzureClusterNameArgsForCall)]
+	fake.getAzureClusterNameArgsForCall = append(fake.getAzureClusterNameArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetAzureClusterNameStub
+	fakeReturns := fake.getAzureClusterNameReturns
+	fake.recordInvocation("GetAzureClusterName", []interface{}{arg1, arg2})
+	fake.getAzureClusterNameMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2, ret.result3
+	}
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
+}
+
+func (fake *ClusterClient) GetAzureClusterNameCallCount() int {
+	fake.getAzureClusterNameMutex.RLock()
+	defer fake.getAzureClusterNameMutex.RUnlock()
+	return len(fake.getAzureClusterNameArgsForCall)
+}
+
+func (fake *ClusterClient) GetAzureClusterNameCalls(stub func(string, string) (string, string, error)) {
+	fake.getAzureClusterNameMutex.Lock()
+	defer fake.getAzureClusterNameMutex.Unlock()
+	fake.GetAzureClusterNameStub = stub
+}
+
+func (fake *ClusterClient) GetAzureClusterNameArgsForCall(i int) (string, string) {
+	fake.getAzureClusterNameMutex.RLock()
+	defer fake.getAzureClusterNameMutex.RUnlock()
+	argsForCall := fake.getAzureClusterNameArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) GetAzureClusterNameReturns(result1 string, result2 string, result3 error) {
+	fake.getAzureClusterNameMutex.Lock()
+	defer fake.getAzureClusterNameMutex.Unlock()
+	fake.GetAzureClusterNameStub = nil
+	fake.getAzureClusterNameReturns = struct {
+		result1 string
+		result2 string
+		result3 error
+	}{result1, result2, result3}
+}
+
+func (fake *ClusterClient) GetAzureClusterNameReturnsOnCall(i int, result1 string, result2 string, result3 error) {
+	fake.getAzureClusterNameMutex.Lock()
+	defer fake.getAzureClusterNameMutex.Unlock()
+	fake.GetAzureClusterNameStub = nil
+	if fake.getAzureClusterNameReturnsOnCall == nil {
+		fake.getAzureClusterNameReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 string
+			result3 error
+		})
+	}
+	fake.getAzureClusterNameReturnsOnCall[i] = struct {
+		result1 string
+		result2 string
+		result3 error
+	}{result1, result2, result3}
+}
+
 func (fake *ClusterClient) GetAzureCredentialsFromSecret() (azure.Credentials, error) {
 	fake.getAzureCredentialsFromSecretMutex.Lock()
 	ret, specificReturn := fake.getAzureCredentialsFromSecretReturnsOnCall[len(fake.getAzureCredentialsFromSecretArgsForCall)]
@@ -3336,6 +3436,74 @@ func (fake *ClusterClient) GetKubeConfigForClusterReturnsOnCall(i int, result1 [
 		result1 []byte
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetKubeadmControlPlaneName(arg1 string, arg2 string) (string, string, error) {
+	fake.getKubeadmControlPlaneNameMutex.Lock()
+	ret, specificReturn := fake.getKubeadmControlPlaneNameReturnsOnCall[len(fake.getKubeadmControlPlaneNameArgsForCall)]
+	fake.getKubeadmControlPlaneNameArgsForCall = append(fake.getKubeadmControlPlaneNameArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetKubeadmControlPlaneNameStub
+	fakeReturns := fake.getKubeadmControlPlaneNameReturns
+	fake.recordInvocation("GetKubeadmControlPlaneName", []interface{}{arg1, arg2})
+	fake.getKubeadmControlPlaneNameMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2, ret.result3
+	}
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
+}
+
+func (fake *ClusterClient) GetKubeadmControlPlaneNameCallCount() int {
+	fake.getKubeadmControlPlaneNameMutex.RLock()
+	defer fake.getKubeadmControlPlaneNameMutex.RUnlock()
+	return len(fake.getKubeadmControlPlaneNameArgsForCall)
+}
+
+func (fake *ClusterClient) GetKubeadmControlPlaneNameCalls(stub func(string, string) (string, string, error)) {
+	fake.getKubeadmControlPlaneNameMutex.Lock()
+	defer fake.getKubeadmControlPlaneNameMutex.Unlock()
+	fake.GetKubeadmControlPlaneNameStub = stub
+}
+
+func (fake *ClusterClient) GetKubeadmControlPlaneNameArgsForCall(i int) (string, string) {
+	fake.getKubeadmControlPlaneNameMutex.RLock()
+	defer fake.getKubeadmControlPlaneNameMutex.RUnlock()
+	argsForCall := fake.getKubeadmControlPlaneNameArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) GetKubeadmControlPlaneNameReturns(result1 string, result2 string, result3 error) {
+	fake.getKubeadmControlPlaneNameMutex.Lock()
+	defer fake.getKubeadmControlPlaneNameMutex.Unlock()
+	fake.GetKubeadmControlPlaneNameStub = nil
+	fake.getKubeadmControlPlaneNameReturns = struct {
+		result1 string
+		result2 string
+		result3 error
+	}{result1, result2, result3}
+}
+
+func (fake *ClusterClient) GetKubeadmControlPlaneNameReturnsOnCall(i int, result1 string, result2 string, result3 error) {
+	fake.getKubeadmControlPlaneNameMutex.Lock()
+	defer fake.getKubeadmControlPlaneNameMutex.Unlock()
+	fake.GetKubeadmControlPlaneNameStub = nil
+	if fake.getKubeadmControlPlaneNameReturnsOnCall == nil {
+		fake.getKubeadmControlPlaneNameReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 string
+			result3 error
+		})
+	}
+	fake.getKubeadmControlPlaneNameReturnsOnCall[i] = struct {
+		result1 string
+		result2 string
+		result3 error
+	}{result1, result2, result3}
 }
 
 func (fake *ClusterClient) GetKubernetesVersion() (string, error) {
@@ -8075,6 +8243,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.exportCurrentKubeconfigToFileMutex.RUnlock()
 	fake.getAWSCredentialsFromSecretMutex.RLock()
 	defer fake.getAWSCredentialsFromSecretMutex.RUnlock()
+	fake.getAzureClusterNameMutex.RLock()
+	defer fake.getAzureClusterNameMutex.RUnlock()
 	fake.getAzureCredentialsFromSecretMutex.RLock()
 	defer fake.getAzureCredentialsFromSecretMutex.RUnlock()
 	fake.getBomConfigMapMutex.RLock()
@@ -8107,6 +8277,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getKCPObjectForClusterMutex.RUnlock()
 	fake.getKubeConfigForClusterMutex.RLock()
 	defer fake.getKubeConfigForClusterMutex.RUnlock()
+	fake.getKubeadmControlPlaneNameMutex.RLock()
+	defer fake.getKubeadmControlPlaneNameMutex.RUnlock()
 	fake.getKubernetesVersionMutex.RLock()
 	defer fake.getKubernetesVersionMutex.RUnlock()
 	fake.getMDObjectForClusterMutex.RLock()
