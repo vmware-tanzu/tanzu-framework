@@ -378,7 +378,7 @@ func (f *Fetcher) createTKRPackages(ctx context.Context, tag string) error {
 	}
 
 	f.Log.Info("Getting TKR package(s) from", "image", imageName)
-	packages := f.filterTKRPackages(bundleContent)
+	packages := f.filterTKRPackages(imageName, bundleContent)
 
 	for _, pkg := range packages {
 		f.Log.Info("Creating package", "name", pkg.Name)
@@ -390,12 +390,13 @@ func (f *Fetcher) createTKRPackages(ctx context.Context, tag string) error {
 	return nil
 }
 
-func (f *Fetcher) filterTKRPackages(bundleContent map[string][]byte) []*kapppkgv1.Package {
-	imageMap, err := imgpkgutil.ParseImagesLock(bundleContent[".imgpkg/images.yml"])
+func (f *Fetcher) filterTKRPackages(imageName string, bundleContent map[string][]byte) []*kapppkgv1.Package {
+	imageMap, err := imgpkgutil.ParseImagesLock(imageName, bundleContent[".imgpkg/images.yml"])
 	if err != nil {
 		f.Log.Error(err, "failed to parse .imgpkg/images.yml")
 	}
 	imgpkgutil.ResolveImages(imageMap, bundleContent)
+	f.Log.Info("Replaced images in the TKR package", "imageMap", imageMap)
 
 	result := make([]*kapppkgv1.Package, 0, len(bundleContent))
 	for path, bytes := range bundleContent {

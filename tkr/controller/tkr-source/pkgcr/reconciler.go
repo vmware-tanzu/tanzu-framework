@@ -188,16 +188,17 @@ func (r *Reconciler) doInstall(ctx context.Context, pkg *kapppkgv1.Package, cm *
 		cm.Data[FieldInstallData] = marshalInstallData(installData)
 	}()
 
-	packageContent, err := r.fetchPackageContent(pkg)
+	packageContent, bundleImage, err := r.fetchPackageContent(pkg)
 	if err != nil {
 		return false, err
 	}
 
-	imageMap, err := imgpkgutil.ParseImagesLock(packageContent[".imgpkg/images.yml"])
+	imageMap, err := imgpkgutil.ParseImagesLock(bundleImage, packageContent[".imgpkg/images.yml"])
 	if err != nil {
 		r.Log.Error(err, "failed to parse .imgpkg/images.yml")
 	}
 	imgpkgutil.ResolveImages(imageMap, packageContent)
+	r.Log.Info("Replaced images in the TKR package", "imageMap", imageMap)
 
 	for path, bytes := range packageContent {
 		if strings.HasPrefix(path, ".") {
@@ -239,21 +240,21 @@ func parseObject(cm *corev1.ConfigMap, bytes []byte) (*unstructured.Unstructured
 	return u, nil
 }
 
-func (r *Reconciler) fetchPackageContent(pkg *kapppkgv1.Package) (map[string][]byte, error) {
+func (r *Reconciler) fetchPackageContent(pkg *kapppkgv1.Package) (map[string][]byte, string, error) {
 	if pkg.Spec.Template.Spec == nil {
-		return nil, nil
+		return nil, "", nil
 	}
 	for _, fetch := range pkg.Spec.Template.Spec.Fetch {
 		if fetch.ImgpkgBundle == nil {
-			return nil, nil
+			return nil, "", nil
 		}
 		files, err := r.Registry.GetFiles(fetch.ImgpkgBundle.Image)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
-		return files, nil // nolint:staticcheck // loop is unconditionally terminated: there's only one Fetch
+		return files, fetch.ImgpkgBundle.Image, nil // nolint:staticcheck // loop is unconditionally terminated: there's only one Fetch
 	}
-	return nil, nil
+	return nil, "", nil
 }
 
 func (r *Reconciler) create(ctx context.Context, u *unstructured.Unstructured) error {
