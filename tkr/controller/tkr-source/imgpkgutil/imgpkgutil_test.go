@@ -55,6 +55,20 @@ var _ = Describe("parseImagesLock", func() {
 			Expect(imageMap).To(Equal(expectedImageMap))
 			Expect(err).ToNot(HaveOccurred())
 		})
+
+		When("bundleImage comes from the same registry (i.e. no air-gap)", func() {
+			BeforeEach(func() {
+				bundleImage = "projects-stg.registry.vmware.com/tkg/tkr-repository-vsphere-nonparavirt:v1.24.9_vmware.1-tkg.1-zshippable"
+				expectedImageMap = map[string]string{
+					"projects-stg.registry.vmware.com/tkg/tkr-vsphere-nonparavirt:v1.24.9_vmware.1-tkg.1-zshippable": "projects-stg.registry.vmware.com/tkg/tkr-vsphere-nonparavirt@sha256:b56a4c11a3eef1d3fef51c66b1571f92d45f17cf11de8f89e7706dbbb9b6a287",
+				}
+			})
+			It("should return the expected map of images", func() {
+				imageMap, err := ParseImagesLock(bundleImage, imagesLockBytes)
+				Expect(imageMap).To(Equal(expectedImageMap))
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
 	})
 
 	Context("nil input", func() {

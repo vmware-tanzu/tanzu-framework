@@ -35,15 +35,14 @@ func ParseImagesLock(bundleImageName string, imagesLockBytes []byte) (map[string
 
 	imageMap := make(map[string]string, len(imagesLock.Images))
 	for _, image := range imagesLock.Images {
-		targetImage := replaceImagePrefix(bundleImageNamePrefix, image.Image)
-		imageMap[image.Annotations[annotKbldID]] = targetImage
+		sourceImage := image.Annotations[annotKbldID]
+		targetImage := image.Image
+		if !comesFromTheSameRegistry(bundleImageNamePrefix, image.Image) { // air-gap case
+			targetImage = replaceImagePrefix(bundleImageNamePrefix, image.Image)
+		}
+		imageMap[sourceImage] = targetImage
 	}
 	return imageMap, nil
-}
-
-func replaceImagePrefix(imagePrefix string, image string) string {
-	shaTagIndex := strings.Index(image, "@sha256:")
-	return imagePrefix + image[shaTagIndex:]
 }
 
 func bundleImagePrefix(bundleImageName string) string {
@@ -52,6 +51,15 @@ func bundleImagePrefix(bundleImageName string) string {
 		return bundleImageName
 	}
 	return bundleImageName[:lastIndex]
+}
+
+func comesFromTheSameRegistry(bundleImageName string, sourceImage string) bool {
+	return strings.HasPrefix(sourceImage, bundleImageName[:strings.Index(bundleImageName, "/")])
+}
+
+func replaceImagePrefix(imagePrefix string, image string) string {
+	shaTagIndex := strings.Index(image, "@sha256:")
+	return imagePrefix + image[shaTagIndex:]
 }
 
 func ResolveImages(imageMap map[string]string, bundleContent map[string][]byte) {
