@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"strings"
 
+	"github.com/pkg/errors"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 )
 
@@ -20,18 +21,30 @@ const (
 func (c *TkgClient) configureAuditVersion(old *controlplanev1.KubeadmControlPlane) (*controlplanev1.KubeadmControlPlane, error) {
 	for i, f := range old.Spec.KubeadmConfigSpec.Files {
 		if f.Path == auditConfigFilePath {
-			decoded, err := base64.StdEncoding.DecodeString(f.Content)
-			if err != nil {
-				return nil, err
+			decodedstr := ""
+			if f.Encoding == "base64" || f.Encoding == "" {
+				decoded, err := base64.StdEncoding.DecodeString(f.Content)
+				if err != nil {
+					return nil, err
+				}
+				decodedstr = string(decoded)
+			} else if f.Encoding == "gzip" || f.Encoding == "gzip+base64" {
+				// TODO we only have base64 at the moment in legacy cluster's yaml, do nothing here in case do has different encodings
+				return nil, nil
+			} else {
+				errors.Errorf("unkown audit content encoding %s", f.Encoding)
 			}
-			if strings.Contains(string(decoded), apiVersionV1Alpha1) || strings.Contains(string(decoded), apiVersionV1Beta1) {
+
+			if strings.Contains(decodedstr, apiVersionV1Alpha1) || strings.Contains(decodedstr, apiVersionV1Beta1) {
 				kcp := old.DeepCopy()
 				newFile := f.DeepCopy()
-				newContent := strings.ReplaceAll(string(decoded), apiVersionV1Beta1, apiVersionV1)
+				newContent := strings.ReplaceAll(decodedstr, apiVersionV1Beta1, apiVersionV1)
 				newContent = strings.ReplaceAll(newContent, apiVersionV1Alpha1, apiVersionV1)
 				newFile.Content = base64.StdEncoding.EncodeToString([]byte(newContent))
 				kcp.Spec.KubeadmConfigSpec.Files[i] = *newFile
 				return kcp, nil
+			} else {
+				return nil, nil
 			}
 		}
 	}
