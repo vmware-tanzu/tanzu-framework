@@ -32,7 +32,7 @@ func (c *TkgClient) configureAuditVersion(old *controlplanev1.KubeadmControlPlan
 				// TODO we only have base64 at the moment in legacy cluster's yaml, do nothing here in case do has different encodings
 				return nil, nil
 			} else {
-				errors.Errorf("unkown audit content encoding %s", f.Encoding)
+				return nil, errors.Errorf("unknown audit content encoding %s", f.Encoding)
 			}
 
 			if strings.Contains(decodedstr, apiVersionV1Alpha1) || strings.Contains(decodedstr, apiVersionV1Beta1) {
