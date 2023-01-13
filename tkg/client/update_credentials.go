@@ -90,7 +90,7 @@ func (c *TkgClient) UpdateCredentialsRegion(options *UpdateCredentialsOptions) e
 		return errors.New("Updating '" + infraProviderName + "' cluster is not yet supported")
 	}
 
-	log.Infof("Updating credentials for management cluster successful")
+	log.Infof("Credentials for management cluster is being updated")
 	return nil
 }
 
@@ -140,7 +140,7 @@ func (c *TkgClient) UpdateCredentialsCluster(options *UpdateCredentialsOptions) 
 		return errors.New("Updating '" + infraProviderName + "' cluster is not yet supported")
 	}
 
-	log.Infof("Updating credentials for workload cluster successful!")
+	log.Infof("Credentials for workload cluster is being updated")
 	return nil
 }
 
@@ -223,7 +223,7 @@ func (c *TkgClient) UpdateAzureClusterCredentials(clusterClient clusterclient.Cl
 			return err
 		}
 		if unifiedIdentity {
-			log.Warningf("AzureCluster %s use the same AzureClusterIdentity from its management cluster. It cannot be updated separately.", options.ClusterName)
+			log.Warningf("Cluster %s use the same AzureClusterIdentity from its management cluster. It cannot be updated separately.", options.ClusterName)
 			return nil
 		}
 	}
@@ -273,29 +273,29 @@ func (c *TkgClient) UpdateAzureCredentialsForCluster(clusterClient clusterclient
 		}
 
 		// restart capz-controller-manager pod
-		log.Infof("Restart capz-controller-manager pod")
+		log.Infof("Restarting capz-controller-manager pod")
 		if err := c.RestartCAPZControllerManagerPod(clusterClient); err != nil {
 			return err
 		}
 
 		// UpdateAzureClusterIdentity
-		log.Infof("Update cluster %q AzureClusterIdentity", options.ClusterName)
+		log.Infof("Updating cluster %q AzureClusterIdentity", options.ClusterName)
 		if err := clusterClient.UpdateAzureClusterIdentity(options.ClusterName, options.Namespace, options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureClientID, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
 			return err
 		}
 	} else {
 		if !unifiedIdentity {
 			// UpdateAzureClusterIdentity
-			log.Infof("Update cluster %q AzureClusterIdentity", options.ClusterName)
+			log.Infof("Updating cluster %q AzureClusterIdentity", options.ClusterName)
 			if err := clusterClient.UpdateAzureClusterIdentity(options.ClusterName, options.Namespace, options.AzureUpdateClusterOptions.AzureTenantID, options.AzureUpdateClusterOptions.AzureClientID, options.AzureUpdateClusterOptions.AzureClientSecret); err != nil {
 				return err
 			}
 		} else {
-			log.Warningf("AzureCluster %s use the same AzureClusterIdentity from its management cluster. It must be updated together.", options.ClusterName)
+			log.Warningf("Cluster %s use the same AzureClusterIdentity from its management cluster. It must be updated together.", options.ClusterName)
 		}
 	}
 	// Recycle all KCP in the cluster
-	log.V(4).Infof("Update KCP rolloutAfter for cluster %q", options.ClusterName)
+	log.V(4).Infof("Updating KCP rolloutAfter for cluster %q", options.ClusterName)
 	if err := clusterClient.UpdateAzureKCP(options.ClusterName, options.Namespace); err != nil {
 		return err
 	}
