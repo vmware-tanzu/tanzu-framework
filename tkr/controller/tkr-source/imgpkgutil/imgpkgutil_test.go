@@ -56,6 +56,20 @@ var _ = Describe("parseImagesLock", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
 
+		When("bundleImage comes from different registry AND it is a @sha:<hash>", func() {
+			BeforeEach(func() {
+				bundleImage = "10.92.174.209:8443/library/tkr-repository-vsphere-nonparavirt@sha256:80531da198daf051a6e20bc150acf56e51da7b8491154aa1056fa7b366064e92"
+				expectedImageMap = map[string]string{
+					"projects-stg.registry.vmware.com/tkg/tkr-vsphere-nonparavirt:v1.24.9_vmware.1-tkg.1-zshippable": "10.92.174.209:8443/library/tkr-repository-vsphere-nonparavirt@sha256:b56a4c11a3eef1d3fef51c66b1571f92d45f17cf11de8f89e7706dbbb9b6a287",
+				}
+			})
+			It("should return the expected map of images", func() {
+				imageMap, err := ParseImagesLock(bundleImage, imagesLockBytes)
+				Expect(imageMap).To(Equal(expectedImageMap))
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
 		When("bundleImage comes from the same registry (i.e. no air-gap)", func() {
 			BeforeEach(func() {
 				bundleImage = "projects-stg.registry.vmware.com/tkg/tkr-repository-vsphere-nonparavirt:v1.24.9_vmware.1-tkg.1-zshippable"
