@@ -6,6 +6,7 @@ package osimage
 
 import (
 	"fmt"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/labels"
 )
@@ -18,6 +19,12 @@ func SetRefLabels(ls labels.Set, prefix string, ref map[string]interface{}) {
 			SetRefLabels(ls, prefixedName, value)
 			continue
 		}
-		ls[prefixedName] = fmt.Sprint(value)
+		ls[prefixedName] = labelFormat(value)
 	}
+}
+
+func labelFormat(value interface{}) string {
+	s := fmt.Sprint(value)
+	s = strings.ReplaceAll(s, "+", "---")
+	return s
 }

@@ -403,8 +403,13 @@ var _ = Describe("cluster.Webhook", func() {
 					conditions.MarkTrue(tkr, runv1.ConditionValid)
 					conditions.MarkTrue(osImage, runv1.ConditionCompatible)
 					conditions.MarkTrue(osImage, runv1.ConditionValid)
-					osImage.Spec.Image.Ref[uniqueRefField] = true
+
+					const someVersionString = "v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33"
+					osImage.Spec.Image.Ref[uniqueRefField] = someVersionString
 					cw.TKRResolver.Add(tkr, osImage) // make sure tkr and osImage are resolvable
+
+					labelValue := osImage.Labels[osImage.Spec.Image.Type+"-"+uniqueRefField]
+					Expect(labelValue).To(Equal(version.Label(someVersionString)))
 
 					osImageSelector = labels.Set(osImage.Labels).AsSelector()
 					osImageSelectorStr = osImageSelector.String()
