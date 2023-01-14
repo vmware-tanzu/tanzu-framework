@@ -50,7 +50,7 @@ func bundleImagePrefix(bundleImageName string) string {
 	if lastIndex == -1 {
 		return bundleImageName
 	}
-	return bundleImageName[:lastIndex]
+	return strings.TrimSuffix(bundleImageName[:lastIndex], "@sha256")
 }
 
 func comesFromTheSameRegistry(bundleImageName string, sourceImage string) bool {
