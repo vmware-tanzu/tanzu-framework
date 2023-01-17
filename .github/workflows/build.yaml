@@ -92,3 +92,8 @@ jobs:
         env | sort
         make configure-bom
         make all ENVS=linux-amd64
+
+    - name: verify go mod vendor
+      run: |
+        echo "verify go mod vendor doesn't return error"
+        go mod vendor
