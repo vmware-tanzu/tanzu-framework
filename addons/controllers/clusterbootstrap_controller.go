@@ -132,6 +132,8 @@ func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr c
 func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues(constants.ClusterNamespaceLogKey, req.Namespace, constants.ClusterNameLogKey, req.Name)
 
+	log.Info("CBT Controller built in downstream")
+
 	// get cluster object
 	cluster := &clusterapiv1beta1.Cluster{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cluster); err != nil {

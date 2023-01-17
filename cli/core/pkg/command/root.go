@@ -41,7 +41,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	// configure defined environment variables under tanzu config file
 	cliconfig.ConfigureEnvVariables()
 
-	RootCmd.Short = component.Bold(`Tanzu CLI`)
+	RootCmd.Short = component.Bold(`Tanzu CLI (Built Downstream)`)
 
 	// TODO (pbarker): silencing usage for now as we are getting double usage from plugins on errors
 	RootCmd.SilenceUsage = true
