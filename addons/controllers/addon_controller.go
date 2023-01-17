@@ -253,7 +253,7 @@ func (r *AddonReconciler) reconcileNormal(
 	cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
 
 	_, isManagmentCluster := cluster.Labels[constants.ManagementClusterRoleLabel]
-	if !isManagmentCluster && !controllerutil.ContainsFinalizer(cluster, addontypes.AddonFinalizer) {
+	if !isManagmentCluster {
 		err := r.addFinalizer(ctx, cluster, cluster.DeepCopy())
 		if err != nil {
 			log.Error(err, "failed to add finalizer to cluster")
