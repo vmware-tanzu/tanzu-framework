@@ -52,6 +52,3 @@ coverage.txt
 /build
 /packages/package-values-sha256.yaml
 /packages/**/.imgpkg
-
-# ignore vendor dir at the root
-/vendor
