@@ -29,7 +29,6 @@ pinniped/
 
 # providers/clustergen-related files
 provider-bundle
-!/tkg/tkgctl/client/manifest/providers.zip
 providers.zip
 providers.tar.gz
 hack/providers-sync-tools/**/build
