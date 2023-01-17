@@ -29,6 +29,7 @@ pinniped/
 
 # providers/clustergen-related files
 provider-bundle
+!/tkg/tkgctl/client/manifest/providers.zip
 providers.zip
 providers.tar.gz
 hack/providers-sync-tools/**/build
@@ -52,3 +53,6 @@ coverage.txt
 /build
 /packages/package-values-sha256.yaml
 /packages/**/.imgpkg
+
+# ignore vendor dir at the root
+/vendor
