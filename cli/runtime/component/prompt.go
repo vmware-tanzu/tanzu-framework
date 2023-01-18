@@ -34,7 +34,7 @@ func (p *PromptConfig) Run(response interface{}, opts ...PromptOpt) error {
 	return Prompt(p, response, opts...)
 }
 
-// Prompt for input.
+// Prompt for input, reads input value, without trimming any characters (may include leading/tailing spaces)
 func Prompt(p *PromptConfig, response interface{}, opts ...PromptOpt) error {
 	prompt := translatePromptConfig(p)
 	options := defaultPromptOptions()

@@ -12,7 +12,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../packageclients
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../util
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.7
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
 )
 
 require (
@@ -91,11 +91,11 @@ require (
 	k8s.io/client-go v0.24.4
 	k8s.io/kubectl v0.24.0
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
-	sigs.k8s.io/cluster-api v1.2.7
+	sigs.k8s.io/cluster-api v1.2.8
 	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2
-	sigs.k8s.io/cluster-api-provider-azure v1.5.3
+	sigs.k8s.io/cluster-api-provider-azure v1.6.1
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1
-	sigs.k8s.io/cluster-api/test v1.2.7
+	sigs.k8s.io/cluster-api/test v1.2.8
 	sigs.k8s.io/controller-runtime v0.12.3
 	sigs.k8s.io/kind v0.15.0
 	sigs.k8s.io/yaml v1.3.0
@@ -119,8 +119,8 @@ require (
 	github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c // indirect
 	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.1.1 // indirect
-	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
+	github.com/Masterminds/semver/v3 v3.2.0 // indirect
+	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/adrg/xdg v0.4.0 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
@@ -172,7 +172,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/huandu/xstrings v1.3.2 // indirect
+	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect

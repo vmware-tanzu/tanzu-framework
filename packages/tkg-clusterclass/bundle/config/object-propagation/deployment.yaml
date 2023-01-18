@@ -2,7 +2,7 @@
 #@ load("@ytt:yaml", "yaml")
 
 #@ def get_unsupported_ns():
-#@   unsupported_ns = "(cert-manager, kube-node-lease, kube-public, kube-system, tanzu-auth, tkg-system-public, tkg-system-telemetry, tkr-system)"
+#@   unsupported_ns = "(cert-manager, kube-node-lease, kube-public, kube-system, tanzu-auth, tkg-system-public, tkg-system-telemetry, tkr-system, avi-system, tkg-system-networking, secretgen-controller)"
 #@   return "!cluster.x-k8s.io/provider, kubernetes.io/metadata.name notin " + unsupported_ns
 #@ end
 

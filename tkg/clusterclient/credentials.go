@@ -16,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -534,11 +535,44 @@ func (c *client) UpdateCAPZControllerManagerDeploymentReplicas(replicas int32) e
 	return nil
 }
 
-func (c *client) CheckUnifiedAzureClusterIdentity(clusterName, namespace string) (bool, error) {
-	azureCluster := &capzv1beta1.AzureCluster{}
-	err := c.GetResource(azureCluster, clusterName, namespace, nil, nil)
+func (c *client) GetAzureClusterName(clusterName, namespace string) (string, string, error) {
+	cluster := &clusterv1beta1.Cluster{}
+	err := c.GetResource(cluster, clusterName, namespace, nil, nil)
 	if err != nil {
-		return false, errors.Wrapf(err, "unable to retrieve azure cluster %s", clusterName)
+		return "", "", errors.Wrapf(err, "unable to retrieve cluster %s", clusterName)
+	}
+
+	if cluster.Spec.InfrastructureRef != nil && cluster.Spec.InfrastructureRef.Kind == "AzureCluster" {
+		return cluster.Spec.InfrastructureRef.Name, cluster.Spec.InfrastructureRef.Namespace, nil
+	}
+
+	return "", "", errors.Errorf("unable to retrieve azure cluster from cluster %s", clusterName)
+}
+
+func (c *client) GetKubeadmControlPlaneName(clusterName, namespace string) (string, string, error) {
+	cluster := &clusterv1beta1.Cluster{}
+	err := c.GetResource(cluster, clusterName, namespace, nil, nil)
+	if err != nil {
+		return "", "", errors.Wrapf(err, "unable to retrieve cluster %s", clusterName)
+	}
+
+	if cluster.Spec.ControlPlaneRef != nil && cluster.Spec.ControlPlaneRef.Kind == "KubeadmControlPlane" {
+		return cluster.Spec.ControlPlaneRef.Name, cluster.Spec.ControlPlaneRef.Namespace, nil
+	}
+
+	return "", "", errors.Errorf("unable to retrieve KubeadmControlPlane from cluster %s", clusterName)
+}
+
+func (c *client) CheckUnifiedAzureClusterIdentity(clusterName, namespace string) (bool, error) {
+	azureClusterName, azureClusterNamespace, err := c.GetAzureClusterName(clusterName, namespace)
+	if err != nil {
+		return false, err
+	}
+
+	azureCluster := &capzv1beta1.AzureCluster{}
+	err = c.GetResource(azureCluster, azureClusterName, azureClusterNamespace, nil, nil)
+	if err != nil {
+		return false, errors.Wrapf(err, "unable to retrieve azure cluster %s", azureClusterName)
 	}
 
 	if azureCluster.Spec.IdentityRef != nil {
@@ -549,10 +583,15 @@ func (c *client) CheckUnifiedAzureClusterIdentity(clusterName, namespace string)
 }
 
 func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, clientID, clientSecret string) error {
-	azureCluster := &capzv1beta1.AzureCluster{}
-	err := c.GetResource(azureCluster, clusterName, namespace, nil, nil)
+	azureClusterName, azureClusterNamespace, err := c.GetAzureClusterName(clusterName, namespace)
 	if err != nil {
-		return errors.Wrapf(err, "unable to retrieve azure cluster %s", clusterName)
+		return err
+	}
+
+	azureCluster := &capzv1beta1.AzureCluster{}
+	err = c.GetResource(azureCluster, azureClusterName, azureClusterNamespace, nil, nil)
+	if err != nil {
+		return errors.Wrapf(err, "unable to retrieve azure cluster %s", azureClusterName)
 	}
 
 	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
@@ -621,8 +660,12 @@ func (c *client) UpdateAzureClusterIdentity(clusterName, namespace, tenantID, cl
 }
 
 func (c *client) UpdateAzureKCP(clusterName, namespace string) error {
+	kcpName, kcpNamespace, err := c.GetKubeadmControlPlaneName(clusterName, namespace)
+	if err != nil {
+		return err
+	}
+
 	kcp := &controlplanev1.KubeadmControlPlane{}
-	azureKCPName := fmt.Sprintf("%s-control-plane", clusterName)
 	curTime := time.Now()
 	patchString := fmt.Sprintf(`[
 		{
@@ -635,8 +678,8 @@ func (c *client) UpdateAzureKCP(clusterName, namespace string) error {
 	log.V(4).Info("Recycling azure KCP for secret updating")
 
 	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout}
-	if err := c.PatchResource(kcp, azureKCPName, namespace, patchString, types.JSONPatchType, pollOptions); err != nil {
-		return errors.Wrap(err, "unable to recycle azure KCP")
+	if err = c.PatchResource(kcp, kcpName, kcpNamespace, patchString, types.JSONPatchType, pollOptions); err != nil {
+		return errors.Wrapf(err, "unable to recycle azure KubeadmControlPlane %s", kcpName)
 	}
 	return nil
 }

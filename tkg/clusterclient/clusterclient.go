@@ -324,6 +324,10 @@ type Client interface {
 	UpdateVsphereCsiConfigSecret(clusterName string, namespace string, username string, password string) error
 	// UpdateCapzManagerBootstrapCredentialsSecret updates the azure creds used by the capz provider
 	UpdateCapzManagerBootstrapCredentialsSecret(tenantID string, clientID string, clientSecret string) error
+	// GetAzureClusterName gets AzureCluster Name and Namespace
+	GetAzureClusterName(clusterName string, namespace string) (string, string, error)
+	// GetKubeadmControlPlaneName gets KubeadmControlPlane Name and Namespace
+	GetKubeadmControlPlaneName(clusterName, namespace string) (string, string, error)
 	// UpdateAzureClusterIdentity returns whether the cluster used the same azure cluster identityRef with the management cluster
 	CheckUnifiedAzureClusterIdentity(clusterName string, namespace string) (bool, error)
 	// UpdateAzureClusterIdentity updates the azure cluster identityRef used by the capz provider
@@ -581,7 +585,7 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 	maxTimeout := 3 * c.operationTimeout
 	maxTimeoutCounter := 0
 	errorRetry := 0
-	maxErrorRetry := 3
+	maxErrorRetry := 20
 
 	getterFunc := func() (interface{}, error) {
 		currentClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, nil)
@@ -595,14 +599,23 @@ func (c *client) WaitForClusterInitialized(clusterName, namespace string) error 
 				reason := conditions.GetReason(currentClusterInfo.ClusterObject, capi.ReadyCondition)
 				message := conditions.GetMessage(currentClusterInfo.ClusterObject, capi.ReadyCondition)
 				maxTimeoutCounter++
-				if errorRetry < maxErrorRetry {
-					errorRetry++
-					return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
+				if interval*time.Duration(maxTimeoutCounter) > maxTimeout {
+					return true, errors.Errorf("timed out waiting for cluster creation, reason:'%s', message:'%s'",
+						reason,
+						message)
 				}
-				return true, errors.Errorf("cluster creation failed, reason:'%s', message:'%s'",
-					reason,
-					message)
+				if errorRetry >= maxErrorRetry {
+					return true, errors.Errorf("cluster creation failed, reason:'%s', message:'%s'",
+						reason,
+						message)
+				}
+				if !(strings.Contains(message, "context deadline exceeded") || strings.Contains(message, "context canceled")) {
+					errorRetry++
+				}
+				return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
 			}
+			// reset errorRetry to 0 if recover from last error
+			errorRetry = 0
 			// Could have checked cluster's ReadyCondition is True which is currently aggregation of ControlPlaneReadyCondition
 			// and InfrastructureReadyCondition, however in future if capi adds WorkersReadyCondition into aggregation, it would
 			// hold this method to wait till the workers are also ready which is not necessary for getting kubeconfig secret
@@ -980,17 +993,36 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 	// maxTimeout to time-bound wait operation to avoid indefinite wait if the cluster state keeps changing
 	maxTimeout := 3 * c.operationTimeout
 	maxTimeoutCounter := 0
+	errorRetry := 0
+	maxErrorRetry := 20
 
 	getterFunc := func() (interface{}, error) {
 		curClusterInfo = c.GetClusterStatusInfo(clusterName, namespace, workloadClusterClient)
 
-		// If cluster's ReadyCondition is False and severity is Error, it implies non-retriable error, so return error
+		// If cluster's ReadyCondition is False and severity is Error, retry 3 times waiting for cluster ready status
+		// for slow I/O infrastructure or resource constrained environments.
 		if conditions.IsFalse(curClusterInfo.ClusterObject, capi.ReadyCondition) &&
 			(*conditions.GetSeverity(curClusterInfo.ClusterObject, capi.ReadyCondition) == capi.ConditionSeverityError) {
-			return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s' ",
-				conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition),
-				conditions.GetMessage(curClusterInfo.ClusterObject, capi.ReadyCondition))
+			reason := conditions.GetReason(curClusterInfo.ClusterObject, capi.ReadyCondition)
+			message := conditions.GetMessage(curClusterInfo.ClusterObject, capi.ReadyCondition)
+			maxTimeoutCounter++
+			if interval*time.Duration(maxTimeoutCounter) > maxTimeout {
+				return true, errors.Errorf("timed out waiting for kubernetes version update, reason:'%s', message:'%s'",
+					reason,
+					message)
+			}
+			if errorRetry >= maxErrorRetry {
+				return true, errors.Errorf("kubernetes version update failed, reason:'%s', message:'%s'",
+					reason,
+					message)
+			}
+			if !(strings.Contains(message, "context deadline exceeded") || strings.Contains(message, "context canceled")) {
+				errorRetry++
+			}
+			return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
 		}
+		// reset errorRetry to 0 if recover from last error
+		errorRetry = 0
 		err = verifyKubernetesUpgradeFunc(&curClusterInfo, newK8sVersion)
 		if err == nil {
 			return false, nil

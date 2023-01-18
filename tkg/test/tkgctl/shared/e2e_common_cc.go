@@ -181,12 +181,6 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		tkrVersionsSet, oldTKR, defaultTKR = getAvailableTKRs(ctx, mngProxy, input.E2EConfig.TkgConfigDir)
 
 		if input.IsCustomCB {
-			// in case of customCB, a new configuration should be generated
-			// Due to current CB limitation. enable sc will generate a new CB which overwrite below kubectl applied one,
-			// need antrea config guru polish current e2e to support sc
-			options.OtherConfigs = map[string]string{
-				"ENABLE_DEFAULT_STORAGE_CLASS": "false",
-			}
 			clusterConfigFile, err = framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
 			err = exec.KubectlApplyWithArgs(ctx, mngKubeConfigFile, getCustomCBResourceFile(clusterName, namespace, defaultTKR.Name))
 			Expect(err).To(BeNil())

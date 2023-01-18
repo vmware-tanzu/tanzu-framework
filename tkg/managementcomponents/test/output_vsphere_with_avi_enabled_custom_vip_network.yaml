@@ -72,4 +72,4 @@ akoOperatorPackage:
             avi_management_cluster_control_plane_vip_network_name: avi-management-cluster-control-plane-vip-network
             avi_management_cluster_control_plane_vip_network_cidr: 10.48.99.33/20
             avi_control_plane_ha_provider: true
-            avi_ingress_node_network_list: '[{"NetworkName":"node-network-name","Cidrs":["10.191.176.0/20"]}]'
+            avi_ingress_node_network_list: '[{"networkName":"node-network-name","cidrs":["10.191.176.0/20"]}]'

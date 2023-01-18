@@ -204,6 +204,7 @@ func createContextWithKubeconfig() (context *configapi.Context, err error) {
 	} else if kubeConfig == "" {
 		kubeConfig = getDefaultKubeconfigPath()
 	}
+	kubeConfig = strings.TrimSpace(kubeConfig)
 
 	if kubeConfig != "" && kubeContext == "" {
 		err = component.Prompt(
@@ -217,6 +218,7 @@ func createContextWithKubeconfig() (context *configapi.Context, err error) {
 			return
 		}
 	}
+	kubeContext = strings.TrimSpace(kubeContext)
 
 	if ctxName == "" {
 		err = component.Prompt(
@@ -230,6 +232,7 @@ func createContextWithKubeconfig() (context *configapi.Context, err error) {
 			return
 		}
 	}
+	ctxName = strings.TrimSpace(ctxName)
 	exists, err := config.ContextExists(ctxName)
 	if err != nil {
 		return context, err
@@ -266,7 +269,7 @@ func createContextWithEndpoint() (context *configapi.Context, err error) {
 			return
 		}
 	}
-
+	endpoint = strings.TrimSpace(endpoint)
 	if ctxName == "" {
 		err = component.Prompt(
 			&component.PromptConfig{
@@ -279,6 +282,7 @@ func createContextWithEndpoint() (context *configapi.Context, err error) {
 			return
 		}
 	}
+	ctxName = strings.TrimSpace(ctxName)
 	exists, err := config.ContextExists(ctxName)
 	if err != nil {
 		return context, err
@@ -406,6 +410,7 @@ func promptAPIToken() (apiToken string, err error) {
 		&apiToken,
 		promptOpts...,
 	)
+	apiToken = strings.TrimSpace(apiToken)
 	return
 }
 

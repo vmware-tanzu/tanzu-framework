@@ -799,6 +799,9 @@ OCI_EXTERNAL_CONTROL_PLANE_EP_SUBNET_ID:
 OCI_EXTERNAL_CONTROL_PLANE_SUBNET_ID:
 OCI_EXTERNAL_WORKER_SUBNET_ID:
 
+#! Use base64 to encode the config.yaml content
+APISERVER_EVENT_RATE_LIMIT_CONF_BASE64:
+
 #! ---------------------------------------------------------------------
 #! BoM file processing, internal use only
 #! ---------------------------------------------------------------------

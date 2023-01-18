@@ -5,7 +5,7 @@ go 1.18
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs => ../apis/addonconfigs
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.7
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
 )
 
 require (
@@ -34,7 +34,7 @@ require (
 	k8s.io/klog/v2 v2.70.1
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
 	knative.dev/pkg v0.0.0-20220302134643-d2cdc682d974
-	sigs.k8s.io/cluster-api v1.2.7
+	sigs.k8s.io/cluster-api v1.2.8
 	sigs.k8s.io/cluster-api-provider-vsphere v1.5.0
 	sigs.k8s.io/controller-runtime v0.12.3
 	sigs.k8s.io/yaml v1.3.0
@@ -48,6 +48,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
+	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/blendle/zapdriver v1.3.1 // indirect

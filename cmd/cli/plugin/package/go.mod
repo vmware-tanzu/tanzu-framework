@@ -15,7 +15,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/tkg => ../../../../tkg
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../../../../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../../../../util
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.7
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.12.3
 )
 
@@ -29,7 +29,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
 	github.com/vmware-tanzu/carvel-kapp-controller v0.39.0
-	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20221214062743-6b0843a3db36
+	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20230106043644-ad24bdc3e412
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret v0.0.0-00010101000000-000000000000
@@ -67,8 +67,8 @@ require (
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
-	github.com/Masterminds/semver/v3 v3.1.1 // indirect
-	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
+	github.com/Masterminds/semver/v3 v3.2.0 // indirect
+	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/adrg/xdg v0.4.0 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
@@ -142,7 +142,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/huandu/xstrings v1.3.2 // indirect
+	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jessevdk/go-flags v1.4.0 // indirect
@@ -246,11 +246,11 @@ require (
 	k8s.io/kube-openapi v0.0.0-20221207184640-f3cff1453715 // indirect
 	k8s.io/kubectl v0.24.0 // indirect
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5 // indirect
-	sigs.k8s.io/cluster-api v1.2.7 // indirect
+	sigs.k8s.io/cluster-api v1.2.8 // indirect
 	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2 // indirect
-	sigs.k8s.io/cluster-api-provider-azure v1.5.3 // indirect
+	sigs.k8s.io/cluster-api-provider-azure v1.6.1 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 // indirect
-	sigs.k8s.io/cluster-api/test v1.2.7 // indirect
+	sigs.k8s.io/cluster-api/test v1.2.8 // indirect
 	sigs.k8s.io/controller-runtime v0.13.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/kind v0.15.0 // indirect

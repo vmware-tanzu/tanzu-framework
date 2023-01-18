@@ -573,6 +573,8 @@ func RetrieveAKOOVariablesFromAddonSecretValues(clusterName string, configValues
 	configValues[constants.ConfigVariableVsphereHaProvider] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviControlPlaneHaProvider
 	configValues[constants.ConfigVariableAviIngressNodeNetworkList] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviIngressNodeNetworkList
 	configValues[constants.ConfigVariableClusterName] = clusterName
+	configValues[constants.ConfigVariableAviLabels] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviLabels
+	configValues[constants.ConfigVariableAviNSXTT1Router] = akoOperatorPackage.AkoOperatorPackageValues.AkoOperatorConfig.AviNSXTT1Router
 
 	return nil
 }
