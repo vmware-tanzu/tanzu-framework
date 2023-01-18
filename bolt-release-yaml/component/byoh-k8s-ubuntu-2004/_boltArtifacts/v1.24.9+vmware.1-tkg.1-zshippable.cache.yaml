@@ -1,0 +1,7 @@
+name: byoh-k8s-ubuntu-2004
+goBuildComponentCaches:
+- version: v1.24.9+vmware.1-tkg.1-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20994853/
+  buildNumber: bora-20994853
+  buildStatus: SUCCEEDED
+  hash: 139ca182357cabb40862cafa80dd2e92

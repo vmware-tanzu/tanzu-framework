@@ -1,0 +1,35 @@
+componentBuilds:
+- name: vsphere-pv-csi-package
+  version: v2.3.0+vmware.1-tkg.1-vsphere-pv-csi-rc.1
+  channel: "418621578654257502"
+  url: https://buildweb.eng.vmware.com/ob/20196244/
+  artifactURL:
+    vsphere-pv-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-pv-csi:v2.3.0_vmware.1-tkg.1-rc.1
+      sha256: a24d30dfea5c15529d0b4fe6eaef93c2878179bb2e956dce98116ee3d356c5e6
+  cachehash: 85b6cd5913ec7267e7cdfecfe6dea688
+  publishhash: 9af16c8502adddc3fba97ed4d1783479
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/pvcsi/vsphere-block-csi-driver:v2.3.0
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/pvcsi/volume-metadata-syncer:v2.3.0
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/pvcsi/csi-attacher:v2.3.0
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/pvcsi/csi-node-driver-registrar:v2.3.0
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/pvcsi/csi-provisioner:v2.3.0
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/pvcsi/kubernetes-csi_external-resizer:v2.3.0
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/pvcsi/csi-livenessprobe:v2.3.0
+    gobuild.downstream_version: vmware.1-tkg.1-rc.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: vsphere-pv-csi
+    gobuild.package_type: core
+    gobuild.upstream_image_0: gcr.io/cloud-provider-vsphere/csi/release/driver:v2.3.0
+    gobuild.upstream_image_1: gcr.io/cloud-provider-vsphere/csi/release/syncer:v2.3.0
+    gobuild.upstream_image_2: k8s.gcr.io/sig-storage/csi-attacher:v3.2.1
+    gobuild.upstream_image_3: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.1.0
+    gobuild.upstream_image_4: k8s.gcr.io/sig-storage/csi-provisioner:v2.1.0
+    gobuild.upstream_image_5: k8s.gcr.io/sig-storage/csi-resizer:v1.2.0
+    gobuild.upstream_image_6: k8s.gcr.io/sig-storage/livenessprobe:v2.3.0
+    gobuild.upstream_version: 2.3.0

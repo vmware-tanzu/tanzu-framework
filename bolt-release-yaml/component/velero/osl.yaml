@@ -1,0 +1,4 @@
+submodules:
+  - name: velero/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,12 @@
+# Note: we created this file manually so that 1.5.0 tkg-standard-pacakges can pick this up
+componentBuilds:
+- name: contour-package
+  version: v1.17.1+vmware.1-tkg.1-contour
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/contour:v1.17.1_vmware.1-tkg.1
+      sha256: 73dc13131e6c1cfa8d3b56aeacd97734447acdf1ab8c0862e936623ca744e7c4
+  cachehash: 0
+  publishhash: 0

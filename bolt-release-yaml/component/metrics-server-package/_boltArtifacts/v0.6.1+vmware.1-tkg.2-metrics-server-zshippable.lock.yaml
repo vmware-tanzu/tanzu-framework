@@ -1,0 +1,10 @@
+name: metrics-server-package
+goBuildComponentLocks:
+- version: v0.6.1+vmware.1-tkg.2-metrics-server-zshippable
+  gobuildBranch: 418525331893262686-v0.6.1+vmware.1-tkg.2-metrics-server-zshippable-metrics-server-package
+  gobuildHeadCommit: a3a4275b207ca5ad6cd5224a832ab767f7dc4441
+  hash: df10b844b1b5b7f2f063c5e1d895d018
+  componentLockReferences:
+  - name: metrics-server
+    version: v0.6.1+vmware.1
+    lockHash: 347e279d05f2f23c5683eafc86df3810

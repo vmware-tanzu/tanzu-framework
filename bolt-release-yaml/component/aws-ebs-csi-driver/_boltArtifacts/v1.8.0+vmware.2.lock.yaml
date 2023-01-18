@@ -1,0 +1,7 @@
+name: aws-ebs-csi-driver
+goBuildComponentLocks:
+- version: v1.8.0+vmware.2
+  gobuildBranch: 441867356684162878-v1.8.0+vmware.2-aws-ebs-csi-driver
+  gobuildHeadCommit: 934e15b6cab39830ce7054ae6335908c5d4733e9
+  hash: 27cab08532fdc94d42347a6c6a3a6477
+  componentLockReferences: []

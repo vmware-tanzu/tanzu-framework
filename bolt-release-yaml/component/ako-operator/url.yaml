@@ -1,0 +1,5 @@
+name: ako-operator
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/ako-operator.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/ako-operator.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/ako-operator.git
+gobuildTarget: ako-operator

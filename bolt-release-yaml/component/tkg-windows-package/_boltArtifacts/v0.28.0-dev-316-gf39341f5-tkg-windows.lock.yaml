@@ -1,0 +1,10 @@
+name: tkg-windows-package
+goBuildComponentLocks:
+- version: v0.28.0-dev-316-gf39341f5-tkg-windows
+  gobuildBranch: 442873817811937554-v0.28.0-dev-316-gf39341f5-tkg-windows-tkg-windows-package
+  gobuildHeadCommit: 307151e1dfc748a5e6d2f6c5954255fb7f334107
+  hash: 31cb8932079b26eb8e998f3a15f4d511
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.28.0-dev-316-gf39341f5
+    lockHash: d96ec853f941b42dfa327d8fb9407002

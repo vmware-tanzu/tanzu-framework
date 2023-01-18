@@ -1,0 +1,26 @@
+componentBuilds:
+- name: tkr-service-package
+  version: v0.25.1-4-g1bd8c8d0-tkr-service
+  channel: "426874488068507569"
+  url: https://buildweb.eng.vmware.com/ob/20514342/
+  artifactURL:
+    tkr-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkr-service:v0.25.1-4-g1bd8c8d0_vmware.1
+      sha256: 7a55ea9ec955cec9eecca703a5573e498ecd360893b94ec91eee4f6fedd23c59
+  cachehash: eeb346a742a10402aa9d2ec6afbf7495
+  publishhash: f42d69906081b27e0303ab50ac9a9496
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-resolver-cluster-webhook:v0.25.1-4-g1bd8c8d0
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-conversion-webhook:v0.25.1-4-g1bd8c8d0
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-status-controller:v0.25.1-4-g1bd8c8d0
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-service
+    gobuild.upstream_image_0: tkr-resolver-cluster-webhook:latest
+    gobuild.upstream_image_1: tkr-conversion-webhook:latest
+    gobuild.upstream_image_2: tkr-status-controller:latest
+    gobuild.upstream_version: v0.25.1-4-g1bd8c8d0

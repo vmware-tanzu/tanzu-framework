@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'build windows components'
+componentReferences:
+- name: kubernetes
+  version:
+  - v1.21.0+vmware.2

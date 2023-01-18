@@ -1,0 +1,31 @@
+componentBuilds:
+- name: oracle-cpi-package
+  version: v1.22.1+vmware.1-tkg.1-oracle-cpi-rc.1
+  channel: "438986141794854986"
+  url: https://buildweb.eng.vmware.com/ob/20966650/
+  artifactURL:
+    oracle-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/oracle-cpi:v1.22.1_vmware.1-tkg.1-rc.1
+      sha256: e189ab3e071e0e5231ed9fec5c8dbeb34ec0ed9e1d247e8dc7054cacc6abd6de
+  cachehash: af68e16d4f160e0bc0f18e44944160eb
+  publishhash: 6e638c0f632d105d55d5590e1f1c639b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/cloud-provider-oci:v1.22.1_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.4.0_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.5.0_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.1.0_vmware.2
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.4.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-rc.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: oracle-cpi
+    gobuild.package_type: core
+    gobuild.upstream_image_0: ghcr.io/oracle/cloud-provider-oci:v1.22.1
+    gobuild.upstream_image_1: k8s.gcr.io/sig-storage/csi-attacher:v3.4.0
+    gobuild.upstream_image_2: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.0
+    gobuild.upstream_image_3: k8s.gcr.io/sig-storage/csi-provisioner:v2.2.2
+    gobuild.upstream_image_4: k8s.gcr.io/sig-storage/csi-resizer:v1.2.0
+    gobuild.upstream_version: 1.22.1

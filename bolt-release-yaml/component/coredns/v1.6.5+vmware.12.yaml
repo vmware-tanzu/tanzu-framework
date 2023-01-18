@@ -1,0 +1,8 @@
+# This version is made unmanaged so we can reused old official build.
+# Making it a managed component leads to docker pull limit error
+name: coredns
+unmanagedComponents:
+  - version: v1.6.5+vmware.12
+    gobuildBranch: vmware-1.6.5+vmware.12
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

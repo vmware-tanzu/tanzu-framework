@@ -1,0 +1,7 @@
+name: containerd
+goBuildComponentLocks:
+- version: v1.4.4+vmware.3
+  gobuildBranch: vmware-1.4.4+vmware.3
+  gobuildHeadCommit: 3d3e24239d3b15bafddd4816bfdf6f27cbe8a5ec
+  hash: 33ed6db56c7d49ce241e361bddff75be
+  componentLockReferences: []

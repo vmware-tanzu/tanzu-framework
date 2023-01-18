@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off effort to re-order the global tkr-compatibility list"
+componentReferences:
+- name: tkr-compatibility
+  version:
+  - v6

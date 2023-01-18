@@ -1,0 +1,23 @@
+componentBuilds:
+- name: ako-operator-package
+  version: v1.6.0+vmware.17-tkg.2-ako-operator-rc.3
+  channel: "435702066103483742"
+  url: https://buildweb.eng.vmware.com/ob/20840629/
+  artifactURL:
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.6.0_vmware.17-tkg.2-rc.3
+      sha256: 318749f1597087bddfc721222e58de087b88b34cdc91f0c4364b4f6f682fe502
+  cachehash: 2686bad3dac403754ce23cf89431e6dc
+  publishhash: e53f922ccc96191938bdc7d730ac4f37
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/ako-operator:v1.6.0_vmware.17
+    gobuild.downstream_version: vmware.17-tkg.2-rc.3
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: ako-operator
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/ako-operator:v1.6.0_vmware.1
+    gobuild.upstream_version: 1.6.0

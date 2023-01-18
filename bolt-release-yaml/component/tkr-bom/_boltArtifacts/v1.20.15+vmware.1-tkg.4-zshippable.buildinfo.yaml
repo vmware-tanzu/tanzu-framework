@@ -1,0 +1,15 @@
+componentBuilds:
+- name: tkr-bom
+  version: v1.20.15+vmware.1-tkg.4-zshippable
+  channel: "420249530827544142"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420249530827544142/component/tkr-bom/_boltArtifacts/tkr-bom-v1.20.15+vmware.1-tkg.4-zshippable.yaml
+  artifactURL:
+    tkrBomImage:
+      url: projects-stg.registry.vmware.com/tkg/tkr-bom:v1.20.15_vmware.1-tkg.4-zshippable
+      sha256: dea7fb38d8da87d899e92f32bb186a2148acefe7acf5f8db5f642f7e3f8d4b0c
+    tkrBomYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420249530827544142/component/tkr-bom/_boltArtifacts/tkr-bom-v1.20.15+vmware.1-tkg.4-zshippable.yaml
+  cachehash: 9eb002c0b4c7442dc51063a08fce42f3
+  publishhash: 868daa970e427d417d79296bc74551c5
+  configDependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha2

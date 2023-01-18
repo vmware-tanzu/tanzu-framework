@@ -1,0 +1,21 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.22.10+vmware.2-tkg.1-sig-25f9bc316d5b53945d89040ad6519277
+  channel: "415713409842025869"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2311
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/415713409842025869/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-sig-v1.22.10+vmware.2-tkg.1-sig-25f9bc316d5b53945d89040ad6519277.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/415713409842025869/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.10+vmware.2-tkg.1-sig-25f9bc316d5b53945d89040ad6519277-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/415713409842025869/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.10+vmware.2-tkg.1-sig-25f9bc316d5b53945d89040ad6519277-osstpmgt.yaml
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/415713409842025869/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.22.10+vmware.2-tkg.1-sig-25f9bc316d5b53945d89040ad6519277.json
+  cachehash: 826b3579a1809d6f212542dfb1eb9a84
+  publishhash: 7dfbf1c02ccfc5bc9c644481c76c8cd0
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: e3a59d8bae46af718cf56068dcb9d6d49a7fb488

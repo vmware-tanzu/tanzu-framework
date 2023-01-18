@@ -1,0 +1,33 @@
+componentBuilds:
+- name: prometheus-package
+  version: v2.37.0+vmware.1-tkg.1-prometheus-fc.1
+  channel: "436498364314425218"
+  url: https://buildweb.eng.vmware.com/ob/20870257/
+  artifactURL:
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.37.0_vmware.1-tkg.1-fc.1
+      sha256: ddc72ae946c4e49975b0b20404c9b3e1a12f4430dba5936b295f4c0193a48122
+  cachehash: ed307f9754bcf60fd6ba3b638bf76a7e
+  publishhash: 46897cc6c21c88aff6d73e888ed0a148
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/prometheus/prometheus:v2.37.0_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/prometheus/configmap-reload:v0.7.1_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/prometheus/alertmanager:v0.24.0_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/prometheus/pushgateway:v1.4.3_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/prometheus/kube-state-metrics:v2.6.0_vmware.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/prometheus/prometheus_node_exporter:v1.4.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-fc.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: prometheus
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: prom/prometheus:v2.37.0
+    gobuild.upstream_image_1: jimmidyson/configmap-reload:v0.7.1
+    gobuild.upstream_image_2: prom/alertmanager:v0.24.0
+    gobuild.upstream_image_3: prom/pushgateway:v1.4.3
+    gobuild.upstream_image_4: bitnami/kube-state-metrics:2.6.0
+    gobuild.upstream_image_5: quay.io/prometheus/node-exporter:v1.4.0
+    gobuild.upstream_version: 2.37.0

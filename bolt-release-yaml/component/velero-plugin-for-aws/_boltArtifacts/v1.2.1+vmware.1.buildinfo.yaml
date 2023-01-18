@@ -1,0 +1,11 @@
+componentBuilds:
+- name: velero-plugin-for-aws
+  version: v1.2.1+vmware.1
+  channel: "365676183511144081"
+  url: https://buildweb.eng.vmware.com/ob/18393263/
+  artifactURL:
+    veleroPluginForAwsImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-aws:v1.2.1_vmware.1
+      sha256: c37d71b450aa0d69bd979d9396cfcc0023cb52ff444b85da49546f1cbd1b0398
+  cachehash: 1e5a0e8cb823699faf167829391bac9b
+  publishhash: 809d13556e731ee46dcc47e5788ddcc0

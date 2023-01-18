@@ -1,0 +1,24 @@
+componentBuilds:
+- name: tkg_release
+  version: v1.3.1-fips.1
+  channel: "367440136578815211"
+  url: https://buildweb.eng.vmware.com/ob/18453256/
+  artifactURL:
+    dir-node-ova:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18453256/publish/lin64/tkg_release/node/
+    ova-photon-3-v1.20.5+vmware.2-fips.1-tkg.1-2906265301732622558_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18453256/publish/lin64/tkg_release/node/ova-photon-3-v1.20.5+vmware.2-fips.1-tkg.1-2906265301732622558/photon-3-kube-v1.20.5+vmware.2-fips.1-tkg.1-2906265301732622558.ova
+    ova-ubuntu-2004-v1.20.5+vmware.2-fips.1-tkg.1-1322649752416528758_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18453256/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.20.5+vmware.2-fips.1-tkg.1-1322649752416528758/ubuntu-2004-kube-v1.20.5+vmware.2-fips.1-tkg.1-1322649752416528758.ova
+    tanzu-cli-bundle-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18453256/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.1-fips.1/tanzu-cli-bundle-darwin-amd64.tar
+    tanzu-cli-bundle-linux-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18453256/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.1-fips.1/tanzu-cli-bundle-linux-386.tar
+    tanzu-cli-bundle-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18453256/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.1-fips.1/tanzu-cli-bundle-linux-amd64.tar
+    tanzu-cli-bundle-windows-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18453256/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.1-fips.1/tanzu-cli-bundle-windows-386.tar
+    tanzu-cli-bundle-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18453256/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.1-fips.1/tanzu-cli-bundle-windows-amd64.tar
+  cachehash: "12470799969093954044"
+  publishhash: "3456073887855034260"

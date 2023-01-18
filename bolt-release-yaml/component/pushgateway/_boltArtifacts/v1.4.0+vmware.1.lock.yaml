@@ -1,0 +1,7 @@
+name: pushgateway
+goBuildComponentLocks:
+- version: v1.4.0+vmware.1
+  gobuildBranch: vmware-1.4.0
+  gobuildHeadCommit: 6658e22419031d0a25a5ee694d723980a3c03c6d
+  hash: f3b14d1f8ef7fd3f727c2d1b5b1a135e
+  componentLockReferences: []

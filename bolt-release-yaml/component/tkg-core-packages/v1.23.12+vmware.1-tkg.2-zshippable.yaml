@@ -1,0 +1,144 @@
+name: tkg-core-packages
+packageRepositories:
+- version: v1.23.12+vmware.1-tkg.2-zshippable
+  upstreamCommit: d4cc79031c3327b72683ff5afc9b56b89f1a365f
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repository-bundle~4b619c1edba4781291edd18401a029716a22115a
+  componentReferences:
+  - name: addons-manager-package
+    version:
+    - v1.6.0+vmware.1-tkg.3-addons-manager-zshippable
+  - name: ako-operator-package
+    version:
+    - v1.6.0+vmware.16-tkg.1-ako-operator
+  - name: load-balancer-and-ingress-service-package
+    version:
+    - v1.7.2+vmware.2-tkg.1-ako
+  - name: antrea-package
+    version:
+    - v1.5.3-tkg.1-antrea-advanced
+  - name: calico-package
+    version:
+    - v3.22.1+vmware.1-tkg.1-calico
+  - name: vsphere-csi-package
+    version:
+    - v2.5.2+vmware.1-tkg.1-vsphere-csi
+  - name: vsphere-pv-csi-package
+    version:
+    - v2.4.2+vmware.1-tkg.1-vsphere-pv-csi
+  - name: vsphere-cpi-package
+    version:
+    - v1.23.1+vmware.1-tkg.1-vsphere-cpi
+  - name: metrics-server-package
+    version:
+    - v0.6.1+vmware.1-tkg.1-metrics-server
+  - name: kapp-controller-package
+    version:
+    - v0.38.5+vmware.1-tkg.1-kapp-controller-zshippable
+  - name: secretgen-controller-package
+    version:
+    - v0.9.1+vmware.1-tkg.1-secgen-ctl
+  - name: pinniped-package
+    version:
+    - v0.12.1+vmware.1-tkg.1-pinniped
+  - name: guest-cluster-auth-service-package
+    version:
+    - v1.0.0-tkg.1-gc-auth-service
+  - name: aws-ebs-csi-driver-package
+    version:
+    - v1.8.0+vmware.1-tkg.1-aws-ebs-csi
+  - name: azuredisk-csi-driver-package
+    version:
+    - v1.19.0+vmware.1-tkg.1-azuredisk-csi
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_type: core
+    gobuild.releaseVersion: v1.23.12+vmware.1-tkg.2-zshippable
+  bomMetadata:
+    addons:
+      ako-operator:
+        category: networking
+        clusterTypes:
+        - management
+        packageName: ako-operator.tanzu.vmware.com
+      antrea:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        packageName: antrea.tanzu.vmware.com
+      aws-ebs-csi-driver:
+        category: csi
+        clusterTypes:
+        - management
+        - workload
+        packageName: aws-ebs-csi-driver.tanzu.vmware.com
+      azuredisk-csi-driver:
+        category: csi
+        clusterTypes:
+        - management
+        - workload
+        packageName: azuredisk-csi-driver.tanzu.vmware.com
+      calico:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        packageName: calico.tanzu.vmware.com
+      kapp-controller:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        packageName: kapp-controller.tanzu.vmware.com
+      load-balancer-and-ingress-service:
+        category: networking
+        clusterTypes:
+        - management
+        - workload
+        packageName: load-balancer-and-ingress-service.tanzu.vmware.com
+      metrics-server:
+        category: metrics
+        clusterTypes:
+        - management
+        - workload
+        packageName: metrics-server.tanzu.vmware.com
+      pinniped:
+        category: authentication
+        clusterTypes:
+        - management
+        - workload
+        packageName: pinniped.tanzu.vmware.com
+      secretgen-controller:
+        category: secret-generation-and-sharing
+        clusterTypes:
+        - management
+        - workload
+        packageName: secretgen-controller.tanzu.vmware.com
+      tanzu-addons-manager:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        packageName: addons-manager.tanzu.vmware.com
+      vsphere-cpi:
+        category: cpi
+        clusterTypes:
+        - management
+        - workload
+        packageName: vsphere-cpi.tanzu.vmware.com
+      vsphere-csi:
+        category: csi
+        clusterTypes:
+        - management
+        - workload
+        packageName: vsphere-csi.tanzu.vmware.com
+      vsphere-pv-csi:
+        category: csi
+        clusterTypes:
+        - workload
+        packageName: vsphere-pv-csi.tanzu.vmware.com

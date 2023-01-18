@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'Cluster Autosclaer release for K8s 1.24'
+componentReferences:
+  - name: cluster-autoscaler-package
+    version:
+      - v1.24.0+vmware.1-tkg.1-cluster-autoscaler

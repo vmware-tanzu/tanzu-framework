@@ -1,0 +1,17 @@
+componentBuilds:
+- name: ova-harbor
+  version: v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562
+  channel: "443026087086135419"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/dev-harbor-build-ova/67
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/443026087086135419/component/ova-harbor/bom-ova-photon-4-v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/443026087086135419/component/ova-harbor/photon-4-harbor-v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562.ova
+  cachehash: 2cc06a85d1859c37475648a9a5d57019
+  publishhash: 9edfe04a7bf8f6f520348ed4c19472e1
+  configDependencies:
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 61df636aa984cd9788609cd48d6a1d99cf1eb87e
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 4895548b74edb1ba2876825df8fdb0b3c8b93c24
+testInfraVersion: 6e11d8010cc36570dfe61bfe173c13f07478f214

@@ -1,0 +1,10 @@
+name: jetstack_cert-manager
+managedComponents:
+  - version: v1.9.1+vmware.1
+    upstreamTag: v1.9.1
+    gobuildBaseBranch: vmware-1.9.1~a30c27d7222dd223ef862a0466628867dd8e50ff
+    dependencies:
+      gobuild.golangVersion: 1.17.7
+      gobuild.harborGolangBase: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos8

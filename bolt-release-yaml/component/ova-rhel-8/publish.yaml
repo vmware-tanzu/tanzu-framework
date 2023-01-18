@@ -1,0 +1,14 @@
+name: ova-rhel-8
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-rhel-8/bom-ova-rhel-8-$VERSION.yaml
+  - name: file-image-ova
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-rhel-8/rhel-8-kube-$VERSION.ova
+  - name: file-image-srp-provenance
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-rhel-8/ova-rhel-8-$VERSION-provenance.json
+  - name: file-image-srp-provenance-result
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-rhel-8/ova-rhel-8-$VERSION-provenance_result.txt

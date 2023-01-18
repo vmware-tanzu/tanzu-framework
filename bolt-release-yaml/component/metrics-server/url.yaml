@@ -1,0 +1,8 @@
+name: metrics-server
+upstreamURL: https://github.com/kubernetes-sigs/metrics-server.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_metrics-server.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_metrics-server.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_metrics-server.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_metrics-server.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_metrics-server.git
+gobuildTarget: cayman_metrics-server

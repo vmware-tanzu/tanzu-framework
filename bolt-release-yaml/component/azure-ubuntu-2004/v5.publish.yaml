@@ -1,0 +1,18 @@
+# remove goss-spec
+name: azure-ubuntu-2004
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-{{index .config "images" 0 "dependencies" "jenkins.AZURE_IMAGE_TYPE"}}-$VERSION.yaml
+  - name: file-image-osstp
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/azure-ubuntu-2004-$VERSION-osstpmgt.yaml
+  - name: file-vhd-link
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/azure-vhd-link-ubuntu-2004-$VERSION.json
+  - name: file-image-srp-provenance
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/azure-ubuntu-2004-$VERSION-provenance.json
+  - name: file-image-srp-provenance-result
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/azure-ubuntu-2004-$VERSION-provenance_result.txt

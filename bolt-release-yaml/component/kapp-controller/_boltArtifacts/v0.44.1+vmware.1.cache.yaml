@@ -1,0 +1,7 @@
+name: kapp-controller
+goBuildComponentCaches:
+- version: v0.44.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20962503
+  buildNumber: bora-20962503
+  buildStatus: SUCCEEDED
+  hash: 72344f2139985bd0e0b0640f2050fb46

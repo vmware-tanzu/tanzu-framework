@@ -1,0 +1,14 @@
+name: cni_plugins
+publish:
+  - name: file-cniplugins-linux-amd64
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cni_plugins/executables/cni-plugins-$VERSION.tgz
+    destinationPath: $CHANNEL/component/cni_plugins/$VERSION/cni-plugins-linux-amd64-$VERSION.tgz
+nonpublish:
+  - name: cni_plugins
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cni_plugins/executables/cni-plugins-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cni_plugins/executables/cni-plugins-$VERSION.tgz
+  - name: cni_plugins-deb
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cni_plugins/debs/kubernetes-cni_$VERSION-1_amd64.deb

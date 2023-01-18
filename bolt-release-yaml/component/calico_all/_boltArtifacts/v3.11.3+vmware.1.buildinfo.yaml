@@ -1,0 +1,20 @@
+componentBuilds:
+- name: calico_all
+  version: v3.11.3+vmware.1
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/16866062
+  artifactURL:
+    calicoCniImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/cni-plugin:v3.11.3_vmware.1
+      sha256: 2922617f19d717f75fc36e7955bf3c2de8cb0828583e33d0dcca2149ab0a761e
+    calicoKubecontrollerImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/kube-controllers:v3.11.3_vmware.1
+      sha256: 235db027be299816cb8516a7338bfd854bf2240b1a5299e771a5fad3189246b7
+    calicoNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/node:v3.11.3_vmware.1
+      sha256: e71a29870e3e9922800502f2359615d9849e77ed63702781102f5b276104f949
+    calicoPodDaemonImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/pod2daemon:v3.11.3_vmware.1
+      sha256: 618280911b811a44d759d59e144b0587929b2c0873b726e9097496b5e40ad404
+  cachehash: d3f38dd98f3a24fe2d49fa35a3387626
+  publishhash: ce7c43c0403e6ee738b3d34c94ccb7d8

@@ -1,0 +1,34 @@
+name: tkg-standard-packages
+goBuildComponentLocks:
+- version: v1.5.0-20211114
+  gobuildBranch: 381565706073840214-v1.5.0-20211114
+  gobuildHeadCommit: 4794cddcc53f781aafb95854508c5e0ed9e55469
+  hash: 583d8455891fcdd7c17de2f64b8e59c3
+  componentLockReferences:
+  - name: cert-manager-package
+    version: v1.5.3+vmware.2-tkg.1-cert-manager-20211114
+    lockHash: f45a4f9262a5f58b2da2b8a25d31e19d
+  - name: contour-package
+    version: v1.17.2+vmware.1-tkg.3-contour-20211114
+    lockHash: 9738b13425288a8016fdfb6fb8e01129
+  - name: contour-package
+    version: v1.18.2+vmware.1-tkg.1-contour-20211114
+    lockHash: 747186a1413e60ebd01e2acdb85a333d
+  - name: external-dns-package
+    version: v0.10.0+vmware.1-tkg.1-external-dns-20211114
+    lockHash: 7d4d31d4e38c44ea350aaeb8901810e7
+  - name: fluent-bit-package
+    version: v1.7.5+vmware.1-tkg.2-fluent-bit-20211114
+    lockHash: 5a2e6e123b27094f218871d54d27c99e
+  - name: grafana-package
+    version: v7.5.7+vmware.1-tkg.2-grafana-20211114
+    lockHash: 7b3afc56c852e5e07e87d5926ab438b4
+  - name: prometheus-package
+    version: v2.27.0+vmware.1-tkg.2-prometheus-20211114
+    lockHash: 25d12ccc3fcdd1c3468ffba7a01bf8cb
+  - name: harbor-package
+    version: v2.3.3+vmware.1-tkg.1-harbor-20211114
+    lockHash: 8df25da5b4b2b7de8a4b779a9b84c40b
+  - name: multus-cni-package
+    version: v3.7.1+vmware.2-tkg.2-multus-cni-20211114
+    lockHash: 94fdbd5b4a709043eebc8771d828ae42

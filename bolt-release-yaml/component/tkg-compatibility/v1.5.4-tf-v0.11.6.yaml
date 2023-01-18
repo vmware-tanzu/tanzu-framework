@@ -1,0 +1,14 @@
+name: tkg-compatibility
+boms:
+- version: v1.5.4-tf-v0.11.6
+  type: tkg-compatibility
+  dependencies:
+    customCompatibilityImageDstPath: framework-zshippable/tkg-compatibility
+    customGlobalCompatibilityFileName: framework-tkg-compatibility.yaml
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.11.6-tf
+  - name: tkg-bom
+    version:
+    - v1.5.4-tf-v0.11.6

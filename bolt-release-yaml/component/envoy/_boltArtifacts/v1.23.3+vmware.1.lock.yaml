@@ -1,0 +1,7 @@
+name: envoy
+goBuildComponentLocks:
+- version: v1.23.3+vmware.1
+  gobuildBranch: vmware-1.23.3
+  gobuildHeadCommit: f0f19c349089940d27b02b69eed1648786cdcf91
+  hash: de41dc2cdc2fb5076a22280f25b5e45e
+  componentLockReferences: []

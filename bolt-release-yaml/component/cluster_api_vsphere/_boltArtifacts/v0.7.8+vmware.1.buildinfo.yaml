@@ -1,0 +1,11 @@
+componentBuilds:
+- name: cluster_api_vsphere
+  version: v0.7.8+vmware.1
+  channel: "360629861582146099"
+  url: https://buildweb.eng.vmware.com/ob/18216184/
+  artifactURL:
+    capvControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-vsphere-controller:v0.7.8_vmware.1
+      sha256: 84824432815e5dc0c5ddc3ec2ce20112141d62e3a4930d965cd5d0eac41e7ae6
+  cachehash: 97d316c5199af8e997f0965156c46430
+  publishhash: f8442a6330b794eaa322ce159a4048a1

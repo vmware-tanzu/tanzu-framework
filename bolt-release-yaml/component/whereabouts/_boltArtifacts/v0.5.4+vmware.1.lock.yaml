@@ -1,0 +1,7 @@
+name: whereabouts
+goBuildComponentLocks:
+- version: v0.5.4+vmware.1
+  gobuildBranch: vmware-0.5.4
+  gobuildHeadCommit: d69a3940c9c333862328165ef6ba71ef1385932e
+  hash: bd51de69e4186b19b07b1d235b1c2c78
+  componentLockReferences: []

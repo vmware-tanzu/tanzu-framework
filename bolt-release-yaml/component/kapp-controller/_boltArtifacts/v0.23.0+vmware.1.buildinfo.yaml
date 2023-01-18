@@ -1,0 +1,13 @@
+componentBuilds:
+- name: kapp-controller
+  version: v0.23.0+vmware.1
+  channel: "368744486722913374"
+  url: https://buildweb.eng.vmware.com/ob/18469817/
+  artifactURL:
+    kapp-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18469817/publish/lin64/kapp-controller/executables/kapp-controller-linux-amd64-v0.23.0+vmware.1.gz
+    kappControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.23.0_vmware.1
+      sha256: 753a70f616c746a4ac12f634afd9a6773216f1949c1007190b033c6df3a7e01d
+  cachehash: a0d3695c208c83c87891fe62c101ca5c
+  publishhash: 702fabdb2102e99ec9e6f600badee4cf

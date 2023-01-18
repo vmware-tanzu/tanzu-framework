@@ -1,0 +1,15 @@
+componentBuilds:
+- name: oci-cloud-controller-manager
+  version: v1.22.1+vmware.1
+  channel: "433644394600470482"
+  url: https://buildweb.eng.vmware.com/ob/20768415/
+  artifactURL:
+    ccmOracleControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cloud-provider-oci:v1.22.1_vmware.1
+      sha256: cf3416f14e5245bd153fcd6cfcd82667e7968e318a721f9a70b4cfe5739f8026
+  cachehash: ddbf188ad55b0859f78d540fce814b39
+  publishhash: d7b23608660b04a20d58345e25408003
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.15"
+    gobuild.linux_hosttype: linux-centos72-gc32

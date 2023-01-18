@@ -1,0 +1,17 @@
+name: kube_rbac_proxy
+publish:
+  - name: kubeRbacProxyControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube_rbac_proxy/images/kube-rbac-proxy-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube_rbac_proxy/images/kube-rbac-proxy-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kube-rbac-proxy:$UNDERSCOREVERSION
+  - name: kubeRbacProxyControllerImageCapi
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube_rbac_proxy/images/kube-rbac-proxy-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube_rbac_proxy/images/kube-rbac-proxy-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/kube-rbac-proxy:$UNDERSCOREVERSION
+nonpublish:
+  - name: kube_rbac_proxy-executable
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube_rbac_proxy/executables/kube-rbac-proxy-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube_rbac_proxy/executables/kube-rbac-proxy-$VERSION.gz

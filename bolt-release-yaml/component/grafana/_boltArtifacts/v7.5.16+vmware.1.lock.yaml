@@ -1,0 +1,7 @@
+name: grafana
+goBuildComponentLocks:
+- version: v7.5.16+vmware.1
+  gobuildBranch: vmware-7.5.16
+  gobuildHeadCommit: 44999ed007af713cced4a485b0ebfc4dfe27e1a5
+  hash: 422e9fd77146a445da50675bb75417d7
+  componentLockReferences: []

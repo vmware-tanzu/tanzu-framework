@@ -1,0 +1,7 @@
+name: featuregates-package
+goBuildComponentCaches:
+- version: v0.22.0-dev-19-g07558a40-featuregates
+  url: https://buildweb.eng.vmware.com/ob/19760281/
+  buildNumber: bora-19760281
+  buildStatus: SUCCEEDED
+  hash: 9e5e1e83b01467cc7ab2c90706b2ec11

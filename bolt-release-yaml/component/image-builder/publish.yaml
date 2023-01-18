@@ -1,0 +1,7 @@
+name: image-builder
+publish:
+  - name: imagebuilder-tar
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/image-builder-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/image-builder-checksums.txt
+    destinationPath: image-builder:$UNDERSCOREVERSION

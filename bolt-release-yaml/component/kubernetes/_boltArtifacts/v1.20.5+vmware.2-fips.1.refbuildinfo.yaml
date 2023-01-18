@@ -1,0 +1,69 @@
+componentBuilds:
+- name: cni_plugins
+  version: v0.8.7+vmware.6-fips.1
+  channel: "366012077988419217"
+  url: https://buildweb.eng.vmware.com/ob/18405152/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18405152/publish/lin64/cni_plugins/executables/cni-plugins-v0.8.7+vmware.6-fips.1.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18405152/publish/lin64/cni_plugins/debs/kubernetes-cni_v0.8.7+vmware.6-fips.1-1_amd64.deb
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/366012077988419217/component/cni_plugins/v0.8.7+vmware.6-fips.1/cni-plugins-linux-amd64-v0.8.7+vmware.6-fips.1.tgz
+      sha256: fe579faf85a136d56d0bada543b44819ef2fae6ed25a7d27e60bfbd9e104a6ce
+  cachehash: a89e270eb3f9fba9a71b294952139926
+  publishhash: abcafc115829ddcd77454922e85a793a
+- name: coredns
+  version: v1.7.0+vmware.8-fips.1
+  channel: "366012077988419217"
+  url: https://buildweb.eng.vmware.com/ob/18405156/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.7.0_vmware.8-fips.1
+      sha256: eeb97a54de60d96d135ab6665f4de5e5fc86ba36613ab7794e445a4a43486b13
+  cachehash: 576af5f0f76cf93e64135e82fa716eef
+  publishhash: 5b23bb15efee643a4e09b711428a8a57
+- name: cri_tools
+  version: v1.19.0+vmware.3-fips.1
+  channel: "366012077988419217"
+  url: https://buildweb.eng.vmware.com/ob/18405153/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18405153/publish/lin64/cri_tools/executables/crictl-v1.19.0+vmware.3-fips.1.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18405153/publish/lin64/cri_tools/debs/cri-tools_v1.19.0+vmware.3-fips.1-1_amd64.deb
+  cachehash: 022d85006cb19ed862ed92a8b4b4e6ec
+  publishhash: 6b0e7716fd048755adc78937d4e7bf33
+- name: etcd
+  version: v3.4.13+vmware.7-fips.1
+  channel: "366012077988419217"
+  url: https://buildweb.eng.vmware.com/ob/18405155/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.4.13_vmware.7-fips.1
+      sha256: 0f3bd04fecf037ab0df596755a94767c260ab2986635a5ade251d957e2d3ea7f
+  cachehash: be7f9e1045182f22328b42b234359788
+  publishhash: 8d295061a104d02aaac3cda5e7d85ab7
+- name: containerd
+  version: v1.4.4+vmware.3-fips.1
+  channel: "365980136601851537"
+  url: https://buildweb.eng.vmware.com/ob/18404014/
+  artifactURL:
+    file-containerd-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/component/containerd/cri-containerd-v1.4.4+vmware.3-fips.1.linux-amd64.tar
+      sha256: 786596aae68c6bb1b1e29c5db3cacf92023034a032afaa8edc39e2e6904cc0dd
+    file-containerd-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/component/containerd/cri-containerd-v1.4.4+vmware.3-fips.1.windows-amd64.tar
+      sha256: 158b1550fb0269420cfe1d70f38a95560f95c9434f945281ca85b1353bba834d
+  cachehash: 7f4b1fdad182cd3aeefaf59c5aaea812
+  publishhash: 9e0db9cd194cc80024ae3095e4ef41b3
+- name: kubernetes_release
+  version: v0.8.0+vmware.1-fips.1
+  channel: "366012077988419217"
+  url: https://buildweb.eng.vmware.com/ob/18405154/
+  artifactURL:
+    kube-cross:
+      url: projects-stg.registry.vmware.com/tkg/kube-cross:v0.8.0_vmware.1-fips.1
+      sha256: b04e0e9ac4a49eb2941ac3b9bad894c14c1e67c3c1d1433192f8beb1966005d4
+  cachehash: 8bcbbd536fab947c2eab9cad8f43a973
+  publishhash: 7021b2705a89024d325dd8f94088cd62

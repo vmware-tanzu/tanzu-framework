@@ -1,0 +1,41 @@
+name: tkgs-ova-photon-3
+imageLocks:
+- version: v1.19.7+vmware.1-tkg.1
+  hash: "2362702785181301779"
+  componentLockReferences:
+  - name: calico_all
+    version: v3.11.2+vmware.1
+    lockHash: "12213207622810482375"
+  - name: vsphere_csi_driver_tkgs
+    version: vsphere70u3-5212290-e831b6d
+    lockHash: "13105881762066969752"
+  - name: kubernetes
+    version: v1.19.7+vmware.1
+    lockHash: "9672770500288331597"
+  - name: coredns
+    version: v1.7.0+vmware.7
+    lockHash: "7738220089153434359"
+  - name: etcd
+    version: v3.4.13+vmware.6
+    lockHash: "8269220666720849863"
+  - name: antrea
+    version: v0.13.5+vmware.3
+    lockHash: "9002870060148804203"
+  - name: guest-cluster-cloud-provider
+    version: v0.1-87-gb6bb261
+    lockHash: "11385692613937805419"
+  - name: guest-cluster-auth-service
+    version: v0.1-71-g64e1c73
+    lockHash: "7377708730595700932"
+  - name: docker_distribution
+    version: 2.7.1
+    lockHash: "18233323700383608307"
+  - name: cni_plugins
+    version: v0.8.7+vmware.4
+    lockHash: "8906124615055591059"
+  - name: containerd
+    version: v1.4.6+vmware.1
+    lockHash: "16537077462211485974"
+  - name: metrics-server
+    version: v0.4.0+vmware.2
+    lockHash: "15850770206340225654"

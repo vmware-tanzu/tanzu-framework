@@ -1,0 +1,5 @@
+submodules:
+  - name: calico_all/src
+    glide:
+      - "glide.lock"
+# calico is special case since there are submodules in the mirror repo

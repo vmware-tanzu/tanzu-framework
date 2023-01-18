@@ -1,0 +1,6 @@
+name: guest-cluster-cloud-provider
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/guest-cluster-cloud-provider.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/guest-cluster-cloud-provider.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/guest-cluster-cloud-provider.git
+gobuildTarget: guest-cluster-cloud-provider
+

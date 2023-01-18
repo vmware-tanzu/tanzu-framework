@@ -1,0 +1,23 @@
+componentBuilds:
+- name: tanzu-framework-management-packages
+  version: v0.27.0-dev-77-g5b7cc0fe
+  channel: "427423096471840591"
+  url: https://buildweb.eng.vmware.com/ob/20535666/
+  artifactURL:
+    tanzuFrameworkManagementPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/repo:v0.27.0-dev-77-g5b7cc0fe
+      sha256: 0264477aa9f848c0c75ab90cf3e7356cb535093fcb12e16cbc7bb78bd425eb09
+    tanzuFrameworkManagementPackageRepositoryImageUTKG:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/repo:v0.27.0-dev-77-g5b7cc0fe-utkg
+      sha256: 3a28ddb2ae008e34479bb8440468cde33cc6cb867b2efbb97ddfb19b0dfe764e
+  cachehash: e5f2c6b1f8a9dbd454da33f197145377
+  publishhash: 7af56071e26d10abc389a8b3a0c7988c
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_type: management
+    gobuild.releaseVersion: v0.27.0-dev-77-g5b7cc0fe

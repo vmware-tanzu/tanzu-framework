@@ -1,0 +1,211 @@
+componentBuilds:
+- name: cert-manager-package
+  version: v1.5.3+vmware.3-tkg.1-cert-manager-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19585980/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.5.3_vmware.3-tkg.1-tf-v0.20.0
+      sha256: 0ff9bec36c17369dff00169e02ea8b69e846d8e3ee1c8b6de031c2281c7579be
+  cachehash: 3d91a84e318fa68c7fd5d3f9dd1b918f
+  publishhash: 08b8d2296442618f07837aec7f5d1c39
+- name: contour-package
+  version: v1.17.2+vmware.1-tkg.4-contour-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19585230/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.17.2_vmware.1-tkg.4-tf-v0.20.0
+      sha256: 79e93031c44cbc7872049fe59682c367844837d9b5ece4d67255a8e5dffc454d
+  cachehash: 5185cebd1f8d7cffc3c233458155f9bc
+  publishhash: acb70bf7bfe4f966ad485fc9e3085f43
+- name: contour-package
+  version: v1.18.2+vmware.1-tkg.2-contour-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19586743/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.18.2_vmware.1-tkg.2-tf-v0.20.0
+      sha256: 0fa15087a20bf738567766d5faf237af928daa975822c581dbdfffb8d29fdf19
+  cachehash: 8aee0ff2e2a95c4eda771fa9ae0141dc
+  publishhash: acb70bf7bfe4f966ad485fc9e3085f43
+- name: external-dns-package
+  version: v0.10.0+vmware.1-tkg.2-external-dns-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19585228/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.10.0_vmware.1-tkg.2-tf-v0.20.0
+      sha256: 7fb8c3df92a7a70f0e4f3dbe8aa6c3f35fd52b45394187394f2370d2a5e12044
+  cachehash: 85ab591fdde5fff857dea7913038c9f6
+  publishhash: 19b8613fad519068fc2d01dbd771545b
+- name: fluent-bit-package
+  version: v1.7.5+vmware.2-tkg.2-fluent-bit-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19585355/
+  artifactURL:
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.2-tkg.2-tf-v0.20.0
+      sha256: 6e3d4ec68ff9760d05a031625bd6097230683457e825fd90323e392ca2a09623
+  cachehash: e9905d7c96ccf243e377e40e257d01fd
+  publishhash: 51ef43745ce53777a2a953caa9ef223e
+- name: grafana-package
+  version: v7.5.7+vmware.2-tkg.2-grafana-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19586564/
+  artifactURL:
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.2-tkg.2-tf-v0.20.0
+      sha256: 9b71275854587049599798dc74be2434c6660ed8350a2a67e2d2a5258774902f
+  cachehash: ddd45dea5691b463cd737e812fa9cd33
+  publishhash: 93d993a45ebfd2da411903df093c9a7f
+- name: prometheus-package
+  version: v2.27.0+vmware.2-tkg.2-prometheus-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19586920/
+  artifactURL:
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.2-tkg.2-tf-v0.20.0
+      sha256: 0cbc8aaa627a3fb22021be6114b504593a143b339e3808033ce012e3d8241b79
+  cachehash: ad09713b2f4b4541b1602aa4dd9bb80b
+  publishhash: 46897cc6c21c88aff6d73e888ed0a148
+- name: harbor-package
+  version: v2.3.3+vmware.1-tkg.2-harbor-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19585403/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.3.3_vmware.1-tkg.2-tf-v0.20.0
+      sha256: ae21bb13945f85af998f6fb959d5d7da66ea82d1558bf82ffc1f16260d30aa24
+  cachehash: 3bf65afbde0736704a33d8a5b5f0fbe9
+  publishhash: a5d762b015a1a159eaab004b8d93ec17
+- name: multus-cni-package
+  version: v3.7.1+vmware.2-tkg.3-multus-cni-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19585513/
+  artifactURL:
+    multus-cni.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.2-tkg.3-tf-v0.20.0
+      sha256: 420c36b6108274e49eb5b805a4c37980a635ff057c6d35db801e8a447e972059
+  cachehash: dd0370f3d9818b202528ef92913ea91b
+  publishhash: 9e361a1c179233c0d6d805103c7f9223
+- name: grafana-package
+  version: v7.5.7+vmware.1-tkg.1-grafana
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    grafana.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.1-tkg.1
+      sha256: 561e6afe31bf627f89dbb92a7dfded25128037fc407efc7d0190f2c6bc6deec7
+  cachehash: "0"
+  publishhash: "0"
+- name: harbor-package
+  version: v2.2.3+vmware.1-tkg.1-harbor
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.1
+      sha256: c4fe69a762c3081e2f181dead7d79224b7012db8b74e3ca847798f030f1749ee
+  cachehash: "0"
+  publishhash: "0"
+- name: harbor-package
+  version: v2.2.3+vmware.1-tkg.2-harbor
+  channel: "388893606586382993"
+  url: https://buildweb.eng.vmware.com/ob/19158461/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.2
+      sha256: ab53d81c62bc85b06bbe5c0b8f5a404e98b0bc554606d387896fd3b673224fb4
+  cachehash: "0"
+  publishhash: "0"
+- name: multus-cni-package
+  version: v3.7.1+vmware.1-tkg.1-multus-cni
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    multus-cni.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.1-tkg.1
+      sha256: f15b0a748d10f2a92df68b6f4eef8b4f3b08a9b17240de084bfb3501d7ebc245
+  cachehash: "0"
+  publishhash: "0"
+- name: multus-cni-package
+  version: v3.7.1+vmware.2-tkg.1-multus-cni
+  channel: "388893606586382993"
+  url: https://buildweb.eng.vmware.com/ob/19158461/
+  artifactURL:
+    multus-cni.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.2-tkg.1
+      sha256: ea6122133596b387380ae43a41ad99de042190007c9510374d16188aaa2e64bf
+  cachehash: "0"
+  publishhash: "0"
+- name: prometheus-package
+  version: v2.27.0+vmware.1-tkg.1-prometheus
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    prometheus.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.1-tkg.1
+      sha256: 27af034c1c77bcae4e1f7f6d3883286e34419ea2e88222642af17393cd34e46a
+  cachehash: "0"
+  publishhash: "0"
+- name: cert-manager-package
+  version: v1.1.0+vmware.1-tkg.2-cert-manager
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/cert-manager:v1.1.0_vmware.1-tkg.2
+      sha256: 117a35c2b496cbac0e6562d9b48cb821da829454e12c1ac7a6dedb6968c76de8
+  cachehash: "0"
+  publishhash: "0"
+- name: cert-manager-package
+  version: v1.1.0+vmware.2-tkg.1-cert-manager
+  channel: "388893606586382993"
+  url: https://buildweb.eng.vmware.com/ob/19158461/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/cert-manager:v1.1.0_vmware.2-tkg.1
+      sha256: 8899f1d910f458437895e5d32817e5044b86ff814aad43846156f9d00032b568
+  cachehash: "0"
+  publishhash: "0"
+- name: contour-package
+  version: v1.17.1+vmware.1-tkg.1-contour
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/contour:v1.17.1_vmware.1-tkg.1
+      sha256: 73dc13131e6c1cfa8d3b56aeacd97734447acdf1ab8c0862e936623ca744e7c4
+  cachehash: "0"
+  publishhash: "0"
+- name: contour-package
+  version: v1.17.2+vmware.1-tkg.2-contour
+  channel: "388893606586382993"
+  url: https://buildweb.eng.vmware.com/ob/19158461/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/contour:v1.17.2_vmware.1-tkg.2
+      sha256: 1eedbd5b546d499be9b151a9cf25e8e0a4e83e5f5b6be9f943f8d501a42c33fd
+  cachehash: "0"
+  publishhash: "0"
+- name: external-dns-package
+  version: v0.8.0+vmware.1-tkg.1-external-dns
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/external-dns:v0.8.0_vmware.1-tkg.1
+      sha256: ae8cd950bbeb94b8ff66e41eaf62bcc4470f1f1ab424032a996a0193f5245961
+  cachehash: "0"
+  publishhash: "0"
+- name: fluent-bit-package
+  version: v1.7.5+vmware.1-tkg.1-fluent-bit
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    fluent-bit.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.1
+      sha256: c83d038c57f244aae2819dd77dc5184bb3e1ec96524d3f6a09fe8a244b7bc9e4
+  cachehash: "0"
+  publishhash: "0"

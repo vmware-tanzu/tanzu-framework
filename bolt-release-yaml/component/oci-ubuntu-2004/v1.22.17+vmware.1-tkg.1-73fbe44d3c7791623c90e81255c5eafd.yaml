@@ -1,0 +1,31 @@
+name: oci-ubuntu-2004
+images:
+- version: v1.22.17+vmware.1-tkg.1-73fbe44d3c7791623c90e81255c5eafd
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: oci
+  imageBuilderVersion: f3f67a6f9fe7365aa9862abf382ba38f944e4464
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2
+  - name: coredns
+    version:
+    - v1.8.4+vmware.10
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.9
+  - name: etcd
+    version:
+    - v3.5.6+vmware.1
+  - name: containerd
+    version:
+    - v1.5.13+vmware.1
+  - name: kubernetes
+    version:
+    - v1.22.17+vmware.1
+  dependencies:
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+    jenkins.OCI_BUILD_TYPE: dev

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: windows-resource-bundle
+  version: v1.22.3+vmware.1-tkg.1-rc.3
+  channel: "385167028333341286"
+  url: https://buildweb.eng.vmware.com/ob/19041772/
+  artifactURL:
+    windowsResourceBundleImage:
+      url: projects-stg.registry.vmware.com/tkg/windows-resource-bundle:v1.22.3_vmware.1-tkg.1-rc.3
+      sha256: 3bbba2cebc9bd66e5b9db410cf29a08f1e35ba9f03e4bf1cc9dc46b0704c8d91
+  cachehash: 22cdfcd0851901864999537c7fd28de1
+  publishhash: 2803688be300ca5b8619663fa14027c9

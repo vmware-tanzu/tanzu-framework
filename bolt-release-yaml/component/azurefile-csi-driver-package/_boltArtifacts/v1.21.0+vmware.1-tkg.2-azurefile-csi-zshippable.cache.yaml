@@ -1,0 +1,7 @@
+name: azurefile-csi-driver-package
+goBuildComponentCaches:
+- version: v1.21.0+vmware.1-tkg.2-azurefile-csi-zshippable
+  url: https://buildweb.eng.vmware.com/ob/21132820/
+  buildNumber: bora-21132820
+  buildStatus: SUCCEEDED
+  hash: 677f4c9f7f33abd8c2c88c87b0d33c6e

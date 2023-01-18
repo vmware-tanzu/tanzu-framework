@@ -1,0 +1,20 @@
+name: etcd
+managedComponents:
+- version: v3.5.4+vmware.8-fips.1
+  upstreamTag: v3.5.4
+  mirrorCherryPicks:
+  - sha: 1c646d67d2404e79473263043a2b7fa3984318c6
+    description: set base image as variable
+  - sha: d3d695290710199cf5a24fd937705dcaf86f8af3
+    description: Build script resepects `CGO_ENABLED` env var
+  gobuildBaseBranch: vmware-3.5.0+vmware.0~8529bfba50c407517e7f55eb11f57e41435ea710
+  dependencies:
+    gobuild.base_image: debian-base-amd64:bullseye-v1.2.0
+    gobuild.cgoEnabled: "1"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangImageName: go
+    gobuild.golangImageRegistry: fips-runtime-containers-docker-local.artifactory.eng.vmware.com
+    gobuild.golangImageVersion: 1.18.6b7
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8

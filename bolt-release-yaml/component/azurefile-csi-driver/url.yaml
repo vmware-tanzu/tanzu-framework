@@ -1,0 +1,8 @@
+name: azurefile-csi-driver
+upstreamURL: https://github.com/kubernetes-sigs/azurefile-csi-driver.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_azurefile-csi-driver.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_azurefile-csi-driver.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_azurefile-csi-driver.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_azurefile-csi-driver.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_azurefile-csi-driver.git
+gobuildTarget: cayman_azurefile-csi-driver

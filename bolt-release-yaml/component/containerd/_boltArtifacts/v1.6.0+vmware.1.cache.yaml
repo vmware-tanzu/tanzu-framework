@@ -1,0 +1,7 @@
+name: containerd
+goBuildComponentCaches:
+- version: v1.6.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/19446314/
+  buildNumber: bora-19446314
+  buildStatus: SUCCEEDED
+  hash: b0d5814a584cdf8bdb9731f6a7b612a6

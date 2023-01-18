@@ -1,0 +1,4 @@
+submodules:
+  - name: kubernetes/src
+    go_mod:
+      - "go.mod"

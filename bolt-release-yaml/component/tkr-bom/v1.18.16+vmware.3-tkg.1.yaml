@@ -1,0 +1,95 @@
+name: tkr-bom
+boms:
+- version: v1.18.16+vmware.3-tkg.1
+  type: tkr
+  imageRepository: projects.registry.vmware.com/tkg
+  dependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha1
+  componentReferences:
+  - name: antrea
+    version:
+    - v0.11.3+vmware.1
+  - name: calico_all
+    version:
+    - v3.11.3+vmware.1
+  - name: cloud_provider_vsphere
+    version:
+    - v1.18.1+vmware.1
+  - name: csi_attacher
+    version:
+    - v3.0.0+vmware.1
+  - name: csi_livenessprobe
+    version:
+    - v2.1.0+vmware.1
+  - name: csi_node_driver_registrar
+    version:
+    - v2.0.1+vmware.1
+  - name: kubernetes-csi_external-resizer
+    version:
+    - v1.0.0+vmware.1
+  - name: csi_provisioner
+    version:
+    - v2.0.0+vmware.1
+  - name: vsphere_csi_driver
+    version:
+    - v2.1.0+vmware.1
+  - name: dex
+    version:
+    - v2.27.0+vmware.1
+  - name: kapp-controller
+    version:
+    - v0.16.0+vmware.1
+  - name: metrics-server
+    version:
+    - v0.4.0+vmware.1
+  - name: pinniped
+    version:
+    - v0.4.1+vmware.1
+  - name: tanzu_core_addons
+    version:
+    - v1.3.0
+  - name: kubernetes
+    version:
+    - v1.18.16+vmware.3
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.3
+  - name: coredns
+    version:
+    - v1.6.7+vmware.8
+  - name: cri_tools
+    version:
+    - v1.17.0+vmware.5
+  - name: etcd
+    version:
+    - v3.4.3+vmware.13
+  - name: containerd
+    version:
+    - v1.4.4+vmware.3
+  - name: kubernetes-sigs_kind
+    version:
+    - v1.18.16+vmware.1
+  - name: ova-photon-3
+    version:
+    - v1.18.16+vmware.3-tkg.0-8495246801842811383
+  - name: ova-ubuntu-2004
+    version:
+    - v1.18.16+vmware.3-tkg.0-13923008044567204060
+  - name: ami-general-amazon-2
+    version:
+    - v1.18.16+vmware.3-tkg.0-15965863442083865089
+  - name: ami-general-ubuntu-2004
+    version:
+    - v1.18.16+vmware.3-tkg.0-15503479215564955873
+  - name: ami-gov-amazon-2
+    version:
+    - v1.18.16+vmware.3-tkg.0-3755655494649622556
+  - name: ami-gov-ubuntu-2004
+    version:
+    - v1.18.16+vmware.3-tkg.0-12680576492898293349
+  - name: azure-ubuntu-1804
+    version:
+    - v1.18.16+vmware.3-tkg.0-7379449646752626707
+  - name: azure-ubuntu-2004
+    version:
+    - v1.18.16+vmware.3-tkg.0-5568952835228806570

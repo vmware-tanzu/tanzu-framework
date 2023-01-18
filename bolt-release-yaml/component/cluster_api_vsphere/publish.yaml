@@ -1,0 +1,7 @@
+name: cluster_api_vsphere
+publish:
+  - name: capvControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_vsphere/images/cluster-api-vsphere-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_vsphere/images/cluster-api-vsphere-controller-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/cluster-api-vsphere-controller:$UNDERSCOREVERSION

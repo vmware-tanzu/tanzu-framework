@@ -1,0 +1,18 @@
+versionMap:
+  v0.1.0+vmware.1: url.yaml
+  v0.1.0+vmware.2: url.yaml
+  v0.1.0+vmware.3: url.yaml
+  v0.1.0+vmware.3-fips.1: url.yaml
+  v0.1.0+vmware.4: url.yaml
+  v0.1.0+vmware.5: url.yaml
+  v0.1.0+vmware.5-fips.1: url.yaml
+  v0.1.0+vmware.6: url.yaml
+  v0.1.0+vmware.7: url.yaml
+  v0.1.0+vmware.7-fips: url.yaml
+  v0.1.0+vmware.8: url.yaml
+  v0.1.0+vmware.9: url.yaml
+  v0.2.0+vmware.1: url.yaml
+  v0.2.0+vmware.2: url.yaml
+  v0.2.0+vmware.3: url.yaml
+  v0.2.0+vmware.4: url.yaml
+  v0.2.0+vmware.5: url.yaml

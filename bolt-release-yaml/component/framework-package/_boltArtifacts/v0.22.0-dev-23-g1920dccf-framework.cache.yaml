@@ -1,0 +1,7 @@
+name: framework-package
+goBuildComponentCaches:
+- version: v0.22.0-dev-23-g1920dccf-framework
+  url: https://buildweb.eng.vmware.com/ob/19785924/
+  buildNumber: bora-19785924
+  buildStatus: SUCCEEDED
+  hash: 3cb9da09b27b7a1e2f8e17819e6d6636

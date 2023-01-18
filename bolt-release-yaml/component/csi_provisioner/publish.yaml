@@ -1,0 +1,7 @@
+name: csi_provisioner
+publish:
+  - name: csiProvisonerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/csi_provisioner/images/csi-provisioner-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/csi_provisioner/images/csi-provisioner-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: csi/csi-provisioner:$UNDERSCOREVERSION

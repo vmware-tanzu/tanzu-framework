@@ -1,0 +1,11 @@
+componentBuilds:
+- name: k8s-sidecar
+  version: v1.12.1+vmware.1
+  channel: "368427556086537656"
+  url: https://buildweb.eng.vmware.com/ob/18468741/
+  artifactURL:
+    k8sSidecarImage:
+      url: projects-stg.registry.vmware.com/tkg/grafana/k8s-sidecar:v1.12.1_vmware.1
+      sha256: 9f1ad1e5e404bc43f9591b1189c187f535d6f61769468c49b4fc97add803d7b9
+  cachehash: 229b2f11ef088cb6cf9ea50eda9b83e6
+  publishhash: 72ab576eccae4627ad6464390c7a9440

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'tkg dailybuild release yaml, tkg-bom version: v1.4.2-zshippable '
+componentReferences:
+  - name: tkg_release
+    version:
+      - v1.4.2-zshippable

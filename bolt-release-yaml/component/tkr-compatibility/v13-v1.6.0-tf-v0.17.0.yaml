@@ -1,0 +1,15 @@
+name: tkr-compatibility
+boms:
+- version: v13-v1.6.0-tf-v0.17.0
+  type: compatibility
+  compatibilityMetadata:
+    version: v13
+    managementClusterVersions:
+    - version: v1.6.0-tf-v0.17.0
+      supportedKubernetesVersions:
+      - v1.21.8+vmware.1-tkg.3-tf-v0.17.0
+      - v1.20.14+vmware.1-tkg.3-tf-v0.17.0
+      - v1.22.5+vmware.1-tkg.2-tf-v0.17.0
+  dependencies:
+    customCompatibilityImageDstPath: framework-zshippable/tkr-compatibility
+    customGlobalCompatibilityFileName: framework-tkr-compatibility.yaml

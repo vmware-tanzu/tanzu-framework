@@ -1,0 +1,8 @@
+name: oci-cloud-controller-manager
+upstreamURL: https://github.com/oracle/oci-cloud-controller-manager.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_oci-cloud-controller-manager.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_oci-cloud-controller-manager.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_oci-cloud-controller-manager.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_oci-cloud-controller-manager.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_oci-cloud-controller-manager.git
+gobuildTarget: cayman_oci-cloud-controller-manager

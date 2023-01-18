@@ -1,0 +1,4 @@
+submodules:
+  - name: csi_attacher/src
+    go_mod:
+      - "go.mod"

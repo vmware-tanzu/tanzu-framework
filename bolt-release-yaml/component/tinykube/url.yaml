@@ -1,0 +1,6 @@
+name: tinykube
+upstreamURL: git@gitlab.eng.vmware.com:core-build/tinykube.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_tinykube.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_tinykube.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_tinykube.git
+gobuildTarget: cayman_tinykube

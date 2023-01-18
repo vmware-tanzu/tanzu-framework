@@ -1,0 +1,25 @@
+name: kubernetes_release
+managedComponents:
+- version: v0.14.0+vmware.5-fips.1
+  upstreamTag: v0.14.0
+  mirrorCherryPicks:
+  - sha: bc6a0f2f2aa14af3134f8025835dc0c820a7d7db
+    description: Replace `+` with `_` in `TAG`
+  - sha: 667a66721b6ac2cbb4749459f546f4a8b865db04
+    description: Enable golang image override in kube-cross build
+  - sha: b026b3e31c177f2fc54302bc98201cda521f53c3
+    description: Enable docker buildx qemu image override
+  - sha: 5b41ed88ed8b4782bd341bd3422640ed964d05ec
+    description: Use network=host everywhere
+  - sha: 307af96a9e52dc639cb7f24e70f220aad01b2c36
+    description: enable universe repo in ubuntu focal
+  - sha: f39db2cf2b27c6597b7fc3d67d086b59dad847c7
+    description: add GOPATH to image
+  gobuildBaseBranch: vmware-v0.12.0+vmware.8-fips.1~2748d9b35d260f5791e97459de46ac2b2d9191b0
+  dependencies:
+    gobuild.golangImageName: go
+    gobuild.golangImageRegistry: fips-runtime-containers-docker-local.artifactory.eng.vmware.com
+    gobuild.golangImageVersion: 1.19.4
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8

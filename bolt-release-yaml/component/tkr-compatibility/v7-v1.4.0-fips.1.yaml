@@ -1,0 +1,14 @@
+name: tkr-compatibility
+boms:
+- version: v7-v1.4.0-fips.1
+  type: compatibility
+  compatibilityMetadata:
+    version: v7
+    managementClusterVersions:
+    - version: v1.4.0-fips.1
+      supportedKubernetesVersions:
+      - v1.21.2+vmware.1-fips.1-tkg.1
+      - v1.20.8+vmware.1-fips.1-tkg.2
+  dependencies:
+    rtmVersions:
+    - v1.4.0

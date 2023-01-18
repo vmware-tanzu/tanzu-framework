@@ -1,0 +1,93 @@
+componentBuilds:
+- name: tkg-core-packages
+  version: v1.21.8+vmware.1-tkg.7-zshippable
+  channel: "408187511655896591"
+  url: https://buildweb.eng.vmware.com/ob/19817817/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/addons-manager:v1.4.0_vmware.2-tkg.1
+      sha256: fbf7eb6a986c25ca813cddc6260b99618d829b96f77043a36555539af255a557
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.4.0_vmware.1-tkg.1
+      sha256: f6484bd6ae600de8b1ac7efdbaf5c5cf242bee04e08dd86b40c346d554f04e01
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v0.13.3_vmware.1-tkg.1
+      sha256: 665b3ebf9de42824b4d730c61b882954602c5baa4f0035d35606ed4144001688
+    calico.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/calico:v3.11.3_vmware.1-tkg.3
+      sha256: 8d151257a5c709e03c51999d41984d357c054e5170045808f4fbbd9654684723
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.23.0_vmware.1-tkg.1
+      sha256: cf5c2de0fb1c897208a39b51b735ad28c4d2b8c0c5300169178c407ca3a3ab8f
+    load-balancer-and-ingress-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/load-balancer-and-ingress-service:v1.4.3_vmware.1-tkg.1
+      sha256: c087e6ce908ca7f46b2f0521f4941c2892c756da9f97d288ddf73d3497d4e77e
+    metrics-server.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/metrics-server:v0.4.0_vmware.1-tkg.1
+      sha256: 09813148b0cefa6efbb0463eb39388824ae5e154407d1b681e7924d645dab1d0
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.4.4_vmware.2-tkg.1
+      sha256: b63c8705217e1d6ad515b599b010435118647f6417fcf160d73de5392b2660ed
+    tanzuCorePackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/repo:v1.21.8_vmware.1-tkg.7-zshippable
+      sha256: 5590462bd1b5acfc2ec22a8789daec2d7124887261a3d03cf7b7dd4dbd93fef8
+    vsphere-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-cpi:v1.21.0_vmware.1-tkg.1
+      sha256: bb6cceb0a043e8dfe04d1b6d16084e19dde7f3ec0059a3e904facabaf0757312
+    vsphere-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-csi:v2.3.0_vmware.1-tkg.3
+      sha256: 113cb56746ed737293f817a00442386e79617ebc9e1dbfb2ceb0a88638e1eb25
+  cachehash: ad014866f1ffe9a7b51b53de15b879e9
+  publishhash: f37ffc9a0970b3decf758a28bfd67378
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_ako_operator: projects-stg.registry.vmware.com/tkg/ako-operator:v1.4.0_vmware.1
+    gobuild.downstream_antrea: projects-stg.registry.vmware.com/tkg/antrea/antrea-debian:v0.13.3_vmware.1
+    gobuild.downstream_calico_cni_plugin: projects-stg.registry.vmware.com/tkg/calico-all/cni-plugin:v3.11.3_vmware.1
+    gobuild.downstream_calico_kube_controller: projects-stg.registry.vmware.com/tkg/calico-all/kube-controllers:v3.11.3_vmware.1
+    gobuild.downstream_calico_node: projects-stg.registry.vmware.com/tkg/calico-all/node:v3.11.3_vmware.1
+    gobuild.downstream_calico_pod_daemon: projects-stg.registry.vmware.com/tkg/calico-all/pod2daemon:v3.11.3_vmware.1
+    gobuild.downstream_dex: projects-stg.registry.vmware.com/tkg/dex:v2.27.0_vmware.1
+    gobuild.downstream_kapp_controller: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.23.0_vmware.1
+    gobuild.downstream_kube_rbac_proxy: projects-stg.registry.vmware.com/tkg/kube-rbac-proxy:v0.4.1_vmware.2
+    gobuild.downstream_load_balancer_and_ingress_service: projects-stg.registry.vmware.com/tkg/ako:v1.4.3_vmware.1
+    gobuild.downstream_metrics_server: projects-stg.registry.vmware.com/tkg/metrics-server:v0.4.0_vmware.1
+    gobuild.downstream_pinniped_post_deploy_job: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v1.4.2
+    gobuild.downstream_pinniped_server: projects-stg.registry.vmware.com/tkg/pinniped:v0.4.4_vmware.1
+    gobuild.downstream_tanzu_addons_manager: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v1.4.2
+    gobuild.downstream_vsphere_cpi_manager: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.21.0_vmware.1
+    gobuild.downstream_vsphere_csi_attacher: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.2.0_vmware.1
+    gobuild.downstream_vsphere_csi_driver: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.3.0_vmware.1
+    gobuild.downstream_vsphere_csi_liveness_probe: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.2.0_vmware.1
+    gobuild.downstream_vsphere_csi_node_driver_registrar: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.1.0_vmware.1
+    gobuild.downstream_vsphere_csi_provisioner: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v2.2.0_vmware.1
+    gobuild.downstream_vsphere_csi_resizer: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.1.0_vmware.1
+    gobuild.downstream_vsphere_csi_syncer: projects-stg.registry.vmware.com/tkg/csi/volume-metadata-syncer:v2.3.0_vmware.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_versions: kapp-controller:0.23.0:vmware.1-tkg.1;vsphere-csi:2.3.0:vmware.1-tkg.3;vsphere-cpi:1.21.0:vmware.1-tkg.1;metrics-server:0.4.0:vmware.1-tkg.1;addons-manager:1.4.0:vmware.2-tkg.1;antrea:0.13.3:vmware.1-tkg.1;calico:3.11.3:vmware.1-tkg.3;pinniped:0.4.4:vmware.2-tkg.1;load-balancer-and-ingress-service:1.4.3:vmware.1-tkg.1;ako-operator:1.4.0:vmware.1-tkg.1;
+    gobuild.releaseVersion: v1.21.8+vmware.1-tkg.7-zshippable
+    gobuild.upstream_ako_operator: projects-stg.registry.vmware.com/tkg/ako-operator:v1.4.0_vmware.1
+    gobuild.upstream_antrea: antrea/antrea-ubuntu:v0.13.3
+    gobuild.upstream_calico_cni_plugin: docker.io/calico/cni:v3.11.3
+    gobuild.upstream_calico_kube_controller: docker.io/calico/kube-controllers:v3.11.3
+    gobuild.upstream_calico_node: docker.io/calico/node:v3.11.3
+    gobuild.upstream_calico_pod_daemon: docker.io/calico/pod2daemon-flexvol:v3.11.3
+    gobuild.upstream_dex: projects.registry.vmware.com/tce/dex:v2.27.0_vmware.1
+    gobuild.upstream_kapp_controller: index.docker.io/k14s/kapp-controller@sha256:d7818225512f149b782323d02193fe5866e0e329a5fa5497e5c6870f390ddb77
+    gobuild.upstream_kube_rbac_proxy: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:v0.4.1_vmware.2
+    gobuild.upstream_load_balancer_and_ingress_service: projects-stg.registry.vmware.com/tkg/ako:v1.4.3_vmware.1
+    gobuild.upstream_metrics_server: k8s.gcr.io/metrics-server/metrics-server:v0.4.0
+    gobuild.upstream_pinniped_post_deploy_job: projects.registry.vmware.com/tce/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.1
+    gobuild.upstream_pinniped_server: docker.io/getpinniped/pinniped-server:v0.4.4
+    gobuild.upstream_tanzu_addons_manager: projects-stg.registry.vmware.com/tkg/sandbox/tanzu_core_addons/tanzu-addons-manager:v1.3.1_vmware.1
+    gobuild.upstream_vsphere_cpi_manager: gcr.io/cloud-provider-vsphere/cpi/release/manager:v1.21.0
+    gobuild.upstream_vsphere_csi_attacher: k8s.gcr.io/sig-storage/csi-attacher:v3.2.0
+    gobuild.upstream_vsphere_csi_driver: gcr.io/cloud-provider-vsphere/csi/release/driver:v2.3.0
+    gobuild.upstream_vsphere_csi_liveness_probe: quay.io/k8scsi/livenessprobe:v2.2.0
+    gobuild.upstream_vsphere_csi_node_driver_registrar: quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
+    gobuild.upstream_vsphere_csi_provisioner: k8s.gcr.io/sig-storage/csi-provisioner:v2.2.0
+    gobuild.upstream_vsphere_csi_resizer: quay.io/k8scsi/csi-resizer:v1.1.0
+    gobuild.upstream_vsphere_csi_syncer: gcr.io/cloud-provider-vsphere/csi/release/syncer:v2.3.0

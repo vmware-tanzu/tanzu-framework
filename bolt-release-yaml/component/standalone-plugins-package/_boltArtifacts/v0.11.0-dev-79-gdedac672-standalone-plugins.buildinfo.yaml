@@ -1,0 +1,11 @@
+componentBuilds:
+- name: standalone-plugins-package
+  version: v0.11.0-dev-79-gdedac672-standalone-plugins
+  channel: "381823620638341876"
+  url: https://buildweb.eng.vmware.com/ob/18933774/
+  artifactURL:
+    standalone-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standalone/standalone-plugins:v0.11.0-dev-79-gdedac672_vmware.1
+      sha256: 4130a664661d62cdf815d98a2a81a1ceeddf3e6f895a2a72541cca8acbd5ef9a
+  cachehash: 5344bf529ca3e4b8a1d5e4c01392fea3
+  publishhash: 61380dd6e6b4508ddb4529016630a597

@@ -1,0 +1,6 @@
+name: velero-mgmt-cluster-plugin
+unmanagedComponents:
+  - version: v0.1.0+vmware.1
+    gobuildBranch: vmware-v0.1.0~e1cdf1712271e6ac03498b13accc27bfa4e6def8
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

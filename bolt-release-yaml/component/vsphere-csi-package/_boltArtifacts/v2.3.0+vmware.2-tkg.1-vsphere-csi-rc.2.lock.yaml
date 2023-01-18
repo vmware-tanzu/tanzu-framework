@@ -1,0 +1,25 @@
+name: vsphere-csi-package
+goBuildComponentLocks:
+- version: v2.3.0+vmware.2-tkg.1-vsphere-csi-rc.2
+  gobuildBranch: 433826575738246285-v2.3.0+vmware.2-tkg.1-vsphere-csi-rc.2-vsphere-csi-package
+  gobuildHeadCommit: b1197ecf05ab63cf7b5544778e7a6d491ea55ea9
+  hash: a9e096a552b2655adfc2faa7a1677dc5
+  componentLockReferences:
+  - name: csi_attacher
+    version: v3.2.0+vmware.1
+    lockHash: b6a47e9a04b0695c9ec06b843dc9b77e
+  - name: csi_livenessprobe
+    version: v2.2.0+vmware.1
+    lockHash: b527cdf7bf542e663004dca6634e2b5f
+  - name: csi_node_driver_registrar
+    version: v2.1.0+vmware.1
+    lockHash: 376cf72fbf107bf99272f469cf3b2532
+  - name: kubernetes-csi_external-resizer
+    version: v1.1.0+vmware.1
+    lockHash: 68dd6945cbed208a6384bd140ef246e8
+  - name: csi_provisioner
+    version: v2.2.0+vmware.1
+    lockHash: eb64c8886564c785903f27f873af596e
+  - name: vsphere_csi_driver
+    version: v2.3.0+vmware.2
+    lockHash: 7c9dc43256120c069092805a4e2d43b2

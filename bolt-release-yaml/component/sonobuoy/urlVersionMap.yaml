@@ -1,0 +1,6 @@
+versionMap:
+  v0.20.0+vmware.1: url.yaml
+  v0.20.0+vmware.2: url.yaml
+  v0.54.0+vmware.1: url.yaml
+  v0.56.6+vmware.1: url.yaml
+  v0.56.13+vmware.1: url.yaml

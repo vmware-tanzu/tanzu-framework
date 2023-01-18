@@ -1,0 +1,7 @@
+name: k8s-sidecar
+goBuildComponentLocks:
+- version: v1.12.1+vmware.3
+  gobuildBranch: vmware-1.12.1
+  gobuildHeadCommit: 1eebc7f25721778bd511228a480dfdd0fb474f1f
+  hash: c20f735038c3777e83c5da1997992f81
+  componentLockReferences: []

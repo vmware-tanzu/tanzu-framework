@@ -1,0 +1,16 @@
+componentBuilds:
+- name: metrics-server
+  version: v0.6.1+vmware.1
+  channel: "415319343941852487"
+  url: https://buildweb.eng.vmware.com/ob/20064642/
+  artifactURL:
+    metricsServerImage:
+      url: projects-stg.registry.vmware.com/tkg/metrics-server:v0.6.1_vmware.1
+      sha256: 51de9e3411928b52415d83610d7ae387bd56789233f4c2bf551fe9087d57f6d2
+  cachehash: 81c18c39fc3008288901b52916aebe76
+  publishhash: 1b5b1c3c994ffc03d5f5e72779b8c984
+  configDependencies:
+    gobuild.golangVersion: "1.17"
+    gobuild.imageName: metrics-server
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8

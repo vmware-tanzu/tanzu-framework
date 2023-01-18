@@ -1,0 +1,7 @@
+name: vendir
+goBuildComponentCaches:
+- version: v0.32.2+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20929432
+  buildNumber: bora-20929432
+  buildStatus: SUCCEEDED
+  hash: d84158307d7f38da3b8c8edeb0785f2c

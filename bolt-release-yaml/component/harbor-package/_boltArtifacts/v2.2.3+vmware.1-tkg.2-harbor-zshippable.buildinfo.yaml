@@ -1,0 +1,11 @@
+componentBuilds:
+- name: harbor-package
+  version: v2.2.3+vmware.1-tkg.2-harbor-zshippable
+  channel: "379176692926678716"
+  url: https://buildweb.eng.vmware.com/ob/18847961/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.2-zshippable
+      sha256: 88daecd275d20fa185e8a33451e7c9336242041db4d6740e466b798dea9f6d30
+  cachehash: 259dcf068c5529facaadc170c572b8c8
+  publishhash: a5d762b015a1a159eaab004b8d93ec17

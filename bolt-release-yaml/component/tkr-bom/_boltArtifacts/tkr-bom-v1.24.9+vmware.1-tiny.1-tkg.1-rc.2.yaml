@@ -1,0 +1,270 @@
+apiVersion: run.tanzu.vmware.com/v1alpha2
+release:
+  version: v1.24.9+vmware.1-tiny.1-tkg.1-rc.2
+components:
+  antrea:
+  - version: v1.7.2+vmware.1-advanced
+    images:
+      antreaImage:
+        imagePath: antrea-advanced-debian
+        tag: v1.7.2_vmware.1
+  calico_all:
+  - version: v3.24.1+vmware.1
+    images:
+      calicoCniImage:
+        imagePath: calico-all/cni
+        tag: v3.24.1_vmware.1
+      calicoKubecontrollerImage:
+        imagePath: calico-all/kube-controllers
+        tag: v3.24.1_vmware.1
+      calicoNodeImage:
+        imagePath: calico-all/node
+        tag: v3.24.1_vmware.1
+  carvel-secretgen-controller:
+  - version: v0.11.2+vmware.1
+    images:
+      secretgenControllerImage:
+        imagePath: secretgen-controller
+        tag: v0.11.2_vmware.1
+  cert-manager-package:
+  - version: v1.10.1+vmware.1-tkg.1-cert-manager-rc.2
+    images:
+      cert-manager.tanzu.vmware.com:
+        imagePath: packages/standard/cert-manager
+        tag: v1.10.1_vmware.1-tkg.1-rc.2
+  cloud_provider_vsphere:
+  - version: v1.24.3+vmware.1
+    images:
+      ccmControllerImage:
+        imagePath: ccm/manager
+        tag: v1.24.3_vmware.1
+  coredns:
+  - version: v1.8.6+vmware.15
+    images:
+      coredns:
+        imagePath: coredns
+        tag: v1.8.6_vmware.15
+  kapp-controller:
+  - version: v0.41.5+vmware.1
+    images:
+      kappControllerImage:
+        imagePath: kapp-controller
+        tag: v0.41.5_vmware.1
+  kube-vip:
+  - version: v0.5.7+vmware.1
+    images:
+      kubeVipImage:
+        imagePath: kube-vip
+        tag: v0.5.7_vmware.1
+  tinykube:
+  - version: v1.24.9+vmware.1-tiny.1
+    images:
+      tinykubeExecutable:
+        imagePath: tinykube/tinykube-linux-amd64
+        tag: v1.24.9_vmware.1-tiny.1
+  tkg-core-packages:
+  - version: v1.24.9+vmware.1-tkg.1-rc.2
+    images:
+      addons-manager.tanzu.vmware.com:
+        imagePath: packages/core/addons-manager
+        tag: v1.6.0_vmware.1-tkg.2-rc.2
+      ako-operator.tanzu.vmware.com:
+        imagePath: packages/core/ako-operator
+        tag: v1.7.0_vmware.3-tkg.1-rc.2
+      antrea.tanzu.vmware.com:
+        imagePath: packages/core/antrea
+        tag: v1.7.2_vmware.1-tkg.1-advanced-rc.2
+      aws-ebs-csi-driver.tanzu.vmware.com:
+        imagePath: packages/core/aws-ebs-csi-driver
+        tag: v1.8.0_vmware.2-tkg.2-rc.2
+      azuredisk-csi-driver.tanzu.vmware.com:
+        imagePath: packages/core/azuredisk-csi-driver
+        tag: v1.19.0_vmware.1-tkg.2-rc.2
+      azurefile-csi-driver.tanzu.vmware.com:
+        imagePath: packages/core/azurefile-csi-driver
+        tag: v1.21.0_vmware.1-tkg.1
+      calico.tanzu.vmware.com:
+        imagePath: packages/core/calico
+        tag: v3.24.1_vmware.1-tkg.1-rc.2
+      guest-cluster-auth-service.tanzu.vmware.com:
+        imagePath: packages/core/guest-cluster-auth-service
+        tag: v1.1.0_tkg.1-rc.2
+      kapp-controller.tanzu.vmware.com:
+        imagePath: packages/core/kapp-controller
+        tag: v0.41.5_vmware.1-tkg.1-rc.2
+      kube-vip-cloud-provider.tanzu.vmware.com:
+        imagePath: packages/core/kube-vip-cloud-provider
+        tag: v0.0.4_vmware.2-tkg.1-rc.2
+      load-balancer-and-ingress-service.tanzu.vmware.com:
+        imagePath: packages/core/load-balancer-and-ingress-service
+        tag: v1.8.2_vmware.1-tkg.1-rc.2
+      metrics-server.tanzu.vmware.com:
+        imagePath: packages/core/metrics-server
+        tag: v0.6.2_vmware.1-tkg.1-rc.2
+      oracle-cpi.tanzu.vmware.com:
+        imagePath: packages/core/oracle-cpi
+        tag: v1.24.0_vmware.3-tkg.1-rc.2
+      pinniped.tanzu.vmware.com:
+        imagePath: packages/core/pinniped
+        tag: v0.12.1_vmware.2-tkg.3-rc.2
+      secretgen-controller.tanzu.vmware.com:
+        imagePath: packages/core/secretgen-controller
+        tag: v0.11.2_vmware.1-tkg.1-rc.2
+      tanzuCorePackageRepositoryImage:
+        imagePath: packages/core/repo
+        tag: v1.24.9_vmware.1-tkg.1-rc.2
+      vsphere-cpi.tanzu.vmware.com:
+        imagePath: packages/core/vsphere-cpi
+        tag: v1.24.3_vmware.1-tkg.1-rc.2
+      vsphere-csi.tanzu.vmware.com:
+        imagePath: packages/core/vsphere-csi
+        tag: v2.6.2_vmware.2-tkg.1-rc.2
+      vsphere-pv-csi.tanzu.vmware.com:
+        imagePath: packages/core/vsphere-pv-csi
+        tag: v2.6.1_vmware.1-tkg.1-rc.2
+  tkg-standard-packages:
+  - version: v2.1.0-rc.2
+    images:
+      tanzuStandardPackageRepositoryImage:
+        imagePath: packages/standard/repo
+        tag: v2.1.0-rc.2
+  tkg-storageclass-package:
+  - version: v0.28.0-dev-311-gd293a088-tkg-storageclass
+    images:
+      tkg-storageclass.tanzu.vmware.com:
+        imagePath: packages/tkg-storageclass
+        tag: v0.28.0-dev-311-gd293a088_vmware.1
+  vsphere_csi_driver:
+  - version: v2.6.2+vmware.2
+    images:
+      csiControllerImage:
+        imagePath: csi/vsphere-block-csi-driver
+        tag: v2.6.2_vmware.2
+      csiMetaDataSyncerImage:
+        imagePath: csi/volume-metadata-syncer
+        tag: v2.6.2_vmware.2
+kubeadmConfigSpec:
+  apiVersion: kubeadm.k8s.io/v1beta3
+  kind: ClusterConfiguration
+  imageRepository: projects.registry.vmware.com/tkg
+  kubernetesVersion: v1.24.9+vmware.1-tiny.1
+  etcd:
+    local:
+      dataDir: /var/lib/etcd
+      imageRepository: projects.registry.vmware.com/tkg
+      imageTag: v3.5.6_vmware.1-tiny.1
+      extraArgs:
+        experimental-initial-corrupt-check: true
+  dns:
+    type: CoreDNS
+    imageRepository: projects.registry.vmware.com/tkg
+    imageTag: v1.8.6_vmware.15
+ova:
+- name: ova-tinytkg-photon-3
+  osinfo:
+    name: photon
+    version: "3"
+    arch: amd64
+  version: v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3
+- name: ova-tinytkg-ubuntu-2004
+  osinfo:
+    name: ubuntu
+    version: "20.04"
+    arch: amd64
+  version: v1.24.9+vmware.1-tiny.1-tkg.1-2319b3
+imageConfig:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+addons:
+  ako-operator:
+    category: networking
+    clusterTypes:
+    - management
+    packageName: ako-operator.tanzu.vmware.com
+  antrea:
+    category: cni
+    clusterTypes:
+    - management
+    - workload
+    packageName: antrea.tanzu.vmware.com
+  aws-ebs-csi-driver:
+    category: csi
+    clusterTypes:
+    - management
+    - workload
+    packageName: aws-ebs-csi-driver.tanzu.vmware.com
+  azuredisk-csi-driver:
+    category: csi
+    clusterTypes:
+    - management
+    - workload
+    packageName: azuredisk-csi-driver.tanzu.vmware.com
+  azurefile-csi-driver:
+    category: csi
+    clusterTypes:
+    - management
+    - workload
+    packageName: azurefile-csi-driver.tanzu.vmware.com
+  calico:
+    category: cni
+    clusterTypes:
+    - management
+    - workload
+    packageName: calico.tanzu.vmware.com
+  kapp-controller:
+    category: addons-management
+    clusterTypes:
+    - management
+    - workload
+    packageName: kapp-controller.tanzu.vmware.com
+  kube-vip-cloud-provider:
+    category: networking
+    clusterTypes:
+    - workload
+    packageName: kube-vip-cloud-provider.tanzu.vmware.com
+  load-balancer-and-ingress-service:
+    category: networking
+    clusterTypes:
+    - management
+    - workload
+    packageName: load-balancer-and-ingress-service.tanzu.vmware.com
+  metrics-server:
+    category: metrics
+    clusterTypes:
+    - management
+    - workload
+    packageName: metrics-server.tanzu.vmware.com
+  pinniped:
+    category: authentication
+    clusterTypes:
+    - management
+    - workload
+    packageName: pinniped.tanzu.vmware.com
+  secretgen-controller:
+    category: secret-generation-and-sharing
+    clusterTypes:
+    - management
+    - workload
+    packageName: secretgen-controller.tanzu.vmware.com
+  tanzu-addons-manager:
+    category: addons-management
+    clusterTypes:
+    - management
+    - workload
+    packageName: addons-manager.tanzu.vmware.com
+  vsphere-cpi:
+    category: cpi
+    clusterTypes:
+    - management
+    - workload
+    packageName: vsphere-cpi.tanzu.vmware.com
+  vsphere-csi:
+    category: csi
+    clusterTypes:
+    - management
+    - workload
+    packageName: vsphere-csi.tanzu.vmware.com
+  vsphere-pv-csi:
+    category: csi
+    clusterTypes:
+    - workload
+    packageName: vsphere-pv-csi.tanzu.vmware.com

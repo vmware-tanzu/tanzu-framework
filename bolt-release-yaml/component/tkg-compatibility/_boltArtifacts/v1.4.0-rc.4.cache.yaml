@@ -1,0 +1,6 @@
+name: tkg-compatibility
+bomCaches:
+- version: v1.4.0-rc.4
+  channel: "369906964148308715"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/369906964148308715/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.4.0-rc.4.yaml
+  hash: 40fdc4cd9e42e69f7ddd79cd03a45c35

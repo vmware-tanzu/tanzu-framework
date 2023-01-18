@@ -1,0 +1,23 @@
+componentBuilds:
+- name: load-balancer-and-ingress-service-package
+  version: v1.7.2+vmware.1-tkg.1-ako-tf-v0.25.0
+  channel: "419747994561181083"
+  url: https://buildweb.eng.vmware.com/ob/20238025/
+  artifactURL:
+    load-balancer-and-ingress-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/load-balancer-and-ingress-service:v1.7.2_vmware.1-tkg.1-tf-v0.25.0
+      sha256: a25504884162e705fd2728d39582c3ac2d63218eb0000e7348baa3cccdf006df
+  cachehash: 94857ee60ee465da2da9058fb735de58
+  publishhash: e76b568ebe8a5803434d226a6e35101b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/ako:v1.7.2_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-tf-v0.25.0
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: load-balancer-and-ingress-service
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/ako:v1.7.2_vmware.1
+    gobuild.upstream_version: 1.7.2

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: standalone-plugins-package
+  version: v0.19.0-dev-5-gbc0cbf1a-standalone-plugins
+  channel: "397868809039381955"
+  url: https://buildweb.eng.vmware.com/ob/19461424/
+  artifactURL:
+    standalone-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standalone/standalone-plugins:v0.19.0-dev-5-gbc0cbf1a_vmware.1
+      sha256: 8531627fdd82b4a47cff2b77a54c0cb15b012942fdb3fe9908f90f6bedc4203a
+  cachehash: c5ce2a581d021182c94490b8714a3522
+  publishhash: 61380dd6e6b4508ddb4529016630a597

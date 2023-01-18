@@ -1,0 +1,11 @@
+componentBuilds:
+- name: coredns
+  version: v1.7.0+vmware.8-fips.1-zshippable
+  channel: "365700725927349493"
+  url: https://buildweb.eng.vmware.com/ob/18393988/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.7.0_vmware.8-fips.1-zshippable
+      sha256: 4b57fa72e09f103b7286298a6c48b860a7f0aad9170781cdd71c054e94ce376c
+  cachehash: 68b79c1dac991c59514d290d12689ccc
+  publishhash: 5b23bb15efee643a4e09b711428a8a57

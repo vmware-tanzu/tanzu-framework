@@ -1,0 +1,25 @@
+componentBuilds:
+- name: tkg-storageclass-package
+  version: v0.27.0-dev-89-g90aa765a-tkg-storageclass
+  channel: "427728153151018851"
+  url: https://buildweb.eng.vmware.com/ob/20547626/
+  artifactURL:
+    packageCR:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20547626/publish/lin64/tanzu-framework-package-bundles/packages/tkg-storageclass.tanzu.vmware.com/0.27.0-dev-89-g90aa765a+vmware.1.yml
+    packageMetadata:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20547626/publish/lin64/tanzu-framework-package-bundles/packages/tkg-storageclass.tanzu.vmware.com/metadata.yml
+    tkg-storageclass.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkg-storageclass:v0.27.0-dev-89-g90aa765a_vmware.1
+      sha256: 17f2bbc2306d99dbe6017edb14c47ae6150c3942ef4f12c0e56e4585cc7c7055
+  cachehash: d71e2f997499bc85f2e2706c12216efc
+  publishhash: cee294f77f50b20308fd8dc053b9a24b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-storageclass
+    gobuild.upstream_image_0: tkg-storageclass:latest
+    gobuild.upstream_version: v0.27.0-dev-89-g90aa765a

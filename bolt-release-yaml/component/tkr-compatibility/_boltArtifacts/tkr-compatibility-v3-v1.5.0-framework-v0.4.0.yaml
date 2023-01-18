@@ -1,0 +1,22 @@
+version: v3
+managementClusterVersions:
+- version: v1.4.0-zshippable
+  supportedKubernetesVersions:
+  - v1.21.2+vmware.1-tkg.1-zshippable
+  - v1.20.8+vmware.1-tkg.2-zshippable
+  - v1.19.12+vmware.1-tkg.1-zshippable
+- version: v1.5.0-framework-v0.3.0
+  supportedKubernetesVersions:
+  - v1.19.12+vmware.1-tkg.2-framework-v0.3.0
+  - v1.21.2+vmware.1-tkg.2-framework-v0.3.0
+  - v1.20.8+vmware.1-tkg.3-framework-v0.3.0
+- version: v1.5.0-framework-v0.4.0
+  supportedKubernetesVersions:
+  - v1.21.2+vmware.1-tkg.2-framework-v0.4.0
+  - v1.19.12+vmware.1-tkg.2-framework-v0.4.0
+  - v1.20.8+vmware.1-tkg.3-framework-v0.4.0
+- version: v1.5.0-zshippable
+  supportedKubernetesVersions:
+  - v1.21.2+vmware.1-tkg.2-zshippable
+  - v1.20.8+vmware.1-tkg.3-zshippable
+  - v1.19.12+vmware.1-tkg.2-zshippable

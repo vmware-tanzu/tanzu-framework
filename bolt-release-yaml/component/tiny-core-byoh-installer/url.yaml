@@ -1,0 +1,6 @@
+name: tiny-core-byoh-installer
+upstreamURL: git@gitlab.eng.vmware.com:core-build/tiny-core-byoh-installer.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/tkp_build_tiny-core-byoh-installer.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/tkp_build_tiny-core-byoh-installer.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/tkp_build_tiny-core-byoh-installer.git
+gobuildTarget: tkp_build_tiny-core-byoh-installer

@@ -1,0 +1,6 @@
+name: aws-ebs-csi-driver-package
+publish:
+  - name: aws-ebs-csi-driver.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-package-bundle/package-bundles/core/aws-ebs-csi-driver-v{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}.tar.gz
+    destinationPath: packages/core/aws-ebs-csi-driver:v{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}

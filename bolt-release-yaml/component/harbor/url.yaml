@@ -1,0 +1,8 @@
+name: harbor
+upstreamURL: https://github.com/goharbor/harbor.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_harbor.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_harbor.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_harbor.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_harbor.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_harbor.git
+gobuildTarget: cayman_harbor

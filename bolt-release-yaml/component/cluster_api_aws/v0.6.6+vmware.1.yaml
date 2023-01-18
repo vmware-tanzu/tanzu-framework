@@ -1,0 +1,11 @@
+name: cluster_api_aws
+managedComponents:
+  - version: v0.6.6+vmware.1
+    upstreamTag: v0.6.6
+    upstreamCommit: 4ca623be01b48cc6a28f83d600b582aa7417498e
+    mirrorCherryPicks: []
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~6d5585b694a3daa23d376067e25cf291e4e0987c
+    dependencies:
+      gobuild.golangVersion: 1.13.15
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos8

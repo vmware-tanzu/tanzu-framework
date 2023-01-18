@@ -1,0 +1,7 @@
+name: vsphere-csi-package
+goBuildComponentCaches:
+- version: v2.4.1+vmware.1-tkg.4-vsphere-csi
+  url: https://buildweb.eng.vmware.com/ob/21004571/
+  buildNumber: bora-21004571
+  buildStatus: SUCCEEDED
+  hash: fac68d7858f96f1821785fd9d346bcbd

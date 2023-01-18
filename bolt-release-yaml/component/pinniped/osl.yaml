@@ -1,0 +1,4 @@
+submodules:
+  - name: pinniped/src
+    go_mod:
+      - "go.mod"

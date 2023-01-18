@@ -1,0 +1,7 @@
+name: external-dns
+unmanagedComponents:
+  - version: v0.12.2+vmware.3
+    gobuildBranch: vmware-0.12.2~c8e3c24e4dcdbe2b527a6577667fffd8dd5a1eaf
+    dependencies:
+      gobuild.golangVersion: 1.18
+      gobuild.linux_hosttype: linux-centos8

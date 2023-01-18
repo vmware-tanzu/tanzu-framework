@@ -1,0 +1,3 @@
+submodules:
+  - name: antrea/src
+# OSL is done separately for Antrea

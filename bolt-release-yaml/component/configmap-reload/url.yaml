@@ -1,0 +1,8 @@
+name: configmap-reload
+upstreamURL: https://github.com/jimmidyson/configmap-reload.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_configmap-reload.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_configmap-reload.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_configmap-reload.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_configmap-reload.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_configmap-reload.git
+gobuildTarget: cayman_configmap-reload

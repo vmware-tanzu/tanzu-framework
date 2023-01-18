@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-package
+  version: v0.20.0-dev-6-gdecb612d-tkg
+  channel: "399315988102808897"
+  url: https://buildweb.eng.vmware.com/ob/19515034/
+  artifactURL:
+    tkg.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg:v0.20.0-dev-6-gdecb612d_vmware.1
+      sha256: 0db3c27b46a2509d4f66de6412ef00d0837091bc1ea270230340ccae52474614
+  cachehash: 10cfc7033deae4c825373df504527270
+  publishhash: b50bfb418ec98d4f672d28d855f6e5b2

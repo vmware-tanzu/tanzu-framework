@@ -1,0 +1,7 @@
+name: docker_distribution
+unmanagedComponents:
+  - version: 2.7.1
+    gobuildBranch: vmware-tkg-master~823847d6bd30358f46ae7581d4f11b919f959024
+    dependencies:
+      gobuild.golangVersion: 1.15.6
+      gobuild.linux_hosttype: linux-centos72-gc32-fw

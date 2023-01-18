@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.22.13+vmware.1-tkg.1-sig-12535ef2e16c80f79d583e17d6a9b937
+  channel: "432505954798429963"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/3482
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-sig-v1.22.13+vmware.1-tkg.1-sig-12535ef2e16c80f79d583e17d6a9b937.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.13+vmware.1-tkg.1-sig-12535ef2e16c80f79d583e17d6a9b937-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.13+vmware.1-tkg.1-sig-12535ef2e16c80f79d583e17d6a9b937-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.13+vmware.1-tkg.1-sig-12535ef2e16c80f79d583e17d6a9b937-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.13+vmware.1-tkg.1-sig-12535ef2e16c80f79d583e17d6a9b937-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.22.13+vmware.1-tkg.1-sig-12535ef2e16c80f79d583e17d6a9b937.json
+  cachehash: 48c1a5171eb9ddf7ea524e1fe26e023e
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 61df636aa984cd9788609cd48d6a1d99cf1eb87e

@@ -1,0 +1,9 @@
+name: tanzu-auth-controller-manager
+managedComponents:
+- version: v0.25.0-22-g72a11ee7
+  upstreamCommit: 72a11ee7b0eab88044ad36658398083f229c37d0
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-tanzu-auth-controller-manager~2d948494587b6f076d6dbc36ab2be34121828265
+  dependencies:
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v0.25.0-22-g72a11ee7

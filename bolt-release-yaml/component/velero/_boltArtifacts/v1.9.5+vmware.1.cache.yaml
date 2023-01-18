@@ -1,0 +1,7 @@
+name: velero
+goBuildComponentCaches:
+- version: v1.9.5+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/21053001
+  buildNumber: bora-21053001
+  buildStatus: SUCCEEDED
+  hash: a26641fb0b2dde0ec5bd852ae8c197d9

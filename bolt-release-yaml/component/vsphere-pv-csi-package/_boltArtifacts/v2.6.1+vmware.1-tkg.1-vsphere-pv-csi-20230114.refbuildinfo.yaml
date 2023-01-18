@@ -1,0 +1,67 @@
+componentBuilds:
+- name: vsphere_csi_driver_tkgs
+  version: v2.6.1
+  channel: "439570817840357907"
+  url: https://buildweb.eng.vmware.com/ob/20988579/
+  artifactURL:
+    csi-node-driver-registrar-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/csi_node_driver_registrar.tar
+      sha256: b65aecb114bb15635642edb4c81a29e6886b2b6bef3ffd8d77c29b9d2dfc16aa
+    csi_attacher-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/csi_attacher.tar
+      sha256: 01e6244e292986c0c4741c9fb7a0bead7e1d59d3bf6874f1ae47f6dfd6c9f939
+    csi_livenessprobe-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/csi_livenessprobe.tar
+      sha256: 954a7c3e9be9e8fb6f9b4b0639a99b36a99d8b26b46d6313ef33e137e18000fa
+    csi_provisioner-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/csi_provisioner.tar
+      sha256: 36af00fe5a87bbddce54b806bf713dbfaabf036c21cc88cd3cac1c9f8881a135
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/csi-attacher:v2.6.1
+      sha256: 3317154e3d03a88fb847c79762d3dab79d157000a13e4e1095174d5b7f6bf948
+    csiControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/vsphere-block-csi-driver:v2.6.1
+      sha256: c0a67e7da6da057dad7fd0e514a9cdab1949dc5965cce565e43091391466e493
+    csiExternalResizer:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/kubernetes-csi_external-resizer:v2.6.1
+      sha256: 13a6db244ee48a467916dc2cc3cb5e77738cad06fef717bf07f6b1870664d1ac
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/csi-livenessprobe:v2.6.1
+      sha256: 1d5a0ee800b86b1b707c5bd96afbedaeeddf2372af62de9372b9ab78a3eb768b
+    csiMetaDataSyncerImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/volume-metadata-syncer:v2.6.1
+      sha256: 5b9b9eb20059c49bd5439e38f6210847aa5f99a5b993a17fa0fcc0363476780a
+    csiNodeDriverRegistrarImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/csi-node-driver-registrar:v2.6.1
+      sha256: 4b882161a321bcf396c178cdcefc0a936e5bb1ee2982668ffd2e5cf788b6f4a9
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/csi-provisioner:v2.6.1
+      sha256: 49f62c1506547c5d581a5358f0f58c62df510bbca38aa70549fd31d7574b767e
+    kubernetes-csi_external-resizer-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/kubernetes-csi_external-resizer.tar
+      sha256: bfa12b94d0136f441f55c1c26d0da954233b8404c8ae22834ec80f110235be2e
+    syncer-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/syncer.tar
+      sha256: 06e78a46a2e7ea18c75731d99e83b31fbfc9b1185c7bf7af6ae671a13cb4d7c0
+    vsphere-csi-driver-1.19-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/add-on/1.19/pvcsi.yaml
+      sha256: 5ccd81680f9dd942e54141414cda67cb4695b5794b4b4d07895332b15a3ef037
+    vsphere-csi-driver-1.20-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/add-on/1.20/pvcsi.yaml
+      sha256: 98ddc3063817e219f057dc37f13983c89f0925f70239840829ef3e56d32515f8
+    vsphere-csi-driver-1.21-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/add-on/1.21/pvcsi.yaml
+      sha256: 380938ce517078ab5e57f0a2ae8bfb97b4ab73de12d8fa982e5478fb4464f62e
+    vsphere-csi-driver-1.22-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/add-on/1.22/pvcsi.yaml
+      sha256: 02aafb3451c08a1c43ae2fed0ab5e799c5dfd0a69ee8074066f7f54d62c61dbe
+    vsphere-csi-vsphere-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/vsphere-csi.tar
+      sha256: b5e391270bbe6d8f2f6d13bcfbb45a500c90b99b47e5e707970f9940c2c027e6
+  cachehash: 3fd023da241a6ee1115f31b806666840
+  publishhash: e793a724e7770a4c0964660264a9c10f
+  configDependencies:
+    gobuild.containerBaseImage: photon:4.0
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.13.9
+    gobuild.linux_hosttype: linux-centos72-gc32

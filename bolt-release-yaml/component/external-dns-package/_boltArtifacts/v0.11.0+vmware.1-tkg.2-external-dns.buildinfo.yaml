@@ -1,0 +1,23 @@
+componentBuilds:
+- name: external-dns-package
+  version: v0.11.0+vmware.1-tkg.2-external-dns
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20346734/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.11.0_vmware.1-tkg.2
+      sha256: a7c5bbc0b6a54dc42b5fa5132942cbebf96ff0a3f3a0ac4319288627dd65f443
+  cachehash: ab9a5fa37ae5a4dca5d509336d8b4f42
+  publishhash: 19b8613fad519068fc2d01dbd771545b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/external-dns:v0.11.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: external-dns
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: k8s.gcr.io/external-dns/external-dns
+    gobuild.upstream_version: 0.11.0

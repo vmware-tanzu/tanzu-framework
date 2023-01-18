@@ -1,0 +1,16 @@
+componentBuilds:
+- name: kbld
+  version: v0.35.1+vmware.1
+  channel: "439399172072810071"
+  url: https://buildweb.eng.vmware.com/ob/20917757
+  artifactURL:
+    kbld-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20917757/publish/lin64/kbld/executables/kbld-darwin-amd64-v0.35.1+vmware.1.gz
+    kbld-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20917757/publish/lin64/kbld/executables/kbld-linux-amd64-v0.35.1+vmware.1.gz
+    kbld-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20917757/publish/lin64/kbld/executables/kbld-windows-amd64-v0.35.1+vmware.1.gz
+  cachehash: 188ce933ff4ad60c66312954af59ffc2
+  publishhash: 833d5a2fec1bf7de7070cc9cbbbd750f
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8

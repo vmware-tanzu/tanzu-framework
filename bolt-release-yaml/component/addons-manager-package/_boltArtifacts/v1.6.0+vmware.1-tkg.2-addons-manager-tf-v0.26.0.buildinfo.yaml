@@ -1,0 +1,23 @@
+componentBuilds:
+- name: addons-manager-package
+  version: v1.6.0+vmware.1-tkg.2-addons-manager-tf-v0.26.0
+  channel: "427422446405031843"
+  url: https://buildweb.eng.vmware.com/ob/20535233/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/addons-manager:v1.6.0_vmware.1-tkg.2-tf-v0.26.0
+      sha256: 7f21aa64aad3957920ccec5ac603c8ed66028580b6d155d6112ba9f3cc7c17cc
+  cachehash: f0356d1cee6ce385fa67e48143adf818
+  publishhash: 58a059db5fc330daefe5cd936034d00c
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v0.26.0-tf
+    gobuild.downstream_version: vmware.1-tkg.2-tf-v0.26.0
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: addons-manager
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core_addons/tanzu-addons-manager:v1.5.0_vmware.1
+    gobuild.upstream_version: 1.6.0

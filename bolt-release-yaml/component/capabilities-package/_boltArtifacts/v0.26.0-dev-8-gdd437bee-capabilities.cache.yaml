@@ -1,0 +1,7 @@
+name: capabilities-package
+goBuildComponentCaches:
+- version: v0.26.0-dev-8-gdd437bee-capabilities
+  url: https://buildweb.eng.vmware.com/ob/20200619/
+  buildNumber: bora-20200619
+  buildStatus: SUCCEEDED
+  hash: c6537c65f622cbc70ded0dd3b9f4f997

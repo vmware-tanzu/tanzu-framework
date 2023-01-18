@@ -1,0 +1,7 @@
+name: whereabouts
+publish:
+  - name: whereaboutsImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/whereabouts/images/whereabouts-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/whereabouts/images/whereabouts-$UNDERSCOREVERSION-images-checksums.txt
+    destinationPath: whereabouts:$UNDERSCOREVERSION

@@ -1,0 +1,4 @@
+submodules:
+  - name: aws-ebs-csi-driver/src
+    go_mod:
+      - "go.mod"

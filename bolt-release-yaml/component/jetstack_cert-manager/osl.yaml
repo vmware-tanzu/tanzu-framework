@@ -1,0 +1,4 @@
+submodules:
+  - name: jetstack_cert-manager/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: fluent-bit-package
+  version: v1.7.5+vmware.1-tkg.2-fluent-bit-tf-v0.11.1
+  channel: "382781057063213123"
+  url: https://buildweb.eng.vmware.com/ob/18965491/
+  artifactURL:
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.2-tf-v0.11.1
+      sha256: fee61e4bc25d00b536cd5b62bed47a9f1316e16d99b5a6a909be815328a832f0
+  cachehash: 37781dc08391fce939f77d7ae52c9640
+  publishhash: 51ef43745ce53777a2a953caa9ef223e

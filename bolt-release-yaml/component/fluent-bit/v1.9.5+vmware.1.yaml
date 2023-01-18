@@ -1,0 +1,8 @@
+name: fluent-bit
+unmanagedComponents:
+  - version: v1.9.5+vmware.1
+    # THIS COMES FROM CAYMAN REPO ON BRANCH 1.9.5
+    gobuildBranch: vmware-1.9.5~e9774a51770d546faad5528b8dcbbcf774af73bb
+    dependencies:
+      gobuild.golangVersion: 1.13.6
+      gobuild.linux_hosttype: linux-centos72-gc32

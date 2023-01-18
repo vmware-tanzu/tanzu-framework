@@ -1,0 +1,74 @@
+name: tanzu-framework-management-packages
+packageRepositories:
+- version: v0.24.0-dev-71-g1e06afd8
+  upstreamCommit: 1e06afd8c97c9d81bfc9bf967844d05633171d43
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repos~38dca04ab120731b2d7b86f3767509e3c994b698
+  componentReferences:
+  - name: addons-manager-v2-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-addons-manager-v2
+  - name: featuregates-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-featuregates
+  - name: core-management-plugins-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-core-mgmt-plugins
+  - name: tkg-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkg
+  - name: tkg-clusterclass-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkg-clusterclass
+  - name: tkg-clusterclass-aws-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkg-clusterclass-aws
+  - name: tkg-clusterclass-vsphere-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkg-clusterclass-vsphere
+  - name: tkg-clusterclass-azure-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkg-clusterclass-azure
+  - name: tkg-clusterclass-docker-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkg-clusterclass-docker
+  - name: tkr-aws-machine-webhook-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkr-aws-mc-webhook
+  - name: tkr-azure-machine-webhook-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkr-azure-mc-webhook
+  - name: tkr-docker-machine-webhook-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkr-docker-mc-webhook
+  - name: tkr-vsphere-machine-webhook-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkr-vsphere-mc-webhook
+  - name: tkr-service-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkr-service
+  - name: cliplugins-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-cliplugins
+  - name: framework-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-framework
+  - name: tanzu-auth-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tanzu-auth-pkg
+  - name: tkr-source-controller-package
+    version:
+    - v0.24.0-dev-71-g1e06afd8-tkr-source-controller
+  - name: tkg-autoscaler-package
+    version:
+    - v1.21.0+vmware.1-zshippable
+    - v1.22.0+vmware.1-zshippable
+    - v1.23.0+vmware.1-zshippable
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_type: management
+    gobuild.releaseVersion: v0.24.0-dev-71-g1e06afd8

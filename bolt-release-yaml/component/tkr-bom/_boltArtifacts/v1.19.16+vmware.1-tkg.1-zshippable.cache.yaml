@@ -1,0 +1,6 @@
+name: tkr-bom
+bomCaches:
+- version: v1.19.16+vmware.1-tkg.1-zshippable
+  channel: "393975197142647787"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/393975197142647787/component/tkr-bom/_boltArtifacts/tkr-bom-v1.19.16+vmware.1-tkg.1-zshippable.yaml
+  hash: 78086ecd8d0acce2ba2a38ac99d66707

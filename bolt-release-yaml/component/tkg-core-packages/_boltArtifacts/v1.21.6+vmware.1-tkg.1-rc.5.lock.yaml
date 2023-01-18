@@ -1,0 +1,40 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.21.6+vmware.1-tkg.1-rc.5
+  gobuildBranch: 389193897177253647-v1.21.6+vmware.1-tkg.1-rc.5
+  gobuildHeadCommit: 76730f971b12684f2e5e0fd9cd09b7234fccfadb
+  hash: 8f108ed7ca47fb30593376a3e830ba01
+  componentLockReferences:
+  - name: addons-manager-package
+    version: v1.5.0+vmware.1-tkg.1-addons-manager-rc.5
+    lockHash: f4bb33aeba038a0c374d0aef648c19d4
+  - name: ako-operator-package
+    version: v1.5.0+vmware.3-tkg.1-ako-operator-rc.5
+    lockHash: 4d3414c8015972f43007ffbc431a5c1f
+  - name: load-balancer-and-ingress-service-package
+    version: v1.6.1+vmware.2-tkg.1-ako-rc.5
+    lockHash: 52779429c9ddba3efbcb50cc27e5bd64
+  - name: antrea-package
+    version: v0.13.3+vmware.1-tkg.2-antrea-rc.5
+    lockHash: 978b9c5f25eb19137646a0c693514afa
+  - name: calico-package
+    version: v3.19.1+vmware.1-tkg.3-calico-rc.5
+    lockHash: 08d37c5efebf8d3ee305f206bcb43e25
+  - name: vsphere-csi-package
+    version: v2.3.0+vmware.1-tkg.4-vsphere-csi-rc.5
+    lockHash: d59ed4bb722baeac0dc3d17a5d3e8f6f
+  - name: vsphere-cpi-package
+    version: v1.21.0+vmware.1-tkg.2-vsphere-cpi-rc.5
+    lockHash: 841eaab15aa4f6d972f1ec1d7f8b8b57
+  - name: metrics-server-package
+    version: v0.5.1+vmware.1-tkg.1-metrics-server-rc.5
+    lockHash: 6096d404245fb388353e745d9350928a
+  - name: kapp-controller-package
+    version: v0.30.0+vmware.1-tkg.1-kapp-controller-rc.5
+    lockHash: 89ecec25f2fd9143cde48f74630497dd
+  - name: secretgen-controller-package
+    version: v0.7.1+vmware.1-tkg.1-secgen-ctl-rc.5
+    lockHash: 97fe4709da0fae54da8ea419bfc9f9d9
+  - name: pinniped-package
+    version: v0.4.4+vmware.1-tkg.3-pinniped-rc.5
+    lockHash: 50bc82dfa094dfbb390892fa26cfe61b

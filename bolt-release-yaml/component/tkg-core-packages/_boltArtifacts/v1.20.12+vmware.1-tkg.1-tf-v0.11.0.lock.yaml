@@ -1,0 +1,40 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.20.12+vmware.1-tkg.1-tf-v0.11.0
+  gobuildBranch: 381937132681325669-v1.20.12+vmware.1-tkg.1-tf-v0.11.0
+  gobuildHeadCommit: c6e5c0c1d89f2c83991fced31c92eae59c553f53
+  hash: d85f64c6db8f708a6b1483b01af2b00a
+  componentLockReferences:
+  - name: addons-manager-package
+    version: v1.5.0+vmware.1-tkg.1-addons-manager-tf-v0.11.0
+    lockHash: 8cb7cf687643657cf583c373715f9214
+  - name: ako-operator-package
+    version: v1.5.0+vmware.1-tkg.1-ako-operator-tf-v0.11.0
+    lockHash: ae6f333ea48f5322c7e317ccc7361c97
+  - name: load-balancer-and-ingress-service-package
+    version: v1.6.1+vmware.1-tkg.1-ako-tf-v0.11.0
+    lockHash: f9f0c37fe5dd517b00b8da6af4b6ad46
+  - name: antrea-package
+    version: v0.11.3+vmware.2-tkg.2-antrea-tf-v0.11.0
+    lockHash: 3e557219c01eb4e6a4b34e51d5aa0321
+  - name: calico-package
+    version: v3.19.1+vmware.1-tkg.3-calico-tf-v0.11.0
+    lockHash: b61a2eb09af4fa2c0a6004bec4674d86
+  - name: vsphere-csi-package
+    version: v2.3.0+vmware.1-tkg.4-vsphere-csi-tf-v0.11.0
+    lockHash: 16777cac9b46a9b3e34c5bfb7c5e0071
+  - name: vsphere-cpi-package
+    version: v1.20.0+vmware.1-tkg.2-vsphere-cpi-tf-v0.11.0
+    lockHash: a87fe6b301a8dbad047eeaa0e6580f87
+  - name: metrics-server-package
+    version: v0.5.1+vmware.1-tkg.1-metrics-server-tf-v0.11.0
+    lockHash: 40c7cfb8619fbda23130a3d908730ea6
+  - name: kapp-controller-package
+    version: v0.28.0+vmware.1-tkg.1-kapp-controller-tf-v0.11.0
+    lockHash: 28f710d05d94a80256eebb760d54f630
+  - name: secretgen-controller-package
+    version: v0.5.0+vmware.1-tkg.1-secgen-ctl-tf-v0.11.0
+    lockHash: 53743bfeedc8730a3b3904e79aed9e56
+  - name: pinniped-package
+    version: v0.4.4+vmware.1-tkg.3-pinniped-tf-v0.11.0
+    lockHash: da77e54a339d2fe960c7668f49494dc2

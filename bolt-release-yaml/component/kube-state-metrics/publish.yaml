@@ -1,0 +1,12 @@
+name: kube-state-metrics
+publish:
+  - name: kubeStateMetricsImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube-state-metrics/images/kube-state-metrics-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube-state-metrics/images/kube-state-metrics-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kube-state-metrics:$UNDERSCOREVERSION
+nonpublish:
+  - name: kube-state-metrics-executable
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube-state-metrics/executables/kube-state-metrics-$VERSION-binary-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube-state-metrics/executables/kube-state-metrics-$VERSION

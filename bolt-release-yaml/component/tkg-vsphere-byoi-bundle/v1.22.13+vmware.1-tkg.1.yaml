@@ -1,0 +1,39 @@
+name: tkg-vsphere-byoi-bundle
+managedComponents:
+- version: v1.22.13+vmware.1-tkg.1
+  upstreamCommit: a35a6f563d460eeb34ab29ee99ea5804f068d854
+  gobuildBaseBranch: v1.22.13+vmware.1-tkg.1
+  componentReferences:
+      - name: kubernetes
+        version:
+          - v1.22.13+vmware.1
+      - name: coredns
+        version:
+          - v1.8.4+vmware.10
+      - name: etcd
+        version:
+          - v3.5.4+vmware.2
+      - name: containerd
+        version:
+          - v1.5.13+vmware.1
+      - name: cni_plugins
+        version:
+          - v1.1.1+vmware.2
+      - name: docker_distribution
+        version:
+          - 2.7.1
+      - name: tkr-bom
+        version:
+          - v1.22.13+vmware.1-tkg.1-zshippable
+      - name: tkg-core-packages
+        version:
+          - v1.22.13+vmware.1-tkg.1-zshippable
+      - name: gc-compatibility
+        version:
+          - v1.22.11+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.golangVersion: "1.16"
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"

@@ -1,0 +1,52 @@
+name: harbor-package
+packages:
+- version: v2.2.3+vmware.1-tkg.2-harbor-tf-v0.10.0
+  upstreamCommit: 44dd013c20b999480c3ef82420a22f8144b2be04
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: harbor
+    version:
+    - v2.2.3+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborCoreImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborDatabaseImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborExporterImage.url}}'
+    gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborJobServiceImage.url}}'
+    gobuild.downstream_image_4: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborPortalImage.url}}'
+    gobuild.downstream_image_5: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborRegistryCtlImage.url}}'
+    gobuild.downstream_image_6: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborNotaryServerImage.url}}'
+    gobuild.downstream_image_7: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborNotarySignerImage.url}}'
+    gobuild.downstream_image_8: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborRedisImage.url}}'
+    gobuild.downstream_image_9: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborRegistryImage.url}}'
+    gobuild.downstream_image_10: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborTrivyAdapterImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.2-tf-v0.10.0
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: harbor
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: goharbor/harbor-core:v2.2.3
+    gobuild.upstream_image_1: goharbor/harbor-db:v2.2.3
+    gobuild.upstream_image_2: goharbor/harbor-exporter:v2.2.3
+    gobuild.upstream_image_3: goharbor/harbor-jobservice:v2.2.3
+    gobuild.upstream_image_4: goharbor/harbor-portal:v2.2.3
+    gobuild.upstream_image_5: goharbor/harbor-registryctl:v2.2.3
+    gobuild.upstream_image_6: goharbor/notary-server-photon:v2.2.3
+    gobuild.upstream_image_7: goharbor/notary-signer-photon:v2.2.3
+    gobuild.upstream_image_8: goharbor/redis-photon:v2.2.3
+    gobuild.upstream_image_9: goharbor/registry-photon:v2.2.3
+    gobuild.upstream_image_10: goharbor/trivy-adapter-photon:v2.2.3
+    gobuild.upstream_version: 2.2.3

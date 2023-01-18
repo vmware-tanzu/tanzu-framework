@@ -1,0 +1,10 @@
+name: cluster_api_vsphere
+managedComponents:
+- version: v1.0.3+vmware.1
+  upstreamTag: v1.0.3
+  mirrorCherryPicks: []
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~c0d25acc8236f4c6eef96dfa5ca83a9d29941aae
+  dependencies:
+    gobuild.golangVersion: 1.16
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.linux_hosttype: linux-centos72-gc32

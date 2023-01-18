@@ -1,0 +1,7 @@
+name: alertmanager
+goBuildComponentCaches:
+- version: v0.20.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/16911231
+  buildNumber: bora-16911231
+  buildStatus: SUCCEEDED
+  hash: a779dec0e076450a14f945e903216554

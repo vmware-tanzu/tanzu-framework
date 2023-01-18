@@ -1,0 +1,146 @@
+name: tkg-bom
+bomLocks:
+- version: framework-v0.3.0
+  hash: "8291327446172566631"
+  componentLockReferences:
+  - name: alertmanager
+    version: v0.22.2+vmware.1
+    lockHash: "9834899500024077144"
+  - name: cadvisor
+    version: v0.39.1+vmware.1
+    lockHash: "8664514684040354661"
+  - name: cloud-provider-azure
+    version: v0.7.4+vmware.1
+    lockHash: "5261638448602948683"
+  - name: aad-pod-identity
+    version: v1.6.3+vmware.2
+    lockHash: "13683224029716652248"
+  - name: cluster_api
+    version: v0.3.23+vmware.1
+    lockHash: "8759502535995855414"
+  - name: cluster_api_aws
+    version: v0.6.6+vmware.1
+    lockHash: "18236281564596191144"
+  - name: cluster_api_vsphere
+    version: v0.7.10+vmware.1
+    lockHash: "3039423780193950073"
+  - name: cluster-api-provider-azure
+    version: v0.4.15+vmware.1
+    lockHash: "1996234974543092131"
+  - name: configmap-reload
+    version: v0.5.0+vmware.1
+    lockHash: "9938871878098503430"
+  - name: contour
+    version: v1.17.1+vmware.1
+    lockHash: "8151583719214350080"
+  - name: crash-diagnostics
+    version: v0.3.3+vmware.1
+    lockHash: "4619787073198153027"
+  - name: envoy
+    version: v1.18.3+vmware.1
+    lockHash: "4389156235894136459"
+  - name: external-dns
+    version: v0.8.0+vmware.1
+    lockHash: "10872238135956233189"
+  - name: fluent-bit
+    version: v1.7.5+vmware.1
+    lockHash: "12714893678674387498"
+  - name: gangway
+    version: v3.2.0+vmware.2
+    lockHash: "13823323159174927298"
+  - name: grafana
+    version: v7.5.7+vmware.1
+    lockHash: "3530156461896036734"
+  - name: harbor
+    version: v2.2.3+vmware.1
+    lockHash: "12626901010067839215"
+  - name: imgpkg
+    version: v0.10.0+vmware.1
+    lockHash: "6216486746935904591"
+  - name: jetstack_cert-manager
+    version: v1.1.0+vmware.1
+    lockHash: "16826703290330175799"
+  - name: k8s-sidecar
+    version: v1.12.1+vmware.1
+    lockHash: "1969840969030151442"
+  - name: k14s_kapp
+    version: v0.37.0+vmware.1
+    lockHash: "15977784629207790650"
+  - name: k14s_ytt
+    version: v0.34.0+vmware.1
+    lockHash: "4338507386678214896"
+  - name: vendir
+    version: v0.21.1+vmware.1
+    lockHash: "6474154883368418348"
+  - name: kbld
+    version: v0.30.0+vmware.1
+    lockHash: "12382284762785475062"
+  - name: kube_rbac_proxy
+    version: v0.8.0+vmware.1
+    lockHash: "1965690200317181490"
+  - name: kube-state-metrics
+    version: v1.9.8+vmware.1
+    lockHash: "15271896201445714025"
+  - name: kube-vip
+    version: v0.3.3+vmware.1
+    lockHash: "18434689585745222901"
+  - name: kubernetes_autoscaler
+    version: v1.21.0+vmware.1
+    lockHash: "14475998862378002877"
+  - name: kubernetes_autoscaler
+    version: v1.20.0+vmware.1
+    lockHash: "10204130105566659638"
+  - name: kubernetes_autoscaler
+    version: v1.19.1+vmware.1
+    lockHash: "12610276458260716958"
+  - name: kubernetes-sigs_kind
+    version: v1.21.2+vmware.1
+    lockHash: "12009154503091789865"
+  - name: prometheus
+    version: v2.27.0+vmware.1
+    lockHash: "9394917934786483102"
+  - name: prometheus_node_exporter
+    version: v1.1.2+vmware.1
+    lockHash: "268677526410376339"
+  - name: pushgateway
+    version: v1.4.0+vmware.1
+    lockHash: "16120842573048354770"
+  - name: sonobuoy
+    version: v0.20.0+vmware.1
+    lockHash: "3469883476481403439"
+  - name: tkg-standard-packages
+    version: framework-v0.3.0
+    lockHash: "9850752193610217709"
+  - name: tkg_telemetry
+    version: v1.4.0+vmware.1
+    lockHash: "11629690940564402002"
+  - name: tkr-bom
+    version: v1.19.12+vmware.1-tkg.2-framework-v0.3.0
+    lockHash: "6021070138357352003"
+  - name: tkr-bom
+    version: v1.21.2+vmware.1-tkg.2-framework-v0.3.0
+    lockHash: "14961827297271099534"
+  - name: tkr-bom
+    version: v1.20.8+vmware.1-tkg.3-framework-v0.3.0
+    lockHash: "6091572446177264432"
+  - name: tkr-compatibility
+    version: v2-framework-v0.3.0
+    lockHash: "9126787623471972929"
+  - name: velero
+    version: v1.6.2+vmware.1
+    lockHash: "3364634457805215755"
+  - name: velero-plugin-for-aws
+    version: v1.2.1+vmware.1
+    lockHash: "11883110033944484471"
+  - name: velero-plugin-for-microsoft-azure
+    version: v1.2.1+vmware.1
+    lockHash: "9205556182822348536"
+  - name: velero-plugin-for-vsphere
+    version: v1.1.1+vmware.1
+    lockHash: "1945255065384426700"
+  - name: multus-cni
+    version: v3.7.1+vmware.1
+    lockHash: "14405000230962965153"
+  - name: image-builder
+    version: v0.1.9+vmware.1
+    lockHash: "3467566597056157760"

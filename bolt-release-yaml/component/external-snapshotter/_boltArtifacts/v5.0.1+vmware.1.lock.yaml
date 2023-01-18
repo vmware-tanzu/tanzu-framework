@@ -1,0 +1,7 @@
+name: external-snapshotter
+goBuildComponentLocks:
+- version: v5.0.1+vmware.1
+  gobuildBranch: vmware-5.0.1
+  gobuildHeadCommit: 2d093b150c9716a60b330978b3591c918ce6db99
+  hash: 631642ae1cf1661416c0848c9f39c161
+  componentLockReferences: []

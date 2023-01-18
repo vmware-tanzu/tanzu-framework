@@ -1,0 +1,43 @@
+name: cluster_api
+publish:
+  - name: capiControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/images/cluster-api-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/images/cluster-api-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/cluster-api-controller:$UNDERSCOREVERSION
+  - name: kcpControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/images/kubeadm-control-plane-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/images/cluster-api-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/kubeadm-control-plane-controller:$UNDERSCOREVERSION
+  - name: capdManagerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/images/capd-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/images/cluster-api-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/capd-manager:$UNDERSCOREVERSION
+  - name: cabpkControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/images/kubeadm-bootstrap-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/images/cluster-api-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/kubeadm-bootstrap-controller:$UNDERSCOREVERSION
+nonpublish:
+  - name: clusterctl-linux
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/executables/cluster-api-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/executables/clusterctl-linux-$VERSION.gz
+  - name: clusterctl-mac
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/executables/cluster-api-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/BUILDID/publish/lin64/cluster_api/executables/clusterctl-mac-$VERSION.gz
+  - name: kubeadm-bootstrap-manager
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/executables/cluster-api-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/executables/kubeadm-bootstrap-manager-$VERSION.gz
+  - name: kubeadm-control-plane-manager
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/executables/cluster-api-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/executables/kubeadm-control-plane-manager-$VERSION.gz
+  - name: manager
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/executables/cluster-api-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api/executables/manager-$VERSION.gz

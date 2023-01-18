@@ -1,0 +1,9 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off for TMC to consume kapp-controller v0.41.5 v0.38.8 v0.30.5 with CVE fixes"
+componentReferences:
+- name: kapp-controller
+  version:
+  - v0.41.5+vmware.1
+  - v0.38.8+vmware.1
+  - v0.30.5+vmware.1

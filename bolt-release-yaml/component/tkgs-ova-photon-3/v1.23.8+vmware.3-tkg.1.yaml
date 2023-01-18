@@ -1,0 +1,60 @@
+name: tkgs-ova-photon-3
+images:
+  - version: v1.23.8+vmware.3-tkg.1
+    osinfo:
+      name: photon
+      version: "3"
+      arch: amd64
+    type: ova
+    imageBuilderVersion: f7391e53eed764e267f3c56ee90282021dd3ee5b
+    componentReferences:
+      - name: kubernetes
+        version:
+          - v1.23.8+vmware.3
+      - name: etcd
+        version:
+          - v3.5.4+vmware.6
+      - name: coredns
+        version:
+          - v1.8.6+vmware.7
+      - name: cni_plugins
+        version:
+          - v1.1.1+vmware.6
+      - name: cri_tools
+        version:
+          - v1.22.0+vmware.8
+      - name: kubernetes_release
+        version:
+          - v0.12.0+vmware.8
+      - name: calico_all
+        version:
+          - v3.19.1+vmware.3
+      - name: guest-cluster-auth-service
+        version:
+          - v0.1-72-g6fbef38
+      - name: antrea
+        version:
+          - v1.5.3+vmware.2
+      - name: containerd
+        version:
+          - v1.6.6+vmware.2
+      - name: vsphere_csi_driver_tkgs
+        version:
+          - v2.5.2-8dee76b
+      - name: cloud_provider_vsphere
+        version:
+          - v1.23.2+vmware.1
+      - name: metrics-server
+        version:
+          - v0.4.0+vmware.5
+      - name: docker_distribution
+        version:
+          - 2.7.1
+    dependencies:
+      base_iso_sha: 76fbe13df3f7340c94cf5706a0ec33ffc377c47e
+      base_iso_url: http://10.163.0.228/kscom-generic-local/isos/photon-minimal-3.0-rev3-u1.iso
+      jenkins.TKGS_BUILDINFO_URL: $REFBUILDINFO_URL
+      jenkins.PHOTON3_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/photon-3-stig-hardening.git
+      jenkins.PHOTON3_STIG_VERSION: 8cd1ee34346dbd5ebc6abe09cc519fe8216c6335
+      jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 37b1d5fdf3eb6bda57a47cff0d7cdb42c0249f1d
+      jenkins.VC_INFRA_PROVIDER: haas

@@ -1,0 +1,7 @@
+name: harbor-package
+goBuildComponentCaches:
+- version: v2.6.1+vmware.1-tkg.1-harbor-tf-v0.25.4
+  url: https://buildweb.eng.vmware.com/ob/20999738/
+  buildNumber: bora-20999738
+  buildStatus: SUCCEEDED
+  hash: 178f858c94a9e35a64a2334bdec8a248

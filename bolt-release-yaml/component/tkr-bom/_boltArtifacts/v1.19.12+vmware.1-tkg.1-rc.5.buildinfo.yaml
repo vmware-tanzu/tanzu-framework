@@ -1,0 +1,13 @@
+componentBuilds:
+- name: tkr-bom
+  version: v1.19.12+vmware.1-tkg.1-rc.5
+  channel: "370249466013338347"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/370249466013338347/component/tkr-bom/_boltArtifacts/tkr-bom-v1.19.12+vmware.1-tkg.1-rc.5.yaml
+  artifactURL:
+    tkrBomImage:
+      url: projects-stg.registry.vmware.com/tkg/tkr-bom:v1.19.12_vmware.1-tkg.1-rc.5
+      sha256: b642085b66d37f6d9319003dfc1cecbfe3f55fad6dd0ee1d1d1cf00cb3776578
+    tkrBomYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/370249466013338347/component/tkr-bom/_boltArtifacts/tkr-bom-v1.19.12+vmware.1-tkg.1-rc.5.yaml
+  cachehash: 9e4dd9770b48d5c00361767c74744c20
+  publishhash: 868daa970e427d417d79296bc74551c5

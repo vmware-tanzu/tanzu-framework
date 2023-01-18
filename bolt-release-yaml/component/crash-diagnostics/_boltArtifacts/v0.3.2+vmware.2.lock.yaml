@@ -1,0 +1,7 @@
+name: crash-diagnostics
+goBuildComponentLocks:
+- version: v0.3.2+vmware.2
+  gobuildBranch: vmware-0.3.2+vmware.2
+  gobuildHeadCommit: 1ce5658d04d25e221982057ce4b698df7036a7cb
+  hash: "13598361792567965701"
+  componentLockReferences: []

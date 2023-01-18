@@ -1,0 +1,8 @@
+name: grafana
+upstreamURL: https://github.com/grafana/grafana.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_grafana.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_grafana.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_grafana.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_grafana.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_grafana.git
+gobuildTarget: cayman_grafana

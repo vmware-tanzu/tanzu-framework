@@ -1,0 +1,1940 @@
+componentBuilds:
+- name: ako-operator
+  version: v1.7.0+vmware.2
+  channel: "436962620197573101"
+  url: https://buildweb.eng.vmware.com/ob/20888913/
+  artifactURL:
+    ako-operator-manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20888913/publish/lin64/ako-operator/manifests/ako-operator-manifests-v1.7.0+vmware.2.tar.gz
+    akoOperatorImage:
+      url: projects-stg.registry.vmware.com/tkg/ako-operator:v1.7.0_vmware.2
+      sha256: d7649999b0fb791c2fd9fcd85f7072e05978d8e48eda47842472f53f9d591173
+  cachehash: 827a25e72e7b09d40cf71739703f2416
+  publishhash: 55118b52ea31a46857b9e642b571299b
+  configDependencies:
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: vsphere_csi_driver_tkgs
+  version: v2.6.1
+  channel: "439570817840357907"
+  url: https://buildweb.eng.vmware.com/ob/20988579/
+  artifactURL:
+    csi-node-driver-registrar-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/csi_node_driver_registrar.tar
+      sha256: b65aecb114bb15635642edb4c81a29e6886b2b6bef3ffd8d77c29b9d2dfc16aa
+    csi_attacher-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/csi_attacher.tar
+      sha256: 01e6244e292986c0c4741c9fb7a0bead7e1d59d3bf6874f1ae47f6dfd6c9f939
+    csi_livenessprobe-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/csi_livenessprobe.tar
+      sha256: 954a7c3e9be9e8fb6f9b4b0639a99b36a99d8b26b46d6313ef33e137e18000fa
+    csi_provisioner-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/csi_provisioner.tar
+      sha256: 36af00fe5a87bbddce54b806bf713dbfaabf036c21cc88cd3cac1c9f8881a135
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/csi-attacher:v2.6.1
+      sha256: 3317154e3d03a88fb847c79762d3dab79d157000a13e4e1095174d5b7f6bf948
+    csiControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/vsphere-block-csi-driver:v2.6.1
+      sha256: c0a67e7da6da057dad7fd0e514a9cdab1949dc5965cce565e43091391466e493
+    csiExternalResizer:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/kubernetes-csi_external-resizer:v2.6.1
+      sha256: 13a6db244ee48a467916dc2cc3cb5e77738cad06fef717bf07f6b1870664d1ac
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/csi-livenessprobe:v2.6.1
+      sha256: 1d5a0ee800b86b1b707c5bd96afbedaeeddf2372af62de9372b9ab78a3eb768b
+    csiMetaDataSyncerImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/volume-metadata-syncer:v2.6.1
+      sha256: 5b9b9eb20059c49bd5439e38f6210847aa5f99a5b993a17fa0fcc0363476780a
+    csiNodeDriverRegistrarImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/csi-node-driver-registrar:v2.6.1
+      sha256: 4b882161a321bcf396c178cdcefc0a936e5bb1ee2982668ffd2e5cf788b6f4a9
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/pvcsi/csi-provisioner:v2.6.1
+      sha256: 49f62c1506547c5d581a5358f0f58c62df510bbca38aa70549fd31d7574b767e
+    kubernetes-csi_external-resizer-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/kubernetes-csi_external-resizer.tar
+      sha256: bfa12b94d0136f441f55c1c26d0da954233b8404c8ae22834ec80f110235be2e
+    syncer-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/syncer.tar
+      sha256: 06e78a46a2e7ea18c75731d99e83b31fbfc9b1185c7bf7af6ae671a13cb4d7c0
+    vsphere-csi-driver-1.19-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/add-on/1.19/pvcsi.yaml
+      sha256: 5ccd81680f9dd942e54141414cda67cb4695b5794b4b4d07895332b15a3ef037
+    vsphere-csi-driver-1.20-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/add-on/1.20/pvcsi.yaml
+      sha256: 98ddc3063817e219f057dc37f13983c89f0925f70239840829ef3e56d32515f8
+    vsphere-csi-driver-1.21-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/add-on/1.21/pvcsi.yaml
+      sha256: 380938ce517078ab5e57f0a2ae8bfb97b4ab73de12d8fa982e5478fb4464f62e
+    vsphere-csi-driver-1.22-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/add-on/1.22/pvcsi.yaml
+      sha256: 02aafb3451c08a1c43ae2fed0ab5e799c5dfd0a69ee8074066f7f54d62c61dbe
+    vsphere-csi-vsphere-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439570817840357907/image-builder/vsphere-csi-driver/v2.6.1/publish/lin64/vsphere_csi_driver/images/vsphere-csi.tar
+      sha256: b5e391270bbe6d8f2f6d13bcfbb45a500c90b99b47e5e707970f9940c2c027e6
+  cachehash: 3fd023da241a6ee1115f31b806666840
+  publishhash: e793a724e7770a4c0964660264a9c10f
+  configDependencies:
+    gobuild.containerBaseImage: photon:4.0
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.13.9
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: antrea-package
+  version: v1.7.1+vmware.1-tkg.1-antrea-advanced-zshippable
+  channel: "436568906048479804"
+  url: https://buildweb.eng.vmware.com/ob/20873136/
+  artifactURL:
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v1.7.1_vmware.1-tkg.1-advanced-zshippable
+      sha256: cfe2900dcb133194e521d8b627a6036d04fd6d8156e750253c59b6f027a8c1da
+  cachehash: 633f41862e5c06bdec1f034c52ae9075
+  publishhash: 3c38157278462aa91841f3ab1a6c790a
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/antrea-advanced-debian:v1.7.1_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-advanced-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: antrea
+    gobuild.package_type: core
+    gobuild.upstream_image_0: antrea/antrea-ubuntu:v1.7.1
+    gobuild.upstream_version: 1.7.1
+- name: external-snapshotter
+  version: v5.0.1+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104068/
+  artifactURL:
+    csiSnapshotControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/snapshot-controller:v5.0.1_vmware.1
+      sha256: 7ad108a45535e0378deb39635082f556139a6ee468a95df0e1fff95ff6e0b24e
+    csiSnapshotterImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-snapshotter:v5.0.1_vmware.1
+      sha256: 6266024ec77aa7634fb2ca34f82821c10d3b66e3c5c2a510a6c3565514c06fab
+  cachehash: 3453a0c8119fb689aac4e4d8e6979e30
+  publishhash: 00361ad47807c86f670f9bd4a9fcd742
+  configDependencies:
+    gobuild.golangVersion: 1.17.3
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_node_driver_registrar
+  version: v2.5.1+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104347/
+  artifactURL:
+    csiNodeDriverRegistrarImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.5.1_vmware.1
+      sha256: 5154578b827de4c7021ae458e38a5708d3562510e177666bfc96490159a3fd49
+  cachehash: baf16b3a4820bf3bce7f7a970c62a6e4
+  publishhash: e9183afffd250117d9eea541bba6836f
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: containerd
+  version: v1.6.6+vmware.1
+  channel: "412145795475735453"
+  url: https://buildweb.eng.vmware.com/ob/19953091/
+  artifactURL:
+    file-containerd-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/412145795475735453/component/containerd/cri-containerd-v1.6.6+vmware.1.linux-amd64.tar
+      sha256: 83e8ef29ede76e7780f3e5c1497422ee2dd0e19b1e57fe6d367434dfc1b71ec1
+    file-containerd-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/412145795475735453/component/containerd/cri-containerd-v1.6.6+vmware.1.windows-amd64.tar
+      sha256: 3d4b742b36fcc02353f0fdfa314d1cabb01ce6633638bc3d811a3680b02fb24a
+  cachehash: ec4e188eba9a53006f55920e9df3bd76
+  publishhash: 9e0db9cd194cc80024ae3095e4ef41b3
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: azure-ubuntu-2004
+  version: v1.24.9+vmware.1-tkg.1-4418d4691ac460ca1f07966a2ba23e02
+  channel: "439722844214033838"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/4154
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-vhd-v1.24.9+vmware.1-tkg.1-4418d4691ac460ca1f07966a2ba23e02.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.24.9+vmware.1-tkg.1-4418d4691ac460ca1f07966a2ba23e02-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.24.9+vmware.1-tkg.1-4418d4691ac460ca1f07966a2ba23e02-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.24.9+vmware.1-tkg.1-4418d4691ac460ca1f07966a2ba23e02-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-2004/azure-vhd-link-ubuntu-2004-v1.24.9+vmware.1-tkg.1-4418d4691ac460ca1f07966a2ba23e02.json
+  cachehash: 3d3fc3c9f2d6102333203bf6b6a4bcef
+  publishhash: 7c001f5ee30c6e173f6397f2a7b14226
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+- name: kube-vip
+  version: v0.5.5+vmware.1
+  channel: "433541587981577860"
+  url: https://buildweb.eng.vmware.com/ob/20762850/
+  artifactURL:
+    kubeVipImage:
+      url: projects-stg.registry.vmware.com/tkg/kube-vip:v0.5.5_vmware.1
+      sha256: e6c32cc3c71fce0b56c08e9872ebd33e63763af641e2dab9cce3d257d9dd5943
+  cachehash: 1e573711f39da07040c279023505f360
+  publishhash: 4dc86baafbb4a81d9d1b57eee6f3b764
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.18.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: kube-vip-cloud-provider
+  version: v0.0.4+vmware.1
+  channel: "431496520160798598"
+  url: https://buildweb.eng.vmware.com/ob/20688671/
+  artifactURL:
+    kubevipcloudproviderControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kube-vip/kube-vip-cloud-provider:v0.0.4_vmware.1
+      sha256: 3812c1dafebcb675b203b1dacbbac32684a0fe57f96c9820d76f14673a813ef1
+  cachehash: 2c2e512a86d52d2fa5cfce70b6200ff4
+  publishhash: 266f5097be056f58b923e08bfc3be126
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.18"
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: addons-manager-package
+  version: v1.6.0+vmware.1-tkg.2-addons-manager-zshippable
+  channel: "441590860010791597"
+  url: https://buildweb.eng.vmware.com/ob/21058522/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/addons-manager:v1.6.0_vmware.1-tkg.2-zshippable
+      sha256: 48958aafa25f6d1bbb7979c67d2bb5947a700540f8f776a6f67ab98f6edec44f
+  cachehash: 60f8751fb91bf5ed1b355faf00cad1ac
+  publishhash: 58a059db5fc330daefe5cd936034d00c
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v0.28.0-dev-281-g6af7984e
+    gobuild.downstream_version: vmware.1-tkg.2-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: addons-manager
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core_addons/tanzu-addons-manager:v1.5.0_vmware.1
+    gobuild.upstream_version: 1.6.0
+- name: csi_livenessprobe
+  version: v2.4.0+vmware.1
+  channel: "382797907729867291"
+  url: https://buildweb.eng.vmware.com/ob/18965993/
+  artifactURL:
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.4.0_vmware.1
+      sha256: f891e2d1871755b0e2f905052fc922fef02bdea3053df8e7d07062265214467c
+  cachehash: 3c8419268f3a5f40b9f8a997a39ae374
+  publishhash: ad32cfc6d337dff0830e3e570262636b
+- name: azure-ubuntu-1804
+  version: v1.24.9+vmware.1-tkg.1-890817100cefeb9c16717046da194f4a
+  channel: "439722844214033838"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/4152
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-vhd-v1.24.9+vmware.1-tkg.1-890817100cefeb9c16717046da194f4a.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.24.9+vmware.1-tkg.1-890817100cefeb9c16717046da194f4a-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.24.9+vmware.1-tkg.1-890817100cefeb9c16717046da194f4a-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.24.9+vmware.1-tkg.1-890817100cefeb9c16717046da194f4a-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.24.9+vmware.1-tkg.1-890817100cefeb9c16717046da194f4a.json
+  cachehash: f25d971f5e1034f24c35858ea3fc6d81
+  publishhash: c71221609d0fb4b0aebc4a096f6884ef
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+- name: tkr-bom
+  version: v1.24.9+vmware.1-tkg.1-zshippable
+  channel: "441782703516321233"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441782703516321233/component/tkr-bom/_boltArtifacts/tkr-bom-v1.24.9+vmware.1-tkg.1-zshippable.yaml
+  artifactURL:
+    tkr-aws.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-aws:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 5e245a1ff98fd375f847319a2c6822adffdebb3474afef9f4c8cbbf72f12ba12
+    tkr-azure.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-azure:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 3157b5bd600abb9d41718a77d118499f0d83d4cfe9c3b49bfcf2d77b613f08c0
+    tkr-oracle.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-oracle:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 8805489e66dd6eb65c53e16c834e33c89e5e7493393c46269f738132cd6ccda5
+    tkr-repository-aws.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-repository-aws:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: fb64b7981d35bc6929eb7ede4511ac823fbb04b4901adad3e50c3579ab9fa2f9
+    tkr-repository-azure.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-repository-azure:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 77bbcfeee3fea2fc1cec358b3a5dee1d82c117b86ff948013a62861d1b229325
+    tkr-repository-oracle.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-repository-oracle:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: e1a6712953f3c3fb84bdf45b0b08ce0fcb41ab901b4803e497caf3f301635741
+    tkr-repository-vsphere-nonparavirt.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-repository-vsphere-nonparavirt:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 44e5f6e55f3e1346e3c8d6d3875d0e087167913e61581224553d014935a6abf2
+    tkr-repository-vsphere.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-repository-vsphere:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 02c5b7d8e4dd3e0e9748b3bf8d7f459eb71828c7cd327e19a45523e8a8243c0c
+    tkr-vsphere-nonparavirt.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-vsphere-nonparavirt:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 0f2f626b99f1007250e39b2283790bb56f6d74da5a7046801364cef8b9c9e024
+    tkr-vsphere.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-vsphere:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: e0909e1f33416b7149694fd63ca760be9019ca32fe4ba05ce77e1f5b953bc7fe
+    tkrBomImage:
+      url: projects-stg.registry.vmware.com/tkg/tkr-bom:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 663ac14eea76f542cd2fda2ceb47e292587e36e99309594575742a617622c1d4
+    tkrBomYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441782703516321233/component/tkr-bom/_boltArtifacts/tkr-bom-v1.24.9+vmware.1-tkg.1-zshippable.yaml
+  cachehash: 036dfcd778c250fdef5bdc52f7d020ec
+  publishhash: 10e54e001ec3a6cf591375ac50a1fc4f
+  configDependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha3
+    aws:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: metrics-server.tanzu.vmware.com
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: pinniped.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-pinniped-config
+        - refName: capabilities.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-capabilities-package-config
+        - refName: tkg-storageclass.tanzu.vmware.com
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        csi:
+          refName: aws-ebs-csi-driver.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: csi.tanzu.vmware.com
+              kind: AwsEbsCSIConfig
+              version: v1alpha1
+        kapp:
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    awsPackageDeployNamespace: tkg-system
+    azure:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: metrics-server.tanzu.vmware.com
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: pinniped.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-pinniped-config
+        - refName: capabilities.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-capabilities-package-config
+        - refName: tkg-storageclass.tanzu.vmware.com
+        - refName: azurefile-csi-driver.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: csi.tanzu.vmware.com
+              kind: AzureFileCSIConfig
+              version: v1alpha1
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        csi:
+          refName: azuredisk-csi-driver.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: csi.tanzu.vmware.com
+              kind: AzureDiskCSIConfig
+              version: v1alpha1
+        kapp:
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    azurePackageDeployNamespace: tkg-system
+    componentTanzuCoreVersion: dd40a61d8bca0ffd3202a0d5ddc1177b3e3d86c0
+    oracle:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: metrics-server.tanzu.vmware.com
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: pinniped.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-pinniped-config
+        - refName: capabilities.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-capabilities-package-config
+        - refName: tkg-storageclass.tanzu.vmware.com
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        kapp:
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    oraclePackageDeployNamespace: tkg-system
+    vsphere:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: guest-cluster-auth-service.tanzu.vmware.com
+        - refName: metrics-server.tanzu.vmware.com
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: pinniped.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-pinniped-config
+        - refName: capabilities.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-capabilities-package-config
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        cpi:
+          refName: vsphere-cpi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cpi.tanzu.vmware.com
+              kind: VSphereCPIConfig
+              version: v1alpha1
+        csi:
+          refName: vsphere-pv-csi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: csi.tanzu.vmware.com
+              kind: VSphereCSIConfig
+              version: v1alpha1
+        kapp:
+          additionalConfig:
+            inline: true
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    vsphere-nonparavirt:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        - refName: kube-vip-cloud-provider.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cpi.tanzu.vmware.com
+              kind: KubevipCPIConfig
+              version: v1alpha1
+        - refName: load-balancer-and-ingress-service.tanzu.vmware.com
+        additionalPackages:
+        - refName: metrics-server.tanzu.vmware.com
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: tkg-storageclass.tanzu.vmware.com
+        - refName: pinniped.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-pinniped-config
+        - refName: capabilities.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-capabilities-package-config
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        cpi:
+          refName: vsphere-cpi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cpi.tanzu.vmware.com
+              kind: VSphereCPIConfig
+              version: v1alpha1
+        csi:
+          refName: vsphere-csi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: csi.tanzu.vmware.com
+              kind: VSphereCSIConfig
+              version: v1alpha1
+        kapp:
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    vsphere-nonparavirtPackageDeployNamespace: tkg-system
+    vsphereK8sImageRepository: localhost:5000/vmware.io
+    vsphereOSImages:
+    - spec:
+        image:
+          ref:
+            name: ubuntu-2004-amd64-vmi-k8s-v1.24.9---vmware.1-tkg.1-zshippable
+          type: vmi
+        os:
+          arch: amd64
+          name: ubuntu
+          type: linux
+          version: "20.04"
+    - spec:
+        image:
+          ref:
+            name: photon-3-amd64-vmi-k8s-v1.24.9---vmware.1-tkg.1-zshippable
+          type: vmi
+        os:
+          arch: amd64
+          name: photon
+          type: linux
+          version: 3
+    vspherePackageDeployNamespace: vmware-system-tkg
+    vsphereRedirectURL: localhost:5000
+- name: csi_attacher
+  version: v3.5.0+vmware.1
+  channel: "433520760561106424"
+  url: https://buildweb.eng.vmware.com/ob/20762272/
+  artifactURL:
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.5.0_vmware.1
+      sha256: c88e5629192345a332717c8beaf801f1c32b78b1e128e848480f50886ba3070f
+  cachehash: fdcda55b5c5a5d8e335f2ad229f4d03c
+  publishhash: 2dfd5c66ba8f77f19d418d2a5058472d
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: aws-ebs-csi-driver-package
+  version: v1.8.0+vmware.1-tkg.2-aws-ebs-csi-zshippable
+  channel: "419174769334689110"
+  url: https://buildweb.eng.vmware.com/ob/20215469/
+  artifactURL:
+    aws-ebs-csi-driver.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/aws-ebs-csi-driver:v1.8.0_vmware.1-tkg.2-zshippable
+      sha256: b80a6d495e277b33b258cd58cabe7fbee111e07421891e71c943cc439cee7691
+  cachehash: feb7e39f85c7f5d573b5f3625e22a2fa
+  publishhash: bb70f71b8804f5e2b472498d99dcfa98
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.4.0_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/csi/aws-ebs-csi-driver:v1.8.0_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.5.0_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.5.1_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.1.0_vmware.2
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.4.0_vmware.1
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/csi/csi-snapshotter:v6.0.1_vmware.1
+    gobuild.downstream_image_7: projects-stg.registry.vmware.com/tkg/csi/snapshot-controller:v6.0.1_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.2-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: aws-ebs-csi-driver
+    gobuild.package_type: core
+    gobuild.upstream_image_0: k8s.gcr.io/sig-storage/csi-attacher:v3.4.0
+    gobuild.upstream_image_1: k8s.gcr.io/provider-aws/aws-ebs-csi-driver:v1.8.0
+    gobuild.upstream_image_2: k8s.gcr.io/sig-storage/livenessprobe:v2.5.0
+    gobuild.upstream_image_3: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.1
+    gobuild.upstream_image_4: k8s.gcr.io/sig-storage/csi-provisioner:v3.1.0
+    gobuild.upstream_image_5: k8s.gcr.io/sig-storage/csi-resizer:v1.4.0
+    gobuild.upstream_image_6: k8s.gcr.io/sig-storage/csi-snapshotter:v6.0.1
+    gobuild.upstream_image_7: gcr.io/k8s-staging-sig-storage/snapshot-controller:v6.0.1
+    gobuild.upstream_version: 1.8.0
+- name: cni_plugins
+  version: v1.1.1+vmware.16
+  channel: "438662689854613310"
+  url: https://buildweb.eng.vmware.com/ob/20953026/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953026/publish/lin64/cni_plugins/executables/cni-plugins-v1.1.1+vmware.16.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953026/publish/lin64/cni_plugins/debs/kubernetes-cni_1.1.1+vmware.16-1_amd64.deb
+    cni_plugins-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953026/publish/lin64/cni_plugins/rpms/rpms/kubernetes-cni-1.1.1-1.el7.vmware.16.x86_64.rpm
+    cni_plugins-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953026/publish/lin64/cni_plugins/rpms/srpms/kubernetes-cni-1.1.1-1.el7.vmware.16.src.rpm
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/component/cni_plugins/v1.1.1+vmware.16/cni-plugins-linux-amd64-v1.1.1+vmware.16.tgz
+      sha256: 83221551e5b7277ac6fa712bf653c6f017af3ffc47c3fcd7db88e0d70f2eabf6
+  cachehash: a8495be0713efd65a79b67b6c37624e8
+  publishhash: 3222edb8e472969768744aa214a6af69
+  configDependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "0"
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.18.9
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8
+- name: kapp-controller
+  version: v0.41.2+vmware.2
+  channel: "431624133084746870"
+  url: https://buildweb.eng.vmware.com/ob/20651187
+  artifactURL:
+    kapp-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20651187/publish/lin64/kapp-controller/executables/kapp-controller-linux-amd64-v0.41.2+vmware.2.gz
+    kappControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.41.2_vmware.2
+      sha256: a5594673292fbdd3158a84fc1f52000b272b6ac203b946ee422e23d1ad4e0e6f
+  cachehash: 56e4d865ab17206cb3d0c78a873cfc3d
+  publishhash: 702fabdb2102e99ec9e6f600badee4cf
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8-fw
+- name: csi_provisioner
+  version: v3.1.0+vmware.2
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/19655628
+  artifactURL:
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.1.0_vmware.2
+      sha256: 211f140d6ac914c6765454dbc5e3d0f2d2849b7354a61f9b2e92ea8398624c47
+  cachehash: 19470e00f4927e16a6944fc251e2449d
+  publishhash: 4764f174cbd6be97bb004d2ae1648bd0
+  configDependencies:
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_node_driver_registrar
+  version: v2.3.0+vmware.1
+  channel: "382797907729867291"
+  url: https://buildweb.eng.vmware.com/ob/18965992/
+  artifactURL:
+    csiNodeDriverRegistrarImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.3.0_vmware.1
+      sha256: aaee5642312edc75df5ec8dd63d250f215233e3922d37c206b739dd4b0931928
+  cachehash: 558ce775966ebd7c7cc61e1078b9209a
+  publishhash: e9183afffd250117d9eea541bba6836f
+- name: kubernetes_release
+  version: v0.13.0+vmware.7
+  channel: "438662689854613310"
+  url: https://buildweb.eng.vmware.com/ob/20953027/
+  artifactURL:
+    kube-cross:
+      url: projects-stg.registry.vmware.com/tkg/kube-cross:v0.13.0_vmware.7
+      sha256: c5f91cc415d364d8a8df928c94e650bbcd5913af230054e6109d217b7a365607
+  cachehash: 9a417518e3b85ba470af5c2450d2470a
+  publishhash: 7021b2705a89024d325dd8f94088cd62
+  configDependencies:
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.18.9
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8
+- name: coredns
+  version: v1.8.6+vmware.15
+  channel: "438662689854613310"
+  url: https://buildweb.eng.vmware.com/ob/20953030/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.8.6_vmware.15
+      sha256: faa345656474118a980b22bfee950f82fcbbce7e92de124abf050e4be60613bf
+  cachehash: c8c5e96db770bc845698463e40c201c3
+  publishhash: 5b23bb15efee643a4e09b711428a8a57
+  configDependencies:
+    gobuild.base_image: debian-base-amd64:bullseye-v1.2.0
+    gobuild.cgoEnabled: "0"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.18.9
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8
+- name: ova-rhel-8
+  version: v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33
+  channel: "439722844214033838"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/3457
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ova-rhel-8/bom-ova-rhel-8-v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ova-rhel-8/rhel-8-kube-v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ova-rhel-8/ova-rhel-8-v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ova-rhel-8/ova-rhel-8-v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33-provenance_result.txt
+  cachehash: 645e2423c6e45ee4b50afa7594d0b9e3
+  publishhash: 38336f600fae30b1958054c4f799aa96
+  configDependencies:
+    base_iso_sha: c324f3b07283f9393168f0a4ad2167ebbf7e4699d65c9670e0d9e58ba4e2a9a8
+    base_iso_url: https://artifactory.eng.vmware.com/artifactory/kscom-generic-local/isos/rhel-8.6-x86_64-dvd.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+- name: image-builder-resource-bundle
+  version: v1.24.9+vmware.1-tkg.1-zshippable
+  channel: "439722844214033838"
+  url: https://buildweb.eng.vmware.com/ob/20994852/
+  artifactURL:
+    linuxResourceBundleImage:
+      url: projects-stg.registry.vmware.com/tkg/linux-resource-bundle:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 6c80e80ac3df08755f39f258fdebf22e4b7785cf1fd5dd8a043c84535902bee3
+    windowsResourceBundleImage:
+      url: projects-stg.registry.vmware.com/tkg/windows-resource-bundle:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 0e87a3c7b0a455f5879e40ce59ceb9ffc9ce06439002c2ffa12a306ae604e430
+  cachehash: 6a3953e99a6ac51f50514daa0e8f4b24
+  publishhash: 50e177e877687c43cafe37b8e44513ba
+  configDependencies:
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.golangVersion: "1.16"
+    gobuild.linux_hosttype: linux-centos8
+- name: guest-cluster-auth-service-package
+  version: v1.1.0-tkg.1-gc-auth-service-zshippable
+  channel: "435561425553852608"
+  url: https://buildweb.eng.vmware.com/ob/20834992/
+  artifactURL:
+    guest-cluster-auth-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/guest-cluster-auth-service:v1.1.0_tkg.1-zshippable
+      sha256: 1003da24bfa1065e814338626ff8a11123ba60fff0b29916fb968a83bfdf4add
+  cachehash: cc7ba5e92cf349debeafdc80924adcfc
+  publishhash: 8342ebadf0609bf867f3996aca33c006
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/guest-cluster-auth-service/guest-cluster-auth-service:v1.1.0
+    gobuild.downstream_version: tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: guest-cluster-auth-service
+    gobuild.package_type: core
+    gobuild.upstream_image_0: guest-cluster-auth-service/guest-cluster-auth-service:v1.1.0
+    gobuild.upstream_version: 1.1.0
+- name: metrics-server
+  version: v0.6.2+vmware.1
+  channel: "437695119085277011"
+  url: https://buildweb.eng.vmware.com/ob/20915925/
+  artifactURL:
+    metricsServerImage:
+      url: projects-stg.registry.vmware.com/tkg/metrics-server:v0.6.2_vmware.1
+      sha256: a1ba061d6d46fa34a526690998380515583dc0f9c9dce3ea3b5aac2ac020c4c0
+  cachehash: 565a1f050d9f07166f55bfd336f04cc1
+  publishhash: 1b5b1c3c994ffc03d5f5e72779b8c984
+  configDependencies:
+    gobuild.golangVersion: "1.17"
+    gobuild.imageName: metrics-server
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+- name: load-balancer-and-ingress-service-package
+  version: v1.8.2+vmware.1-tkg.1-ako-zshippable
+  channel: "438459640276064280"
+  url: https://buildweb.eng.vmware.com/ob/20944449/
+  artifactURL:
+    load-balancer-and-ingress-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/load-balancer-and-ingress-service:v1.8.2_vmware.1-tkg.1-zshippable
+      sha256: f850ddd693aa1feac5606be4a3caf755457a6eec2464c12fe63b929d661071a9
+  cachehash: 6754b3e55185bd5726869bc5c8086097
+  publishhash: e76b568ebe8a5803434d226a6e35101b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/ako:v1.8.2_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: load-balancer-and-ingress-service
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/ako:v1.8.2_vmware.1
+    gobuild.upstream_version: 1.8.2
+- name: vsphere-cpi-package
+  version: v1.24.3+vmware.1-tkg.1-vsphere-cpi-zshippable
+  channel: "438471687944538039"
+  url: https://buildweb.eng.vmware.com/ob/20944928/
+  artifactURL:
+    vsphere-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-cpi:v1.24.3_vmware.1-tkg.1-zshippable
+      sha256: 88560e64028d4c9facae09c0fab22a4e21c3204552fef8e6bf72c3bbf77de9c4
+  cachehash: c33b7fd2a2c08ab1766e155f4b2887df
+  publishhash: ba7d823fdfa11d717763a91b3d120f64
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.downstream_vsphere_cpi_manager: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.24.3_vmware.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: vsphere-cpi
+    gobuild.package_type: core
+    gobuild.upstream_version: 1.24.3
+    gobuild.upstream_vsphere_cpi_manager: gcr.io/cloud-provider-vsphere/cpi/release/manager:v1.24.3
+- name: kubernetes-csi_external-resizer
+  version: v1.3.0+vmware.1
+  channel: "382797907729867291"
+  url: https://buildweb.eng.vmware.com/ob/18879540
+  artifactURL:
+    csiExternalResizer:
+      url: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.3.0_vmware.1
+      sha256: 9e62e1b29b9cb054a8e930a0615627ad1c4fbdf4b0c1aae58bd43489cc997f69
+  cachehash: 1f85495bacd0b1c4344cbc9fe847dc50
+  publishhash: 3556c1335bba2f78f1541fc58f73089b
+- name: load-balancer-and-ingress-service
+  version: v1.8.2+vmware.1
+  channel: "438459640276064280"
+  url: https://buildweb.eng.vmware.com/ob/20944445/
+  artifactURL:
+    loadBalancerAndIngressServiceImage:
+      url: projects-stg.registry.vmware.com/tkg/ako:v1.8.2_vmware.1
+      sha256: 4aa3ff6145b7933627033da8acf56915922f5d79a559b28a159c30ed0bf4eacc
+  cachehash: 8aa28baceee4ef30cfffb4cd4c923107
+  publishhash: bb17bbba17855da73f84f1c52a694ff4
+  configDependencies:
+    gobuild.golangVersion: 1.15.6
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: kube-vip-cloud-provider-package
+  version: v0.0.4+vmware.1-tkg.1-kube-vip-cp-zshippable
+  channel: "434845418048743278"
+  url: https://buildweb.eng.vmware.com/ob/20808910/
+  artifactURL:
+    kube-vip-cloud-provider.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kube-vip-cloud-provider:v0.0.4_vmware.1-tkg.1-zshippable
+      sha256: 27a5336c6ecdc348cdcc3cc5c2ef2e1cab8f970db450f7ac9e76ec11c80955ee
+  cachehash: c2e365d9889eb9355112dea027f373eb
+  publishhash: 29f5954d61379bc424f271dffb908c8c
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_kube_vip_cloud_provider: projects-stg.registry.vmware.com/tkg/kube-vip/kube-vip-cloud-provider:v0.0.4_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: kube-vip-cloud-provider
+    gobuild.package_type: core
+    gobuild.upstream_kube_vip_cloud_provider: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.4
+    gobuild.upstream_version: 0.0.4
+- name: pinniped
+  version: v0.12.1+vmware.1
+  channel: "395577390333482930"
+  url: https://buildweb.eng.vmware.com/ob/19383190/
+  artifactURL:
+    pinnipedImage:
+      url: projects-stg.registry.vmware.com/tkg/pinniped:v0.12.1_vmware.1
+      sha256: 521811eaca80669224c29f09ea78bd17c3b8672f1791f867f56c5b65d4744c36
+  cachehash: 3fa19f150b7fdcd649f5374d6a760f42
+  publishhash: 4862264dcdd4c26604f005ab5f25d6d6
+- name: vsphere-csi-package
+  version: v2.6.2+vmware.2-tkg.1-vsphere-csi-zshippable
+  channel: "435646911693719434"
+  url: https://buildweb.eng.vmware.com/ob/20838461/
+  artifactURL:
+    vsphere-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-csi:v2.6.2_vmware.2-tkg.1-zshippable
+      sha256: dec2a73cbfac35f39338d8b7f417fc1b1740c50ea05e552f1c6220b10287f7eb
+  cachehash: de4e5855af463511044f825fde108f47
+  publishhash: cedd8fe6c0ac7f5ec42b3dc29f93ec89
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.4.0_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.6.2_vmware.2
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.7.0_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.5.1_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.2.1_vmware.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.4.0_vmware.1
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/csi/volume-metadata-syncer:v2.6.2_vmware.2
+    gobuild.downstream_image_7: projects-stg.registry.vmware.com/tkg/csi/csi-snapshotter:v5.0.1_vmware.1
+    gobuild.downstream_version: vmware.2-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: vsphere-csi
+    gobuild.package_type: core
+    gobuild.upstream_image_0: k8s.gcr.io/sig-storage/csi-attacher:v3.4.0
+    gobuild.upstream_image_1: gcr.io/cloud-provider-vsphere/csi/release/driver:v2.6.2
+    gobuild.upstream_image_2: k8s.gcr.io/sig-storage/livenessprobe:v2.7.0
+    gobuild.upstream_image_3: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.1
+    gobuild.upstream_image_4: k8s.gcr.io/sig-storage/csi-provisioner:v3.2.1
+    gobuild.upstream_image_5: k8s.gcr.io/sig-storage/csi-resizer:v1.4.0
+    gobuild.upstream_image_6: gcr.io/cloud-provider-vsphere/csi/release/syncer:v2.6.2
+    gobuild.upstream_image_7: k8s.gcr.io/sig-storage/csi-snapshotter:v5.0.1
+    gobuild.upstream_version: 2.6.2
+- name: calico-package
+  version: v3.24.1+vmware.1-tkg.1-calico-zshippable
+  channel: "430850645545715731"
+  url: https://buildweb.eng.vmware.com/ob/20665681/
+  artifactURL:
+    calico.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/calico:v3.24.1_vmware.1-tkg.1-zshippable
+      sha256: 0506c3cae2c5c37a0faad43d8a3dfcbb0ead9b39b5001ae79db6de4e7b176274
+  cachehash: ddf560a1e4b91e5b67b4fb7dfcb2fe9d
+  publishhash: a041cb368fda942297756d58173a348a
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/calico-all/cni:v3.24.1_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/calico-all/kube-controllers:v3.24.1_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/calico-all/node:v3.24.1_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: calico
+    gobuild.package_type: core
+    gobuild.upstream_image_0: docker.io/calico/cni:v3.24.1
+    gobuild.upstream_image_1: docker.io/calico/kube-controllers:v3.24.1
+    gobuild.upstream_image_2: docker.io/calico/node:v3.24.1
+    gobuild.upstream_version: 3.24.1
+- name: etcd
+  version: v3.5.6+vmware.3
+  channel: "438662689854613310"
+  url: https://buildweb.eng.vmware.com/ob/20953031/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.5.6_vmware.3
+      sha256: bd06d99f53a5d44df3704b7d7394f2c3b8c721b477a5570a1931297780ef88c5
+  cachehash: d412c21e34498d6e35eb4d06675181e8
+  publishhash: 8d295061a104d02aaac3cda5e7d85ab7
+  configDependencies:
+    gobuild.base_image: debian-base-amd64:bullseye-v1.2.0
+    gobuild.cgoEnabled: "0"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.18.9
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8
+- name: kubernetes
+  version: v1.24.9+vmware.1
+  channel: "438662689854613310"
+  url: https://buildweb.eng.vmware.com/ob/20953378/
+  artifactURL:
+    file-kube-proxy-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/windows/amd64/kube-proxy.exe
+      sha256: 050200ae2a7c4149723357c3f1bf2a3b75cb22933a92b973a7da56f8437d04b8
+    file-kubeadm-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/linux/amd64/kubeadm
+      sha256: 051e2ffe3db78d4ce5c95057ce811d14da2c985890f757e7498cb649445d4edf
+    file-kubeadm-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/windows/amd64/kubeadm.exe
+      sha256: d0107472128272c0c7162e16d7005b004c5fad9aa7d5c6502874fdd7385b2b45
+    file-kubectl-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/linux/amd64/kubectl
+      sha256: 96e4c0c4c2f80047644fa305df87245147b968b5053a963a64a1d7844902f59b
+    file-kubectl-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/windows/amd64/kubectl.exe
+      sha256: e457cca70bec18f6a56c0f30f4070a4610b756af15bda77d589c0e1338be63bc
+    file-kubelet-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/linux/amd64/kubelet
+      sha256: 5a2a94900f86eb420c39a431198211faca11a402704a8df34908a1ebc32c575d
+    file-kubelet-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/windows/amd64/kubelet.exe
+      sha256: 70c0918123ba1bfde8ed4058a1982d0902c3e5caf1a257b0f70acfc4b9604576
+    kube-apiserver_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/linux/amd64/kube-apiserver.tar
+      sha256: dc0b4aafd62f8384a8e49c7c64de1eb1cb0b7d86ba4539d58d3b01a81b1d0826
+    kube-controller-manager_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/linux/amd64/kube-controller-manager.tar
+      sha256: fbeb1322800f303a75cea661bc46c22938afeaaf166f5ba184816679f4a43875
+    kube-proxy_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/linux/amd64/kube-proxy.tar
+      sha256: 715947a812c63b4d22ba113f77a527fff924893f9de1dc688933a43cc6a6d58c
+    kube-scheduler_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/linux/amd64/kube-scheduler.tar
+      sha256: 678b0ecbea03623affecda25d6a1f5c2c5d4ffd39338e6ecc373070dd5560f7e
+    kubeAPIServer:
+      url: projects-stg.registry.vmware.com/tkg/kube-apiserver:v1.24.9_vmware.1
+      sha256: df076f8851e4c2c2774ed7f6ce545eb6724deb1003e94bd5516f7eac38522da8
+    kubeControllerManager:
+      url: projects-stg.registry.vmware.com/tkg/kube-controller-manager:v1.24.9_vmware.1
+      sha256: 1ffa867ec1340721b61c2db94d869dac7169cf7fb3a4e73ce7cfbd20d8bd907d
+    kubeProxy:
+      url: projects-stg.registry.vmware.com/tkg/kube-proxy:v1.24.9_vmware.1
+      sha256: ec1be4a329a66da33c7ac5db4e88f267c0059218b544b2de0b1b6755842cd5d0
+    kubeScheduler:
+      url: projects-stg.registry.vmware.com/tkg/kube-scheduler:v1.24.9_vmware.1
+      sha256: 8fda0c5cbc7e45dd279120d515b4f6edc323241cba189d3eccce6fd5eea8f9af
+    kubeadm-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/debs/kubeadm_1.24.9+vmware.1-1_amd64.deb
+    kubeadm-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/executables/kubeadm-linux-v1.24.9+vmware.1.gz
+    kubeadm-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/rpms/rpms/kubeadm-1.24.9-1.el7.vmware.1.x86_64.rpm
+    kubectl-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/debs/kubectl_1.24.9+vmware.1-1_amd64.deb
+    kubectl-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/executables/kubectl-linux-v1.24.9+vmware.1.gz
+    kubectl-mac:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/executables/kubectl-mac-v1.24.9+vmware.1.gz
+    kubectl-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/rpms/rpms/kubectl-1.24.9-1.el7.vmware.1.x86_64.rpm
+    kubectl-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/executables/kubectl-windows-v1.24.9+vmware.1.exe.gz
+    kubelet-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/debs/kubelet_1.24.9+vmware.1-1_amd64.deb
+    kubelet-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/executables/kubelet-linux-v1.24.9+vmware.1.gz
+    kubelet-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/rpms/rpms/kubelet-1.24.9-1.el7.vmware.1.x86_64.rpm
+    kubelet-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/lin64/kubernetes/rpms/srpms/kubelet-1.24.9-1.el7.vmware.1.src.rpm
+    kubernetes-tar:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953378/publish/kubernetes.tgz
+    pause:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.7
+      sha256: 01e0c53222bd4bdd4914745843cc4e32b61981136c5f7cf4156c45d19045ca9e
+    pause_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/linux/amd64/pause.tar
+      sha256: cafe13efb3ea161ea0f32c1b645cf2263dd16278d74e018fc75784630ea5707e
+    pause_windows_20H2:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.7-windows-amd64-20H2
+      sha256: f99be08e47763501dee4e9ffbefc17e9d4dac9f2bbdf23d179745b05f50e310f
+    pause_windows_20H2_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/windows/amd64/pause-3.7-windows-amd64-20H2.tar
+      sha256: 2c3d057f5167189ffadce984b15f9ec1d4f04c99918489cc2f6ce7676de06f0d
+    pause_windows_1809:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.7-windows-amd64
+      sha256: 7a604fa54cd5b63bb20e44d7a0dbcbe2d058172136cc023dca970ee121b09df1
+    pause_windows_1809_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/windows/amd64/pause-3.7-windows-amd64-1809.tar
+      sha256: 5813d6f6b27cc9824ace4abca1347e13c8112d9257b38e831280f5cb825c83e7
+    pause_windows_ltsc2022:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.7-windows-amd64-ltsc2022
+      sha256: 8bde1a7372dc884a04279a445988e5e3d9525a0f7add8675e11db61bfae17017
+    pause_windows_ltsc2022_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438662689854613310/image-builder/kubernetes/v1.24.9+vmware.1/bin/windows/amd64/pause-3.7-windows-amd64-ltsc2022.tar
+      sha256: 150af1188f5a8d946b3dcee189a2154bfb584db7ee1fba5c05761956f088dcc4
+  cachehash: 6463da5be8ff2abfb749b8411f8e36ab
+  publishhash: 794e91b8c810b6f6170374abf7309a94
+  configDependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.KUBE_BASE_IMAGE_REGISTRY: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.cgoEnabled: "0"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.debian_base_image: debian-base-amd64:bullseye-v1.2.0
+    gobuild.debian_iptable_image: debian-iptables-amd64:bullseye-v1.3.0
+    gobuild.golangVersion: 1.18.9
+    gobuild.kubeCrossImageRef: projects-stg.registry.vmware.com/tkg/kube-cross:v0.13.0_vmware.7
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: "3.7"
+    kubeadmAPIVersion: kubeadm.k8s.io/v1beta2
+- name: ami-gov-ubuntu-2004
+  version: v1.24.9+vmware.1-tkg.1-0499ebfc084c17e4bbd535f0f59500af
+  channel: "439722844214033838"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/4075
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-gov-ubuntu-2004/bom-ami-gov-ubuntu-2004-v1.24.9+vmware.1-tkg.1-0499ebfc084c17e4bbd535f0f59500af.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.24.9+vmware.1-tkg.1-0499ebfc084c17e4bbd535f0f59500af-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.24.9+vmware.1-tkg.1-0499ebfc084c17e4bbd535f0f59500af-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.24.9+vmware.1-tkg.1-0499ebfc084c17e4bbd535f0f59500af-provenance_result.txt
+  cachehash: 469ac1bb4a144730937a319a2350105c
+  publishhash: e7841779f567aa9f5436437911e09852
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+- name: capabilities-package
+  version: v0.28.0-dev-229-g3d0816ce-capabilities
+  channel: "437943315900437644"
+  url: https://buildweb.eng.vmware.com/ob/20925736/
+  artifactURL:
+    capabilities.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/capabilities:v0.28.0-dev-229-g3d0816ce_vmware.1
+      sha256: 9147f4456910b1ed3fd0c6501d04e1ef4fc10af20fbadbe70425e91eae95bdc3
+    packageCR:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20925736/publish/lin64/tanzu-framework-package-bundles/packages/capabilities.tanzu.vmware.com/0.28.0-dev-229-g3d0816ce+vmware.1.yml
+    packageMetadata:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20925736/publish/lin64/tanzu-framework-package-bundles/packages/capabilities.tanzu.vmware.com/metadata.yml
+  cachehash: 3537d88a34b9563b56a2794236011184
+  publishhash: fbaef798f2e7493a3b44d74adab66d72
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/capabilities/capabilities-controller-manager:v0.28.0-dev-229-g3d0816ce
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: capabilities
+    gobuild.upstream_image_0: capabilities-controller-manager:latest
+    gobuild.upstream_version: v0.28.0-dev-229-g3d0816ce
+- name: azurefile-csi-driver
+  version: v1.21.0+vmware.1
+  channel: "433520760561106424"
+  url: https://buildweb.eng.vmware.com/ob/20762232/
+  artifactURL:
+    azurefileCsiDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/azurefile-csi-driver:v1.21.0_vmware.1
+      sha256: 6f1bda15a235f585c0c66a14d8c6e6bc3ef1cdc6b343b9c2aa51b687cae5765e
+  cachehash: 374240d5bd8fbbcdcd5a90939f3b6599
+  publishhash: 13b5bbac41775ff2e2b75759ed9a4e9f
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v1.21.0+vmware.1
+- name: pinniped-post-deploy
+  version: v0.12.1+vmware.2-tkg.3
+  channel: "438834265325606007"
+  url: https://buildweb.eng.vmware.com/ob/20960512/
+  artifactURL:
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.12.1_vmware.2-tkg.3
+      sha256: 660f0f3122db8d4c976401d28d9918de793e457a6e42dcf511e2e88d12c34336
+  cachehash: d1aa19e69f9a4e5f6853a18b530c48a3
+  publishhash: 03c0cd95ce0420b17ca801b9936f9c62
+  configDependencies:
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v0.12.1+vmware.2-tkg.3
+- name: ako-operator-package
+  version: v1.7.0+vmware.2-tkg.1-ako-operator-zshippable
+  channel: "436962620197573101"
+  url: https://buildweb.eng.vmware.com/ob/20888960/
+  artifactURL:
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.7.0_vmware.2-tkg.1-zshippable
+      sha256: 62936b5825422179bcbeef98691c0534b1ec242c667ee444c2e334994090e0a0
+  cachehash: ac2897117ba60dd5a46bd493e1a227e3
+  publishhash: e53f922ccc96191938bdc7d730ac4f37
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/ako-operator:v1.7.0_vmware.2
+    gobuild.downstream_version: vmware.2-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: ako-operator
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/ako-operator:v1.7.0_vmware.1
+    gobuild.upstream_version: 1.7.0
+- name: csi_provisioner
+  version: v3.0.0+vmware.1
+  channel: "382797907729867291"
+  url: https://buildweb.eng.vmware.com/ob/18965994/
+  artifactURL:
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.0.0_vmware.1
+      sha256: d939d67d10967b0b1fc4db7784238d5de2efdee1129ef2087534cb653cc6ef69
+  cachehash: 55a560dfd692bed503d2f761619f7244
+  publishhash: 4764f174cbd6be97bb004d2ae1648bd0
+- name: oci-ubuntu-2004
+  version: v1.24.9+vmware.1-tkg.1-e9f37e623324002b45d599a08016002a
+  channel: "439722844214033838"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-oci/259
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/oci-ubuntu-2004/bom-oci-ubuntu-2004-v1.24.9+vmware.1-tkg.1-e9f37e623324002b45d599a08016002a.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/oci-ubuntu-2004/oci-ubuntu-2004-v1.24.9+vmware.1-tkg.1-e9f37e623324002b45d599a08016002a-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/oci-ubuntu-2004/oci-ubuntu-2004-v1.24.9+vmware.1-tkg.1-e9f37e623324002b45d599a08016002a-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/oci-ubuntu-2004/oci-ubuntu-2004-v1.24.9+vmware.1-tkg.1-e9f37e623324002b45d599a08016002a-provenance_result.txt
+  cachehash: c99efcbdf1c5530ec2fc62d25bcda480
+  publishhash: abdef85371f48fba325beb69488b4ddd
+  configDependencies:
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+    jenkins.OCI_BUILD_TYPE: dev
+- name: csi_livenessprobe
+  version: v2.6.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104028/
+  artifactURL:
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.6.0_vmware.1
+      sha256: 1406cbf5b055812a57db3637d36a19fd8faba9ede3df76d1e296efd4401aa67f
+  cachehash: b6b84df6cdf561265ee667c7cb039c5a
+  publishhash: ad32cfc6d337dff0830e3e570262636b
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.16.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: azurefile-csi-driver-package
+  version: v1.21.0+vmware.1-tkg.1-azurefile-csi
+  channel: "433520760561106424"
+  url: https://buildweb.eng.vmware.com/ob/20762327/
+  artifactURL:
+    azurefile-csi-driver.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/azurefile-csi-driver:v1.21.0_vmware.1-tkg.1
+      sha256: 2697164f4364893b15e4ce51ec9fe90d7f57d6e1c3b4a525e835aca5f2a39b63
+  cachehash: ac51021477915cca24fa6b2b26009c00
+  publishhash: c6af2000be85132b970b86e719505e2b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.5.0_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/cluster-api/azurefile-csi-driver:v1.21.0_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.7.0_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.5.1_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.2.0_vmware.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.5.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: azurefile-csi-driver
+    gobuild.package_type: core
+    gobuild.upstream_image_0: mcr.microsoft.com/oss/kubernetes-csi/csi-attacher:v3.5.0
+    gobuild.upstream_image_1: mcr.microsoft.com/oss/kubernetes-csi/azurefile-csi:v1.21.0
+    gobuild.upstream_image_2: mcr.microsoft.com/oss/kubernetes-csi/livenessprobe:v2.7.0
+    gobuild.upstream_image_3: mcr.microsoft.com/oss/kubernetes-csi/csi-node-driver-registrar:v2.5.1
+    gobuild.upstream_image_4: mcr.microsoft.com/oss/kubernetes-csi/csi-provisioner:v3.2.0
+    gobuild.upstream_image_5: mcr.microsoft.com/oss/kubernetes-csi/csi-resizer:v1.5.0
+    gobuild.upstream_version: 1.21.0
+- name: external-snapshotter
+  version: v6.0.1+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104024/
+  artifactURL:
+    csiSnapshotControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/snapshot-controller:v6.0.1_vmware.1
+      sha256: 7ed1cceea70b9cf6d5f8c2b58fb86468f0b4fc317d20b0ce538b3a913a4a7d5d
+    csiSnapshotterImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-snapshotter:v6.0.1_vmware.1
+      sha256: 7fc5f7c116a533ccaab542ae4c767352a9ba1ae5c68c7c6a8ec57c1ed11d81e5
+  cachehash: c1a145d436ed0c3027d94f5e6ed539fd
+  publishhash: 00361ad47807c86f670f9bd4a9fcd742
+  configDependencies:
+    gobuild.golangVersion: 1.17.3
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: tanzu-framework-addons
+  version: v0.28.0-dev-281-g6af7984e
+  channel: "441590860010791597"
+  url: https://buildweb.eng.vmware.com/ob/21058413/
+  artifactURL:
+    tanzuAddonsManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v0.28.0-dev-281-g6af7984e
+      sha256: 922c0ae5b2e68fba7ea2855b4d08c8e32199f407745bb467880077fce0af8d04
+  cachehash: c7cbb90b10bef19e66509cf1d16dd469
+  publishhash: cacc70afdf61b7373cc5994aaad6abec
+  configDependencies:
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.golangVersion: "1.18"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v0.28.0-dev-281-g6af7984e
+    gobuild.tkgBuildContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    upstreamPullRequestID: "4213"
+- name: ova-ubuntu-2004
+  version: v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93
+  channel: "441782703516321233"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/3520
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441782703516321233/component/ova-ubuntu-2004/bom-ova-ubuntu-2004-v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441782703516321233/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441782703516321233/component/ova-ubuntu-2004/ubuntu-2004-kube-v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441782703516321233/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441782703516321233/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93-provenance_result.txt
+  cachehash: 740641559165b4332840f676f4d5e74a
+  publishhash: 1ce4bc7d04e877591fab044845226b85
+  configDependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+    jenkins.TARGET: ubuntu-2004-efi
+- name: tanzu-capabilities-controller
+  version: v0.28.0-dev-229-g3d0816ce
+  channel: "437943315900437644"
+  url: https://buildweb.eng.vmware.com/ob/20925617/
+  artifactURL:
+    capabilitiesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/capabilities/capabilities-controller-manager:v0.28.0-dev-229-g3d0816ce
+      sha256: 2bb21f7a45360be631adf7db0b093538ad090c55b7e1ae35410854b4ce22b461
+  cachehash: abcf9fb26327fc9e10575906bf992f28
+  publishhash: bd42def4bcbbe20fc7f7cc7960f7a5f2
+  configDependencies:
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.golangVersion: "1.18"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.releaseVersion: v0.28.0-dev-229-g3d0816ce
+    upstreamPullRequestID: "4103"
+- name: kubernetes-csi_external-resizer
+  version: v1.4.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104202/
+  artifactURL:
+    csiExternalResizer:
+      url: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.4.0_vmware.1
+      sha256: 10187e8c1bdcc1158c98b33d455a95fcac768bd03424bd43b754940433f1c6d2
+  cachehash: c7d0f01564316b3c670795f046dfc566
+  publishhash: 3556c1335bba2f78f1541fc58f73089b
+  configDependencies:
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: vsphere_csi_driver
+  version: v2.6.2+vmware.2
+  channel: "435646911693719434"
+  url: https://buildweb.eng.vmware.com/ob/20838259/
+  artifactURL:
+    csiControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.6.2_vmware.2
+      sha256: 270a094a9e96d6355fb938c19efcde81af9a7d6b98a5eedb5954785be05fd966
+    csiMetaDataSyncerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/volume-metadata-syncer:v2.6.2_vmware.2
+      sha256: 59bb8263a66c3719438a184f275165919223f6987b7e5963bdcb019681312ba5
+  cachehash: b20e473994e226877caffb9df2c3e38b
+  publishhash: 23c68b22765f008ca6153903e6fb5ae5
+  configDependencies:
+    gobuild.containerBaseImage: photon:4.0
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: tkg-core-packages
+  version: v1.24.9+vmware.1-tkg.1-zshippable
+  channel: "441782703516321233"
+  url: https://buildweb.eng.vmware.com/ob/21065858/
+  artifactURL:
+    tanzuCorePackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/repo:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 5d26c1a6e0fceb5432eb04cd9dba6b55695f358d51c212b04b696c8641ff18e2
+  cachehash: b5f92b8da434c66b53dd6d5735602524
+  publishhash: fe373ff9829dc46466478c1f608d43d6
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_type: core
+    gobuild.releaseVersion: v1.24.9+vmware.1-tkg.1-zshippable
+- name: kubernetes-sigs_kind
+  version: v1.24.9+vmware.1-tkg.1_v0.17.0
+  channel: "439722844214033838"
+  url: https://buildweb.eng.vmware.com/ob/20994669/
+  artifactURL:
+    kindNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/kind/node:v1.24.9_vmware.1-tkg.1_v0.17.0
+      sha256: d78eee3fdb3cd7114686fa9b93a79f29f35e07a15896e0cd777daf432d735e9b
+  cachehash: 306054bbb7c07bf6ea3e14d3663f923a
+  publishhash: 8126cfbf770fa66f98329c62fa637a37
+  configDependencies:
+    gobuild.buildChannel: "438662689854613310"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.coreDNSVersion: <no value>
+    gobuild.debianBaseRepo: us.gcr.io/k8s-artifacts-prod/build-image/debian-base
+    gobuild.debianBaseVersion: v2.1.0
+    gobuild.defaultBuildBase: kindest/base:v20221025-014d1502
+    gobuild.etcdVersion: v3.5.6+vmware.3
+    gobuild.golangVersion: 1.19.1
+    gobuild.harborBase: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.harborGolangBase: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang
+    gobuild.k8sVersion: v1.24.9+vmware.1
+    gobuild.kindCNIRepo: kindest/kindnetd
+    gobuild.kindCNIVersion: v20221004-44d545d1
+    gobuild.kindVersion: 0.17.0
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: pause
+    gobuild.pauseVersion: "3.7"
+    gobuild.rancherRepo: rancher/local-path-provisioner
+    gobuild.rancherVersion: v0.0.14
+    kindKubeadmAPIVersion: kind.x-k8s.io/v1alpha4
+- name: byoh-k8s-ubuntu-2004
+  version: v1.24.9+vmware.1-tkg.1-zshippable
+  channel: "439722844214033838"
+  url: https://buildweb.eng.vmware.com/ob/20994853/
+  artifactURL:
+    byohImgpkgBundle:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/byoh-bundle-ubuntu_20.04.1_x86-64_k8s:v1.24.9_vmware.1-tkg.1-zshippable
+      sha256: 93f506f4f0a303f92b8cc1b491b8ca6566b1257929d20d85406b5b9a0b7ee3bb
+  cachehash: 948cf897bec64eacbe148295229eb3eb
+  publishhash: a7d907cfe01e30e2402fc31a9b8e10f0
+  configDependencies:
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.16.0
+    gobuild.linux_hosttype: linux-centos8
+- name: kubernetes-csi_external-resizer
+  version: v1.5.0+vmware.1
+  channel: "433520760561106424"
+  url: https://buildweb.eng.vmware.com/ob/20551018
+  artifactURL:
+    csiExternalResizer:
+      url: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.5.0_vmware.1
+      sha256: cdd9b6eb43523231dd3266531013c0bdeb68a14cbcb245aab3a6c0e65bd3815a
+  cachehash: 36180ddd7ea61f8adcd93f29a18a4499
+  publishhash: 3556c1335bba2f78f1541fc58f73089b
+  configDependencies:
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: kapp-controller-package
+  version: v0.41.2+vmware.2-tkg.1-kapp-controller-zshippable
+  channel: "431624133084746870"
+  url: https://buildweb.eng.vmware.com/ob/20693055/
+  artifactURL:
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.41.2_vmware.2-tkg.1-zshippable
+      sha256: 7586bac6f0299b384172055ebe1985603ba6bdcb0705dc8aa1176e6adebd7dbe
+  cachehash: 8eab2dd0ffdf138bd876a3c9123b8d3e
+  publishhash: 386598a473d4ed792227a88e5777e074
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.41.2_vmware.2
+    gobuild.downstream_version: vmware.2-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: kapp-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:320415138e1c7deec1e523c0a30901e54c3475736f82fb9985b76989e284fd79
+    gobuild.upstream_version: 0.41.2
+- name: dex
+  version: v2.35.3+vmware.2
+  channel: "439924931535333334"
+  url: https://buildweb.eng.vmware.com/ob/21002432/
+  artifactURL:
+    dexImage:
+      url: projects-stg.registry.vmware.com/tkg/dex:v2.35.3_vmware.2
+      sha256: bb00416c14d8185da2f7d421eec3233a1fe3db94ec246cf6f4001ba739557f41
+  cachehash: 4b9c3411ff449b724f64c7defdca68f4
+  publishhash: e1ed18c7449d986cb50d6de0148eea24
+  configDependencies:
+    gobuild.golangVersion: 1.19.4
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_attacher
+  version: v3.4.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104096/
+  artifactURL:
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.4.0_vmware.1
+      sha256: 4d4f9ad080dda5b52e9999e6ddb3b60bb889310a9429750d2fae89c1f0cce824
+  cachehash: ef456f52a46daad3ad83881e6ad70178
+  publishhash: 2dfd5c66ba8f77f19d418d2a5058472d
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: cri_tools
+  version: v1.23.0+vmware.7
+  channel: "438662689854613310"
+  url: https://buildweb.eng.vmware.com/ob/20953029/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953029/publish/lin64/cri_tools/executables/crictl-v1.23.0+vmware.7.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953029/publish/lin64/cri_tools/debs/cri-tools_1.23.0+vmware.7-1_amd64.deb
+    cri_tools-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953029/publish/lin64/cri_tools/rpms/rpms/cri-tools-1.23.0-1.el7.vmware.7.x86_64.rpm
+    cri_tools-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20953029/publish/lin64/cri_tools/rpms/srpms/cri-tools-1.23.0-1.el7.vmware.7.src.rpm
+  cachehash: c655e5d6df40f87dc2d7933c03eb8797
+  publishhash: 19dda37dbdb589ac6c1c2652c431f21f
+  configDependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "0"
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.18.9
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8
+- name: ami-general-ubuntu-2004
+  version: v1.24.9+vmware.1-tkg.1-1cd158703fa2b6d295eb236745c3d81f
+  channel: "439722844214033838"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/4069
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-general-ubuntu-2004/bom-ami-general-ubuntu-2004-v1.24.9+vmware.1-tkg.1-1cd158703fa2b6d295eb236745c3d81f.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.24.9+vmware.1-tkg.1-1cd158703fa2b6d295eb236745c3d81f-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.24.9+vmware.1-tkg.1-1cd158703fa2b6d295eb236745c3d81f-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.24.9+vmware.1-tkg.1-1cd158703fa2b6d295eb236745c3d81f-provenance_result.txt
+  cachehash: 4e068e052eda4b1903a8bb553e6016bd
+  publishhash: 092a65b77877c5271a03bf1949be8177
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+- name: csi_provisioner
+  version: v3.2.1+vmware.1
+  channel: "434514545780721481"
+  url: https://buildweb.eng.vmware.com/ob/20609583
+  artifactURL:
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.2.1_vmware.1
+      sha256: 94958da13254105cd0c1ed8664987caec449a9f0a4be1ac92b12e635cb8c3551
+  cachehash: f4ef555bb7a8445186a9f84dc9796c10
+  publishhash: 4764f174cbd6be97bb004d2ae1648bd0
+  configDependencies:
+    gobuild.golangVersion: 1.19.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: secretgen-controller-package
+  version: v0.11.2+vmware.1-tkg.1-secgen-ctl-zshippable
+  channel: "437735178396243738"
+  url: https://buildweb.eng.vmware.com/ob/20917460/
+  artifactURL:
+    secretgen-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/secretgen-controller:v0.11.2_vmware.1-tkg.1-zshippable
+      sha256: b69166603e4ae4cb82897dd66cb72939019edbaa1772694a29af2dc8d7d7ae16
+  cachehash: 02cb7a8f92694eaeca033d52e4344fbc
+  publishhash: 5e2cf1e775d67dbdb526c3013035dd63
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/secretgen-controller:v0.11.2_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: secretgen-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: secretgen-controller
+    gobuild.upstream_version: 0.11.2
+- name: azuredisk-csi-driver
+  version: v1.19.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104216/
+  artifactURL:
+    azurediskCsiDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/azuredisk-csi-driver:v1.19.0_vmware.1
+      sha256: 38a55cc68d9b23ecc983618f16585b5854078480990f5d3a53e8b80606436102
+  cachehash: 81f4d50c15dd3ee8c25b09cd66fbd328
+  publishhash: 5b432470d176d7bb60aab5148d3f165f
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v1.19.0+vmware.1
+- name: vsphere-pv-csi-package
+  version: v2.6.1+vmware.1-tkg.1-vsphere-pv-csi-zshippable
+  channel: "439570817840357907"
+  url: https://buildweb.eng.vmware.com/ob/20988630/
+  artifactURL:
+    vsphere-pv-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-pv-csi:v2.6.1_vmware.1-tkg.1-zshippable
+      sha256: 474ab8e3046e0431b5e33cc7d8d080bdbb8fa9ca8a0189563e50f466ceb4adaf
+  cachehash: f640e401139f3cfa19e8b629021d0f60
+  publishhash: 9af16c8502adddc3fba97ed4d1783479
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/pvcsi/vsphere-block-csi-driver:v2.6.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/pvcsi/volume-metadata-syncer:v2.6.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/pvcsi/csi-attacher:v2.6.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/pvcsi/csi-node-driver-registrar:v2.6.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/pvcsi/csi-provisioner:v2.6.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/pvcsi/kubernetes-csi_external-resizer:v2.6.1
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/pvcsi/csi-livenessprobe:v2.6.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: vsphere-pv-csi
+    gobuild.package_type: core
+    gobuild.upstream_image_0: gcr.io/cloud-provider-vsphere/csi/release/driver:v2.6.1
+    gobuild.upstream_image_1: gcr.io/cloud-provider-vsphere/csi/release/syncer:v2.6.1
+    gobuild.upstream_image_2: k8s.gcr.io/sig-storage/csi-attacher:v3.4.0
+    gobuild.upstream_image_3: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.1
+    gobuild.upstream_image_4: k8s.gcr.io/sig-storage/csi-provisioner:v3.2.1
+    gobuild.upstream_image_5: k8s.gcr.io/sig-storage/csi-resizer:v1.4.0
+    gobuild.upstream_image_6: k8s.gcr.io/sig-storage/livenessprobe:v2.7.0
+    gobuild.upstream_version: 2.6.1
+- name: tkg-storageclass-package
+  version: v0.28.0-dev-229-g3d0816ce-tkg-storageclass
+  channel: "437943315900437644"
+  url: https://buildweb.eng.vmware.com/ob/20925632/
+  artifactURL:
+    packageCR:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20925632/publish/lin64/tanzu-framework-package-bundles/packages/tkg-storageclass.tanzu.vmware.com/0.28.0-dev-229-g3d0816ce+vmware.1.yml
+    packageMetadata:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20925632/publish/lin64/tanzu-framework-package-bundles/packages/tkg-storageclass.tanzu.vmware.com/metadata.yml
+    tkg-storageclass.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkg-storageclass:v0.28.0-dev-229-g3d0816ce_vmware.1
+      sha256: d9444cb48c51f4eff60a7fdbe14731cbe96b094c05358d41b4f234d4db0992a4
+  cachehash: a0c62a1bb073cbf69590af4c55ddc482
+  publishhash: cee294f77f50b20308fd8dc053b9a24b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-storageclass
+    gobuild.upstream_image_0: tkg-storageclass:latest
+    gobuild.upstream_version: v0.28.0-dev-229-g3d0816ce
+- name: antrea
+  version: v1.7.1+vmware.1-advanced
+  channel: "434909322112174515"
+  url: https://buildweb.eng.vmware.com/ob/20129359
+  artifactURL:
+    antctl:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20129359/publish/lin64/antrea/executables/antctl-v1.7.1+vmware.1.gz
+    antrea-debian-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434909322112174515/image-builder/antrea/v1.7.1+vmware.1/publish/lin64/antrea/images/antrea-advanced-debian-v1.7.1_vmware.1.tar
+      sha256: abd44659b9e1e1a90f5db2dcd731ca1de4b33a17cb445e122c4134e8a5fba9f5
+    antrea-windows:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434909322112174515/image-builder/antrea/v1.7.1+vmware.1/publish/antrea-windows-advanced.zip
+      sha256: e5550306a348a3aaa04f8fc782fc39808b5745950cc12d31240f4bd9df45136e
+    antreaImage:
+      url: projects-stg.registry.vmware.com/tkg/antrea-advanced-debian:v1.7.1_vmware.1
+      sha256: 92ddbbcee98262df492878f90a9db68f1a6778513bd53ea2f4579cdb6415134b
+    manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20129359/publish/lin64/antrea/manifests/antrea-v1.7.1+vmware.1.yml
+  cachehash: 422e8968df0213607e2f19c4154519bd
+  publishhash: 04359fed8f13ec99d73fb9026fe4a97e
+  configDependencies:
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32
+    packageType: advanced
+    packageVersion: v1.7.1+vmware.1
+- name: calico_all
+  version: v3.24.1+vmware.1
+  channel: "430850645545715731"
+  url: https://buildweb.eng.vmware.com/ob/20665418/
+  artifactURL:
+    calicoCniImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/cni:v3.24.1_vmware.1
+      sha256: e6c640db30d15c86963fafeac07c8a307b7cb0e557d2648742518967e3508080
+    calicoKubecontrollerImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/kube-controllers:v3.24.1_vmware.1
+      sha256: 52228cc79b4b54043fd2c60773b73728ee0846105fd5fe34b8f178c96f3f00be
+    calicoNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/node:v3.24.1_vmware.1
+      sha256: b653419251a4b9fd0e41d8e1a16a46d91100520768cefdb7b4a5df6e72f615ea
+  cachehash: 07cb88e3bd3bf06f9a7f6b887f3afbdf
+  publishhash: 3eb57915dd19a9eedb45c8c288593749
+  configDependencies:
+    gobuild.golangVersion: "1.18"
+    gobuild.linux_hosttype: linux-centos8
+- name: metrics-server-package
+  version: v0.6.2+vmware.1-tkg.1-metrics-server-zshippable
+  channel: "437695119085277011"
+  url: https://buildweb.eng.vmware.com/ob/20916046/
+  artifactURL:
+    metrics-server.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/metrics-server:v0.6.2_vmware.1-tkg.1-zshippable
+      sha256: 1e4062df1fc7b0792a38692a9b6fb96ae7fde39e648f1b7d363a11fd0f234ebe
+  cachehash: a8b55ef0c9f20aaff38f0fd168fdd8e5
+  publishhash: a857a5d53464d803d2e0261e21c846ae
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/metrics-server:v0.6.2_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: metrics-server
+    gobuild.package_type: core
+    gobuild.upstream_image_0: k8s.gcr.io/metrics-server/metrics-server:v0.6.2
+    gobuild.upstream_version: 0.6.2
+- name: pinniped-package
+  version: v0.12.1+vmware.2-tkg.3-pinniped-zshippable
+  channel: "439924931535333334"
+  url: https://buildweb.eng.vmware.com/ob/21002489/
+  artifactURL:
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.12.1_vmware.2-tkg.3-zshippable
+      sha256: d6342999b05f6c6ed044a99a4b1274eca2c3fbd0e827a8761725c45f878cf8cb
+  cachehash: 99450885ed1a3060870d4ce2a27e23ef
+  publishhash: deeac3b3022bf44de880663cd7ec52c5
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.12.1_vmware.2-tkg.3
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/pinniped:v0.12.1_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/dex:v2.35.3_vmware.2
+    gobuild.downstream_version: vmware.2-tkg.3-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: pinniped
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects.registry.vmware.com/tce/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.1
+    gobuild.upstream_image_1: docker.io/getpinniped/pinniped-server:v0.12.1
+    gobuild.upstream_image_2: projects.registry.vmware.com/tce/dex:v2.35.3_vmware.2
+    gobuild.upstream_version: 0.12.1
+- name: ami-general-amazon-2
+  version: v1.24.9+vmware.1-tkg.1-1ada0bf94945470d2cb4afecfef761e6
+  channel: "439722844214033838"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/4072
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-general-amazon-2/bom-ami-general-amazon-2-v1.24.9+vmware.1-tkg.1-1ada0bf94945470d2cb4afecfef761e6.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-general-amazon-2/ami-general-amazon-2-v1.24.9+vmware.1-tkg.1-1ada0bf94945470d2cb4afecfef761e6-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-general-amazon-2/ami-general-amazon-2-v1.24.9+vmware.1-tkg.1-1ada0bf94945470d2cb4afecfef761e6-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-general-amazon-2/ami-general-amazon-2-v1.24.9+vmware.1-tkg.1-1ada0bf94945470d2cb4afecfef761e6-provenance_result.txt
+  cachehash: 760e0e5653658afcd9ed3211fc512227
+  publishhash: 8227d798a382ad7cb47469eea8760b89
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+- name: cloud_provider_vsphere
+  version: v1.24.3+vmware.1
+  channel: "438471687944538039"
+  url: https://buildweb.eng.vmware.com/ob/20944837/
+  artifactURL:
+    ccmControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.24.3_vmware.1
+      sha256: e761d71f2aca74886e993bef84f4e5aa5fddc4ce684c9b342f560be044628583
+  cachehash: 5e9b6da0282f81357f06df2326319f51
+  publishhash: 6c50cc278c08feacb44817ac7309d90c
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_provisioner
+  version: v3.2.0+vmware.1
+  channel: "433520760561106424"
+  url: https://buildweb.eng.vmware.com/ob/20762231/
+  artifactURL:
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.2.0_vmware.1
+      sha256: cce2d6839135ffd80c82c72c861af5344921ef479bab1de4906421a9e4fe2ffe
+  cachehash: e4222570e56cd71bf73da8fa4ff9f79e
+  publishhash: 4764f174cbd6be97bb004d2ae1648bd0
+  configDependencies:
+    gobuild.golangVersion: 1.18.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_node_driver_registrar
+  version: v2.5.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104072/
+  artifactURL:
+    csiNodeDriverRegistrarImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.5.0_vmware.1
+      sha256: 58e7dac21970ff0286d3373b6e966de91da1e81917bba2b692d9514ad54db1ee
+  cachehash: 629c90207b1d39a7939c9df05951b0af
+  publishhash: e9183afffd250117d9eea541bba6836f
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_livenessprobe
+  version: v2.5.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104027/
+  artifactURL:
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.5.0_vmware.1
+      sha256: 040836dd6d763e640d607a16d6ea54b7c1880e1eb78043d8dad2608f2b563f88
+  cachehash: 8c9429b3cae07c483139c3ba3c966059
+  publishhash: ad32cfc6d337dff0830e3e570262636b
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.16.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: aws-ebs-csi-driver
+  version: v1.8.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104029/
+  artifactURL:
+    awsEbsCsiDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/aws-ebs-csi-driver:v1.8.0_vmware.1
+      sha256: b9bc79842afb7492896a486c65bb52882e8de4668908f02cae873b6a4afa2ffa
+  cachehash: 6cf19b125898b3e6bef5dd74f858c71f
+  publishhash: d7c19f9177742a4878431bc2a5ade0e3
+  configDependencies:
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos8
+- name: guest-cluster-auth-service
+  version: v1.1.0
+  channel: "434835956839753279"
+  url: https://buildweb.eng.vmware.com/ob/20770175
+  artifactURL:
+    generate-key-and-csr-sh:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434835956839753279/image-builder/guest-cluster-auth-service/v1.1.0/publish/artifacts/generate_key_and_csr.sh
+      sha256: 2b73ad66ce8130fc497286570ab8a1f3128cf2cbb6adcff87dd3cac46b45405a
+    guest-cluster-auth-service-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434835956839753279/image-builder/guest-cluster-auth-service/v1.1.0/publish/artifacts/guest-cluster-auth-svc.yaml
+      sha256: feef2851b197e1ebb39b9aaf29ae3253c7d72f0b288bc901e6bd28bff572b496
+    guest-cluster-auth-service-image-binary:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434835956839753279/image-builder/guest-cluster-auth-service/v1.1.0/bin/guest-cluster-auth-service
+      sha256: a55af61f1d621376d0c82148abce96a7035cc04eb9835f548b0857e5ec94d3fd
+    guest-cluster-auth-service-keys-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434835956839753279/image-builder/guest-cluster-auth-service/v1.1.0/publish/artifacts/guest-cluster-auth-svc-keys.yaml
+      sha256: c2897f878b614fdff162efe5c0841a967f8d4455b915b35b060e3dc94b0aa46a
+    guest-cluster-auth-service-webhook-config-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434835956839753279/image-builder/guest-cluster-auth-service/v1.1.0/publish/artifacts/webhook-config.yaml
+      sha256: c615e3e003c7ac20c72205f6ff712451d8105f701bc1fe3200629a546fedce38
+    guestClusterAuthServiceImage:
+      url: projects-stg.registry.vmware.com/tkg/guest-cluster-auth-service/guest-cluster-auth-service:v1.1.0
+      sha256: 063ce1b64fa830c2a8d5781e79bec5e52dfdc1803fc8eb82c62247cf595b7431
+    osstp-golang-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434835956839753279/image-builder/guest-cluster-auth-service/v1.1.0/publish/osstp_golang.yml
+      sha256: 495d7be19b1566fb6c7f6e014fa8f660558658bb1690fdf2a3d3b30271bbc8f6
+  cachehash: f05004c441207271f003d77f6f0ec3b8
+  publishhash: 25e8bd6b2f1acb8ec72adf7b6254255e
+  configDependencies:
+    gobuild.golangVersion: 1.18.6
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: carvel-secretgen-controller
+  version: v0.11.2+vmware.1
+  channel: "436764168146690505"
+  url: https://buildweb.eng.vmware.com/ob/20878289
+  artifactURL:
+    secretgen-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20878289/publish/lin64/carvel-secretgen-controller/executables/secretgen-controller-linux-amd64-v0.11.2+vmware.1.gz
+    secretgenControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/secretgen-controller:v0.11.2_vmware.1
+      sha256: b373d19a7c417193effcb31713ab7ec748b4bd79f82603b894db84ab11600935
+  cachehash: 5382be72f11f29f5c511d07a298960ba
+  publishhash: d6523f4f29b20adf04999b1b7dfb9e53
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: csi_livenessprobe
+  version: v2.7.0+vmware.1
+  channel: "433520760561106424"
+  url: https://buildweb.eng.vmware.com/ob/20762230/
+  artifactURL:
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.7.0_vmware.1
+      sha256: 5e9450315c61552d730404e6094870a4146d256cc8455e90afac07018b2a5c8a
+  cachehash: 574a6a768b8f43bb4774286cd9d68739
+  publishhash: ad32cfc6d337dff0830e3e570262636b
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_attacher
+  version: v3.3.0+vmware.1
+  channel: "382797907729867291"
+  url: https://buildweb.eng.vmware.com/ob/18965995/
+  artifactURL:
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.3.0_vmware.1
+      sha256: a388619e471677fae9120e5169572f9b6f1532cb5cc608ab447fe3e2b43e628f
+  cachehash: a65bd38f271f364be95d5d301903f16f
+  publishhash: 2dfd5c66ba8f77f19d418d2a5058472d
+- name: ami-gov-amazon-2
+  version: v1.24.9+vmware.1-tkg.1-0e7dc101c0709e7ed4a2b0a7998daf21
+  channel: "439722844214033838"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/4074
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-gov-amazon-2/bom-ami-gov-amazon-2-v1.24.9+vmware.1-tkg.1-0e7dc101c0709e7ed4a2b0a7998daf21.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-gov-amazon-2/ami-gov-amazon-2-v1.24.9+vmware.1-tkg.1-0e7dc101c0709e7ed4a2b0a7998daf21-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-gov-amazon-2/ami-gov-amazon-2-v1.24.9+vmware.1-tkg.1-0e7dc101c0709e7ed4a2b0a7998daf21-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ami-gov-amazon-2/ami-gov-amazon-2-v1.24.9+vmware.1-tkg.1-0e7dc101c0709e7ed4a2b0a7998daf21-provenance_result.txt
+  cachehash: ab81470b68475bd9eef536999dfcceea
+  publishhash: 8779ed73a12f49990aad575a8ab0edcb
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+- name: ova-photon-3
+  version: v1.24.9+vmware.1-tkg.1-f5e94dab9dfbb9988aeb94f1ffdc6e5e
+  channel: "439722844214033838"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/3458
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ova-photon-3/bom-ova-photon-3-v1.24.9+vmware.1-tkg.1-f5e94dab9dfbb9988aeb94f1ffdc6e5e.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ova-photon-3/ova-photon-3-v1.24.9+vmware.1-tkg.1-f5e94dab9dfbb9988aeb94f1ffdc6e5e-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ova-photon-3/photon-3-kube-v1.24.9+vmware.1-tkg.1-f5e94dab9dfbb9988aeb94f1ffdc6e5e.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ova-photon-3/ova-photon-3-v1.24.9+vmware.1-tkg.1-f5e94dab9dfbb9988aeb94f1ffdc6e5e-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439722844214033838/component/ova-photon-3/ova-photon-3-v1.24.9+vmware.1-tkg.1-f5e94dab9dfbb9988aeb94f1ffdc6e5e-provenance_result.txt
+  cachehash: 6dbb7a475c3b5538f6b34a65a7bf74e2
+  publishhash: 1cde3d45090161d72cf9f20df80f4d60
+  configDependencies:
+    base_iso_sha: 76fbe13df3f7340c94cf5706a0ec33ffc377c47e
+    base_iso_url: http://10.163.0.228/kscom-generic-local/isos/photon-minimal-3.0-rev3-u1.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+- name: azuredisk-csi-driver-package
+  version: v1.19.0+vmware.1-tkg.2-azuredisk-csi-zshippable
+  channel: "419174769334689110"
+  url: https://buildweb.eng.vmware.com/ob/20215468/
+  artifactURL:
+    azuredisk-csi-driver.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/azuredisk-csi-driver:v1.19.0_vmware.1-tkg.2-zshippable
+      sha256: 4853f35d503e365ce317f6c1543ec11cbb63a5557f3448f69fadd09b039783d6
+  cachehash: 639d3413a63d796522ea20aacf0f512b
+  publishhash: bc8ad479cc0aa1d3efb50134f6092bf8
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.4.0_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/cluster-api/azuredisk-csi-driver:v1.19.0_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.6.0_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.5.0_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.1.0_vmware.2
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.4.0_vmware.1
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/csi/csi-snapshotter:v5.0.1_vmware.1
+    gobuild.downstream_image_7: projects-stg.registry.vmware.com/tkg/csi/snapshot-controller:v5.0.1_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.2-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: azuredisk-csi-driver
+    gobuild.package_type: core
+    gobuild.upstream_image_0: mcr.microsoft.com/oss/kubernetes-csi/csi-attacher:v3.4.0
+    gobuild.upstream_image_1: mcr.microsoft.com/k8s/csi/azuredisk-csi:v1.19.0
+    gobuild.upstream_image_2: mcr.microsoft.com/oss/kubernetes-csi/livenessprobe:v2.6.0
+    gobuild.upstream_image_3: mcr.microsoft.com/oss/kubernetes-csi/csi-node-driver-registrar:v2.5.0
+    gobuild.upstream_image_4: mcr.microsoft.com/oss/kubernetes-csi/csi-provisioner:v3.1.0
+    gobuild.upstream_image_5: mcr.microsoft.com/oss/kubernetes-csi/csi-resizer:v1.4.0
+    gobuild.upstream_image_6: mcr.microsoft.com/oss/kubernetes-csi/csi-snapshotter:v5.0.1
+    gobuild.upstream_image_7: mcr.microsoft.com/oss/kubernetes-csi/snapshot-controller:v5.0.1
+    gobuild.upstream_version: 1.19.0
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 21845494c604ece1895cb7e4c7b04871d3e0cf16
+testInfraVersion: 21c89ea8a5feadb8ac0e13a0a473b208a5ccca52

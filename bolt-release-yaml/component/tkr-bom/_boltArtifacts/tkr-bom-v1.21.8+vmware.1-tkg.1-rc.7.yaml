@@ -1,0 +1,506 @@
+apiVersion: run.tanzu.vmware.com/v1alpha2
+release:
+  version: v1.21.8+vmware.1-tkg.1-rc.7
+components:
+  ako-operator:
+  - version: v1.5.0+vmware.3
+    images:
+      akoOperatorImage:
+        imagePath: ako-operator
+        tag: v1.5.0_vmware.3
+  antrea:
+  - version: v0.13.3+vmware.1
+    images:
+      antreaImage:
+        imagePath: antrea/antrea-debian
+        tag: v0.13.3_vmware.1
+  calico_all:
+  - version: v3.19.1+vmware.1
+    images:
+      calicoCniImage:
+        imagePath: calico-all/cni-plugin
+        tag: v3.19.1_vmware.1
+      calicoKubecontrollerImage:
+        imagePath: calico-all/kube-controllers
+        tag: v3.19.1_vmware.1
+      calicoNodeImage:
+        imagePath: calico-all/node
+        tag: v3.19.1_vmware.1
+      calicoPodDaemonImage:
+        imagePath: calico-all/pod2daemon
+        tag: v3.19.1_vmware.1
+  carvel-secretgen-controller:
+  - version: v0.7.1+vmware.1
+    images:
+      secretgenControllerImage:
+        imagePath: secretgen-controller
+        tag: v0.7.1_vmware.1
+  cloud_provider_vsphere:
+  - version: v1.21.0+vmware.1
+    images:
+      ccmControllerImage:
+        imagePath: ccm/manager
+        tag: v1.21.0_vmware.1
+  cni_plugins:
+  - version: v0.8.7+vmware.23
+  containerd:
+  - version: v1.5.9+vmware.1
+  coredns:
+  - version: v1.8.0+vmware.11
+    images:
+      coredns:
+        imagePath: coredns
+        tag: v1.8.0_vmware.11
+  cri_tools:
+  - version: v1.20.0+vmware.9
+  csi_attacher:
+  - version: v3.2.0+vmware.1
+    images:
+      csiAttacherImage:
+        imagePath: csi/csi-attacher
+        tag: v3.2.0_vmware.1
+  csi_livenessprobe:
+  - version: v2.2.0+vmware.1
+    images:
+      csiLivenessProbeImage:
+        imagePath: csi/csi-livenessprobe
+        tag: v2.2.0_vmware.1
+  csi_node_driver_registrar:
+  - version: v2.1.0+vmware.1
+    images:
+      csiNodeDriverRegistrarImage:
+        imagePath: csi/csi-node-driver-registrar
+        tag: v2.1.0_vmware.1
+  csi_provisioner:
+  - version: v2.2.0+vmware.1
+    images:
+      csiProvisonerImage:
+        imagePath: csi/csi-provisioner
+        tag: v2.2.0_vmware.1
+  dex:
+  - version: v2.27.0+vmware.1
+    images:
+      dexImage:
+        imagePath: dex
+        tag: v2.27.0_vmware.1
+  etcd:
+  - version: v3.4.13+vmware.25
+    images:
+      etcd:
+        imagePath: etcd
+        tag: v3.4.13_vmware.25
+  kapp-controller:
+  - version: v0.30.0+vmware.1
+    images:
+      kappControllerImage:
+        imagePath: kapp-controller
+        tag: v0.30.0_vmware.1
+  kubernetes:
+  - version: v1.21.8+vmware.1
+    images:
+      kubeAPIServer:
+        imagePath: kube-apiserver
+        tag: v1.21.8_vmware.1
+      kubeControllerManager:
+        imagePath: kube-controller-manager
+        tag: v1.21.8_vmware.1
+      kubeProxy:
+        imagePath: kube-proxy
+        tag: v1.21.8_vmware.1
+      kubeScheduler:
+        imagePath: kube-scheduler
+        tag: v1.21.8_vmware.1
+      pause:
+        imagePath: pause
+        tag: 3.4.1
+      pause_windows_1809:
+        imagePath: pause
+        tag: 3.4.1-windows-amd64
+      pause_windows_1903:
+        imagePath: pause
+        tag: 3.4.1-windows-amd64-1903
+      pause_windows_1909:
+        imagePath: pause
+        tag: 3.4.1-windows-amd64-1909
+      pause_windows_2004:
+        imagePath: pause
+        tag: 3.4.1-windows-amd64-2004
+  kubernetes-csi_external-resizer:
+  - version: v1.1.0+vmware.1
+    images:
+      csiExternalResizer:
+        imagePath: kubernetes-csi_external-resizer
+        tag: v1.1.0_vmware.1
+  kubernetes-sigs_kind:
+  - version: v1.21.8+vmware.1_v0.11.1
+    images:
+      kindNodeImage:
+        imagePath: kind/node
+        tag: v1.21.8_vmware.1_v0.11.1
+  load-balancer-and-ingress-service:
+  - version: v1.6.1+vmware.2
+    images:
+      loadBalancerAndIngressServiceImage:
+        imagePath: ako
+        tag: v1.6.1_vmware.2
+  metrics-server:
+  - version: v0.5.1+vmware.1
+    images:
+      metricsServerImage:
+        imagePath: metrics-server
+        tag: v0.5.1_vmware.1
+  pinniped:
+  - version: v0.4.4+vmware.1
+    images:
+      pinnipedImage:
+        imagePath: pinniped
+        tag: v0.4.4_vmware.1
+  pinniped-post-deploy:
+  - version: v0.10.0
+    images:
+      tkgPinnipedPostDeployImage:
+        imagePath: tanzu_core/addons/tkg-pinniped-post-deploy
+        tag: v0.10.0
+  tanzu-framework-addons:
+  - version: v0.11.1-88-g376fba65
+    images:
+      tanzuAddonsManagerImage:
+        imagePath: tanzu_core/addons/tanzu-addons-manager
+        tag: v0.11.1-88-g376fba65
+      tkgPinnipedPostDeployImage:
+        imagePath: tanzu_core/addons/tkg-pinniped-post-deploy
+        tag: v0.11.1-88-g376fba65
+  tkg-core-packages:
+  - version: v1.21.8+vmware.1-tkg.1-rc.7
+    images:
+      addons-manager.tanzu.vmware.com:
+        imagePath: packages/core/addons-manager
+        tag: v1.5.0_vmware.1-tkg.1-rc.7
+      ako-operator.tanzu.vmware.com:
+        imagePath: packages/core/ako-operator
+        tag: v1.5.0_vmware.3-tkg.1-rc.7
+      antrea.tanzu.vmware.com:
+        imagePath: packages/core/antrea
+        tag: v0.13.3_vmware.1-tkg.2-rc.7
+      calico.tanzu.vmware.com:
+        imagePath: packages/core/calico
+        tag: v3.19.1_vmware.1-tkg.3-rc.7
+      kapp-controller.tanzu.vmware.com:
+        imagePath: packages/core/kapp-controller
+        tag: v0.30.0_vmware.1-tkg.1-rc.7
+      load-balancer-and-ingress-service.tanzu.vmware.com:
+        imagePath: packages/core/load-balancer-and-ingress-service
+        tag: v1.6.1_vmware.2-tkg.1-rc.7
+      metrics-server.tanzu.vmware.com:
+        imagePath: packages/core/metrics-server
+        tag: v0.5.1_vmware.1-tkg.1-rc.7
+      pinniped.tanzu.vmware.com:
+        imagePath: packages/core/pinniped
+        tag: v0.4.4_vmware.1-tkg.3-rc.7
+      secretgen-controller.tanzu.vmware.com:
+        imagePath: packages/core/secretgen-controller
+        tag: v0.7.1_vmware.1-tkg.1-rc.7
+      tanzuCorePackageRepositoryImage:
+        imagePath: packages/core/repo
+        tag: v1.21.8_vmware.1-tkg.1-rc.7
+      vsphere-cpi.tanzu.vmware.com:
+        imagePath: packages/core/vsphere-cpi
+        tag: v1.21.0_vmware.1-tkg.2-rc.7
+      vsphere-csi.tanzu.vmware.com:
+        imagePath: packages/core/vsphere-csi
+        tag: v2.3.0_vmware.1-tkg.4-rc.7
+  vsphere_csi_driver:
+  - version: v2.3.0+vmware.1
+    images:
+      csiControllerImage:
+        imagePath: csi/vsphere-block-csi-driver
+        tag: v2.3.0_vmware.1
+      csiMetaDataSyncerImage:
+        imagePath: csi/volume-metadata-syncer
+        tag: v2.3.0_vmware.1
+  windows-resource-bundle:
+  - version: v1.21.8+vmware.1-tkg.1-rc.7
+    images:
+      windowsResourceBundleImage:
+        imagePath: windows-resource-bundle
+        tag: v1.21.8_vmware.1-tkg.1-rc.7
+kubeadmConfigSpec:
+  apiVersion: kubeadm.k8s.io/v1beta2
+  kind: ClusterConfiguration
+  imageRepository: projects.registry.vmware.com/tkg
+  kubernetesVersion: v1.21.8+vmware.1
+  etcd:
+    local:
+      dataDir: /var/lib/etcd
+      imageRepository: projects.registry.vmware.com/tkg
+      imageTag: v3.4.13_vmware.25
+  dns:
+    type: CoreDNS
+    imageRepository: projects.registry.vmware.com/tkg
+    imageTag: v1.8.0_vmware.11
+ova:
+- name: ova-photon-3
+  osinfo:
+    name: photon
+    version: "3"
+    arch: amd64
+  version: v1.21.8+vmware.1-tkg.1-38e70fcb8bdd006b8a1cf7823484f97e
+- name: ova-ubuntu-2004
+  osinfo:
+    name: ubuntu
+    version: "20.04"
+    arch: amd64
+  version: v1.21.8+vmware.1-tkg.1-dc3c93616a02968be452fe1934a1d36b
+ami:
+  ap-northeast-1:
+  - id: ami-038da3f9d9c85cd25
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0912114cd23ca1263
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  ap-northeast-2:
+  - id: ami-039ad71caccd0713c
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0bbafcc744ff5f936
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  ap-south-1:
+  - id: ami-0e7e078fb2f9ce090
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0b12a3fed640e8ee9
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  ap-southeast-1:
+  - id: ami-0d70252e5934e0108
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0082a6750619da381
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  ap-southeast-2:
+  - id: ami-0fd6d3ef79d0bfd9a
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-06a188b6bc25036ea
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  eu-central-1:
+  - id: ami-0f5104e3a84013ead
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0b1991b283fddbd7a
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  eu-west-1:
+  - id: ami-04daee9d11aff3708
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-03314b67cb624b6b0
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  eu-west-2:
+  - id: ami-0198fc98cf93a88d9
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0ae9a60c17b2c0345
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  eu-west-3:
+  - id: ami-0be223bcfb3c6d269
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-002ae9ae5a1ec862d
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  sa-east-1:
+  - id: ami-0d2d0f0d620559c2c
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-010a3e676277d95cd
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-east-1:
+  - id: ami-0eeb7efbd77fc0a22
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-09401256c393c40a2
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-east-2:
+  - id: ami-027a7ff0d342458d5
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0b3470d038cf4bf80
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-gov-east-1:
+  - id: ami-05e1d28af721236fd
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-04384f09c328a2d6b
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-gov-west-1:
+  - id: ami-029606e5d656b7860
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0125970b3a6533363
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-west-2:
+  - id: ami-001f124158565565a
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0dbbf83b63273e7d0
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+azure:
+- sku: k8s-1dot21dot8-ubuntu-1804
+  publisher: vmware-inc
+  offer: tkg-capi
+  version: 2022.01.11
+  thirdPartyImage: true
+  osinfo:
+    name: ubuntu
+    version: "18.04"
+    arch: amd64
+- sku: k8s-1dot21dot8-ubuntu-2004
+  publisher: vmware-inc
+  offer: tkg-capi
+  version: 2022.01.11
+  thirdPartyImage: true
+  osinfo:
+    name: ubuntu
+    version: "20.04"
+    arch: amd64
+imageConfig:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+addons:
+  ako-operator:
+    category: networking
+    clusterTypes:
+    - management
+    packageName: ako-operator.tanzu.vmware.com
+  antrea:
+    category: cni
+    clusterTypes:
+    - management
+    - workload
+    packageName: antrea.tanzu.vmware.com
+  calico:
+    category: cni
+    clusterTypes:
+    - management
+    - workload
+    packageName: calico.tanzu.vmware.com
+  kapp-controller:
+    category: addons-management
+    clusterTypes:
+    - management
+    - workload
+    packageName: kapp-controller.tanzu.vmware.com
+  load-balancer-and-ingress-service:
+    category: networking
+    clusterTypes:
+    - management
+    - workload
+    packageName: load-balancer-and-ingress-service.tanzu.vmware.com
+  metrics-server:
+    category: metrics
+    clusterTypes:
+    - management
+    - workload
+    packageName: metrics-server.tanzu.vmware.com
+  pinniped:
+    category: authentication
+    clusterTypes:
+    - management
+    - workload
+    packageName: pinniped.tanzu.vmware.com
+  secretgen-controller:
+    category: secret-generation-and-sharing
+    clusterTypes:
+    - management
+    - workload
+    packageName: secretgen-controller.tanzu.vmware.com
+  tanzu-addons-manager:
+    category: addons-management
+    clusterTypes:
+    - management
+    - workload
+    packageName: addons-manager.tanzu.vmware.com
+  vsphere-cpi:
+    category: cpi
+    clusterTypes:
+    - management
+    - workload
+    packageName: vsphere-cpi.tanzu.vmware.com
+  vsphere-csi:
+    category: csi
+    clusterTypes:
+    - management
+    - workload
+    packageName: vsphere-csi.tanzu.vmware.com

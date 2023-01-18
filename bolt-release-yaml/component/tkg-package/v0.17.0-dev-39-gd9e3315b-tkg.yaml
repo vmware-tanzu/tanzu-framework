@@ -1,0 +1,19 @@
+name: tkg-package
+packages:
+- version: v0.17.0-dev-39-gd9e3315b-tkg
+  upstreamCommit: d9e3315bfb74fc33e527ef0f20f1314ebb501b91
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~a8ac88a58940f3665aca5cf79e10d97483993493
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.17.0-dev-39-gd9e3315b
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.17.0-dev-39-gd9e3315b

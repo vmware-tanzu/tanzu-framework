@@ -1,0 +1,18 @@
+componentBuilds:
+- name: tkr-compatibility
+  version: v19-v1.6.0-fips.1-rc.3
+  channel: "426785999142525907"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/426785999142525907/component/tkr-compatibility/_boltArtifacts/tkr-compatibility-v19-v1.6.0-fips.1-rc.3.yaml
+  artifactURL:
+    globalTkrCompatibilityImage:
+      url: tkr-compatibility:v19
+    tkrCompatibilityImage:
+      url: projects-stg.registry.vmware.com/tkg/v19-v1.6.0-fips.1-rc.3/tkr-compatibility:v19
+      sha256: 3de7d851160ccfebd89ff167bd2252a5714551878551ade8c8e7366b195d5cde
+    tkrCompatibilityYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/426785999142525907/component/tkr-compatibility/_boltArtifacts/tkr-compatibility-v19-v1.6.0-fips.1-rc.3.yaml
+  cachehash: a93838b6f19aa1ed69c979e37738a4af
+  publishhash: 88c1a0063157a289dc7a709091c3a2d7
+  configDependencies:
+    rtmVersions:
+    - v1.6.0-fips.1

@@ -1,0 +1,17 @@
+name: oci-ubuntu-2004
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/oci-ubuntu-2004/bom-oci-ubuntu-2004-$VERSION.yaml
+  - name: file-image-osstp
+    type: file
+    destinationPath: $SOURCECHANNEL/component/oci-ubuntu-2004/oci-ubuntu-2004-$VERSION-osstpmgt.yaml
+  - name: file-image-goss
+    type: file
+    destinationPath: $SOURCECHANNEL/component/oci-ubuntu-2004/oci-ubuntu-2004-$VERSION-goss-spec.yaml
+  - name: file-image-srp-provenance
+    type: file
+    destinationPath: $SOURCECHANNEL/component/oci-ubuntu-2004/oci-ubuntu-2004-$VERSION-provenance.json
+  - name: file-image-srp-provenance-result
+    type: file
+    destinationPath: $SOURCECHANNEL/component/oci-ubuntu-2004/oci-ubuntu-2004-$VERSION-provenance_result.txt

@@ -1,0 +1,51 @@
+componentBuilds:
+- name: tanzu_core
+  version: v1.3.0
+  channel: "346679136212764288"
+  url: https://buildweb.eng.vmware.com/ob/17776030/
+  artifactURL:
+    antreaTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/antrea-templates:v1.3.0
+      sha256: 2cd2cc81ac8b5e7ef01fd2fd334609302acfa3e3d4a59e1f484d922343426539
+    calicoTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/calico-templates:v1.3.0
+      sha256: b491ef35e77a5746413fba58cf873cb87f8faff3dd99e20bf5e73578ccf47f4e
+    kappControllerTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/kapp-controller-templates:v1.3.0
+      sha256: e331a471bcc427f2012f5ebd394cbf8a550ae127f446b517d7a95fc41ab9b22c
+    metricsServerTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/metrics-server-templates:v1.3.0
+      sha256: 602385db0913613de4e4a026fbfc25c3694b98ce50b8d8fa61cee53a825e4e89
+    pinnipedTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/pinniped-templates:v1.3.0
+      sha256: c77c51b72240b2ac23eb360fc21ca2d06824d8e3b92085fe6e7c99d109257698
+    tanzu-core-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17776030/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-darwin-amd64.tar
+    tanzu-core-linux-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17776030/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-linux-386.tar
+    tanzu-core-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17776030/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-linux-amd64.tar
+    tanzu-core-windows-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17776030/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-windows-386.tar
+    tanzu-core-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17776030/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-windows-amd64.tar
+    tanzuAddonsManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v1.3.0
+      sha256: f9757167b481c584e3bb68ecec81dbba81d8e2e35c5f282937c8e62167f72321
+    tanzuAddonsManagerTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager-templates:v1.3.0
+      sha256: 5e36cf075bed1be077d2e372dfa6d08e238bbdc121bcc13e08e76aa990ea8eec
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.0
+      sha256: ec8c61ddb6fb6f819fb4d05d99c39db54a77c277ac5b3cff1ce7329b752af264
+    tkrImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-controller-manager:v1.3.0
+      sha256: e0d1e828f54ab0e6bde67f2bb1b9632189a3980d644e706d75ab950454b58c06
+    vsphereCpiTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/vsphere-cpi-templates:v1.3.0
+      sha256: a7da3577e57f3e2a373ddbdd3af39cb1200fb3a641377b8cac13d09fe39e3336
+    vsphereCsiTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/vsphere-csi-templates:v1.3.0
+      sha256: c723f82a744173e7e0321d62f9610d7441e13eb25b322479e6d2a9b08cdaba18
+  cachehash: "12862049787908466611"
+  publishhash: "4974010079947965072"

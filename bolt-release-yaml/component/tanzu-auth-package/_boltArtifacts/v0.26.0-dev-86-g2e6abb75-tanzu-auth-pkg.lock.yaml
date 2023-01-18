@@ -1,0 +1,10 @@
+name: tanzu-auth-package
+goBuildComponentLocks:
+- version: v0.26.0-dev-86-g2e6abb75-tanzu-auth-pkg
+  gobuildBranch: 423646376606334405-v0.26.0-dev-86-g2e6abb75-tanzu-auth-pkg-tanzu-auth-package
+  gobuildHeadCommit: 09fa37640183b7448b589c07129197e306396f21
+  hash: 088e38ca2bad9b545550813f6c4f9755
+  componentLockReferences:
+  - name: tanzu-auth-controller-manager
+    version: v0.26.0-dev-86-g2e6abb75
+    lockHash: f6d2424a53adb13bd40c6816408f1b63

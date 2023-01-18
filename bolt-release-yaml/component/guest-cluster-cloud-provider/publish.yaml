@@ -1,0 +1,18 @@
+name: guest-cluster-cloud-provider
+publish:
+  - name: guest-cluster-cloud-provider-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/guest-cluster-cloud-provider.tar
+    destinationPath: $CHANNEL/image-builder/guest-cluster-cloud-provider/$VERSION/publish/guest-cluster-cloud-provider.tar
+  - name: guest-cluster-cloud-provider-1.19-addon-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.19/vmware-guest-cluster.yaml
+    destinationPath: $CHANNEL/image-builder/guest-cluster-cloud-provider/$VERSION/publish/add-on/1.19/vmware-guest-cluster.yaml
+  - name: guest-cluster-cloud-provider-1.20-addon-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.20/vmware-guest-cluster.yaml
+    destinationPath: $CHANNEL/image-builder/guest-cluster-cloud-provider/$VERSION/publish/add-on/1.20/vmware-guest-cluster.yaml
+  - name: osstp-golang-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/osstp_golang.yml
+    destinationPath: $CHANNEL/image-builder/guest-cluster-cloud-provider/$VERSION/publish/osstp_golang.yml

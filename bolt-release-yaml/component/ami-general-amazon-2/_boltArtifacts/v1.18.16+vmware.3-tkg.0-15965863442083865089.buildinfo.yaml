@@ -1,0 +1,14 @@
+componentBuilds:
+- name: ami-general-amazon-2
+  version: v1.18.16+vmware.3-tkg.0-15965863442083865089
+  channel: "355221546857419633"
+  url: https://kscom.svc.eng.vmware.com/job/build-ami-general-v1alpha2/207
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/355221546857419633/component/ami-general-amazon-2/bom-ami-general-amazon-2-v1.18.16+vmware.3-tkg.0-15965863442083865089.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/355221546857419633/component/ami-general-amazon-2/ami-general-amazon-2-v1.18.16+vmware.3-tkg.0-15965863442083865089-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/355221546857419633/component/ami-general-amazon-2/ami-general-amazon-2-v1.18.16+vmware.3-tkg.0-15965863442083865089-osstpmgt.yaml
+  cachehash: "18265414795209645879"
+  publishhash: "5956288466975428233"

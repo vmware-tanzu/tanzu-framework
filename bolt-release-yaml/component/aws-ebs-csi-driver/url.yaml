@@ -1,0 +1,8 @@
+name: aws-ebs-csi-driver
+upstreamURL: git@github.com:kubernetes-sigs/aws-ebs-csi-driver.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_aws-ebs-csi-driver.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_aws-ebs-csi-driver.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_aws-ebs-csi-driver.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_aws-ebs-csi-driver.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_aws-ebs-csi-driver.git
+gobuildTarget: cayman_aws-ebs-csi-driver

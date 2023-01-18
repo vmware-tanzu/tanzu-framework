@@ -1,0 +1,8 @@
+name: prometheus_node_exporter
+upstreamURL: https://github.com/prometheus/node_exporter.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_prometheus_node_exporter.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_prometheus_node_exporter.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_prometheus_node_exporter.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_prometheus_node_exporter.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_prometheus_node_exporter.git
+gobuildTarget: cayman_prometheus_node_exporter

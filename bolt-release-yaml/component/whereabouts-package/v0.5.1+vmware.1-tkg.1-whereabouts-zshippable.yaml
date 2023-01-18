@@ -1,0 +1,21 @@
+name: whereabouts-package
+packages:
+  - version: v0.5.1+vmware.1-tkg.1-whereabouts-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: 50a244cd7eb1ca0a3f06d9b891a560f9699d0c1a
+    componentReferences:
+      - name: whereabouts
+        version:
+        - v0.5.1+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: whereabouts
+      gobuild.upstream_image_0: "ghcr.io/k8snetworkplumbingwg/whereabouts:latest-amd64"
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "whereabouts").artifactURL.whereaboutsImage.url}}'
+      gobuild.upstream_version: 0.5.1
+      gobuild.downstream_version: vmware.1-tkg.1-zshippable
+      gobuild.package_type: standard
+      gobuild.noMirror: "true"

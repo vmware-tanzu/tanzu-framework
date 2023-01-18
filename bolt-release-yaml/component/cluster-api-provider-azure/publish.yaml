@@ -1,0 +1,7 @@
+name: cluster-api-provider-azure
+publish:
+  - name: capzControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster-api-provider-azure/images/cluster-api-azure-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster-api-provider-azure/images/cluster-api-azure-controller-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/cluster-api-azure-controller:$UNDERSCOREVERSION

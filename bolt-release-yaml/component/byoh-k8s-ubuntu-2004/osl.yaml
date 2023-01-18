@@ -1,0 +1,4 @@
+submodules:
+  - name: byoh-k8s-ubuntu-2004/src
+    go_mod:
+      - "go.mod"

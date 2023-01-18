@@ -1,0 +1,10 @@
+name: tkg-clusterclass-vsphere-package
+goBuildComponentLocks:
+- version: v0.22.0-dev-23-ga3552d03-tkg-clusterclass-vsphere
+  gobuildBranch: 407143385560806694-v0.22.0-dev-23-ga3552d03-tkg-clusterclass-vsphere-tkg-clusterclass-vsphere-package
+  gobuildHeadCommit: 31824747fd04b7aa5ec22cc3ddb47aa55be91305
+  hash: e96dee747dde45970376f212b8c87378
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.22.0-dev-23-ga3552d03
+    lockHash: 4ea30f2bd310dcaf5758e6f43c976aba

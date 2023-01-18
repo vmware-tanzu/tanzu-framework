@@ -1,0 +1,31 @@
+componentBuilds:
+- name: pinniped
+  version: v0.4.4+vmware.1
+  channel: "364710644613651337"
+  url: https://buildweb.eng.vmware.com/ob/18359215/
+  artifactURL:
+    pinnipedImage:
+      url: projects-stg.registry.vmware.com/tkg/pinniped:v0.4.4_vmware.1
+      sha256: 29b5ea5744d7c783a556cbe4441594c4650913aea73c9bad3c7cd4c6b23faf9c
+  cachehash: 39dc2eb4ae8e459a052e5b46618425cc
+  publishhash: 4862264dcdd4c26604f005ab5f25d6d6
+- name: dex
+  version: v2.27.0+vmware.1
+  channel: "348316067031984106"
+  url: https://buildweb.eng.vmware.com/ob/17532874/
+  artifactURL:
+    dexImage:
+      url: projects-stg.registry.vmware.com/tkg/dex:v2.27.0_vmware.1
+      sha256: 64c4a48aaaf5ad6649faf72caecc5352e0510b5051b26c4e177c84c8a8e428a1
+  cachehash: 9ec2dfccb8b6a943116ea132c0ce3f64
+  publishhash: e1ed18c7449d986cb50d6de0148eea24
+- name: pinniped-post-deploy
+  version: v0.10.0
+  channel: "389194136940465124"
+  url: https://buildweb.eng.vmware.com/ob/19168984/
+  artifactURL:
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.10.0
+      sha256: c2a905f8e93180407e839a958110153f730348249cc8d00963d3bc0f5d660a4d
+  cachehash: fe138b2c29680bba97d6887deb9004f3
+  publishhash: 03c0cd95ce0420b17ca801b9936f9c62

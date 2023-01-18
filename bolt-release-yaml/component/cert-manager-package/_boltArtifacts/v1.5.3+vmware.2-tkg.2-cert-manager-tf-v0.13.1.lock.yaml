@@ -1,0 +1,10 @@
+name: cert-manager-package
+goBuildComponentLocks:
+- version: v1.5.3+vmware.2-tkg.2-cert-manager-tf-v0.13.1
+  gobuildBranch: 386275948019894377-v1.5.3+vmware.2-tkg.2-cert-manager-tf-v0.13.1
+  gobuildHeadCommit: 6789cd31f4eb0ab62c8503b5e52a4327bdad6650
+  hash: 6ce813dcf5b3478f4c55a945acf58cb0
+  componentLockReferences:
+  - name: jetstack_cert-manager
+    version: v1.5.3+vmware.2
+    lockHash: f4cb643d72cb84bf706290246623d303

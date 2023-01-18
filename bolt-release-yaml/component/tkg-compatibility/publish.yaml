@@ -1,0 +1,14 @@
+name: tkg-compatibility
+publish:
+  - name: tkgCompatibilityImage
+    type: image
+    sourcePath: $SOURCECHANNEL/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-$VERSION.tar.gz
+    destinationPath: tkg-compatibility:$UNDERSCOREVERSION
+nonpublish:
+  - name: tkgCompatibilityYaml
+    type: file
+    destinationPath: $CHANNEL/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-$VERSION.yaml
+  - name: globalTkgCompatibilityImage
+    type: image
+    sourcePath: $SOURCECHANNEL/component/tkg-compatibility/_boltArtifacts/tkg-compatibility.tar.gz
+    destinationPath: tkg-compatibility:$UNDERSCOREVERSION

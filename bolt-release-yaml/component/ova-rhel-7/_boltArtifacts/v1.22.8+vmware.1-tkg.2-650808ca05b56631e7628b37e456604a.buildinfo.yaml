@@ -1,0 +1,14 @@
+componentBuilds:
+- name: ova-rhel-7
+  version: v1.22.8+vmware.1-tkg.2-650808ca05b56631e7628b37e456604a
+  channel: "402529159940676520"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/1339
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/402529159940676520/component/ova-rhel-7/bom-ova-rhel-7-v1.22.8+vmware.1-tkg.2-650808ca05b56631e7628b37e456604a.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/402529159940676520/component/ova-rhel-7/ova-rhel-7-v1.22.8+vmware.1-tkg.2-650808ca05b56631e7628b37e456604a-goss-spec.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/402529159940676520/component/ova-rhel-7/rhel-7-kube-v1.22.8+vmware.1-tkg.2-650808ca05b56631e7628b37e456604a.ova
+  cachehash: b969c33f686e531d28a5ad0dba7d60e3
+  publishhash: 1d3d970af66cb319abe60ffc2a0328e0

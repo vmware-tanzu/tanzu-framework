@@ -1,0 +1,8 @@
+name: kube-vip-cloud-provider
+upstreamURL: git@github.com:kube-vip/kube-vip-cloud-provider.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kube-vip-cloud-provider.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_kube-vip-cloud-provider.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kube-vip-cloud-provider.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_kube-vip-cloud-provider.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kube-vip-cloud-provider.git
+gobuildTarget: cayman_kube-vip-cloud-provider

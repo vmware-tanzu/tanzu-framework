@@ -1,0 +1,16 @@
+componentBuilds:
+- name: configmap-reload
+  version: v0.7.1+vmware.1
+  channel: "416296974749278981"
+  url: https://buildweb.eng.vmware.com/ob/20098373/
+  artifactURL:
+    configmap-reload-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20098373/publish/lin64/configmap-reload/executables/configmap-reload-v0.7.1+vmware.1.gz
+    configmapReloadImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/configmap-reload:v0.7.1_vmware.1
+      sha256: b2d1d4662c590d6167c7646e288600995c94a377ff3dde675e5f07571c5b33e7
+  cachehash: 23c94f9c7d483bb2c461a6b69cd1167f
+  publishhash: bda1bfb9fe11c54c392f09ab8d78d109
+  configDependencies:
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32

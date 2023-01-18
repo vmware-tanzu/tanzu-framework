@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkr-aws-machine-webhook-package
+  version: v0.21.0-dev-128-g9135b9e7-tkr-aws-mc-webhook
+  channel: "405405299487281591"
+  url: https://buildweb.eng.vmware.com/ob/19719439/
+  artifactURL:
+    tkr-aws-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-aws-machine-webhook:v0.21.0-dev-128-g9135b9e7_vmware.1
+      sha256: bf5f499aa6e9589d4839f069f656efab6c551c86ef83d21960980da171f4d89f
+  cachehash: 75c70e8ca0f343a12879d1193d68e711
+  publishhash: 7e24bdf0b1f18b22cbd421c328459a23

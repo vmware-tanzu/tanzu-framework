@@ -1,0 +1,8 @@
+name: alertmanager
+upstreamURL: https://github.com/prometheus/alertmanager.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_prometheus_alertmanager.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_prometheus_alertmanager.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_alertmanager.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_alertmanager.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_alertmanager.git
+gobuildTarget: cayman_alertmanager

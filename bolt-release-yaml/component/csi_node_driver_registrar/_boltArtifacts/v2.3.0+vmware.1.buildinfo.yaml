@@ -1,0 +1,11 @@
+componentBuilds:
+- name: csi_node_driver_registrar
+  version: v2.3.0+vmware.1
+  channel: "382797907729867291"
+  url: https://buildweb.eng.vmware.com/ob/18965992/
+  artifactURL:
+    csiNodeDriverRegistrarImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.3.0_vmware.1
+      sha256: aaee5642312edc75df5ec8dd63d250f215233e3922d37c206b739dd4b0931928
+  cachehash: 558ce775966ebd7c7cc61e1078b9209a
+  publishhash: e9183afffd250117d9eea541bba6836f

@@ -1,0 +1,10 @@
+name: kube_rbac_proxy
+managedComponents:
+  - version: v0.11.0+vmware.1
+    upstreamTag: v0.11.0
+    # Assuming that we dont need to change this...
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~379a899c64e5955e4d083ec33df14ca9cc09a5a2
+    dependencies:
+      gobuild.golangImage: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16.12
+      golang.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,7 @@
+name: csi_attacher
+publish:
+  - name: csiAttacherImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/csi_attacher/images/csi-attacher-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/csi_attacher/images/csi-attacher-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: csi/csi-attacher:$UNDERSCOREVERSION

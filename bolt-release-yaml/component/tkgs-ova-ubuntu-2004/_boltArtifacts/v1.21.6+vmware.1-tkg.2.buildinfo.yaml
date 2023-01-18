@@ -1,0 +1,22 @@
+componentBuilds:
+- name: tkgs-ova-ubuntu-2004
+  version: v1.21.6+vmware.1-tkg.2
+  channel: "409447921650538914"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgs-build-ova/186
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/409447921650538914/component/tkgs-ova-ubuntu-2004/bom-tkgs-ova-ubuntu-2004-v1.21.6+vmware.1-tkg.2.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/409447921650538914/component/tkgs-ova-ubuntu-2004/tkgs-ova-ubuntu-2004-v1.21.6+vmware.1-tkg.2-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/409447921650538914/component/tkgs-ova-ubuntu-2004/tkgs-ova-ubuntu-2004-v1.21.6+vmware.1-tkg.2-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/409447921650538914/component/tkgs-ova-ubuntu-2004/ubuntu-2004-efi.ova
+  cachehash: d57e79810af258c40ec1c7623e3be31d
+  publishhash: f702cb3c5fa13d1bd818e789632e6660
+  configDependencies:
+    base_iso_sha: f11bda2f2caed8f420802b59f382c25160b114ccc665dbac9c5046e7fceaced2
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04.1-legacy-server-amd64.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: f6ff3f08f1a6085d8f185163d5e5a264caa88dd4
+    jenkins.TARGET: ubuntu-2004-efi
+    jenkins.TKGS_BUILDINFO_URL: $REFBUILDINFO_URL

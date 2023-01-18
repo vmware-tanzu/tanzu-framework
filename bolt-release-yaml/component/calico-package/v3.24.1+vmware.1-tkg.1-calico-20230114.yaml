@@ -1,0 +1,28 @@
+name: calico-package
+packages:
+- version: v3.24.1+vmware.1-tkg.1-calico-20230114
+  upstreamCommit: 99a5cebea9c9fcc075bd7d12f44aaaa2174249db
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: calico_all
+    version:
+    - v3.24.1+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all").artifactURL.calicoCniImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all").artifactURL.calicoKubecontrollerImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all").artifactURL.calicoNodeImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.1-20230114
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: calico
+    gobuild.package_type: core
+    gobuild.upstream_image_0: docker.io/calico/cni:v3.24.1
+    gobuild.upstream_image_1: docker.io/calico/kube-controllers:v3.24.1
+    gobuild.upstream_image_2: docker.io/calico/node:v3.24.1
+    gobuild.upstream_version: 3.24.1

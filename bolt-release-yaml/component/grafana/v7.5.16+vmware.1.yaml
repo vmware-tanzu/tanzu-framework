@@ -1,0 +1,7 @@
+name: grafana
+unmanagedComponents:
+  - version: v7.5.16+vmware.1
+    gobuildBranch: vmware-7.5.16~44999ed007af713cced4a485b0ebfc4dfe27e1a5
+    dependencies:
+      gobuild.golangVersion: 1.15.1
+      gobuild.linux_hosttype: linux-centos72-gc32

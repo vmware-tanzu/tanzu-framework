@@ -1,0 +1,12 @@
+componentBuilds:
+- name: crash-diagnostics
+  version: v0.3.7+vmware.5
+  channel: "398308889776374405"
+  url: https://buildweb.eng.vmware.com/ob/19477996/
+  artifactURL:
+    crashd-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19477996/publish/lin64/crashd/executables/crashd-darwin-amd64-v0.3.7+vmware.5.tar.gz
+    crashd-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19477996/publish/lin64/crashd/executables/crashd-linux-amd64-v0.3.7+vmware.5.tar.gz
+  cachehash: b36a9731b251a53f4df3b091dcbc2687
+  publishhash: 5a45e93ff8b48931b17ddb6c5119b957

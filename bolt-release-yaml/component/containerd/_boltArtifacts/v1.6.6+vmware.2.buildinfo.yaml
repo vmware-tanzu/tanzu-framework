@@ -1,0 +1,16 @@
+componentBuilds:
+- name: containerd
+  version: v1.6.6+vmware.2
+  channel: "413337333035725665"
+  url: https://buildweb.eng.vmware.com/ob/19994887/
+  artifactURL:
+    file-containerd-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/413337333035725665/component/containerd/cri-containerd-v1.6.6+vmware.2.linux-amd64.tar
+      sha256: 48f4327570dd7543464a28893160ab3bc9719ed2553f0a529a884b40f6dafd29
+    file-containerd-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/413337333035725665/component/containerd/cri-containerd-v1.6.6+vmware.2.windows-amd64.tar
+      sha256: a5348e2e7cc63194c2bb4575dd3c414a26c829380e72a81c3dc2d12454f67fcd
+  cachehash: 581cb775fe4bfbb35fb758c5b9a6b308
+  publishhash: 9e0db9cd194cc80024ae3095e4ef41b3
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32

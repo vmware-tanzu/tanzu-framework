@@ -1,0 +1,6 @@
+name: tkg-standard-packages
+publish:
+  - name: tanzuStandardPackageRepositoryImage
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-package-repository-bundle/package-repo-bundles/standard/tkg-standard-repo-{{underscoredplus (index .config "packageRepositories" 0 "dependencies" "gobuild.releaseVersion")}}.tar.gz
+    destinationPath: packages/standard/repo:{{underscoredplus (index .config "packageRepositories" 0 "dependencies" "gobuild.releaseVersion")}}

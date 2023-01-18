@@ -1,0 +1,23 @@
+name: byoh-k8s-ubuntu-2004
+managedComponents:
+- version: v1.22.13+vmware.1-tkg.1-rc.5
+  upstreamCommit: 6b69e60f40f964c03f429e0acf3e810804d5e268
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-byoh-k8s-ubuntu-2004~4d1ac332b67b43b6eaf824cde124553fd25ab26b
+  componentReferences:
+  - name: kubernetes
+    version:
+    - v1.22.13+vmware.1
+  - name: containerd
+    version:
+    - v1.5.13+vmware.1
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.9
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2
+  dependencies:
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.16.0
+    gobuild.linux_hosttype: linux-centos8

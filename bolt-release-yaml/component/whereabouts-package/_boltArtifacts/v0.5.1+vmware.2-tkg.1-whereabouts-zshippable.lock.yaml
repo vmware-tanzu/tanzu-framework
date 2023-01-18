@@ -1,0 +1,10 @@
+name: whereabouts-package
+goBuildComponentLocks:
+- version: v0.5.1+vmware.2-tkg.1-whereabouts-zshippable
+  gobuildBranch: 411617754446082693-v0.5.1+vmware.2-tkg.1-whereabouts-zshippable-whereabouts-package
+  gobuildHeadCommit: 3a666a6fb3550d992a1e68c81efe45688028309d
+  hash: 364ea262b7a22137ea4cfd940b187a9b
+  componentLockReferences:
+  - name: whereabouts
+    version: v0.5.1+vmware.2
+    lockHash: a7554b18ccc4a37408710f7cecb177bf

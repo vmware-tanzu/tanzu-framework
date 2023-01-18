@@ -1,0 +1,7 @@
+name: kube-vip
+goBuildComponentLocks:
+- version: v0.3.3+vmware.1
+  gobuildBranch: 351078764077124997-v0.3.3+vmware.1
+  gobuildHeadCommit: 4d687cd92d311c9a15d79ce1251f65104c02e292
+  hash: 26d7f16ff37ea5f5509e1dd9a4618577
+  componentLockReferences: []

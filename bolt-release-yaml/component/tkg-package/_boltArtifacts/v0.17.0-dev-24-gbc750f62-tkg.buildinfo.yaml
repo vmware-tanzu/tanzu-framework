@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-package
+  version: v0.17.0-dev-24-gbc750f62-tkg
+  channel: "394274516953488593"
+  url: https://buildweb.eng.vmware.com/ob/19342058/
+  artifactURL:
+    tkg.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: 0db3c27b46a2509d4f66de6412ef00d0837091bc1ea270230340ccae52474614
+  cachehash: f4f65773ced20f5b8a6a80e7ab89a0b0
+  publishhash: b50bfb418ec98d4f672d28d855f6e5b2

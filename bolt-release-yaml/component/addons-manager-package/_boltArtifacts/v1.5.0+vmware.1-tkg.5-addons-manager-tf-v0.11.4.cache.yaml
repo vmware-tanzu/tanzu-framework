@@ -1,0 +1,7 @@
+name: addons-manager-package
+goBuildComponentCaches:
+- version: v1.5.0+vmware.1-tkg.5-addons-manager-tf-v0.11.4
+  url: https://buildweb.eng.vmware.com/ob/19610621/
+  buildNumber: bora-19610621
+  buildStatus: SUCCEEDED
+  hash: 7e20cc58511f5480364e14cfb0252efd

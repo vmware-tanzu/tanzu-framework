@@ -1,0 +1,7 @@
+name: kube_rbac_proxy
+goBuildComponentLocks:
+- version: v0.11.0+vmware.2
+  gobuildBranch: 406423273274872596-v0.11.0+vmware.2-kube_rbac_proxy
+  gobuildHeadCommit: 1537331da07e04df3032744fe3405fe1b084341c
+  hash: 915d8024f6616f58959db39df0a817d5
+  componentLockReferences: []

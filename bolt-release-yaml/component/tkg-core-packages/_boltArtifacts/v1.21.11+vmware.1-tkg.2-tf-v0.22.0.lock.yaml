@@ -1,0 +1,46 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.21.11+vmware.1-tkg.2-tf-v0.22.0
+  gobuildBranch: 410623916613054680-v1.21.11+vmware.1-tkg.2-tf-v0.22.0-tkg-core-packages
+  gobuildHeadCommit: 72a1ac3dfde2f2871958e7cb3e1ff0986c84097d
+  hash: 1fc6a7883e15551693300697ccc04d09
+  componentLockReferences:
+  - name: addons-manager-package
+    version: v1.5.0+vmware.1-tkg.2-addons-manager-tf-v0.22.0
+    lockHash: 9bdd72c9fed574b9741f570cc0e92e7b
+  - name: ako-operator-package
+    version: v1.6.0+vmware.10-tkg.1-ako-operator-tf-v0.22.0
+    lockHash: 86c33cea096fc8cd341ea204a5557e6f
+  - name: load-balancer-and-ingress-service-package
+    version: v1.6.1+vmware.5-tkg.1-ako-tf-v0.22.0
+    lockHash: 17a862ada524b23391ccde13687222eb
+  - name: antrea-package
+    version: v0.13.3+vmware.1-tkg.3-antrea-tf-v0.22.0
+    lockHash: 95b647a85d7b085afbfd1966ad88ae71
+  - name: calico-package
+    version: v3.22.1+vmware.1-tkg.1-calico-tf-v0.22.0
+    lockHash: 51fed010464b68e466bf38a195a32b58
+  - name: vsphere-csi-package
+    version: v2.3.0+vmware.1-tkg.5-vsphere-csi-tf-v0.22.0
+    lockHash: 76b11cf9d30c0d88434711596fe5fdd3
+  - name: vsphere-pv-csi-package
+    version: v2.3.0+vmware.1-tkg.1-vsphere-pv-csi-tf-v0.22.0
+    lockHash: 6b17f04ec0d0285320d62ac19ceb6dce
+  - name: vsphere-cpi-package
+    version: v1.21.3+vmware.1-tkg.1-vsphere-cpi-tf-v0.22.0
+    lockHash: 52ff998c93f5cbe2e94589ffebdb768b
+  - name: metrics-server-package
+    version: v0.5.1+vmware.1-tkg.2-metrics-server-tf-v0.22.0
+    lockHash: a95f8d7f6d922351b35d91cf842ca805
+  - name: kapp-controller-package
+    version: v0.34.0+vmware.1-tkg.1-kapp-controller-tf-v0.22.0
+    lockHash: 4e180da6278dbcfe469d3285dbcc9789
+  - name: secretgen-controller-package
+    version: v0.8.0+vmware.1-tkg.1-secgen-ctl-tf-v0.22.0
+    lockHash: fb3edb8c35c0b0c617ccdf3b9109eaf1
+  - name: pinniped-package
+    version: v0.4.4+vmware.1-tkg.4-pinniped-tf-v0.22.0
+    lockHash: 35fb475fa192c373b2f83a96ba170514
+  - name: guest-cluster-auth-service-package
+    version: v1.0.0-tkg.1-gc-auth-service-tf-v0.22.0
+    lockHash: 3fcefdb17d7e60fd2de571b8e77b267a

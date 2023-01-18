@@ -1,0 +1,18 @@
+name: tkg-clusterclass-docker-package
+packages:
+- version: v0.25.0-dev-70-g4dcb262b-tkg-clusterclass-docker
+  upstreamCommit: 4dcb262be89890cd6078ab35049a4bd12e6cd98e
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~da845d112ac034778b6f25be169b9e9cb68cd74c
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.25.0-dev-70-g4dcb262b
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-docker
+    gobuild.upstream_version: v0.25.0-dev-70-g4dcb262b

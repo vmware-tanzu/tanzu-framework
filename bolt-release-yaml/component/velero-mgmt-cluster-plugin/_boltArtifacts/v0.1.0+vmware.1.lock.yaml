@@ -1,0 +1,7 @@
+name: velero-mgmt-cluster-plugin
+goBuildComponentLocks:
+- version: v0.1.0+vmware.1
+  gobuildBranch: vmware-v0.1.0
+  gobuildHeadCommit: e1cdf1712271e6ac03498b13accc27bfa4e6def8
+  hash: eccda28372c142580093df515a31b137
+  componentLockReferences: []

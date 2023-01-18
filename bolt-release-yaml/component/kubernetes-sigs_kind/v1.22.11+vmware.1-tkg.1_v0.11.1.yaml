@@ -1,0 +1,47 @@
+name: kubernetes-sigs_kind
+managedComponents:
+- version: v1.22.11+vmware.1-tkg.1_v0.11.1
+  upstreamTag: v0.11.1
+  mirrorCherryPicks:
+  - sha: e99f695947767b104c7cac143af5672882a39178
+    description: add local build option for kind 0.11.1
+  - sha: 2bd7e80776eaf0c7b87cc207e53c85746060b8fe
+    description: updated the defaultBuildBase value
+  - sha: e5d04ed7a36ed256d966dc4f4fb1d036856da927
+    description: Overriding to pull the pause image from the prod registry in toml
+      file
+  gobuildBaseBranch: v0.11.1+vmware.0~e31373bfcd8884635f1a8008983005e6876d10fc
+  componentReferences:
+  - name: coredns
+    version:
+    - v1.8.6+vmware.6
+  - name: etcd
+    version:
+    - v3.5.4+vmware.2
+  - name: kubernetes
+    version:
+    - v1.22.11+vmware.1
+  dependencies:
+    gobuild.buildChannel: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes") "channel"}}'
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.coreDNSVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "coreDns") "version"}}'
+    gobuild.debianBaseRepo: us.gcr.io/k8s-artifacts-prod/build-image/debian-base
+    gobuild.debianBaseVersion: v2.1.0
+    gobuild.defaultBuildBase: kindest/base:v20210825-547e6628
+    gobuild.etcdVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "etcd") "version"}}'
+    gobuild.golangVersion: 1.16.7
+    gobuild.harborBase: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.harborGolangBase: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang
+    gobuild.k8sVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes") "version"}}'
+    gobuild.kindCNIRepo: kindest/kindnetd
+    gobuild.kindCNIVersion: v20210326-1e038dc5
+    gobuild.kindVersion: 0.11.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: pause
+    gobuild.rancherRepo: rancher/local-path-provisioner
+    gobuild.rancherVersion: v0.0.14
+    kindKubeadmAPIVersion: kind.x-k8s.io/v1alpha4

@@ -1,0 +1,7 @@
+name: k8s-sidecar
+unmanagedComponents:
+  - version: v1.15.6+vmware.1
+    gobuildBranch: vmware-1.15.6~2763bfb762ce6521e21564cfb5fefdea6b7ac6d7
+    dependencies:
+      gobuild.golangVersion: 1.16
+      gobuild.linux_hosttype: linux-centos72-gc32

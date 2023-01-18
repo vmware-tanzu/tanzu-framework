@@ -1,0 +1,7 @@
+name: tkg_release
+goBuildComponentCaches:
+- version: framework-v0.3.0
+  url: https://buildweb.eng.vmware.com/ob/18637015/
+  buildNumber: bora-18637015
+  buildStatus: SUCCEEDED
+  hash: "9965738758390863321"

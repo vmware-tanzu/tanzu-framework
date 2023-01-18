@@ -1,0 +1,20 @@
+name: addons-manager-package
+packages:
+- version: v1.5.0+vmware.1-tkg.1-addons-manager-tf-v0.11.1
+  upstreamCommit: 793e02f730d181608727706f4eba279552f7ac36
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: tanzu-framework-addons
+    version:
+    - v0.11.1-tf
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework-addons").artifactURL.tanzuAddonsManagerImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.1-tf-v0.11.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: addons-manager
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/sandbox/tanzu_core_addons/tanzu-addons-manager:v1.5.0_vmware.1
+    gobuild.upstream_version: 1.5.0

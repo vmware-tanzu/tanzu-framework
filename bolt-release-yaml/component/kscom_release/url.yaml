@@ -1,0 +1,5 @@
+name: kscom_release
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/k8s_common_core_release.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/k8s_common_core_release.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/k8s_common_core_release.git
+gobuildTarget: kscom_release

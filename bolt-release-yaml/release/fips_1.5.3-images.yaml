@@ -1,0 +1,97 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: new node images for FIPS variant of 1.5.3
+componentReferences:
+- name: ami-general-amazon-2
+  version:
+  - v1.20.15+vmware.1-tkg.1-fips.1-ami-general-amazon-2
+- name: ami-general-ubuntu-2004
+  version:
+  - v1.20.15+vmware.1-tkg.2-fips.1-ami-general-ubuntu-2004
+- name: ami-gov-amazon-2
+  version:
+  - v1.20.15+vmware.1-tkg.1-fips.1-ami-gov-amazon-2
+- name: ami-gov-ubuntu-2004
+  version:
+  - v1.20.15+vmware.1-tkg.2-fips.1-ami-gov-ubuntu-2004
+- name: azure-ubuntu-1804
+  version:
+  - v1.20.15+vmware.1-tkg.1-fips.1-azure-ubuntu-1804
+- name: azure-ubuntu-1804
+  version:
+  - v1.20.15+vmware.1-tkg.1-sig-fips.1-azure-ubuntu-1804
+- name: azure-ubuntu-2004
+  version:
+  - v1.20.15+vmware.1-tkg.2-fips.1-azure-ubuntu-2004
+- name: azure-ubuntu-2004
+  version:
+  - v1.20.15+vmware.1-tkg.2-sig-fips.1-azure-ubuntu-2004
+- name: ova-photon-3
+  version:
+  - v1.20.15+vmware.1-tkg.1-fips.1-ova-photon-3
+- name: ova-ubuntu-2004
+  version:
+  - v1.20.15+vmware.1-tkg.2-fips.1-ova-ubuntu-2004
+
+
+- name: ami-general-amazon-2
+  version:
+  - v1.21.11+vmware.1-tkg.1-fips.1-ami-general-amazon-2
+- name: ami-general-ubuntu-2004
+  version:
+  - v1.21.11+vmware.1-tkg.2-fips.1-ami-general-ubuntu-2004
+- name: ami-gov-amazon-2
+  version:
+  - v1.21.11+vmware.1-tkg.1-fips.1-ami-gov-amazon-2
+- name: ami-gov-ubuntu-2004
+  version:
+  - v1.21.11+vmware.1-tkg.2-fips.1-ami-gov-ubuntu-2004
+- name: azure-ubuntu-1804
+  version:
+  - v1.21.11+vmware.1-tkg.1-fips.1-azure-ubuntu-1804
+- name: azure-ubuntu-1804
+  version:
+  - v1.21.11+vmware.1-tkg.1-sig-fips.1-azure-ubuntu-1804
+- name: azure-ubuntu-2004
+  version:
+  - v1.21.11+vmware.1-tkg.2-fips.1-azure-ubuntu-2004
+- name: azure-ubuntu-2004
+  version:
+  - v1.21.11+vmware.1-tkg.2-sig-fips.1-azure-ubuntu-2004
+- name: ova-photon-3
+  version:
+  - v1.21.11+vmware.1-tkg.1-fips.1-ova-photon-3
+- name: ova-ubuntu-2004
+  version:
+  - v1.21.11+vmware.1-tkg.2-fips.1-ova-ubuntu-2004
+
+- name: ami-general-amazon-2
+  version:
+  - v1.22.8+vmware.1-tkg.1-fips.1-ami-general-amazon-2
+- name: ami-general-ubuntu-2004
+  version:
+  - v1.22.8+vmware.1-tkg.2-fips.1-ami-general-ubuntu-2004
+- name: ami-gov-amazon-2
+  version:
+  - v1.22.8+vmware.1-tkg.1-fips.1-ami-gov-amazon-2
+- name: ami-gov-ubuntu-2004
+  version:
+  - v1.22.8+vmware.1-tkg.2-fips.1-ami-gov-ubuntu-2004
+- name: azure-ubuntu-1804
+  version:
+  - v1.22.8+vmware.1-tkg.1-fips.1-azure-ubuntu-1804
+- name: azure-ubuntu-1804
+  version:
+  - v1.22.8+vmware.1-tkg.1-sig-fips.1-azure-ubuntu-1804
+- name: azure-ubuntu-2004
+  version:
+  - v1.22.8+vmware.1-tkg.2-fips.1-azure-ubuntu-2004
+- name: azure-ubuntu-2004
+  version:
+  - v1.22.8+vmware.1-tkg.2-sig-fips.1-azure-ubuntu-2004
+- name: ova-photon-3
+  version:
+  - v1.22.8+vmware.1-tkg.1-fips.1-ova-photon-3
+- name: ova-ubuntu-2004
+  version:
+  - v1.22.8+vmware.1-tkg.2-fips.1-ova-ubuntu-2004

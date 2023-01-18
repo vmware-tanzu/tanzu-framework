@@ -1,0 +1,22 @@
+componentBuilds:
+- name: tkg-clusterclass-package
+  version: v0.25.1-8-gce9ca3c7-tkg-clusterclass
+  channel: "430524887744931611"
+  url: https://buildweb.eng.vmware.com/ob/20653122/
+  artifactURL:
+    tkg-clusterclass.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkg-clusterclass:v0.25.1-8-gce9ca3c7_vmware.1
+      sha256: 71abdd66aa668473dda81f818e80cc91c4aecbf348efa5c07a36021fe3602127
+  cachehash: 7de36a0a5e5f5d11f4e5f4334057a395
+  publishhash: e9fec9ce61e743cd3d75e764c243fa78
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/objectpropogation/object-propagation-controller:v0.25.1-8-gce9ca3c7
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass
+    gobuild.upstream_image_0: object-propagation-controller:latest
+    gobuild.upstream_version: v0.25.1-8-gce9ca3c7

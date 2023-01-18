@@ -1,0 +1,10 @@
+versionMap:
+  vsphere70u3-5212290-e831b6d: publish.yaml
+  vsphere70u2-f665008-8a37f95: publish.yaml
+  v2.3.0-d154d1c: v1.publish.yaml
+  v2.3.0: v3.publish.yaml
+  v2.4.0: v2.publish.yaml
+  v2.4.2: v2.publish.yaml
+  v2.6.0: v2.publish.yaml
+  v2.6.1: v2.publish.yaml
+  v2.5.2-8dee76b: v5.publish.yaml

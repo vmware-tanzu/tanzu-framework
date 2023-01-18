@@ -1,0 +1,21 @@
+componentBuilds:
+- name: etcd
+  version: v3.4.13+vmware.24-fips.1
+  channel: "418306238414067154"
+  url: https://buildweb.eng.vmware.com/ob/20183913/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.4.13_vmware.24-fips.1
+      sha256: b049f223aef4412aca5a8e0f92e89f6ff0575fb85cac2d419aacdbec7626f420
+  cachehash: 00aaf9f3ee85e739b4380efa36d20a73
+  publishhash: 8d295061a104d02aaac3cda5e7d85ab7
+  configDependencies:
+    gobuild.base_image: debian-base-amd64:buster-v1.9.0
+    gobuild.cgoEnabled: "1"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangImageName: go
+    gobuild.golangImageRegistry: fips-runtime-containers-docker-local.artifactory.eng.vmware.com
+    gobuild.golangImageVersion: 1.15.15b5
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8

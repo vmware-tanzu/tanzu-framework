@@ -1,0 +1,4 @@
+submodules:
+  - name: imgpkg/src
+    go_mod:
+      - "go.mod"

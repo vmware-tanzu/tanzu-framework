@@ -1,0 +1,10 @@
+# This version was originally a managed component
+# This version is convereted to unmanaged to work with the new build service
+# Consider using a maanaged component for the next version
+
+name: cluster_api
+unmanagedComponents:
+  - version: v0.3.11-13-ga74685ee9+vmware.1
+    gobuildBranch: vmware-0.3.11-13-ga74685ee9
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

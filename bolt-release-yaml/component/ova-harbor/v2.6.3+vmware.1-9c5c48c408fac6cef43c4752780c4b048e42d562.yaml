@@ -1,0 +1,11 @@
+name: ova-harbor
+images:
+- version: v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562
+  osinfo:
+    name: photon
+    version: "4"
+    arch: amd64
+  type: ova
+  dependencies:
+    # required by bolt for TKGm-image-build jobs, but not used by harbor-ova Jenkins job; it's a dummy value
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 61df636aa984cd9788609cd48d6a1d99cf1eb87e

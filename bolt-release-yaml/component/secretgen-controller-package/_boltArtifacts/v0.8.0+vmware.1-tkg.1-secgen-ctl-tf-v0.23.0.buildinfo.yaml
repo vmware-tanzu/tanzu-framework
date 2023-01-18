@@ -1,0 +1,23 @@
+componentBuilds:
+- name: secretgen-controller-package
+  version: v0.8.0+vmware.1-tkg.1-secgen-ctl-tf-v0.23.0
+  channel: "413394467207258956"
+  url: https://buildweb.eng.vmware.com/ob/19996794/
+  artifactURL:
+    secretgen-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/secretgen-controller:v0.8.0_vmware.1-tkg.1-tf-v0.23.0
+      sha256: fe0fac7e6be08db6048d36d3975af7b8a45fce3134bdb1dbf72a49c0f6b9a23a
+  cachehash: b765c17b83be80c3f7a63b1a039f7791
+  publishhash: 5e2cf1e775d67dbdb526c3013035dd63
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/secretgen-controller:v0.8.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-tf-v0.23.0
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: secretgen-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: ghcr.io/vmware-tanzu/carvel-secretgen-controller@sha256:0e2791ab37768fa1dd843454a1fac9403539930362f128e3a897419fa431d96c
+    gobuild.upstream_version: 0.8.0

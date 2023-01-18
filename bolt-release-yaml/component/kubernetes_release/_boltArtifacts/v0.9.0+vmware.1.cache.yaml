@@ -1,0 +1,7 @@
+name: kubernetes_release
+goBuildComponentCaches:
+- version: v0.9.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18178181/
+  buildNumber: bora-18178181
+  buildStatus: SUCCEEDED
+  hash: "7890233392145864473"

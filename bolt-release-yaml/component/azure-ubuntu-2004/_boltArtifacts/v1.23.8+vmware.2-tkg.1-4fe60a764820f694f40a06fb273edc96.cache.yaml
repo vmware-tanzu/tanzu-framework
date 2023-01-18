@@ -1,0 +1,19 @@
+name: azure-ubuntu-2004
+imageCaches:
+- version: v1.23.8+vmware.2-tkg.1-4fe60a764820f694f40a06fb273edc96
+  channel: "417352500593561757"
+  bomAzure:
+    azure:
+    - osinfo:
+        name: ubuntu
+        version: "2004"
+        arch: amd64
+      version: 2022.07.20
+      sku: k8s-1dot23dot8-ubuntu-2004
+      publisher: vmware-inc
+      offer: tkg-capi-2022-06-24
+      thirdPartyImage: true
+  hash: e801c725b4d02093cb048164188a83c6
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2574
+  buildNumber: "2574"
+  buildStatus: SUCCEEDED

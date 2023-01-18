@@ -1,0 +1,19 @@
+name: windows-resource-bundle
+managedComponents:
+- version: v1.21.5+vmware.1-tkg.1-framework-v0.7.0
+  upstreamCommit: f43c310832d9e5a265042637c8b5df0d92b354ee
+  gobuildBaseBranch: burrito-0.1.0~72bf325539c4eaecf643a60a089429a355f16143
+  componentReferences:
+  - name: antrea
+    version:
+    - v0.13.3+vmware.1
+  - name: containerd
+    version:
+    - v1.4.6+vmware.1
+  - name: kubernetes
+    version:
+    - v1.21.5+vmware.1
+  dependencies:
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.golangVersion: "1.16"
+    gobuild.linux_hosttype: linux-centos8

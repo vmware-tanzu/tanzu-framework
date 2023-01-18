@@ -1,0 +1,7 @@
+componentBuilds:
+- name: kscom_release
+  version: v1.21.0+vmware.1
+  channel: "352648039816515455"
+  url: https://buildweb.eng.vmware.com/ob/17962479/
+  cachehash: 64c73b872f397f8c7ac6787ad2a291ee
+  publishhash: 3d9e519fbdf4803e5e9bcb89edfea96b

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: csi_attacher
+  version: v3.2.0+vmware.1
+  channel: "364972090564054566"
+  url: https://buildweb.eng.vmware.com/ob/18369271/
+  artifactURL:
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.2.0_vmware.1
+      sha256: eea8bf78cc67d36d8be7770539ce53041a4ab36dce9d7342080967f1f29d3a7b
+  cachehash: dc679ade6a32217c25e345d025af9608
+  publishhash: 2dfd5c66ba8f77f19d418d2a5058472d

@@ -1,0 +1,99 @@
+componentBuilds:
+- name: tkg-standard-packages
+  version: v1.4.3-zshippable
+  channel: "408187511655896591"
+  url: https://buildweb.eng.vmware.com/ob/19817816/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.1.0_vmware.2-tkg.1
+      sha256: 8899f1d910f458437895e5d32817e5044b86ff814aad43846156f9d00032b568
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.17.2_vmware.1-tkg.2
+      sha256: 1eedbd5b546d499be9b151a9cf25e8e0a4e83e5f5b6be9f943f8d501a42c33fd
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.8.0_vmware.1-tkg.1
+      sha256: ae8cd950bbeb94b8ff66e41eaf62bcc4470f1f1ab424032a996a0193f5245961
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.1
+      sha256: c83d038c57f244aae2819dd77dc5184bb3e1ec96524d3f6a09fe8a244b7bc9e4
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.1-tkg.1
+      sha256: 561e6afe31bf627f89dbb92a7dfded25128037fc407efc7d0190f2c6bc6deec7
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.2
+      sha256: ab53d81c62bc85b06bbe5c0b8f5a404e98b0bc554606d387896fd3b673224fb4
+    multus-cni.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.2-tkg.1
+      sha256: ea6122133596b387380ae43a41ad99de042190007c9510374d16188aaa2e64bf
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.1-tkg.1
+      sha256: 27af034c1c77bcae4e1f7f6d3883286e34419ea2e88222642af17393cd34e46a
+    tanzuStandardPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.4.3-zshippable
+      sha256: 2c497db561c197a82654768fbb9ca665bef0a9a9004d7528dc01fe03d16b0e99
+  cachehash: ee19c4a5ae23c3050e8e9b63f54e1135
+  publishhash: 983b0450e2e390798b69808f2a621e8b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_alertmanager: projects-stg.registry.vmware.com/tkg/prometheus/alertmanager:v0.22.2_vmware.1
+    gobuild.downstream_cadvisor: projects-stg.registry.vmware.com/tkg/prometheus/cadvisor:v0.39.1_vmware.1
+    gobuild.downstream_cert_manager_cainjector: projects-stg.registry.vmware.com/tkg/cert-manager-cainjector:v1.1.0_vmware.2
+    gobuild.downstream_cert_manager_controller: projects-stg.registry.vmware.com/tkg/cert-manager-controller:v1.1.0_vmware.2
+    gobuild.downstream_cert_manager_webhook: projects-stg.registry.vmware.com/tkg/cert-manager-webhook:v1.1.0_vmware.2
+    gobuild.downstream_configmap_reload: projects-stg.registry.vmware.com/tkg/prometheus/configmap-reload:v0.5.0_vmware.1
+    gobuild.downstream_contour: projects-stg.registry.vmware.com/tkg/contour:v1.17.2_vmware.1
+    gobuild.downstream_envoy: projects-stg.registry.vmware.com/tkg/envoy:v1.18.4_vmware.1
+    gobuild.downstream_external_dns: projects-stg.registry.vmware.com/tkg/external-dns:v0.8.0_vmware.1
+    gobuild.downstream_fluent_bit: projects-stg.registry.vmware.com/tkg/fluent-bit:v1.7.5_vmware.1
+    gobuild.downstream_grafana: projects-stg.registry.vmware.com/tkg/grafana/grafana:v7.5.7_vmware.1
+    gobuild.downstream_harbor_core: projects-stg.registry.vmware.com/tkg/harbor/harbor-core:v2.2.3_vmware.1
+    gobuild.downstream_harbor_database: projects-stg.registry.vmware.com/tkg/harbor/harbor-db:v2.2.3_vmware.1
+    gobuild.downstream_harbor_exporter: projects-stg.registry.vmware.com/tkg/harbor/harbor-exporter:v2.2.3_vmware.1
+    gobuild.downstream_harbor_job_service: projects-stg.registry.vmware.com/tkg/harbor/harbor-jobservice:v2.2.3_vmware.1
+    gobuild.downstream_harbor_notary_server: projects-stg.registry.vmware.com/tkg/harbor/notary-server-photon:v2.2.3_vmware.1
+    gobuild.downstream_harbor_notary_signer: projects-stg.registry.vmware.com/tkg/harbor/notary-signer-photon:v2.2.3_vmware.1
+    gobuild.downstream_harbor_portal: projects-stg.registry.vmware.com/tkg/harbor/harbor-portal:v2.2.3_vmware.1
+    gobuild.downstream_harbor_redis: projects-stg.registry.vmware.com/tkg/harbor/redis-photon:v2.2.3_vmware.1
+    gobuild.downstream_harbor_registry: projects-stg.registry.vmware.com/tkg/harbor/registry-photon:v2.2.3_vmware.1
+    gobuild.downstream_harbor_registry_ctl: projects-stg.registry.vmware.com/tkg/harbor/harbor-registryctl:v2.2.3_vmware.1
+    gobuild.downstream_harbor_trivy_adaptor: projects-stg.registry.vmware.com/tkg/harbor/trivy-adapter-photon:v2.2.3_vmware.1
+    gobuild.downstream_k8s_sidecar: projects-stg.registry.vmware.com/tkg/grafana/k8s-sidecar:v1.12.1_vmware.1
+    gobuild.downstream_kube_state_metrics: projects-stg.registry.vmware.com/tkg/prometheus/kube-state-metrics:v1.9.8_vmware.1
+    gobuild.downstream_multus_cni: projects-stg.registry.vmware.com/tkg/multus-cni:v3.7.1_vmware.2
+    gobuild.downstream_prometheus: projects-stg.registry.vmware.com/tkg/prometheus/prometheus:v2.27.0_vmware.1
+    gobuild.downstream_prometheus_node_exporter: projects-stg.registry.vmware.com/tkg/prometheus/prometheus_node_exporter:v1.1.2_vmware.1
+    gobuild.downstream_pushgateway: projects-stg.registry.vmware.com/tkg/prometheus/pushgateway:v1.4.0_vmware.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_versions: cert-manager:1.1.0:vmware.2-tkg.1;contour:1.17.2:vmware.1-tkg.2;external-dns:0.8.0:vmware.1-tkg.1;fluent-bit:1.7.5:vmware.1-tkg.1;grafana:7.5.7:vmware.1-tkg.1;prometheus:2.27.0:vmware.1-tkg.1;harbor:2.2.3:vmware.1-tkg.2;multus-cni:3.7.1:vmware.2-tkg.1;
+    gobuild.releaseVersion: v1.4.3-zshippable
+    gobuild.upstream_alertmanager: prom/alertmanager:v0.22.2
+    gobuild.upstream_cadvisor: gcr.io/cadvisor/cadvisor:v0.39.1
+    gobuild.upstream_cert_manager_cainjector: quay.io/jetstack/cert-manager-cainjector:v1.1.0
+    gobuild.upstream_cert_manager_controller: quay.io/jetstack/cert-manager-controller:v1.1.0
+    gobuild.upstream_cert_manager_webhook: quay.io/jetstack/cert-manager-webhook:v1.1.0
+    gobuild.upstream_configmap_reload: jimmidyson/configmap-reload:v0.5.0
+    gobuild.upstream_contour: docker.io/projectcontour/contour:v1.17.2
+    gobuild.upstream_envoy: docker.io/envoyproxy/envoy:v1.18.4
+    gobuild.upstream_external_dns: k8s.gcr.io/external-dns/external-dns
+    gobuild.upstream_fluent_bit: fluent/fluent-bit:1.7.5
+    gobuild.upstream_grafana: grafana/grafana:7.5.7
+    gobuild.upstream_harbor_core: goharbor/harbor-core:v2.2.3
+    gobuild.upstream_harbor_database: goharbor/harbor-db:v2.2.3
+    gobuild.upstream_harbor_exporter: goharbor/harbor-exporter:v2.2.3
+    gobuild.upstream_harbor_job_service: goharbor/harbor-jobservice:v2.2.3
+    gobuild.upstream_harbor_notary_server: goharbor/notary-server-photon:v2.2.3
+    gobuild.upstream_harbor_notary_signer: goharbor/notary-signer-photon:v2.2.3
+    gobuild.upstream_harbor_portal: goharbor/harbor-portal:v2.2.3
+    gobuild.upstream_harbor_redis: goharbor/redis-photon:v2.2.3
+    gobuild.upstream_harbor_registry: goharbor/registry-photon:v2.2.3
+    gobuild.upstream_harbor_registry_ctl: goharbor/harbor-registryctl:v2.2.3
+    gobuild.upstream_harbor_trivy_adaptor: goharbor/trivy-adapter-photon:v2.2.3
+    gobuild.upstream_k8s_sidecar: kiwigrid/k8s-sidecar:1.12.1
+    gobuild.upstream_kube_state_metrics: quay.io/coreos/kube-state-metrics:v1.9.8
+    gobuild.upstream_multus_cni: ghcr.io/k8snetworkplumbingwg/multus-cni:v3.7.1
+    gobuild.upstream_prometheus: prom/prometheus:v2.27.0
+    gobuild.upstream_prometheus_node_exporter: quay.io/prometheus/node-exporter:v1.1.2
+    gobuild.upstream_pushgateway: prom/pushgateway:v1.4.0

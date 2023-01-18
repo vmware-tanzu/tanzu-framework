@@ -1,0 +1,7 @@
+name: velero-plugin-for-vsphere
+goBuildComponentCaches:
+- version: v1.3.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/19158981/
+  buildNumber: bora-19158981
+  buildStatus: SUCCEEDED
+  hash: a316afbb4310000ca6cd954fa8cb4d5b

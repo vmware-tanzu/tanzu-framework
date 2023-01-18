@@ -1,0 +1,7 @@
+name: tkg-clusterclass-azure-package
+goBuildComponentCaches:
+- version: v0.28.0-dev-281-g6af7984e-tkg-clusterclass-azure
+  url: https://buildweb.eng.vmware.com/ob/21059003/
+  buildNumber: bora-21059003
+  buildStatus: SUCCEEDED
+  hash: 64251a769bc2c9f3949d138cd8913761

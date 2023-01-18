@@ -1,0 +1,11 @@
+name: ova-harbor
+imageCaches:
+- version: v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562
+  channel: "443026087086135419"
+  imageCacheOVA:
+    url: http://10.163.0.130/kscom-generic-local/TKG/channels/443026087086135419/component/ova-harbor/photon-4-harbor-v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562.ova
+    imageSHA: 968bcfd15496d3132ba03689a99f7aa6c4d691febd41f31c0384d22761a7d024
+  hash: f5e621f5228cbda961c219e916f40ffd
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/dev-harbor-build-ova/67
+  buildNumber: "67"
+  buildStatus: SUCCEEDED

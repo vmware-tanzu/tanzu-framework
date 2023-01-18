@@ -1,0 +1,9 @@
+name: tkgs-ova-ubuntu-2004
+imageCaches:
+- version: v1.20.8+vmware.1-tkg.2
+  channel: "377871877214835016"
+  imageCacheOVA: {}
+  hash: 357b578cd8354ae7fca3aa5f9f955dc1
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgs-build-ova/91
+  buildNumber: "91"
+  buildStatus: SUCCEEDED

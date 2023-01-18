@@ -1,0 +1,6 @@
+name: harbor
+unmanagedComponents:
+  - version: v2.4.2+vmware.1
+    gobuildBranch: vmware-2.4.2~17d5636e9ee139ab14f83bd7244194b1f379240f
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,15 @@
+componentBuilds:
+- name: csi_livenessprobe
+  version: v2.5.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104027/
+  artifactURL:
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.5.0_vmware.1
+      sha256: 040836dd6d763e640d607a16d6ea54b7c1880e1eb78043d8dad2608f2b563f88
+  cachehash: 8c9429b3cae07c483139c3ba3c966059
+  publishhash: ad32cfc6d337dff0830e3e570262636b
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.16.0
+    gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,7 @@
+name: fluxcd-helm-controller-package
+goBuildComponentCaches:
+- version: v0.21.0+vmware.1-tkg.1-helm-ctrl-zshippable
+  url: https://buildweb.eng.vmware.com/ob/19885955/
+  buildNumber: bora-19885955
+  buildStatus: SUCCEEDED
+  hash: 9cee2dc261db5f20c8044e58f2c79ef7

@@ -1,0 +1,4 @@
+submodules:
+  - name: carvel-vendir/src
+    go_mod:
+      - "go.mod"

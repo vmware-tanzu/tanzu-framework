@@ -1,0 +1,27 @@
+componentBuilds:
+- name: ova-tinytkg-photon-3
+  version: v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f
+  channel: "435826519139424108"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2968
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-photon-3/bom-ova-tinytkg-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-photon-3/ova-tinytkg-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-photon-3/ova-tinytkg-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-photon-3/photon-3-kube-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-photon-3/ova-tinytkg-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-photon-3/ova-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f-provenance_result.txt
+  cachehash: 1e93643bb3791b1914fc97b359247ed6
+  publishhash: 22e2933af935119c4827468cb86b283d
+  configDependencies:
+    base_iso_sha: 76fbe13df3f7340c94cf5706a0ec33ffc377c47e
+    base_iso_url: http://10.163.0.228/kscom-generic-local/isos/photon-minimal-3.0-rev3-u1.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: baf534da10fea37e31c60543b5aecf10cc7f75d1
+    jenkins.PHOTON3_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/photon-3-stig-hardening.git
+    jenkins.PHOTON3_STIG_VERSION: 8cd1ee34346dbd5ebc6abe09cc519fe8216c6335
+    jenkins.TINY_TKG: "true"

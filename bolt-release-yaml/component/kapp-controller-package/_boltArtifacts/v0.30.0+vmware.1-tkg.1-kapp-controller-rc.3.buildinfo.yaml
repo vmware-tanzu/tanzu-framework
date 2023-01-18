@@ -1,0 +1,11 @@
+componentBuilds:
+- name: kapp-controller-package
+  version: v0.30.0+vmware.1-tkg.1-kapp-controller-rc.3
+  channel: "385167028333341286"
+  url: https://buildweb.eng.vmware.com/ob/19041733/
+  artifactURL:
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.30.0_vmware.1-tkg.1-rc.3
+      sha256: 92499dbaf1c3dc1eaeb67fc959a09261da7c4d78ed4474af79dc9e949b7d210c
+  cachehash: 235669de88caa5cc67e701b4b9cb3e61
+  publishhash: 386598a473d4ed792227a88e5777e074

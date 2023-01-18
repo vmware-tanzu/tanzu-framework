@@ -1,0 +1,40 @@
+name: kubernetes
+managedComponents:
+- version: v1.25.3+vmware.1
+  upstreamTag: v1.25.3
+  mirrorCherryPicks:
+  - sha: 024275a23fa6b677b921d9659e02c1394db1846d
+    description: fixes to 'docker save' to work in cayman env
+  - sha: 55a28a57b281f8aca6da5c287fe85bd5422eff8a
+    description: kube-cross image + tag can be set for build-image
+  gobuildBaseBranch: vmware-1.25.0+vmware.1~14460fba35aa284e3656540bdcaf7279dcd1256d
+  dependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.KUBE_BASE_IMAGE_REGISTRY: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.cgoEnabled: "0"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.debian_base_image: debian-base-amd64:bullseye-v1.3.0
+    gobuild.debian_iptable_image: distroless-iptables-amd64:v0.1.1
+    gobuild.golangVersion: 1.19.2
+    gobuild.kubeCrossImageRef: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes_release") "artifactURL"
+      "kube-cross" "url"}}'
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: "3.8"
+    kubeadmAPIVersion: kubeadm.k8s.io/v1beta2
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.13
+  - name: coredns
+    version:
+    - v1.9.3+vmware.3
+  - name: cri_tools
+    version:
+    - v1.24.2+vmware.3
+  - name: etcd
+    version:
+    - v3.5.4+vmware.14
+  - name: kubernetes_release
+    version:
+    - v0.14.0+vmware.3

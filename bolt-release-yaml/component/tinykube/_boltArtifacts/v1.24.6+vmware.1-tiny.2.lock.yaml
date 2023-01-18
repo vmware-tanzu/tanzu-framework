@@ -1,0 +1,7 @@
+name: tinykube
+goBuildComponentLocks:
+- version: v1.24.6+vmware.1-tiny.2
+  gobuildBranch: 435826519139424108-v1.24.6+vmware.1-tiny.2-tinykube
+  gobuildHeadCommit: 1afa788f80871c4df6cc1808a2a769425c9fd9ea
+  hash: bcb53736656df35fa42a7d824faaf304
+  componentLockReferences: []

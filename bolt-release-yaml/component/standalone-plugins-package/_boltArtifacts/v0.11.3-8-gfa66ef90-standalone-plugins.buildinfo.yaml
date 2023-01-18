@@ -1,0 +1,11 @@
+componentBuilds:
+- name: standalone-plugins-package
+  version: v0.11.3-8-gfa66ef90-standalone-plugins
+  channel: "401266633902949555"
+  url: https://buildweb.eng.vmware.com/ob/19580436/
+  artifactURL:
+    standalone-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standalone/standalone-plugins:v0.11.3-8-gfa66ef90_vmware.1
+      sha256: 9c47b0c7270dad206332f3f11dda41faad5ee56407cf014507cbc13603dd425c
+  cachehash: 0bca87a65fa37f5837f8b603935e7a22
+  publishhash: 61380dd6e6b4508ddb4529016630a597

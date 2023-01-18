@@ -1,0 +1,12 @@
+componentBuilds:
+- name: cri_tools
+  version: v1.19.0+vmware.3
+  channel: "346284577834191083"
+  url: https://buildweb.eng.vmware.com/ob/17763112/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17763112/publish/lin64/cri_tools/executables/crictl-v1.19.0+vmware.3.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17763112/publish/lin64/cri_tools/debs/cri-tools_v1.19.0+vmware.3-1_amd64.deb
+  cachehash: 3ddf78f1355fc74450d05311f27dd231
+  publishhash: 6b0e7716fd048755adc78937d4e7bf33

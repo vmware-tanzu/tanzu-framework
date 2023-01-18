@@ -1,0 +1,7 @@
+name: fluent-bit
+unmanagedComponents:
+  - version: v1.7.5+vmware.1
+    gobuildBranch: vmware-1.7.5~8893e043a9073bf62971b4be07fa7f04bc063254
+    dependencies:
+      gobuild.golangVersion: 1.13.6
+      gobuild.linux_hosttype: linux-centos72-gc32

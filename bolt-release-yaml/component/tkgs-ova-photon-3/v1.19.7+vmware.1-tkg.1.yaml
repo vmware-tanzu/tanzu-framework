@@ -1,0 +1,52 @@
+name: tkgs-ova-photon-3
+images:
+- version: v1.19.7+vmware.1-tkg.1
+  osinfo:
+    name: photon
+    version: "3"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: d808afff63be313a96999c2b4460f45310e7d4ae
+  componentReferences:
+    - name: calico_all
+      version:
+        - v3.11.2+vmware.1
+    - name: vsphere_csi_driver_tkgs
+      version:
+        - vsphere70u3-5212290-e831b6d
+    - name: kubernetes
+      version:
+        - v1.19.7+vmware.1
+    - name: coredns
+      version:
+        - v1.7.0+vmware.7
+    - name: etcd
+      version:
+        - v3.4.13+vmware.6
+    - name: antrea
+      version:
+        - v0.13.5+vmware.3
+    - name: guest-cluster-cloud-provider
+      version:
+        - v0.1-87-gb6bb261
+    - name: guest-cluster-auth-service
+      version:
+        - v0.1-71-g64e1c73
+    - name: docker_distribution
+      version:
+        - 2.7.1
+    - name: cni_plugins
+      version:
+        - v0.8.7+vmware.4
+    - name: containerd
+      version:
+        - v1.4.6+vmware.1
+    - name: metrics-server
+      version:
+        - v0.4.0+vmware.2
+  dependencies:
+    base_iso_sha: c2883a42e402a2330d9c39b4d1e071cf9b3b5898
+    base_iso_url: https://packages.vmware.com/photon/3.0/Rev3/iso/photon-minimal-3.0-a383732.iso
+    jenkins.TKGS_BUILDINFO_URL: $REFBUILDINFO_URL
+    # Dummy commit sha is used since TKGS work is WIP
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 1223456

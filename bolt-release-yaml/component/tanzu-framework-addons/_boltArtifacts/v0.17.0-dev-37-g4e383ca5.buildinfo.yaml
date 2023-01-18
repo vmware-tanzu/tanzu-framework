@@ -1,0 +1,14 @@
+componentBuilds:
+- name: tanzu-framework-addons
+  version: v0.17.0-dev-37-g4e383ca5
+  channel: "394821741370699253"
+  url: https://buildweb.eng.vmware.com/ob/19358869/
+  artifactURL:
+    tanzuAddonsManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v0.17.0-dev-37-g4e383ca5
+      sha256: 13abaf14320579a5e7736752e262c8e6948137adfe086dc07e9b1d014a13b383
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.17.0-dev-37-g4e383ca5
+      sha256: 8411f20369fd6d2823de353bfa801573aac22d8ef5709f5f071d91242a250152
+  cachehash: 5e1d46ff729fd46ca76797f3ea64148e
+  publishhash: 9bcb224f7eaf2750adf282948c6a9f80

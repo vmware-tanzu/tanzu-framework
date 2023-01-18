@@ -1,0 +1,11 @@
+name: ova-photon-3
+imageCaches:
+- version: v1.21.13+vmware.1-tkg.1-0262f0ab881e294df81498075207f2b5
+  channel: "415270169250636549"
+  imageCacheOVA:
+    url: http://10.163.0.194/kscom-generic-local/TKG/channels/415270169250636549/component/ova-photon-3/photon-3-kube-v1.21.13+vmware.1-tkg.1-0262f0ab881e294df81498075207f2b5.ova
+    imageSHA: 276f4c5d19a4ed71ebf3a32b7eede2301d9470d730fec46b97b83c206bde9869
+  hash: e84015b034fb490c457b740c8b4da375
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/1780
+  buildNumber: "1780"
+  buildStatus: SUCCEEDED

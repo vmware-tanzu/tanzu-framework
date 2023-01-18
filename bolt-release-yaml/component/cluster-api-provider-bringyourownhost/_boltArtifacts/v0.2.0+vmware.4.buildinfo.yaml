@@ -1,0 +1,18 @@
+componentBuilds:
+- name: cluster-api-provider-bringyourownhost
+  version: v0.2.0+vmware.4
+  channel: "417569215029974416"
+  url: https://buildweb.eng.vmware.com/ob/20145044/
+  artifactURL:
+    byoh-hostagent:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20145044/publish/lin64/cluster-api-provider-bringyourownhost/executables/byoh-hostagent-v0.2.0+vmware.4-linux-amd64.gz
+    byohControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-byoh-controller:v0.2.0_vmware.4
+      sha256: 4cd59bb43e79a07c7670297395bad52ca5a8fa1ec62e55ff7cbc8518db13d03e
+  cachehash: 26ff9a31457670b1d6568552a959ddc3
+  publishhash: 10654ea686246715ddc802441f9c6048
+  configDependencies:
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.8
+    gobuild.linux_hosttype: linux-centos8

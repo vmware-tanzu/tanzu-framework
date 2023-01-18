@@ -1,0 +1,12 @@
+# This version was originaly a managed component
+# This version was converted unmanaged to work with new build service
+# Consider making the next version a managed component
+name: kube-vip
+managedComponents:
+  - version: v0.3.2+vmware.1
+    upstreamTag: v0.3.2
+    gobuildBaseBranch: vmware-0.0.0+vmware.0
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32
+      gobuild.golangVersion: 1.13.15
+      gobuild.containerNamePrefix: vmware.io

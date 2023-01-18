@@ -1,0 +1,7 @@
+name: k8s-sidecar
+goBuildComponentCaches:
+- version: v0.1.144+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/17891624
+  buildNumber: bora-17891624
+  buildStatus: SUCCEEDED
+  hash: 92296e89f0acae939ecd1c82f788a2c5

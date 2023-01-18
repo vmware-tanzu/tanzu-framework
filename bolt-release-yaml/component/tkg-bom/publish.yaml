@@ -1,0 +1,10 @@
+name: tkg-bom
+publish:
+  - name: tkgBomImage
+    type: image
+    sourcePath: $SOURCECHANNEL/component/tkg-bom/tkg-bom-$VERSION.tar.gz
+    destinationPath: tkg-bom:$UNDERSCOREVERSION
+nonpublish:
+  - name: tkgBomYaml
+    type: file
+    destinationPath: $CHANNEL/component/tkg-bom/tkg-bom-$VERSION.yaml

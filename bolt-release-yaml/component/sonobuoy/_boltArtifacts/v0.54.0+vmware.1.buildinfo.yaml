@@ -1,0 +1,17 @@
+componentBuilds:
+- name: sonobuoy
+  version: v0.54.0+vmware.1
+  channel: "380053230773635736"
+  url: https://buildweb.eng.vmware.com/ob/18875298/
+  artifactURL:
+    sonobuoy-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18875298/publish/lin64/sonobuoy/executables/sonobuoy-darwin-amd64-v0.54.0+vmware.1.gz
+    sonobuoy-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18875298/publish/lin64/sonobuoy/executables/sonobuoy-linux-amd64-v0.54.0+vmware.1.gz
+    sonobuoy-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18875298/publish/lin64/sonobuoy/executables/sonobuoy-windows-amd64-v0.54.0+vmware.1.gz
+    sonobuoyImage:
+      url: projects-stg.registry.vmware.com/tkg/sonobuoy:v0.54.0_vmware.1
+      sha256: c107c0f28e5fb8aaea1415b808a9a9f79baaeb41fa76a7c3595d931ac08d6774
+  cachehash: e38b70405f1376ae08d1ab4c8e449cba
+  publishhash: 6bd467a7f3f132ce7601bd55cb635f39

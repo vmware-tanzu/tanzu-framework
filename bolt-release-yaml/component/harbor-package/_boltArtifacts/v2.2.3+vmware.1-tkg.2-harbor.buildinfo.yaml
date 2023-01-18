@@ -1,0 +1,12 @@
+# Note: we created this file manually so that 1.5.0 tkg-standard-pacakges can pick this up
+componentBuilds:
+- name: harbor-package
+  version: v2.2.3+vmware.1-tkg.2-harbor
+  channel: "388893606586382993"
+  url: https://buildweb.eng.vmware.com/ob/19158461/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.2
+      sha256: ab53d81c62bc85b06bbe5c0b8f5a404e98b0bc554606d387896fd3b673224fb4
+  cachehash: 0
+  publishhash: 0

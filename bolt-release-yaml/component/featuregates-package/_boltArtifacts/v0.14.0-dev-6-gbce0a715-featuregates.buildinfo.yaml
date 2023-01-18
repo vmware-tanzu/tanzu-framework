@@ -1,0 +1,11 @@
+componentBuilds:
+- name: featuregates-package
+  version: v0.14.0-dev-6-gbce0a715-featuregates
+  channel: "384137638220678379"
+  url: https://buildweb.eng.vmware.com/ob/19008812/
+  artifactURL:
+    featuregates.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/featuregates:v0.14.0-dev-6-gbce0a715_vmware.1
+      sha256: 787c7b626240dacc7c442dab534362c80d41f09dcc7c72697d6674b77ffad9e4
+  cachehash: 53b435f1e7f913f67ed74626dd02af9d
+  publishhash: b18039830ec752877daef8e6ef1178e5

@@ -1,0 +1,16 @@
+componentBuilds:
+- name: byoh-k8s-ubuntu-2004
+  version: v1.21.14+vmware.2-tkg.1
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20347174/
+  artifactURL:
+    byohImgpkgBundle:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/byoh-bundle-ubuntu_20.04.1_x86-64_k8s:v1.21.14_vmware.2-tkg.1
+      sha256: a42537bbf7054de56ddddc1ad4d7fad467940ba109d03501b01a8f4f7d3e23b9
+  cachehash: d8c649e9f9dd8710520da665ee9e640d
+  publishhash: a7d907cfe01e30e2402fc31a9b8e10f0
+  configDependencies:
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.16.0
+    gobuild.linux_hosttype: linux-centos8

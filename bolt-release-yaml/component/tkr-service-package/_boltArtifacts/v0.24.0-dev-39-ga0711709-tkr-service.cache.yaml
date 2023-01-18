@@ -1,0 +1,7 @@
+name: tkr-service-package
+goBuildComponentCaches:
+- version: v0.24.0-dev-39-ga0711709-tkr-service
+  url: https://buildweb.eng.vmware.com/ob/19977100/
+  buildNumber: bora-19977100
+  buildStatus: SUCCEEDED
+  hash: 11276f062d1f0f18baa97d87789a2aa2

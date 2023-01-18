@@ -1,0 +1,7 @@
+name: cert-manager-package
+goBuildComponentCaches:
+- version: v1.5.3+vmware.2-tkg.1-cert-manager-zshippable
+  url: https://buildweb.eng.vmware.com/ob/19314163/
+  buildNumber: bora-19314163
+  buildStatus: SUCCEEDED
+  hash: 5cf913f474dda0a8c0feb147cdad7077

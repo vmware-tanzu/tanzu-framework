@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off for WCP to bump cert-manager v1.5.3 to take in the latest Debian updates to fix CVEs"
+componentReferences:
+- name: jetstack_cert-manager
+  version:
+  - v1.5.3+vmware.5

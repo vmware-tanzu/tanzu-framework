@@ -1,0 +1,64 @@
+componentBuilds:
+- name: csi_attacher
+  version: v3.2.0+vmware.1
+  channel: "364972090564054566"
+  url: https://buildweb.eng.vmware.com/ob/18369271/
+  artifactURL:
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.2.0_vmware.1
+      sha256: eea8bf78cc67d36d8be7770539ce53041a4ab36dce9d7342080967f1f29d3a7b
+  cachehash: dc679ade6a32217c25e345d025af9608
+  publishhash: 2dfd5c66ba8f77f19d418d2a5058472d
+- name: csi_livenessprobe
+  version: v2.2.0+vmware.1
+  channel: "354679577366233886"
+  url: https://buildweb.eng.vmware.com/ob/18025590/
+  artifactURL:
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.2.0_vmware.1
+      sha256: 50b2870b338804679df8430c4103cc5b337147d26bb872ae4562c2bddbc32fc6
+  cachehash: 474a93dc06e1a136f63322496a5ae624
+  publishhash: ad32cfc6d337dff0830e3e570262636b
+- name: csi_node_driver_registrar
+  version: v2.1.0+vmware.1
+  channel: "354679577366233886"
+  url: https://buildweb.eng.vmware.com/ob/18025649/
+  artifactURL:
+    csiNodeDriverRegistrarImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.1.0_vmware.1
+      sha256: 10719346599e8fca5744e645e214fec1e5694187040e9b40284e9f526046a500
+  cachehash: 7d34e5dd8968faebd0aaf2780784fa77
+  publishhash: e9183afffd250117d9eea541bba6836f
+- name: kubernetes-csi_external-resizer
+  version: v1.1.0+vmware.1
+  channel: "354679577366233886"
+  url: https://buildweb.eng.vmware.com/ob/17745613
+  artifactURL:
+    csiExternalResizer:
+      url: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.1.0_vmware.1
+      sha256: 2b355fd826ca76f2e3d234d6538010c3f26cb7ecea503cfdafe8b6cf619455bb
+  cachehash: ef49c9ec973f5e9295d3d9c6076b0903
+  publishhash: 3556c1335bba2f78f1541fc58f73089b
+- name: csi_provisioner
+  version: v2.2.0+vmware.1
+  channel: "364972090564054566"
+  url: https://buildweb.eng.vmware.com/ob/18368977/
+  artifactURL:
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v2.2.0_vmware.1
+      sha256: 29048792649bd6ff1af10cb130f647632252d0c68628459105afaa3880c0cd5d
+  cachehash: 87e9767a4a135dbae3259bf73929aa67
+  publishhash: 4764f174cbd6be97bb004d2ae1648bd0
+- name: vsphere_csi_driver
+  version: v2.3.0+vmware.1
+  channel: "369768500660593871"
+  url: https://buildweb.eng.vmware.com/ob/18531197/
+  artifactURL:
+    csiControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.3.0_vmware.1
+      sha256: b41488e10e589605ae0545632374295b92a176c68d69fec12e748e279afffe99
+    csiMetaDataSyncerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/volume-metadata-syncer:v2.3.0_vmware.1
+      sha256: f2ec71e1aaa54e36aca5dc3f0ec0d3e3d10875d9f48847dac3f613a1bdc55991
+  cachehash: 3f4a7c6f2795f247f546d1ce77d25c06
+  publishhash: 23c68b22765f008ca6153903e6fb5ae5

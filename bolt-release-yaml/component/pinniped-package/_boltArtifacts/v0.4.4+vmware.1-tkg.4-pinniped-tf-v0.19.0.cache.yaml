@@ -1,0 +1,7 @@
+name: pinniped-package
+goBuildComponentCaches:
+- version: v0.4.4+vmware.1-tkg.4-pinniped-tf-v0.19.0
+  url: https://buildweb.eng.vmware.com/ob/19539373/
+  buildNumber: bora-19539373
+  buildStatus: SUCCEEDED
+  hash: afb4af5abb0bbd58457f8befc4f6f051

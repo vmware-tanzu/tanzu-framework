@@ -1,0 +1,18 @@
+componentBuilds:
+- name: kubernetes_release
+  version: v0.9.0+vmware.10-fips
+  channel: "409962192947968243"
+  url: https://buildweb.eng.vmware.com/ob/19878040/
+  artifactURL:
+    kube-cross:
+      url: projects-stg.registry.vmware.com/tkg/kube-cross:v0.9.0_vmware.10-fips
+      sha256: a9857d410f7ffc2ec1f0a7b768a25ac6b150c4ad3780443ba7b07ef50365425b
+  cachehash: 50eb034030ae19c0bfdfee4e21bc4440
+  publishhash: 7021b2705a89024d325dd8f94088cd62
+  configDependencies:
+    gobuild.golangImageName: go
+    gobuild.golangImageRegistry: fips-runtime-containers-docker-local.artifactory.eng.vmware.com
+    gobuild.golangImageVersion: 1.16.15b7
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8

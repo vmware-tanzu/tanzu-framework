@@ -1,0 +1,41 @@
+componentBuilds:
+- name: tanzu_core_addons
+  version: v1.4.0-pre-alpha-1-211-24437601
+  channel: "358714089272250665"
+  url: https://buildweb.eng.vmware.com/ob/18153253/
+  artifactURL:
+    akoOperatorTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/ako-operator-templates:v1.4.0-pre-alpha-1-211-24437601
+      sha256: d2b1de49492f058f363532915ce19b0286eb0ddb8acad6388fa3943d694f3f88
+    antreaTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/antrea-templates:v1.4.0-pre-alpha-1-211-24437601
+      sha256: feae43c6a985f08b589d0d5ec09a1561cd53df9ccea04d5aab147766383948af
+    calicoTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/calico-templates:v1.4.0-pre-alpha-1-211-24437601
+      sha256: 73b885d9108935345271bc5872f87b82ce285ea50bb9a3fb7c3ca23dd24b5555
+    kappControllerTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/kapp-controller-templates:v1.4.0-pre-alpha-1-211-24437601
+      sha256: 3056cee446c2677491e34160923657105a44c8669c92252bc483bb5375336840
+    metricsServerTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/metrics-server-templates:v1.4.0-pre-alpha-1-211-24437601
+      sha256: 4e26a9aab009dd6b1b72f1ebc4d6d7f429c8af52d0b0c580c86995b9261d3e8d
+    pinnipedTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/pinniped-templates:v1.4.0-pre-alpha-1-211-24437601
+      sha256: 525ab947647019ed5e3100bdd84417cc148d4f5f5777d13a546235ed11a18a30
+    tanzuAddonsManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v1.4.0-pre-alpha-1-211-24437601
+      sha256: 626cc0a4c041d4dac59c61a08215842d0966aafc18ec05ab814fc8415afd4004
+    tanzuAddonsManagerTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager-templates:v1.4.0-pre-alpha-1-211-24437601
+      sha256: 9421d741102f26cd5a058a147bd914eaba2e6308642f57277e5b1932c5cf3060
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v1.4.0-pre-alpha-1-211-24437601
+      sha256: e5081fcf507374a5bd6a582e41f361a1ab9bc478ef077ef3ba15ab26c1dac7b0
+    vsphereCpiTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/vsphere-cpi-templates:v1.4.0-pre-alpha-1-211-24437601
+      sha256: 65fa07c5565b539813efa4a484eafc0ae07cb3869cd2b086dc89045594969703
+    vsphereCsiTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/vsphere-csi-templates:v1.4.0-pre-alpha-1-211-24437601
+      sha256: eedfc0ee8c3605f21756c86a9e940d231bffe401b031556130a6571fc01dfacf
+  cachehash: "503153129329027513"
+  publishhash: "4783485510867653224"

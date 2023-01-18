@@ -1,0 +1,12 @@
+# tinykube-image-tar in tar format is needed by image-builder
+name: tinykube
+publish:
+  - name: tinykubeExecutable
+    type: imgpkg-image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tinykube/executables/tinykube-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tinykube/executables/tinykube-linux-amd64-$UNDERSCOREVERSION-executables-checksums.txt
+    destinationPath: tinykube/tinykube-linux-amd64:$UNDERSCOREVERSION
+  - name: tinykube-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tinykube/executables/tinykube-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/tinykube/$VERSION/publish/lin64/tinykube/executables/tinykube-linux-amd64-$UNDERSCOREVERSION.tar

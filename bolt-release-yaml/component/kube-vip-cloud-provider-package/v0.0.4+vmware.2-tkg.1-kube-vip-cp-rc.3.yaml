@@ -1,0 +1,22 @@
+name: kube-vip-cloud-provider-package
+packages:
+- version: v0.0.4+vmware.2-tkg.1-kube-vip-cp-rc.3
+  upstreamCommit: b3fd53de23585deb58e0c3982508cb3b13f3b1dc
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: kube-vip-cloud-provider
+    version:
+    - v0.0.4+vmware.2
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_kube_vip_cloud_provider: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kube-vip-cloud-provider").artifactURL.kubevipcloudproviderControllerImage.url}}'
+    gobuild.downstream_version: vmware.2-tkg.1-rc.3
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: kube-vip-cloud-provider
+    gobuild.package_type: core
+    gobuild.upstream_kube_vip_cloud_provider: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.4
+    gobuild.upstream_version: 0.0.4

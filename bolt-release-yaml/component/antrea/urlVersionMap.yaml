@@ -1,0 +1,21 @@
+versionMap:
+  v0.10.2+vmware.3: url.yaml
+  v0.11.1+vmware.5: url.yaml
+  v0.11.3+vmware.1: url.yaml
+  v0.11.3+vmware.2: url.yaml
+  v0.13.3+vmware.1: url.yaml
+  v0.13.5+vmware.3: url.yaml
+  v0.13.5+vmware.4: url.yaml
+  v1.2.3+vmware.2: url.yaml
+  v1.2.3+vmware.3: url.yaml
+  v1.2.3+vmware.4-advanced: url.yaml
+  v1.2.3+vmware.4-standard: url.yaml
+  v1.5.2+vmware.3-advanced: url-advanced.yaml
+  v1.5.2+vmware.3-standard: url-standard.yaml
+  v1.5.3-advanced: url-advanced.yaml
+  v1.5.3-standard: url-standard.yaml
+  v1.5.3+vmware.3-advanced: url-advanced.yaml
+  v1.5.3+vmware.3-standard: url-standard.yaml
+  v1.7.1+vmware.1-advanced: url-advanced.yaml
+  v1.7.2+vmware.1-advanced: url-advanced.yaml
+  v1.5.3+vmware.2: url-tkgs-advanced.yaml

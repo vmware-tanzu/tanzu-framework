@@ -1,0 +1,20 @@
+componentBuilds:
+- name: calico_all
+  version: v3.24.1+vmware.1
+  channel: "430850645545715731"
+  url: https://buildweb.eng.vmware.com/ob/20665418/
+  artifactURL:
+    calicoCniImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/cni:v3.24.1_vmware.1
+      sha256: e6c640db30d15c86963fafeac07c8a307b7cb0e557d2648742518967e3508080
+    calicoKubecontrollerImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/kube-controllers:v3.24.1_vmware.1
+      sha256: 52228cc79b4b54043fd2c60773b73728ee0846105fd5fe34b8f178c96f3f00be
+    calicoNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/node:v3.24.1_vmware.1
+      sha256: b653419251a4b9fd0e41d8e1a16a46d91100520768cefdb7b4a5df6e72f615ea
+  cachehash: 07cb88e3bd3bf06f9a7f6b887f3afbdf
+  publishhash: 3eb57915dd19a9eedb45c8c288593749
+  configDependencies:
+    gobuild.golangVersion: "1.18"
+    gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,22 @@
+name: tkr-service-package
+packages:
+- version: v0.21.0-dev-101-g8ee1de7b-tkr-service
+  upstreamCommit: 8ee1de7b247c644d7c8be451cac857b44a0efda2
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~790ae920223eceb8af546a05d91441dedcef03f5
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.21.0-dev-101-g8ee1de7b
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.tkrResolverImage.url}}'
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-service
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tkr-resolver-cluster-webhook:latest
+    gobuild.upstream_version: v0.21.0-dev-101-g8ee1de7b

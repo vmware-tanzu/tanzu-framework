@@ -1,0 +1,36 @@
+componentBuilds:
+- name: tkg_release
+  version: v1.7.0-zshippable
+  channel: "442082042453168548"
+  url: https://buildweb.eng.vmware.com/ob/21077215/
+  artifactURL:
+    dir-node-ova:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/
+    ova-photon-3-v1.22.17+vmware.1-tkg.1-a10ef8e088cc2c89418bca79a2fcc594_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/ova-photon-3-v1.22.17+vmware.1-tkg.1-a10ef8e088cc2c89418bca79a2fcc594/photon-3-kube-v1.22.17+vmware.1-tkg.1-a10ef8e088cc2c89418bca79a2fcc594.ova
+    ova-photon-3-v1.23.13+vmware.1-tkg.1-efe12079f22627aa1246398eba077476_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/ova-photon-3-v1.23.13+vmware.1-tkg.1-efe12079f22627aa1246398eba077476/photon-3-kube-v1.23.13+vmware.1-tkg.1-efe12079f22627aa1246398eba077476.ova
+    ova-photon-3-v1.24.9+vmware.1-tkg.1-f5e94dab9dfbb9988aeb94f1ffdc6e5e_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/ova-photon-3-v1.24.9+vmware.1-tkg.1-f5e94dab9dfbb9988aeb94f1ffdc6e5e/photon-3-kube-v1.24.9+vmware.1-tkg.1-f5e94dab9dfbb9988aeb94f1ffdc6e5e.ova
+    ova-rhel-7-v1.23.13+vmware.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/ova-rhel-7-v1.23.13+vmware.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071/rhel-7-kube-v1.23.13+vmware.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071.ova
+    ova-rhel-8-v1.22.17+vmware.1-tkg.1-e08e80f12aa4733f78830524ce972344_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/ova-rhel-8-v1.22.17+vmware.1-tkg.1-e08e80f12aa4733f78830524ce972344/rhel-8-kube-v1.22.17+vmware.1-tkg.1-e08e80f12aa4733f78830524ce972344.ova
+    ova-rhel-8-v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/ova-rhel-8-v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33/rhel-8-kube-v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33.ova
+    ova-ubuntu-2004-v1.22.17+vmware.1-tkg.1-df08b304658a6cf17f5e74dc0ab7543c_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.22.17+vmware.1-tkg.1-df08b304658a6cf17f5e74dc0ab7543c/ubuntu-2004-kube-v1.22.17+vmware.1-tkg.1-df08b304658a6cf17f5e74dc0ab7543c.ova
+    ova-ubuntu-2004-v1.23.13+vmware.1-tkg.1-f83d41690f8742e7388f2c553fd9a1bb_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.23.13+vmware.1-tkg.1-f83d41690f8742e7388f2c553fd9a1bb/ubuntu-2004-kube-v1.23.13+vmware.1-tkg.1-f83d41690f8742e7388f2c553fd9a1bb.ova
+    ova-ubuntu-2004-v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93/ubuntu-2004-kube-v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93.ova
+    tanzu-cli-bundle-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/tanzu_cli_bundle/tanzu-cli-bundle-darwin-amd64.tar.gz
+    tanzu-cli-bundle-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/tanzu_cli_bundle/tanzu-cli-bundle-linux-amd64.tar.gz
+    tanzu-cli-bundle-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21077215/publish/lin64/tkg_release/tanzu_cli_bundle/tanzu-cli-bundle-windows-amd64.zip
+  cachehash: 64fe24bb3a409b38f5e94a0a62fe18ca
+  publishhash: d4569216fab220408f25c214b908cc14
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32

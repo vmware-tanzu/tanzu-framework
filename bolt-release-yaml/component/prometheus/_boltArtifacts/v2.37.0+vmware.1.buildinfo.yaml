@@ -1,0 +1,16 @@
+componentBuilds:
+- name: prometheus
+  version: v2.37.0+vmware.1
+  channel: "435567040703503184"
+  url: https://buildweb.eng.vmware.com/ob/20835231/
+  artifactURL:
+    prometheus:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20835231/publish/lin64/prometheus/executables/prometheus-v2.37.0+vmware.1.gz
+    prometheusImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/prometheus:v2.37.0_vmware.1
+      sha256: 7a9087fc42f2d0755b3d04fa3515a73fc67a931acd7cdab9ecf03687f45b1801
+  cachehash: e450f8d366cb7b5e5b4f98293cf0cd46
+  publishhash: 74b1f4624bc2e90e7a6d2abf7cd0d34a
+  configDependencies:
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32

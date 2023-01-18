@@ -1,0 +1,8 @@
+name: external-dns
+upstreamURL: https://github.com/kubernetes-sigs/external-dns.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_external-dns.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_external-dns.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_external-dns.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_external-dns.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_external-dns.git
+gobuildTarget: cayman_external-dns

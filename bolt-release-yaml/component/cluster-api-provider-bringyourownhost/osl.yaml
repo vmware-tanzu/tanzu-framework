@@ -1,0 +1,4 @@
+submodules:
+  - name: cluster-api-provider-bringyourownhost/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,32 @@
+componentBuilds:
+- name: kubernetes-sigs_kind
+  version: v1.20.15+vmware.1-fips_v0.11.1
+  channel: "410109021656222539"
+  url: https://buildweb.eng.vmware.com/ob/19882831/
+  artifactURL:
+    kindNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/kind/node:v1.20.15_vmware.1-fips_v0.11.1
+      sha256: 6128ec32780870152e1bb56658563c8f93eda68db320f155bb136c723d0d1369
+  cachehash: cedefaa2f7dc955fa3019cbbfd48a370
+  publishhash: 8126cfbf770fa66f98329c62fa637a37
+  configDependencies:
+    gobuild.buildChannel: "409561968299477161"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.coreDNSVersion: <no value>
+    gobuild.debianBaseRepo: us.gcr.io/k8s-artifacts-prod/build-image/debian-base
+    gobuild.debianBaseVersion: v2.1.0
+    gobuild.defaultBuildBase: kindest/base:v20210825-547e6628
+    gobuild.etcdVersion: v3.4.13+vmware.24-fips
+    gobuild.golangVersion: 1.16.7
+    gobuild.harborBase: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.harborGolangBase: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang
+    gobuild.k8sVersion: v1.20.15+vmware.2-fips
+    gobuild.kindCNIRepo: kindest/kindnetd
+    gobuild.kindCNIVersion: v20210326-1e038dc5
+    gobuild.kindVersion: 0.11.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: pause
+    gobuild.pauseVersion: "3.2"
+    gobuild.rancherRepo: rancher/local-path-provisioner
+    gobuild.rancherVersion: v0.0.14
+    kindKubeadmAPIVersion: kind.x-k8s.io/v1alpha4

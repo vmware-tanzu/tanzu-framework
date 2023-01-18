@@ -1,0 +1,7 @@
+name: addons-manager-v2-package
+goBuildComponentCaches:
+- version: v0.23.0-tf-addons-manager-v2
+  url: https://buildweb.eng.vmware.com/ob/19996836/
+  buildNumber: bora-19996836
+  buildStatus: SUCCEEDED
+  hash: f85523c1aea7ef57ec13e196a07de44c

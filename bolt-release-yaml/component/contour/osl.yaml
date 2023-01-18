@@ -1,0 +1,4 @@
+submodules:
+  - name: contour/src
+    go_mod:
+      - "go.mod"

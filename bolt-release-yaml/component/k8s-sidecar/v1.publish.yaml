@@ -1,0 +1,7 @@
+name: k8s-sidecar
+publish:
+  - name: k8sSidecarImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/k8s-sidecar/images/k8s-sidecar-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/k8s-sidecar/images/k8s-sidecar-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: grafana/k8s-sidecar:$UNDERSCOREVERSION

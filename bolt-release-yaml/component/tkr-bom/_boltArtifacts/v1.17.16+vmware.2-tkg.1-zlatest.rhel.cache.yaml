@@ -1,0 +1,6 @@
+name: tkr-bom
+bomCaches:
+- version: v1.17.16+vmware.2-tkg.1-zlatest.rhel
+  channel: "345464092128970917"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/345464092128970917/component/tkr-bom/tkr-bom-v1.17.16+vmware.2-tkg.1-zlatest.rhel.yaml
+  hash: "1057309871420954158"

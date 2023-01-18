@@ -1,0 +1,26 @@
+name: grafana-package
+packages:
+  - version: v7.5.16+vmware.1-tkg.1-grafana-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: 50f7006f794a80bfa14ad75184193e3125baa2e3
+    componentReferences:
+      - name: grafana
+        version:
+        - v7.5.16+vmware.1
+      - name: k8s-sidecar
+        version:
+        - v1.15.6+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: grafana
+      gobuild.upstream_image_0: "grafana/grafana:7.5.16"
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "grafana").artifactURL.grafanaImage.url}}'
+      gobuild.upstream_image_1: "kiwigrid/k8s-sidecar:1.15.6"
+      gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "k8s-sidecar").artifactURL.k8sSidecarImage.url}}'
+      gobuild.upstream_version: 7.5.16
+      gobuild.downstream_version: vmware.1-tkg.1-zshippable
+      gobuild.package_type: standard
+      gobuild.noMirror: "true"

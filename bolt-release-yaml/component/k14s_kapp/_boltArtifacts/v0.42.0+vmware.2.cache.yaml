@@ -1,0 +1,7 @@
+name: k14s_kapp
+goBuildComponentCaches:
+- version: v0.42.0+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/19571425/
+  buildNumber: bora-19571425
+  buildStatus: SUCCEEDED
+  hash: 7fa432f2d8f90148ab15bcf1d6b7a44c

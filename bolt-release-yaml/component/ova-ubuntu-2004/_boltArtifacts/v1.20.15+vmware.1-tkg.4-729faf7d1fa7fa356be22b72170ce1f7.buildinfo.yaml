@@ -1,0 +1,24 @@
+componentBuilds:
+- name: ova-ubuntu-2004
+  version: v1.20.15+vmware.1-tkg.4-729faf7d1fa7fa356be22b72170ce1f7
+  channel: "420069418437972911"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2106
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-ubuntu-2004/bom-ova-ubuntu-2004-v1.20.15+vmware.1-tkg.4-729faf7d1fa7fa356be22b72170ce1f7.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.20.15+vmware.1-tkg.4-729faf7d1fa7fa356be22b72170ce1f7-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.20.15+vmware.1-tkg.4-729faf7d1fa7fa356be22b72170ce1f7-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-ubuntu-2004/ubuntu-2004-kube-v1.20.15+vmware.1-tkg.4-729faf7d1fa7fa356be22b72170ce1f7.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.20.15+vmware.1-tkg.4-729faf7d1fa7fa356be22b72170ce1f7-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.20.15+vmware.1-tkg.4-729faf7d1fa7fa356be22b72170ce1f7-provenance_result.txt
+  cachehash: e4e7c314cab904680a5c84bea5377ee7
+  publishhash: 3eb85301ad093a66524efd92e075df65
+  configDependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: b5d8c8f94238cb752c431c5692d442f1b71a4c00

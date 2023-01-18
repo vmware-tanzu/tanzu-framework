@@ -1,0 +1,23 @@
+componentBuilds:
+- name: kapp-controller-package
+  version: v0.41.5+vmware.1-tkg.1-kapp-controller-rc.3
+  channel: "443090719112958276"
+  url: https://buildweb.eng.vmware.com/ob/21115290/
+  artifactURL:
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.41.5_vmware.1-tkg.1-rc.3
+      sha256: c044d07dc410fb34033aaa6a6b4b1bcefdd4c064b891fa5e7977b6b27698115e
+  cachehash: 94dec24a3702dc94f9e20082ddb84cfc
+  publishhash: 386598a473d4ed792227a88e5777e074
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.41.5_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-rc.3
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: kapp-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:1de0182159da1fe0b9a6aab838a23b4c5aac62090ff1df90cc08df7443137add
+    gobuild.upstream_version: 0.41.5

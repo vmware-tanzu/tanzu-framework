@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'uTKG Photon Release for k8s v1.22.11'
+componentReferences:
+  - name: utkg-ova-photon-3
+    version:
+      - v1.22.11+vmware.1-tkg.1

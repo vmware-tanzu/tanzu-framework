@@ -1,0 +1,7 @@
+name: tkg-vsphere-byoi-bundle
+goBuildComponentCaches:
+- version: v1.23.10+vmware.1-tkg.1
+  url: https://buildweb.eng.vmware.com/ob/20921994/
+  buildNumber: bora-20921994
+  buildStatus: SUCCEEDED
+  hash: b794d5ba8196d48d75bb0cf05900c152

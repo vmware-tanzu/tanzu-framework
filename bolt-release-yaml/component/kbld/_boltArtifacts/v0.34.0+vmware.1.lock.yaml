@@ -1,0 +1,7 @@
+name: kbld
+goBuildComponentLocks:
+- version: v0.34.0+vmware.1
+  gobuildBranch: vmware-0.34.0
+  gobuildHeadCommit: 91f3249292429a2ff10e42f42f12bda0dbf0d565
+  hash: 0521df47f2ec1578b0b8468d2a6727a1
+  componentLockReferences: []

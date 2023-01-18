@@ -1,0 +1,10 @@
+name: fluxcd-helm-controller-package
+goBuildComponentLocks:
+- version: v0.21.0+vmware.1-tkg.2-helm-ctrl
+  gobuildBranch: 439555018618600930-v0.21.0+vmware.1-tkg.2-helm-ctrl-fluxcd-helm-controller-package
+  gobuildHeadCommit: 2151a5819b1a664257431fa07d4526da44d05128
+  hash: 37bc1999471bafca455cb75fb4fc281c
+  componentLockReferences:
+  - name: helm-controller
+    version: v0.21.0+vmware.1
+    lockHash: a54666d44e0cf72e5f0721e654bb295f

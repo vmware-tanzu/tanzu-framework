@@ -1,0 +1,24 @@
+# v1.publish.yaml + 1.21 addon yaml
+name: metrics-server
+publish:
+  - name: metrics-server-image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/metrics-server/images/metrics-server-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/metrics-server/images/metrics-server-$UNDERSCOREVERSION-images-checksums.txt
+    destinationPath: metrics-server:$UNDERSCOREVERSION
+  - name: metrics-server-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/metrics-server/images/metrics-server-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/metrics-server/$VERSION/publish/lin64/metrics-server/images/metrics-server-$UNDERSCOREVERSION.tar
+  - name: metrics-server-1.19-addon-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.19/metrics-server.yaml
+    destinationPath: $CHANNEL/image-builder/metrics-server/$VERSION/publish/add-on/1.19/metrics-server.yaml
+  - name: metrics-server-1.20-addon-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.20/metrics-server.yaml
+    destinationPath: $CHANNEL/image-builder/metrics-server/$VERSION/publish/add-on/1.20/metrics-server.yaml
+  - name: metrics-server-1.21-addon-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.21/metrics-server.yaml
+    destinationPath: $CHANNEL/image-builder/metrics-server/$VERSION/publish/add-on/1.21/metrics-server.yaml

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'TKG on vSphere BYOI Release for k8s v1.23.10'
+componentReferences:
+  - name: tkg-vsphere-byoi-bundle
+    version:
+      - v1.23.10+vmware.1-tkg.1

@@ -1,0 +1,24 @@
+componentBuilds:
+- name: ova-photon-3
+  version: v1.21.14+vmware.2-tkg.3-8798177dc921af6987b64be1d84ef6c9
+  channel: "419488252504843256"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2012
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/ova-photon-3/bom-ova-photon-3-v1.21.14+vmware.2-tkg.3-8798177dc921af6987b64be1d84ef6c9.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/ova-photon-3/ova-photon-3-v1.21.14+vmware.2-tkg.3-8798177dc921af6987b64be1d84ef6c9-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/ova-photon-3/ova-photon-3-v1.21.14+vmware.2-tkg.3-8798177dc921af6987b64be1d84ef6c9-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/ova-photon-3/photon-3-kube-v1.21.14+vmware.2-tkg.3-8798177dc921af6987b64be1d84ef6c9.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/ova-photon-3/ova-photon-3-v1.21.14+vmware.2-tkg.3-8798177dc921af6987b64be1d84ef6c9-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/ova-photon-3/ova-photon-3-v1.21.14+vmware.2-tkg.3-8798177dc921af6987b64be1d84ef6c9-provenance_result.txt
+  cachehash: eb4ceaf048d6523ad3a254cd5620db0d
+  publishhash: e364f13debf817be6f9a886754cfc5ce
+  configDependencies:
+    base_iso_sha: c2883a42e402a2330d9c39b4d1e071cf9b3b5898
+    base_iso_url: https://packages.vmware.com/photon/3.0/Rev3/iso/photon-minimal-3.0-a383732.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 1af6af05f3b14a5987cc2e4540d82c1bd47884b8

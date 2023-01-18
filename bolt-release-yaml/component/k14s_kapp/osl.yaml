@@ -1,0 +1,4 @@
+submodules:
+  - name: k14s_kapp/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,10 @@
+azure:
+- publisher: vmware-inc
+  offer: tkg-capi
+  sku: k8s-1dot17dot16-ubuntu-2004
+  version: 2021.01.14
+  thirdPartyImage: true
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64

@@ -1,0 +1,16 @@
+componentBuilds:
+- name: cluster-api-provider-bringyourownhost
+  version: v0.1.0+vmware.1
+  channel: "381768087482964566"
+  url: https://buildweb.eng.vmware.com/ob/18931388/
+  artifactURL:
+    byoh-hostagent:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18931388/publish/lin64/cluster-api-provider-bringyourownhost/executables/byoh-hostagent-v0.1.0+vmware.1-linux-amd64.gz
+    byohControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-byoh-controller:v0.1.0_vmware.1
+      sha256: 10a9b79e3582e1a80a68c9053044f3b4fcdc1cce578e442213c924bb9f397ebc
+    byohImgpkgBundle:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/byoh-bundle-ubuntu_20.04.1_x86-64_k8s_v1.22.3:v0.1.0_vmware.1
+      sha256: e00a023f54e7b8964e68b8f55b4ff0ab12d41f22f9175ad1f06a7f56fceb75b5
+  cachehash: 308eb02d6db4617dcd684aa7ce119a6b
+  publishhash: 2d4109a33795962d5095e3208c810c0e

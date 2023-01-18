@@ -1,0 +1,7 @@
+name: secretgen-controller-package
+goBuildComponentCaches:
+- version: v0.13.0+vmware.1-tkg.1-secgen-ctl-zshippable
+  url: https://buildweb.eng.vmware.com/ob/21074353/
+  buildNumber: bora-21074353
+  buildStatus: SUCCEEDED
+  hash: 8d89ca7f10d2932a7602b2486fca4b6d

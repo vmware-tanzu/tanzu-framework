@@ -1,0 +1,13 @@
+name: tanzu-framework-addons
+managedComponents:
+- version: v0.16.0-dev-33-g951569df
+  upstreamCommit: 951569df08c1de2f71b0ff9a04d0bdf5ec6ca9f5
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-addons~819caf807c9219acf132441d247b64e80b7271a0
+  dependencies:
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+    gobuild.golangVersion: "1.16"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v0.16.0-dev-33-g951569df
+    gobuild.tkgBuildContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+    upstreamPullRequestID: "1463"

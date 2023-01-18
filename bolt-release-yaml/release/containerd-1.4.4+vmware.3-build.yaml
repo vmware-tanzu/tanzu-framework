@@ -1,0 +1,8 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'build containerd 1.4.4+vmware.3'
+componentReferences:
+  - name: containerd
+    version:
+      - v1.4.4+vmware.3
+      

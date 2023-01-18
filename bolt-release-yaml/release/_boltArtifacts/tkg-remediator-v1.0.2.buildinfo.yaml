@@ -1,0 +1,16 @@
+componentBuilds:
+- name: tkg-remediator
+  version: v1.0.2
+  channel: "428412217390539412"
+  url: https://buildweb.eng.vmware.com/ob/20573160/
+  artifactURL:
+    tkg-remediator:
+      url: projects-stg.registry.vmware.com/tkg/tkg-remediator:v1.0.2
+      sha256: a0a22b68b49df69c1fc8daa83973e6d6d24fd6e902ca9a71586913bfe2347804
+  cachehash: 760ec995112daceb32b98cf9386537a6
+  publishhash: 0f7b06525027059bc633263851165406
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 6a696b948f8f082740b318e4e645672017482ed4
+testInfraVersion: 08a10b69cb4cd542b0888684a2421c983f45fd4f

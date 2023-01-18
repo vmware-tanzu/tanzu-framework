@@ -1,0 +1,13 @@
+name: kscom_release
+goBuildComponentLocks:
+- version: v1.24.8+vmware.1-tkg.1
+  gobuildBranch: 436521437331752676-v1.24.8+vmware.1-tkg.1-kscom_release
+  gobuildHeadCommit: aa9c87a6b5d170fb3267da17bef52f31c4fa6c44
+  hash: 2ed1c291e9a56b2b52d94400e3332915
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.24.8+vmware.1
+    lockHash: ee05a1ce18a9fe65e1dd7e5f6949f4f8
+  - name: containerd
+    version: v1.6.6+vmware.1
+    lockHash: 3c0c744c1aac33497c93a6b11ef176d8

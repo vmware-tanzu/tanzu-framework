@@ -1,0 +1,88 @@
+name: ami-general-ubuntu-2004
+imageCaches:
+- version: v1.20.14+vmware.1-tkg.4-d57223e9e609bb181ca47e6065449281
+  channel: "395420268182423127"
+  bomAMI:
+    ami:
+      ap-northeast-1:
+      - id: ami-019ff37df71403a13
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      ap-northeast-2:
+      - id: ami-0070764b1c3bf5a4d
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      ap-south-1:
+      - id: ami-05ec8aef18f586d75
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      ap-southeast-1:
+      - id: ami-08d650b743d80fff0
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      ap-southeast-2:
+      - id: ami-0c499c3baa0baa6c6
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      eu-central-1:
+      - id: ami-06436bc44ccdf2d9d
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      eu-west-1:
+      - id: ami-0ebfdb7a74c33dca0
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      eu-west-2:
+      - id: ami-0f19a1671cfee3f1a
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      eu-west-3:
+      - id: ami-010a630ac9a8ad3c3
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      sa-east-1:
+      - id: ami-062554a6a6e5bf0d8
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      us-east-1:
+      - id: ami-062ebeaf5fd31c238
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      us-east-2:
+      - id: ami-000be333d97874b58
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      us-west-2:
+      - id: ami-082edac5c0a2a2ea5
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+  hash: 42646efe391957d4736eec4456a5f892
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/1648
+  buildNumber: "1648"
+  buildStatus: SUCCEEDED

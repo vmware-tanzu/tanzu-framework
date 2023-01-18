@@ -1,0 +1,26 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.21.14+vmware.2-fips.1-tkg.5-caaef269538b7ba72b806f8a015de11d
+  channel: "436911358504609501"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/3731
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-vhd-v1.21.14+vmware.2-fips.1-tkg.5-caaef269538b7ba72b806f8a015de11d.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-fips.1-tkg.5-caaef269538b7ba72b806f8a015de11d-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-fips.1-tkg.5-caaef269538b7ba72b806f8a015de11d-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-fips.1-tkg.5-caaef269538b7ba72b806f8a015de11d-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-fips.1-tkg.5-caaef269538b7ba72b806f8a015de11d-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.21.14+vmware.2-fips.1-tkg.5-caaef269538b7ba72b806f8a015de11d.json
+  cachehash: c373702264fd74af0fa8965551b30658
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.FIPS: "true"
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: baf534da10fea37e31c60543b5aecf10cc7f75d1

@@ -1,0 +1,22 @@
+versionMap:
+  v0.5.1+vmware.1-tkg.1-whereabouts-tf-v0.22.0: url.yaml
+  v0.5.1+vmware.1-tkg.1-whereabouts-zshippable: url.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts: url.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-rc.1: url.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-rc.2: url.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-rc.3: url.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-tf-v0.23.0: url.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-tf-v0.25.0: url.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-tf-v0.25.1: url.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-zshippable: url.yaml
+  v0.5.1+vmware.2-tkg.2-whereabouts-tf-v0.26.0: url.yaml
+  v0.5.1+vmware.2-tkg.2-whereabouts-zshippable: url.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-20230103: url.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-20230112: url.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-20230114: url.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-fc.1: url.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-fc.2: url.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-rc.1: url.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-rc.2: url.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-rc.3: url.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-zshippable: url.yaml

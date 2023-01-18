@@ -1,0 +1,7 @@
+name: tkg-storageclass-package
+goBuildComponentLocks:
+- version: v0.28.0-dev-229-g3d0816ce-tkg-storageclass
+  gobuildBranch: 437943315900437644-v0.28.0-dev-229-g3d0816ce-tkg-storageclass-tkg-storageclass-package
+  gobuildHeadCommit: 8032f676cab40b2d79451a2682c87c1dc55caf44
+  hash: 92fd7ded22af5f27942f444cb60de966
+  componentLockReferences: []

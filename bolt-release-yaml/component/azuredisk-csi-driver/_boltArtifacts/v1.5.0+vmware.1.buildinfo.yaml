@@ -1,0 +1,11 @@
+componentBuilds:
+- name: azuredisk-csi-driver
+  version: v1.5.0+vmware.1
+  channel: "365575835408715873"
+  url: https://buildweb.eng.vmware.com/ob/18389447/
+  artifactURL:
+    azurediskCsiDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/azuredisk-csi-driver:v1.5.0_vmware.1
+      sha256: 23f50a4d6d3663737631633a533e5528074d77b7d1bbee05ca01b1c0e4ab392f
+  cachehash: dcd8145f98eb44654561755209168985
+  publishhash: 5b432470d176d7bb60aab5148d3f165f

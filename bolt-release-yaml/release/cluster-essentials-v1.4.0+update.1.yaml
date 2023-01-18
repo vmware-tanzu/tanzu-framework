@@ -1,0 +1,31 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "cluster-essentials v1.4.0+update.1"
+componentReferences:
+- name: kapp-controller
+  version:
+  - v0.44.1+vmware.1
+- name: kapp-controller-package
+  version:
+  - v0.44.1+vmware.1-tkg.1-kapp-controller-zshippable
+- name: carvel-secretgen-controller
+  version:
+  - v0.13.0+vmware.1
+- name: secretgen-controller-package
+  version:
+  - v0.13.0+vmware.1-tkg.1-secgen-ctl-zshippable
+- name: k14s_kapp
+  version:
+  - v0.54.1+vmware.1
+- name: k14s_ytt
+  version:
+  - v0.44.1+vmware.1
+- name: imgpkg
+  version:
+  - v0.31.1+vmware.1
+- name: kbld
+  version:
+  - v0.36.1+vmware.1
+- name: vendir
+  version:
+  - v0.32.2+vmware.1

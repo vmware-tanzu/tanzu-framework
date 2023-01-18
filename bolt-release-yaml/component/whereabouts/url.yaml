@@ -1,0 +1,8 @@
+name: whereabouts
+upstreamURL: https://github.com/k8snetworkplumbingwg/whereabouts.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_whereabouts.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_whereabouts.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_whereabouts.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_whereabouts.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_whereabouts.git
+gobuildTarget: cayman_whereabouts

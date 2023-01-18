@@ -1,0 +1,7 @@
+name: pushgateway
+goBuildComponentCaches:
+- version: v1.2.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/16911265
+  buildNumber: bora-16911265
+  buildStatus: SUCCEEDED
+  hash: "2329886843633683481"

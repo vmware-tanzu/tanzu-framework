@@ -1,0 +1,20 @@
+componentBuilds:
+- name: tkg-core-packages
+  version: v1.23.15+vmware.1-tkg.1-rc.3
+  channel: "443090719112958276"
+  url: https://buildweb.eng.vmware.com/ob/21115440/
+  artifactURL:
+    tanzuCorePackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/repo:v1.23.15_vmware.1-tkg.1-rc.3
+      sha256: 9df3efb412407de08899e44603961a3db03ee216a6e27175587dc8ecc36d3bea
+  cachehash: 1f253d8df114ce0355753696ec0ec431
+  publishhash: fe373ff9829dc46466478c1f608d43d6
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_type: core
+    gobuild.releaseVersion: v1.23.15+vmware.1-tkg.1-rc.3

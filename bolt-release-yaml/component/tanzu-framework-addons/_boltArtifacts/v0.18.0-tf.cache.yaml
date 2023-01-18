@@ -1,0 +1,7 @@
+name: tanzu-framework-addons
+goBuildComponentCaches:
+- version: v0.18.0-tf
+  url: https://buildweb.eng.vmware.com/ob/19508255/
+  buildNumber: bora-19508255
+  buildStatus: SUCCEEDED
+  hash: abc1f2348e6bf489f2a98f80f380630b

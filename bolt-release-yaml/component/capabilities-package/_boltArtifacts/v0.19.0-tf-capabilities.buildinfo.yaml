@@ -1,0 +1,11 @@
+componentBuilds:
+- name: capabilities-package
+  version: v0.19.0-tf-capabilities
+  channel: "400028402632916206"
+  url: https://buildweb.eng.vmware.com/ob/19539638/
+  artifactURL:
+    capabilities.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/capabilities:v0.19.0-tf_vmware.1
+      sha256: 14ae94d18e0a2b1d80f5e6e4ac2396e825d39311367a66e6b730cb5452df2204
+  cachehash: 2e76b3a62058bab473385e5347323263
+  publishhash: 332137e8e677e9b0dbb379437f07fc2d

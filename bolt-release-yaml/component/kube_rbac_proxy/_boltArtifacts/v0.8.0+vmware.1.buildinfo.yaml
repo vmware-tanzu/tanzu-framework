@@ -1,0 +1,16 @@
+componentBuilds:
+- name: kube_rbac_proxy
+  version: v0.8.0+vmware.1
+  channel: "359607004114776808"
+  url: https://buildweb.eng.vmware.com/ob/18182202/
+  artifactURL:
+    kube_rbac_proxy-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18182202/publish/lin64/kube_rbac_proxy/executables/kube-rbac-proxy-v0.8.0+vmware.1.gz
+    kubeRbacProxyControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kube-rbac-proxy:v0.8.0_vmware.1
+      sha256: 397f3957e119a032685c672639f083424498a81e2acdfca529af906d7ea0c382
+    kubeRbacProxyControllerImageCapi:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/kube-rbac-proxy:v0.8.0_vmware.1
+      sha256: 397f3957e119a032685c672639f083424498a81e2acdfca529af906d7ea0c382
+  cachehash: 26348fd9d6b2f13032dc3587c73bee85
+  publishhash: e30ce3d7f61de29a48394a7e9925ec51

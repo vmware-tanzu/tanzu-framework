@@ -1,0 +1,109 @@
+componentBuilds:
+- name: kubernetes
+  version: v1.22.6+vmware.1
+  channel: "395120493306366317"
+  url: https://buildweb.eng.vmware.com/ob/19239223/
+  artifactURL:
+    file-kube-proxy-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/windows/amd64/kube-proxy.exe
+      sha256: 61084e2f872cc947f7ca8ef698c2627ce6093ead91c33f742cd7c48019e25b29
+    file-kubeadm-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/linux/amd64/kubeadm
+      sha256: cb32c20d3d74c45e3d45d61409c300c0d1002b6ad0a16b3165df3aa8423f8256
+    file-kubeadm-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/windows/amd64/kubeadm.exe
+      sha256: 96d7fcd8a8df928c528448e4fb6286908f01f9801fc2a657f2ecf61986fbc50e
+    file-kubectl-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/linux/amd64/kubectl
+      sha256: 41d1d0c4785fc2dbdf14a25a6e42c3d1398fbf4bd5eaa048c81ac1c9b751a3f6
+    file-kubectl-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/windows/amd64/kubectl.exe
+      sha256: d61169ece09ee68c4c63c179dac4ee25ebbf13503f59e75b8446d0deb1c76df1
+    file-kubelet-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/linux/amd64/kubelet
+      sha256: 5cec26b600f903ed9a7d85f1ecb2c8f62958f660d5ea49de75b41caad6e0d9d8
+    file-kubelet-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/windows/amd64/kubelet.exe
+      sha256: 29ab2333f4c0a1621b754116ab035b5d454cfebbf59d15bfa262583cf99f590b
+    kube-apiserver_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/linux/amd64/kube-apiserver.tar
+      sha256: 8753807fda34f75cf273266e33aa93ff18aa910e8ad8569d41091128c2b9c049
+    kube-controller-manager_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/linux/amd64/kube-controller-manager.tar
+      sha256: 16f18aa4caaecd688514e8f9466979b31445f95980611e41bf9c1e262b1fd37a
+    kube-proxy_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/linux/amd64/kube-proxy.tar
+      sha256: d7383722221e09f34150caa514ed3a43a2a46849db685a5a74ca2f3149157f90
+    kube-scheduler_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/linux/amd64/kube-scheduler.tar
+      sha256: 3de5f306682580af202b6876699b9941569fe177bb891052187dbc3defcc2913
+    kubeAPIServer:
+      url: projects-stg.registry.vmware.com/tkg/kube-apiserver:v1.22.6_vmware.1
+      sha256: 95304c3d20bb69183c1b50907636ac2de5f02afc2319089dbe40a30246149fbb
+    kubeControllerManager:
+      url: projects-stg.registry.vmware.com/tkg/kube-controller-manager:v1.22.6_vmware.1
+      sha256: e395f6ad949e7c39fd934e62f2f3f37a7815e733ea4e992ed6fa5b8f0232c50a
+    kubeProxy:
+      url: projects-stg.registry.vmware.com/tkg/kube-proxy:v1.22.6_vmware.1
+      sha256: 0b42e9768f5611aaaa071f6bb4461b6e4da927e5486fee84845b9a37ed82b121
+    kubeScheduler:
+      url: projects-stg.registry.vmware.com/tkg/kube-scheduler:v1.22.6_vmware.1
+      sha256: 5594e2098e386faa4f6b6302ae8ed07409622d4dbc49728c87402eaa7761ac48
+    kubeadm-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/debs/kubeadm_1.22.6+vmware.1-1_amd64.deb
+    kubeadm-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/executables/kubeadm-linux-v1.22.6+vmware.1.gz
+    kubeadm-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/rpms/rpms/kubeadm-1.22.6-1.el7.vmware.1.x86_64.rpm
+    kubectl-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/debs/kubectl_1.22.6+vmware.1-1_amd64.deb
+    kubectl-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/executables/kubectl-linux-v1.22.6+vmware.1.gz
+    kubectl-mac:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/executables/kubectl-mac-v1.22.6+vmware.1.gz
+    kubectl-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/rpms/rpms/kubectl-1.22.6-1.el7.vmware.1.x86_64.rpm
+    kubectl-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/executables/kubectl-windows-v1.22.6+vmware.1.exe.gz
+    kubelet-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/debs/kubelet_1.22.6+vmware.1-1_amd64.deb
+    kubelet-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/executables/kubelet-linux-v1.22.6+vmware.1.gz
+    kubelet-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/rpms/rpms/kubelet-1.22.6-1.el7.vmware.1.x86_64.rpm
+    kubelet-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/lin64/kubernetes/rpms/srpms/kubelet-1.22.6-1.el7.vmware.1.src.rpm
+    kubernetes-tar:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19239223/publish/kubernetes.tgz
+    pause:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.5
+      sha256: 3c02ab26811738dbae2ac23fcc22cc61f304270428618e2d7d766bcd49baff70
+    pause_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/linux/amd64/pause.tar
+      sha256: dd87b62483d814a12b83d14234a614c1bd84dcb19cb159fba2015b1488ad8a34
+    pause_windows_1809:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.5-windows-amd64
+      sha256: c12ffad27f16eefabf8e17ee103629ad3e86740d4670d0c2dc83eac87db41b2c
+    pause_windows_1809_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/windows/amd64/pause-3.5-windows-amd64-1809.tar
+      sha256: ecc01f96c899792c5d654580a324912ba051579ed0606c5e60362b1965926742
+    pause_windows_1903:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.5-windows-amd64-1903
+      sha256: ecaf269f285cf20d75d350d3afd67a6ce671fb637e37faa3626e76326bb1d2b6
+    pause_windows_1903_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/windows/amd64/pause-3.5-windows-amd64-1903.tar
+      sha256: dd551154677a561c83b96d8a71fdcb32c2b8ef7e25006199eb232e0460da2c4a
+    pause_windows_1909:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.5-windows-amd64-1909
+      sha256: fbf04f09422d9de0d4c3810a330f9e871d2cd92b8857371a124f43f435796163
+    pause_windows_1909_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/windows/amd64/pause-3.5-windows-amd64-1909.tar
+      sha256: ed19d38ddea4fe2b34e6859b094bcf45dde6f4447ec35fe0299f5b6bd22dfd0f
+    pause_windows_2004:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.5-windows-amd64-2004
+      sha256: 5e5f6bb3ea5e754ff53bf72553120f5cab1d9c7a9f02bbde48a52f238224dc0f
+    pause_windows_2004_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395120493306366317/image-builder/kubernetes/v1.22.6+vmware.1/bin/windows/amd64/pause-3.5-windows-amd64-2004.tar
+      sha256: 276386c16db9480df5e23c3ebefb5375d66fb6670937149dd12572c1b900379a
+  cachehash: b8b7b8b243d9cd936872f4e7d300ace3
+  publishhash: 8b9b91704c63699b3b984467913eff32

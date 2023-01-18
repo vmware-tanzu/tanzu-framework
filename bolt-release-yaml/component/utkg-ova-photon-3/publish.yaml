@@ -1,0 +1,14 @@
+name: utkg-ova-photon-3
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/utkg-ova-photon-3/bom-ova-photon-3-$VERSION.yaml
+  - name: file-image-goss
+    type: file
+    destinationPath: $SOURCECHANNEL/component/utkg-ova-photon-3/ova-photon-3-$VERSION-goss-spec.yaml
+  - name: file-image-osstp
+    type: file
+    destinationPath: $SOURCECHANNEL/component/utkg-ova-photon-3/ova-photon-3-$VERSION-osstpmgt.yaml
+  - name: file-image-ova
+    type: file
+    destinationPath: $SOURCECHANNEL/component/utkg-ova-photon-3/photon-3.ova

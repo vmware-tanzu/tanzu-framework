@@ -1,0 +1,23 @@
+name: ami-general-ubuntu-2004
+imageLocks:
+- version: v1.20.4+vmware.3-tkg.0-5344348206747095105
+  hash: "16925005657504986421"
+  componentLockReferences:
+  - name: coredns
+    version: v1.7.0+vmware.8
+    lockHash: "5984217886241777614"
+  - name: kubernetes
+    version: v1.20.4+vmware.3
+    lockHash: "18256697504082213192"
+  - name: etcd
+    version: v3.4.13+vmware.7
+    lockHash: "6026680512878857244"
+  - name: cri_tools
+    version: v1.19.0+vmware.2
+    lockHash: "8042627114812197870"
+  - name: cni_plugins
+    version: v0.8.7+vmware.5
+    lockHash: "4058395626922087165"
+  - name: containerd
+    version: v1.4.4+vmware.3
+    lockHash: "5199217500967235205"

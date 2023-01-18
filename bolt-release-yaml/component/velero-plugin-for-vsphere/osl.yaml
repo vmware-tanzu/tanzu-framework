@@ -1,0 +1,6 @@
+submodules:
+  - name: velero-plugin-for-vsphere/src
+    go_mod:
+      - "go.mod"
+    go_dep:
+      - "Gopkg.toml"

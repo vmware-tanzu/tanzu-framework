@@ -1,0 +1,13 @@
+name: etcd
+publish:
+  - name: etcd
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/etcd/images/etcd-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/etcd/images/etcd-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: etcd:$UNDERSCOREVERSION
+delayedpublish:
+  - name: etcd-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/etcd/images/etcd-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/etcd/images/etcd-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$K8SVERSION/bin/linux/amd64/etcd.tar

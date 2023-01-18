@@ -1,0 +1,629 @@
+componentBuilds:
+- name: cert-manager-package
+  version: v1.5.3+vmware.6-tkg.1-cert-manager-tf-v0.25.4
+  channel: "439851676673779113"
+  url: https://buildweb.eng.vmware.com/ob/20999750/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.5.3_vmware.6-tkg.1-tf-v0.25.4
+      sha256: 34da2e01e3a7dcee997a72d8769a8e3a576e779bc028068c996032bb81f96bfb
+  cachehash: 59263d2d0c433de035a62038faa9b101
+  publishhash: 08b8d2296442618f07837aec7f5d1c39
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/cert-manager-cainjector:v1.5.3_vmware.6
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/cert-manager-controller:v1.5.3_vmware.6
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/cert-manager-webhook:v1.5.3_vmware.6
+    gobuild.downstream_version: vmware.6-tkg.1-tf-v0.25.4
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: cert-manager
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: quay.io/jetstack/cert-manager-cainjector:v1.5.3
+    gobuild.upstream_image_1: quay.io/jetstack/cert-manager-controller:v1.5.3
+    gobuild.upstream_image_2: quay.io/jetstack/cert-manager-webhook:v1.5.3
+    gobuild.upstream_version: 1.5.3
+- name: cert-manager-package
+  version: v1.7.2+vmware.1-tkg.1-cert-manager
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20346905/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.7.2_vmware.1-tkg.1
+      sha256: e7711b3ce0f05ece458d43c4ddb57f3ff3b98fe562d83b07db4b095d6789c292
+  cachehash: 2659b975d7c04843ad6ea24fa098f0e2
+  publishhash: 08b8d2296442618f07837aec7f5d1c39
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/cert-manager-cainjector:v1.7.2_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/cert-manager-controller:v1.7.2_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/cert-manager-webhook:v1.7.2_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: cert-manager
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: quay.io/jetstack/cert-manager-cainjector:v1.7.2
+    gobuild.upstream_image_1: quay.io/jetstack/cert-manager-controller:v1.7.2
+    gobuild.upstream_image_2: quay.io/jetstack/cert-manager-webhook:v1.7.2
+    gobuild.upstream_version: 1.7.2
+- name: contour-package
+  version: v1.20.2+vmware.2-tkg.1-contour-tf-v0.25.4
+  channel: "439851676673779113"
+  url: https://buildweb.eng.vmware.com/ob/20999723/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.20.2_vmware.2-tkg.1-tf-v0.25.4
+      sha256: 521ad54a28986668bcaf845ea721e266d1d67c7cad0dfc6b5c44d15562202803
+  cachehash: 0c66f7e1af11bad188f096d13025d31e
+  publishhash: acb70bf7bfe4f966ad485fc9e3085f43
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/contour:v1.20.2_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/envoy:v1.21.3_vmware.1
+    gobuild.downstream_version: vmware.2-tkg.1-tf-v0.25.4
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: contour
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: ghcr.io/projectcontour/contour:v1.20.2
+    gobuild.upstream_image_1: docker.io/envoyproxy/envoy:v1.21.3
+    gobuild.upstream_version: 1.20.2
+- name: external-dns-package
+  version: v0.10.0+vmware.1-tkg.2-external-dns
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20347002/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.10.0_vmware.1-tkg.2
+      sha256: aa4e440c8e4adc1d0482b21f6cfe37a1c667623835e57082276a92f9f3857e1d
+  cachehash: ad1e4e6ab0746302777d9d94ab941211
+  publishhash: 19b8613fad519068fc2d01dbd771545b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/external-dns:v0.10.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: external-dns
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: k8s.gcr.io/external-dns/external-dns
+    gobuild.upstream_version: 0.10.0
+- name: external-dns-package
+  version: v0.11.0+vmware.1-tkg.2-external-dns
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20346734/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.11.0_vmware.1-tkg.2
+      sha256: a7c5bbc0b6a54dc42b5fa5132942cbebf96ff0a3f3a0ac4319288627dd65f443
+  cachehash: ab9a5fa37ae5a4dca5d509336d8b4f42
+  publishhash: 19b8613fad519068fc2d01dbd771545b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/external-dns:v0.11.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: external-dns
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: k8s.gcr.io/external-dns/external-dns
+    gobuild.upstream_version: 0.11.0
+- name: fluent-bit-package
+  version: v1.8.15+vmware.1-tkg.1-fluent-bit
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20346735/
+  artifactURL:
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.8.15_vmware.1-tkg.1
+      sha256: 837ced2f92c95a03f1759b1ba17bab0d510139fb45e671618821046fe7c6886d
+  cachehash: 3578905d9b0df41502220968b366d64e
+  publishhash: 51ef43745ce53777a2a953caa9ef223e
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluent-bit:v1.8.15_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluent-bit
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluent/fluent-bit:1.8.15
+    gobuild.upstream_version: 1.8.15
+- name: grafana-package
+  version: v7.5.16+vmware.1-tkg.1-grafana
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20347047/
+  artifactURL:
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.16_vmware.1-tkg.1
+      sha256: 2c1f8b05866069b7b13659f53304e9659d08800a30524687637582d1afb11af4
+  cachehash: d894d5d91d2de1688a3738bafe3d6e38
+  publishhash: 93d993a45ebfd2da411903df093c9a7f
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/grafana/grafana:v7.5.16_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/grafana/k8s-sidecar:v1.15.6_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: grafana
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: grafana/grafana:7.5.16
+    gobuild.upstream_image_1: kiwigrid/k8s-sidecar:1.15.6
+    gobuild.upstream_version: 7.5.16
+- name: prometheus-package
+  version: v2.36.2+vmware.1-tkg.1-prometheus
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20347110/
+  artifactURL:
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.36.2_vmware.1-tkg.1
+      sha256: 2d8cf6c2003f5429f6512eb643d7d43f54cc7675917bf130d965b9c99a8b8227
+  cachehash: 88e25c10a4170dd8cb0ab7bdf9baf110
+  publishhash: 46897cc6c21c88aff6d73e888ed0a148
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/prometheus/prometheus:v2.36.2_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/prometheus/configmap-reload:v0.7.1_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/prometheus/alertmanager:v0.24.0_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/prometheus/pushgateway:v1.4.3_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/prometheus/kube-state-metrics:v2.5.0_vmware.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/prometheus/prometheus_node_exporter:v1.3.1_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: prometheus
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: prom/prometheus:v2.36.2
+    gobuild.upstream_image_1: jimmidyson/configmap-reload:v0.7.1
+    gobuild.upstream_image_2: prom/alertmanager:v0.24.0
+    gobuild.upstream_image_3: prom/pushgateway:v1.4.3
+    gobuild.upstream_image_4: bitnami/kube-state-metrics:2.5.0
+    gobuild.upstream_image_5: quay.io/prometheus/node-exporter:v1.3.1
+    gobuild.upstream_version: 2.36.2
+- name: harbor-package
+  version: v2.6.1+vmware.1-tkg.1-harbor-tf-v0.25.4
+  channel: "439851676673779113"
+  url: https://buildweb.eng.vmware.com/ob/20999738/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.6.1_vmware.1-tkg.1-tf-v0.25.4
+      sha256: 9a6e42b7f5600ffa7d8143995629538df00e28792ca5dac50c786e7ad007f277
+  cachehash: 2bc3b5f4d6a645b127051ad2f1425f58
+  publishhash: a5d762b015a1a159eaab004b8d93ec17
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/harbor/harbor-core:v2.6.1_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/harbor/harbor-db:v2.6.1_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/harbor/harbor-exporter:v2.6.1_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/harbor/harbor-jobservice:v2.6.1_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/harbor/harbor-portal:v2.6.1_vmware.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/harbor/harbor-registryctl:v2.6.1_vmware.1
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/harbor/notary-server-photon:v2.6.1_vmware.1
+    gobuild.downstream_image_7: projects-stg.registry.vmware.com/tkg/harbor/notary-signer-photon:v2.6.1_vmware.1
+    gobuild.downstream_image_8: projects-stg.registry.vmware.com/tkg/harbor/redis-photon:v2.6.1_vmware.1
+    gobuild.downstream_image_9: projects-stg.registry.vmware.com/tkg/harbor/registry-photon:v2.6.1_vmware.1
+    gobuild.downstream_image_10: projects-stg.registry.vmware.com/tkg/harbor/trivy-adapter-photon:v2.6.1_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-tf-v0.25.4
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: harbor
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: projects.registry.vmware.com/tce/harbor/harbor-core:v2.6.1
+    gobuild.upstream_image_1: projects.registry.vmware.com/tce/harbor/harbor-db:v2.6.1
+    gobuild.upstream_image_2: projects.registry.vmware.com/tce/harbor/harbor-exporter:v2.6.1
+    gobuild.upstream_image_3: projects.registry.vmware.com/tce/harbor/harbor-jobservice:v2.6.1
+    gobuild.upstream_image_4: projects.registry.vmware.com/tce/harbor/harbor-portal:v2.6.1
+    gobuild.upstream_image_5: projects.registry.vmware.com/tce/harbor/harbor-registryctl:v2.6.1
+    gobuild.upstream_image_6: projects.registry.vmware.com/tce/harbor/notary-server-photon:v2.6.1
+    gobuild.upstream_image_7: projects.registry.vmware.com/tce/harbor/notary-signer-photon:v2.6.1
+    gobuild.upstream_image_8: projects.registry.vmware.com/tce/harbor/redis-photon:v2.6.1
+    gobuild.upstream_image_9: projects.registry.vmware.com/tce/harbor/registry-photon:v2.6.1
+    gobuild.upstream_image_10: projects.registry.vmware.com/tce/harbor/trivy-adapter-photon:v2.6.1
+    gobuild.upstream_version: 2.6.1
+- name: multus-cni-package
+  version: v3.8.0+vmware.1-tkg.1-multus-cni
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20346776/
+  artifactURL:
+    multus-cni.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/multus-cni:v3.8.0_vmware.1-tkg.1
+      sha256: 310ffbef9ea5ace4d6dab7ce9ea3daf77757ec8c5ac54df10d78b624fcfbd339
+  cachehash: 6bd24e2cc69d29e7f93a3086f6e92066
+  publishhash: 9e361a1c179233c0d6d805103c7f9223
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/multus-cni:v3.8.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: multus-cni
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: ghcr.io/k8snetworkplumbingwg/multus-cni:v3.8
+    gobuild.upstream_version: 3.8.0
+- name: whereabouts-package
+  version: v0.5.1+vmware.2-tkg.1-whereabouts
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20346933/
+  artifactURL:
+    whereabouts.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/whereabouts:v0.5.1_vmware.2-tkg.1
+      sha256: 1a3d69a997faf7b95276ea3194bf63317243a3ae6f4e48e9252ffabf45e1614d
+  cachehash: 5069303aba78550849d03a4950420032
+  publishhash: b01a06111dff679502f0dd8e7ed95102
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/whereabouts:v0.5.1_vmware.2
+    gobuild.downstream_version: vmware.2-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: whereabouts
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: ghcr.io/k8snetworkplumbingwg/whereabouts:latest-amd64
+    gobuild.upstream_version: 0.5.1
+- name: fluxcd-source-controller-package
+  version: v0.24.4+vmware.1-tkg.4-source-ctrl
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20346932/
+  artifactURL:
+    fluxcd-source-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluxcd-source-controller:v0.24.4_vmware.1-tkg.4
+      sha256: 816ba718e1aecbc472e44cc61b3efbee9bb92c814b33ecf303afe3aae57cb792
+  cachehash: d748af2d1472aca071df607bd8240d77
+  publishhash: 9a069b78161d3923eb4d8f8a345f7e49
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluxcd/source-controller:v0.24.4_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.4
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluxcd-source-controller
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluxcd/source-controller:v0.24.4
+    gobuild.upstream_version: 0.24.4
+- name: harbor-package
+  version: v2.2.3+vmware.1-tkg.1-harbor
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.1
+      sha256: c4fe69a762c3081e2f181dead7d79224b7012db8b74e3ca847798f030f1749ee
+  cachehash: "0"
+  publishhash: "0"
+- name: harbor-package
+  version: v2.2.3+vmware.1-tkg.2-harbor
+  channel: "388893606586382993"
+  url: https://buildweb.eng.vmware.com/ob/19158461/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.2
+      sha256: ab53d81c62bc85b06bbe5c0b8f5a404e98b0bc554606d387896fd3b673224fb4
+  cachehash: "0"
+  publishhash: "0"
+- name: harbor-package
+  version: v2.3.3+vmware.1-tkg.1-harbor
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306101/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.3.3_vmware.1-tkg.1
+      sha256: e3dd598b9790e1ce24330d69138db21e5b062f457d85e0aeadf619281ec937bc
+  cachehash: 4094131021fb6d55afaac1f31e5e3966
+  publishhash: a5d762b015a1a159eaab004b8d93ec17
+- name: prometheus-package
+  version: v2.27.0+vmware.1-tkg.1-prometheus
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    prometheus.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.1-tkg.1
+      sha256: 27af034c1c77bcae4e1f7f6d3883286e34419ea2e88222642af17393cd34e46a
+  cachehash: "0"
+  publishhash: "0"
+- name: prometheus-package
+  version: v2.27.0+vmware.2-tkg.1-prometheus
+  channel: "416341793219543513"
+  url: https://buildweb.eng.vmware.com/ob/20100003/
+  artifactURL:
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.2-tkg.1
+      sha256: 101cb1b293a89369d41875a8f48436a2001323b8cf4ef6d7edd0a3c375d0003f
+  cachehash: 2aa48bf8c04ec787ef3646e120795c1c
+  publishhash: 46897cc6c21c88aff6d73e888ed0a148
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/prometheus/prometheus:v2.27.0_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/prometheus/cadvisor:v0.39.1_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/prometheus/configmap-reload:v0.5.0_vmware.2
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/prometheus/alertmanager:v0.22.2_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/prometheus/pushgateway:v1.4.0_vmware.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/prometheus/kube-state-metrics:v1.9.8_vmware.1
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/prometheus/prometheus_node_exporter:v1.1.2_vmware.1
+    gobuild.downstream_version: vmware.2-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: prometheus
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: prom/prometheus:v2.27.0
+    gobuild.upstream_image_1: gcr.io/cadvisor/cadvisor:v0.39.1
+    gobuild.upstream_image_2: jimmidyson/configmap-reload:v0.5.0
+    gobuild.upstream_image_3: prom/alertmanager:v0.22.2
+    gobuild.upstream_image_4: prom/pushgateway:v1.4.0
+    gobuild.upstream_image_5: quay.io/coreos/kube-state-metrics:v1.9.8
+    gobuild.upstream_image_6: quay.io/prometheus/node-exporter:v1.1.2
+    gobuild.upstream_version: 2.27.0
+- name: contour-package
+  version: v1.17.1+vmware.1-tkg.1-contour
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/contour:v1.17.1_vmware.1-tkg.1
+      sha256: 73dc13131e6c1cfa8d3b56aeacd97734447acdf1ab8c0862e936623ca744e7c4
+  cachehash: "0"
+  publishhash: "0"
+- name: contour-package
+  version: v1.17.2+vmware.1-tkg.2-contour
+  channel: "388893606586382993"
+  url: https://buildweb.eng.vmware.com/ob/19158461/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/contour:v1.17.2_vmware.1-tkg.2
+      sha256: 1eedbd5b546d499be9b151a9cf25e8e0a4e83e5f5b6be9f943f8d501a42c33fd
+  cachehash: "0"
+  publishhash: "0"
+- name: contour-package
+  version: v1.17.2+vmware.1-tkg.3-contour
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306195/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.17.2_vmware.1-tkg.3
+      sha256: 7a5026f6de2372db112e7e88703b65f14a1a709107d1e55867502bec232a9c7f
+  cachehash: d6e64cc98f840e7d83615329488313b5
+  publishhash: acb70bf7bfe4f966ad485fc9e3085f43
+- name: contour-package
+  version: v1.18.2+vmware.1-tkg.1-contour
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306060/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.18.2_vmware.1-tkg.1
+      sha256: a59eae53b797ac576b5471d8af8e4b229bc44eb68aaf24021cd1274c88fb3b37
+  cachehash: a2241b7462998657b4f8a5c50965c63c
+  publishhash: acb70bf7bfe4f966ad485fc9e3085f43
+- name: fluxcd-helm-controller-package
+  version: v0.21.0+vmware.1-tkg.1-helm-ctrl
+  channel: "410331913698420020"
+  url: https://buildweb.eng.vmware.com/ob/19891213/
+  artifactURL:
+    fluxcd-helm-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluxcd-helm-controller:v0.21.0_vmware.1-tkg.1
+      sha256: 4324fac604234b99acdccf0e52f27abc7f992ba78854517bf3ff3d37fe1d878f
+  cachehash: 8aeaa747ee3981cd2f00f6b592f53abc
+  publishhash: 3c5ee72907ec3f9ee25978efc1875524
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluxcd/helm-controller:v0.21.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluxcd-helm-controller
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluxcd/helm-controller:v0.21.0
+    gobuild.upstream_version: 0.21.0
+- name: grafana-package
+  version: v7.5.7+vmware.1-tkg.1-grafana
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    grafana.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.1-tkg.1
+      sha256: 561e6afe31bf627f89dbb92a7dfded25128037fc407efc7d0190f2c6bc6deec7
+  cachehash: "0"
+  publishhash: "0"
+- name: grafana-package
+  version: v7.5.7+vmware.2-tkg.1-grafana
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306104/
+  artifactURL:
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.2-tkg.1
+      sha256: 8a3d95a77864295ba7ae24682f8edf2e522e7d624736ec7413d8d9d0d0643de1
+  cachehash: c0ed2e7970c279603177de4d9078f37f
+  publishhash: 93d993a45ebfd2da411903df093c9a7f
+- name: fluxcd-kustomize-controller-package
+  version: v0.24.4+vmware.1-tkg.1-kustomize-ctrl
+  channel: "410331913698420020"
+  url: https://buildweb.eng.vmware.com/ob/19891214/
+  artifactURL:
+    fluxcd-kustomize-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluxcd-kustomize-controller:v0.24.4_vmware.1-tkg.1
+      sha256: 27f08b1442ca45f800b9e9a6b1687aa4d41d7f29742a9b6e0c883cf397c946ad
+  cachehash: 9b38a3abe6640518f2b278187150e074
+  publishhash: a81d031f95203c82405bdc471c5fedf0
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluxcd/kustomize-controller:v0.24.4_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluxcd-kustomize-controller
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluxcd/kustomize-controller:v0.24.4
+    gobuild.upstream_version: 0.24.4
+- name: fluxcd-source-controller-package
+  version: v0.24.4+vmware.1-tkg.1-source-ctrl
+  channel: "410331913698420020"
+  url: https://buildweb.eng.vmware.com/ob/19891215/
+  artifactURL:
+    fluxcd-source-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluxcd-source-controller:v0.24.4_vmware.1-tkg.1
+      sha256: 9be8d7537196976978dd2c18b4da350c90f162610915d61481953f33d5e0339e
+  cachehash: 73f1c6cf4f79a35047ee7c948aafa9eb
+  publishhash: 9a069b78161d3923eb4d8f8a345f7e49
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluxcd/source-controller:v0.24.4_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluxcd-source-controller
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluxcd/source-controller:v0.24.4
+    gobuild.upstream_version: 0.24.4
+- name: fluxcd-source-controller-package
+  version: v0.24.4+vmware.1-tkg.2-source-ctrl
+  channel: "419763276558111913"
+  url: https://buildweb.eng.vmware.com/ob/20238748/
+  artifactURL:
+    fluxcd-source-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluxcd-source-controller:v0.24.4_vmware.1-tkg.2
+      sha256: 9be8d7537196976978dd2c18b4da350c90f162610915d61481953f33d5e0339e
+  cachehash: e073db263f7a8df1f63c3597b10cf28a
+  publishhash: 9a069b78161d3923eb4d8f8a345f7e49
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluxcd/source-controller:v0.24.4_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluxcd-source-controller
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluxcd/source-controller:v0.24.4
+    gobuild.upstream_version: 0.24.4
+- name: multus-cni-package
+  version: v3.7.1+vmware.1-tkg.1-multus-cni
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    multus-cni.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.1-tkg.1
+      sha256: f15b0a748d10f2a92df68b6f4eef8b4f3b08a9b17240de084bfb3501d7ebc245
+  cachehash: "0"
+  publishhash: "0"
+- name: multus-cni-package
+  version: v3.7.1+vmware.2-tkg.1-multus-cni
+  channel: "388893606586382993"
+  url: https://buildweb.eng.vmware.com/ob/19158461/
+  artifactURL:
+    multus-cni.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.2-tkg.1
+      sha256: ea6122133596b387380ae43a41ad99de042190007c9510374d16188aaa2e64bf
+  cachehash: "0"
+  publishhash: "0"
+- name: multus-cni-package
+  version: v3.7.1+vmware.2-tkg.2-multus-cni
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306102/
+  artifactURL:
+    multus-cni.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.2-tkg.2
+      sha256: 501c46c7c376d4cf2804db43c0b02b6082f1cd3982859d8c26b50be0d705a3ca
+  cachehash: 31acec3b68dde2b1b54a31be2b22d85a
+  publishhash: 9e361a1c179233c0d6d805103c7f9223
+- name: cert-manager-package
+  version: v1.1.0+vmware.1-tkg.2-cert-manager
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/cert-manager:v1.1.0_vmware.1-tkg.2
+      sha256: 117a35c2b496cbac0e6562d9b48cb821da829454e12c1ac7a6dedb6968c76de8
+  cachehash: "0"
+  publishhash: "0"
+- name: cert-manager-package
+  version: v1.1.0+vmware.2-tkg.1-cert-manager
+  channel: "388893606586382993"
+  url: https://buildweb.eng.vmware.com/ob/19158461/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/cert-manager:v1.1.0_vmware.2-tkg.1
+      sha256: 8899f1d910f458437895e5d32817e5044b86ff814aad43846156f9d00032b568
+  cachehash: "0"
+  publishhash: "0"
+- name: cert-manager-package
+  version: v1.5.3+vmware.2-tkg.1-cert-manager
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306134/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.5.3_vmware.2-tkg.1
+      sha256: 7175f80539034cd1df3afb80625360a19b59dd17cec908e78f6bbd306f52b5d8
+  cachehash: 191b6f397275ed8f7f1bf7f6b7bcfe81
+  publishhash: 08b8d2296442618f07837aec7f5d1c39
+- name: external-dns-package
+  version: v0.8.0+vmware.1-tkg.1-external-dns
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/external-dns:v0.8.0_vmware.1-tkg.1
+      sha256: ae8cd950bbeb94b8ff66e41eaf62bcc4470f1f1ab424032a996a0193f5245961
+  cachehash: "0"
+  publishhash: "0"
+- name: external-dns-package
+  version: v0.10.0+vmware.1-tkg.1-external-dns
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306061/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.10.0_vmware.1-tkg.1
+      sha256: aa4e440c8e4adc1d0482b21f6cfe37a1c667623835e57082276a92f9f3857e1d
+  cachehash: 2e3f8c44350476fca68c658cbc6aac93
+  publishhash: 19b8613fad519068fc2d01dbd771545b
+- name: fluent-bit-package
+  version: v1.7.5+vmware.1-tkg.1-fluent-bit
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    fluent-bit.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.1
+      sha256: c83d038c57f244aae2819dd77dc5184bb3e1ec96524d3f6a09fe8a244b7bc9e4
+  cachehash: "0"
+  publishhash: "0"
+- name: fluent-bit-package
+  version: v1.7.5+vmware.2-tkg.1-fluent-bit
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306183/
+  artifactURL:
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.2-tkg.1
+      sha256: 264bfbefb2430c422cb691637004ed5dbf4a4d0aac0b0cb06ee19a3c81b1779e
+  cachehash: 82b244584d2009c5337d815b59525600
+  publishhash: 51ef43745ce53777a2a953caa9ef223e

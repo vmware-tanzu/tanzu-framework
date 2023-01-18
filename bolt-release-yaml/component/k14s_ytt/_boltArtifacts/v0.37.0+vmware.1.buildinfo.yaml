@@ -1,0 +1,14 @@
+componentBuilds:
+- name: k14s_ytt
+  version: v0.37.0+vmware.1
+  channel: "401061859190378507"
+  url: https://buildweb.eng.vmware.com/ob/18931870
+  artifactURL:
+    ytt-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18931870/publish/lin64/ytt/executables/ytt-darwin-amd64-v0.37.0+vmware.1.gz
+    ytt-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18931870/publish/lin64/ytt/executables/ytt-linux-amd64-v0.37.0+vmware.1.gz
+    ytt-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18931870/publish/lin64/ytt/executables/ytt-windows-amd64-v0.37.0+vmware.1.gz
+  cachehash: bdaa98d92c046b6b131f92e3add242a4
+  publishhash: 8cdad8265c956418832220d623638e42

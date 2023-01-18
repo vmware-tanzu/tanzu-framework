@@ -1,0 +1,10 @@
+name: csi_livenessprobe
+managedComponents:
+  - version: v2.6.0+vmware.1
+    upstreamTag: v2.6.0
+    mirrorCherryPicks: []
+    gobuildBaseBranch: vmware-2.6.0+vmware.1~f69867c24a7eca178608450a862221082e84dae0
+    dependencies:
+      gobuild.golangVersion: 1.16.0
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32

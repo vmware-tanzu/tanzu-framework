@@ -1,0 +1,4 @@
+submodules:
+  - name: configmap-reload/src
+    go_mod:
+      - "go.mod"

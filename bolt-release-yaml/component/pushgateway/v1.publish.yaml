@@ -1,0 +1,12 @@
+name: pushgateway
+publish:
+  - name: pushgatewayImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/pushgateway/images/pushgateway-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/pushgateway/images/pushgateway-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: prometheus/pushgateway:$UNDERSCOREVERSION
+nonpublish:
+  - name: pushgateway-executable
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/pushgateway/executables/pushgateway-$VERSION-binary-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/pushgateway/executables/pushgateway-$VERSION.gz

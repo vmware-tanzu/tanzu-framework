@@ -1,0 +1,7 @@
+name: cri_tools
+goBuildComponentCaches:
+- version: v1.18.0+vmware.9
+  url: https://buildweb.eng.vmware.com/ob/18205101/
+  buildNumber: bora-18205101
+  buildStatus: SUCCEEDED
+  hash: 50c40136b251412a606cbfe3e26c0fbe

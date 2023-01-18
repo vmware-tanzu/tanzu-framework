@@ -1,0 +1,4 @@
+submodules:
+  - name: vsphere_csi_driver/src
+    go_mod:
+      - "go.mod"

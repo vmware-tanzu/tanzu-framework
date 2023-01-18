@@ -1,0 +1,88 @@
+name: ami-general-amazon-2
+imageCaches:
+- version: v1.21.2+vmware.1-fips.1-tkg.1-2317343603071452717
+  channel: "377894385779511057"
+  bomAMI:
+    ami:
+      ap-northeast-1:
+      - id: ami-08d3c4f1916c6816c
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      ap-northeast-2:
+      - id: ami-0a22cf9082d3ca7e0
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      ap-south-1:
+      - id: ami-000f2b6cc129ab6a2
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      ap-southeast-1:
+      - id: ami-0c68b694520ebc29d
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      ap-southeast-2:
+      - id: ami-0196c6916007e400b
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      eu-central-1:
+      - id: ami-02a34abbfb5e737bf
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      eu-west-1:
+      - id: ami-011678376e4903cc0
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      eu-west-2:
+      - id: ami-0358ffad53ff88a3f
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      eu-west-3:
+      - id: ami-0d109b4257d1e1b66
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      sa-east-1:
+      - id: ami-0b1d22519b78380b6
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      us-east-1:
+      - id: ami-012ff4cc9bce77b89
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      us-east-2:
+      - id: ami-00c7c33fe5297362b
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      us-west-2:
+      - id: ami-0c846c0b1b59427fe
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+  hash: 5e54be282840589ee2413b52cba349a6
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/859
+  buildNumber: "859"
+  buildStatus: SUCCEEDED

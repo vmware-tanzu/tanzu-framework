@@ -1,0 +1,41 @@
+componentBuilds:
+- name: tkg-core-packages
+  version: v1.19.12+vmware.1-tkg.2-20211007-6d459b1c
+  channel: "376002337593904295"
+  url: https://buildweb.eng.vmware.com/ob/18743049/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/addons-manager:v1.4.0_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: da189be006461400978954333ef9d36e82b7fd84b3465103b986dda9ac39e964
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.5.0_vmware.1-tkg.1-20211007-6d459b1c
+      sha256: 37bfa7b3b3d4c4c3f3ac1863baef2d87b144c74809c042d46a8e86216944b352
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v0.11.3_vmware.2-tkg.2-20211007-6d459b1c
+      sha256: 871b5b49997738874f8dee201d24d82522cbb627df2fcd536a2b9f9a93432dfd
+    calico.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/calico:v3.11.3_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: af41dcea5c3d7733879c2e5803a4cc6a493242990df984a73a93cc95761e0153
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.25.0_vmware.1-tkg.1-20211007-6d459b1c
+      sha256: d70b48dbfb814d25e2af5d8f76b09b6afab7b09db912d278ffc3121881441510
+    load-balancer-and-ingress-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/load-balancer-and-ingress-service:v1.5.3_vmware.1-tkg.1-20211007-6d459b1c
+      sha256: 5f4420f2be69b7dc08ce733607732572e25b37ecff68d641da03f68c5ebd137c
+    metrics-server.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/metrics-server:v0.4.0_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: feeceea6994d4fdf21bfc9f73152edf51d5c9071f461c9f5f81c87c15496fc88
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.4.4_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: b8561b97394d8012cda19359386dfeafa53b195d88f24ffda8fc5b5766d349d9
+    tanzuCorePackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/repo:v1.19.12_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: 3da49393a9643b779f67fc864f4cc224ca2cd3ba78c76b01b877f542683a6b29
+    vsphere-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-cpi:v1.19.1_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: 6db427e80ca7316b3816f0587969977c51a52d1a5bfeee76118d6971e5088d9d
+    vsphere-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-csi:v2.3.0_vmware.1-tkg.3-20211007-6d459b1c
+      sha256: a757edcd0aaa0a51e422403dc521e858f64854be50b810432b526cfc368e87d3
+  cachehash: bbf2adec5e5249c9bc46b8f4cf3f5da9
+  publishhash: 532fa31b311f88d7eed227e0fd041ebf

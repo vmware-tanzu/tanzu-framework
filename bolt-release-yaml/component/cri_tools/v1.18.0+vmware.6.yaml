@@ -1,0 +1,9 @@
+name: cri_tools
+managedComponents:
+  - version: v1.18.0+vmware.6
+    upstreamTag: v1.18.0
+    gobuildBaseBranch: vmware-0.0.0+vmware.0
+    dependencies:
+      gobuild.golangVersion: 1.15.8
+      gobuild.linux_hosttype: linux-centos8
+      generateDebRpmChangelog: true

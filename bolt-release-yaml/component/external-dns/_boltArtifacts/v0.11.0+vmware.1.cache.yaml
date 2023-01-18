@@ -1,0 +1,7 @@
+name: external-dns
+goBuildComponentCaches:
+- version: v0.11.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/19703779/
+  buildNumber: bora-19703779
+  buildStatus: SUCCEEDED
+  hash: 629f6935180b6f76cb3f7aff89deac87

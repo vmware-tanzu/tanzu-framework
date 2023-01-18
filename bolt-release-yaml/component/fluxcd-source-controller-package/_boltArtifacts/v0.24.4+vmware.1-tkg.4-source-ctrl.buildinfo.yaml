@@ -1,0 +1,23 @@
+componentBuilds:
+- name: fluxcd-source-controller-package
+  version: v0.24.4+vmware.1-tkg.4-source-ctrl
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20346932/
+  artifactURL:
+    fluxcd-source-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluxcd-source-controller:v0.24.4_vmware.1-tkg.4
+      sha256: 816ba718e1aecbc472e44cc61b3efbee9bb92c814b33ecf303afe3aae57cb792
+  cachehash: d748af2d1472aca071df607bd8240d77
+  publishhash: 9a069b78161d3923eb4d8f8a345f7e49
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluxcd/source-controller:v0.24.4_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.4
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluxcd-source-controller
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluxcd/source-controller:v0.24.4
+    gobuild.upstream_version: 0.24.4

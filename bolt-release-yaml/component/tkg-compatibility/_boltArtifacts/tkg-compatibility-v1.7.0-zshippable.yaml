@@ -1,0 +1,46 @@
+version: v14
+managementClusterPluginVersions:
+- version: v0.11.1
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.1
+- version: v0.11.2
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.2
+- version: v0.11.4
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.3
+- version: v0.11.6
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.4
+- version: v0.25.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0
+- version: v0.25.4
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.1
+- version: v0.28.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.7.0-zshippable
+- version: v1.4.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.0
+- version: v1.4.1
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.1
+- version: v1.4.2
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.2
+- version: v1.4.3
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.3

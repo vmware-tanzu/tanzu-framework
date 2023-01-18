@@ -1,0 +1,13 @@
+submodules:
+  - name: containerd/src/containerd
+    vendored:
+      - "vendor"
+  - name: containerd/src/runc
+    go_mod:
+      - "go.mod"
+  - name: containerd/src/cri-tools
+    go_mod:
+      - "go.mod"
+  - name: containerd/src/hcsshim
+    go_mod:
+      - "go.mod"

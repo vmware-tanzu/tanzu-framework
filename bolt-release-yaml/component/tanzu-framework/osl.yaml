@@ -1,0 +1,4 @@
+submodules:
+  - name: tanzu-framework/src
+    go_mod:
+      - "go.mod"

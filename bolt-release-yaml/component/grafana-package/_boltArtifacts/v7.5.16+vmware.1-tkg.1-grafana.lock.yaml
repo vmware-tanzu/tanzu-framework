@@ -1,0 +1,13 @@
+name: grafana-package
+goBuildComponentLocks:
+- version: v7.5.16+vmware.1-tkg.1-grafana
+  gobuildBranch: 422715151813216552-v7.5.16+vmware.1-tkg.1-grafana-grafana-package
+  gobuildHeadCommit: 7e4f1e2ab18eb901713e818de274185edc8ec36c
+  hash: b5110af1cd53333192b56fdbebd084ef
+  componentLockReferences:
+  - name: grafana
+    version: v7.5.16+vmware.1
+    lockHash: e478fcd241c81d571b77688285c7cb28
+  - name: k8s-sidecar
+    version: v1.15.6+vmware.1
+    lockHash: a04adc535397a62d23dac5675df84f9b

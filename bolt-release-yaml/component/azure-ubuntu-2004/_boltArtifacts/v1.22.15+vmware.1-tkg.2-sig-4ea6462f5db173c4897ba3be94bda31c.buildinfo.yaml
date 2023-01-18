@@ -1,0 +1,27 @@
+componentBuilds:
+- name: azure-ubuntu-2004
+  version: v1.22.15+vmware.1-tkg.2-sig-4ea6462f5db173c4897ba3be94bda31c
+  channel: "429759541517752534"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/3163
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-sig-v1.22.15+vmware.1-tkg.2-sig-4ea6462f5db173c4897ba3be94bda31c.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.22.15+vmware.1-tkg.2-sig-4ea6462f5db173c4897ba3be94bda31c-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.22.15+vmware.1-tkg.2-sig-4ea6462f5db173c4897ba3be94bda31c-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.22.15+vmware.1-tkg.2-sig-4ea6462f5db173c4897ba3be94bda31c-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.22.15+vmware.1-tkg.2-sig-4ea6462f5db173c4897ba3be94bda31c-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-2004/azure-vhd-link-ubuntu-2004-v1.22.15+vmware.1-tkg.2-sig-4ea6462f5db173c4897ba3be94bda31c.json
+  cachehash: 7462f11f33b8c7420e1f920624590c65
+  publishhash: 8767b511de6ea0a35615b8bcac003cf8
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 5eda9a292797aa48e8f392340236b7bdf70447ad
+    jenkins.UBUNTU_2004_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-stig-hardening.git
+    jenkins.UBUNTU_2004_STIG_VERSION: 04d8e41453a83bb62e1eb145ca7537ac54652b29

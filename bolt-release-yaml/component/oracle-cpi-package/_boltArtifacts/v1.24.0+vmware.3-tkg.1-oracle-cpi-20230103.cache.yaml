@@ -1,0 +1,7 @@
+name: oracle-cpi-package
+goBuildComponentCaches:
+- version: v1.24.0+vmware.3-tkg.1-oracle-cpi-20230103
+  url: https://buildweb.eng.vmware.com/ob/21074480/
+  buildNumber: bora-21074480
+  buildStatus: SUCCEEDED
+  hash: ca90c2ae560166109c9e538b36bccbe9

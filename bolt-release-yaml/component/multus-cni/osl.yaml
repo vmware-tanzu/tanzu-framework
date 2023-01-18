@@ -1,0 +1,4 @@
+submodules:
+  - name: multus-cni/src
+    go_mod:
+      - "go.mod"

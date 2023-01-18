@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkr-azure-machine-webhook-package
+  version: v0.21.0-dev-101-g8ee1de7b-tkr-azure-mc-webhook
+  channel: "404100428075113766"
+  url: https://buildweb.eng.vmware.com/ob/19675506/
+  artifactURL:
+    tkr-azure-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-azure-machine-webhook:v0.21.0-dev-101-g8ee1de7b_vmware.1
+      sha256: 60117939f9219420b3bb34581d09a12a985e95c7bb2773ff1a9d17b5b0c0fc49
+  cachehash: 20e593eca7fab8ab3fbe8e4ae3a8cbaf
+  publishhash: c9cb2d5c797f64d3b0eb7d32aea8041b

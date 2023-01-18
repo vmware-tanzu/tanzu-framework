@@ -1,0 +1,31 @@
+name: antrea
+publish:
+  - name: antreaImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/images/antrea-debian-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/images/antrea-debian-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: antrea/antrea-debian:$UNDERSCOREVERSION
+  - name: antrea
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/images/antrea-debian-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/antrea/$VERSION/bin/antrea-debian-$UNDERSCOREVERSION.tar
+  - name: antctl
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/executables/antctl-$VERSION.gz
+    destinationPath: $CHANNEL/image-builder/antrea/$VERSION/executables/antctl-$VERSION.gz
+  - name: antrea-1.18-addon-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.18/antrea.yaml
+    destinationPath: $CHANNEL/image-builder/antrea/$VERSION/publish/add-on/1.18/antrea.yaml
+  - name: antrea-1.19-addon-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.19/antrea.yaml
+    destinationPath: $CHANNEL/image-builder/antrea/$VERSION/publish/add-on/1.19/antrea.yaml
+nonpublish:
+  - name: antctl
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/executables/antctl-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/executables/antctl-$VERSION-checksums.txt
+  - name: manifests
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/manifests/antrea-$VERSION.yml

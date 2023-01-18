@@ -1,0 +1,7 @@
+name: cert-manager-package
+goBuildComponentCaches:
+- version: v1.5.3+vmware.2-tkg.1-cert-manager-rc.6
+  url: https://buildweb.eng.vmware.com/ob/19245039/
+  buildNumber: bora-19245039
+  buildStatus: SUCCEEDED
+  hash: 6a408764a2184073a3c32f6ad739bbe0

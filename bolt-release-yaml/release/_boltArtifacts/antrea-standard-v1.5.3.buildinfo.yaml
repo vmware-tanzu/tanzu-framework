@@ -1,0 +1,51 @@
+componentBuilds:
+- name: antrea
+  version: v1.5.3+vmware.3-standard
+  channel: "434682872461292940"
+  url: https://buildweb.eng.vmware.com/ob/20802763/
+  artifactURL:
+    antctl:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20802763/publish/lin64/antrea/executables/antctl-v1.5.3+vmware.3.gz
+    antrea-debian-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434682872461292940/image-builder/antrea/v1.5.3+vmware.3/publish/lin64/antrea/images/antrea-standard-debian-v1.5.3_vmware.3.tar
+      sha256: 205d468bad7f699afea6f80b226187de266a69cd697a05de273641a70f1603a2
+    antrea-windows:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/434682872461292940/image-builder/antrea/v1.5.3+vmware.3/publish/antrea-windows-standard.zip
+      sha256: ed3f2e31d24a7d12ee4ce43d61348127b04f991204583b07a92b6f2af0047d01
+    antreaImage:
+      url: projects-stg.registry.vmware.com/tkg/antrea-standard-debian:v1.5.3_vmware.3
+      sha256: bfb4c6a133e4232aa5ed93b5c1634792ac41b3fbafd677d3d17229bfb160ae13
+    manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20802763/publish/lin64/antrea/manifests/antrea-v1.5.3+vmware.3.yml
+  cachehash: 3289d73e9f5a0ef00c9f3d647902bdb4
+  publishhash: 04359fed8f13ec99d73fb9026fe4a97e
+  configDependencies:
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32
+    packageType: standard
+    packageVersion: v1.5.3+vmware.3
+- name: antrea-package
+  version: v1.5.3-tkg.2-antrea-standard-zshippable
+  channel: "434767404917065734"
+  url: https://buildweb.eng.vmware.com/ob/20805777/
+  artifactURL:
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v1.5.3_tkg.2-standard-zshippable
+      sha256: 5e7cf0a88a83f6fce28eddcdb3421f0b64c5ecb59cd4d97064b1dded145ef547
+  cachehash: f20e2d185d7f316b651ec878877784bf
+  publishhash: 3c38157278462aa91841f3ab1a6c790a
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/antrea-standard-debian:v1.5.3_vmware.3
+    gobuild.downstream_version: tkg.2-standard-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: antrea
+    gobuild.package_type: core
+    gobuild.upstream_image_0: antrea/antrea-ubuntu:v1.5.3
+    gobuild.upstream_version: 1.5.3
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 4a4a46289d2e0f7bfee9ac21994a9ea4b32c0528
+testInfraVersion: 8d7d751676f5ca48ad87aabf0fc445d28051b694

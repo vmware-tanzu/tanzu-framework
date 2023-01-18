@@ -1,0 +1,41 @@
+name: harbor-package
+packages:
+- version: v2.6.1+vmware.1-tkg.2-harbor-zshippable
+  upstreamCommit: f0e67641278dbb80bfc509da6b4625907d8bd073
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: harbor
+    version:
+    - v2.6.1+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.package_name: harbor
+    gobuild.upstream_version: 2.6.1
+    gobuild.downstream_version: vmware.1-tkg.2-zshippable
+    gobuild.package_type: standard
+    gobuild.noMirror: "true"
+    gobuild.upstream_image_0: "projects.registry.vmware.com/tce/harbor/harbor-core:v2.6.1"
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborCoreImage.url}}'
+    gobuild.upstream_image_1: "projects.registry.vmware.com/tce/harbor/harbor-db:v2.6.1"
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborDatabaseImage.url}}'
+    gobuild.upstream_image_2: "projects.registry.vmware.com/tce/harbor/harbor-exporter:v2.6.1"
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborExporterImage.url}}'
+    gobuild.upstream_image_3: "projects.registry.vmware.com/tce/harbor/harbor-jobservice:v2.6.1"
+    gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborJobServiceImage.url}}'
+    gobuild.upstream_image_4: "projects.registry.vmware.com/tce/harbor/harbor-portal:v2.6.1"
+    gobuild.downstream_image_4: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborPortalImage.url}}'
+    gobuild.upstream_image_5: "projects.registry.vmware.com/tce/harbor/harbor-registryctl:v2.6.1"
+    gobuild.downstream_image_5: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborRegistryCtlImage.url}}'
+    gobuild.upstream_image_6: "projects.registry.vmware.com/tce/harbor/notary-server-photon:v2.6.1"
+    gobuild.downstream_image_6: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborNotaryServerImage.url}}'
+    gobuild.upstream_image_7: "projects.registry.vmware.com/tce/harbor/notary-signer-photon:v2.6.1"
+    gobuild.downstream_image_7: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborNotarySignerImage.url}}'
+    gobuild.upstream_image_8: "projects.registry.vmware.com/tce/harbor/redis-photon:v2.6.1"
+    gobuild.downstream_image_8: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborRedisImage.url}}'
+    gobuild.upstream_image_9: "projects.registry.vmware.com/tce/harbor/registry-photon:v2.6.1"
+    gobuild.downstream_image_9: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborRegistryImage.url}}'
+    gobuild.upstream_image_10: "projects.registry.vmware.com/tce/harbor/trivy-adapter-photon:v2.6.1"
+    gobuild.downstream_image_10: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "harbor" ).artifactURL.harborTrivyAdapterImage.url}}'

@@ -1,0 +1,14 @@
+componentBuilds:
+- name: aad-pod-identity
+  version: v1.6.3+vmware.2
+  channel: "360465008775187391"
+  url: https://buildweb.eng.vmware.com/ob/18210456/
+  artifactURL:
+    micImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/mic:v1.6.3_vmware.2
+      sha256: 7c3669b0818bc6acaa080f890543eeeb7ba0dcbc9a01ea68ffa6b0dce70c9df6
+    nmiImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/nmi:v1.6.3_vmware.2
+      sha256: 08e0be24cef204a035c366ef53ea865a3d9502b04af78fa44c48562d91fb5184
+  cachehash: d6795a2d78144bb3bed35bdc9eece5f0
+  publishhash: 50aabeb606c793f9c64b2ae523bfb705

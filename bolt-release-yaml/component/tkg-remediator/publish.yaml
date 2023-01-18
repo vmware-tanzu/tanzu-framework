@@ -1,0 +1,6 @@
+name: tkg-remediator
+publish:
+  - name: tkg-remediator
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_remediator/tkg-remediator-$UNDERSCOREVERSION.tar.gz
+    destinationPath: tkg-remediator:$UNDERSCOREVERSION

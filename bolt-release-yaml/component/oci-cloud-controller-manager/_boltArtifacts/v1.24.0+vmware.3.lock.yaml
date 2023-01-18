@@ -1,0 +1,7 @@
+name: oci-cloud-controller-manager
+goBuildComponentLocks:
+- version: v1.24.0+vmware.3
+  gobuildBranch: 439390714074270071-v1.24.0+vmware.3-oci-cloud-controller-manager
+  gobuildHeadCommit: 49f775611e2f85ca5a295d8bc9fc3c4636d156d0
+  hash: 7ad9832f6d6c68399080c6389e7c96a0
+  componentLockReferences: []

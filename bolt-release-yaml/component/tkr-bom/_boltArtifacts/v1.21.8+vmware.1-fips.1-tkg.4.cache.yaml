@@ -1,0 +1,6 @@
+name: tkr-bom
+bomCaches:
+- version: v1.21.8+vmware.1-fips.1-tkg.4
+  channel: "396814680787577348"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/396814680787577348/component/tkr-bom/_boltArtifacts/tkr-bom-v1.21.8+vmware.1-fips.1-tkg.4.yaml
+  hash: 534e28e6f399f2a17bd10f8a6b087e38

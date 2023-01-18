@@ -1,0 +1,14 @@
+componentBuilds:
+- name: etcd
+  version: v3.5.3+vmware.1
+  channel: "403357692518732795"
+  url: https://buildweb.eng.vmware.com/ob/19650386/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.5.3_vmware.1
+      sha256: 65d4d0ba0fa3b80a0d20a94443afcc6eaa7df08a16525739c62ab6611e543f15
+  cachehash: 7e7fac469a1640f069138b6878116be5
+  publishhash: 8d295061a104d02aaac3cda5e7d85ab7
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 503a566b41b67e79088c6119e0996558844cc3e0
+testInfraVersion: 5aeb6eed6a00cccacada30846403bb86e44bc2e9

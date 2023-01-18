@@ -1,0 +1,32 @@
+name: ova-rhel-8
+images:
+- version: v1.22.13+vmware.1-tkg.1-338d7a84930e5368c38aa867f998ea44
+  osinfo:
+    name: rhel
+    version: "8"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: 02df45969409c7f18f2cf7e63b70c4dc0e2fa442
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2
+  - name: coredns
+    version:
+    - v1.8.4+vmware.10
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.9
+  - name: etcd
+    version:
+    - v3.5.4+vmware.2
+  - name: containerd
+    version:
+    - v1.5.13+vmware.1
+  - name: kubernetes
+    version:
+    - v1.22.13+vmware.1
+  dependencies:
+    base_iso_sha: c324f3b07283f9393168f0a4ad2167ebbf7e4699d65c9670e0d9e58ba4e2a9a8
+    base_iso_url: https://artifactory.eng.vmware.com/artifactory/kscom-generic-local/isos/rhel-8.6-x86_64-dvd.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 61df636aa984cd9788609cd48d6a1d99cf1eb87e

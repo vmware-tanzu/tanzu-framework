@@ -1,0 +1,10 @@
+versionMap:
+  v2.3.0: url.yaml
+  v2.3.0-d154d1c: url.yaml
+  v2.4.0: url.yaml
+  v2.4.2: url.yaml
+  v2.5.2-8dee76b: url.yaml
+  v2.6.0: url.yaml
+  v2.6.1: url.yaml
+  vsphere70u2-f665008-8a37f95: url.yaml
+  vsphere70u3-5212290-e831b6d: url.yaml

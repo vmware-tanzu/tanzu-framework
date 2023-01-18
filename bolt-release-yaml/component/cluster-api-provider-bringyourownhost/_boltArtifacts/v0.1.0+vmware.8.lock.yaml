@@ -1,0 +1,19 @@
+name: cluster-api-provider-bringyourownhost
+goBuildComponentLocks:
+- version: v0.1.0+vmware.8
+  gobuildBranch: 416341793219543513-v0.1.0+vmware.8-cluster-api-provider-bringyourownhost
+  gobuildHeadCommit: 69a1ea5fbf0240337af6ec3645ec2a6a0acc73c4
+  hash: aa5057ab56bf21b8fddc92006c50a9db
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.22.10+vmware.2
+    lockHash: 8514df27ec206825912fed215f811502
+  - name: cni_plugins
+    version: v1.1.1+vmware.2
+    lockHash: 6d46aaf822c63d16ed1c4b0f19bbe2ab
+  - name: cri_tools
+    version: v1.21.0+vmware.9
+    lockHash: e1bc0118132690b850dfa2199d0067c9
+  - name: containerd
+    version: v1.5.11+vmware.1
+    lockHash: e16108eb17425cdd142510c45d951967

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: calico-package
+  version: v3.19.1+vmware.1-tkg.2-calico-20211114
+  channel: "381565706073840214"
+  url: https://buildweb.eng.vmware.com/ob/18924133/
+  artifactURL:
+    calico.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/calico:v3.19.1_vmware.1-tkg.2-20211114
+      sha256: cd938f5ae837ab704f5a8c7f9ab8ccf13fe59d95fab088b8ef05faeedcdb531b
+  cachehash: a0f92bfec3717ab477dc8004d80e345d
+  publishhash: a041cb368fda942297756d58173a348a

@@ -1,0 +1,99 @@
+componentBuilds:
+- name: csi_attacher
+  version: v3.4.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104096/
+  artifactURL:
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.4.0_vmware.1
+      sha256: 4d4f9ad080dda5b52e9999e6ddb3b60bb889310a9429750d2fae89c1f0cce824
+  cachehash: ef456f52a46daad3ad83881e6ad70178
+  publishhash: 2dfd5c66ba8f77f19d418d2a5058472d
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_livenessprobe
+  version: v2.5.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104027/
+  artifactURL:
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.5.0_vmware.1
+      sha256: 040836dd6d763e640d607a16d6ea54b7c1880e1eb78043d8dad2608f2b563f88
+  cachehash: 8c9429b3cae07c483139c3ba3c966059
+  publishhash: ad32cfc6d337dff0830e3e570262636b
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.16.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_node_driver_registrar
+  version: v2.5.1+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104347/
+  artifactURL:
+    csiNodeDriverRegistrarImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.5.1_vmware.1
+      sha256: 5154578b827de4c7021ae458e38a5708d3562510e177666bfc96490159a3fd49
+  cachehash: baf16b3a4820bf3bce7f7a970c62a6e4
+  publishhash: e9183afffd250117d9eea541bba6836f
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: kubernetes-csi_external-resizer
+  version: v1.4.0+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104202/
+  artifactURL:
+    csiExternalResizer:
+      url: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.4.0_vmware.1
+      sha256: 10187e8c1bdcc1158c98b33d455a95fcac768bd03424bd43b754940433f1c6d2
+  cachehash: c7d0f01564316b3c670795f046dfc566
+  publishhash: 3556c1335bba2f78f1541fc58f73089b
+  configDependencies:
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: csi_provisioner
+  version: v3.1.0+vmware.2
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/19655628
+  artifactURL:
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.1.0_vmware.2
+      sha256: 211f140d6ac914c6765454dbc5e3d0f2d2849b7354a61f9b2e92ea8398624c47
+  cachehash: 19470e00f4927e16a6944fc251e2449d
+  publishhash: 4764f174cbd6be97bb004d2ae1648bd0
+  configDependencies:
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: external-snapshotter
+  version: v6.0.1+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104024/
+  artifactURL:
+    csiSnapshotControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/snapshot-controller:v6.0.1_vmware.1
+      sha256: 7ed1cceea70b9cf6d5f8c2b58fb86468f0b4fc317d20b0ce538b3a913a4a7d5d
+    csiSnapshotterImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-snapshotter:v6.0.1_vmware.1
+      sha256: 7fc5f7c116a533ccaab542ae4c767352a9ba1ae5c68c7c6a8ec57c1ed11d81e5
+  cachehash: c1a145d436ed0c3027d94f5e6ed539fd
+  publishhash: 00361ad47807c86f670f9bd4a9fcd742
+  configDependencies:
+    gobuild.golangVersion: 1.17.3
+    gobuild.linux_hosttype: linux-centos72-gc32
+- name: aws-ebs-csi-driver
+  version: v1.8.0+vmware.2
+  channel: "441867356684162878"
+  url: https://buildweb.eng.vmware.com/ob/21068902/
+  artifactURL:
+    awsEbsCsiDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/aws-ebs-csi-driver:v1.8.0_vmware.2
+      sha256: d150df080abfaf0635ee6545a93167ae37f2db55738af3c39e5194144ee1845a
+  cachehash: 85301fba4aba43302903393c78c27e3e
+  publishhash: d7c19f9177742a4878431bc2a5ade0e3
+  configDependencies:
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos8

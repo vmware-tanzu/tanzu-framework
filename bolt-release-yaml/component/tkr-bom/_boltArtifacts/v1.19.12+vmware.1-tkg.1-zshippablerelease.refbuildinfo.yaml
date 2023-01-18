@@ -1,0 +1,495 @@
+componentBuilds:
+- name: ako-operator
+  version: v1.4.0+vmware.1
+  channel: "367432307373528299"
+  url: https://buildweb.eng.vmware.com/ob/18452738/
+  artifactURL:
+    ako-operator-manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18452738/publish/lin64/ako-operator/manifests/ako-operator-manifests-v1.4.0+vmware.1.tar.gz
+    akoOperatorImage:
+      url: projects-stg.registry.vmware.com/tkg/ako-operator:v1.4.0_vmware.1
+      sha256: 361076bcde4bce939eac9da2a56276de1b6527889261b0854699841b04a86a21
+  cachehash: 201c672169f0dca59c4c8526a1901bc5
+  publishhash: 55118b52ea31a46857b9e642b571299b
+- name: load-balancer-and-ingress-service
+  version: v1.4.3+vmware.1
+  channel: "361933617644965666"
+  url: https://buildweb.eng.vmware.com/ob/18261420/
+  artifactURL:
+    loadBalancerAndIngressServiceImage:
+      url: projects-stg.registry.vmware.com/tkg/ako:v1.4.3_vmware.1
+      sha256: 483c22fb9b2f032ffbb08551dd502bc6bb72ef94076a76af5ced6edf4fe3316e
+  cachehash: 107d27c8970845c13dc31e7806033a10
+  publishhash: bb17bbba17855da73f84f1c52a694ff4
+- name: antrea
+  version: v0.11.3+vmware.2
+  channel: "351255325837361616"
+  url: https://buildweb.eng.vmware.com/ob/17827694
+  artifactURL:
+    antctl:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17827694/publish/lin64/antrea/executables/antctl-v0.11.3+vmware.2.gz
+    antrea:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/351255325837361616/image-builder/antrea/v0.11.3+vmware.2/bin/antrea-debian-v0.11.3_vmware.2.tar
+      sha256: f7cfcf228df04b6368a706e6252da79a23afd8f1e1d7817e5cca782283b8786b
+    antrea-1.18-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/351255325837361616/image-builder/antrea/v0.11.3+vmware.2/publish/add-on/1.18/antrea.yaml
+      sha256: 570d6cedb1ce93408687143e2fad8e847720f41a9514bb0b904d18062dc1a7a8
+    antrea-1.19-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/351255325837361616/image-builder/antrea/v0.11.3+vmware.2/publish/add-on/1.19/antrea.yaml
+      sha256: 570d6cedb1ce93408687143e2fad8e847720f41a9514bb0b904d18062dc1a7a8
+    antreaImage:
+      url: projects-stg.registry.vmware.com/tkg/antrea/antrea-debian:v0.11.3_vmware.2
+      sha256: 1edabf4e72bea197a247148860f1134b79a2fb04bba0d6e3228a47ceeeeca308
+    manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17827694/publish/lin64/antrea/manifests/antrea-v0.11.3+vmware.2.yml
+  cachehash: 7084bacca45a5527a60031c6a3b971d9
+  publishhash: 328c21069057c06025b5d25444ad2646
+- name: tkg-core-packages
+  version: v1.19.12+vmware.1-tkg.1-zshippablerelease
+  channel: "364961268253083536"
+  url: https://buildweb.eng.vmware.com/ob/18368953/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/addons-manager:v1.4.0_vmware.1-tkg.1-zshippablerelease
+      sha256: 57c598a73c21ba64649c10e6a4f6d26adb0d3737359a1a47f08861cf10b971fa
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.4.0_vmware.1-tkg.1-zshippablerelease
+      sha256: df7a31764159977207060fded03fc2ed8cfe444f8b0934efb6f1aa765553860a
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v0.11.3_vmware.2-tkg.1-zshippablerelease
+      sha256: b96ce1c9709f622cc8aa66631935d27712ec5a8eb06426a4152a33b31c44d7d2
+    calico.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/calico:v3.11.3_vmware.1-tkg.1-zshippablerelease
+      sha256: e43a7157afdcc39a3c71e24cf6f4e1deaebcf1efe596927aa66529992479ffb3
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.20.0_vmware.1-tkg.1-zshippablerelease
+      sha256: 993603bcd8e929a106b0beeabcaf579e8ee984444c633328670a022c28265b9d
+    load-balancer-and-ingress-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/load-balancer-and-ingress-service:v1.4.3_vmware.1-tkg.1-zshippablerelease
+      sha256: c087e6ce908ca7f46b2f0521f4941c2892c756da9f97d288ddf73d3497d4e77e
+    metrics-server.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/metrics-server:v0.4.0_vmware.1-tkg.1-zshippablerelease
+      sha256: bd5b38e874c1acfa0bd2973022ff324e739b8cbc58dd790e08d231166cc4fd58
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.4.4_vmware.1-tkg.1-zshippablerelease
+      sha256: 784ac155eb7d90680b8afaafe2b6db9a6dfc1e153628e4e46f1390a23d54fe8f
+    tanzuCorePackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/repo:v1.19.12_vmware.1-tkg.1-zshippablerelease
+      sha256: 40fa1f103cb4aff69340154e6d8f7e376333c343c4c9c263066c5594c697990a
+    vsphere-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-cpi:v1.19.1_vmware.1-tkg.1-zshippablerelease
+      sha256: 3be65532b47ddd22f6a2a673adbb28bc0873a8d03b0a3b0e0a22c0969e2e1c99
+    vsphere-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-csi:v2.1.0_vmware.1-tkg.1-zshippablerelease
+      sha256: 5e050148beb797612d0ce67779d63eafe89e2ec1db34a965ea47110bfab6932a
+  cachehash: 5ac98ed05800a28ed0a25f60a3493555
+  publishhash: 72f4abd627f912c410e8b353f5210e1c
+- name: calico_all
+  version: v3.11.3+vmware.1
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/16866062
+  artifactURL:
+    calicoCniImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/cni-plugin:v3.11.3_vmware.1
+      sha256: 2922617f19d717f75fc36e7955bf3c2de8cb0828583e33d0dcca2149ab0a761e
+    calicoKubecontrollerImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/kube-controllers:v3.11.3_vmware.1
+      sha256: 235db027be299816cb8516a7338bfd854bf2240b1a5299e771a5fad3189246b7
+    calicoNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/node:v3.11.3_vmware.1
+      sha256: e71a29870e3e9922800502f2359615d9849e77ed63702781102f5b276104f949
+    calicoPodDaemonImage:
+      url: projects-stg.registry.vmware.com/tkg/calico-all/pod2daemon:v3.11.3_vmware.1
+      sha256: 618280911b811a44d759d59e144b0587929b2c0873b726e9097496b5e40ad404
+  cachehash: d3f38dd98f3a24fe2d49fa35a3387626
+  publishhash: ce7c43c0403e6ee738b3d34c94ccb7d8
+- name: cloud_provider_vsphere
+  version: v1.19.1+vmware.1
+  channel: "364710644613651337"
+  url: https://buildweb.eng.vmware.com/ob/18359217/
+  artifactURL:
+    ccmControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.19.1_vmware.1
+      sha256: 40d2866ecf3882c2d9655d70e27ee633883bbaf000d1dfe8a03aa1ca93f8027f
+  cachehash: 56f6fefcbe2d2d253618dc2f9e691d62
+  publishhash: 6c50cc278c08feacb44817ac7309d90c
+- name: csi_attacher
+  version: v3.0.0+vmware.1
+  channel: "339601446989201415"
+  url: https://buildweb.eng.vmware.com/ob/17536624/
+  artifactURL:
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.0.0_vmware.1
+      sha256: d11c25ada3e8193be3eaa382577f706935cfb42e529294dd2a44567bc8cd78d2
+  cachehash: 9c0f3fb9c99437ea50bab746715f6e05
+  publishhash: 2dfd5c66ba8f77f19d418d2a5058472d
+- name: csi_livenessprobe
+  version: v2.1.0+vmware.1
+  channel: "339605920046645255"
+  url: https://buildweb.eng.vmware.com/ob/17536717/
+  artifactURL:
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.1.0_vmware.1
+      sha256: 2c31ef2a78f560f684b49bafbb899e5bd6135f64cc5725e2fc6f68dc79bd20fc
+  cachehash: bff6a7fe3ae85f1a84d164b301c776b7
+  publishhash: ad32cfc6d337dff0830e3e570262636b
+- name: csi_node_driver_registrar
+  version: v2.0.1+vmware.1
+  channel: "339601446989201415"
+  url: https://buildweb.eng.vmware.com/ob/17536642/
+  artifactURL:
+    csiNodeDriverRegistrarImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.0.1_vmware.1
+      sha256: fe89fd6bd415f67b642eca41d8484bfb353a8f4b7357117ba96ef1599cf99da0
+  cachehash: 679e92ffeaf6025401f6589755f8ee20
+  publishhash: e9183afffd250117d9eea541bba6836f
+- name: kubernetes-csi_external-resizer
+  version: v1.0.0+vmware.1
+  channel: "345274001204988168"
+  url: https://buildweb.eng.vmware.com/ob/17724709
+  artifactURL:
+    csiExternalResizer:
+      url: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.0.0_vmware.1
+      sha256: f56a090cbbf693c268778e178e8e3faf0b5abecd7cd4937634a3b86fe63ad991
+  cachehash: 4959ee6afce0af3c3f68b1a4a75f0853
+  publishhash: 3556c1335bba2f78f1541fc58f73089b
+- name: csi_provisioner
+  version: v2.0.0+vmware.1
+  channel: "354837557856482646"
+  url: https://buildweb.eng.vmware.com/ob/17192689
+  artifactURL:
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v2.0.0_vmware.1
+      sha256: cef44bc5986f7d5871e3a1622ddc9731e3764aea2a32227eb7cbc905a553a209
+  cachehash: 115922028d82dbf3d9137220bc309a90
+  publishhash: 4764f174cbd6be97bb004d2ae1648bd0
+- name: vsphere_csi_driver
+  version: v2.1.0+vmware.1
+  channel: "340227253956772105"
+  url: https://buildweb.eng.vmware.com/ob/17559880/
+  artifactURL:
+    csiControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.1.0_vmware.1
+      sha256: aa425aac23907fc2d48e691b5e2e5e30b6ca530b639bc242d13b26777f476b13
+    csiMetaDataSyncerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/volume-metadata-syncer:v2.1.0_vmware.1
+      sha256: 7e0cc1157680cb4c7fc8d0fac4448ad2e56bd48c01f747dc06735f20d9c4afd8
+  cachehash: 04e66a1be444f81d6c0d20b2d3da0789
+  publishhash: 23c68b22765f008ca6153903e6fb5ae5
+- name: dex
+  version: v2.27.0+vmware.1
+  channel: "348316067031984106"
+  url: https://buildweb.eng.vmware.com/ob/17532874/
+  artifactURL:
+    dexImage:
+      url: projects-stg.registry.vmware.com/tkg/dex:v2.27.0_vmware.1
+      sha256: 64c4a48aaaf5ad6649faf72caecc5352e0510b5051b26c4e177c84c8a8e428a1
+  cachehash: 9ec2dfccb8b6a943116ea132c0ce3f64
+  publishhash: e1ed18c7449d986cb50d6de0148eea24
+- name: kapp-controller
+  version: v0.20.0+vmware.1
+  channel: "363560698124437115"
+  url: https://buildweb.eng.vmware.com/ob/18257004/
+  artifactURL:
+    kapp-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18257004/publish/lin64/kapp-controller/executables/kapp-controller-linux-amd64-v0.20.0+vmware.1.gz
+    kappControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.20.0_vmware.1
+      sha256: 1daa40ec13d04a759df7d6d3c37ce526b7287b0eb2f5529d5e4e772267d90d89
+  cachehash: 64b81c275e39b017e9d0693875558d10
+  publishhash: 702fabdb2102e99ec9e6f600badee4cf
+- name: metrics-server
+  version: v0.4.0+vmware.1
+  channel: "339629539481092103"
+  url: https://buildweb.eng.vmware.com/ob/17537935/
+  artifactURL:
+    metricsServerImage:
+      url: projects-stg.registry.vmware.com/tkg/metrics-server:v0.4.0_vmware.1
+      sha256: 609b76ac9b0187ebc1ae2e68884b41914effb3fcd0e1b4ce40555ce1f37a0b12
+  cachehash: c2cda132c425ccb95fdd3c07b06c8419
+  publishhash: 1b5b1c3c994ffc03d5f5e72779b8c984
+- name: pinniped
+  version: v0.4.4+vmware.1
+  channel: "364710644613651337"
+  url: https://buildweb.eng.vmware.com/ob/18359215/
+  artifactURL:
+    pinnipedImage:
+      url: projects-stg.registry.vmware.com/tkg/pinniped:v0.4.4_vmware.1
+      sha256: 29b5ea5744d7c783a556cbe4441594c4650913aea73c9bad3c7cd4c6b23faf9c
+  cachehash: 39dc2eb4ae8e459a052e5b46618425cc
+  publishhash: 4862264dcdd4c26604f005ab5f25d6d6
+- name: tanzu-framework-addons
+  version: v1.4.0-pre-alpha-2-60-g5fe14638
+  channel: "364961268253083536"
+  url: https://buildweb.eng.vmware.com/ob/18368913/
+  artifactURL:
+    tanzuAddonsManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v1.4.0-pre-alpha-2-60-g5fe14638
+      sha256: 42581dc2d79211e8c37638978ccfa6747336309353a9b703b5dee7e5419a77ef
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v1.4.0-pre-alpha-2-60-g5fe14638
+      sha256: c23dfc9b2e48e00bae899da71c8406aa37e8bf446fffbc3d4b5fa8173f44104d
+  cachehash: 23825aa6f0f6fc4a54e7f11931b10b37
+  publishhash: 9bcb224f7eaf2750adf282948c6a9f80
+- name: cni_plugins
+  version: v0.8.7+vmware.13
+  channel: "360313745127298612"
+  url: https://buildweb.eng.vmware.com/ob/18204905/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18204905/publish/lin64/cni_plugins/executables/cni-plugins-v0.8.7+vmware.13.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18204905/publish/lin64/cni_plugins/debs/kubernetes-cni_0.8.7+vmware.13-1_amd64.deb
+    cni_plugins-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18204905/publish/lin64/cni_plugins/rpms/rpms/kubernetes-cni-0.8.7-1.el7.vmware.13.x86_64.rpm
+    cni_plugins-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18204905/publish/lin64/cni_plugins/rpms/srpms/kubernetes-cni-0.8.7-1.el7.vmware.13.src.rpm
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360313745127298612/component/cni_plugins/v0.8.7+vmware.13/cni-plugins-linux-amd64-v0.8.7+vmware.13.tgz
+      sha256: 4e2a0b9d53d1de0612fe2f6597fffe204d443acd52016e06849cef630ace013d
+  cachehash: 6a689ce492085c9e3e5cef76a1290e6d
+  publishhash: 3222edb8e472969768744aa214a6af69
+- name: coredns
+  version: v1.7.0+vmware.12
+  channel: "360313745127298612"
+  url: https://buildweb.eng.vmware.com/ob/18204908/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.7.0_vmware.12
+      sha256: ce2b678484c6157d5386c8a3f4ff33d9d0a563caaa06c36497c9219a886ba936
+  cachehash: 3afa768560c736444e80ce2128cfe8fc
+  publishhash: 5b23bb15efee643a4e09b711428a8a57
+- name: cri_tools
+  version: v1.18.0+vmware.9
+  channel: "360322401164102195"
+  url: https://buildweb.eng.vmware.com/ob/18205101/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205101/publish/lin64/cri_tools/executables/crictl-v1.18.0+vmware.9.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205101/publish/lin64/cri_tools/debs/cri-tools_1.18.0+vmware.9-1_amd64.deb
+    cri_tools-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205101/publish/lin64/cri_tools/rpms/rpms/cri-tools-1.18.0-1.el7.vmware.9.x86_64.rpm
+    cri_tools-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205101/publish/lin64/cri_tools/rpms/srpms/cri-tools-1.18.0-1.el7.vmware.9.src.rpm
+  cachehash: 12fb09d4337870a53aec31ec0a6e3934
+  publishhash: 19dda37dbdb589ac6c1c2652c431f21f
+- name: etcd
+  version: v3.4.13+vmware.14
+  channel: "360313745127298612"
+  url: https://buildweb.eng.vmware.com/ob/18204907/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.4.13_vmware.14
+      sha256: 74658631586f34f58fba93edd23f69071ed1c787ec7b8a6b41161b859361447d
+  cachehash: 253ab04857bbdde68a51bbb277777c04
+  publishhash: 8d295061a104d02aaac3cda5e7d85ab7
+- name: containerd
+  version: v1.4.6+vmware.1
+  channel: "358742785123218152"
+  url: https://buildweb.eng.vmware.com/ob/18154214/
+  artifactURL:
+    file-containerd-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/358742785123218152/component/containerd/cri-containerd-v1.4.6+vmware.1.linux-amd64.tar
+      sha256: 4a30d16db5218179502efbdefce032672cb049045e2bc89f694f402d03d206bb
+    file-containerd-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/358742785123218152/component/containerd/cri-containerd-v1.4.6+vmware.1.windows-amd64.tar
+      sha256: af8f2271bd84a6077e38308861ce76bd2647b31e1b985943bddcde433067c9f5
+  cachehash: 6aeadac9fb5304d8a72b236104c2f1c1
+  publishhash: 9e0db9cd194cc80024ae3095e4ef41b3
+- name: kubernetes
+  version: v1.19.12+vmware.1
+  channel: "360322401164102195"
+  url: https://buildweb.eng.vmware.com/ob/18205208/
+  artifactURL:
+    e2e-test_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360322401164102195/image-builder/kubernetes/v1.19.12+vmware.1/bin/linux/amd64/e2e-test.tar
+      sha256: 6d1f9770cddd11a802be10b3f3b480653c58b48e200476db0a1dbf23bb7cdfb4
+    file-kubeadm-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360322401164102195/image-builder/kubernetes/v1.19.12+vmware.1/bin/linux/amd64/kubeadm
+      sha256: 200ced931aacade2c6e639d8a1942d665d2235e026d3712eef08441c1f2a1c68
+    file-kubectl-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360322401164102195/image-builder/kubernetes/v1.19.12+vmware.1/bin/linux/amd64/kubectl
+      sha256: f44340834164a2b646d4e2e1e77a135cf97ea7e070242c2147fdb9b5a61ecb4e
+    file-kubelet-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360322401164102195/image-builder/kubernetes/v1.19.12+vmware.1/bin/linux/amd64/kubelet
+      sha256: 29244105824d14288a909aafefbfe33f9f773fb5628686d6a107403e10e1c922
+    kube-apiserver_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360322401164102195/image-builder/kubernetes/v1.19.12+vmware.1/bin/linux/amd64/kube-apiserver.tar
+      sha256: 2685e6e717cb52fdbea0e77d7c55422ef11b0a694df1db8d5ee7520f437b75d9
+    kube-controller-manager_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360322401164102195/image-builder/kubernetes/v1.19.12+vmware.1/bin/linux/amd64/kube-controller-manager.tar
+      sha256: cb63dd134185d69cac9be401f1e1592db3edf049b9a2604b772e1e9b2c402e43
+    kube-proxy_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360322401164102195/image-builder/kubernetes/v1.19.12+vmware.1/bin/linux/amd64/kube-proxy.tar
+      sha256: b826e0997927211697c5756f92140010d23069a4b233315344c8d33731496b7f
+    kube-scheduler_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360322401164102195/image-builder/kubernetes/v1.19.12+vmware.1/bin/linux/amd64/kube-scheduler.tar
+      sha256: 631eb0ee41f02b5b63a142db1346805011c325f98406fb76684269fe0728ffab
+    kubeAPIServer:
+      url: projects-stg.registry.vmware.com/tkg/kube-apiserver:v1.19.12_vmware.1
+      sha256: 718ffb536269f66c6030d763aae63a1554ae5092ea756de4a033ef08df3aac55
+    kubeControllerManager:
+      url: projects-stg.registry.vmware.com/tkg/kube-controller-manager:v1.19.12_vmware.1
+      sha256: 42f4ed2b6e9c430fc83beb672e06e81b870ed5e165849f36cea2e284607d9d99
+    kubeE2e:
+      url: projects-stg.registry.vmware.com/tkg/e2e-test:v1.19.12_vmware.1
+      sha256: 3099dd97afd768f65a5d6b1b5886e2874208de4a4fe69bb0715c08d81d461784
+    kubeProxy:
+      url: projects-stg.registry.vmware.com/tkg/kube-proxy:v1.19.12_vmware.1
+      sha256: d0f5ef4880e094b0f8915af90bb786aa473e343c3341692334f65b94fac013d7
+    kubeScheduler:
+      url: projects-stg.registry.vmware.com/tkg/kube-scheduler:v1.19.12_vmware.1
+      sha256: 3cd8435ab55e69b61c839f5191aa4d2eb920d3a4aa8701647cf1e4c6f7c4a39f
+    kubeadm-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/debs/kubeadm_1.19.12+vmware.1-1_amd64.deb
+    kubeadm-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/executables/kubeadm-linux-v1.19.12+vmware.1.gz
+    kubeadm-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/rpms/rpms/kubeadm-1.19.12-1.el7.vmware.1.x86_64.rpm
+    kubectl-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/debs/kubectl_1.19.12+vmware.1-1_amd64.deb
+    kubectl-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/executables/kubectl-linux-v1.19.12+vmware.1.gz
+    kubectl-mac:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/executables/kubectl-mac-v1.19.12+vmware.1.gz
+    kubectl-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/rpms/rpms/kubectl-1.19.12-1.el7.vmware.1.x86_64.rpm
+    kubectl-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/executables/kubectl-windows-v1.19.12+vmware.1.exe.gz
+    kubelet-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/debs/kubelet_1.19.12+vmware.1-1_amd64.deb
+    kubelet-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/executables/kubelet-linux-v1.19.12+vmware.1.gz
+    kubelet-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/rpms/rpms/kubelet-1.19.12-1.el7.vmware.1.x86_64.rpm
+    kubelet-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/lin64/kubernetes/rpms/srpms/kubelet-1.19.12-1.el7.vmware.1.src.rpm
+    kubernetes-tar:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205208/publish/kubernetes.tgz
+    pause:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.2
+      sha256: c1322e95e2268cf558c01258001ee93c9871a9f1d38e2c4fa721db8a22c638dc
+    pause_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360322401164102195/image-builder/kubernetes/v1.19.12+vmware.1/bin/linux/amd64/pause.tar
+      sha256: 4f1c4137b995af66837fe2886734b4de59c87cf449e8cb945dbb615cabb2df2c
+  cachehash: 0b217042e32662a5052dc0e6f9f5f68f
+  publishhash: 6b67445456e029c8665474afa14809d7
+- name: kubernetes-sigs_kind
+  version: v1.19.12+vmware.1
+  channel: "360341514322236980"
+  url: https://buildweb.eng.vmware.com/ob/18205668/
+  artifactURL:
+    kindNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/kind/node:v1.19.12_vmware.1
+      sha256: d8c057721b9685bf828749769c1547c6038384f3a1c1c0025bded07c6b384914
+  cachehash: 2a1535edd8854a9617447d6d20982e2a
+  publishhash: 8126cfbf770fa66f98329c62fa637a37
+- name: ami-general-amazon-2
+  version: v1.19.12+vmware.1-tkg.1-15799210770225360163
+  channel: "360341514322236980"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/246
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-general-amazon-2/bom-ami-general-amazon-2-v1.19.12+vmware.1-tkg.1-15799210770225360163.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-general-amazon-2/ami-general-amazon-2-v1.19.12+vmware.1-tkg.1-15799210770225360163-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-general-amazon-2/ami-general-amazon-2-v1.19.12+vmware.1-tkg.1-15799210770225360163-osstpmgt.yaml
+  cachehash: 9b359f4f79e7c1761a6bd6c96551858a
+  publishhash: 97617dc4b13498b81ad4652c0e4a6d7b
+- name: ami-general-ubuntu-2004
+  version: v1.19.12+vmware.1-tkg.1-8289185986971011740
+  channel: "360341514322236980"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/252
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-general-ubuntu-2004/bom-ami-general-ubuntu-2004-v1.19.12+vmware.1-tkg.1-8289185986971011740.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.19.12+vmware.1-tkg.1-8289185986971011740-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.19.12+vmware.1-tkg.1-8289185986971011740-osstpmgt.yaml
+  cachehash: ac8a8fa5fc17afe48f63f687e6d3409b
+  publishhash: 66e14f88003894c7bba1dcc21f4e3a50
+- name: ami-gov-amazon-2
+  version: v1.19.12+vmware.1-tkg.1-16676969717855567383
+  channel: "360341514322236980"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/251
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-gov-amazon-2/bom-ami-gov-amazon-2-v1.19.12+vmware.1-tkg.1-16676969717855567383.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-gov-amazon-2/ami-gov-amazon-2-v1.19.12+vmware.1-tkg.1-16676969717855567383-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-gov-amazon-2/ami-gov-amazon-2-v1.19.12+vmware.1-tkg.1-16676969717855567383-osstpmgt.yaml
+  cachehash: 701e1dcb39d51a49d6915a296306e9d7
+  publishhash: c1b1c8938003c82531242d0a8666b394
+- name: ami-gov-ubuntu-2004
+  version: v1.19.12+vmware.1-tkg.1-3160255447255897623
+  channel: "360341514322236980"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/253
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-gov-ubuntu-2004/bom-ami-gov-ubuntu-2004-v1.19.12+vmware.1-tkg.1-3160255447255897623.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.19.12+vmware.1-tkg.1-3160255447255897623-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.19.12+vmware.1-tkg.1-3160255447255897623-osstpmgt.yaml
+  cachehash: f3e8c1704c92b74783adcabab4b61786
+  publishhash: 1a087d047b2d648ef2c583e2ef33e0c4
+- name: azure-ubuntu-1804
+  version: v1.19.12+vmware.1-tkg.1-5758884192020158313
+  channel: "360341514322236980"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/131
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-vhd-v1.19.12+vmware.1-tkg.1-5758884192020158313.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.19.12+vmware.1-tkg.1-5758884192020158313-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.19.12+vmware.1-tkg.1-5758884192020158313-osstpmgt.yaml
+  cachehash: 236b4d3f8e0918f4ed6459ec99cb6f88
+  publishhash: e903c1525aa7b3ad368f1718b18d0fdc
+- name: azure-ubuntu-2004
+  version: v1.19.12+vmware.1-tkg.1-17592170300191540244
+  channel: "360341514322236980"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/126
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-vhd-v1.19.12+vmware.1-tkg.1-17592170300191540244.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.19.12+vmware.1-tkg.1-17592170300191540244-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.19.12+vmware.1-tkg.1-17592170300191540244-osstpmgt.yaml
+  cachehash: 14b5ece541038fa145bb42e81c382bb9
+  publishhash: 474e76ca3713a3176b9047148bd1bc7f
+- name: ova-photon-3
+  version: v1.19.12+vmware.1-tkg.1-2347849454212388109
+  channel: "360341514322236980"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/105
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ova-photon-3/bom-ova-photon-3-v1.19.12+vmware.1-tkg.1-2347849454212388109.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ova-photon-3/ova-photon-3-v1.19.12+vmware.1-tkg.1-2347849454212388109-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ova-photon-3/ova-photon-3-v1.19.12+vmware.1-tkg.1-2347849454212388109-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ova-photon-3/photon-3-kube-v1.19.12+vmware.1-tkg.1-2347849454212388109.ova
+  cachehash: 0b6279e561ffcd9d995b002b1d335f7e
+  publishhash: f3fc5ca9ba7168101a1b7196dfa56630
+- name: ova-ubuntu-2004
+  version: v1.19.12+vmware.1-tkg.1-15841320193950299489
+  channel: "360341514322236980"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/103
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ova-ubuntu-2004/bom-ova-ubuntu-2004-v1.19.12+vmware.1-tkg.1-15841320193950299489.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.19.12+vmware.1-tkg.1-15841320193950299489-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.19.12+vmware.1-tkg.1-15841320193950299489-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360341514322236980/component/ova-ubuntu-2004/ubuntu-2004-kube-v1.19.12+vmware.1-tkg.1-15841320193950299489.ova
+  cachehash: 9354177e5abb7a43544549975282e667
+  publishhash: dddd99c7c1721a2be15e80032869a07b

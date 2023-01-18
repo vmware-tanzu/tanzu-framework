@@ -1,0 +1,10 @@
+name: vsphere-pv-csi-package
+goBuildComponentLocks:
+- version: v2.3.0+vmware.1-tkg.1-vsphere-pv-csi-tf-v0.25.1
+  gobuildBranch: 427263834957289364-v2.3.0+vmware.1-tkg.1-vsphere-pv-csi-tf-v0.25.1-vsphere-pv-csi-package
+  gobuildHeadCommit: 9c78490ceeae5ac6029179a1e0cbc37292b1c3fb
+  hash: 0758617c915774c38d11324f076d4784
+  componentLockReferences:
+  - name: vsphere_csi_driver_tkgs
+    version: v2.3.0
+    lockHash: d122439bae8e3205ce2da29491e1c882

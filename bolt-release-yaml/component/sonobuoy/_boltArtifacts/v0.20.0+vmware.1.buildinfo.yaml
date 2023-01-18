@@ -1,0 +1,13 @@
+componentBuilds:
+- name: sonobuoy
+  version: v0.20.0+vmware.1
+  channel: "340057796206657543"
+  url: https://buildweb.eng.vmware.com/ob/17552235/
+  artifactURL:
+    sonobuoy-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17552235/publish/lin64/sonobuoy/executables/sonobuoy-v0.20.0+vmware.1.gz
+    sonobuoyImage:
+      url: projects-stg.registry.vmware.com/tkg/sonobuoy:v0.20.0_vmware.1
+      sha256: 5787cec70c56fa1a8321e0726d1a7801fbd5c639f911291f5e1d20d2cc53e5e3
+  cachehash: 78585cdc81232a5f5a7d29e128be9480
+  publishhash: e73b7c42ea596b5f04fb9f3dffa159b0

@@ -1,0 +1,10 @@
+name: tkg-autoscaler-package
+goBuildComponentLocks:
+- version: v1.22.0+vmware.1-rc.1
+  gobuildBranch: 418621578654257502-v1.22.0+vmware.1-rc.1-tkg-autoscaler-package
+  gobuildHeadCommit: 1a90eb0e6e05bb3d77dc0f76efe241722ab6ddaf
+  hash: 0fbf87c09ac6432c7ca262dd8fd43a49
+  componentLockReferences:
+  - name: kubernetes_autoscaler
+    version: v1.22.0+vmware.1
+    lockHash: 3f3bdcaf886d9550cbc5f68c55cf4217

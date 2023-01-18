@@ -1,0 +1,23 @@
+componentBuilds:
+- name: capabilities-package
+  version: v0.22.0-dev-23-g1920dccf-capabilities
+  channel: "407258023522781122"
+  url: https://buildweb.eng.vmware.com/ob/19785863/
+  artifactURL:
+    capabilities.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/capabilities:v0.22.0-dev-23-g1920dccf_vmware.1
+      sha256: bab141827e257752a2ea0d7ac538b753c48a5476088a4ca42d2c386959182f20
+  cachehash: 335f93331deb664049623f7e6d1d16f3
+  publishhash: 332137e8e677e9b0dbb379437f07fc2d
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/capabilities/capabilities-controller-manager:v0.22.0-dev-23-g1920dccf
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: capabilities
+    gobuild.package_type: standalone
+    gobuild.upstream_image_0: capabilities-controller-manager:latest
+    gobuild.upstream_version: v0.22.0-dev-23-g1920dccf

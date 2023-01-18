@@ -1,0 +1,7 @@
+name: tkg-clusterclass-package
+goBuildComponentCaches:
+- version: v0.22.0-dev-59-g59ffcdbb-tkg-clusterclass
+  url: https://buildweb.eng.vmware.com/ob/19852937/
+  buildNumber: bora-19852937
+  buildStatus: SUCCEEDED
+  hash: df6fd185d9dbded6011d0fca0aaa0291

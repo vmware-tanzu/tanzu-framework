@@ -1,0 +1,4 @@
+submodules:
+  - name: tiny-core-byoh-installer/src
+    go_mod:
+      - "go.mod"

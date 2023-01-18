@@ -1,0 +1,23 @@
+componentBuilds:
+- name: guest-cluster-auth-service-package
+  version: v1.0.0-tkg.1-gc-auth-service-tf-v0.25.1
+  channel: "427263834957289364"
+  url: https://buildweb.eng.vmware.com/ob/20528682/
+  artifactURL:
+    guest-cluster-auth-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/guest-cluster-auth-service:v1.0.0_tkg.1-tf-v0.25.1
+      sha256: 7b881ba0485adc37d7ed39bbbe4292ec5a31606d832ca66376a21b9a3ed24ceb
+  cachehash: 34d494fd0f547aa6e9404d80dbbd0218
+  publishhash: 8342ebadf0609bf867f3996aca33c006
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/guest-cluster-auth-service/guest-cluster-auth-service:v1.0.0
+    gobuild.downstream_version: tkg.1-tf-v0.25.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: guest-cluster-auth-service
+    gobuild.package_type: core
+    gobuild.upstream_image_0: guest-cluster-auth-service/guest-cluster-auth-service:v1.0.0
+    gobuild.upstream_version: 1.0.0

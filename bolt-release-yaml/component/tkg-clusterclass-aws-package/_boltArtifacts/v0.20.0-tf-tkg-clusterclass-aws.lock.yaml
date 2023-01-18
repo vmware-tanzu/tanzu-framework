@@ -1,0 +1,10 @@
+name: tkg-clusterclass-aws-package
+goBuildComponentLocks:
+- version: v0.20.0-tf-tkg-clusterclass-aws
+  gobuildBranch: 401415693209223623-v0.20.0-tf-tkg-clusterclass-aws
+  gobuildHeadCommit: 67e727529eb4b5bcab5a65fa049ca2bd48792dcc
+  hash: d2a084284bc247149d0e84e16b339959
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.20.0-tf
+    lockHash: 9dd62577d3322066ef5c5abd0196aed6

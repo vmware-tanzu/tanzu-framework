@@ -1,0 +1,12 @@
+name: contour
+publish:
+  - name: contourImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/contour/images/contour-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/contour/images/contour-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: contour:$UNDERSCOREVERSION
+nonpublish:
+  - name: contour-file
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/contour/executables/contour-$VERSION-binary-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/contour/executables/contour-$VERSION

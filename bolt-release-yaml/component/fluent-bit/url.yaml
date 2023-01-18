@@ -1,0 +1,8 @@
+name: fluent-bit
+upstreamURL: https://github.com/fluent/fluent-bit.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_fluent-bit.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_fluent-bit.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_fluent-bit.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_fluent-bit.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_fluent-bit.git
+gobuildTarget: cayman_fluent-bit

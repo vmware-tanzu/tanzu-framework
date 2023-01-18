@@ -1,0 +1,10 @@
+name: cluster-autoscaler-package
+goBuildComponentLocks:
+- version: v1.24.0+vmware.1-tkg.1-cluster-autoscaler
+  gobuildBranch: 439826413793584802-v1.24.0+vmware.1-tkg.1-cluster-autoscaler-cluster-autoscaler-package
+  gobuildHeadCommit: a625949ddeeaa0f33457ebecc620d8e00229f1b3
+  hash: 1f2c2bdf3cd92845bc915a653fde6b6f
+  componentLockReferences:
+  - name: kubernetes_autoscaler
+    version: v1.24.0+vmware.1
+    lockHash: 32fb78dd82951d4fc516498267d18c01

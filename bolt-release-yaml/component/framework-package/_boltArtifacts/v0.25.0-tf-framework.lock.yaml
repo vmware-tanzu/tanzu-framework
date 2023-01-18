@@ -1,0 +1,10 @@
+name: framework-package
+goBuildComponentLocks:
+- version: v0.25.0-tf-framework
+  gobuildBranch: 419747994561181083-v0.25.0-tf-framework-framework-package
+  gobuildHeadCommit: b03b064e59d47087b23dfbc174d7fc7e9302ac8b
+  hash: 8c6a6693925a09821ff986a5adc1243b
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.25.0-tf
+    lockHash: f55eed124259ec96ad5fd2f51af3494f

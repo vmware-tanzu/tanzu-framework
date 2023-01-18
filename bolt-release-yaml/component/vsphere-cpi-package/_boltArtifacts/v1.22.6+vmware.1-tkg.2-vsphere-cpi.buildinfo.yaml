@@ -1,0 +1,11 @@
+componentBuilds:
+- name: vsphere-cpi-package
+  version: v1.22.6+vmware.1-tkg.2-vsphere-cpi
+  channel: "403912019855584391"
+  url: https://buildweb.eng.vmware.com/ob/19667786/
+  artifactURL:
+    vsphere-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-cpi:v1.22.6_vmware.1-tkg.2
+      sha256: d5afbf033a369b23866ea3b470671e36e61a1689f579dc41013f462cf17326ee
+  cachehash: df4d8c5f963144eb5f830f4c4818a76f
+  publishhash: 27994056e7962761b8fc3dc639a6b2f2

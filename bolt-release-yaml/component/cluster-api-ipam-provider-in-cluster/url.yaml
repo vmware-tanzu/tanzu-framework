@@ -1,0 +1,8 @@
+name: cluster-api-ipam-provider-in-cluster
+upstreamURL: https://github.com/telekom/cluster-api-ipam-provider-in-cluster.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_cluster-api-ipam-provider-in-cluster.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_cluster-api-ipam-provider-in-cluster.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_cluster-api-ipam-provider-in-cluster.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_cluster-api-ipam-provider-in-cluster.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_cluster-api-ipam-provider-in-cluster.git
+gobuildTarget: cayman_capi-ipam-provider-in-cluster

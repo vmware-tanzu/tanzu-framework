@@ -1,0 +1,21 @@
+componentBuilds:
+- name: sonobuoy
+  version: v0.56.6+vmware.1
+  channel: "408042341476083164"
+  url: https://buildweb.eng.vmware.com/ob/19812695/
+  artifactURL:
+    sonobuoy-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19812695/publish/lin64/sonobuoy/executables/sonobuoy-darwin-amd64-v0.56.6+vmware.1.gz
+    sonobuoy-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19812695/publish/lin64/sonobuoy/executables/sonobuoy-linux-amd64-v0.56.6+vmware.1.gz
+    sonobuoy-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19812695/publish/lin64/sonobuoy/executables/sonobuoy-windows-amd64-v0.56.6+vmware.1.gz
+    sonobuoyImage:
+      url: projects-stg.registry.vmware.com/tkg/sonobuoy:v0.56.6_vmware.1
+      sha256: b8bffd851c83d6ad5ea6778483ce3f297452c8c23f026179a9c4189b19668093
+  cachehash: 5e7959decf2576f6d822cf9f3b145d32
+  publishhash: 6bd467a7f3f132ce7601bd55cb635f39
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.16"
+    gobuild.linux_hosttype: linux-centos72-gc32

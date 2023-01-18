@@ -1,0 +1,7 @@
+name: configmap-reload
+goBuildComponentCaches:
+- version: v0.5.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18137850/
+  buildNumber: bora-18137850
+  buildStatus: SUCCEEDED
+  hash: 8abd047fcd64470f3fb036479fa20463

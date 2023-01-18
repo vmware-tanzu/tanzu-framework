@@ -1,0 +1,19 @@
+componentBuilds:
+- name: cloud-provider-azure
+  version: v1.24.10+vmware.1
+  channel: "441754902763409777"
+  url: https://buildweb.eng.vmware.com/ob/21064746/
+  artifactURL:
+    ccmAzureControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/azure-cloud-controller-manager:v1.24.10_vmware.1
+      sha256: 96657c643cceac24f618d64868ece687aa271073d602f51c3ea4607a426e45f2
+    ccmAzureNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/azure-cloud-node-manager:v1.24.10_vmware.1
+      sha256: fa42a74f2bcc957c9d90a7bc2b4c06fa876ab2763a74ffcf30039b8b3eb73e26
+  cachehash: db7c1396a3d07771dff7f79a93d49dd0
+  publishhash: 63eee5666110835c321ef4ec934f7386
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.19.2-buster
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.releaseVersion: v1.24.10+vmware.1

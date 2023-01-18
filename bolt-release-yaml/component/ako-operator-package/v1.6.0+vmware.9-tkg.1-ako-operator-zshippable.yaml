@@ -1,0 +1,22 @@
+name: ako-operator-package
+packages:
+  - version: v1.6.0+vmware.9-tkg.1-ako-operator-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: 82158396876cd1a6d4f1c92ee847e7015654866d
+    componentReferences:
+      - name: ako-operator
+        version:
+        - v1.6.0+vmware.9
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: ako-operator
+      gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/ako-operator:v1.6.0_vmware.1
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "ako-operator").artifactURL.akoOperatorImage.url}}'
+      gobuild.upstream_version: 1.6.0
+      gobuild.downstream_version: vmware.9-tkg.1-zshippable
+      gobuild.package_type: core
+      gobuild.noMirror: "true"

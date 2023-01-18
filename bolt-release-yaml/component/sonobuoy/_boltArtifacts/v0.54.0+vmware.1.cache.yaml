@@ -1,0 +1,7 @@
+name: sonobuoy
+goBuildComponentCaches:
+- version: v0.54.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18875298/
+  buildNumber: bora-18875298
+  buildStatus: SUCCEEDED
+  hash: ec4c843422bf267d8d1c975d3dec5807

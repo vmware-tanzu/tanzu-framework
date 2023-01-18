@@ -1,0 +1,8 @@
+name: sonobuoy
+upstreamURL: https://github.com/vmware-tanzu/sonobuoy.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_sonobuoy.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_sonobuoy.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_sonobuoy.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_sonobuoy.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_sonobuoy.git
+gobuildTarget: cayman_sonobuoy

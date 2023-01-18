@@ -1,0 +1,28 @@
+name: velero
+publish:
+  - name: veleroImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/images/velero-$VERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/images/velero-$VERSION-images-checksums.txt
+    destinationPath: velero/velero:$UNDERSCOREVERSION
+  - name: veleroResticRestoreHelperImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/images/velero-restic-restore-helper-$VERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/images/velero-$VERSION-images-checksums.txt
+    destinationPath: velero/velero-restic-restore-helper:$UNDERSCOREVERSION
+nonpublish:
+  - name: velero-mac
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/executables/velero-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/executables/velero-mac-$VERSION.gz
+  - name: velero-linux
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/executables/velero-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/executables/velero-linux-$VERSION.gz
+  - name: velero-windows64
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/executables/velero-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/executables/velero-windows64-$VERSION.gz
+  - name: restic
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero/executables/restic

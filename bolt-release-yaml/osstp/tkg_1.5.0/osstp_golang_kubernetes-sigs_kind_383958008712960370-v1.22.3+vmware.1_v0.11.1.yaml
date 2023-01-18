@@ -1,0 +1,121 @@
+other:kubernetes-sigs_kind:v1.22.3+vmware.1_v0.11.1:
+  license: Apache-2.0
+  name: kubernetes-sigs_kind
+  other-distribution: /osl_sources/core-build-mirrors_github_kubernetes-sigs_kind.git-v1.22.3+vmware.1_v0.11.1.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_kubernetes-sigs_kind.git
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_kubernetes-sigs_kind.git/-/archive/v1.22.3+vmware.1_v0.11.1/mirrors_github_kubernetes-sigs_kind.git-v1.22.3+vmware.1_v0.11.1.tar.gz
+  version: v1.22.3+vmware.1_v0.11.1
+other:alessio_shellescape:v1.4.1:
+  license: MIT
+  name: alessio_shellescape
+  other-distribution: /osl_sources/alessio-shellescape-v1.4.1.tar.gz
+  other-url: https://github.com/alessio/shellescape
+  repository: Other
+  url: https://codeload.github.com/alessio/shellescape/tar.gz/v1.4.1
+  version: v1.4.1
+other:inconshreveable_mousetrap:v1.0.0:
+  license: Apache-2.0
+  name: inconshreveable_mousetrap
+  other-distribution: /osl_sources/inconshreveable-mousetrap-v1.0.0.tar.gz
+  other-url: https://github.com/inconshreveable/mousetrap
+  repository: Other
+  url: https://codeload.github.com/inconshreveable/mousetrap/tar.gz/v1.0.0
+  version: v1.0.0
+other:pelletier_go-toml:v1.8.1:
+  license: MIT
+  name: pelletier_go-toml
+  other-distribution: /osl_sources/pelletier-go-toml-v1.8.1.tar.gz
+  other-url: https://github.com/pelletier/go-toml
+  repository: Other
+  url: https://codeload.github.com/pelletier/go-toml/tar.gz/v1.8.1
+  version: v1.8.1
+other:yaml:v1.2.0:
+  license: UNKNOWN
+  name: yaml
+  other-distribution: /osl_sources/kubernetes_sigs-yaml-v1.2.0.tar.gz
+  other-url: https://sigs.k8s.io/yaml
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/yaml/tar.gz/v1.2.0
+  version: v1.2.0
+other:apimachinery:v0.20.2:
+  license: Apache-2.0
+  name: apimachinery
+  other-distribution: /osl_sources/kubernetes-apimachinery-v0.20.2.tar.gz
+  other-url: https://k8s.io/apimachinery
+  repository: Other
+  url: https://codeload.github.com/kubernetes/apimachinery/tar.gz/v0.20.2
+  version: v0.20.2
+other:spf13_pflag:v1.0.5:
+  license: BSD-3-Clause
+  name: spf13_pflag
+  other-distribution: /osl_sources/spf13-pflag-v1.0.5.tar.gz
+  other-url: https://github.com/spf13/pflag
+  repository: Other
+  url: https://codeload.github.com/spf13/pflag/tar.gz/v1.0.5
+  version: v1.0.5
+other:burntsushi_toml:v0.3.1:
+  license: MIT
+  name: burntsushi_toml
+  other-distribution: /osl_sources/BurntSushi-toml-v0.3.1.tar.gz
+  other-url: https://github.com/BurntSushi/toml
+  repository: Other
+  url: https://codeload.github.com/BurntSushi/toml/tar.gz/v0.3.1
+  version: v0.3.1
+other:yaml_v3:496545a6307b:
+  license: Apache-2.0
+  name: yaml_v3
+  other-distribution: /osl_sources/go_yaml-yaml-496545a6307b.tar.gz
+  other-url: https://gopkg.in/yaml.v3
+  repository: Other
+  url: https://codeload.github.com/go-yaml/yaml/tar.gz/496545a6307b
+  version: 496545a6307b
+other:pkg_errors:v0.9.1:
+  license: BSD-2-Clause
+  name: pkg_errors
+  other-distribution: /osl_sources/pkg-errors-v0.9.1.tar.gz
+  other-url: https://github.com/pkg/errors
+  repository: Other
+  url: https://codeload.github.com/pkg/errors/tar.gz/v0.9.1
+  version: v0.9.1
+other:spf13_cobra:v1.1.1:
+  license: Apache-2.0
+  name: spf13_cobra
+  other-distribution: /osl_sources/spf13-cobra-v1.1.1.tar.gz
+  other-url: https://github.com/spf13/cobra
+  repository: Other
+  url: https://codeload.github.com/spf13/cobra/tar.gz/v1.1.1
+  version: v1.1.1
+other:yaml_v2:v2.2.8:
+  license: Apache-2.0
+  name: yaml_v2
+  other-distribution: /osl_sources/go_yaml-yaml-v2.2.8.tar.gz
+  other-url: https://gopkg.in/yaml.v2
+  repository: Other
+  url: https://codeload.github.com/go-yaml/yaml/tar.gz/v2.2.8
+  version: v2.2.8
+other:evanphx_json-patch_v5:v5.2.0:
+  license: BSD-3-Clause
+  name: evanphx_json-patch_v5
+  other-distribution: /osl_sources/evanphx-json-patch-v5.2.0.tar.gz
+  other-url: https://github.com/evanphx/json-patch/v5
+  repository: Other
+  url: https://codeload.github.com/evanphx/json-patch/tar.gz/v5.2.0
+  version: v5.2.0
+other:x_sys:22da62e12c0c:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/golang-sys-22da62e12c0c.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/22da62e12c0c
+  version: 22da62e12c0c
+other:mattn_go-isatty:v0.0.12:
+  license: MIT
+  name: mattn_go-isatty
+  other-distribution: /osl_sources/mattn-go-isatty-v0.0.12.tar.gz
+  other-url: https://github.com/mattn/go-isatty
+  repository: Other
+  url: https://codeload.github.com/mattn/go-isatty/tar.gz/v0.0.12
+  version: v0.0.12

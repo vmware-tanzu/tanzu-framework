@@ -1,0 +1,22 @@
+name: oracle-cpi-package
+goBuildComponentLocks:
+- version: v1.22.1+vmware.1-tkg.1-oracle-cpi-fc.2
+  gobuildBranch: 437646809645451464-v1.22.1+vmware.1-tkg.1-oracle-cpi-fc.2-oracle-cpi-package
+  gobuildHeadCommit: b3dc2cc4a0d826af2c65c5e04419bb2181907347
+  hash: 93c667ffdf2c7eeab0f64f43709c125e
+  componentLockReferences:
+  - name: oci-cloud-controller-manager
+    version: v1.22.1+vmware.1
+    lockHash: 0b5699d2ac12dcf3efb8c063631e16a4
+  - name: csi_attacher
+    version: v3.4.0+vmware.1
+    lockHash: aa7da92c69a9d649324e141e2f2e6e8b
+  - name: csi_node_driver_registrar
+    version: v2.5.0+vmware.1
+    lockHash: ea6fe1f411faff2bbef2ff2193252c89
+  - name: csi_provisioner
+    version: v3.1.0+vmware.2
+    lockHash: 7aa5c8051beb695b4382e1414b03d8fb
+  - name: kubernetes-csi_external-resizer
+    version: v1.4.0+vmware.1
+    lockHash: d5636cef49212155dbc1ddf582f0b25b

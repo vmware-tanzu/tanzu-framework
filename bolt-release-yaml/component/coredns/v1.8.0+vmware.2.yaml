@@ -1,0 +1,13 @@
+name: coredns
+managedComponents:
+- version: v1.8.0+vmware.2
+  upstreamTag: v1.8.0
+  mirrorCherryPicks:
+  - sha: 7ce712e9f5a5d4e94ae8287f4e970e4bbe38fd39
+  - sha: cfbf352d18f8137b4343a1abe836e859bb73627a
+  gobuildBaseBranch: vmware-0.0.0+vmware.0
+  dependencies:
+    gobuild.base_image: debian-base-amd64:buster-v1.2.0
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangVersion: 1.16.4
+    gobuild.linux_hosttype: linux-centos8

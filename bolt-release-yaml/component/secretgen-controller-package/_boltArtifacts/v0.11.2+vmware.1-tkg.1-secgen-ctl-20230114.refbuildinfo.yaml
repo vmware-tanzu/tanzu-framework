@@ -1,0 +1,15 @@
+componentBuilds:
+- name: carvel-secretgen-controller
+  version: v0.11.2+vmware.1
+  channel: "436764168146690505"
+  url: https://buildweb.eng.vmware.com/ob/20878289
+  artifactURL:
+    secretgen-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20878289/publish/lin64/carvel-secretgen-controller/executables/secretgen-controller-linux-amd64-v0.11.2+vmware.1.gz
+    secretgenControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/secretgen-controller:v0.11.2_vmware.1
+      sha256: b373d19a7c417193effcb31713ab7ec748b4bd79f82603b894db84ab11600935
+  cachehash: 5382be72f11f29f5c511d07a298960ba
+  publishhash: d6523f4f29b20adf04999b1b7dfb9e53
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8

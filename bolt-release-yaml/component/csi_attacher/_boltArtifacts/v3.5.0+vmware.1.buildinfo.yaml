@@ -1,0 +1,15 @@
+componentBuilds:
+- name: csi_attacher
+  version: v3.5.0+vmware.1
+  channel: "433520760561106424"
+  url: https://buildweb.eng.vmware.com/ob/20762272/
+  artifactURL:
+    csiAttacherImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.5.0_vmware.1
+      sha256: c88e5629192345a332717c8beaf801f1c32b78b1e128e848480f50886ba3070f
+  cachehash: fdcda55b5c5a5d8e335f2ad229f4d03c
+  publishhash: 2dfd5c66ba8f77f19d418d2a5058472d
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.0
+    gobuild.linux_hosttype: linux-centos72-gc32

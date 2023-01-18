@@ -1,0 +1,16 @@
+name: tkg-compatibility
+boms:
+- version: v1.5.3-fips.1
+  type: tkg-compatibility
+  dependencies:
+    customCompatibilityImageDstPath: fips/tkg-compatibility
+    customGlobalCompatibilityFileName: fips-tkg-compatibility.yaml
+    managementClusterPluginVersion: v0.11.4
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.11.4-1-gcc9fde8d
+  - name: tkg-bom
+    version:
+    - v1.5.3-fips.1
+

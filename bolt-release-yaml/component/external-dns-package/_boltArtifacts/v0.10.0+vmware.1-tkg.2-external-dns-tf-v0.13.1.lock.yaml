@@ -1,0 +1,10 @@
+name: external-dns-package
+goBuildComponentLocks:
+- version: v0.10.0+vmware.1-tkg.2-external-dns-tf-v0.13.1
+  gobuildBranch: 386275948019894377-v0.10.0+vmware.1-tkg.2-external-dns-tf-v0.13.1
+  gobuildHeadCommit: 2db110b068cb3d3879d75c69f867422b0afa5e1e
+  hash: 92e97c2c85edd9c4001cc7a14212a9f4
+  componentLockReferences:
+  - name: external-dns
+    version: v0.10.0+vmware.1
+    lockHash: 6e76afc15637d4b6f4f01b81e475df11

@@ -1,0 +1,7 @@
+name: velero
+goBuildComponentLocks:
+- version: v1.6.2+vmware.1
+  gobuildBranch: vmware-1.6.2
+  gobuildHeadCommit: 386b1be6fa9cc25adddd35b8aff3b27fa332a56d
+  hash: 9480603e447b5482d848b548057e4811
+  componentLockReferences: []

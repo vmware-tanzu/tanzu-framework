@@ -1,0 +1,23 @@
+componentBuilds:
+- name: ako-operator-package
+  version: v1.6.0+vmware.11-tkg.1-ako-operator-zshippable
+  channel: "410478833859306963"
+  url: https://buildweb.eng.vmware.com/ob/19896497/
+  artifactURL:
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.6.0_vmware.11-tkg.1-zshippable
+      sha256: 95fed10286b17bf09ae328500df062b6769484b97b36684af12d8622e309ea6d
+  cachehash: 39a002f36cd10d41d31afef4c9474324
+  publishhash: e53f922ccc96191938bdc7d730ac4f37
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/ako-operator:v1.6.0_vmware.11
+    gobuild.downstream_version: vmware.11-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: ako-operator
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/ako-operator:v1.6.0_vmware.1
+    gobuild.upstream_version: 1.6.0

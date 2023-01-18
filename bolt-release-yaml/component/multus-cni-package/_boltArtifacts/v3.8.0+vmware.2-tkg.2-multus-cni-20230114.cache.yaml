@@ -1,0 +1,7 @@
+name: multus-cni-package
+goBuildComponentCaches:
+- version: v3.8.0+vmware.2-tkg.2-multus-cni-20230114
+  url: https://buildweb.eng.vmware.com/ob/21120122/
+  buildNumber: bora-21120122
+  buildStatus: SUCCEEDED
+  hash: d62435263c2f760c2d2fbfb2aa4660ec

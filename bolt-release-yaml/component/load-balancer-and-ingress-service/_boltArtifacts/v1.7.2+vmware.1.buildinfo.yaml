@@ -1,0 +1,14 @@
+componentBuilds:
+- name: load-balancer-and-ingress-service
+  version: v1.7.2+vmware.1
+  channel: "418182012608714830"
+  url: https://buildweb.eng.vmware.com/ob/20178861/
+  artifactURL:
+    loadBalancerAndIngressServiceImage:
+      url: projects-stg.registry.vmware.com/tkg/ako:v1.7.2_vmware.1
+      sha256: 913e895b2ef12facecb456737517854ee12ed1dc1fb7a245bf448d7453c2076f
+  cachehash: c534ce7d14895aa2cc2e2dd6347ce781
+  publishhash: bb17bbba17855da73f84f1c52a694ff4
+  configDependencies:
+    gobuild.golangVersion: 1.15.6
+    gobuild.linux_hosttype: linux-centos72-gc32

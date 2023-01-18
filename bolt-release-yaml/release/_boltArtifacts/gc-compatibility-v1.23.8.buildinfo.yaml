@@ -1,0 +1,16 @@
+componentBuilds:
+- name: gc-compatibility
+  version: v1.23.8+vmware.1
+  channel: "417288960226671336"
+  url: https://buildweb.eng.vmware.com/ob/19965421
+  artifactURL:
+    gcCompatibility:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417288960226671336/component/gc-compatibility/vmware-system.compatibilityoffering.json
+      sha256: 7e2a12f753ed9c9dc2fd914202de043cf1466a528b0c96b8464d4ad7786a5370
+  cachehash: f60a4e0aebf22c64cae0dd43051b4d8d
+  publishhash: 4e68254cbecd3315450169a1dbc19c1c
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: a2024d7392762117bcb8bd01d605b9a104f0e6f5
+testInfraVersion: dcad9a717c64e804437f547bfef765a3b30455dd

@@ -1,0 +1,16 @@
+componentBuilds:
+- name: kscom_release
+  version: v1.25.4+vmware.1-tkg.1
+  channel: "436805580892440097"
+  url: https://buildweb.eng.vmware.com/ob/20883295/
+  artifactURL:
+    tarball:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20883295/publish/lin64/kscom_release/vmware-kubernetes-v1.25.4+vmware.1-tkg.1.tar.gz
+    tarball-sha256:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20883295/publish/lin64/kscom_release/vmware-kubernetes-v1.25.4+vmware.1-tkg.1.tar.gz.sha256
+    tarball-sha256-asc:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20883295/publish/lin64/kscom_release/vmware-kubernetes-v1.25.4+vmware.1-tkg.1.tar.gz.sha256.asc
+  cachehash: 7d55481d178d5902f899d7473c97465d
+  publishhash: c7cc3a735923ade483984826a0b51b94
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,7 @@
+name: load-balancer-and-ingress-service
+publish:
+  - name: loadBalancerAndIngressServiceImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/load-balancer-and-ingress-service/images/ako-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/load-balancer-and-ingress-service/images/ako-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: ako:$UNDERSCOREVERSION

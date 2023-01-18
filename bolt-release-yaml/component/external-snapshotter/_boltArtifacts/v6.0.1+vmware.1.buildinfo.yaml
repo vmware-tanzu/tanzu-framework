@@ -1,0 +1,17 @@
+componentBuilds:
+- name: external-snapshotter
+  version: v6.0.1+vmware.1
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104024/
+  artifactURL:
+    csiSnapshotControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/snapshot-controller:v6.0.1_vmware.1
+      sha256: 7ed1cceea70b9cf6d5f8c2b58fb86468f0b4fc317d20b0ce538b3a913a4a7d5d
+    csiSnapshotterImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-snapshotter:v6.0.1_vmware.1
+      sha256: 7fc5f7c116a533ccaab542ae4c767352a9ba1ae5c68c7c6a8ec57c1ed11d81e5
+  cachehash: c1a145d436ed0c3027d94f5e6ed539fd
+  publishhash: 00361ad47807c86f670f9bd4a9fcd742
+  configDependencies:
+    gobuild.golangVersion: 1.17.3
+    gobuild.linux_hosttype: linux-centos72-gc32

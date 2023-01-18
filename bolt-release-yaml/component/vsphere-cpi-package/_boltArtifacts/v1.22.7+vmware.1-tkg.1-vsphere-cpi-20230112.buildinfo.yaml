@@ -1,0 +1,23 @@
+componentBuilds:
+- name: vsphere-cpi-package
+  version: v1.22.7+vmware.1-tkg.1-vsphere-cpi-20230112
+  channel: "442873817811937554"
+  url: https://buildweb.eng.vmware.com/ob/21106887/
+  artifactURL:
+    vsphere-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-cpi:v1.22.7_vmware.1-tkg.1-20230112
+      sha256: 65594efa2bafcf0a65068a09deb4944dbd80f60a72dd1dfebc10a4b46c47526a
+  cachehash: bc9d0e9e020508322b7e9fa586794e12
+  publishhash: ba7d823fdfa11d717763a91b3d120f64
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1-tkg.1-20230112
+    gobuild.downstream_vsphere_cpi_manager: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.22.7_vmware.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: vsphere-cpi
+    gobuild.package_type: core
+    gobuild.upstream_version: 1.22.7
+    gobuild.upstream_vsphere_cpi_manager: gcr.io/cloud-provider-vsphere/cpi/release/manager:v1.22.7

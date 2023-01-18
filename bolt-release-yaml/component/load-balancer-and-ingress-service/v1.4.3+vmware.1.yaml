@@ -1,0 +1,7 @@
+name: load-balancer-and-ingress-service
+unmanagedComponents:
+  - version: v1.4.3+vmware.1
+    gobuildBranch: tkg-master~75276bf282e3d2f3e3fd3adda42980399f064749
+    dependencies:
+      gobuild.golangVersion: 1.15.6
+      gobuild.linux_hosttype: linux-centos72-gc32

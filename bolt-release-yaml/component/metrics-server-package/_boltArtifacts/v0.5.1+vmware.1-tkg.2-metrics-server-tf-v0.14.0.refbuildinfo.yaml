@@ -1,0 +1,11 @@
+componentBuilds:
+- name: metrics-server
+  version: v0.5.1+vmware.1
+  channel: "379193036736857788"
+  url: https://buildweb.eng.vmware.com/ob/18848579/
+  artifactURL:
+    metricsServerImage:
+      url: projects-stg.registry.vmware.com/tkg/metrics-server:v0.5.1_vmware.1
+      sha256: 6b09bd7bae996819acedfc3ab682a6cd0fc51ae1571d94e1852642022b490a41
+  cachehash: f92fc9da862f62abe53d0ca54eb37b8a
+  publishhash: 1b5b1c3c994ffc03d5f5e72779b8c984

@@ -1,0 +1,81 @@
+componentBuilds:
+- name: featuregates-package
+  version: v0.18.0-dev-9-g909dc09d-featuregates
+  channel: "395263740196421950"
+  url: https://buildweb.eng.vmware.com/ob/19373712/
+  artifactURL:
+    featuregates.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/featuregates:v0.18.0-dev-9-g909dc09d_vmware.1
+      sha256: a84cd2834c4a37f60e6fd8785b05ad71738911d31fa4c73f80a1e380796fb52d
+  cachehash: 863d683d9c0f985dc78762f703cd04d2
+  publishhash: b18039830ec752877daef8e6ef1178e5
+- name: core-management-plugins-package
+  version: v0.18.0-dev-9-g909dc09d-core-mgmt-plugins
+  channel: "395263740196421950"
+  url: https://buildweb.eng.vmware.com/ob/19373634/
+  artifactURL:
+    core-management-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/core-management-plugins:v0.18.0-dev-9-g909dc09d_vmware.1
+      sha256: c3bf434f53083e6ace15e9c6cd797da8e9e65b4ac73ae51eef25937105e6c311
+  cachehash: 62ddcffc7f6013bb901d0870db6f4059
+  publishhash: 0ecf4d581065b27bd73a811ba24a7c7e
+- name: tkg-package
+  version: v0.18.0-dev-9-g909dc09d-tkg
+  channel: "395263740196421950"
+  url: https://buildweb.eng.vmware.com/ob/19373635/
+  artifactURL:
+    tkg.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg:v0.18.0-dev-9-g909dc09d_vmware.1
+      sha256: 0db3c27b46a2509d4f66de6412ef00d0837091bc1ea270230340ccae52474614
+  cachehash: 207cd4411642c94e620d5f8cbccf19c8
+  publishhash: b50bfb418ec98d4f672d28d855f6e5b2
+- name: tkg-clusterclass-package
+  version: v0.18.0-dev-9-g909dc09d-tkg-clusterclass
+  channel: "395263740196421950"
+  url: https://buildweb.eng.vmware.com/ob/19373714/
+  artifactURL:
+    tkg-clusterclass.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass:v0.18.0-dev-9-g909dc09d_vmware.1
+      sha256: 6d34d63da41eca99b811c7e20b968357bbc00c5a4abae19154b5fe44f9855a73
+  cachehash: 471712e7f06f0d3f5ce8bf5f1deb8130
+  publishhash: 81b79b50fa2579627d2a9dc4a8ce3b7a
+- name: tkg-clusterclass-aws-package
+  version: v0.18.0-dev-9-g909dc09d-tkg-clusterclass-aws
+  channel: "395263740196421950"
+  url: https://buildweb.eng.vmware.com/ob/19373636/
+  artifactURL:
+    tkg-clusterclass-aws.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-aws:v0.18.0-dev-9-g909dc09d_vmware.1
+      sha256: b76a455156722b99de517449e7c9f7a0574348defb3d088194edb913b159680c
+  cachehash: b5faee2e4ff97b28126993b9eded5b5a
+  publishhash: 125ec7a1bc39baef747260e4f78167fa
+- name: tkg-clusterclass-vsphere-package
+  version: v0.18.0-dev-9-g909dc09d-tkg-clusterclass-vsphere
+  channel: "395263740196421950"
+  url: https://buildweb.eng.vmware.com/ob/19373633/
+  artifactURL:
+    tkg-clusterclass-vsphere.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-vsphere:v0.18.0-dev-9-g909dc09d_vmware.1
+      sha256: 0fd4a9f3699de9e00d46bc9638d1bff3527f3d82a123d2b3c2a780cae271cd17
+  cachehash: d3c41edb6ab429e93f72c0e41d41839e
+  publishhash: d03e78e5fad5fe181b44a702c65769ab
+- name: tkg-clusterclass-azure-package
+  version: v0.18.0-dev-9-g909dc09d-tkg-clusterclass-azure
+  channel: "395263740196421950"
+  url: https://buildweb.eng.vmware.com/ob/19373715/
+  artifactURL:
+    tkg-clusterclass-azure.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-azure:v0.18.0-dev-9-g909dc09d_vmware.1
+      sha256: b09d00c3a62dbb849de9ae43fbfbf0505a83fb81e828fcf424bc4661ecebe1ea
+  cachehash: 22f1be529dfd104b186056bdce2b0a80
+  publishhash: c2418f93c73e5c7d0921d16401e3c74e
+- name: tkg-clusterclass-docker-package
+  version: v0.18.0-dev-9-g909dc09d-tkg-clusterclass-docker
+  channel: "395263740196421950"
+  url: https://buildweb.eng.vmware.com/ob/19373713/
+  artifactURL:
+    tkg-clusterclass-docker.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-docker:v0.18.0-dev-9-g909dc09d_vmware.1
+      sha256: c35b9b2c810fa5e46f5108dcb217848e226610d1977e6f51708faa175693c41d
+  cachehash: 658c6f88ce479ed5ba4d49fc27c2efd1
+  publishhash: 7bd05f927afe0e6ab7d7d37ee4f30d36

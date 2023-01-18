@@ -1,0 +1,7 @@
+name: tkr-azure-machine-webhook-package
+goBuildComponentCaches:
+- version: v0.22.0-dev-23-ga3552d03-tkr-azure-mc-webhook
+  url: https://buildweb.eng.vmware.com/ob/19780500/
+  buildNumber: bora-19780500
+  buildStatus: SUCCEEDED
+  hash: c5a5692ba753112826be19021a1818c0

@@ -1,0 +1,25 @@
+name: cni_plugins
+managedComponents:
+- version: v0.8.7+vmware.23-fips.1
+  upstreamTag: v0.8.7
+  mirrorCherryPicks:
+  - sha: eeacd5d8867365182596abdd79698e0d8e132ef9
+    description: TAG value can be overridden
+  - sha: 204bd7c091614b2384bb6bbbb6a04f73959b4de6
+    description: Args to `docker run` can be overridden
+  - sha: 48db8931d2456104b189cc0a5ca41f517db456fd
+    description: Golang version can be specified
+  - sha: d9ad0749ae784d4327c5a5d58c29e710ed9e0a7e
+    description: 'CGO_ENABLED, GOARCH are configurable in release.sh'
+  - sha: 082a848694f33c05b9adcc2e19ef7a8c2a2dae20
+    description: 'CGO_ENABLED=1 removes `-static` flag'
+  gobuildBaseBranch: vmware-0.8.0+vmware.0~e94acb1a020324509e6af9f1ef96e306669551d5
+  dependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.golangImageRegistry: # intentionally blank
+    gobuild.cgoEnabled: 1
+    gobuild.golangImageName: "goboring/golang" # `_/` prefix require `library/` prefix in harbor cache
+    gobuild.golangImageVersion: "1.16.7b7" # 'DEFAULT' is magic "use upstream default" trigger
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8
+

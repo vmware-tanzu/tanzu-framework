@@ -1,0 +1,10 @@
+name: ako-operator-package
+goBuildComponentLocks:
+- version: v1.7.0+vmware.1-tkg.1-ako-operator-fc.1
+  gobuildBranch: 436498364314425218-v1.7.0+vmware.1-tkg.1-ako-operator-fc.1-ako-operator-package
+  gobuildHeadCommit: fe6eb1aa92fe6cce12fe5348834856ac88cbdeb4
+  hash: f7f3a03d134f6dd1502ba7a03ee08840
+  componentLockReferences:
+  - name: ako-operator
+    version: v1.7.0+vmware.1
+    lockHash: fc35be7d6beb8feb9b31b659c322196e

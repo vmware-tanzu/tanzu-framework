@@ -1,0 +1,10 @@
+name: tkg_release
+aggregators:
+- version: v1.3.1
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~50be2b33885d0e9e456554246e296d41da1f8c14
+  dependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32
+  componentReferences:
+  - name: tanzu_core
+    version:
+    - v1.3.1

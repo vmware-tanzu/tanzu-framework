@@ -1,0 +1,10 @@
+name: antrea-package
+goBuildComponentLocks:
+- version: v1.5.3-tkg.3-antrea-advanced-zshippable
+  gobuildBranch: 431930762493731358-v1.5.3-tkg.3-antrea-advanced-zshippable-antrea-package
+  gobuildHeadCommit: 5b24e44b8757a39613cf1b10377e4da1ca4cff62
+  hash: 607c77db76f196290c974e086c2fc1fc
+  componentLockReferences:
+  - name: antrea
+    version: v1.5.3+vmware.3-advanced
+    lockHash: 0ba36931af362a08b47810af091f1e9b

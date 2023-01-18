@@ -1,0 +1,11 @@
+componentBuilds:
+- name: csi_livenessprobe
+  version: v2.1.0+vmware.1
+  channel: "339605920046645255"
+  url: https://buildweb.eng.vmware.com/ob/17536717/
+  artifactURL:
+    csiLivenessProbeImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.1.0_vmware.1
+      sha256: 2c31ef2a78f560f684b49bafbb899e5bd6135f64cc5725e2fc6f68dc79bd20fc
+  cachehash: bff6a7fe3ae85f1a84d164b301c776b7
+  publishhash: ad32cfc6d337dff0830e3e570262636b

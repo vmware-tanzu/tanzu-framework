@@ -1,0 +1,10 @@
+name: source-controller
+publish:
+  - name: sourceControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/source-controller/images/source-controller-$UNDERSCOREVERSION.tar.gz
+    destinationPath: fluxcd/source-controller:$UNDERSCOREVERSION
+nonpublish:
+  - name: sourceControllerExecutable
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/source-controller/executables/source-controller-$VERSION

@@ -1,0 +1,12 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off effort to rebuild and republisn the 1.4.0 fips.1 azure images without change the tkr-bom"
+componentReferences:
+ - name: azure-ubuntu-1804
+   version:
+   - v1.21.2+vmware.1-fips.1-tkg.1-1836673530370309785
+   - v1.20.8+vmware.1-fips.1-tkg.1-408628662401231348
+ - name: azure-ubuntu-2004
+   version:
+   - v1.21.2+vmware.1-fips.1-tkg.1-4119927700378454011
+   - v1.20.8+vmware.1-fips.1-tkg.1-148048815233251200

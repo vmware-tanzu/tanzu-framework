@@ -1,0 +1,23 @@
+name: ova-photon-3
+imageLocks:
+- version: v1.22.1+vmware.1-tkg.1-4950532079196418918
+  hash: c857ad9d062a40bb97f41c97fb77f1d8
+  componentLockReferences:
+  - name: cni_plugins
+    version: v0.9.1+vmware.3
+    lockHash: 4ce6b5c83982985977fdd563ba6b3371
+  - name: coredns
+    version: v1.8.4+vmware.3
+    lockHash: f456aae444586eadea7393694f08cc4c
+  - name: cri_tools
+    version: v1.21.0+vmware.3
+    lockHash: e6d1a221a695a59b2c0e555ec0c0f5f1
+  - name: etcd
+    version: v3.5.0+vmware.3
+    lockHash: 9e9ff1f27fb225c2ffa8b93a9a5b952c
+  - name: containerd
+    version: v1.5.5+vmware.2
+    lockHash: 0d58554f5bc3d79737a01b24b77cf87f
+  - name: kubernetes
+    version: v1.22.1+vmware.1
+    lockHash: f55f99dc61f550cb475fc2db031db0ef

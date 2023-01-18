@@ -1,0 +1,22 @@
+componentBuilds:
+- name: tkr-docker-machine-webhook-package
+  version: v0.25.0-dev-32-gd640249a-tkr-docker-mc-webhook
+  channel: "416456499934561712"
+  url: https://buildweb.eng.vmware.com/ob/20104500/
+  artifactURL:
+    tkr-docker-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkr-docker-machine-webhook:v0.25.0-dev-32-gd640249a_vmware.1
+      sha256: 8e372c941ca79d898d26079d2ed784b19faacd5887a9597da911c949dbb3a086
+  cachehash: b475b5f6a624eb837436175d7e62b98d
+  publishhash: e5dce6aa53a6bd327864856ce81b777e
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-infra-machine-webhook:v0.25.0-dev-32-gd640249a
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-docker-machine-webhook
+    gobuild.upstream_image_0: tkr-infra-machine-webhook:latest
+    gobuild.upstream_version: v0.25.0-dev-32-gd640249a

@@ -1,0 +1,22 @@
+name: ami-gov-amazon-2
+imageCaches:
+- version: v1.21.13+vmware.1-tkg.2-db22cc8eeeb0c76ae5fa4b26bbb29d61
+  channel: "414557058818385023"
+  bomAMI:
+    ami:
+      us-gov-east-1:
+      - id: ami-0d8866a9802883f41
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      us-gov-west-1:
+      - id: ami-0c9f3581d54d4500e
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+  hash: 6296edfdd97b6a27f024b7f136cb8c9c
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/2308
+  buildNumber: "2308"
+  buildStatus: SUCCEEDED

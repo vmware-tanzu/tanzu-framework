@@ -1,0 +1,14 @@
+componentBuilds:
+- name: csi_provisioner
+  version: v3.2.0+vmware.1
+  channel: "433520760561106424"
+  url: https://buildweb.eng.vmware.com/ob/20762231/
+  artifactURL:
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.2.0_vmware.1
+      sha256: cce2d6839135ffd80c82c72c861af5344921ef479bab1de4906421a9e4fe2ffe
+  cachehash: e4222570e56cd71bf73da8fa4ff9f79e
+  publishhash: 4764f174cbd6be97bb004d2ae1648bd0
+  configDependencies:
+    gobuild.golangVersion: 1.18.0
+    gobuild.linux_hosttype: linux-centos72-gc32

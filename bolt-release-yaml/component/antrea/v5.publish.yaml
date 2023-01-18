@@ -1,0 +1,30 @@
+# This v5.publish.yaml should be used for antrea version >= 1.2.3
+# Diff between v4 and v5: in v5, (i) cleaning files artifacts not used (ii) building package name with parameters from component
+name: antrea
+publish:
+  - name: antreaImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/images/antrea-{{ (index .config "unmanagedComponents" 0 "dependencies").packageType }}-debian-{{ underscored (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/images/antrea-{{ (index .config "unmanagedComponents" 0 "dependencies").packageType }}-debian-{{ underscored (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}-image-checksums.txt
+    destinationPath: antrea-{{ (index .config "unmanagedComponents" 0 "dependencies").packageType }}-debian:{{ underscored (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}
+  - name: antrea-debian-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/images/antrea-{{ (index .config "unmanagedComponents" 0 "dependencies").packageType }}-debian-{{ underscored (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}.tar.gz
+    destinationPath: $CHANNEL/image-builder/antrea/{{ (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}/publish/lin64/antrea/images/antrea-{{ (index .config "unmanagedComponents" 0 "dependencies").packageType }}-debian-{{ underscored (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}.tar
+  - name: antctl
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/executables/antctl-{{ (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}.gz
+    destinationPath: $CHANNEL/image-builder/antrea/{{ (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}/executables/antctl-{{ (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}.gz
+  - name: antrea-windows
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/windows-{{ (index .config "unmanagedComponents" 0 "dependencies").packageType }}/antrea-windows-{{ (index .config "unmanagedComponents" 0 "dependencies").packageType }}.zip
+    destinationPath: $CHANNEL/image-builder/antrea/{{ (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}/publish/antrea-windows-{{ (index .config "unmanagedComponents" 0 "dependencies").packageType }}.zip
+
+nonpublish:
+  - name: antctl
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/executables/antctl-{{ (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/executables/antctl-{{ (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}-checksums.txt
+  - name: manifests
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/antrea/manifests/antrea-{{ (index .config "unmanagedComponents" 0 "dependencies").packageVersion }}.yml

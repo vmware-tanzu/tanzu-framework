@@ -1,0 +1,22 @@
+componentBuilds:
+- name: cluster_api_aws
+  version: v2.0.0-beta.1+vmware.1
+  channel: "432339349141492886"
+  url: https://buildweb.eng.vmware.com/ob/20718905/
+  artifactURL:
+    capaControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-aws-controller:v2.0.0-beta.1_vmware.1
+      sha256: 582c331a760c7eec152052edd9daa16d6f062222b0d4fe15b8c19908073c6032
+    clusterawsadm-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20718905/publish/lin64/cluster_api_aws/executables/clusterawsadm-darwin-amd64-v2.0.0-beta.1+vmware.1.gz
+    clusterawsadm-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20718905/publish/lin64/cluster_api_aws/executables/clusterawsadm-linux-amd64-v2.0.0-beta.1+vmware.1.gz
+    clusterawsadm-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20718905/publish/lin64/cluster_api_aws/executables/clusterawsadm-windows-amd64-v2.0.0-beta.1+vmware.1.gz
+  cachehash: 2a7d7f19c0314124fc18824009c08b85
+  publishhash: 2b54af78b378f25751ec15fc710d7e89
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18.3
+    gobuild.golangVersion: 1.18.3
+    gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,7 @@
+name: vsphere_csi_driver_tkgs
+goBuildComponentLocks:
+- version: v2.6.1
+  gobuildBranch: utkg-release-2.6
+  gobuildHeadCommit: fdbe2363299d2a463e2b276d8dfe90181acf81a9
+  hash: 0ec4eedd4343dae6745fad9c77d5e4f8
+  componentLockReferences: []

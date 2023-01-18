@@ -1,0 +1,5 @@
+submodules:
+  - name: dex/src
+    go_mod:
+      - "go.mod"
+#      - "api/v2/go.mod"

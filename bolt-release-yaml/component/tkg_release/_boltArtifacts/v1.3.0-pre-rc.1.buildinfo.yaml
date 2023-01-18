@@ -1,0 +1,18 @@
+componentBuilds:
+- name: tkg_release
+  version: v1.3.0-pre-rc.1
+  channel: "341119568342706184"
+  url: https://buildweb.eng.vmware.com/ob/17589229/
+  artifactURL:
+    tanzu-cli-bundle-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17589229/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-pre-rc.1/tanzu-cli-bundle-darwin-amd64.tar
+    tanzu-cli-bundle-linux-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17589229/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-pre-rc.1/tanzu-cli-bundle-linux-386.tar
+    tanzu-cli-bundle-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17589229/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-pre-rc.1/tanzu-cli-bundle-linux-amd64.tar
+    tanzu-cli-bundle-windows-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17589229/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-pre-rc.1/tanzu-cli-bundle-windows-386.tar
+    tanzu-cli-bundle-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17589229/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-pre-rc.1/tanzu-cli-bundle-windows-amd64.tar
+  cachehash: "13533291825802412754"
+  publishhash: "6532213708280417508"

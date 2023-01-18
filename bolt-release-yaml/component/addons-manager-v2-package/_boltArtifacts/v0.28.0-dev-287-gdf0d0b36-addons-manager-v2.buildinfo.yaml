@@ -1,0 +1,22 @@
+componentBuilds:
+- name: addons-manager-v2-package
+  version: v0.28.0-dev-287-gdf0d0b36-addons-manager-v2
+  channel: "442008849449254323"
+  url: https://buildweb.eng.vmware.com/ob/21074373/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/addons-manager:v0.28.0-dev-287-gdf0d0b36_vmware.1
+      sha256: becb7ab5ed78e606ba2613f8d369238f356ed5c9096bf99d505b0b25df519047
+  cachehash: 7d61af3e95eb07feba70a6886df934ff
+  publishhash: 44ba5447ac6b02eb08d9144f7a8827d9
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v0.28.0-dev-287-gdf0d0b36
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: addons-manager
+    gobuild.upstream_image_0: addons-controller:latest
+    gobuild.upstream_version: v0.28.0-dev-287-gdf0d0b36

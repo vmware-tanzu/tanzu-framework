@@ -1,0 +1,7 @@
+name: core-management-plugins-package
+goBuildComponentCaches:
+- version: v0.24.0-dev-37-gc5b09db1-core-mgmt-plugins
+  url: https://buildweb.eng.vmware.com/ob/19972121/
+  buildNumber: bora-19972121
+  buildStatus: SUCCEEDED
+  hash: 8c4b6016bb0008f15a6f933f4fd54e05

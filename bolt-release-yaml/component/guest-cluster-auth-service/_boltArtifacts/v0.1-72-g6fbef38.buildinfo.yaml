@@ -1,0 +1,32 @@
+componentBuilds:
+- name: guest-cluster-auth-service
+  version: v0.1-72-g6fbef38
+  channel: "439586309955135094"
+  url: https://buildweb.eng.vmware.com/ob/19210346
+  artifactURL:
+    generate-key-and-csr-sh:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/guest-cluster-auth-service/v0.1-72-g6fbef38/publish/artifacts/generate_key_and_csr.sh
+      sha256: 2b73ad66ce8130fc497286570ab8a1f3128cf2cbb6adcff87dd3cac46b45405a
+    guest-cluster-auth-service-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/guest-cluster-auth-service/v0.1-72-g6fbef38/publish/artifacts/guest-cluster-auth-svc.yaml
+      sha256: d3161196527ac8c8ca3d4c88e0194d160ab494c6318de5f27c7e9755f301a4b5
+    guest-cluster-auth-service-image-binary:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/guest-cluster-auth-service/v0.1-72-g6fbef38/bin/guest-cluster-auth-service
+      sha256: 76f40c5db7089469c345c93e6fedf103bd66786535d04eded5c13bb8bfc83adc
+    guest-cluster-auth-service-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/guest-cluster-auth-service/v0.1-72-g6fbef38/publish/guest-cluster-auth-service.tar
+      sha256: 40793dae07d04b49c5bdb9acddfcc40ebb1ca07852617f7aad2cd86b8be56fe7
+    guest-cluster-auth-service-keys-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/guest-cluster-auth-service/v0.1-72-g6fbef38/publish/artifacts/guest-cluster-auth-svc-keys.yaml
+      sha256: c2897f878b614fdff162efe5c0841a967f8d4455b915b35b060e3dc94b0aa46a
+    guest-cluster-auth-service-webhook-config-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/guest-cluster-auth-service/v0.1-72-g6fbef38/publish/artifacts/webhook-config.yaml
+      sha256: c615e3e003c7ac20c72205f6ff712451d8105f701bc1fe3200629a546fedce38
+    osstp-golang-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/guest-cluster-auth-service/v0.1-72-g6fbef38/publish/osstp_golang.yml
+      sha256: f875c61591885020b1715cc17f575fb97a9fd5543d252c3cdbfadf07966cb0a5
+  cachehash: d785f6bbae1725467f438656a11a3200
+  publishhash: fb4f6003456cb566cc2b655ba9ec5622
+  configDependencies:
+    gobuild.golangVersion: 1.13.6
+    gobuild.linux_hosttype: linux-centos72-gc32

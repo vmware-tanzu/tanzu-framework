@@ -1,0 +1,10 @@
+name: featuregates-package
+goBuildComponentLocks:
+- version: v0.25.0-dev-62-g59b46aa2-featuregates
+  gobuildBranch: 416856573973893277-v0.25.0-dev-62-g59b46aa2-featuregates-featuregates-package
+  gobuildHeadCommit: cabb6b87af2f6defb25b923af7dd75bfbc57a155
+  hash: 42e8353bcc31d12be5fb9bdf97c23fcb
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.25.0-dev-62-g59b46aa2
+    lockHash: 5292fdfeb17c3dfd396e5a06dac6bae5

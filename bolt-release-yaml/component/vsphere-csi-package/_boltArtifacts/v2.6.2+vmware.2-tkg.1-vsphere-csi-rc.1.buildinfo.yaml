@@ -1,0 +1,37 @@
+componentBuilds:
+- name: vsphere-csi-package
+  version: v2.6.2+vmware.2-tkg.1-vsphere-csi-rc.1
+  channel: "438986141794854986"
+  url: https://buildweb.eng.vmware.com/ob/20966771/
+  artifactURL:
+    vsphere-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-csi:v2.6.2_vmware.2-tkg.1-rc.1
+      sha256: dec2a73cbfac35f39338d8b7f417fc1b1740c50ea05e552f1c6220b10287f7eb
+  cachehash: 39e5b133ae954f7654f96336e856a1d5
+  publishhash: cedd8fe6c0ac7f5ec42b3dc29f93ec89
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/csi/csi-attacher:v3.4.0_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.6.2_vmware.2
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/csi/csi-livenessprobe:v2.7.0_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/csi/csi-node-driver-registrar:v2.5.1_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v3.2.1_vmware.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/kubernetes-csi_external-resizer:v1.4.0_vmware.1
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/csi/volume-metadata-syncer:v2.6.2_vmware.2
+    gobuild.downstream_image_7: projects-stg.registry.vmware.com/tkg/csi/csi-snapshotter:v5.0.1_vmware.1
+    gobuild.downstream_version: vmware.2-tkg.1-rc.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: vsphere-csi
+    gobuild.package_type: core
+    gobuild.upstream_image_0: k8s.gcr.io/sig-storage/csi-attacher:v3.4.0
+    gobuild.upstream_image_1: gcr.io/cloud-provider-vsphere/csi/release/driver:v2.6.2
+    gobuild.upstream_image_2: k8s.gcr.io/sig-storage/livenessprobe:v2.7.0
+    gobuild.upstream_image_3: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.1
+    gobuild.upstream_image_4: k8s.gcr.io/sig-storage/csi-provisioner:v3.2.1
+    gobuild.upstream_image_5: k8s.gcr.io/sig-storage/csi-resizer:v1.4.0
+    gobuild.upstream_image_6: gcr.io/cloud-provider-vsphere/csi/release/syncer:v2.6.2
+    gobuild.upstream_image_7: k8s.gcr.io/sig-storage/csi-snapshotter:v5.0.1
+    gobuild.upstream_version: 2.6.2

@@ -1,0 +1,24 @@
+componentBuilds:
+- name: ami-general-ubuntu-2004
+  version: v1.21.14+vmware.2-fips.1-tkg.5-0d3ee3537c6755cb4e61a1a66a75b234
+  channel: "436911358504609501"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/3561
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-general-ubuntu-2004/bom-ami-general-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-0d3ee3537c6755cb4e61a1a66a75b234.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-0d3ee3537c6755cb4e61a1a66a75b234-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-0d3ee3537c6755cb4e61a1a66a75b234-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-0d3ee3537c6755cb4e61a1a66a75b234-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-0d3ee3537c6755cb4e61a1a66a75b234-provenance_result.txt
+  cachehash: 22b7bbd4c36be828088ed7cdf2761a00
+  publishhash: 367c6af81c0b09e9841c9c749a141d0f
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: baf534da10fea37e31c60543b5aecf10cc7f75d1
+    jenkins.UBUNTU_2004_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-stig-hardening.git
+    jenkins.UBUNTU_2004_STIG_VERSION: 04d8e41453a83bb62e1eb145ca7537ac54652b29

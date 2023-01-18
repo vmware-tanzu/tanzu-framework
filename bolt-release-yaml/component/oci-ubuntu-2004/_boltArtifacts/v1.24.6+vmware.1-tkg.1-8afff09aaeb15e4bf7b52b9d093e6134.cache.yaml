@@ -1,0 +1,8 @@
+name: oci-ubuntu-2004
+imageCaches:
+- version: v1.24.6+vmware.1-tkg.1-8afff09aaeb15e4bf7b52b9d093e6134
+  channel: "432679883492034466"
+  hash: 4bf4d39fe15fa8bcd8f2959101b0a6dc
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-oci/118
+  buildNumber: "118"
+  buildStatus: SUCCEEDED

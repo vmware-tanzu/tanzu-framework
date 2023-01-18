@@ -1,0 +1,7 @@
+name: kube-state-metrics
+unmanagedComponents:
+  - version: v1.9.5+vmware.1
+    gobuildBranch: vmware-1.9.5
+    dependencies:
+      gobuild.golangVersion: 1.14.2
+      gobuild.linux_hosttype: linux-centos72-gc32

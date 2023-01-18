@@ -1,0 +1,10 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'build antrea new components '
+componentReferences:
+  - name: antrea
+    version:
+      - v1.5.3+vmware.3-standard
+  - name: antrea-package
+    version:
+      - v1.5.3-tkg.2-antrea-standard-zshippable

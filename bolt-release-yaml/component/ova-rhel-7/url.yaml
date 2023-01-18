@@ -1,0 +1,2 @@
+name: ova-rhel-7
+jenkinsJobName: image-pipelines/job/tkgm-build-ova

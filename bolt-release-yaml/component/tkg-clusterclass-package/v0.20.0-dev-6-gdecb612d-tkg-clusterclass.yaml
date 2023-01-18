@@ -1,0 +1,19 @@
+name: tkg-clusterclass-package
+packages:
+- version: v0.20.0-dev-6-gdecb612d-tkg-clusterclass
+  upstreamCommit: decb612d736b87ffe16b3bbe355853b4d0949395
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~a8ac88a58940f3665aca5cf79e10d97483993493
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.20.0-dev-6-gdecb612d
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.20.0-dev-6-gdecb612d

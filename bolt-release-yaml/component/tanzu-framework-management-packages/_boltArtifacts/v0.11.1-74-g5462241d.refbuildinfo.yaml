@@ -1,0 +1,21 @@
+componentBuilds:
+- name: featuregates-package
+  version: v0.11.1-74-g5462241d-featuregates
+  channel: "390919499492162080"
+  url: https://buildweb.eng.vmware.com/ob/19228349/
+  artifactURL:
+    featuregates.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/featuregates:v0.11.1-74-g5462241d_vmware.1
+      sha256: 1bc06e04986563c10ce38c3de5c1c347e43068647585acf4b11f7be6264a9400
+  cachehash: 56538607fc3b2f6fe82ea0a107a88ace
+  publishhash: b18039830ec752877daef8e6ef1178e5
+- name: core-management-plugins-package
+  version: v0.11.1-74-g5462241d-core-mgmt-plugins
+  channel: "390919499492162080"
+  url: https://buildweb.eng.vmware.com/ob/19228351/
+  artifactURL:
+    core-management-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/core-management-plugins:v0.11.1-74-g5462241d_vmware.1
+      sha256: 3f3c0ff43929499c007bd5625448a14b0a06cd08980dcfd575a88e379521de3a
+  cachehash: 6436a67f32d7039f26f02eabf4d98744
+  publishhash: 0ecf4d581065b27bd73a811ba24a7c7e

@@ -1,0 +1,22 @@
+name: ami-gov-ubuntu-2004
+imageCaches:
+- version: v1.21.1+vmware.3-tkg.0-10327272927181061035
+  channel: "356465774908418180"
+  bomAMI:
+    ami:
+      us-gov-east-1:
+      - id: ami-0f535444a89dce9ec
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      us-gov-west-1:
+      - id: ami-093092a02b07e4a49
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+  hash: "14260285782614272021"
+  url: https://kscom.svc.eng.vmware.com/job/build-ami-gov-v1alpha2/238
+  buildNumber: "238"
+  buildStatus: SUCCEEDED

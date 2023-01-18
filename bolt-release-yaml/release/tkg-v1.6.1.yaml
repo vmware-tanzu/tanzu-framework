@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: tkg 1.6.1 rtm release
+componentReferences:
+- name: tkg_release
+  version:
+  - v1.6.1

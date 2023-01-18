@@ -1,0 +1,7 @@
+name: cni_plugins
+goBuildComponentLocks:
+- version: v1.1.0+vmware.1-fips.1
+  gobuildBranch: 403285340321770571-v1.1.0+vmware.1-fips.1
+  gobuildHeadCommit: a83ab44459137f5fc2e04b62b813c09b0964a7eb
+  hash: 1ec97a5eff532d6d62e37c5136a9cb61
+  componentLockReferences: []

@@ -1,0 +1,10 @@
+name: load-balancer-and-ingress-service-package
+goBuildComponentLocks:
+- version: v1.6.1+vmware.1-tkg.2-ako-zshippable
+  gobuildBranch: 384267674311524251-v1.6.1+vmware.1-tkg.2-ako-zshippable
+  gobuildHeadCommit: df034beed22fb6d8231d68be9ce34b34f5da7756
+  hash: 28d9bef1787a03c0b98e6901feb5fa01
+  componentLockReferences:
+  - name: load-balancer-and-ingress-service
+    version: v1.6.1+vmware.1
+    lockHash: 113e34c48f25b5ba1c3dcd51a20afea5

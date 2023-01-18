@@ -1,0 +1,14 @@
+name: kscom_release
+aggregators:
+- version: v1.20.15+vmware.1-fips.1
+  gobuildBaseBranch: vmware-1.18.0+vmware.0~897b90aa8719887d9408116a820b497f23f617cc
+  dependencies:
+    gobuild.linux_hosttype: linux-centos8
+  componentReferences:
+  - name: kubernetes
+    version:
+    - v1.20.15+vmware.2-fips.1
+  - name: containerd
+    version:
+    - v1.5.9+vmware.2-fips.1
+

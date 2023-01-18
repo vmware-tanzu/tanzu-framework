@@ -1,0 +1,5 @@
+name: tkr-compatibility
+bomLocks:
+- version: v18-v1.6.0-rc.3
+  hash: 38a2d68766311f793bb0d0eafc342413
+  componentLockReferences: []

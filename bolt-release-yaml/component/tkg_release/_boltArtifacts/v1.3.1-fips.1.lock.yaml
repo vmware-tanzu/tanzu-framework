@@ -1,0 +1,10 @@
+name: tkg_release
+goBuildComponentLocks:
+- version: v1.3.1-fips.1
+  gobuildBranch: 367440136578815211-v1.3.1-fips.1
+  gobuildHeadCommit: a9a879992ba986787b235560c2e416bf39393f74
+  hash: "3373723018498034492"
+  componentLockReferences:
+  - name: tanzu_core
+    version: v1.3.1-fips.1
+    lockHash: "3480260871636163840"

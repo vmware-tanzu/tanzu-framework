@@ -1,0 +1,4 @@
+name: kapp-controller
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_kapp-controller.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kapp-controller.git
+gobuildTarget: cayman_kapp-controller

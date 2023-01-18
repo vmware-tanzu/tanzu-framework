@@ -1,0 +1,15 @@
+name: coredns
+managedComponents:
+- version: v1.8.4+vmware.1
+  upstreamTag: v1.8.4
+  mirrorCherryPicks:
+  - sha: 7ce712e9f5a5d4e94ae8287f4e970e4bbe38fd39
+  - sha: cfbf352d18f8137b4343a1abe836e859bb73627a
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~c764f630e863306d286d8d91c4f453115a801fc6
+  dependencies:
+    gobuild.base_image: debian-base-amd64:buster-v1.8.0
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.16.6
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8

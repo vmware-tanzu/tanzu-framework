@@ -1,0 +1,7 @@
+name: azuredisk-csi-driver
+goBuildComponentLocks:
+- version: v1.5.0+vmware.1
+  gobuildBranch: 365575835408715873-v1.5.0+vmware.1
+  gobuildHeadCommit: 757bc182d8b30e4ac45e7cd24e9a17f8db2a52e4
+  hash: 365bdb7fcfdba6a680f3f2643070f38c
+  componentLockReferences: []

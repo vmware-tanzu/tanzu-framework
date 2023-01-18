@@ -1,0 +1,23 @@
+componentBuilds:
+- name: ova-tinytkg-photon-3
+  version: v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3
+  channel: "439552966966385433"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/3435
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439552966966385433/component/ova-tinytkg-photon-3/bom-ova-tinytkg-photon-3-v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439552966966385433/component/ova-tinytkg-photon-3/ova-tinytkg-photon-3-v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439552966966385433/component/ova-tinytkg-photon-3/photon-3-kube-v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439552966966385433/component/ova-tinytkg-photon-3/ova-tinytkg-photon-3-v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439552966966385433/component/ova-tinytkg-photon-3/ova-photon-3-v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3-provenance_result.txt
+  cachehash: eb4584242fe153418fd5a42c4d9c9864
+  publishhash: d71c0fddaf0ababc01cd7b75204b455e
+  configDependencies:
+    base_iso_sha: 76fbe13df3f7340c94cf5706a0ec33ffc377c47e
+    base_iso_url: http://10.163.0.228/kscom-generic-local/isos/photon-minimal-3.0-rev3-u1.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 96cc28bb2a1a478a1dd5fe3b5d4b2ec33b317358
+    jenkins.TINY_TKG: "true"

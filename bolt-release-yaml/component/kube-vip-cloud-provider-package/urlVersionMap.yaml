@@ -1,0 +1,11 @@
+versionMap:
+  v0.0.4+vmware.1-tkg.1-kube-vip-cp-fc.1: url.yaml
+  v0.0.4+vmware.1-tkg.1-kube-vip-cp-fc.2: url.yaml
+  v0.0.4+vmware.1-tkg.1-kube-vip-cp-rc.1: url.yaml
+  v0.0.4+vmware.1-tkg.1-kube-vip-cp-zshippable: url.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-20230103: url.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-20230112: url.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-20230114: url.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-rc.2: url.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-rc.3: url.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-zshippable: url.yaml

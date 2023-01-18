@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: "projects-stg.registry.vmware.com/tkg"
+description: "one off build for CIBG"
+componentReferences:
+  - name: tkr-bom
+    version:
+      - v1.22.11+vmware.2-tkg.2

@@ -1,0 +1,16 @@
+# publish-tkgs-1.21.yaml publishes ccmManager image in tar, v1.21 addon yaml needed for TKGS
+name: cloud_provider_vsphere
+publish:
+  - name: ccmControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cloud_provider_vsphere/images/cloud-provider-vsphere-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cloud_provider_vsphere/images/cloud-provider-vsphere-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: ccm/manager:$UNDERSCOREVERSION
+  - name: cloud_provider_vsphere-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cloud_provider_vsphere/images/cloud-provider-vsphere-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/cloud_provider_vsphere/$VERSION/publish/cloud_provider_vsphere.tar
+  - name: cloud_provider_vsphere-1.21-addon-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.21/cloud-controller-manager.yaml
+    destinationPath: $CHANNEL/image-builder/cloud_provider_vsphere/$VERSION/publish/add-on/1.21/cloud-controller-manager.yaml

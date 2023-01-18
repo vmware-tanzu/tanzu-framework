@@ -1,0 +1,16 @@
+componentBuilds:
+- name: azurefile-csi-driver
+  version: v1.21.0+vmware.1
+  channel: "433520760561106424"
+  url: https://buildweb.eng.vmware.com/ob/20762232/
+  artifactURL:
+    azurefileCsiDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/azurefile-csi-driver:v1.21.0_vmware.1
+      sha256: 6f1bda15a235f585c0c66a14d8c6e6bc3ef1cdc6b343b9c2aa51b687cae5765e
+  cachehash: 374240d5bd8fbbcdcd5a90939f3b6599
+  publishhash: 13b5bbac41775ff2e2b75759ed9a4e9f
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v1.21.0+vmware.1

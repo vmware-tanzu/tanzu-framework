@@ -1,0 +1,20 @@
+name: ova-tinytkg-photon-3
+images:
+- version: v1.24.6+vmware.1-tiny.1-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f
+  osinfo:
+    name: photon
+    version: "3"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: f7391e53eed764e267f3c56ee90282021dd3ee5b
+  componentReferences:
+  - name: tinykube
+    version:
+    - v1.24.6+vmware.1-tinykube.2
+  dependencies:
+    base_iso_sha: 76fbe13df3f7340c94cf5706a0ec33ffc377c47e
+    base_iso_url: http://10.163.0.228/kscom-generic-local/isos/photon-minimal-3.0-rev3-u1.iso
+    jenkins.PHOTON3_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/photon-3-stig-hardening.git
+    jenkins.PHOTON3_STIG_VERSION: 8cd1ee34346dbd5ebc6abe09cc519fe8216c6335
+    jenkins.TINY_TKG: true
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 29743bff8dd91a3b50ef193b7b8d7f13ee3af5ac

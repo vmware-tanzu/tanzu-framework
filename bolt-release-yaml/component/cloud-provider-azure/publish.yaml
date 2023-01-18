@@ -1,0 +1,12 @@
+name: cloud-provider-azure
+publish:
+  - name: ccmAzureControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cloud-provider-azure/images/azure-cloud-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cloud-provider-azure/images/cloud-provider-azure-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: azure-cloud-controller-manager:$UNDERSCOREVERSION
+  - name: ccmAzureNodeImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cloud-provider-azure/images/azure-cloud-node-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cloud-provider-azure/images/cloud-provider-azure-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: azure-cloud-node-manager:$UNDERSCOREVERSION

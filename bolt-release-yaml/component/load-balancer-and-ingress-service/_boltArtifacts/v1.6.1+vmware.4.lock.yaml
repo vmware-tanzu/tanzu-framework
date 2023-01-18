@@ -1,0 +1,7 @@
+name: load-balancer-and-ingress-service
+goBuildComponentLocks:
+- version: v1.6.1+vmware.4
+  gobuildBranch: tkg-master
+  gobuildHeadCommit: 9c76e45f53b81151916ff6fe9b28d7e9400e5478
+  hash: 915eee6f33aeb7d4c6851f5bcf4716d9
+  componentLockReferences: []

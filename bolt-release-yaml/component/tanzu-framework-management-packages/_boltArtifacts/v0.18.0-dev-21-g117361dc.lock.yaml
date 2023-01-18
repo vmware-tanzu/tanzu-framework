@@ -1,0 +1,31 @@
+name: tanzu-framework-management-packages
+goBuildComponentLocks:
+- version: v0.18.0-dev-21-g117361dc
+  gobuildBranch: 396831990831148856-v0.18.0-dev-21-g117361dc-tf-mgmt-packages
+  gobuildHeadCommit: 26a898afe00fcb318ec7fc6fe5f24cd3b799f091
+  hash: 79cf120a91a43dcef5183efc24e6ed30
+  componentLockReferences:
+  - name: featuregates-package
+    version: v0.18.0-dev-21-g117361dc-featuregates
+    lockHash: 3ae8fa26d501076bf43201e6ec5a2c42
+  - name: core-management-plugins-package
+    version: v0.18.0-dev-21-g117361dc-core-mgmt-plugins
+    lockHash: 4f78bce9febf3fce659e7132999e5bea
+  - name: tkg-package
+    version: v0.18.0-dev-21-g117361dc-tkg
+    lockHash: 7227034772989db886fe7bfe5ce2c9e4
+  - name: tkg-clusterclass-package
+    version: v0.18.0-dev-21-g117361dc-tkg-clusterclass
+    lockHash: 38fe14eb36c876cfec71605efd254821
+  - name: tkg-clusterclass-aws-package
+    version: v0.18.0-dev-21-g117361dc-tkg-clusterclass-aws
+    lockHash: 2f0ecfcb1be6dccda27204268af7cc9c
+  - name: tkg-clusterclass-vsphere-package
+    version: v0.18.0-dev-21-g117361dc-tkg-clusterclass-vsphere
+    lockHash: 35486faa2b9f525e95fd8f476778224d
+  - name: tkg-clusterclass-azure-package
+    version: v0.18.0-dev-21-g117361dc-tkg-clusterclass-azure
+    lockHash: f36568effe6d95fabdd0eea4d6e7bcb5
+  - name: tkg-clusterclass-docker-package
+    version: v0.18.0-dev-21-g117361dc-tkg-clusterclass-docker
+    lockHash: 2a3fd6bb990aca0f7e8568bbf80a25f5

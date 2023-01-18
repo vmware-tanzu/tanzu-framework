@@ -1,0 +1,52 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.23.8+vmware.2-tkg.1-tf-v0.25.1
+  gobuildBranch: 427263834957289364-v1.23.8+vmware.2-tkg.1-tf-v0.25.1-tkg-core-packages
+  gobuildHeadCommit: 261d6e4eeb43dfcb21688ce1f6ff302e7a9a7ad8
+  hash: 5b2a5310e9bf5864c0ccca47357e497b
+  componentLockReferences:
+  - name: addons-manager-package
+    version: v1.6.0+vmware.1-tkg.1-addons-manager-tf-v0.25.1
+    lockHash: b66cf254b8fcd258ebb55edffe3a0831
+  - name: ako-operator-package
+    version: v1.6.0+vmware.16-tkg.1-ako-operator-tf-v0.25.1
+    lockHash: e31ca45ad18a763bb8548d4d0b2c43a4
+  - name: load-balancer-and-ingress-service-package
+    version: v1.7.2+vmware.2-tkg.1-ako-tf-v0.25.1
+    lockHash: 3248d0d3bf56df5c62b06dcb376c591f
+  - name: antrea-package
+    version: v1.5.3-tkg.1-antrea-standard-tf-v0.25.1
+    lockHash: a70ef0e1cf6b27ab8c967b2fa8a691f0
+  - name: calico-package
+    version: v3.22.1+vmware.1-tkg.1-calico-tf-v0.25.1
+    lockHash: 3c606f46ac5343fa14a2dc034a74eede
+  - name: vsphere-csi-package
+    version: v2.5.2+vmware.1-tkg.1-vsphere-csi-tf-v0.25.1
+    lockHash: e69c8d89869a393d0e25f36fc4b59b5c
+  - name: vsphere-pv-csi-package
+    version: v2.4.2+vmware.1-tkg.1-vsphere-pv-csi-tf-v0.25.1
+    lockHash: 71bd896e91a1564ad7b9e9a77c45b4a8
+  - name: vsphere-cpi-package
+    version: v1.23.1+vmware.1-tkg.1-vsphere-cpi-tf-v0.25.1
+    lockHash: 093d76bd27afaf688c7807f45712dfd2
+  - name: metrics-server-package
+    version: v0.6.1+vmware.1-tkg.1-metrics-server-tf-v0.25.1
+    lockHash: 8366b9b8c33ea2ed854805d59ac2d163
+  - name: kapp-controller-package
+    version: v0.38.4+vmware.1-tkg.1-kapp-controller-tf-v0.25.1
+    lockHash: 08603694f6c20966c1add84f5731e63b
+  - name: secretgen-controller-package
+    version: v0.9.1+vmware.1-tkg.1-secgen-ctl-tf-v0.25.1
+    lockHash: 9bff549e972ed7c9e662b1f14c6c2975
+  - name: pinniped-package
+    version: v0.12.1+vmware.1-tkg.1-pinniped-tf-v0.25.1
+    lockHash: e942f0fb4a2d0c6caf429a958390465e
+  - name: guest-cluster-auth-service-package
+    version: v1.0.0-tkg.1-gc-auth-service-tf-v0.25.1
+    lockHash: ac9b8f39906439d22ba4f09a46703744
+  - name: aws-ebs-csi-driver-package
+    version: v1.8.0+vmware.1-tkg.1-aws-ebs-csi-tf-v0.25.1
+    lockHash: fdba12818bf7b73bd8e138969e043863
+  - name: azuredisk-csi-driver-package
+    version: v1.19.0+vmware.1-tkg.1-azuredisk-csi-tf-v0.25.1
+    lockHash: 91640ab71a408dbdaf7134c5ab0bea70

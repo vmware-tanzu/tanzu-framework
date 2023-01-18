@@ -1,0 +1,25 @@
+componentBuilds:
+- name: ami-gov-ubuntu-2004
+  version: v1.21.14+vmware.2-fips.1-tkg.1-ca4f3b98d191552bd1a464a9bbc584e9
+  channel: "421723839689427360"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/2746
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-gov-ubuntu-2004/bom-ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.1-ca4f3b98d191552bd1a464a9bbc584e9.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.1-ca4f3b98d191552bd1a464a9bbc584e9-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.1-ca4f3b98d191552bd1a464a9bbc584e9-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.1-ca4f3b98d191552bd1a464a9bbc584e9-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.1-ca4f3b98d191552bd1a464a9bbc584e9-provenance_result.txt
+  cachehash: 99f374e98d84695713a35f9859471759
+  publishhash: 7ac7828afdf1bda432400e35b5619835
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 88edce31a8cfc66cd906fa364d7ffa7ee9b70cf4
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 214b6bb72386cd4038532eda81b8f9984b165d33

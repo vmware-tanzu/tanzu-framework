@@ -1,0 +1,18 @@
+name: kubernetes_release
+managedComponents:
+- version: v0.12.0+vmware.7
+  upstreamTag: v0.12.0
+  mirrorCherryPicks:
+  - sha: 465681e19a398a3654d0301709a652818b04a40e
+    description: Replace `+` with `_` in `TAG`
+  - sha: 77d1421e7dd1bab792df1ce88d2039101ff66f4c
+    description: Enable golang image override in kube-cross build
+  - sha: 8b6cee0081fca2327e0ef67b8b9de4a0a48b8149
+    description: Enable docker buildx qemu image override
+  gobuildBaseBranch: vmware-0.12.0+vmware.0~844f5a78e40e7a8406f63829f725663f5a2a9343
+  dependencies:
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.17.10
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8

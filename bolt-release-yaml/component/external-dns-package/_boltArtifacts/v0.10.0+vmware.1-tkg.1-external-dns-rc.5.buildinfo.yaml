@@ -1,0 +1,11 @@
+componentBuilds:
+- name: external-dns-package
+  version: v0.10.0+vmware.1-tkg.1-external-dns-rc.5
+  channel: "389193897177253647"
+  url: https://buildweb.eng.vmware.com/ob/19168997/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.10.0_vmware.1-tkg.1-rc.5
+      sha256: ec07c0a821f66d9f2e65e03675ad2c60a982a3b7a8a63f1dc3fe11bcfdb586ec
+  cachehash: 3cfead312f23394947b7b10bba6d7dd3
+  publishhash: 19b8613fad519068fc2d01dbd771545b

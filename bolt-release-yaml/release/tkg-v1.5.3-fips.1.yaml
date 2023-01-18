@@ -1,0 +1,8 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: tkg release yaml for 1.5.3-fips.1
+componentReferences:
+- name: tkg_release
+  version:
+  - v1.5.3-fips.1
+

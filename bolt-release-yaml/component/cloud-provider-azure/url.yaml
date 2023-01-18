@@ -1,0 +1,8 @@
+name: cloud-provider-azure
+upstreamURL: https://github.com/kubernetes-sigs/cloud-provider-azure.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_cloud-provider-azure.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_cloud-provider-azure.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_cloud-provider-azure.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_cloud-provider-azure.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_cloud-provider-azure.git
+gobuildTarget: cayman_cloud-provider-azure

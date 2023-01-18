@@ -1,0 +1,9 @@
+name: tkr-compatibility
+boms:
+- version: v6
+  type: compatibility
+  compatibilityMetadata:
+    version: v6
+  dependencies:
+    rtmVersions:
+    - v1.4.0

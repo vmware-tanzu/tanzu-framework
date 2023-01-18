@@ -1,0 +1,17 @@
+name: ova-photon-3
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-photon-3/bom-ova-photon-3-$VERSION.yaml
+  - name: file-image-osstp
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-photon-3/ova-photon-3-$VERSION-osstpmgt.yaml
+  - name: file-image-ova
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-photon-3/photon-3-kube-$VERSION.ova
+  - name: file-image-srp-provenance
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-photon-3/ova-photon-3-$VERSION-provenance.json
+  - name: file-image-srp-provenance-result
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-photon-3/ova-photon-3-$VERSION-provenance_result.txt

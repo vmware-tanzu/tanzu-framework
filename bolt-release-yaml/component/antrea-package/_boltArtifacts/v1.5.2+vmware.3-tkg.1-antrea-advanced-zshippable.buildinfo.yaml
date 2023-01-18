@@ -1,0 +1,23 @@
+componentBuilds:
+- name: antrea-package
+  version: v1.5.2+vmware.3-tkg.1-antrea-advanced-zshippable
+  channel: "410354369666491224"
+  url: https://buildweb.eng.vmware.com/ob/19891902/
+  artifactURL:
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v1.5.2_vmware.3-tkg.1-advanced-zshippable
+      sha256: 8c260a06282b7da365c4a60701ac68a69048fdfde43ea51033a144922a219e8e
+  cachehash: 0652aaf4cd060b7be63ba9595ad8a2ee
+  publishhash: 3c38157278462aa91841f3ab1a6c790a
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/antrea-advanced-debian:v1.5.2_vmware.3
+    gobuild.downstream_version: vmware.3-tkg.1-advanced-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: antrea
+    gobuild.package_type: core
+    gobuild.upstream_image_0: antrea/antrea-ubuntu:v1.5.2
+    gobuild.upstream_version: 1.5.2

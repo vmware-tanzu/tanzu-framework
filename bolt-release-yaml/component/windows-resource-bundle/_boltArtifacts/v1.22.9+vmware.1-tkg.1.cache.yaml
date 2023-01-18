@@ -1,0 +1,7 @@
+name: windows-resource-bundle
+goBuildComponentCaches:
+- version: v1.22.9+vmware.1-tkg.1
+  url: https://buildweb.eng.vmware.com/ob/19833179/
+  buildNumber: bora-19833179
+  buildStatus: SUCCEEDED
+  hash: a283c7a5b61ab74bb1deb988302e9b23

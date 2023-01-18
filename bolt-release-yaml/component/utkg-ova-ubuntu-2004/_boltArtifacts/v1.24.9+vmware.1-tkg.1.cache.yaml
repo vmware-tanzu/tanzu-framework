@@ -1,0 +1,9 @@
+name: utkg-ova-ubuntu-2004
+imageCaches:
+- version: v1.24.9+vmware.1-tkg.1
+  channel: "441788910767481371"
+  imageCacheOVA: {}
+  hash: 89f90da9c8d3990d3248c6dd3dd17ed5
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/utkg-build-ova/944
+  buildNumber: "944"
+  buildStatus: SUCCEEDED

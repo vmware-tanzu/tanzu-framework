@@ -1,0 +1,15 @@
+componentBuilds:
+- name: grafana
+  version: v7.5.7+vmware.1
+  channel: "368427556086537656"
+  url: https://buildweb.eng.vmware.com/ob/18464512/
+  artifactURL:
+    grafana-cli:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18464512/publish/lin64/grafana/executables/grafana-cli-v7.5.7+vmware.1.gz
+    grafana-server:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18464512/publish/lin64/grafana/executables/grafana-server-v7.5.7+vmware.1.gz
+    grafanaImage:
+      url: projects-stg.registry.vmware.com/tkg/grafana/grafana:v7.5.7_vmware.1
+      sha256: df8f25cc9ee43d6ea4c22f9c6c46644e2b9a485562dd0dafe831b5b582ac0a71
+  cachehash: 2628c2be291689a903e7dbd851f2d949
+  publishhash: ffd7e1a38294bc5fb2676dc3214b984e

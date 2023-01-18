@@ -1,0 +1,52 @@
+name: prometheus-package
+packages:
+- version: v2.37.0+vmware.1-tkg.1-prometheus-20230103
+  upstreamCommit: d1ef1f9e8f071daa112b3f7c38ebfdd2abc17b7a
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: configmap-reload
+    version:
+    - v0.7.1+vmware.1
+  - name: alertmanager
+    version:
+    - v0.24.0+vmware.1
+  - name: prometheus
+    version:
+    - v2.37.0+vmware.1
+  - name: pushgateway
+    version:
+    - v1.4.3+vmware.1
+  - name: kube-state-metrics
+    version:
+    - v2.6.0+vmware.1
+  - name: prometheus_node_exporter
+    version:
+    - v1.4.0+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "prometheus").artifactURL.prometheusImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "configmap-reload").artifactURL.configmapReloadImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "alertmanager").artifactURL.alertmanagerImage.url}}'
+    gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "pushgateway").artifactURL.pushgatewayImage.url}}'
+    gobuild.downstream_image_4: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kube-state-metrics").artifactURL.kubeStateMetricsImage.url}}'
+    gobuild.downstream_image_5: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "prometheus_node_exporter").artifactURL.prometheusNodeExporterImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.1-20230103
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: prometheus
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: prom/prometheus:v2.37.0
+    gobuild.upstream_image_1: jimmidyson/configmap-reload:v0.7.1
+    gobuild.upstream_image_2: prom/alertmanager:v0.24.0
+    gobuild.upstream_image_3: prom/pushgateway:v1.4.3
+    gobuild.upstream_image_4: bitnami/kube-state-metrics:2.6.0
+    gobuild.upstream_image_5: quay.io/prometheus/node-exporter:v1.4.0
+    gobuild.upstream_version: 2.37.0

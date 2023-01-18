@@ -1,0 +1,7 @@
+name: grafana-package
+goBuildComponentCaches:
+- version: v7.5.16+vmware.1-tkg.2-grafana-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20625092/
+  buildNumber: bora-20625092
+  buildStatus: SUCCEEDED
+  hash: bd530065f9e9d4307aa02ed6becadf20

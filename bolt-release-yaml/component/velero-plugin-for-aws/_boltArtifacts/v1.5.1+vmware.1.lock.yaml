@@ -1,0 +1,7 @@
+name: velero-plugin-for-aws
+goBuildComponentLocks:
+- version: v1.5.1+vmware.1
+  gobuildBranch: vmware-1.5.1
+  gobuildHeadCommit: 893436729a7dd7e6b2e42cc2713f66258835aa84
+  hash: 8eb94b0ba044c9cef962d1252b325bf2
+  componentLockReferences: []

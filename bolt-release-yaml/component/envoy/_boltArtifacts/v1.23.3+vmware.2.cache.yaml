@@ -1,0 +1,7 @@
+name: envoy
+goBuildComponentCaches:
+- version: v1.23.3+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/21066049/
+  buildNumber: bora-21066049
+  buildStatus: SUCCEEDED
+  hash: c4d7bb4a97e00af36c832812ace37aeb

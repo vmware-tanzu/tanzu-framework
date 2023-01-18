@@ -1,0 +1,12 @@
+name: alertmanager
+publish:
+  - name: alertmanagerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/alertmanager/images/alertmanager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/alertmanager/images/alertmanager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: prometheus/alertmanager:$UNDERSCOREVERSION
+nonpublish:
+  - name: alertmanager-file
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/alertmanager/executables/alertmanager-$VERSION.gz
+

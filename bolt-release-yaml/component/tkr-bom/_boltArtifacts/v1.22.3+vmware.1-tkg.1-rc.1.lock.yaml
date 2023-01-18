@@ -1,0 +1,107 @@
+name: tkr-bom
+bomLocks:
+- version: v1.22.3+vmware.1-tkg.1-rc.1
+  hash: 8cfecf0f0cfeb01c71e26bc7ab5b1e3e
+  componentLockReferences:
+  - name: ako-operator
+    version: v1.5.0+vmware.1
+    lockHash: 7621e8fb1ea25536aa91cb7d2a3d69d3
+  - name: load-balancer-and-ingress-service
+    version: v1.6.1+vmware.1
+    lockHash: 113e34c48f25b5ba1c3dcd51a20afea5
+  - name: antrea
+    version: v1.2.3+vmware.2
+    lockHash: 00e0761cb20e82818277fb09f57f771a
+  - name: tkg-core-packages
+    version: v1.22.3+vmware.1-tkg.1-rc.1
+    lockHash: 3f9839f5baf0b4020c08c82d360f73e7
+  - name: calico_all
+    version: v3.19.1+vmware.1
+    lockHash: 60866f3032a9b4fec5640c691d19d24d
+  - name: cloud_provider_vsphere
+    version: v1.22.3+vmware.1
+    lockHash: f217d39fc6fcefcad32aaa6bff47363c
+  - name: csi_attacher
+    version: v3.2.0+vmware.1
+    lockHash: b6a47e9a04b0695c9ec06b843dc9b77e
+  - name: csi_livenessprobe
+    version: v2.2.0+vmware.1
+    lockHash: b527cdf7bf542e663004dca6634e2b5f
+  - name: csi_node_driver_registrar
+    version: v2.1.0+vmware.1
+    lockHash: 376cf72fbf107bf99272f469cf3b2532
+  - name: kubernetes-csi_external-resizer
+    version: v1.1.0+vmware.1
+    lockHash: 68dd6945cbed208a6384bd140ef246e8
+  - name: csi_provisioner
+    version: v2.2.0+vmware.1
+    lockHash: eb64c8886564c785903f27f873af596e
+  - name: vsphere_csi_driver
+    version: v2.3.0+vmware.1
+    lockHash: ac81e5c3f0c02c9f4d1d0c25634ae0aa
+  - name: dex
+    version: v2.27.0+vmware.1
+    lockHash: 7fadc9716955155af933f02b1769b863
+  - name: kapp-controller
+    version: v0.28.0+vmware.1
+    lockHash: 19c499fee79e8148821ed55c7da1d91a
+  - name: carvel-secretgen-controller
+    version: v0.5.0+vmware.1
+    lockHash: fd7529031a0da44185537903dd3ed59a
+  - name: metrics-server
+    version: v0.5.1+vmware.1
+    lockHash: 85f4ae8895491d3c6cb1b7873c542929
+  - name: pinniped
+    version: v0.12.0+vmware.1
+    lockHash: 94af29364bd7f9a026d93e919e84aa7a
+  - name: tanzu-framework-addons
+    version: v0.11.0
+    lockHash: bd4f2b3b3b9c9ad60cbc039f3f760c13
+  - name: kubernetes
+    version: v1.22.3+vmware.1
+    lockHash: a564ed0d6f599563e0bea91b1a83df01
+  - name: cni_plugins
+    version: v0.9.1+vmware.5
+    lockHash: 69fec54335042ddc8f52349ec810ac88
+  - name: coredns
+    version: v1.8.4+vmware.5
+    lockHash: 12be04a68c7a95f3e7ea8c994d2588d2
+  - name: cri_tools
+    version: v1.21.0+vmware.5
+    lockHash: 2ab02c994e31d4cab8e1025c14c01cc1
+  - name: etcd
+    version: v3.5.0+vmware.5
+    lockHash: ea793c2d16ccf8abd3a8a6bc3584353b
+  - name: containerd
+    version: v1.5.7+vmware.1
+    lockHash: ea42959de937043838686cf579afc47f
+  - name: kubernetes-sigs_kind
+    version: v1.22.3+vmware.1_v0.11.1
+    lockHash: 7f231c3e28604811c78661b8719c0dab
+  - name: ami-general-amazon-2
+    version: v1.22.3+vmware.1-tkg.1-6caa63c3ce20012550d5f23b4456e7ed
+    lockHash: 14583943af78c23ed9d58ee038bdb17d
+  - name: ami-general-ubuntu-2004
+    version: v1.22.3+vmware.1-tkg.1-555131ef572a091ac9d96fb187262fbb
+    lockHash: e8106d8b9f4f75f017c307e0677494ad
+  - name: ami-gov-amazon-2
+    version: v1.22.3+vmware.1-tkg.1-ffbe2141a55dcb30fdc6254764d9f67c
+    lockHash: 64a9154a4921d95e0cd6e85d9ab8d8cd
+  - name: ami-gov-ubuntu-2004
+    version: v1.22.3+vmware.1-tkg.1-95caaf2221858d6c8e8cf84c25bf9887
+    lockHash: b00377fa7f8bcff9b9ad085b41458b8b
+  - name: azure-ubuntu-1804
+    version: v1.22.3+vmware.1-tkg.1-b9c07ef1af975067ba143dea58013b94
+    lockHash: e203d0786fd6726c398547816d98bcfd
+  - name: azure-ubuntu-2004
+    version: v1.22.3+vmware.1-tkg.1-035fad5d401018bb5b8445675e8362d9
+    lockHash: 393d54647d9629b5ab2c34449c5734f4
+  - name: ova-photon-3
+    version: v1.22.3+vmware.1-tkg.1-ac24bdc98b4b97e3f4e8f4d6f7aa75c6
+    lockHash: 1d34cda25a7ecf7bf6d107f2bb114bb2
+  - name: ova-ubuntu-2004
+    version: v1.22.3+vmware.1-tkg.1-9d53fd978df287f6ac8f12e45fafa57d
+    lockHash: b56662f01d34ca1de144a3a272bed501
+  - name: windows-resource-bundle
+    version: v1.22.3+vmware.1-tkg.1-rc.1
+    lockHash: 3a2b6f1e00f16229ecf2bb0303925496

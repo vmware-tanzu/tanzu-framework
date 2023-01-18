@@ -1,0 +1,19 @@
+componentBuilds:
+- name: tinykube
+  version: v1.24.6+vmware.1-tinykube.2
+  channel: "432902490975936967"
+  url: https://buildweb.eng.vmware.com/ob/20642249/
+  artifactURL:
+    tinykube-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432902490975936967/image-builder/tinykube/v1.24.6+vmware.1-tinykube.2/publish/lin64/tinykube/executables/tinykube-linux-amd64-v1.24.6_vmware.1-tinykube.2.tar
+      sha256: 2761e881b789e199c420699574dec3a9e17fd227783c43d62b7b223df3f88f2b
+    tinykubeExecutable:
+      url: projects-stg.registry.vmware.com/tkg/tinykube/tinykube-linux-amd64:v1.24.6_vmware.1-tinykube.2
+      sha256: 3a1fdc5faa60f669d2f6ed7b3b374f9a5b24daf528e08dfc2c659d4255b73b59
+  cachehash: 89e18107e901dfc3f1a428b311102084
+  publishhash: 5d4cb43022eda840b59f818cff3d605e
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.etcdVersion: v3.4.5+vmware.1-tinykube.2
+    gobuild.golangVersion: "1.19"
+    gobuild.noMirror: "true"

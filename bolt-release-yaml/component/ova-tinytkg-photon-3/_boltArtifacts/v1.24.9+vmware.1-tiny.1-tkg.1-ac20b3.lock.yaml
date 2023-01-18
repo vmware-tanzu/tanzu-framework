@@ -1,0 +1,8 @@
+name: ova-tinytkg-photon-3
+imageLocks:
+- version: v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3
+  hash: 0950e40a7514ec14af6673f5c8766bdc
+  componentLockReferences:
+  - name: tinykube
+    version: v1.24.9+vmware.1-tiny.1
+    lockHash: 4422c6c93228e4722b0ae1c9ee2307bf

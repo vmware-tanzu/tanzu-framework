@@ -1,0 +1,13 @@
+componentBuilds:
+- name: alertmanager
+  version: v0.20.0+vmware.1
+  channel: "339509079221207047"
+  url: https://buildweb.eng.vmware.com/ob/16911231
+  artifactURL:
+    alertmanager-file:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-16911231/publish/lin64/alertmanager/executables/alertmanager-v0.20.0+vmware.1.gz
+    alertmanagerImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/alertmanager:v0.20.0_vmware.1
+      sha256: ced8ac46dd201520e4991e0b4cab969859bbb3adfc26cab4ca1befdec97ffe5c
+  cachehash: 250ed75d39dcac2a6518257ff3c44166
+  publishhash: c999aee5fb81245d51aacd67da9c98e7

@@ -1,0 +1,116 @@
+name: tkr-bom
+bomLocks:
+- version: v1.21.13+vmware.1-tkg.2-zshippable
+  hash: 44600c8be897eb35df743693027486d4
+  componentLockReferences:
+  - name: ako-operator
+    version: v1.5.0+vmware.6
+    lockHash: bf5c53b178f370afb3246b23d517fc69
+  - name: load-balancer-and-ingress-service
+    version: v1.6.1+vmware.4
+    lockHash: 37da6c234b0f09d825b37d8a91d5c0df
+  - name: antrea
+    version: v0.13.3+vmware.1
+    lockHash: 2ea69b1e94208b26313e36fb6f8f60d9
+  - name: tkg-core-packages
+    version: v1.21.13+vmware.1-tkg.2-zshippable
+    lockHash: e4673c221889a11aede056156da25135
+  - name: calico_all
+    version: v3.19.1+vmware.1
+    lockHash: 60866f3032a9b4fec5640c691d19d24d
+  - name: cloud_provider_vsphere
+    version: v1.21.3+vmware.1
+    lockHash: 7de7939b8bcb8b6a5f3e60730692bd65
+  - name: csi_attacher
+    version: v3.2.0+vmware.1
+    lockHash: b6a47e9a04b0695c9ec06b843dc9b77e
+  - name: csi_livenessprobe
+    version: v2.2.0+vmware.1
+    lockHash: b527cdf7bf542e663004dca6634e2b5f
+  - name: csi_node_driver_registrar
+    version: v2.1.0+vmware.1
+    lockHash: 376cf72fbf107bf99272f469cf3b2532
+  - name: kubernetes-csi_external-resizer
+    version: v1.1.0+vmware.1
+    lockHash: 68dd6945cbed208a6384bd140ef246e8
+  - name: csi_provisioner
+    version: v2.2.0+vmware.1
+    lockHash: eb64c8886564c785903f27f873af596e
+  - name: vsphere_csi_driver
+    version: v2.3.0+vmware.1
+    lockHash: ac81e5c3f0c02c9f4d1d0c25634ae0aa
+  - name: dex
+    version: v2.27.0+vmware.1
+    lockHash: 7fadc9716955155af933f02b1769b863
+  - name: kapp-controller
+    version: v0.30.1+vmware.1
+    lockHash: 506f423b3d071398e07eecd153ccf1d8
+  - name: carvel-secretgen-controller
+    version: v0.7.1+vmware.1
+    lockHash: 18852d1f8ece65578512f9a852c215f7
+  - name: metrics-server
+    version: v0.5.1+vmware.1
+    lockHash: 85f4ae8895491d3c6cb1b7873c542929
+  - name: pinniped
+    version: v0.4.4+vmware.1
+    lockHash: 128412f16d491187b1b108fab3dfac67
+  - name: pinniped-post-deploy
+    version: v0.10.0
+    lockHash: 61f19f2bb7dc942c8d631653163f77d8
+  - name: tanzu-framework-addons
+    version: v0.11.6-1-g90440e2b
+    lockHash: faf8eb54f6503975aa88e5a11c6d6a5d
+  - name: kubernetes
+    version: v1.21.13+vmware.1
+    lockHash: 6c1fa1f77e5f40487fc3f0c6569f11a4
+  - name: cni_plugins
+    version: v1.1.1+vmware.2
+    lockHash: 6d46aaf822c63d16ed1c4b0f19bbe2ab
+  - name: coredns
+    version: v1.8.6+vmware.6
+    lockHash: 60818e124e9a7b5e88b2b4b21b02f328
+  - name: cri_tools
+    version: v1.20.0+vmware.11
+    lockHash: ce44b593c5b2695c07ef1d55b085e7ae
+  - name: etcd
+    version: v3.4.18+vmware.1
+    lockHash: f86cdcf75080cf0551cae9f38c1fdfc7
+  - name: containerd
+    version: v1.5.11+vmware.1
+    lockHash: e16108eb17425cdd142510c45d951967
+  - name: kubernetes-sigs_kind
+    version: v1.21.13+vmware.1-tkg.1_v0.11.1
+    lockHash: 4f98ce091442579bd5e11db4fb8b3115
+  - name: ami-general-amazon-2
+    version: v1.21.13+vmware.1-tkg.2-4af9d515f8e2cbfe90c9c54b8b614c43
+    lockHash: 9655162529a486cb56171dc31aaa806e
+  - name: ami-general-ubuntu-2004
+    version: v1.21.13+vmware.1-tkg.2-88875c90503401837a1f457032e48846
+    lockHash: a55e2b9ea204336187ec2700e84d0d2d
+  - name: ami-gov-amazon-2
+    version: v1.21.13+vmware.1-tkg.2-db22cc8eeeb0c76ae5fa4b26bbb29d61
+    lockHash: e8d83285bb69aac2999e8aab75950dbc
+  - name: ami-gov-ubuntu-2004
+    version: v1.21.13+vmware.1-tkg.2-e0620643529f845f1c37369b363283ce
+    lockHash: 3afe6d9e086d8241e3a832d8b7d33f98
+  - name: azure-ubuntu-1804
+    version: v1.21.13+vmware.1-tkg.2-e9979f7a7b84217475bb25166dc4f688
+    lockHash: 0ac8a13382dcbbf18c60613c9aebed36
+  - name: azure-ubuntu-1804
+    version: v1.21.13+vmware.1-tkg.2-sig-d7348a86c74770a0078fad240d1f02d7
+    lockHash: 73332d9a34fff640eed2dc80c2bee3af
+  - name: azure-ubuntu-2004
+    version: v1.21.13+vmware.1-tkg.2-fdc538138c54cf8b55f37555720a1c7e
+    lockHash: b66850ea02523751e947da1b77d62ef9
+  - name: azure-ubuntu-2004
+    version: v1.21.13+vmware.1-tkg.2-sig-ee67edd581c2798ec36f3233209a20bc
+    lockHash: 66d81be10e7e36389f57048deb988209
+  - name: ova-photon-3
+    version: v1.21.13+vmware.1-tkg.2-2e638118cc56f23188a5fffd5d5aab29
+    lockHash: 9c42ab966a1e1e4af4232bd233320c7e
+  - name: ova-ubuntu-2004
+    version: v1.21.13+vmware.1-tkg.2-ff0f1048f90caa2389a72d8b18631b97
+    lockHash: 4f1b490a3369dc6aefcc01ce68e0c9bd
+  - name: windows-resource-bundle
+    version: v1.21.13+vmware.1-tkg.2-zshippable
+    lockHash: a5a0d93e6a6c8612dee8000251f59200

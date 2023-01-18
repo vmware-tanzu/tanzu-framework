@@ -1,0 +1,11 @@
+componentBuilds:
+- name: ako-operator-package
+  version: v1.6.0+vmware.4-tkg.1-ako-operator-zshippable
+  channel: "396050768995604402"
+  url: https://buildweb.eng.vmware.com/ob/19400154/
+  artifactURL:
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.6.0_vmware.4-tkg.1-zshippable
+      sha256: 17ba171006470a97c8ea5d3c6df6adc06813aade5da5df96f1c39ea7570b7584
+  cachehash: cbf5c29cdd518340e668cbbca11a276b
+  publishhash: e53f922ccc96191938bdc7d730ac4f37

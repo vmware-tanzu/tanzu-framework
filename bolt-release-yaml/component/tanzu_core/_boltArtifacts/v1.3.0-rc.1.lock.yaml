@@ -1,0 +1,10 @@
+name: tanzu_core
+goBuildComponentLocks:
+- version: v1.3.0-rc.1
+  gobuildBranch: 341264330618062526-v1.3.0-rc.1
+  gobuildHeadCommit: 12a0bc895d8005fed9c01df2e02ce27d6f88cfe5
+  hash: "16362868361545430726"
+  componentLockReferences:
+  - name: tkg-bom
+    version: v1.3.0-rc.1
+    lockHash: "17660591470615235185"

@@ -1,0 +1,20 @@
+name: tanzu-framework
+managedComponents:
+- version: v0.11.0-dev-60-g93165bc1
+  upstreamCommit: 93165bc197eaa7b0585db7e475bf21f04884314c
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~e4c08db867f972e01b2121640e4757200ee5e331
+  dependencies:
+    UpstreamManagementClusterPluginVersion: v0.11.0-dev
+    apiVersion: run.tanzu.vmware.com/v1alpha1
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TANZU_CORE_BUCKET: tanzu-cli-tkg
+    gobuild.TANZU_FORCE_NO_INIT: "true"
+    gobuild.TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH: tkg-compatibility
+    gobuild.TKG_DEFAULT_IMAGE_REPOSITORY: projects.registry.vmware.com/tkg
+    gobuild.DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH: packages/standalone/standalone-plugins
+    gobuild.DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG: v0.11.0-dev-60-g93165bc1_vmware.1
+    gobuild.golangVersion: "1.16"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.tkgBuildContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+    managementClusterPluginVersion: v0.11.0-dev

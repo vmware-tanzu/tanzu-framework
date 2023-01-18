@@ -1,0 +1,8 @@
+name: etcd
+upstreamURL: "https://github.com/etcd-io/etcd.git"
+mirrorSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_coreos_etcd.git"
+mirrorOfficialURL: "git@gitlab.eng.vmware.com:core-build/mirrors_github_coreos_etcd.git"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:core-build/cayman_etcd.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/cayman_etcd.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:core-build/cayman_etcd.git"
+gobuildTarget: "cayman_etcd"

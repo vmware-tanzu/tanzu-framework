@@ -1,0 +1,7 @@
+name: calico-package
+goBuildComponentCaches:
+- version: v3.22.1+vmware.1-tkg.1-calico-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20021536/
+  buildNumber: bora-20021536
+  buildStatus: SUCCEEDED
+  hash: f2da7f8fa17e09e48b098f5fba1c221c

@@ -1,0 +1,7 @@
+name: kubernetes-csi_external-resizer
+goBuildComponentLocks:
+- version: v1.5.0+vmware.1
+  gobuildBranch: vmware-1.5.0
+  gobuildHeadCommit: a08945c31d62ddc4be4db3ae09d1062b91654200
+  hash: 1c879e2697ecd281a56a65df91759dff
+  componentLockReferences: []

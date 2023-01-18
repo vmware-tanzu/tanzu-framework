@@ -1,0 +1,19 @@
+name: byoh-k8s-ubuntu-2004
+goBuildComponentLocks:
+- version: v1.23.8+vmware.2-tkg.1-zshippable
+  gobuildBranch: 417352500593561757-v1.23.8+vmware.2-tkg.1-zshippable-byoh-k8s-ubuntu-2004
+  gobuildHeadCommit: cebf97b78103bac64abd6e454b440ec708226876
+  hash: d925758eae05c7cc4cb3849601b17c6a
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.23.8+vmware.2
+    lockHash: 18e28a721553b08cf53f62acc9ce2be0
+  - name: containerd
+    version: v1.6.6+vmware.2
+    lockHash: 506989fbb24cba85136830704fca11aa
+  - name: cri_tools
+    version: v1.22.0+vmware.8
+    lockHash: 757e301f7b79e02774ea6cc1e2d86c84
+  - name: cni_plugins
+    version: v1.1.1+vmware.6
+    lockHash: ff533128bb91026f6ec03d8f8a298f26

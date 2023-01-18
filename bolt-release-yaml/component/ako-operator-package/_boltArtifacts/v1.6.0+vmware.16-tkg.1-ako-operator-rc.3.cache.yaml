@@ -1,0 +1,7 @@
+name: ako-operator-package
+goBuildComponentCaches:
+- version: v1.6.0+vmware.16-tkg.1-ako-operator-rc.3
+  url: https://buildweb.eng.vmware.com/ob/20301052/
+  buildNumber: bora-20301052
+  buildStatus: SUCCEEDED
+  hash: 0c5030505eb9b5f5cfe04030f66c333b

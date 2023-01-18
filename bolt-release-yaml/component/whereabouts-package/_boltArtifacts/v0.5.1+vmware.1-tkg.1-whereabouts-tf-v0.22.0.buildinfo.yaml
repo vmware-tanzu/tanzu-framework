@@ -1,0 +1,23 @@
+componentBuilds:
+- name: whereabouts-package
+  version: v0.5.1+vmware.1-tkg.1-whereabouts-tf-v0.22.0
+  channel: "410623916613054680"
+  url: https://buildweb.eng.vmware.com/ob/19901686/
+  artifactURL:
+    whereabouts.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/whereabouts:v0.5.1_vmware.1-tkg.1-tf-v0.22.0
+      sha256: 36e26881a7e6a62d564b77b4eafe529df4f17cfff5d5023ffbeef2c8c67466a3
+  cachehash: 32490e03fd9abbbd81ecd97100ed48bd
+  publishhash: b01a06111dff679502f0dd8e7ed95102
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/whereabouts:v0.5.1_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-tf-v0.22.0
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: whereabouts
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: ghcr.io/k8snetworkplumbingwg/whereabouts:latest-amd64
+    gobuild.upstream_version: 0.5.1

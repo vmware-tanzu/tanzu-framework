@@ -1,0 +1,7 @@
+name: calico-package
+goBuildComponentCaches:
+- version: v3.19.1+vmware.1-tkg.3-calico-rc.5
+  url: https://buildweb.eng.vmware.com/ob/19168987/
+  buildNumber: bora-19168987
+  buildStatus: SUCCEEDED
+  hash: f642ad89b47713648d048f2d782a09f2

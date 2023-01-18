@@ -1,0 +1,13 @@
+componentBuilds:
+- name: velero-plugin-for-csi
+  version: v0.3.1+vmware.1
+  channel: "430277087694166856"
+  url: https://buildweb.eng.vmware.com/ob/20603535
+  artifactURL:
+    veleroPluginForCsiImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-csi:v0.3.1_vmware.1
+      sha256: cf35c582f37b87407058d4e589cc480ff6d3b46a8ad7b58d1cddb3ebeac4927a
+  cachehash: a01d342705135bfae7fc3616ef8a4c5f
+  publishhash: a2c08cb1b2b9e594353d5ddaf95b1acd
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8

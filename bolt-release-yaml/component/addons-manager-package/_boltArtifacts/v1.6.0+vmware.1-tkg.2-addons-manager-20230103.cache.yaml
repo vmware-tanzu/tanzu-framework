@@ -1,0 +1,7 @@
+name: addons-manager-package
+goBuildComponentCaches:
+- version: v1.6.0+vmware.1-tkg.2-addons-manager-20230103
+  url: https://buildweb.eng.vmware.com/ob/21074302/
+  buildNumber: bora-21074302
+  buildStatus: SUCCEEDED
+  hash: b9d2336bdd5f771a19752ebe6f0b8c1b

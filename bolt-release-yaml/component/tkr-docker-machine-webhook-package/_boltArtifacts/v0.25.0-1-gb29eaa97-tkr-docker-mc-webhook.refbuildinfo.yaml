@@ -1,0 +1,185 @@
+componentBuilds:
+- name: tanzu-framework
+  version: v0.25.0-1-gb29eaa97
+  channel: "418777325375595763"
+  url: https://buildweb.eng.vmware.com/ob/20202343/
+  artifactURL:
+    capabilitiesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/capabilities/capabilities-controller-manager-tf:v0.25.0-1-gb29eaa97
+      sha256: 6750d2919ec44ffff9a87b56a1c1dd5222af5620ddaf64ade8b82ee5f800c519
+    clipluginsClusterDarwinAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/cluster-darwin-amd64:v0.25.0-1-gb29eaa97
+      sha256: 3c08ed581899ddfa8475961db88e1e6ec47c6d116e55ca09e742c4c7dece0098
+    clipluginsClusterDarwinAmd64StaticImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/cluster-darwin-amd64:v0.25
+      sha256: 3c08ed581899ddfa8475961db88e1e6ec47c6d116e55ca09e742c4c7dece0098
+    clipluginsClusterLinuxAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/cluster-linux-amd64:v0.25.0-1-gb29eaa97
+      sha256: 7b36940c99382ac08c8d6c1c642a5330bd7f2dc54c4bd74319f49563a87e2168
+    clipluginsClusterLinuxAmd64StaticImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/cluster-linux-amd64:v0.25
+      sha256: 7b36940c99382ac08c8d6c1c642a5330bd7f2dc54c4bd74319f49563a87e2168
+    clipluginsClusterWindowsAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/cluster-windows-amd64:v0.25.0-1-gb29eaa97
+      sha256: a3e2ad179c3bcac4e3790c47badd0c812a3082e374e7ebd8a2f5e844c4b1c7e9
+    clipluginsClusterWindowsAmd64StaticImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/cluster-windows-amd64:v0.25
+      sha256: a3e2ad179c3bcac4e3790c47badd0c812a3082e374e7ebd8a2f5e844c4b1c7e9
+    clipluginsFeatureDarwinAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/feature-darwin-amd64:v0.25.0-1-gb29eaa97
+      sha256: 94916af06d419c8b9e1330a36c0c021c3ae8211536923aeea13fd0e1b3220e0c
+    clipluginsFeatureDarwinAmd64StaticImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/feature-darwin-amd64:v0.25
+      sha256: 94916af06d419c8b9e1330a36c0c021c3ae8211536923aeea13fd0e1b3220e0c
+    clipluginsFeatureLinuxAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/feature-linux-amd64:v0.25.0-1-gb29eaa97
+      sha256: 7be7c14199be3fb92c24b82caf80c0d4c96fea4f109b400053178206c308064c
+    clipluginsFeatureLinuxAmd64StaticImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/feature-linux-amd64:v0.25
+      sha256: 7be7c14199be3fb92c24b82caf80c0d4c96fea4f109b400053178206c308064c
+    clipluginsFeatureWindowsAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/feature-windows-amd64:v0.25.0-1-gb29eaa97
+      sha256: 10f7c18eb17b781eb9303c4db2e22d2a2f24fe697afdf922364ff06ea3e1ad8d
+    clipluginsFeatureWindowsAmd64StaticImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/feature-windows-amd64:v0.25
+      sha256: 10f7c18eb17b781eb9303c4db2e22d2a2f24fe697afdf922364ff06ea3e1ad8d
+    clipluginsKubernetesReleaseDarwinAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/kubernetes-release-darwin-amd64:v0.25.0-1-gb29eaa97
+      sha256: e56670230dbe7535210dadbdb0ae99f558b68f1c9514628b75a916a02f31bbf0
+    clipluginsKubernetesReleaseDarwinAmd64StaticImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/kubernetes-release-darwin-amd64:v0.25
+      sha256: e56670230dbe7535210dadbdb0ae99f558b68f1c9514628b75a916a02f31bbf0
+    clipluginsKubernetesReleaseLinuxAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/kubernetes-release-linux-amd64:v0.25.0-1-gb29eaa97
+      sha256: 5ebe3db895ef819ff97a55dc83e306b55d7c65cd910834718fd458a53cc75fe7
+    clipluginsKubernetesReleaseLinuxAmd64StaticImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/kubernetes-release-linux-amd64:v0.25
+      sha256: 5ebe3db895ef819ff97a55dc83e306b55d7c65cd910834718fd458a53cc75fe7
+    clipluginsKubernetesReleaseWindowsAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/kubernetes-release-windows-amd64:v0.25.0-1-gb29eaa97
+      sha256: 51cd7639c88877ee2987cc8fd44c9a5f85c3f502dc0c55854471d883a966fe60
+    clipluginsKubernetesReleaseWindowsAmd64StaticImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/kubernetes-release-windows-amd64:v0.25
+      sha256: 51cd7639c88877ee2987cc8fd44c9a5f85c3f502dc0c55854471d883a966fe60
+    clipluginsLoginDarwinAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/login-darwin-amd64:v0.25.0-1-gb29eaa97
+      sha256: d5ed541d7e4797dae35ae3e06c7add7068022c00c3bf16339bbe33f2b4af9608
+    clipluginsLoginLinuxAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/login-linux-amd64:v0.25.0-1-gb29eaa97
+      sha256: 5dfadba51471b74de5ee5f8cc41385076df8bd5c5dc1ce88ec89de2eef540981
+    clipluginsLoginWindowsAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/login-windows-amd64:v0.25.0-1-gb29eaa97
+      sha256: 275e3e10917de707988c5c47198cc65e6000ef2fc77fb3b4d3b6fb9a4bc4a375
+    clipluginsManagementClusterDarwinAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/management-cluster-darwin-amd64:v0.25.0-1-gb29eaa97
+      sha256: 3f0a893f138298dae6b7aafc134849b57dec13eef9ee0aacc70ee3320e8df8e1
+    clipluginsManagementClusterLinuxAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/management-cluster-linux-amd64:v0.25.0-1-gb29eaa97
+      sha256: 38ce81d352991518d71dff124669d7d04f00d49a2530c9376e90b86493647816
+    clipluginsManagementClusterWindowsAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/management-cluster-windows-amd64:v0.25.0-1-gb29eaa97
+      sha256: 72a875f03b6c6bad0055e828bc95da559003ed763bc8b1e1e286503182578ce3
+    clipluginsPackageDarwinAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/package-darwin-amd64:v0.25.0-1-gb29eaa97
+      sha256: 091cdd688144d218d2e744179e06794b425e36c9c90c75a5cd97bf8f9cd0f367
+    clipluginsPackageLinuxAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/package-linux-amd64:v0.25.0-1-gb29eaa97
+      sha256: cf074eec4013f9d39ac4b72429d2e5e17f4386f33ac0d4a4ac74e84028292230
+    clipluginsPackageWindowsAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/package-windows-amd64:v0.25.0-1-gb29eaa97
+      sha256: 2bc9c64753fe8412acc1dc15a38be1028ab1bdef6107f26f68e6ba1180fd7ec5
+    clipluginsPinnipedAuthDarwinAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/pinniped-auth-darwin-amd64:v0.25.0-1-gb29eaa97
+      sha256: 3d5f4e7cce562335c837d57775793c31dc7ae0dffc90b1d8422142ef6ef56dcf
+    clipluginsPinnipedAuthLinuxAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/pinniped-auth-linux-amd64:v0.25.0-1-gb29eaa97
+      sha256: 119bb8314914248001877b4331ab2e90fd44a744e1566b35134877a9ac0e478e
+    clipluginsPinnipedAuthWindowsAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/pinniped-auth-windows-amd64:v0.25.0-1-gb29eaa97
+      sha256: 65b92a9c0da8937f60f565e4651fdb450e4048679fc243ed11d0e8c98ec317ef
+    clipluginsSecretDarwinAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/secret-darwin-amd64:v0.25.0-1-gb29eaa97
+      sha256: 5d71e35c048e67a448b5e71dd09f8d2171ef6cfd6f196f83c6fbdf0fbc22cd5a
+    clipluginsSecretLinuxAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/secret-linux-amd64:v0.25.0-1-gb29eaa97
+      sha256: 4d9ed230499f8988c0672d87b08a28643f594851497c08c482f1cfa03dd41bc1
+    clipluginsSecretWindowsAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/secret-windows-amd64:v0.25.0-1-gb29eaa97
+      sha256: 19df3b302140dc8ce1ea90d2d97a9ba10c3532c56d61414358db018d0eaf4eaa
+    clipluginsTelemetryDarwinAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/telemetry-darwin-amd64:v0.25.0-1-gb29eaa97
+      sha256: dc7d6ccf0ff43168817f323de32fe00e2cc3aba8a9e7df89e24384f0de21aa78
+    clipluginsTelemetryLinuxAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/telemetry-linux-amd64:v0.25.0-1-gb29eaa97
+      sha256: deb61d356ea9914f7ff27883354a7fcd6b4ef00c2fcb5e44587764e623d76575
+    clipluginsTelemetryWindowsAmd64Image:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/telemetry-windows-amd64:v0.25.0-1-gb29eaa97
+      sha256: bfb221ee1c02fd05b5c31da8916170131f266348a697b7ab988c5b1282a112b5
+    context-scoped-plugin-static:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/context_scoped_plugins/context-scoped-plugins-static.yaml
+    featuregatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/featuregates/featuregates-controller-manager:v0.25.0-1-gb29eaa97
+      sha256: 41560c9b33996740e9ba183927cb6328280147b1a306c47edddc3e4b9e510f4f
+    objectPropagationControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/objectpropogation/object-propagation-controller:v0.25.0-1-gb29eaa97
+      sha256: 8a397e094965a619276dc05df42874b5d71d2a7c725018f01b094567a7e5b6df
+    providerTemplateImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/provider/provider-templates:v0.25.0-1-gb29eaa97
+      sha256: c398683090eb77a518d807b5cd026cf292daf5ee74e658a5cc35e6f5bfd1ecd4
+    tanzu-core-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-darwin-amd64.tar.gz
+    tanzu-core-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-linux-amd64.tar.gz
+    tanzu-core-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-windows-amd64.zip
+    tanzu-framework-plugins-context-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-context-darwin-amd64.tar.gz
+    tanzu-framework-plugins-context-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-context-linux-amd64.tar.gz
+    tanzu-framework-plugins-context-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-context-windows-amd64.zip
+    tanzu-framework-plugins-standalone-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-standalone-darwin-amd64.tar.gz
+    tanzu-framework-plugins-standalone-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-standalone-linux-amd64.tar.gz
+    tanzu-framework-plugins-standalone-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20202343/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-standalone-windows-amd64.zip
+    tkrConversionWebhookImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-conversion-webhook:v0.25.0-1-gb29eaa97
+      sha256: bc7d3bd43ba3ef63b362493a601344d49b6e04a8e3920fe01e2b3362cf3247cc
+    tkrImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-controller-manager:v0.25.0-1-gb29eaa97
+      sha256: 309c8bbb27d6fe18a1732f7445627f876456e279107ab9d746372a57f105b104
+    tkrInfraMachineImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-infra-machine-webhook:v0.25.0-1-gb29eaa97
+      sha256: 2c770f96408e4c50ef4cffae1d53e2faf87e1414596578a4f14bf84074fe1c37
+    tkrResolverImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-resolver-cluster-webhook:v0.25.0-1-gb29eaa97
+      sha256: bd2d1d32c7e6f36aa397d4241c210d834e1b2bba1befd24b1c0ec415c1498616
+    tkrSourceControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-source-controller:v0.25.0-1-gb29eaa97
+      sha256: 928c3fc7029911ed0ea61c1d035af3b97b4db94603e83089584e67000751dc1c
+    tkrStatusControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-status-controller:v0.25.0-1-gb29eaa97
+      sha256: 6539b39f271aae264a67c21c7705154884f5bf70b8a62cbfdff0970d44b1ad56
+  cachehash: c0eb6568bddd71d92e8f4dae29de8c9a
+  publishhash: 7c8ebbbba3bc48d7e5e3b44764190175
+  configDependencies:
+    UpstreamManagementClusterPluginVersion: v0.25.0
+    apiVersion: run.tanzu.vmware.com/v1alpha1
+    gobuild.DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH: packages/standalone-plugins
+    gobuild.DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG: v0.25.0-1-gb29eaa97_vmware.1
+    gobuild.DEFAULT_STANDALONE_DISCOVERY_TYPE: oci
+    gobuild.ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY: "true"
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TANZU_CORE_BUCKET: tanzu-cli-tkg
+    gobuild.TANZU_FORCE_NO_INIT: "true"
+    gobuild.TANZU_PLUGINS_ALLOWED_IMAGE_REPOSITORIES: projects.registry.vmware.com/tkg,projects.registry.vmware.com/vsphere
+    gobuild.TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH: tkg-compatibility
+    gobuild.TKG_DEFAULT_IMAGE_REPOSITORY: projects.registry.vmware.com/tkg
+    gobuild.golangVersion: "1.17"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.tkgBuildContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17
+    managementClusterPluginVersion: v0.25.0
+    upstreamPullRequestID: "3038"

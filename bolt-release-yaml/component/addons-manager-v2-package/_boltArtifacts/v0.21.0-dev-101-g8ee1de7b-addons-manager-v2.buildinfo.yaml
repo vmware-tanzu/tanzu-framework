@@ -1,0 +1,11 @@
+componentBuilds:
+- name: addons-manager-v2-package
+  version: v0.21.0-dev-101-g8ee1de7b-addons-manager-v2
+  channel: "404100428075113766"
+  url: https://buildweb.eng.vmware.com/ob/19674908/
+  artifactURL:
+    addons-manager-v2.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/addons-manager-v2:v0.21.0-dev-101-g8ee1de7b_vmware.1
+      sha256: c2c59e90e076d9faf41788a2eb4b37cccf735c4bcafa853276f297ce30bb25a0
+  cachehash: 39a8c4d2a75ffb4f75e2fd961d23647e
+  publishhash: 7bc88391b8635015ee137e709f572233

@@ -1,0 +1,6 @@
+name: kbld
+unmanagedComponents:
+  - version: v0.28.0+vmware.1
+    gobuildBranch: vmware-0.28.0~12d4b7d2e605135fdab65a419db7bc5ea1001af1
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

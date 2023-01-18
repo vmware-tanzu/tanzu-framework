@@ -1,0 +1,15 @@
+name: tkr-compatibility
+boms:
+- version: v20-v1.7.0-fc.2
+  type: compatibility
+  compatibilityMetadata:
+    version: v20
+    managementClusterVersions:
+    - version: v1.7.0-fc.2
+      supportedKubernetesVersions:
+      - v1.24.6+vmware.1-tkg.1-fc.2
+      - v1.23.13+vmware.1-tkg.1-fc.2
+      - v1.22.11+vmware.2-tkg.2-fc.2
+  dependencies:
+    rtmVersions:
+    - v1.7.0

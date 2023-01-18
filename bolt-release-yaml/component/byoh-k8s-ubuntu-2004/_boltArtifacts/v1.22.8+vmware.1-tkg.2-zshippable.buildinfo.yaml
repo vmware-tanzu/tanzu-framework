@@ -1,0 +1,11 @@
+componentBuilds:
+- name: byoh-k8s-ubuntu-2004
+  version: v1.22.8+vmware.1-tkg.2-zshippable
+  channel: "402529159940676520"
+  url: https://buildweb.eng.vmware.com/ob/19621967/
+  artifactURL:
+    byohImgpkgBundle:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/byoh-bundle-ubuntu_20.04.1_x86-64_k8s:v1.22.8_vmware.1-tkg.2-zshippable
+      sha256: 2da954a257f593832b9f06aafc380ba1e61921600a41658db87c670f249db2c7
+  cachehash: 991c3f636c2b3b1c3f5902431b0858d2
+  publishhash: a7d907cfe01e30e2402fc31a9b8e10f0

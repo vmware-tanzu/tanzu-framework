@@ -1,0 +1,61 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.19.12+vmware.1-tkg.3-20211022-6e2b6998
+  gobuildBranch: 378187105601377363-v1.19.12+vmware.1-tkg.3-20211022-6e2b6998
+  gobuildHeadCommit: 8405319e4821d4b6ede9eb94060d0c8c1013de88
+  hash: 68b6aae27f2378234204338dd9850900
+  componentLockReferences:
+  - name: ako-operator
+    version: v1.5.0+vmware.1
+    lockHash: 5272d6d38e8c4eaa2f9215512ecb6adb
+  - name: kube_rbac_proxy
+    version: v0.4.1+vmware.2
+    lockHash: 55e2a63cea0ef33e8c1c992b4cab2ce3
+  - name: load-balancer-and-ingress-service
+    version: v1.6.1+vmware.1
+    lockHash: 28e76427817e2c5e8228e62c999325d5
+  - name: antrea
+    version: v0.11.3+vmware.2
+    lockHash: d24d36f55303354ba4cccc3d337a70c4
+  - name: calico_all
+    version: v3.11.3+vmware.1
+    lockHash: c75e07323bb1fb99017dd4816417d643
+  - name: csi_attacher
+    version: v3.2.0+vmware.1
+    lockHash: b6a47e9a04b0695c9ec06b843dc9b77e
+  - name: csi_livenessprobe
+    version: v2.2.0+vmware.1
+    lockHash: b527cdf7bf542e663004dca6634e2b5f
+  - name: csi_node_driver_registrar
+    version: v2.1.0+vmware.1
+    lockHash: 376cf72fbf107bf99272f469cf3b2532
+  - name: kubernetes-csi_external-resizer
+    version: v1.1.0+vmware.1
+    lockHash: 68dd6945cbed208a6384bd140ef246e8
+  - name: csi_provisioner
+    version: v2.2.0+vmware.1
+    lockHash: eb64c8886564c785903f27f873af596e
+  - name: vsphere_csi_driver
+    version: v2.3.0+vmware.1
+    lockHash: ac81e5c3f0c02c9f4d1d0c25634ae0aa
+  - name: cloud_provider_vsphere
+    version: v1.19.1+vmware.1
+    lockHash: 50b7931c585a2bc192f0644b8aa23653
+  - name: tanzu-framework-addons
+    version: v0.8.0
+    lockHash: 65a44f33f8ef91776e79b56dc52df3d1
+  - name: metrics-server
+    version: v0.4.0+vmware.1
+    lockHash: c9e6bf139e525f01c441c24d40b3c63b
+  - name: kapp-controller
+    version: v0.25.0+vmware.1
+    lockHash: 9297fd6079e4ec93c152cff85bf20dc4
+  - name: carvel-secretgen-controller
+    version: v0.5.0+vmware.1
+    lockHash: fd7529031a0da44185537903dd3ed59a
+  - name: pinniped
+    version: v0.4.4+vmware.1
+    lockHash: 128412f16d491187b1b108fab3dfac67
+  - name: dex
+    version: v2.27.0+vmware.1
+    lockHash: 7fadc9716955155af933f02b1769b863

@@ -1,0 +1,34 @@
+name: ova-ubuntu-2004
+images:
+- version: v1.22.15+vmware.1-tkg.1-df08b304658a6cf17f5e74dc0ab7543c
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: 8afff09aaeb15e4bf7b52b9d093e613484ab6563
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2
+  - name: coredns
+    version:
+    - v1.8.4+vmware.10
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.9
+  - name: etcd
+    version:
+    - v3.5.4+vmware.2
+  - name: containerd
+    version:
+    - v1.5.13+vmware.1
+  - name: kubernetes
+    version:
+    - v1.22.15+vmware.1
+  dependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 88edce31a8cfc66cd906fa364d7ffa7ee9b70cf4
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 3a1d4e12b2a0ea8488826c19ae51ff1de411da3a

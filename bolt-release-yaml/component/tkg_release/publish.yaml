@@ -1,0 +1,12 @@
+name: tkg_release
+nonpublish:
+  - name: tanzu-cli-bundle-darwin-amd64
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_release/tanzu_cli_bundle-$VERSION/tanzu-cli-bundle-darwin-amd64.tar
+  - name: tanzu-cli-bundle-linux-amd64
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_release/tanzu_cli_bundle-$VERSION/tanzu-cli-bundle-linux-amd64.tar
+  - name: tanzu-cli-bundle-linux-386
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_release/tanzu_cli_bundle-$VERSION/tanzu-cli-bundle-linux-386.tar
+  - name: tanzu-cli-bundle-windows-amd64
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_release/tanzu_cli_bundle-$VERSION/tanzu-cli-bundle-windows-amd64.tar
+  - name: tanzu-cli-bundle-windows-386
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_release/tanzu_cli_bundle-$VERSION/tanzu-cli-bundle-windows-386.tar

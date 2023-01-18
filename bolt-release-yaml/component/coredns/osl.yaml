@@ -1,0 +1,4 @@
+submodules:
+  - name: coredns/src
+    go_mod:
+      - "go.mod"

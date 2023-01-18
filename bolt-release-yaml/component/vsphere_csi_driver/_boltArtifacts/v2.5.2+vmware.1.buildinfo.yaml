@@ -1,0 +1,19 @@
+componentBuilds:
+- name: vsphere_csi_driver
+  version: v2.5.2+vmware.1
+  channel: "418182012608714830"
+  url: https://buildweb.eng.vmware.com/ob/20178864/
+  artifactURL:
+    csiControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.5.2_vmware.1
+      sha256: d7c7151d2112063a3c826830550d97c7d149fd8d43974ef53ea46f352acc7cc5
+    csiMetaDataSyncerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/volume-metadata-syncer:v2.5.2_vmware.1
+      sha256: b5663821a9c28348ae6b9cbeaff21c997c2273d344867e79fc175ed5a083525f
+  cachehash: 084c3e382c0b73b117433621562da7cd
+  publishhash: 23c68b22765f008ca6153903e6fb5ae5
+  configDependencies:
+    gobuild.containerBaseImage: photon:4.0
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32

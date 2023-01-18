@@ -1,0 +1,16 @@
+name: pinniped-package
+goBuildComponentLocks:
+- version: v0.12.1+vmware.1-tkg.0-pinniped
+  gobuildBranch: 403912019855584391-v0.12.1+vmware.1-tkg.0-pinniped
+  gobuildHeadCommit: ce7a84139e73a8b60e37b4bd4ab3e6638441d6a1
+  hash: 83a60718865dba17353a6d6ced160974
+  componentLockReferences:
+  - name: pinniped
+    version: v0.12.1+vmware.1
+    lockHash: 41c5d38ef05b0f11ff871879c46cc238
+  - name: dex
+    version: v2.30.2+vmware.1
+    lockHash: d7e347ab976936f7a16df5820dd58d11
+  - name: pinniped-post-deploy
+    version: v0.11.1
+    lockHash: 27f6a9b363122b7d5e94e77d4b2eb5c9

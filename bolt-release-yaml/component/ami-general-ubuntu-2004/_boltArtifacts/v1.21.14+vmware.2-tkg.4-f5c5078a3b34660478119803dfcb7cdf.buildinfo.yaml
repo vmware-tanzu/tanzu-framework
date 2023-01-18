@@ -1,0 +1,22 @@
+componentBuilds:
+- name: ami-general-ubuntu-2004
+  version: v1.21.14+vmware.2-tkg.4-f5c5078a3b34660478119803dfcb7cdf
+  channel: "419778727015095641"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/2687
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/ami-general-ubuntu-2004/bom-ami-general-ubuntu-2004-v1.21.14+vmware.2-tkg.4-f5c5078a3b34660478119803dfcb7cdf.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.14+vmware.2-tkg.4-f5c5078a3b34660478119803dfcb7cdf-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.14+vmware.2-tkg.4-f5c5078a3b34660478119803dfcb7cdf-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.14+vmware.2-tkg.4-f5c5078a3b34660478119803dfcb7cdf-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.14+vmware.2-tkg.4-f5c5078a3b34660478119803dfcb7cdf-provenance_result.txt
+  cachehash: 56020e97b95fd7733a0b66b5ada9b27b
+  publishhash: 367c6af81c0b09e9841c9c749a141d0f
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: b5d8c8f94238cb752c431c5692d442f1b71a4c00

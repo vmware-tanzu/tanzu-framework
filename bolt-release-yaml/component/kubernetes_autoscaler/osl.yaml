@@ -1,0 +1,5 @@
+submodules:
+  - name: kubernetes_autoscaler/src
+#    go_mod:
+#      - "cluster-autoscaler/go.mod"
+#      - "vertical-pod-autoscaler/go.mod"

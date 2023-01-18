@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-clusterclass-aws-package
+  version: v0.20.0-dev-6-gdecb612d-tkg-clusterclass-aws
+  channel: "399315988102808897"
+  url: https://buildweb.eng.vmware.com/ob/19515138/
+  artifactURL:
+    tkg-clusterclass-aws.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-aws:v0.20.0-dev-6-gdecb612d_vmware.1
+      sha256: b76a455156722b99de517449e7c9f7a0574348defb3d088194edb913b159680c
+  cachehash: 592cff47a7b973b261a313f7adf37259
+  publishhash: 125ec7a1bc39baef747260e4f78167fa

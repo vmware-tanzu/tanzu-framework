@@ -1,0 +1,11 @@
+componentBuilds:
+- name: vsphere-csi-package
+  version: v2.4.1+vmware.1-tkg.2-vsphere-csi-zshippable
+  channel: "404383790354406686"
+  url: https://buildweb.eng.vmware.com/ob/19685491/
+  artifactURL:
+    vsphere-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-csi:v2.4.1_vmware.1-tkg.2-zshippable
+      sha256: 2a27f91df1a09decdeec89cd73cc7ac361abed2bcc5c6d3968b45d215209d834
+  cachehash: c49dddb0d7815435fcff587c8daa7a5e
+  publishhash: cedd8fe6c0ac7f5ec42b3dc29f93ec89

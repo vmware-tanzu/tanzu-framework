@@ -1,0 +1,18 @@
+name: jetstack_cert-manager
+publish:
+  - name: certMgrInjectorImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cert_manager/images/cert-manager-cainjector-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cert_manager/images/cert-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cert-manager-cainjector:$UNDERSCOREVERSION
+  - name: certMgrControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cert_manager/images/cert-manager-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cert_manager/images/cert-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cert-manager-controller:$UNDERSCOREVERSION
+  - name: certMgrWebhookImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cert_manager/images/cert-manager-webhook-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cert_manager/images/cert-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cert-manager-webhook:$UNDERSCOREVERSION
+    

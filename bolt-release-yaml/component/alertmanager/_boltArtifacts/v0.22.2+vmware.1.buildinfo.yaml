@@ -1,0 +1,16 @@
+componentBuilds:
+- name: alertmanager
+  version: v0.22.2+vmware.1
+  channel: "416341793219543513"
+  url: https://buildweb.eng.vmware.com/ob/18468509/
+  artifactURL:
+    alertmanager-file:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18468509/publish/lin64/alertmanager/executables/alertmanager-v0.22.2+vmware.1.gz
+    alertmanagerImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/alertmanager:v0.22.2_vmware.1
+      sha256: 067f91b8e7d9cf235ffe0d6fc042eb03edd29914ff8eba6aa84cce86624570f2
+  cachehash: 28ac8276cd0c08780289fec710d3c8cd
+  publishhash: 1ad8dfd32254991b99de280438033522
+  configDependencies:
+    gobuild.golangVersion: "1.14"
+    gobuild.linux_hosttype: linux-centos72-gc32

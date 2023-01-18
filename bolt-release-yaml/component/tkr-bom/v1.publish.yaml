@@ -1,0 +1,10 @@
+name: tkr-bom
+publish:
+  - name: tkrBomImage
+    type: image
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/tkr-bom-$VERSION.tar.gz
+    destinationPath: tkr-bom:$UNDERSCOREVERSION
+nonpublish:
+  - name: tkrBomYaml
+    type: file
+    destinationPath: $CHANNEL/component/tkr-bom/_boltArtifacts/tkr-bom-$VERSION.yaml

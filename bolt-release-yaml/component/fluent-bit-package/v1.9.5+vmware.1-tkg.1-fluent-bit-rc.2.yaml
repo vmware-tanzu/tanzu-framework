@@ -1,0 +1,22 @@
+name: fluent-bit-package
+packages:
+- version: v1.9.5+vmware.1-tkg.1-fluent-bit-rc.2
+  upstreamCommit: 4f94e701ff44aa4f468b5921e009799e9d440972
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: fluent-bit
+    version:
+    - v1.9.5+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "fluent-bit").artifactURL.fluentBitImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.1-rc.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluent-bit
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluent/fluent-bit:1.9.5
+    gobuild.upstream_version: 1.9.5

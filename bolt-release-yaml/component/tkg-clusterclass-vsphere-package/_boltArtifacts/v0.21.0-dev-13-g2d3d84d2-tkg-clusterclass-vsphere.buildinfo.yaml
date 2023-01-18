@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-clusterclass-vsphere-package
+  version: v0.21.0-dev-13-g2d3d84d2-tkg-clusterclass-vsphere
+  channel: "401356794678482201"
+  url: https://buildweb.eng.vmware.com/ob/19583637/
+  artifactURL:
+    tkg-clusterclass-vsphere.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-vsphere:v0.21.0-dev-13-g2d3d84d2_vmware.1
+      sha256: 0fd4a9f3699de9e00d46bc9638d1bff3527f3d82a123d2b3c2a780cae271cd17
+  cachehash: b0f1fde510a0b5cc9c7635a65cb60155
+  publishhash: d03e78e5fad5fe181b44a702c65769ab

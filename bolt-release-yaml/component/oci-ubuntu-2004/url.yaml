@@ -1,0 +1,2 @@
+name: oci-ubuntu-2004
+jenkinsJobName: image-pipelines/job/tkgm-build-oci

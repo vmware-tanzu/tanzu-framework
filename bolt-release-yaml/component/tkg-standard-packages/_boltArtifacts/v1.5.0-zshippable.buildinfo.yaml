@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-standard-packages
+  version: v1.5.0-zshippable
+  channel: "393389070421635787"
+  url: https://buildweb.eng.vmware.com/ob/19314171/
+  artifactURL:
+    tanzuStandardPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.5.0-zshippable
+      sha256: 4767435de750853484378403972399063da6dd68b3eb99baf2c5c1237e3059b8
+  cachehash: 2ff0471063df8f3ff52469bf22c93c81
+  publishhash: 921227668c0e32e4d6fe8038487b734c

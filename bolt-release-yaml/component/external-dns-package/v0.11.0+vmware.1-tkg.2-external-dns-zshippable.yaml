@@ -1,0 +1,21 @@
+name: external-dns-package
+packages:
+  - version: v0.11.0+vmware.1-tkg.2-external-dns-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: 4f45d3ebc6aadc39bc918bd631aa0b64d906f202
+    componentReferences:
+      - name: external-dns
+        version:
+        - v0.11.0+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: external-dns
+      gobuild.upstream_image_0: "k8s.gcr.io/external-dns/external-dns"
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "external-dns").artifactURL.externalDNSImage.url}}'
+      gobuild.upstream_version: 0.11.0
+      gobuild.downstream_version: vmware.1-tkg.2-zshippable
+      gobuild.package_type: standard
+      gobuild.noMirror: "true"

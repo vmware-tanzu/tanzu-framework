@@ -1,0 +1,9 @@
+name: oci-cloud-controller-manager
+managedComponents:
+  - version: v1.24.0+vmware.3
+    upstreamCommit: b8d0ba267b9558bc0c8d6f5e3cc8e1b5de1c2a43
+    gobuildBaseBranch: vmware-master~808e278ea9c7df056b70b804735f288fdd37665d
+    dependencies:
+      gobuild.golangVersion: 1.18
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32

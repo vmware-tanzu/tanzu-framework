@@ -1,0 +1,4 @@
+submodules:
+  - name: csi_provisioner/src
+    go_mod:
+      - "go.mod"

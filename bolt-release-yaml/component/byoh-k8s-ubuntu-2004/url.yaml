@@ -1,0 +1,8 @@
+name: byoh-k8s-ubuntu-2004
+upstreamURL: git@github.com:vmware-tanzu/cluster-api-provider-bringyourownhost.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_cluster-api-provider-bringyourownhost.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_cluster-api-provider-bringyourownhost.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_cluster-api-provider-bringyourownhost.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_cluster-api-provider-bringyourownhost.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_cluster-api-provider-bringyourownhost.git
+gobuildTarget: cayman_byoh-k8s-ubuntu-2004

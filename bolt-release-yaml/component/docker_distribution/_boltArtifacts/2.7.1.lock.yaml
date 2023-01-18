@@ -1,0 +1,7 @@
+name: docker_distribution
+goBuildComponentLocks:
+- version: 2.7.1
+  gobuildBranch: vmware-tkg-master
+  gobuildHeadCommit: 823847d6bd30358f46ae7581d4f11b919f959024
+  hash: a54b9f1646d30b44e9490cd926a1fa29
+  componentLockReferences: []

@@ -1,0 +1,47 @@
+name: tkr-bom
+bomLocks:
+- version: v1.19.6+vmware.2-tkg.1-zlatest
+  hash: "6558851064334563284"
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.19.6+vmware.2
+    lockHash: "5802566010174022320"
+  - name: cni_plugins
+    version: v0.8.7+vmware.4
+    lockHash: "8906124615055591059"
+  - name: coredns
+    version: v1.7.0+vmware.7
+    lockHash: "7738220089153434359"
+  - name: cri_tools
+    version: v1.18.0+vmware.4
+    lockHash: "8815117541328376596"
+  - name: etcd
+    version: v3.4.13+vmware.6
+    lockHash: "8269220666720849863"
+  - name: containerd
+    version: v1.4.3+vmware.1
+    lockHash: "11082509675069778053"
+  - name: ova-photon-3
+    version: v1.19.6+vmware.2-tkg.0-11883117015189103726
+    lockHash: "6458182822655379971"
+  - name: ova-ubuntu-2004
+    version: v1.19.6+vmware.2-tkg.0-16317005781430032955
+    lockHash: "4132252422696929803"
+  - name: ami-general-amazon-2
+    version: v1.19.6+vmware.2-tkg.0-15515316960134525724
+    lockHash: "16161196710439467393"
+  - name: ami-general-ubuntu-2004
+    version: v1.19.6+vmware.2-tkg.0-2407324730802391782
+    lockHash: "14247514212453278190"
+  - name: ami-gov-amazon-2
+    version: v1.19.6+vmware.2-tkg.0-12087146945164302614
+    lockHash: "7140535098639823261"
+  - name: ami-gov-ubuntu-2004
+    version: v1.19.6+vmware.2-tkg.0-15907731826057895850
+    lockHash: "7736153147626824206"
+  - name: azure-ubuntu-1804
+    version: v1.19.6+vmware.2-tkg.0-6554193485699922483
+    lockHash: "17841149054218653272"
+  - name: azure-ubuntu-2004
+    version: v1.19.6+vmware.2-tkg.0-3882000039870602929
+    lockHash: "73837781627537407"

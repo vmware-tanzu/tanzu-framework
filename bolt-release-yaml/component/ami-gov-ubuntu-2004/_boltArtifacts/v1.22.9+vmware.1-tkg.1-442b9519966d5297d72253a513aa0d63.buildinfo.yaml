@@ -1,0 +1,19 @@
+componentBuilds:
+- name: ami-gov-ubuntu-2004
+  version: v1.22.9+vmware.1-tkg.1-442b9519966d5297d72253a513aa0d63
+  channel: "406305181253281175"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/2197
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/406305181253281175/component/ami-gov-ubuntu-2004/bom-ami-gov-ubuntu-2004-v1.22.9+vmware.1-tkg.1-442b9519966d5297d72253a513aa0d63.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/406305181253281175/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.22.9+vmware.1-tkg.1-442b9519966d5297d72253a513aa0d63-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/406305181253281175/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.22.9+vmware.1-tkg.1-442b9519966d5297d72253a513aa0d63-osstpmgt.yaml
+  cachehash: 5ad02bc197bc738c06c5f4ab65b4dad8
+  publishhash: 1a087d047b2d648ef2c583e2ef33e0c4
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 6f436c96681c7333c05dc5af721556d26ae81f2e

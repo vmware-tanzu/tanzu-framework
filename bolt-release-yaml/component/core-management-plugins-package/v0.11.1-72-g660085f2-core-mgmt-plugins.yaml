@@ -1,0 +1,37 @@
+name: core-management-plugins-package
+packages:
+- version: v0.11.1-72-g660085f2-core-mgmt-plugins
+  upstreamCommit: 660085f27c33f73e97d2bb455ff43e10c3617d22
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~3013cdeb919fa2b9b97521258d1763fd74ebf481
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.11.1-72-g660085f2
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsClusterLinuxAmd64Image.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsClusterDarwinAmd64Image.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsClusterWindowsAmd64Image.url}}'
+    gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsKubernetesReleaseLinuxAmd64Image.url}}'
+    gobuild.downstream_image_4: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsKubernetesReleaseDarwinAmd64Image.url}}'
+    gobuild.downstream_image_5: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsKubernetesReleaseWindowsAmd64Image.url}}'
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: core-management-plugins
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tanzu-cli-plugins/cluster-linux-amd64:latest
+    gobuild.upstream_image_1: tanzu-cli-plugins/cluster-darwin-amd64:latest
+    gobuild.upstream_image_2: tanzu-cli-plugins/cluster-windows-amd64:latest
+    gobuild.upstream_image_3: tanzu-cli-plugins/kubernetes-release-linux-amd64:latest
+    gobuild.upstream_image_4: tanzu-cli-plugins/kubernetes-release-darwin-amd64:latest
+    gobuild.upstream_image_5: tanzu-cli-plugins/kubernetes-release-windows-amd64:latest
+    gobuild.upstream_version: v0.11.1-72-g660085f2

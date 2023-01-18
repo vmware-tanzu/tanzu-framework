@@ -1,0 +1,19 @@
+name: azure-ubuntu-1804
+imageCaches:
+- version: v1.20.7+vmware.1-tkg.1-17039757192680543675
+  channel: "358445187225134005"
+  bomAzure:
+    azure:
+    - sku: k8s-1dot20dot7-ubuntu-1804
+      publisher: vmware-inc
+      offer: tkg-capi
+      version: 2021.06.08
+      thirdPartyImage: true
+      osinfo:
+        name: ubuntu
+        version: "1804"
+        arch: amd64
+  hash: ca11ad5d1f86bd1c1a01094fbe278b5c
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/66
+  buildNumber: "66"
+  buildStatus: SUCCEEDED

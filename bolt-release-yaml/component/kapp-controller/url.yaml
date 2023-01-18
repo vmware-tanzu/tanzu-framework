@@ -1,0 +1,8 @@
+name: kapp-controller
+upstreamURL: https://github.com/k14s/kapp-controller.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kapp-controller.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_kapp-controller.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kapp-controller.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_kapp-controller.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kapp-controller.git
+gobuildTarget: cayman_kapp-controller

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: image-builder
+  version: v0.1.11+vmware.3
+  channel: "392064669742814255"
+  url: https://buildweb.eng.vmware.com/ob/19268927/
+  artifactURL:
+    imagebuilder-tar:
+      url: projects-stg.registry.vmware.com/tkg/image-builder:v0.1.11_vmware.3
+      sha256: b18f9ef8d4a155c7b2fd6ca6d370ea3934a9212f89ece163111190bf268cbdb9
+  cachehash: 98be080916a7da7f5be3d586c0538aad
+  publishhash: 40b5feb1bbf30e83777d74e051441b96

@@ -1,0 +1,19 @@
+# compared with v1.publish.yaml: add the unified tkr artifacts
+name: tkr-bom
+publish:
+  - name: tkr-vsphere-edge.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-$VERSION-vsphere-edge.tar.gz
+    destinationPath: tkr-vsphere-edge:$UNDERSCOREVERSION    
+  - name: tkr-repository-vsphere-edge.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-repository-$VERSION-vsphere-edge.tar.gz
+    destinationPath: tkr-repository-vsphere-edge:$UNDERSCOREVERSION
+  - name: tkrBomImage
+    type: image
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/tkr-bom-$VERSION.tar.gz
+    destinationPath: tkr-bom:$UNDERSCOREVERSION
+nonpublish:
+  - name: tkrBomYaml
+    type: file
+    destinationPath: $CHANNEL/component/tkr-bom/_boltArtifacts/tkr-bom-$VERSION.yaml

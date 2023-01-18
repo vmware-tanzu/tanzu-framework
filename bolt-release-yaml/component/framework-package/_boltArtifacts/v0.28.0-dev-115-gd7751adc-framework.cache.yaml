@@ -1,0 +1,7 @@
+name: framework-package
+goBuildComponentCaches:
+- version: v0.28.0-dev-115-gd7751adc-framework
+  url: https://buildweb.eng.vmware.com/ob/20801361/
+  buildNumber: bora-20801361
+  buildStatus: SUCCEEDED
+  hash: 6426ecff1857a07b7591e3f7af8a7441

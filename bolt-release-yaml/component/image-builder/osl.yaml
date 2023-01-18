@@ -1,0 +1,4 @@
+submodules:
+  - name: kubernetes-sigs_image-builder/src
+    go_mod:
+      - "v1/go.mod"

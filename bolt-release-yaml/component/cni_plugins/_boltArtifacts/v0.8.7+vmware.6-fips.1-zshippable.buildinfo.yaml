@@ -1,0 +1,15 @@
+componentBuilds:
+- name: cni_plugins
+  version: v0.8.7+vmware.6-fips.1-zshippable
+  channel: "364719850070775715"
+  url: https://buildweb.eng.vmware.com/ob/18359533/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18359533/publish/lin64/cni_plugins/executables/cni-plugins-v0.8.7+vmware.6-fips.1-zshippable.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18359533/publish/lin64/cni_plugins/debs/kubernetes-cni_v0.8.7+vmware.6-fips.1-zshippable-1_amd64.deb
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/364719850070775715/component/cni_plugins/v0.8.7+vmware.6-fips.1-zshippable/cni-plugins-linux-amd64-v0.8.7+vmware.6-fips.1-zshippable.tgz
+      sha256: 33fc5dcc5d3effa3b319666738635a84fa94ccad5255452891e0243f63ea7ef6
+  cachehash: 6160271f48dc1a110d350049147720c8
+  publishhash: abcafc115829ddcd77454922e85a793a

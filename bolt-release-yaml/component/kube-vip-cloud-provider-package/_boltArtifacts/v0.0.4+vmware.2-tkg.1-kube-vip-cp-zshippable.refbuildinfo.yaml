@@ -1,0 +1,15 @@
+componentBuilds:
+- name: kube-vip-cloud-provider
+  version: v0.0.4+vmware.2
+  channel: "441447588089042905"
+  url: https://buildweb.eng.vmware.com/ob/21053461/
+  artifactURL:
+    kubevipcloudproviderControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kube-vip/kube-vip-cloud-provider:v0.0.4_vmware.2
+      sha256: 1bef64805e03a95e19a42477b2d8e7c74327a058ee3f0e70f273bff54df4ab36
+  cachehash: 3f6d4b32876f031c8fd68e450cb30339
+  publishhash: 266f5097be056f58b923e08bfc3be126
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.19"
+    gobuild.linux_hosttype: linux-centos72-gc32

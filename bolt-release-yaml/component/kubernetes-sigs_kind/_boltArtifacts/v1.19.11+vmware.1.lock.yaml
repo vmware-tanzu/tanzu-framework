@@ -1,0 +1,7 @@
+name: kubernetes-sigs_kind
+goBuildComponentLocks:
+- version: v1.19.11+vmware.1
+  gobuildBranch: vmware-1.19.11
+  gobuildHeadCommit: 33677ee745d065f9c7f52c44ee2ae039095a6b6b
+  hash: eaf6d0ccba2241672baebab85c309a9a
+  componentLockReferences: []

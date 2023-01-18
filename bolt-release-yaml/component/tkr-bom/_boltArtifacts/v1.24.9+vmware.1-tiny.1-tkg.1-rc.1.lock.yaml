@@ -1,0 +1,50 @@
+name: tkr-bom
+bomLocks:
+- version: v1.24.9+vmware.1-tiny.1-tkg.1-rc.1
+  hash: 26916a99709959b158f64ec8e2cff30f
+  componentLockReferences:
+  - name: kube-vip
+    version: v0.5.5+vmware.1
+    lockHash: 19594d8e8b425f2c7dacc04b143c3f7b
+  - name: coredns
+    version: v1.8.6+vmware.12
+    lockHash: f5bbbf6f9a6cc4204e8e9af04c957ac4
+  - name: tinykube
+    version: v1.24.9+vmware.1-tiny.1
+    lockHash: 4422c6c93228e4722b0ae1c9ee2307bf
+  - name: tkg-core-packages
+    version: v1.24.6+vmware.1-tkg.1-rc.1
+    lockHash: df6fac5c4560ec67f842d759ec715891
+  - name: tkg-standard-packages
+    version: v1.7.0-rc.1
+    lockHash: aba0d31027906183491e8bfb0c4a49ae
+  - name: ova-tinytkg-photon-3
+    version: v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3
+    lockHash: d27b4f08652f22673292ebc9a76a4a59
+  - name: ova-tinytkg-ubuntu-2004
+    version: v1.24.9+vmware.1-tiny.1-tkg.1-2319b3
+    lockHash: 651d1d8f2b4f477ab6ac3cb4478ed6c1
+  - name: cert-manager-package
+    version: v1.9.1+vmware.2-tkg.1-cert-manager-rc.1
+    lockHash: dd327d8323302469e4f095df0b5b5ff4
+  - name: antrea
+    version: v1.7.1+vmware.1-advanced
+    lockHash: 131defa909c6b4c2b36368732b15aba7
+  - name: calico_all
+    version: v3.24.1+vmware.1
+    lockHash: 9c87faa19db5c66596ce99d92ccd1791
+  - name: cloud_provider_vsphere
+    version: v1.24.3+vmware.1
+    lockHash: e7c517f62d05c3cbad89e63ab76e1979
+  - name: vsphere_csi_driver
+    version: v2.6.2+vmware.2
+    lockHash: f1e119dc87dfff7b6556af117366e2db
+  - name: kapp-controller
+    version: v0.41.2+vmware.2
+    lockHash: 5c554cc0c1560cbecca15389aa6ed829
+  - name: carvel-secretgen-controller
+    version: v0.11.2+vmware.1
+    lockHash: ac4e9ec91005a202064497e781d9a0dd
+  - name: tkg-storageclass-package
+    version: v0.28.0-dev-258-ge3654904-tkg-storageclass
+    lockHash: 1026f84b4979655d4275cf6f66be120e

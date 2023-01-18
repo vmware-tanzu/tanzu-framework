@@ -1,0 +1,43 @@
+componentBuilds:
+- name: harbor-package
+  version: v2.6.2+vmware.1-tkg.1-harbor-rc.2
+  channel: "442519250544895703"
+  url: https://buildweb.eng.vmware.com/ob/21093031/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.6.2_vmware.1-tkg.1-rc.2
+      sha256: c437ba222f69fdb0fc661aa8e3a95ee114e2596379cfa3e0837f22338f8cba3f
+  cachehash: 7e2b20b5aa816479bac99c8b6aec715f
+  publishhash: a5d762b015a1a159eaab004b8d93ec17
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/harbor/harbor-core:v2.6.2_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/harbor/harbor-db:v2.6.2_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/harbor/harbor-exporter:v2.6.2_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/harbor/harbor-jobservice:v2.6.2_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/harbor/harbor-portal:v2.6.2_vmware.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/harbor/harbor-registryctl:v2.6.2_vmware.1
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/harbor/notary-server-photon:v2.6.2_vmware.1
+    gobuild.downstream_image_7: projects-stg.registry.vmware.com/tkg/harbor/notary-signer-photon:v2.6.2_vmware.1
+    gobuild.downstream_image_8: projects-stg.registry.vmware.com/tkg/harbor/redis-photon:v2.6.2_vmware.1
+    gobuild.downstream_image_9: projects-stg.registry.vmware.com/tkg/harbor/registry-photon:v2.6.2_vmware.1
+    gobuild.downstream_image_10: projects-stg.registry.vmware.com/tkg/harbor/trivy-adapter-photon:v2.6.2_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-rc.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: harbor
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: projects.registry.vmware.com/tce/harbor/harbor-core:v2.6.2
+    gobuild.upstream_image_1: projects.registry.vmware.com/tce/harbor/harbor-db:v2.6.2
+    gobuild.upstream_image_2: projects.registry.vmware.com/tce/harbor/harbor-exporter:v2.6.2
+    gobuild.upstream_image_3: projects.registry.vmware.com/tce/harbor/harbor-jobservice:v2.6.2
+    gobuild.upstream_image_4: projects.registry.vmware.com/tce/harbor/harbor-portal:v2.6.2
+    gobuild.upstream_image_5: projects.registry.vmware.com/tce/harbor/harbor-registryctl:v2.6.2
+    gobuild.upstream_image_6: projects.registry.vmware.com/tce/harbor/notary-server-photon:v2.6.2
+    gobuild.upstream_image_7: projects.registry.vmware.com/tce/harbor/notary-signer-photon:v2.6.2
+    gobuild.upstream_image_8: projects.registry.vmware.com/tce/harbor/redis-photon:v2.6.2
+    gobuild.upstream_image_9: projects.registry.vmware.com/tce/harbor/registry-photon:v2.6.2
+    gobuild.upstream_image_10: projects.registry.vmware.com/tce/harbor/trivy-adapter-photon:v2.6.2
+    gobuild.upstream_version: 2.6.2

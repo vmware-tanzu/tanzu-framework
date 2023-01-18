@@ -1,0 +1,7 @@
+name: external-dns
+publish:
+  - name: externalDNSImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/external-dns/images/external-dns-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/external-dns/images/external-dns-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: external-dns:$UNDERSCOREVERSION

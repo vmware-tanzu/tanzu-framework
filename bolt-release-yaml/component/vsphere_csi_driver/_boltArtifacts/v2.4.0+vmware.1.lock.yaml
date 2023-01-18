@@ -1,0 +1,7 @@
+name: vsphere_csi_driver
+goBuildComponentLocks:
+- version: v2.4.0+vmware.1
+  gobuildBranch: 382797907729867291-v2.4.0+vmware.1
+  gobuildHeadCommit: aa340c94a71de82a0871878cb62dfd22b07a0ad9
+  hash: bb1df0b02e65521e999d88e2cc510f3d
+  componentLockReferences: []

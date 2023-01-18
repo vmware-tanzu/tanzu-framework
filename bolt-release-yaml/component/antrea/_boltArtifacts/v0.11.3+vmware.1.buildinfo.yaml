@@ -1,0 +1,15 @@
+componentBuilds:
+- name: antrea
+  version: v0.11.3+vmware.1
+  channel: "344752658646573759"
+  url: https://buildweb.eng.vmware.com/ob/17697332
+  artifactURL:
+    antctl:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17697332/publish/lin64/antrea/executables/antctl-v0.11.3+vmware.1.gz
+    antreaImage:
+      url: projects-stg.registry.vmware.com/tkg/antrea/antrea-debian:v0.11.3_vmware.1
+      sha256: be7a4ece557ecce80144416eed5cfe80bf17f798a7324430394f84398318153d
+    manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17697332/publish/lin64/antrea/manifests/antrea-v0.11.3+vmware.1.yml
+  cachehash: 2f0d59e508dead785b9b2288bc3e4dc1
+  publishhash: b9b758ff7dd008fe9d74743063de9684

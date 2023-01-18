@@ -1,0 +1,4 @@
+submodules:
+  - name: external-dns/src
+    go_mod:
+      - "go.mod"

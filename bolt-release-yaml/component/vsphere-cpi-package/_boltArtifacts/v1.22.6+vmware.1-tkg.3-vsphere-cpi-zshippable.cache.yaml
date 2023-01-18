@@ -1,0 +1,7 @@
+name: vsphere-cpi-package
+goBuildComponentCaches:
+- version: v1.22.6+vmware.1-tkg.3-vsphere-cpi-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20688204/
+  buildNumber: bora-20688204
+  buildStatus: SUCCEEDED
+  hash: 2174703ae8940c8bf880b1fd65ba43ed

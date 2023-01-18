@@ -1,0 +1,7 @@
+name: tanzu-auth-controller-manager
+goBuildComponentCaches:
+- version: v0.25.0-dev-88-g9813bd42
+  url: https://buildweb.eng.vmware.com/ob/20184605/
+  buildNumber: bora-20184605
+  buildStatus: SUCCEEDED
+  hash: f16038c76ab309a8cab33858e571be77

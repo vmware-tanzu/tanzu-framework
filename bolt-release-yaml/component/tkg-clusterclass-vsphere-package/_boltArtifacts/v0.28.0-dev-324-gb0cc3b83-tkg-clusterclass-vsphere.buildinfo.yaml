@@ -1,0 +1,20 @@
+componentBuilds:
+- name: tkg-clusterclass-vsphere-package
+  version: v0.28.0-dev-324-gb0cc3b83-tkg-clusterclass-vsphere
+  channel: "443090719112958276"
+  url: https://buildweb.eng.vmware.com/ob/21115523/
+  artifactURL:
+    tkg-clusterclass-vsphere.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkg-clusterclass-vsphere:v0.28.0-dev-324-gb0cc3b83_vmware.1
+      sha256: 7b7bdba0f5718be9d06c03f0f419af7af7aca9d7e942bc4a5684ec395a68c539
+  cachehash: 7be7ffaf88aeb83323ae21644a20d2c3
+  publishhash: 2072a70ba1b747d59cf2d738e252ed31
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-vsphere
+    gobuild.upstream_version: v0.28.0-dev-324-gb0cc3b83

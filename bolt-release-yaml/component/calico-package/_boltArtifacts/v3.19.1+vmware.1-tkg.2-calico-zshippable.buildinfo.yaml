@@ -1,0 +1,11 @@
+componentBuilds:
+- name: calico-package
+  version: v3.19.1+vmware.1-tkg.2-calico-zshippable
+  channel: "379176692926678716"
+  url: https://buildweb.eng.vmware.com/ob/18847951/
+  artifactURL:
+    calico.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/calico:v3.19.1_vmware.1-tkg.2-zshippable
+      sha256: cd938f5ae837ab704f5a8c7f9ab8ccf13fe59d95fab088b8ef05faeedcdb531b
+  cachehash: 85878a93e6ff89d6e761bc522cf128b0
+  publishhash: a041cb368fda942297756d58173a348a

@@ -1,0 +1,7 @@
+name: guest-cluster-cloud-provider
+goBuildComponentCaches:
+- version: v0.1-87-gb6bb261
+  url: https://buildweb.eng.vmware.com/ob/18205241/
+  buildNumber: bora-18205241
+  buildStatus: SUCCEEDED
+  hash: 9f6c41db03f5a6d206d634c603cd780a

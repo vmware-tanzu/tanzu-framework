@@ -1,0 +1,7 @@
+name: tanzu-capabilities-controller
+goBuildComponentCaches:
+- version: v0.24.0-dev-2-g82bb6552
+  url: https://buildweb.eng.vmware.com/ob/19965971/
+  buildNumber: bora-19965971
+  buildStatus: SUCCEEDED
+  hash: 23497d449d4e88932faa349a07c29a0c

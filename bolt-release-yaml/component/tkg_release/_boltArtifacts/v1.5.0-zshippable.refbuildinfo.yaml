@@ -1,0 +1,35 @@
+componentBuilds:
+- name: tkg-compatibility
+  version: v1.5.0-zshippable
+  channel: "393425107797693891"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/393425107797693891/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.5.0-zshippable.yaml
+  artifactURL:
+    globalTkgCompatibilityImage:
+      url: tkg-compatibility:v5
+    tkgCompatibilityImage:
+      url: projects-stg.registry.vmware.com/tkg/v1.5.0-zshippable/tkg-compatibility:v5
+      sha256: 41b94a3078963b65a7b7bc730b662624d82f304229242a46919d64c79e948ec0
+    tkgCompatibilityYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/393425107797693891/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.5.0-zshippable.yaml
+  cachehash: 5e306227e16823144c7a7217706ef1fd
+  publishhash: a80beda3bf7b54884285ee1c9fafd3a2
+- name: tanzu-framework-management-packages
+  version: v0.11.1-89-g09d1d7d7
+  channel: "393094303729066334"
+  url: https://buildweb.eng.vmware.com/ob/19304490/
+  artifactURL:
+    tanzuFrameworkManagementPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/repo:v0.11.1-89-g09d1d7d7
+      sha256: 2b1646a8c6ffa678b21187c90f4281c0b626276b1223b186cf1d5224e79e8e76
+  cachehash: d77c71c5dd8fab1750efebff53d62e31
+  publishhash: 4632b98ace28a7f1c805dcf64482e1a8
+- name: standalone-plugins-package
+  version: v0.11.1-89-g09d1d7d7-standalone-plugins
+  channel: "393094303729066334"
+  url: https://buildweb.eng.vmware.com/ob/19304432/
+  artifactURL:
+    standalone-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standalone/standalone-plugins:v0.11.1-89-g09d1d7d7_vmware.1
+      sha256: c3a3b6da267abb9e8bcf45d83044936748f23e8d7dac7cdf05d180aa4b586fd7
+  cachehash: 771c842db3588031c5198cf2341edada
+  publishhash: 61380dd6e6b4508ddb4529016630a597

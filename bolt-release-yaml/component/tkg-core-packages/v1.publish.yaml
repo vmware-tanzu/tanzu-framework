@@ -1,0 +1,6 @@
+name: tkg-core-packages
+publish:
+- name: tanzuCorePackageRepositoryImage
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-package-repository-bundle/package-repo-bundles/core/tkg-core-repo-{{underscoredplus (index .config "packageRepositories" 0 "dependencies" "gobuild.releaseVersion")}}.tar.gz
+  destinationPath: packages/core/repo:{{underscoredplus (index .config "packageRepositories" 0 "dependencies" "gobuild.releaseVersion")}}

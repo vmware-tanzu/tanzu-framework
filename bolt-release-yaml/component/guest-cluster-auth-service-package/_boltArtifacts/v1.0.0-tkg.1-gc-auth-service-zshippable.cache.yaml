@@ -1,0 +1,7 @@
+name: guest-cluster-auth-service-package
+goBuildComponentCaches:
+- version: v1.0.0-tkg.1-gc-auth-service-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20381736/
+  buildNumber: bora-20381736
+  buildStatus: SUCCEEDED
+  hash: 08b0887aa31261b560636546cc301e27

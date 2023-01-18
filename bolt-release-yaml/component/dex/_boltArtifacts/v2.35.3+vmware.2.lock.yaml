@@ -1,0 +1,7 @@
+name: dex
+goBuildComponentLocks:
+- version: v2.35.3+vmware.2
+  gobuildBranch: vmware-2.35.3+vmware.2
+  gobuildHeadCommit: f05280b6807921d6f0ddc3ea76aa60ed17e7d936
+  hash: 5086526bf8c981ce6df95eda0eb4c2bc
+  componentLockReferences: []

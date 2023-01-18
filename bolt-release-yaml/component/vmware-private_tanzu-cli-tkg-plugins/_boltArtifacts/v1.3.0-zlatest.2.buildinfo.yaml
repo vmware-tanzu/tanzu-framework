@@ -1,0 +1,18 @@
+componentBuilds:
+- name: vmware-private_tanzu-cli-tkg-plugins
+  version: v1.3.0-zlatest.2
+  channel: "345603543324988397"
+  url: https://buildweb.eng.vmware.com/ob/17741271/
+  artifactURL:
+    mgmt-cluster-plugin-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17741271/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-darwin-amd64.tar
+    mgmt-cluster-plugin-linux-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17741271/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-linux-386.tar
+    mgmt-cluster-plugin-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17741271/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-linux-amd64.tar
+    mgmt-cluster-plugin-windows-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17741271/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-windows-386.tar
+    mgmt-cluster-plugin-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17741271/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-windows-amd64.tar
+  cachehash: "13990227118487913913"
+  publishhash: "1515848812514281853"

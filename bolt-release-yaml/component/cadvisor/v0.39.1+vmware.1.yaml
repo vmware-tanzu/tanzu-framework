@@ -1,0 +1,7 @@
+name: cadvisor
+unmanagedComponents:
+  - version: v0.39.1+vmware.1
+    gobuildBranch: vmware-0.39.1~ffe69677d22f2997b496b094022bffb2407ded94
+    dependencies:
+      gobuild.golangVersion: 1.14.1
+      gobuild.linux_hosttype: linux-centos72-gc32

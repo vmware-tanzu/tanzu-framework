@@ -1,0 +1,4 @@
+submodules:
+  - name: kubernetes-csi_external-resizer/src
+    go_mod:
+      - "go.mod"

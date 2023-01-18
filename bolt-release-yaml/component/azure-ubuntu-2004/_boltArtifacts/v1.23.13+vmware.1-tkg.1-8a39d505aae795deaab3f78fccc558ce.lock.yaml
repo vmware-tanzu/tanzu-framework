@@ -1,0 +1,23 @@
+name: azure-ubuntu-2004
+imageLocks:
+- version: v1.23.13+vmware.1-tkg.1-8a39d505aae795deaab3f78fccc558ce
+  hash: 74e2c6d93b0f94709350c7144d92cd76
+  componentLockReferences:
+  - name: cni_plugins
+    version: v1.1.1+vmware.7
+    lockHash: e49db13d42060ce135b437c7b0cbbf73
+  - name: coredns
+    version: v1.8.6+vmware.11
+    lockHash: 584b9464b1c2f5d16efaa3aecfeca775
+  - name: cri_tools
+    version: v1.22.0+vmware.9
+    lockHash: b357b0c15296944bfea35a71e651040e
+  - name: etcd
+    version: v3.5.4+vmware.12
+    lockHash: f8ade3f829c421808a9c1eb082894184
+  - name: containerd
+    version: v1.6.6+vmware.2
+    lockHash: 506989fbb24cba85136830704fca11aa
+  - name: kubernetes
+    version: v1.23.13+vmware.1
+    lockHash: 77e8c85f2746ddcc6b0b2701173b1215

@@ -1,0 +1,7 @@
+name: source-controller
+goBuildComponentCaches:
+- version: v0.24.4+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/19878462
+  buildNumber: bora-19878462
+  buildStatus: SUCCEEDED
+  hash: 2aac96cd87cb57ab1e8f7dfb1086ed41

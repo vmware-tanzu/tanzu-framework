@@ -1,0 +1,7 @@
+name: multus-cni-package
+goBuildComponentCaches:
+- version: v3.7.1+vmware.2-tkg.1-multus-cni-zshippable
+  url: https://buildweb.eng.vmware.com/ob/18848001/
+  buildNumber: bora-18848001
+  buildStatus: SUCCEEDED
+  hash: 26f51073044bf2d68ca1c11e0d0ecda8

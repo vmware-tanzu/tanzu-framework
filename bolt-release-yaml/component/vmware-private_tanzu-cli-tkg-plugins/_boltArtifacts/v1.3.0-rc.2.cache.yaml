@@ -1,0 +1,7 @@
+name: vmware-private_tanzu-cli-tkg-plugins
+goBuildComponentCaches:
+- version: v1.3.0-rc.2
+  url: https://buildweb.eng.vmware.com/ob/17671878/
+  buildNumber: bora-17671878
+  buildStatus: SUCCEEDED
+  hash: "9146285263335654943"

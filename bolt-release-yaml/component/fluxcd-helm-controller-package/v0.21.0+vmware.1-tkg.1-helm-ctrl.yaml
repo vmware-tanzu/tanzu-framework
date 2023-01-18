@@ -1,0 +1,21 @@
+name: fluxcd-helm-controller-package
+packages:
+  - version: v0.21.0+vmware.1-tkg.1-helm-ctrl
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: c54bd99a07bf6d64ddde9db1bc86b137e74b91e1
+    componentReferences:
+      - name: helm-controller
+        version:
+        - v0.21.0+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "True"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: fluxcd-helm-controller
+      gobuild.upstream_image_0: "fluxcd/helm-controller:v0.21.0"
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "helm-controller").artifactURL.helmControllerImage.url}}'
+      gobuild.upstream_version: 0.21.0
+      gobuild.downstream_version: vmware.1-tkg.1
+      gobuild.package_type: standard
+      gobuild.noMirror: "true"

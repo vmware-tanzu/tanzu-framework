@@ -1,0 +1,15 @@
+componentBuilds:
+- name: tkg-compatibility
+  version: v1.5.1-tf-v0.11.2
+  channel: "398312212587889285"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/398312212587889285/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.5.1-tf-v0.11.2.yaml
+  artifactURL:
+    globalTkgCompatibilityImage:
+      url: framework-zshippable/tkg-compatibility:v41
+    tkgCompatibilityImage:
+      url: projects-stg.registry.vmware.com/tkg/framework-zshippable/tkg-compatibility:v41
+      sha256: e324e470f895f85f55d0452dfb0f925e9364c5281ec4f76b051d8ce7a0ad4c3b
+    tkgCompatibilityYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/398312212587889285/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.5.1-tf-v0.11.2.yaml
+  cachehash: df552a4148ee6c1049a22fbfc4966839
+  publishhash: a80beda3bf7b54884285ee1c9fafd3a2

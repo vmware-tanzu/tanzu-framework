@@ -1,0 +1,3 @@
+versionMap:
+  v0.0.4+vmware.1: publish.yaml
+  v0.0.4+vmware.2: publish.yaml

@@ -1,0 +1,15 @@
+componentBuilds:
+- name: aws-ebs-csi-driver
+  version: v1.8.0+vmware.2
+  channel: "441867356684162878"
+  url: https://buildweb.eng.vmware.com/ob/21068902/
+  artifactURL:
+    awsEbsCsiDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/aws-ebs-csi-driver:v1.8.0_vmware.2
+      sha256: d150df080abfaf0635ee6545a93167ae37f2db55738af3c39e5194144ee1845a
+  cachehash: 85301fba4aba43302903393c78c27e3e
+  publishhash: d7c19f9177742a4878431bc2a5ade0e3
+  configDependencies:
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos8

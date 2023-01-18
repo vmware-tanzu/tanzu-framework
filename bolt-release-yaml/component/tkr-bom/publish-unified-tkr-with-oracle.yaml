@@ -1,0 +1,51 @@
+# compared with publish-unified-tkr.yaml: add oracle infra
+name: tkr-bom
+publish:
+  - name: tkr-aws.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-$VERSION-aws.tar.gz
+    destinationPath: tkr-aws:$UNDERSCOREVERSION
+  - name: tkr-azure.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-$VERSION-azure.tar.gz
+    destinationPath: tkr-azure:$UNDERSCOREVERSION
+  - name: tkr-oracle.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-$VERSION-oracle.tar.gz
+    destinationPath: tkr-oracle:$UNDERSCOREVERSION
+  - name: tkr-vsphere-nonparavirt.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-$VERSION-vsphere-nonparavirt.tar.gz
+    destinationPath: tkr-vsphere-nonparavirt:$UNDERSCOREVERSION
+  - name: tkr-vsphere.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-$VERSION-vsphere.tar.gz
+    destinationPath: tkr-vsphere:$UNDERSCOREVERSION
+  - name: tkr-repository-aws.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-repository-$VERSION-aws.tar.gz
+    destinationPath: tkr-repository-aws:$UNDERSCOREVERSION
+  - name: tkr-repository-azure.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-repository-$VERSION-azure.tar.gz
+    destinationPath: tkr-repository-azure:$UNDERSCOREVERSION
+  - name: tkr-repository-oracle.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-repository-$VERSION-oracle.tar.gz
+    destinationPath: tkr-repository-oracle:$UNDERSCOREVERSION
+  - name: tkr-repository-vsphere-nonparavirt.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-repository-$VERSION-vsphere-nonparavirt.tar.gz
+    destinationPath: tkr-repository-vsphere-nonparavirt:$UNDERSCOREVERSION
+  - name: tkr-repository-vsphere.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/unified-tkr-repository-$VERSION-vsphere.tar.gz
+    destinationPath: tkr-repository-vsphere:$UNDERSCOREVERSION
+  - name: tkrBomImage
+    type: image
+    sourcePath: $SOURCECHANNEL/component/tkr-bom/_boltArtifacts/tkr-bom-$VERSION.tar.gz
+    destinationPath: tkr-bom:$UNDERSCOREVERSION
+nonpublish:
+  - name: tkrBomYaml
+    type: file
+    destinationPath: $CHANNEL/component/tkr-bom/_boltArtifacts/tkr-bom-$VERSION.yaml

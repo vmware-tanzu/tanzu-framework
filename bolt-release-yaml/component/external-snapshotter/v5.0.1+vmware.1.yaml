@@ -1,0 +1,7 @@
+name: external-snapshotter
+unmanagedComponents: 
+  - version: v5.0.1+vmware.1
+    gobuildBranch: vmware-5.0.1~2d093b150c9716a60b330978b3591c918ce6db99
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32
+      gobuild.golangVersion: 1.17.3

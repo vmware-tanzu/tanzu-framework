@@ -1,0 +1,8 @@
+name: azure-ubuntu-1804
+imageCaches:
+- version: v1.22.8+vmware.1-tkg.1-sig-fips.1-azure-ubuntu-1804
+  channel: "403578448653589798"
+  hash: 7c8b224b9546484ad1007c8d00daac69
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/1880
+  buildNumber: "1880"
+  buildStatus: SUCCEEDED

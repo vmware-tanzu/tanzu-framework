@@ -1,0 +1,4 @@
+submodules:
+  - name: kbld/src
+    go_mod:
+      - "go.mod"

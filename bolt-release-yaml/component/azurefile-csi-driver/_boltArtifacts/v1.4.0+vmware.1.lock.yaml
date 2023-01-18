@@ -1,0 +1,7 @@
+name: azurefile-csi-driver
+goBuildComponentLocks:
+- version: v1.4.0+vmware.1
+  gobuildBranch: 364818381804671657-v1.4.0+vmware.1
+  gobuildHeadCommit: 4f57fa22df8a102e3794b21b4e1135ba700977e2
+  hash: f933730e33eca5e6f89898666396fdb3
+  componentLockReferences: []

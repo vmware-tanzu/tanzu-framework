@@ -1,0 +1,6 @@
+# The purpose of the file is to store the tkg_release buildID that only sign 1.3.1-patch1 OVAs.
+# Due to tkg_release buildweb storage limit, we create this one-off build to sign and store the OVAs.
+# Storage limit has been fixed.
+componentBuilds:
+- name: tkg_release
+  url: https://buildweb.eng.vmware.com/ob/18047382/

@@ -1,0 +1,12 @@
+# Note: we created this file manually so that 1.5.0 tkg-standard-pacakges can pick this up
+componentBuilds:
+- name: external-dns-package
+  version: v0.8.0+vmware.1-tkg.1-external-dns
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/external-dns:v0.8.0_vmware.1-tkg.1
+      sha256: ae8cd950bbeb94b8ff66e41eaf62bcc4470f1f1ab424032a996a0193f5245961
+  cachehash: 0
+  publishhash: 0

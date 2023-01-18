@@ -1,0 +1,63 @@
+name: tanzu-framework-management-packages
+packageRepositories:
+- version: v0.21.0-dev-114-gac291353
+  upstreamCommit: ac2913534a15adb6c30cfc042043e00fa9c46795
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repos~4205e90cf5fa9cc459e2d374a5a274de580ff046
+  componentReferences:
+  - name: addons-manager-v2-package
+    version:
+    - v0.21.0-dev-114-gac291353-addons-manager-v2
+  - name: featuregates-package
+    version:
+    - v0.21.0-dev-114-gac291353-featuregates
+  - name: core-management-plugins-package
+    version:
+    - v0.21.0-dev-114-gac291353-core-mgmt-plugins
+  - name: tkg-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkg
+  - name: tkg-clusterclass-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkg-clusterclass
+  - name: tkg-clusterclass-aws-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkg-clusterclass-aws
+  - name: tkg-clusterclass-vsphere-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkg-clusterclass-vsphere
+  - name: tkg-clusterclass-azure-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkg-clusterclass-azure
+  - name: tkg-clusterclass-docker-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkg-clusterclass-docker
+  - name: tkr-aws-machine-webhook-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkr-aws-mc-webhook
+  - name: tkr-azure-machine-webhook-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkr-azure-mc-webhook
+  - name: tkr-docker-machine-webhook-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkr-docker-mc-webhook
+  - name: tkr-vsphere-machine-webhook-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkr-vsphere-mc-webhook
+  - name: tkr-service-package
+    version:
+    - v0.21.0-dev-114-gac291353-tkr-service
+  - name: cliplugins-package
+    version:
+    - v0.21.0-dev-114-gac291353-cliplugins
+  - name: framework-package
+    version:
+    - v0.21.0-dev-114-gac291353-framework
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_type: management
+    gobuild.releaseVersion: v0.21.0-dev-114-gac291353

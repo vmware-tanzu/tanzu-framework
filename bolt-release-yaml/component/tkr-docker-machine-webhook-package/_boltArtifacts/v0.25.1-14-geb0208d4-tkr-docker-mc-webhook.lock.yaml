@@ -1,0 +1,10 @@
+name: tkr-docker-machine-webhook-package
+goBuildComponentLocks:
+- version: v0.25.1-14-geb0208d4-tkr-docker-mc-webhook
+  gobuildBranch: 433531505696845542-v0.25.1-14-geb0208d4-tkr-docker-mc-webhook-tkr-docker-machine-webhook-package
+  gobuildHeadCommit: b7e2b04d0b2c76e23e05fb7148bbadc720902128
+  hash: c93e722216f91c460485fa19d9c7a586
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.25.1-14-geb0208d4
+    lockHash: e50f510d2a0dc77401639392b1e2470a

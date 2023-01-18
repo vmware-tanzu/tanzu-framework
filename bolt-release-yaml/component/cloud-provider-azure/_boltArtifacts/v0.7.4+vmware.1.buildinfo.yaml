@@ -1,0 +1,14 @@
+componentBuilds:
+- name: cloud-provider-azure
+  version: v0.7.4+vmware.1
+  channel: "363525711488621188"
+  url: https://buildweb.eng.vmware.com/ob/18316206/
+  artifactURL:
+    ccmAzureControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/azure-cloud-controller-manager:v0.7.4_vmware.1
+      sha256: 6914669f6df9a36f38669cc98fad304604fb0639a382e72ecb347ef1b0ceeb00
+    ccmAzureNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/azure-cloud-node-manager:v0.7.4_vmware.1
+      sha256: e33b2d4b8ee3e57bdc18428d87ea5a751dc52bab2e9323150d482884c12051f2
+  cachehash: 95ff482b04808adb37cba76c6025414a
+  publishhash: 63eee5666110835c321ef4ec934f7386

@@ -1,0 +1,27 @@
+componentBuilds:
+- name: pinniped-package
+  version: v0.12.1+vmware.2-tkg.2-pinniped-tf-v0.25.3
+  channel: "435844226484280273"
+  url: https://buildweb.eng.vmware.com/ob/20846517/
+  artifactURL:
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.12.1_vmware.2-tkg.2-tf-v0.25.3
+      sha256: 4413713b9f1eb13c1ad2c1606e0d405ca9c0ae01f91f0a0e8507b5153b7fc63d
+  cachehash: 30e92c31a6ecb295bee63b09258d626f
+  publishhash: deeac3b3022bf44de880663cd7ec52c5
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.12.1_vmware.2-tkg.2
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/pinniped:v0.12.1_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/dex:v2.30.2_vmware.1
+    gobuild.downstream_version: vmware.2-tkg.2-tf-v0.25.3
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: pinniped
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects.registry.vmware.com/tce/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.1
+    gobuild.upstream_image_1: docker.io/getpinniped/pinniped-server:v0.12.1
+    gobuild.upstream_image_2: projects.registry.vmware.com/tce/dex:v2.30.2_vmware.1
+    gobuild.upstream_version: 0.12.1

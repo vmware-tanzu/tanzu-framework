@@ -1,0 +1,7 @@
+name: csi_livenessprobe
+goBuildComponentLocks:
+- version: v2.6.0+vmware.1
+  gobuildBranch: 416456499934561712-v2.6.0+vmware.1-csi_livenessprobe
+  gobuildHeadCommit: 2f423ff5216d85ac9d7ff079082e8a8fa788cc29
+  hash: feca8773526a97ac49e4a1ad4dfd0f8d
+  componentLockReferences: []

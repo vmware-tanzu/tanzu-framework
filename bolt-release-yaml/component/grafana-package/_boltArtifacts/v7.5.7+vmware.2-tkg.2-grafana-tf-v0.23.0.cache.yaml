@@ -1,0 +1,7 @@
+name: grafana-package
+goBuildComponentCaches:
+- version: v7.5.7+vmware.2-tkg.2-grafana-tf-v0.23.0
+  url: https://buildweb.eng.vmware.com/ob/19996764/
+  buildNumber: bora-19996764
+  buildStatus: SUCCEEDED
+  hash: 7d47d9675e503aec1f2b7f2fa7f17305

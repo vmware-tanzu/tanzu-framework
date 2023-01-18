@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: tkg core v1.19.15+vmware.1 release yaml
+componentReferences:
+- name: kscom_release
+  version:
+  - v1.19.15+vmware.1

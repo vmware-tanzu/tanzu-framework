@@ -1,0 +1,7 @@
+name: cluster_api_aws
+goBuildComponentCaches:
+- version: v2.0.0-beta.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20718905/
+  buildNumber: bora-20718905
+  buildStatus: SUCCEEDED
+  hash: 1caec6c0bf9ab19d3d3d37e5014afce8

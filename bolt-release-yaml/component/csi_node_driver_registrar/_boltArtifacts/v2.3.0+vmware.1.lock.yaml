@@ -1,0 +1,7 @@
+name: csi_node_driver_registrar
+goBuildComponentLocks:
+- version: v2.3.0+vmware.1
+  gobuildBranch: 382797907729867291-v2.3.0+vmware.1
+  gobuildHeadCommit: 1aedc7c5daef6e5bbaae31245dd4b3ee45775b1a
+  hash: 30372b46ca5b674a6ed763cc823c6d35
+  componentLockReferences: []

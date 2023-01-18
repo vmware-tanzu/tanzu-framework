@@ -1,0 +1,10 @@
+name: cloud_provider_vsphere
+managedComponents:
+  - version: v1.20.0+vmware.1
+    upstreamTag: v1.20.0
+    mirrorCherryPicks: []
+    gobuildBaseBranch: vmware-1.20.0~b4a389c6f3634892cdcdfca654ba659201d8c44e
+    dependencies:
+      gobuild.golangVersion: 1.15
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32

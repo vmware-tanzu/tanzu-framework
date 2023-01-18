@@ -1,0 +1,7 @@
+name: tkg-remediator
+goBuildComponentCaches:
+- version: v1.0.2
+  url: https://buildweb.eng.vmware.com/ob/20573160/
+  buildNumber: bora-20573160
+  buildStatus: SUCCEEDED
+  hash: 85c2e87869a6d75602761004379c22e2

@@ -1,0 +1,24 @@
+componentBuilds:
+- name: cri_tools
+  version: v1.24.2+vmware.2-fips.1
+  channel: "438023446014763333"
+  url: https://buildweb.eng.vmware.com/ob/20928876/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20928876/publish/lin64/cri_tools/executables/crictl-v1.24.2+vmware.2-fips.1.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20928876/publish/lin64/cri_tools/debs/cri-tools_1.24.2+vmware.2-fips.1-1_amd64.deb
+    cri_tools-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20928876/publish/lin64/cri_tools/rpms/rpms/cri-tools-1.24.2-1.el7.vmware.2-fips.1.x86_64.rpm
+    cri_tools-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20928876/publish/lin64/cri_tools/rpms/srpms/cri-tools-1.24.2-1.el7.vmware.2-fips.1.src.rpm
+  cachehash: 262f7118cc6bb0ad9ed56bc995bd9026
+  publishhash: 19dda37dbdb589ac6c1c2652c431f21f
+  configDependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "1"
+    gobuild.golangImageName: go
+    gobuild.golangImageRegistry: fips-runtime-containers-docker-local.artifactory.eng.vmware.com
+    gobuild.golangImageVersion: 1.19.1
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8

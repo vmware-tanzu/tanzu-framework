@@ -1,0 +1,7 @@
+name: k14s_kapp
+goBuildComponentLocks:
+- version: v0.53.0+vmware.1
+  gobuildBranch: vmware-0.53.0
+  gobuildHeadCommit: 67ef5f5290ee0b269d5bd71f4f72d1e5c32f7f86
+  hash: 5eed6aed289794129962a12735f81472
+  componentLockReferences: []

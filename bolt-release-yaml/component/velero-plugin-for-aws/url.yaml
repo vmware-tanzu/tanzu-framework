@@ -1,0 +1,8 @@
+name: velero-plugin-for-aws
+upstreamURL: https://github.com/vmware-tanzu/velero-plugin-for-aws.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_velero-plugin-for-aws.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_velero-plugin-for-aws
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_velero-plugin-for-aws.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_velero-plugin-for-aws.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_velero-plugin-for-aws.git
+gobuildTarget: cayman_velero-plugin-for-aws

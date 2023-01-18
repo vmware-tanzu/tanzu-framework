@@ -1,0 +1,22 @@
+name: metrics-server-package
+packages:
+- version: v0.6.1+vmware.1-tkg.3-metrics-server-fc.2
+  upstreamCommit: f3a5756f1a343539e74235f4e746e172c04f9117
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: metrics-server
+    version:
+    - v0.6.1+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "metrics-server").artifactURL.metricsServerImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.3-fc.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: metrics-server
+    gobuild.package_type: core
+    gobuild.upstream_image_0: k8s.gcr.io/metrics-server/metrics-server:v0.6.1
+    gobuild.upstream_version: 0.6.1

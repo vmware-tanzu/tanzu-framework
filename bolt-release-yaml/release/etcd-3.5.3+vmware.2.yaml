@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: etcd 3.5.3+vmware.2
+componentReferences:
+- name: etcd
+  version:
+  - v3.5.3+vmware.2

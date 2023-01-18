@@ -1,0 +1,12 @@
+componentBuilds:
+- name: cri_tools
+  version: v1.19.0+vmware.3-fips.1-zshippable
+  channel: "365428766534569969"
+  url: https://buildweb.eng.vmware.com/ob/18383814/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18383814/publish/lin64/cri_tools/executables/crictl-v1.19.0+vmware.3-fips.1-zshippable.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18383814/publish/lin64/cri_tools/debs/cri-tools_v1.19.0+vmware.3-fips.1-zshippable-1_amd64.deb
+  cachehash: cd147091eea5dc21e7e913a244ac4a5b
+  publishhash: 6b0e7716fd048755adc78937d4e7bf33

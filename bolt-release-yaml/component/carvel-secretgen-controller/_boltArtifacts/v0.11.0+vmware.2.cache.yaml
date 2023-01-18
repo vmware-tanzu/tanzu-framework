@@ -1,0 +1,7 @@
+name: carvel-secretgen-controller
+goBuildComponentCaches:
+- version: v0.11.0+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/20553619
+  buildNumber: bora-20553619
+  buildStatus: SUCCEEDED
+  hash: 737ac6d070c42922ffb44d22086587a5

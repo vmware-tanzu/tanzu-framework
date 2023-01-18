@@ -1,0 +1,9 @@
+# This version was previously a managed component
+# It is converted to an unmanaged to work with the new build service
+# Consider making it a managed component for the next version
+name: cloud_provider_vsphere
+unmanagedComponents:
+  - version: v1.2.1+vmware.1
+    gobuildBranch: vmware-1.2.1
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,7 @@
+name: load-balancer-and-ingress-service-package
+goBuildComponentCaches:
+- version: v1.6.1+vmware.2-tkg.1-ako-rc.6
+  url: https://buildweb.eng.vmware.com/ob/19244868/
+  buildNumber: bora-19244868
+  buildStatus: SUCCEEDED
+  hash: 9714dbd13579d478db4c8d966156668f

@@ -1,0 +1,22 @@
+name: secretgen-controller-package
+packages:
+- version: v0.11.2+vmware.1-tkg.1-secgen-ctl-rc.2
+  upstreamCommit: 94eacabda92b448f62cc845e953327c71945871b
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: carvel-secretgen-controller
+    version:
+    - v0.11.2+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "carvel-secretgen-controller").artifactURL.secretgenControllerImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.1-rc.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: secretgen-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: secretgen-controller
+    gobuild.upstream_version: 0.11.2

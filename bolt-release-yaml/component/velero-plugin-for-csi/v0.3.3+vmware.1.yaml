@@ -1,0 +1,6 @@
+name: velero-plugin-for-csi
+unmanagedComponents:
+  - version: v0.3.3+vmware.1
+    gobuildBranch: vmware-0.3.3~4e0951ad2888c09cec8b36e8ca85aa1f561898ee
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,11 @@
+name: tkg-compatibility
+boms:
+- version: v1.7.0-zshippable
+  type: tkg-compatibility
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.28.0-dev-307-g850cbf02
+  - name: tkg-bom
+    version:
+    - v1.7.0-zshippable

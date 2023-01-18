@@ -1,0 +1,23 @@
+name: ami-general-amazon-2
+imageLocks:
+- version: v1.21.14+vmware.2-tkg.1-15252ca564a301f0f1f112ba81b001d8
+  hash: 94057f809356c4059eaa8ed9d0a5d8a9
+  componentLockReferences:
+  - name: cni_plugins
+    version: v1.1.1+vmware.2
+    lockHash: 6d46aaf822c63d16ed1c4b0f19bbe2ab
+  - name: coredns
+    version: v1.8.0+vmware.14
+    lockHash: f5e32fe99a430470a01b6d1764f032b4
+  - name: cri_tools
+    version: v1.20.0+vmware.11
+    lockHash: ce44b593c5b2695c07ef1d55b085e7ae
+  - name: etcd
+    version: v3.4.18+vmware.1
+    lockHash: f86cdcf75080cf0551cae9f38c1fdfc7
+  - name: containerd
+    version: v1.5.13+vmware.1
+    lockHash: cb597e991a7b71b009e66fcb7ee80be9
+  - name: kubernetes
+    version: v1.21.14+vmware.2
+    lockHash: 8e0d380a495848ae53efb789c6a4060a

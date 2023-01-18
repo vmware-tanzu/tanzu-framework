@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-clusterclass-docker-package
+  version: v0.17.0-dev-24-gbc750f62-tkg-clusterclass-docker
+  channel: "394274516953488593"
+  url: https://buildweb.eng.vmware.com/ob/19342057/
+  artifactURL:
+    tkg-clusterclass-docker.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-docker:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: 404813ad2fa27b825df0b5342b5ffb5f5730f2917b0d45f463576ccd679be4be
+  cachehash: 9862d63b733cd8a94048bd35934ae737
+  publishhash: 7bd05f927afe0e6ab7d7d37ee4f30d36

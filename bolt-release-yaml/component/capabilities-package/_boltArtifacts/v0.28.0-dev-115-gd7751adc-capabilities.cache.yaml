@@ -1,0 +1,7 @@
+name: capabilities-package
+goBuildComponentCaches:
+- version: v0.28.0-dev-115-gd7751adc-capabilities
+  url: https://buildweb.eng.vmware.com/ob/20801128/
+  buildNumber: bora-20801128
+  buildStatus: SUCCEEDED
+  hash: 9defd944767bf5b18f444afe4b5f6220

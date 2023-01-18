@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off effort to release the tkg-standard-package v1.6.0-update.1-zshippable for TMC"
+componentReferences:
+- name: tkg-standard-packages
+  version:
+  - v1.6.0-update.1-zshippable

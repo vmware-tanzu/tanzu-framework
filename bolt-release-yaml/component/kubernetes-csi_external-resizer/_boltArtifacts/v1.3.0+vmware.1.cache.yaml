@@ -1,0 +1,7 @@
+name: kubernetes-csi_external-resizer
+goBuildComponentCaches:
+- version: v1.3.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18879540
+  buildNumber: bora-18879540
+  buildStatus: SUCCEEDED
+  hash: 008bde02ec78d4960bdb2f3f2f31e361

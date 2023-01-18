@@ -1,0 +1,88 @@
+name: ami-general-ubuntu-2004
+imageCaches:
+- version: v1.20.1+vmware.2-tkg.0-11381588870850005500
+  channel: "342677371016464067"
+  bomAMI:
+    ami:
+      ap-northeast-1:
+      - id: ami-005b2f8d26269108f
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      ap-northeast-2:
+      - id: ami-0d5c32ecf46c3ea9b
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      ap-south-1:
+      - id: ami-00d08c4f61da55ce5
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      ap-southeast-1:
+      - id: ami-0f672843218a68143
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      ap-southeast-2:
+      - id: ami-0b13432ec86043fa6
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      eu-central-1:
+      - id: ami-00e802383cf5c7cf6
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      eu-west-1:
+      - id: ami-0b3996c92f7a9d24b
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      eu-west-2:
+      - id: ami-031008e01c8773d95
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      eu-west-3:
+      - id: ami-0806d732490c89eba
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      sa-east-1:
+      - id: ami-04e8e5c7c4e558c44
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      us-east-1:
+      - id: ami-02e8259a0d0296634
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      us-east-2:
+      - id: ami-09c89d6343c571819
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      us-west-2:
+      - id: ami-07c0c06efaa8d72a6
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+  hash: "9091270768470344812"
+  url: https://kscom.svc.eng.vmware.com/job/build-ami-general-v1alpha2/70
+  buildNumber: "70"
+  buildStatus: SUCCEEDED

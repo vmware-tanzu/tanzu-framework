@@ -1,0 +1,6 @@
+name: tkr-source-controller-package
+publish:
+  - name: tkr-source-controller.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework-package-bundles/package-bundles/management/tkr-source-controller-{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}.tar.gz
+    destinationPath: packages/management/tkr-source-controller:{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}

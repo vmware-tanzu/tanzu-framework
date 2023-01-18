@@ -1,0 +1,23 @@
+componentBuilds:
+- name: cri_tools
+  version: v1.23.0+vmware.4
+  channel: "427370538571144651"
+  url: https://buildweb.eng.vmware.com/ob/20532613/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20532613/publish/lin64/cri_tools/executables/crictl-v1.23.0+vmware.4.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20532613/publish/lin64/cri_tools/debs/cri-tools_1.23.0+vmware.4-1_amd64.deb
+    cri_tools-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20532613/publish/lin64/cri_tools/rpms/rpms/cri-tools-1.23.0-1.el7.vmware.4.x86_64.rpm
+    cri_tools-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20532613/publish/lin64/cri_tools/rpms/srpms/cri-tools-1.23.0-1.el7.vmware.4.src.rpm
+  cachehash: 189c2a926a0e2b79a02a65fe7b7f8eac
+  publishhash: 19dda37dbdb589ac6c1c2652c431f21f
+  configDependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "0"
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.18.6
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8

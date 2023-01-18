@@ -1,0 +1,22 @@
+componentBuilds:
+- name: tkr-source-controller-package
+  version: v0.25.0-tf-tkr-source-controller
+  channel: "419747994561181083"
+  url: https://buildweb.eng.vmware.com/ob/20238282/
+  artifactURL:
+    tkr-source-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkr-source-controller:v0.25.0-tf_vmware.1
+      sha256: 25a4fb7c0269c6fecba5e7650325f5a47087e92122ad94d54669c696c21a22cd
+  cachehash: c6b39c7a15eb8e7922d585ba35ed4062
+  publishhash: 210dcbb364861e56ab21eb3e6b27771a
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-source-controller:v0.25.0-tf
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-source-controller
+    gobuild.upstream_image_0: tkr-source-controller:latest
+    gobuild.upstream_version: v0.25.0-tf

@@ -1,0 +1,21 @@
+name: fluxcd-kustomize-controller-package
+packages:
+  - version: v0.24.4+vmware.1-tkg.1-kustomize-ctrl-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: c54bd99a07bf6d64ddde9db1bc86b137e74b91e1
+    componentReferences:
+      - name: kustomize-controller
+        version:
+        - v0.24.4+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: fluxcd-kustomize-controller
+      gobuild.upstream_image_0: "fluxcd/kustomize-controller:v0.24.4"
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "kustomize-controller").artifactURL.kustomizeControllerImage.url}}'
+      gobuild.upstream_version: 0.24.4
+      gobuild.downstream_version: vmware.1-tkg.1-zshippable
+      gobuild.package_type: standard
+      gobuild.noMirror: "true"

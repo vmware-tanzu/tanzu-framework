@@ -1,0 +1,46 @@
+name: tanzu-framework-management-packages
+goBuildComponentLocks:
+- version: v0.19.0-dev-16-g9179e175
+  gobuildBranch: 398165529405178501-v0.19.0-dev-16-g9179e175-tf-mgmt-packages
+  gobuildHeadCommit: 3f3c451b005fe3074e36b9fbfe8f0a124ca3044e
+  hash: e9e27d8807acd4549ec7ec0bb5bf91ce
+  componentLockReferences:
+  - name: addons-manager-v2-package
+    version: v0.19.0-dev-16-g9179e175-addons-manager-v2
+    lockHash: 9723a24d221db366f0301bb1faf8c8c8
+  - name: featuregates-package
+    version: v0.19.0-dev-16-g9179e175-featuregates
+    lockHash: 58c859ab164aee34d4abebb3328daa24
+  - name: core-management-plugins-package
+    version: v0.19.0-dev-16-g9179e175-core-mgmt-plugins
+    lockHash: 82585f5430e792aff2d59924acc8b9b1
+  - name: tkg-package
+    version: v0.19.0-dev-16-g9179e175-tkg
+    lockHash: a42ccfa6e39d05d11315ff2a64d2adb5
+  - name: tkg-clusterclass-package
+    version: v0.19.0-dev-16-g9179e175-tkg-clusterclass
+    lockHash: 792acb47bd5e53d842302c6bbf7f1e7f
+  - name: tkg-clusterclass-aws-package
+    version: v0.19.0-dev-16-g9179e175-tkg-clusterclass-aws
+    lockHash: 772364148d14372c561a16385f0253a8
+  - name: tkg-clusterclass-vsphere-package
+    version: v0.19.0-dev-16-g9179e175-tkg-clusterclass-vsphere
+    lockHash: f364c7b109bf81e3bf4e44016516c86a
+  - name: tkg-clusterclass-azure-package
+    version: v0.19.0-dev-16-g9179e175-tkg-clusterclass-azure
+    lockHash: 3ac991bd8891f8065ddf9e45fba9422c
+  - name: tkg-clusterclass-docker-package
+    version: v0.19.0-dev-16-g9179e175-tkg-clusterclass-docker
+    lockHash: 1159d6a770045a874d7e279173cb06a8
+  - name: tkr-aws-machine-webhook-package
+    version: v0.19.0-dev-16-g9179e175-tkr-aws-mc-webhook
+    lockHash: e69c148f64db67f23ff4daf9383eddf5
+  - name: tkr-azure-machine-webhook-package
+    version: v0.19.0-dev-16-g9179e175-tkr-azure-mc-webhook
+    lockHash: e188c623e00806ce8e6e7cf897363fa1
+  - name: tkr-docker-machine-webhook-package
+    version: v0.19.0-dev-16-g9179e175-tkr-docker-mc-webhook
+    lockHash: dfefc12dfc58cf27fe73b9e2aab30b06
+  - name: tkr-vsphere-machine-webhook-package
+    version: v0.19.0-dev-16-g9179e175-tkr-vsphere-mc-webhook
+    lockHash: aa14eee6fb27cfdd91ba896b6834fa98

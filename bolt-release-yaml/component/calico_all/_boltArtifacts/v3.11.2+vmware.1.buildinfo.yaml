@@ -1,0 +1,29 @@
+componentBuilds:
+- name: calico_all
+  version: v3.11.2+vmware.1
+  channel: "377871877214835016"
+  url: https://buildweb.eng.vmware.com/ob/15616039/
+  artifactURL:
+    app-policy-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/app-policy-v3.11.2_vmware.1.tar
+      sha256: 789caff1a016c88c44b6ec3eb03b175fe18ed2df758f1fc05cb027caf2dc845d
+    calicoctl-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/calicoctl-v3.11.2_vmware.1.tar
+      sha256: 0323588e56a9a7c73541bbe408da28a4df2e733be36e6e2e3d95b0273821d772
+    cni-plugin-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/cni-plugin-v3.11.2_vmware.1.tar
+      sha256: 41bfcf7eadf6b314dc03940232e1146226d4a12c17fc78f2f713fb356b770483
+    kube-controllers-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/kube-controllers-v3.11.2_vmware.1.tar
+      sha256: d82ca2e9020212093ae44276d7553e363a6284841808e5ddeea117831539d140
+    node-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/node-v3.11.2_vmware.1.tar
+      sha256: 004aabad4ec6841530ee2e7ee00a1f9536be375fb47cac00d9e169495b86f040
+    pod2daemon-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/pod2daemon-v3.11.2_vmware.1.tar
+      sha256: 5468279c31037c634870c25a1b7db39d739339b517423784ef1d289362eaaf27
+    typha-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/typha-v3.11.2_vmware.1.tar
+      sha256: 1bb0fe4d45762aa93a42593d18f2ed1281686a489c77aeebe7cc40f936003a59
+  cachehash: 7dc20eb3491825eb83c4b6db1f5c1d42
+  publishhash: 04e509e1a48de5b31106a768fef72343

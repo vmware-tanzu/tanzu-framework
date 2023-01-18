@@ -1,0 +1,21 @@
+componentBuilds:
+- name: tkg-clusterclass-aws-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkg-clusterclass-aws
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19818297/
+  artifactURL:
+    tkg-clusterclass-aws.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-aws:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: b76a455156722b99de517449e7c9f7a0574348defb3d088194edb913b159680c
+  cachehash: 02e8dc36cc17dcb6ab92ff487df8e1e5
+  publishhash: 125ec7a1bc39baef747260e4f78167fa
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-aws
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9

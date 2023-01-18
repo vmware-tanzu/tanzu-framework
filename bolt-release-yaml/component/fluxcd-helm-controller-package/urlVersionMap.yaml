@@ -1,0 +1,5 @@
+versionMap:
+  v0.21.0+vmware.1-tkg.1-helm-ctrl: url.yaml
+  v0.21.0+vmware.1-tkg.1-helm-ctrl-zshippable: url.yaml
+  v0.21.0+vmware.1-tkg.2-helm-ctrl: url.yaml
+  v0.21.0+vmware.1-tkg.2-helm-ctrl-zshippable: url.yaml

@@ -1,0 +1,8 @@
+name: kube-state-metrics
+upstreamURL: https://github.com/kubernetes/kube-state-metrics.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kube-state-metrics.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_kube-state-metrics.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kube-state-metrics.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_kube-state-metrics.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kube-state-metrics.git
+gobuildTarget: cayman_kube-state-metrics

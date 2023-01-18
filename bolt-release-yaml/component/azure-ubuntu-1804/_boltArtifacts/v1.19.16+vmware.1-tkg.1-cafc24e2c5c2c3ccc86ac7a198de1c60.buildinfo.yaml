@@ -1,0 +1,16 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.19.16+vmware.1-tkg.1-cafc24e2c5c2c3ccc86ac7a198de1c60
+  channel: "389889206463253476"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/872
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/389889206463253476/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-vhd-v1.19.16+vmware.1-tkg.1-cafc24e2c5c2c3ccc86ac7a198de1c60.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/389889206463253476/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.19.16+vmware.1-tkg.1-cafc24e2c5c2c3ccc86ac7a198de1c60-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/389889206463253476/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.19.16+vmware.1-tkg.1-cafc24e2c5c2c3ccc86ac7a198de1c60-osstpmgt.yaml
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/389889206463253476/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.19.16+vmware.1-tkg.1-cafc24e2c5c2c3ccc86ac7a198de1c60.json
+  cachehash: 663f248b33f80168c5b3da7c6776d734
+  publishhash: 631b60fb4b6375544e096afda78c2a9f

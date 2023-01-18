@@ -1,0 +1,7 @@
+name: etcd
+goBuildComponentCaches:
+- version: v3.5.4+vmware.10
+  url: https://buildweb.eng.vmware.com/ob/20532615/
+  buildNumber: bora-20532615
+  buildStatus: SUCCEEDED
+  hash: 4c2d1c90298abea3e65759d7e8df85f9

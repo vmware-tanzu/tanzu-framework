@@ -1,0 +1,11 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: rebuilding TKG Core for 1.21.9, 1.22.6, 1.23.0, 1.23.1, 1.23.2,and 1.23.3
+componentReferences:
+- name: kscom_release
+  version:
+  - v1.21.9+vmware.1
+  - v1.22.6+vmware.1
+  - v1.23.0+vmware.1
+  - v1.23.1+vmware.1
+  - v1.23.2+vmware.1

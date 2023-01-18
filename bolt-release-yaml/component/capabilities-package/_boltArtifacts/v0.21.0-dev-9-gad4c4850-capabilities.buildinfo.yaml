@@ -1,0 +1,11 @@
+componentBuilds:
+- name: capabilities-package
+  version: v0.21.0-dev-9-gad4c4850-capabilities
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598713/
+  artifactURL:
+    capabilities.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/capabilities:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 9f6f61b18d2a6b7ddc999a6b1fb363b0ca815087a7dd45b7e92511399dc35818
+  cachehash: 5cea4551d0c924e99e264225fdc6a4f3
+  publishhash: 332137e8e677e9b0dbb379437f07fc2d

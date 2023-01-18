@@ -1,0 +1,10 @@
+name: tkr-aws-machine-webhook-package
+goBuildComponentLocks:
+- version: v0.26.0-dev-57-g1775a272-tkr-aws-mc-webhook
+  gobuildBranch: 421753961821771929-v0.26.0-dev-57-g1775a272-tkr-aws-mc-webhook-tkr-aws-machine-webhook-package
+  gobuildHeadCommit: c0ef3a84bd2870e6c3f5dbfdb83265df2537e751
+  hash: 39604e3ed678c88681124be12d36719c
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.26.0-dev-57-g1775a272
+    lockHash: 584eff777394edc47edc488591a4e539

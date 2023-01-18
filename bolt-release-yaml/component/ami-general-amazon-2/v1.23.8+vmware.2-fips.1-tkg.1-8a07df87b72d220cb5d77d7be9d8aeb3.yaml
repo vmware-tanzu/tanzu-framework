@@ -1,0 +1,32 @@
+name: ami-general-amazon-2
+images:
+- version: v1.23.8+vmware.2-fips.1-tkg.1-8a07df87b72d220cb5d77d7be9d8aeb3
+  osinfo:
+    name: amazon
+    version: "2"
+    arch: amd64
+  type: ami
+  imageBuilderVersion: 1160bf26fd57f0959c07cd3f0aa3e4c017afcdbc
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.6-fips.1
+  - name: coredns
+    version:
+    - v1.8.6+vmware.7-fips.1
+  - name: cri_tools
+    version:
+    - v1.22.0+vmware.8-fips.1
+  - name: etcd
+    version:
+    - v3.5.4+vmware.6-fips.1
+  - name: containerd
+    version:
+    - v1.6.6+vmware.2-fips.1
+  - name: kubernetes
+    version:
+    - v1.23.8+vmware.2-fips.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 214b6bb72386cd4038532eda81b8f9984b165d33

@@ -1,0 +1,4 @@
+name: k14s_kapp
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_k14s_kapp.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_k14s_kapp.git
+gobuildTarget: cayman_k14s_kapp

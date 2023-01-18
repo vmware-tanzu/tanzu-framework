@@ -1,0 +1,7 @@
+componentBuilds:
+- name: kscom_release
+  version: v1.20.5+vmware.2-fips.1-zshippable
+  channel: "365980136601851537"
+  url: https://buildweb.eng.vmware.com/ob/18404325/
+  cachehash: 733f35224095cd3805873b21be77cf09
+  publishhash: 3d9e519fbdf4803e5e9bcb89edfea96b

@@ -1,0 +1,6 @@
+name: cert-manager-package
+publish:
+  - name: cert-manager.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-package-bundle/package-bundles/standard/cert-manager-v{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}.tar.gz
+    destinationPath: packages/standard/cert-manager:v{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}

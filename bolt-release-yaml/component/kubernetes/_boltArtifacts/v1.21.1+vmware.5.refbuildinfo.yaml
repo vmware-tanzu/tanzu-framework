@@ -1,0 +1,77 @@
+componentBuilds:
+- name: cni_plugins
+  version: v0.8.7+vmware.11
+  channel: "355673595789209196"
+  url: https://buildweb.eng.vmware.com/ob/18055171/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055171/publish/lin64/cni_plugins/executables/cni-plugins-v0.8.7+vmware.11.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055171/publish/lin64/cni_plugins/debs/kubernetes-cni_0.8.7+vmware.11-1_amd64.deb
+    cni_plugins-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055171/publish/lin64/cni_plugins/rpms/rpms/kubernetes-cni-0.8.7-1.el7.vmware.11.x86_64.rpm
+    cni_plugins-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055171/publish/lin64/cni_plugins/rpms/srpms/kubernetes-cni-0.8.7-1.el7.vmware.11.src.rpm
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/355673595789209196/component/cni_plugins/v0.8.7+vmware.11/cni-plugins-linux-amd64-v0.8.7+vmware.11.tgz
+      sha256: 70f1675b10ec530463bd66f60569a78925b0c6227998eefa0b1513d69e9ba547
+  cachehash: "4846667601781725448"
+  publishhash: "3147099488311456988"
+- name: coredns
+  version: v1.8.0+vmware.4
+  channel: "357588541468898210"
+  url: https://buildweb.eng.vmware.com/ob/18115439/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.8.0_vmware.4
+      sha256: b6fe68f63abb119f5f5eada5a1551e617579d780baa4ec486b2b93722074ec8b
+  cachehash: "2948535191317704153"
+  publishhash: "11928902777439069502"
+- name: cri_tools
+  version: v1.20.0+vmware.2
+  channel: "355673595789209196"
+  url: https://buildweb.eng.vmware.com/ob/18055172/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055172/publish/lin64/cri_tools/executables/crictl-v1.20.0+vmware.2.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055172/publish/lin64/cri_tools/debs/cri-tools_1.20.0+vmware.2-1_amd64.deb
+    cri_tools-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055172/publish/lin64/cri_tools/rpms/rpms/cri-tools-1.20.0-1.el7.vmware.2.x86_64.rpm
+    cri_tools-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055172/publish/lin64/cri_tools/rpms/srpms/cri-tools-1.20.0-1.el7.vmware.2.src.rpm
+  cachehash: "7552667968849064298"
+  publishhash: "11272496950775151738"
+- name: etcd
+  version: v3.4.13+vmware.12
+  channel: "355673595789209196"
+  url: https://buildweb.eng.vmware.com/ob/18055174/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.4.13_vmware.12
+      sha256: 24297f7e8beeea9dc441f8ce42d5b379239ae4db066d7f8a681e16672177c797
+  cachehash: "10228766996471281625"
+  publishhash: "18435072924747397998"
+- name: containerd
+  version: v1.4.6+vmware.1
+  channel: "358742785123218152"
+  url: https://buildweb.eng.vmware.com/ob/18154214/
+  artifactURL:
+    file-containerd-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/358742785123218152/component/containerd/cri-containerd-v1.4.6+vmware.1.linux-amd64.tar
+      sha256: 4a30d16db5218179502efbdefce032672cb049045e2bc89f694f402d03d206bb
+    file-containerd-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/358742785123218152/component/containerd/cri-containerd-v1.4.6+vmware.1.windows-amd64.tar
+      sha256: af8f2271bd84a6077e38308861ce76bd2647b31e1b985943bddcde433067c9f5
+  cachehash: "5814421771283343207"
+  publishhash: "8035408288853737008"
+- name: kubernetes_release
+  version: v0.9.0+vmware.1
+  channel: "359498256381703276"
+  url: https://buildweb.eng.vmware.com/ob/18178181/
+  artifactURL:
+    kube-cross:
+      url: projects-stg.registry.vmware.com/tkg/kube-cross:v0.9.0_vmware.1
+      sha256: 1205fc29af21d28add94dc924ff1b376a12efccfcef172a8aca0125fe6823981
+  cachehash: "8062424779091952524"
+  publishhash: "11097997618577307684"

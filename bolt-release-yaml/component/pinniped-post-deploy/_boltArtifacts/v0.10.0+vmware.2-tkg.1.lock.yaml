@@ -1,0 +1,7 @@
+name: pinniped-post-deploy
+goBuildComponentLocks:
+- version: v0.10.0+vmware.2-tkg.1
+  gobuildBranch: 420462416233505362-v0.10.0+vmware.2-tkg.1-pinniped-post-deploy
+  gobuildHeadCommit: 0a5cf7ded1032211fec20ef70ada6bdc3bee16f4
+  hash: 9a08ecad349ccb6059ba58ad23fd8ccf
+  componentLockReferences: []

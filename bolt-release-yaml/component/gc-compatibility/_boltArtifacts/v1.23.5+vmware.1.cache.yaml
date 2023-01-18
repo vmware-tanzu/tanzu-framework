@@ -1,0 +1,7 @@
+name: gc-compatibility
+goBuildComponentCaches:
+- version: v1.23.5+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/19965421
+  buildNumber: bora-19965421
+  buildStatus: SUCCEEDED
+  hash: 43f10cdf4843dc5c9f8a713b891ce76a

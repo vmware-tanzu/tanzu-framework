@@ -1,0 +1,43 @@
+name: tanzu-framework-management-packages
+goBuildComponentLocks:
+- version: v0.19.0-dev-1-ge9f79fb3
+  gobuildBranch: 397281933853212037-v0.19.0-dev-1-ge9f79fb3-tf-mgmt-packages
+  gobuildHeadCommit: 968d098f8889a5515d5d513bebb436feeeac8ab2
+  hash: b8ebe33420aa4d6a2b39b27e6265bcd5
+  componentLockReferences:
+  - name: featuregates-package
+    version: v0.19.0-dev-1-ge9f79fb3-featuregates
+    lockHash: b659382068090283dd4bfaf4d1513a9c
+  - name: core-management-plugins-package
+    version: v0.19.0-dev-1-ge9f79fb3-core-mgmt-plugins
+    lockHash: 5fc8e9eeace579014df82054f3ae432c
+  - name: tkg-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkg
+    lockHash: 77122b8d4772c674c6bba247aa7990e5
+  - name: tkg-clusterclass-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkg-clusterclass
+    lockHash: f1880017605a3db132514569b93c5ea5
+  - name: tkg-clusterclass-aws-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkg-clusterclass-aws
+    lockHash: 574a19cb9727aab727540f47d62231b1
+  - name: tkg-clusterclass-vsphere-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkg-clusterclass-vsphere
+    lockHash: e630f775a9bf191944d1b7820ccf3a8f
+  - name: tkg-clusterclass-azure-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkg-clusterclass-azure
+    lockHash: c517771b70445b1c69bae33d50953248
+  - name: tkg-clusterclass-docker-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkg-clusterclass-docker
+    lockHash: 5ba55e77f150571dbd17867490b02f65
+  - name: tkr-aws-machine-webhook-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkr-aws-mc-webhook
+    lockHash: 26ab40039df52ffd7958ea9135512e38
+  - name: tkr-azure-machine-webhook-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkr-azure-mc-webhook
+    lockHash: 21698f15cc8b6758f1fefd7f424bd38d
+  - name: tkr-docker-machine-webhook-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkr-docker-mc-webhook
+    lockHash: c880a0d962e67f3c989b25830ee8cecd
+  - name: tkr-vsphere-machine-webhook-package
+    version: v0.19.0-dev-1-ge9f79fb3-tkr-vsphere-mc-webhook
+    lockHash: 82396f25ac0f557e5f93da72c13e5c65

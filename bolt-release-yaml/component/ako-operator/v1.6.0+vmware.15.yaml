@@ -1,0 +1,8 @@
+name: ako-operator
+managedComponents:
+  - version: v1.6.0+vmware.15
+    gobuildBaseBranch: v1.5.0+vmware.0~80efc35ceae235577c342a7317a9d09a48b30fe8
+    upstreamCommit: ddf3d61e71015e3f2b0cc801221a287c3852e224
+    dependencies:
+      gobuild.golangVersion: 1.16.0
+      gobuild.linux_hosttype: linux-centos72-gc32

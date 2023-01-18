@@ -1,0 +1,35 @@
+componentBuilds:
+- name: tkg-standard-packages
+  version: v1.4.0-zshippablerelease
+  channel: "364961268253083536"
+  url: https://buildweb.eng.vmware.com/ob/18368911/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.1.0_vmware.1-tkg.1-zshippablerelease
+      sha256: cd9e2b1eb2f91e09249389c5d6380723c1c265610109268252d7e4d3623f09f0
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.15.1_vmware.1-tkg.1-zshippablerelease
+      sha256: 3ac32a8627ccc7ef287d00c951ff022f71cf397b510fadb7792eb31bb31fa0bb
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.8.0_vmware.1-tkg.1-zshippablerelease
+      sha256: 44bd79a15d3e3c32cc8a69268d7c88c40466a5842b4085d83d009aef248396d1
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.1-zshippablerelease
+      sha256: b66ea5c6fafdebdd54c5a7468b3babed5e599233e63ee6c96bf33d395702c375
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.1-tkg.1-zshippablerelease
+      sha256: 37400b714e7f0d957e0934eb11139e30bc1bd9fb8383e64dfc2863d601b02819
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.1-zshippablerelease
+      sha256: bdfcc322157ef73a959930f772fdb116089e508e4eacc00db01e9c07736f2c56
+    multus-cni.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.1-tkg.1-zshippablerelease
+      sha256: e808c542eb49e7da27b4ae5ab820b24a668bc88105ee9e06a1347ffcad0098f0
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.1-tkg.1-zshippablerelease
+      sha256: aa468e956ec6f094f3c981f720cc0d68ed0f8ddb921dde8818bda156d120dd80
+    tanzuStandardPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.4.0-zshippablerelease
+      sha256: 43e0823d765f2fa76dba6ac7e6fa32d3268c40fb19b08391f7a7e813db4474e1
+  cachehash: e252c111066cc825493948fe068afae0
+  publishhash: 772eda5f11178bf8a4636162fae9b1f4

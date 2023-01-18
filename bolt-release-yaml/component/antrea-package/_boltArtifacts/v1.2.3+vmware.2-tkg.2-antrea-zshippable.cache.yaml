@@ -1,0 +1,7 @@
+name: antrea-package
+goBuildComponentCaches:
+- version: v1.2.3+vmware.2-tkg.2-antrea-zshippable
+  url: https://buildweb.eng.vmware.com/ob/18943954/
+  buildNumber: bora-18943954
+  buildStatus: SUCCEEDED
+  hash: c19a294e08de956aab5593cedf66e93b

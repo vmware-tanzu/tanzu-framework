@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.21.14+vmware.2-tkg.1-39ddb55baf179ffc831cb0bead2a3291
+  channel: "417569215029974416"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2582
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-vhd-v1.21.14+vmware.2-tkg.1-39ddb55baf179ffc831cb0bead2a3291.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.1-39ddb55baf179ffc831cb0bead2a3291-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.1-39ddb55baf179ffc831cb0bead2a3291-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.1-39ddb55baf179ffc831cb0bead2a3291-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.1-39ddb55baf179ffc831cb0bead2a3291-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.21.14+vmware.2-tkg.1-39ddb55baf179ffc831cb0bead2a3291.json
+  cachehash: ea31e0fa0f8152313bc08991bc45f98a
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: dd228b3715c62a41fd300bdc590ad0d30107a5f8

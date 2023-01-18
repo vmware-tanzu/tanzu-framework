@@ -1,0 +1,31 @@
+name: ami-general-amazon-2
+images:
+- version: v1.19.12+vmware.1-tkg.1-15799210770225360163
+  osinfo:
+    name: amazon
+    version: "2"
+    arch: amd64
+  type: ami
+  imageBuilderVersion: 86866696e9b93f89bee1f7828d7c08a64eb1a3d4
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.13
+  - name: coredns
+    version:
+    - v1.7.0+vmware.12
+  - name: cri_tools
+    version:
+    - v1.18.0+vmware.9
+  - name: etcd
+    version:
+    - v3.4.13+vmware.14
+  - name: containerd
+    version:
+    - v1.4.6+vmware.1
+  - name: kubernetes
+    version:
+    - v1.19.12+vmware.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""

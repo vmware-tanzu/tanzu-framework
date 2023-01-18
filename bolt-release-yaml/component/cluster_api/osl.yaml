@@ -1,0 +1,4 @@
+submodules:
+  - name: cluster_api/src
+    go_mod:
+      - "go.mod"

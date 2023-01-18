@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off effort to release the tkg-compatibility v1 for the first release of tce"
+componentReferences:
+- name: tkg-compatibility
+  version:
+  - v1.4.0-framework-v0.2.1

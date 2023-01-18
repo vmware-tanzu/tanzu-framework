@@ -1,0 +1,16 @@
+componentBuilds:
+- name: helm-controller
+  version: v0.21.0+vmware.1
+  channel: "410191984452443484"
+  url: https://buildweb.eng.vmware.com/ob/19864262
+  artifactURL:
+    helmControllerExecutable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19864262/publish/lin64/helm-controller/executables/helm-controller-v0.21.0+vmware.1
+    helmControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/fluxcd/helm-controller:v0.21.0_vmware.1
+      sha256: 3d1c3ed34179993da8b37f0a7f1037aa497c43eec92f95b60b97cb4fa16b971e
+  cachehash: c2183332248d2c6c528a64bcc7ebde27
+  publishhash: a218633cf990119c62d7ab44956af819
+  configDependencies:
+    gobuild.golangVersion: 1.17.6
+    gobuild.linux_hosttype: linux-centos72-gc32

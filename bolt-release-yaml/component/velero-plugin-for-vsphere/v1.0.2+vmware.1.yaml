@@ -1,0 +1,8 @@
+name: velero-plugin-for-vsphere
+unmanagedComponents:
+  - version: v1.0.2+vmware.1
+    gobuildBranch: vmware-1.0.2
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.golangVersion: 1.13.5

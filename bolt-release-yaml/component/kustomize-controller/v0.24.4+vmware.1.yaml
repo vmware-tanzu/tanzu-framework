@@ -1,0 +1,7 @@
+name: kustomize-controller
+unmanagedComponents:
+  - version: v0.24.4+vmware.1
+    gobuildBranch: vmware-0.24.4~42408b99d8b0674f9ddb93d8897d299aafb2fd77
+    dependencies:
+      gobuild.golangVersion: 1.17.6
+      gobuild.linux_hosttype: linux-centos72-gc32

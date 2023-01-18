@@ -1,0 +1,7 @@
+name: tkg-clusterclass-aws-package
+goBuildComponentCaches:
+- version: v0.22.0-dev-23-ga3552d03-tkg-clusterclass-aws
+  url: https://buildweb.eng.vmware.com/ob/19780837/
+  buildNumber: bora-19780837
+  buildStatus: SUCCEEDED
+  hash: f582ed7d3501ad1584c0a2857e9fdccd

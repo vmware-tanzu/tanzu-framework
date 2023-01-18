@@ -1,0 +1,14 @@
+name: imgpkg
+nonpublish:
+  - name: imgpkg-darwin
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/imgpkg/executables/imgpkg-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/imgpkg/executables/imgpkg-darwin-amd64-$VERSION.gz
+  - name: imgpkg-linux
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/imgpkg/executables/imgpkg-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/imgpkg/executables/imgpkg-linux-amd64-$VERSION.gz
+  - name: imgpkg-windows
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/imgpkg/executables/imgpkg-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/imgpkg/executables/imgpkg-windows-amd64-$VERSION.gz

@@ -1,0 +1,7 @@
+name: external-snapshotter
+goBuildComponentCaches:
+- version: v5.0.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20104068/
+  buildNumber: bora-20104068
+  buildStatus: SUCCEEDED
+  hash: 979eb4e5d8ead350e0a890ff24405f56

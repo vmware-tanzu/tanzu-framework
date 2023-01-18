@@ -1,0 +1,121 @@
+componentBuilds:
+- name: addons-manager-package
+  version: v1.5.0+vmware.1-tkg.2-addons-manager-zshippable
+  channel: "402963899701269977"
+  url: https://buildweb.eng.vmware.com/ob/19635034/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/addons-manager:v1.5.0_vmware.1-tkg.2-zshippable
+      sha256: e66477c8d259517757b54e64f8e41e184705b25dbf3607161419c7109105cbe9
+  cachehash: 4de522da1d6be3cf95ceda9dcf56ca89
+  publishhash: 58a059db5fc330daefe5cd936034d00c
+- name: ako-operator-package
+  version: v1.6.0+vmware.7-tkg.1-ako-operator-zshippable
+  channel: "402366349659104877"
+  url: https://buildweb.eng.vmware.com/ob/19616236/
+  artifactURL:
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.6.0_vmware.7-tkg.1-zshippable
+      sha256: a2930e05b91b78c60d7c58f7912be572b1f6fd07fc869c5ced5a1855463a4bbe
+  cachehash: df1aa391c802470f998089b4a82957a9
+  publishhash: e53f922ccc96191938bdc7d730ac4f37
+- name: load-balancer-and-ingress-service-package
+  version: v1.6.1+vmware.5-tkg.1-ako-zshippable
+  channel: "400911494029514333"
+  url: https://buildweb.eng.vmware.com/ob/19567660/
+  artifactURL:
+    load-balancer-and-ingress-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/load-balancer-and-ingress-service:v1.6.1_vmware.5-tkg.1-zshippable
+      sha256: 3b50c706d74ddebb4303603db2491f0cb005d78692000d49ffef644f8ddf9692
+  cachehash: 53b361ed889ba5680be6aa8396334d49
+  publishhash: e76b568ebe8a5803434d226a6e35101b
+- name: antrea-package
+  version: v1.2.3+vmware.4-tkg.2-antrea-advanced-zshippable
+  channel: "393433574470079939"
+  url: https://buildweb.eng.vmware.com/ob/19315599/
+  artifactURL:
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v1.2.3_vmware.4-tkg.2-advanced-zshippable
+      sha256: e6af53ba61edce08db27223498870e571e4173f2c492355f6ef4e515693fdbd6
+  cachehash: 33c2251ac989813959b65870f32d5971
+  publishhash: 3c38157278462aa91841f3ab1a6c790a
+- name: calico-package
+  version: v3.19.1+vmware.1-tkg.5-calico-zshippable
+  channel: "391354665058461462"
+  url: https://buildweb.eng.vmware.com/ob/19244800/
+  artifactURL:
+    calico.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/calico:v3.19.1_vmware.1-tkg.5-zshippable
+      sha256: cf0111309864fe955a40b83a4606e007f9d603b99883fb604e8454ae558d3c75
+  cachehash: 1185b5fbe05fdd3361f3ae719dd81efe
+  publishhash: a041cb368fda942297756d58173a348a
+- name: vsphere-csi-package
+  version: v2.4.1+vmware.1-tkg.2-vsphere-csi-zshippable
+  channel: "391354665058461462"
+  url: https://buildweb.eng.vmware.com/ob/19244832/
+  artifactURL:
+    vsphere-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-csi:v2.4.1_vmware.1-tkg.2-zshippable
+      sha256: 10f1a4541fbabd56d58b054c8cbb0013c869cdb872bbcdb85182168d86bbc1bf
+  cachehash: e3faaa46f123645b246059fbba0547d8
+  publishhash: cedd8fe6c0ac7f5ec42b3dc29f93ec89
+- name: vsphere-pv-csi-package
+  version: v2.4.1+vmware.1-tkg.1-vsphere-pv-csi-zshippable
+  channel: "402940163480626838"
+  url: https://buildweb.eng.vmware.com/ob/19634334/
+  artifactURL:
+    vsphere-pv-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-pv-csi:v2.4.1_vmware.1-tkg.1-zshippable
+      sha256: a9f588efccfd1b2aa05449217fbd5313e0b5e5bc5c5e4c2b08fa0cdbcd29e8ca
+  cachehash: 183f720bc3297021ebd1f28a4e676236
+  publishhash: 9af16c8502adddc3fba97ed4d1783479
+- name: vsphere-cpi-package
+  version: v1.22.6+vmware.1-tkg.1-vsphere-cpi-zshippable
+  channel: "401842756252634484"
+  url: https://buildweb.eng.vmware.com/ob/19597984/
+  artifactURL:
+    vsphere-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-cpi:v1.22.6_vmware.1-tkg.1-zshippable
+      sha256: 522698db0aeebb63a79d68a6f332d972aa6d9944b55ccbaa263a04f3c4bdc353
+  cachehash: 90bcb4220bd3889e49eaaf7f1116aaf5
+  publishhash: 27994056e7962761b8fc3dc639a6b2f2
+- name: metrics-server-package
+  version: v0.5.1+vmware.1-tkg.2-metrics-server-zshippable
+  channel: "391354665058461462"
+  url: https://buildweb.eng.vmware.com/ob/19244872/
+  artifactURL:
+    metrics-server.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/metrics-server:v0.5.1_vmware.1-tkg.2-zshippable
+      sha256: 560475df33cbca9f910fa6cabb884b5839ac77e0247dd33320d76553340ddc72
+  cachehash: c6a200fd4ab166563b0d8cff33d6e3fc
+  publishhash: a857a5d53464d803d2e0261e21c846ae
+- name: kapp-controller-package
+  version: v0.34.0+vmware.1-tkg.1-kapp-controller-zshippable
+  channel: "401356794678482201"
+  url: https://buildweb.eng.vmware.com/ob/19583170/
+  artifactURL:
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.34.0_vmware.1-tkg.1-zshippable
+      sha256: 39a1f51d556b155c15a7ef1338b6ba020bb9401275d4624739c644aa6dbe3aa5
+  cachehash: 7f3eebac6b148d9c9a4295344a33d804
+  publishhash: 386598a473d4ed792227a88e5777e074
+- name: secretgen-controller-package
+  version: v0.8.0+vmware.1-tkg.1-secgen-ctl-zshippable
+  channel: "401356794678482201"
+  url: https://buildweb.eng.vmware.com/ob/19583169/
+  artifactURL:
+    secretgen-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/secretgen-controller:v0.8.0_vmware.1-tkg.1-zshippable
+      sha256: 23aef14cacdc5e6198bbee298421135e6f640dc74f6983602c504238aab76d02
+  cachehash: 8ba90824fdb0a737734e20dc2ae018bf
+  publishhash: 5e2cf1e775d67dbdb526c3013035dd63
+- name: pinniped-package
+  version: v0.12.1+vmware.1-tkg.1-pinniped-zshippable
+  channel: "403375339834709743"
+  url: https://buildweb.eng.vmware.com/ob/19650980/
+  artifactURL:
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.12.1_vmware.1-tkg.1-zshippable
+      sha256: a81a608e5cd331541689daaf7353e930738958c13d3ea916a1a36e3b08498d38
+  cachehash: cb4910b3c9c8c2d8992e3203900dfef8
+  publishhash: deeac3b3022bf44de880663cd7ec52c5

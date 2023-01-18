@@ -1,0 +1,7 @@
+name: kubernetes_release
+goBuildComponentLocks:
+- version: v0.14.0+vmware.1
+  gobuildBranch: 425327401455585102-v0.14.0+vmware.1-kubernetes_release
+  gobuildHeadCommit: bf9d2130eee1ddae58079220d9d5825d7ea4558b
+  hash: 6565ec08008f5e3a236d57406167de87
+  componentLockReferences: []

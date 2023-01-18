@@ -1,0 +1,52 @@
+name: tkgs-ova-ubuntu-2004
+images:
+- version: v1.19.7+vmware.1-tkg.1
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: d808afff63be313a96999c2b4460f45310e7d4ae
+  componentReferences:
+    - name: calico_all
+      version:
+        - v3.11.2+vmware.1
+    - name: vsphere_csi_driver_tkgs
+      version:
+        - vsphere70u3-5212290-e831b6d
+    - name: kubernetes
+      version:
+        - v1.19.7+vmware.1
+    - name: coredns
+      version:
+        - v1.7.0+vmware.7
+    - name: etcd
+      version:
+        - v3.4.13+vmware.6
+    - name: antrea
+      version:
+        - v0.13.5+vmware.3
+    - name: guest-cluster-cloud-provider
+      version:
+        - v0.1-87-gb6bb261
+    - name: guest-cluster-auth-service
+      version:
+        - v0.1-71-g64e1c73
+    - name: docker_distribution
+      version:
+        - 2.7.1
+    - name: cni_plugins
+      version:
+        - v0.8.7+vmware.4
+    - name: containerd
+      version:
+        - v1.4.6+vmware.1
+    - name: metrics-server
+      version:
+        - v0.4.0+vmware.2
+  dependencies:
+    base_iso_sha: f11bda2f2caed8f420802b59f382c25160b114ccc665dbac9c5046e7fceaced2
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04.1-legacy-server-amd64.iso
+    jenkins.TKGS_BUILDINFO_URL: $REFBUILDINFO_URL
+    jenkins.TARGET: ubuntu-2004-efi
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 123456789

@@ -1,0 +1,13 @@
+name: contour-package
+goBuildComponentLocks:
+- version: v1.18.2+vmware.1-tkg.1-contour-rc.5
+  gobuildBranch: 389193897177253647-v1.18.2+vmware.1-tkg.1-contour-rc.5
+  gobuildHeadCommit: 1d387a7880eebd62c02ed2dea7fb67ddc17389dc
+  hash: 9ff528f3095bd05790e9f3d95195407e
+  componentLockReferences:
+  - name: contour
+    version: v1.18.2+vmware.1
+    lockHash: 590404aec0dee80309da8182f1fdbf1f
+  - name: envoy
+    version: v1.19.1+vmware.1
+    lockHash: 5228b1a82cfbf2054b4c38fd5b8e2600

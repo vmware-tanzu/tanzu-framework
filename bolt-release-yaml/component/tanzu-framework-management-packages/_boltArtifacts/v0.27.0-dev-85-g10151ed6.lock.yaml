@@ -1,0 +1,70 @@
+name: tanzu-framework-management-packages
+goBuildComponentLocks:
+- version: v0.27.0-dev-85-g10151ed6
+  gobuildBranch: 427596264436176655-v0.27.0-dev-85-g10151ed6-tanzu-framework-management-packages
+  gobuildHeadCommit: 8f70340e224552352ccdc0056f91863cf008c48a
+  hash: 63b9687b349cc85f6283404c3b295dd2
+  componentLockReferences:
+  - name: addons-manager-v2-package
+    version: v0.27.0-dev-85-g10151ed6-addons-manager-v2
+    lockHash: b7163ef4b5e9eb3ebe6161f770a8930f
+  - name: featuregates-package
+    version: v0.27.0-dev-85-g10151ed6-featuregates
+    lockHash: 3cecf2bbce716170fff079a2c9b59d97
+  - name: core-management-plugins-package
+    version: v0.27.0-dev-85-g10151ed6-core-mgmt-plugins
+    lockHash: 672b9def34596341eb9ee227f951bff4
+  - name: tkg-package
+    version: v0.27.0-dev-85-g10151ed6-tkg
+    lockHash: 0803df3e2b2a51f6ce7e1f3968db2266
+  - name: tkg-clusterclass-package
+    version: v0.27.0-dev-85-g10151ed6-tkg-clusterclass
+    lockHash: d8cebbd662a8d50f2dcdd2a37286a48b
+  - name: tkg-clusterclass-aws-package
+    version: v0.27.0-dev-85-g10151ed6-tkg-clusterclass-aws
+    lockHash: 58ffcfc6445c203165c45e299742429a
+  - name: tkg-clusterclass-vsphere-package
+    version: v0.27.0-dev-85-g10151ed6-tkg-clusterclass-vsphere
+    lockHash: 592121cce151a7bb200c05f31b7d64e7
+  - name: tkg-clusterclass-azure-package
+    version: v0.27.0-dev-85-g10151ed6-tkg-clusterclass-azure
+    lockHash: 4c57c9d4192cd5130c8afad41ce96cb1
+  - name: tkg-clusterclass-docker-package
+    version: v0.27.0-dev-85-g10151ed6-tkg-clusterclass-docker
+    lockHash: da03b2f9507d8e667f820912021aea0e
+  - name: tkr-aws-machine-webhook-package
+    version: v0.27.0-dev-85-g10151ed6-tkr-aws-mc-webhook
+    lockHash: 7fbdf2fc1843f76fe45c9841d32dc0c1
+  - name: tkr-azure-machine-webhook-package
+    version: v0.27.0-dev-85-g10151ed6-tkr-azure-mc-webhook
+    lockHash: ba8868aed08ea0f7ff9c00318f514076
+  - name: tkr-docker-machine-webhook-package
+    version: v0.27.0-dev-85-g10151ed6-tkr-docker-mc-webhook
+    lockHash: 4f6bd26b35ee82500754193ad49ca22e
+  - name: tkr-vsphere-machine-webhook-package
+    version: v0.27.0-dev-85-g10151ed6-tkr-vsphere-mc-webhook
+    lockHash: 061f5b6fe6a04e04610a0c40b955f893
+  - name: tkr-service-package
+    version: v0.27.0-dev-85-g10151ed6-tkr-service
+    lockHash: d7050d44f1d51d8dc481b8a5bc34a2b8
+  - name: cliplugins-package
+    version: v0.27.0-dev-85-g10151ed6-cliplugins
+    lockHash: 646d328b30b94842e421198d193ef483
+  - name: framework-package
+    version: v0.27.0-dev-85-g10151ed6-framework
+    lockHash: a9ba489ba94b275033cb43245ad751d9
+  - name: tanzu-auth-package
+    version: v0.27.0-dev-85-g10151ed6-tanzu-auth-pkg
+    lockHash: d7ddf2091de8f400defde88ead16040e
+  - name: tkr-source-controller-package
+    version: v0.27.0-dev-85-g10151ed6-tkr-source-controller
+    lockHash: 3d1b402f2c4015418f16f96e86d47a9d
+  - name: tkg-autoscaler-package
+    version: v1.21.0+vmware.1-zshippable
+    lockHash: 97422a98d37e5df7a348ed30e0610f66
+  - name: tkg-autoscaler-package
+    version: v1.22.0+vmware.1-zshippable
+    lockHash: c7a2b058625949a1f323f7024490d5df
+  - name: tkg-autoscaler-package
+    version: v1.23.0+vmware.1-zshippable
+    lockHash: cb2cf02448898d9db05546cc2bfe31a2

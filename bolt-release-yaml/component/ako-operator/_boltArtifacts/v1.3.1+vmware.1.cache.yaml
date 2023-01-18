@@ -1,0 +1,7 @@
+name: ako-operator
+goBuildComponentCaches:
+- version: v1.3.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/17860877
+  buildNumber: bora-17860877
+  buildStatus: SUCCEEDED
+  hash: 1251fba7a4c98bf3d1dc806c4e5048ed

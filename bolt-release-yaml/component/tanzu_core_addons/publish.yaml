@@ -1,0 +1,52 @@
+name: tanzu_core_addons
+publish:
+  - name: antreaTemplatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/antrea-templates/antrea-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/antrea-templates/antrea-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/antrea-templates:$UNDERSCOREVERSION
+  - name: calicoTemplatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/calico-templates/calico-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/calico-templates/calico-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/calico-templates:$UNDERSCOREVERSION
+  - name: kappControllerTemplatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/kapp-controller-templates/kapp-controller-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/kapp-controller-templates/kapp-controller-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/kapp-controller-templates:$UNDERSCOREVERSION
+  - name: metricsServerTemplatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/metrics-server-templates/metrics-server-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/metrics-server-templates/metrics-server-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/metrics-server-templates:$UNDERSCOREVERSION
+  - name: pinnipedTemplatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/pinniped-templates/pinniped-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/pinniped-templates/pinniped-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/pinniped-templates:$UNDERSCOREVERSION
+  - name: tanzuAddonsManagerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/addons-controller-manager/addons-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/addons-controller-manager/addons-controller-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/tanzu-addons-manager:$UNDERSCOREVERSION
+  - name: tanzuAddonsManagerTemplatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/tanzu-addons-manager-templates/tanzu-addons-manager-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/tanzu-addons-manager-templates/tanzu-addons-manager-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/tanzu-addons-manager-templates:$UNDERSCOREVERSION
+  - name: tkgPinnipedPostDeployImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/tkg-pinniped-post-deploy/tkg-pinniped-post-deploy-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/tkg-pinniped-post-deploy/tkg-pinniped-post-deploy-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/tkg-pinniped-post-deploy:$UNDERSCOREVERSION
+  - name: vsphereCpiTemplatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/vsphere-cpi-templates/vsphere-cpi-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/vsphere-cpi-templates/vsphere-cpi-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/vsphere-cpi-templates:$UNDERSCOREVERSION
+  - name: vsphereCsiTemplatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/vsphere-csi-templates/vsphere-csi-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core_addons/addons/images/vsphere-csi-templates/vsphere-csi-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/vsphere-csi-templates:$UNDERSCOREVERSION

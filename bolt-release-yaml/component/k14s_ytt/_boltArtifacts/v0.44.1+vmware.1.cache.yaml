@@ -1,0 +1,7 @@
+name: k14s_ytt
+goBuildComponentCaches:
+- version: v0.44.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20929431
+  buildNumber: bora-20929431
+  buildStatus: SUCCEEDED
+  hash: 9c0f4c77615a655653529982dec23456

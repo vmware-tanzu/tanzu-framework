@@ -1,0 +1,17 @@
+name: oci-ubuntu-2004
+imageCaches:
+- version: v1.24.9+vmware.1-tkg.1-e9f37e623324002b45d599a08016002a
+  channel: "439722844214033838"
+  bomOracle:
+    oci:
+      v1.24.9+vmware.1:
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+        version: ""
+        image_url: https://objectstorage.us-phoenix-1.oraclecloud.com/p/rIlXF6fz7y4-_O_aZQKwl_V9D7PS4htYanVXXCgFIF3BHwE746SWDMEV2pw82s5F/n/axoilbvwflt8/b/tkg_oci_images/o/tkg-oci-ubuntu-2004-v1.24.9+vmware.1-tkg.1-e9f37e623324002b45d599a08016002a
+  hash: eca53307ffd86c51481d236d42ae4e3d
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-oci/259
+  buildNumber: "259"
+  buildStatus: SUCCEEDED

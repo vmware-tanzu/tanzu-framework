@@ -1,0 +1,7 @@
+name: image-builder
+goBuildComponentLocks:
+- version: v0.1.13+vmware.2
+  gobuildBranch: vmware-v0.1.13+vmware.2
+  gobuildHeadCommit: a5fc9c5f6f4b9908a6c5447c9ee570cbf6b10d32
+  hash: 90908926b1f10a0abc7da93af8a69e9c
+  componentLockReferences: []

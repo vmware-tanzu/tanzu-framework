@@ -1,0 +1,9 @@
+name: whereabouts
+unmanagedComponents:
+- version: v0.5.1+vmware.2
+  gobuildBranch: vmware-0.5.1~e5d9350a93f610cc2b5fc75dda6a5eda0c572513
+  dependencies:
+    gobuild.golangVersion: 1.15.12
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.imageRepository: vmware.io
+    gobuild.imageName: whereabouts

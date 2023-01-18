@@ -1,0 +1,7 @@
+name: csi_node_driver_registrar
+goBuildComponentCaches:
+- version: v2.0.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/17536642/
+  buildNumber: bora-17536642
+  buildStatus: SUCCEEDED
+  hash: 36cfc36303d90a06968fd4ccc1f81d8f

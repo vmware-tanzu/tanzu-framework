@@ -1,0 +1,11 @@
+name: tkg-compatibility
+bomLocks:
+- version: v1.6.0-tf-v0.21.0
+  hash: 9dc4f56305a78f01dee629c77dbe399d
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.21.0-tf
+    lockHash: 1306bf787290c2afacc68815ee579318
+  - name: tkg-bom
+    version: v1.6.0-tf-v0.21.0
+    lockHash: 636ff3e253f90ac66d19cbaf706c3ac1

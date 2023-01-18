@@ -1,0 +1,18 @@
+componentBuilds:
+- name: ami-general-ubuntu-2004
+  version: v1.21.13+vmware.2-tkg.2-f5c5078a3b34660478119803dfcb7cdf
+  channel: "416580749127327154"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/2499
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416580749127327154/component/ami-general-ubuntu-2004/bom-ami-general-ubuntu-2004-v1.21.13+vmware.2-tkg.2-f5c5078a3b34660478119803dfcb7cdf.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416580749127327154/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.13+vmware.2-tkg.2-f5c5078a3b34660478119803dfcb7cdf-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416580749127327154/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.21.13+vmware.2-tkg.2-f5c5078a3b34660478119803dfcb7cdf-osstpmgt.yaml
+  cachehash: 6bf8947f1cb62e45bb0e7a08a6758cae
+  publishhash: 66e14f88003894c7bba1dcc21f4e3a50
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 794c30953e577a6a26c36907d5c471df2667e734

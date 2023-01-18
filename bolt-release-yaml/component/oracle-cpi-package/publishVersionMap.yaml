@@ -1,0 +1,11 @@
+versionMap:
+  v1.22.1+vmware.1-tkg.1-oracle-cpi-fc.1: publish.yaml
+  v1.22.1+vmware.1-tkg.1-oracle-cpi-fc.2: publish.yaml
+  v1.22.1+vmware.1-tkg.1-oracle-cpi-rc.1: publish.yaml
+  v1.22.1+vmware.1-tkg.1-oracle-cpi-zshippable: publish.yaml
+  v1.24.0+vmware.3-tkg.1-oracle-cpi-20230103: publish.yaml
+  v1.24.0+vmware.3-tkg.1-oracle-cpi-20230112: publish.yaml
+  v1.24.0+vmware.3-tkg.1-oracle-cpi-20230114: publish.yaml
+  v1.24.0+vmware.3-tkg.1-oracle-cpi-rc.2: publish.yaml
+  v1.24.0+vmware.3-tkg.1-oracle-cpi-rc.3: publish.yaml
+  v1.24.0+vmware.3-tkg.1-oracle-cpi-zshippable: publish.yaml

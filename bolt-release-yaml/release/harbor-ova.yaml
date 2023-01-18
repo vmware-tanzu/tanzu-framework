@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: harbor-ova
+componentReferences:
+- name: ova-harbor
+  version:
+  - v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562

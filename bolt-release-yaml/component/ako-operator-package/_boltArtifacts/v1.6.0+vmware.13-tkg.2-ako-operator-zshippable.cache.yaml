@@ -1,0 +1,7 @@
+name: ako-operator-package
+goBuildComponentCaches:
+- version: v1.6.0+vmware.13-tkg.2-ako-operator-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20191935/
+  buildNumber: bora-20191935
+  buildStatus: SUCCEEDED
+  hash: a41ac4e32ccf0658148b11be3740ac6a

@@ -1,0 +1,22 @@
+name: calico_all
+publish:
+  - name: calicoCniImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico/images/cni-plugin-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico/images/calico-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: calico-all/cni-plugin:$UNDERSCOREVERSION
+  - name: calicoKubecontrollerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico/images/kube-controllers-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico/images/calico-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: calico-all/kube-controllers:$UNDERSCOREVERSION
+  - name: calicoNodeImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico/images/node-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico/images/calico-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: calico-all/node:$UNDERSCOREVERSION
+  - name: calicoPodDaemonImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico/images/pod2daemon-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico/images/calico-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: calico-all/pod2daemon:$UNDERSCOREVERSION

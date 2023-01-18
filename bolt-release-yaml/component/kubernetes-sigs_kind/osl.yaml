@@ -1,0 +1,4 @@
+submodules:
+  - name: kubernetes-sigs_kind/src/sigs.k8s.io/kind
+    go_mod:
+      - "go.mod"

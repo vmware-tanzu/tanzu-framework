@@ -1,0 +1,11 @@
+componentBuilds:
+- name: cluster-api-provider-azure
+  version: v0.4.8-47-gfbb2d55b
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/17533112/
+  artifactURL:
+    capzControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-azure-controller:v0.4.8-47-gfbb2d55b
+      sha256: 9fa404f68e48b0a170a865c7cdbc764fa4cb47ce6f64a5abe93ceb6e3ece14c2
+  cachehash: "9763411959817211401"
+  publishhash: "5883404234731729481"

@@ -1,0 +1,31 @@
+name: ami-general-ubuntu-2004
+images:
+- version: v1.20.7+vmware.1-tkg.0-13920503901222947759
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: ami
+  imageBuilderVersion: 064ade4491659be11b731d3a8039225b21b1c2e4
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.10
+  - name: coredns
+    version:
+    - v1.7.0+vmware.11
+  - name: cri_tools
+    version:
+    - v1.19.0+vmware.5
+  - name: etcd
+    version:
+    - v3.4.13+vmware.13
+  - name: containerd
+    version:
+    - v1.4.4+vmware.3
+  - name: kubernetes
+    version:
+    - v1.20.7+vmware.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""

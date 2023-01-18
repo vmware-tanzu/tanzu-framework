@@ -1,0 +1,21 @@
+name: tanzu-framework-management-packages
+packageRepositories:
+- version: v0.13.0-dev-4-g60c62298
+  upstreamCommit: 60c622980198e856e49246323688b9ba7c480343
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repos~67441f86a837e6291a71d393f68479fb45630974
+  componentReferences:
+  - name: featuregates-package
+    version:
+    - v0.13.0-dev-4-g60c62298-featuregates
+  - name: core-management-plugins-package
+    version:
+    - v0.13.0-dev-4-g60c62298-core-mgmt-plugins
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.package_type: management
+    gobuild.releaseVersion: v0.13.0-dev-4-g60c62298

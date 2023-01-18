@@ -1,0 +1,13 @@
+name: ako-operator-package
+goBuildComponentLocks:
+- version: v1.5.0+vmware.6-tkg.1-ako-operator-rc.2
+  gobuildBranch: 403246270581316414-v1.5.0+vmware.6-tkg.1-ako-operator-rc.2
+  gobuildHeadCommit: bb67eaac2d72e48a37bc78ac418603a7317c7afe
+  hash: 7f2fe4a3b7ccb106e1130bbe7e0136b8
+  componentLockReferences:
+  - name: ako-operator
+    version: v1.5.0+vmware.6
+    lockHash: bf5c53b178f370afb3246b23d517fc69
+  - name: kube_rbac_proxy
+    version: v0.11.0+vmware.1
+    lockHash: 5e84a90277e046d0a5eea9227442a59c

@@ -1,0 +1,7 @@
+name: tkg_telemetry
+goBuildComponentLocks:
+- version: v1.6.0+vmware.1
+  gobuildBranch: vmware-1.6.0
+  gobuildHeadCommit: c554aac8255bdbf717adac10356468938a7a7b47
+  hash: 035709ed5dc5fde387f30353abdba135
+  componentLockReferences: []

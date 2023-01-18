@@ -1,0 +1,14 @@
+componentBuilds:
+- name: external-dns
+  version: v0.12.2+vmware.4
+  channel: "439552966966385433"
+  url: https://buildweb.eng.vmware.com/ob/20987671/
+  artifactURL:
+    externalDNSImage:
+      url: projects-stg.registry.vmware.com/tkg/external-dns:v0.12.2_vmware.4
+      sha256: d5c393c3020f6e2bacc3110e8bcfe42ee1f4cc08fa6bdc4c74d7378f136a2669
+  cachehash: 9d484de2b4f22e706061e0d61431ca03
+  publishhash: 175d4662148aa03cb63036434f55e27a
+  configDependencies:
+    gobuild.golangVersion: "1.18"
+    gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,339 @@
+name: tkr-bom
+boms:
+- version: v1.22.11+vmware.2-fips.1-tkg.1-rc.1
+  type: tkr
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  dependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha3
+    aws:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: metrics-server.tanzu.vmware.com
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: pinniped.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-pinniped-config
+        - refName: capabilities.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-capabilities-package-config
+        - refName: tkg-storageclass.tanzu.vmware.com
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        kapp:
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    awsPackageDeployNamespace: tkg-system
+    azure:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: metrics-server.tanzu.vmware.com
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: pinniped.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-pinniped-config
+        - refName: capabilities.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-capabilities-package-config
+        - refName: tkg-storageclass.tanzu.vmware.com
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        kapp:
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    azurePackageDeployNamespace: tkg-system
+    componentTanzuCoreVersion: main
+    vsphere:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: guest-cluster-auth-service.tanzu.vmware.com
+        - refName: metrics-server.tanzu.vmware.com
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: pinniped.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-pinniped-config
+        - refName: capabilities.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-capabilities-package-config
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        cpi:
+          refName: vsphere-cpi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cpi.tanzu.vmware.com
+              kind: VSphereCPIConfig
+              version: v1alpha1
+        csi:
+          refName: vsphere-pv-csi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: csi.tanzu.vmware.com
+              kind: VSphereCSIConfig
+              version: v1alpha1
+        kapp:
+          additionalConfig:
+            inline: true
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    vsphere-nonparavirt:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: metrics-server.tanzu.vmware.com
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: pinniped.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-pinniped-config
+        - refName: capabilities.tanzu.vmware.com
+          valuesFrom:
+            secretRef: default-capabilities-package-config
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        cpi:
+          refName: vsphere-cpi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cpi.tanzu.vmware.com
+              kind: VSphereCPIConfig
+              version: v1alpha1
+        csi:
+          refName: vsphere-csi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: csi.tanzu.vmware.com
+              kind: VSphereCSIConfig
+              version: v1alpha1
+        kapp:
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    vsphere-nonparavirtPackageDeployNamespace: tkg-system
+    vsphereK8sImageRepository: localhost:5000/vmware.io
+    vsphereOSImages:
+    - spec:
+        image:
+          ref:
+            name: ubuntu-2004-amd64-vmi-k8s-v1.22.11---vmware.2-tkg.1-zshippable
+          type: vmi
+        os:
+          arch: amd64
+          name: ubuntu
+          type: linux
+          version: "20.04"
+    - spec:
+        image:
+          ref:
+            name: photon-3-amd64-vmi-k8s-v1.22.11---vmware.2-tkg.1-zshippable
+          type: vmi
+        os:
+          arch: amd64
+          name: photon
+          type: linux
+          version: 3
+    vspherePackageDeployNamespace: vmware-system-tkg
+    vsphereRedirectURL: localhost:5000
+  componentReferences:
+  - name: kube-vip
+    version:
+    - v0.4.2+vmware.1
+  - name: capabilities-package
+    version:
+    - v0.25.0-capabilities
+  - name: ako-operator
+    version:
+    - v1.6.0+vmware.13
+  - name: load-balancer-and-ingress-service
+    version:
+    - v1.7.2+vmware.1
+  - name: antrea
+    version:
+    - v1.5.3-advanced
+  - name: tkg-core-packages
+    version:
+    - v1.22.11+vmware.2-tkg.1-rc.1
+  - name: calico_all
+    version:
+    - v3.22.1+vmware.1
+  - name: cloud_provider_vsphere
+    version:
+    - v1.22.6+vmware.1
+  - name: csi_attacher
+    version:
+    - v3.3.0+vmware.1
+    - v3.4.0+vmware.1
+  - name: csi_livenessprobe
+    version:
+    - v2.4.0+vmware.1
+    - v2.5.0+vmware.1
+    - v2.6.0+vmware.1
+  - name: csi_node_driver_registrar
+    version:
+    - v2.3.0+vmware.1
+    - v2.5.0+vmware.1
+    - v2.5.1+vmware.1
+  - name: kubernetes-csi_external-resizer
+    version:
+    - v1.3.0+vmware.1
+    - v1.4.0+vmware.1
+  - name: csi_provisioner
+    version:
+    - v3.0.0+vmware.1
+    - v3.1.0+vmware.2
+  - name: external-snapshotter
+    version:
+    - v6.0.1+vmware.1
+    - v5.0.1+vmware.1
+  - name: aws-ebs-csi-driver
+    version:
+    - v1.8.0+vmware.1
+  - name: azuredisk-csi-driver
+    version:
+    - v1.19.0+vmware.1
+  - name: vsphere_csi_driver
+    version:
+    - v2.4.1+vmware.1
+  - name: dex
+    version:
+    - v2.30.2+vmware.1
+  - name: kapp-controller
+    version:
+    - v0.38.4+vmware.1
+  - name: carvel-secretgen-controller
+    version:
+    - v0.9.1+vmware.1
+  - name: metrics-server
+    version:
+    - v0.6.1+vmware.1
+  - name: pinniped
+    version:
+    - v0.12.1+vmware.1
+  - name: pinniped-post-deploy
+    version:
+    - v0.12.1+vmware.1-tkg.1
+  - name: guest-cluster-auth-service
+    version:
+    - v1.0.0
+  - name: tanzu-framework-addons
+    version:
+    - v0.25.0
+  - name: kubernetes
+    version:
+    - v1.22.11+vmware.2-fips.1
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2-fips.1
+  - name: coredns
+    version:
+    - v1.8.4+vmware.10-fips.1
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.9-fips.1
+  - name: etcd
+    version:
+    - v3.5.4+vmware.2-fips.1
+  - name: containerd
+    version:
+    - v1.5.13+vmware.1-fips.1
+  - name: kubernetes-sigs_kind
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1_v0.11.1
+  - name: ami-general-amazon-2
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-1007cc77564c82208820471803e6f6b8
+  - name: ami-general-ubuntu-2004
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-2747d74e44044b14016ba0717a7c8277
+  - name: ami-gov-amazon-2
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-b69eaddba6eb6fe0a9e8a514b7d64d3b
+  - name: ami-gov-ubuntu-2004
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-4e8d3c520390e8c3da9baeb3f21ac716
+  - name: azure-ubuntu-1804
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-12535ef2e16c80f79d583e17d6a9b937
+    - v1.22.11+vmware.2-fips.1-tkg.1-sig-db55ade467f5e2bac2c7d317c700fbd4
+  - name: azure-ubuntu-2004
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-270c8b1c3f5e7f0d1bced05b104a257c
+    - v1.22.11+vmware.2-fips.1-tkg.1-sig-b372795327f573107b003888ad60c39c
+  - name: ova-photon-3
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-a10ef8e088cc2c89418bca79a2fcc594
+  - name: ova-ubuntu-2004
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-df08b304658a6cf17f5e74dc0ab7543c
+  - name: ova-rhel-7
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-e08e80f12aa4733f78830524ce972344
+  - name: windows-resource-bundle
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-rc.1
+  - name: byoh-k8s-ubuntu-2004
+    version:
+    - v1.22.11+vmware.2-fips.1-tkg.1-rc.1
+  - name: tkg-storageclass-package
+    version:
+    - v0.25.0-tkg-storageclass

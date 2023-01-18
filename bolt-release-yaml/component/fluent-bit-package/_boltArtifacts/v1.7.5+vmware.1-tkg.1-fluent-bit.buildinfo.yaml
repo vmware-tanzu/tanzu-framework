@@ -1,0 +1,12 @@
+# Note: we created this file manually so that 1.5.0 tkg-standard-pacakges can pick this up
+componentBuilds:
+- name: fluent-bit-package
+  version: v1.7.5+vmware.1-tkg.1-fluent-bit
+  channel: "370640113689987894"
+  url: https://buildweb.eng.vmware.com/ob/18560666/
+  artifactURL:
+    fluent-bit.tanzu.vmware.com:
+      url: projects.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.1
+      sha256: c83d038c57f244aae2819dd77dc5184bb3e1ec96524d3f6a09fe8a244b7bc9e4
+  cachehash: 0
+  publishhash: 0

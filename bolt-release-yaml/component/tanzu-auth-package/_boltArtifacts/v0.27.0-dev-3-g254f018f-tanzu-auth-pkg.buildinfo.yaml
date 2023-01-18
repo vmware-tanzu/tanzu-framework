@@ -1,0 +1,22 @@
+componentBuilds:
+- name: tanzu-auth-package
+  version: v0.27.0-dev-3-g254f018f-tanzu-auth-pkg
+  channel: "423792405192383764"
+  url: https://buildweb.eng.vmware.com/ob/20389320/
+  artifactURL:
+    tanzu-auth.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tanzu-auth:v0.27.0-dev-3-g254f018f_vmware.1
+      sha256: 5ce8b31cb507e85888b9dcc3fe8738c9dd926f42b5e4d6b0ce6bc51b6816f75a
+  cachehash: 90e0f6cd042c47fa4f4a129cda6cf979
+  publishhash: a1ee1db4053d105131842b0d24d5a758
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/iam/tanzu-auth-controller-manager:v0.27.0-dev-3-g254f018f
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tanzu-auth
+    gobuild.upstream_image_0: tanzu-auth-controller-manager:latest
+    gobuild.upstream_version: v0.27.0-dev-3-g254f018f

@@ -1,0 +1,39 @@
+componentBuilds:
+- name: tanzu-framework
+  version: v1.4.1-rc.3
+  channel: "384178715522812449"
+  url: https://buildweb.eng.vmware.com/ob/19009868/
+  artifactURL:
+    capabilitiesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/capabilities/capabilities-controller-manager:v1.4.1-rc.3
+      sha256: dd3471043fda781c80a2af8b287810021c033ec6579755dce2f07644e69b8db5
+    providerTemplateImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/provider/provider-templates:v1.4.1-rc.3
+      sha256: dd0fafd4ac8363ffe02d2838ad96230ecebd8ed5950f5012beb03d5e6524e9e8
+    tanzu-core-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19009868/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-darwin-amd64.tar
+    tanzu-core-linux-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19009868/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-linux-386.tar
+    tanzu-core-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19009868/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-linux-amd64.tar
+    tanzu-core-windows-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19009868/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-windows-386.tar
+    tanzu-core-windows-amd64:
+      url: htåtp://build-squid.eng.vmware.com/build/mts/release/bora-19009868/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-windows-amd64.tar
+    tkrImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-controller-manager:v1.4.1-rc.3
+      sha256: 86f8f7aec7b6efddc8a06103b710976ecabaed5fe0bbfc150973f276cf007403
+  cachehash: 3476344c5970fb8288dc39c3794206a0
+  publishhash: d5fdcb6d7ba59123fc5ad8e9bb71694b
+- name: tkg-bom
+  version: v1.4.1-rc.3
+  channel: "384178715522812449"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/384178715522812449/component/tkg-bom/_boltArtifacts/tkg-bom-v1.4.1-rc.3.yaml
+  artifactURL:
+    tkgBomImage:
+      url: projects-stg.registry.vmware.com/tkg/tkg-bom:v1.4.1-rc.3
+      sha256: e9cbe22150692e5b0b146b2116e8f15c0260b01071480523d9980435d9abf596
+    tkgBomYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/384178715522812449/component/tkg-bom/_boltArtifacts/tkg-bom-v1.4.1-rc.3.yaml
+  cachehash: 104b18a454599fce63448aef417db345
+  publishhash: cf1a513802b84bc3dbf2413af53348c5

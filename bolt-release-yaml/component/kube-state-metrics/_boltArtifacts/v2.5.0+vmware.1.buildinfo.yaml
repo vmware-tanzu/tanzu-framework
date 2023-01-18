@@ -1,0 +1,16 @@
+componentBuilds:
+- name: kube-state-metrics
+  version: v2.5.0+vmware.1
+  channel: "416296974749278981"
+  url: https://buildweb.eng.vmware.com/ob/20098375/
+  artifactURL:
+    kube-state-metrics-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20098375/publish/lin64/kube-state-metrics/executables/kube-state-metrics-v2.5.0+vmware.1
+    kubeStateMetricsImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/kube-state-metrics:v2.5.0_vmware.1
+      sha256: adc0424e1668eb1c0489a7c89c33b6d3197603c4b3594ac6af5d8d9729f2d3a0
+  cachehash: 0b23e8e00af0cd720f2cee5397209215
+  publishhash: 6bdc654fd499d9169dc1149c3f4af77d
+  configDependencies:
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32

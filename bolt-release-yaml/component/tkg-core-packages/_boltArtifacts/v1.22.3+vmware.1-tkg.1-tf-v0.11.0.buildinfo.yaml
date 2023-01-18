@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-core-packages
+  version: v1.22.3+vmware.1-tkg.1-tf-v0.11.0
+  channel: "381937132681325669"
+  url: https://buildweb.eng.vmware.com/ob/18937272/
+  artifactURL:
+    tanzuCorePackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/repo:v1.22.3_vmware.1-tkg.1-tf-v0.11.0
+      sha256: cc8f47e3ef06bcd6c032e17ab87275f02c9f41185a09d985494070c2cf3d86a3
+  cachehash: 7fdd9d6086230c544ca39fc45056e59c
+  publishhash: fe373ff9829dc46466478c1f608d43d6

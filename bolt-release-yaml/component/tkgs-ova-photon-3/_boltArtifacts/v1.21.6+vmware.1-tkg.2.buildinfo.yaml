@@ -1,0 +1,23 @@
+componentBuilds:
+- name: tkgs-ova-photon-3
+  version: v1.21.6+vmware.1-tkg.2
+  channel: "409320329177994453"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgs-build-ova/185
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/409320329177994453/component/tkgs-ova-photon-3/bom-tkgs-ova-photon-3-v1.21.6+vmware.1-tkg.2.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/409320329177994453/component/tkgs-ova-photon-3/tkgs-ova-photon-3-v1.21.6+vmware.1-tkg.2-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/409320329177994453/component/tkgs-ova-photon-3/tkgs-ova-photon-3-v1.21.6+vmware.1-tkg.2-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/409320329177994453/component/tkgs-ova-photon-3/photon-3.ova
+  cachehash: 2c39c48ba543ed968a3cb2749cf984dc
+  publishhash: 26cd5851ceee48638a81f97251cb3b7b
+  configDependencies:
+    base_iso_sha: c2883a42e402a2330d9c39b4d1e071cf9b3b5898
+    base_iso_url: https://packages.vmware.com/photon/3.0/Rev3/iso/photon-minimal-3.0-a383732.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: f6ff3f08f1a6085d8f185163d5e5a264caa88dd4
+    jenkins.PHOTON3_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/photon-3-stig-hardening.git
+    jenkins.PHOTON3_STIG_VERSION: 8cd1ee34346dbd5ebc6abe09cc519fe8216c6335
+    jenkins.TKGS_BUILDINFO_URL: $REFBUILDINFO_URL

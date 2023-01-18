@@ -1,0 +1,18 @@
+versionMap:
+  v0.28.0-dev-219-g4f4f72ad-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-228-gdd40a61d-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-229-g3d0816ce-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-258-ge3654904-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-271-g338014a2-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-274-gc91f51c6-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-281-g6af7984e-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-287-gdf0d0b36-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-293-g24414a1e-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-307-g850cbf02-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-311-gd293a088-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-315-g22033bdc-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-316-gf39341f5-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-319-g3bb04b93-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-324-gb0cc3b83-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-327-g2438ab22-tkg-clusterclass-oci: publish.yaml
+  v0.28.0-dev-328-gf1b65bbe-tkg-clusterclass-oci: publish.yaml

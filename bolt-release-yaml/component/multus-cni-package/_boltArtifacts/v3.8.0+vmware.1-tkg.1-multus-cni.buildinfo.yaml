@@ -1,0 +1,23 @@
+componentBuilds:
+- name: multus-cni-package
+  version: v3.8.0+vmware.1-tkg.1-multus-cni
+  channel: "422715151813216552"
+  url: https://buildweb.eng.vmware.com/ob/20346776/
+  artifactURL:
+    multus-cni.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/multus-cni:v3.8.0_vmware.1-tkg.1
+      sha256: 310ffbef9ea5ace4d6dab7ce9ea3daf77757ec8c5ac54df10d78b624fcfbd339
+  cachehash: 6bd24e2cc69d29e7f93a3086f6e92066
+  publishhash: 9e361a1c179233c0d6d805103c7f9223
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/multus-cni:v3.8.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: multus-cni
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: ghcr.io/k8snetworkplumbingwg/multus-cni:v3.8
+    gobuild.upstream_version: 3.8.0

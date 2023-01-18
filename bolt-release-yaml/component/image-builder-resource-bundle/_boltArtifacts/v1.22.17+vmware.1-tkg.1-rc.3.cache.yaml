@@ -1,0 +1,7 @@
+name: image-builder-resource-bundle
+goBuildComponentCaches:
+- version: v1.22.17+vmware.1-tkg.1-rc.3
+  url: https://buildweb.eng.vmware.com/ob/21115258/
+  buildNumber: bora-21115258
+  buildStatus: SUCCEEDED
+  hash: d80eed0460349673efd714e4736e1a81

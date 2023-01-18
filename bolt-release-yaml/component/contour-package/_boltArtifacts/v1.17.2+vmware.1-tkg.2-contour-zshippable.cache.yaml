@@ -1,0 +1,7 @@
+name: contour-package
+goBuildComponentCaches:
+- version: v1.17.2+vmware.1-tkg.2-contour-zshippable
+  url: https://buildweb.eng.vmware.com/ob/18838732/
+  buildNumber: bora-18838732
+  buildStatus: SUCCEEDED
+  hash: 34da28468ac0135c5fee70c08347fc70

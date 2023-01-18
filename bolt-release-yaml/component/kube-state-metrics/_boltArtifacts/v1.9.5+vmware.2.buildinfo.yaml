@@ -1,0 +1,13 @@
+componentBuilds:
+- name: kube-state-metrics
+  version: v1.9.5+vmware.2
+  channel: "351499011661758928"
+  url: https://buildweb.eng.vmware.com/ob/17888169
+  artifactURL:
+    kube-state-metrics-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17888169/publish/lin64/kube-state-metrics/executables/kube-state-metrics-v1.9.5+vmware.2
+    kubeStateMetricsImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/kube-state-metrics:v1.9.5_vmware.2
+      sha256: bfd8264d9583311b3b80d69e47c16df568e5f9314eab509f29656b7f8a6881b1
+  cachehash: 2be74b32a1914ce038ee1ba9243cd918
+  publishhash: 6bdc654fd499d9169dc1149c3f4af77d

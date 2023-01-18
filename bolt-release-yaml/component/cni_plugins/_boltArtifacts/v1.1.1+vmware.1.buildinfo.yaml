@@ -1,0 +1,26 @@
+componentBuilds:
+- name: cni_plugins
+  version: v1.1.1+vmware.1
+  channel: "407562571164480190"
+  url: https://buildweb.eng.vmware.com/ob/19797045/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19797045/publish/lin64/cni_plugins/executables/cni-plugins-v1.1.1+vmware.1.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19797045/publish/lin64/cni_plugins/debs/kubernetes-cni_1.1.1+vmware.1-1_amd64.deb
+    cni_plugins-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19797045/publish/lin64/cni_plugins/rpms/rpms/kubernetes-cni-1.1.1-1.el7.vmware.1.x86_64.rpm
+    cni_plugins-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19797045/publish/lin64/cni_plugins/rpms/srpms/kubernetes-cni-1.1.1-1.el7.vmware.1.src.rpm
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/407562571164480190/component/cni_plugins/v1.1.1+vmware.1/cni-plugins-linux-amd64-v1.1.1+vmware.1.tgz
+      sha256: 90fb888ce71abd6ca152325b5471fdc402ac535872c67a70b6645f65e03780cd
+  cachehash: 6048388b7a37de1e562a209e4d7365ab
+  publishhash: 3222edb8e472969768744aa214a6af69
+  configDependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "0"
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.17.9
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8

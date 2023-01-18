@@ -1,0 +1,26 @@
+componentBuilds:
+- name: ova-ubuntu-2004
+  version: v1.23.8+vmware.2-tkg.1-85a434f93857371fccb566a414462981
+  channel: "417569215029974416"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/1968
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/ova-ubuntu-2004/bom-ova-ubuntu-2004-v1.23.8+vmware.2-tkg.1-85a434f93857371fccb566a414462981.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.23.8+vmware.2-tkg.1-85a434f93857371fccb566a414462981-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.23.8+vmware.2-tkg.1-85a434f93857371fccb566a414462981-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/ova-ubuntu-2004/ubuntu-2004-kube-v1.23.8+vmware.2-tkg.1-85a434f93857371fccb566a414462981.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.23.8+vmware.2-tkg.1-85a434f93857371fccb566a414462981-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.23.8+vmware.2-tkg.1-85a434f93857371fccb566a414462981-provenance_result.txt
+  cachehash: bb3fbcd22a400e53daab4494913f3910
+  publishhash: 3eb85301ad093a66524efd92e075df65
+  configDependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 88edce31a8cfc66cd906fa364d7ffa7ee9b70cf4
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: dd228b3715c62a41fd300bdc590ad0d30107a5f8

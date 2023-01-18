@@ -1,0 +1,7 @@
+name: azurefile-csi-driver
+goBuildComponentCaches:
+- version: v1.4.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18363313/
+  buildNumber: bora-18363313
+  buildStatus: SUCCEEDED
+  hash: febbed2dbac18836ae5f3fe29775eb15

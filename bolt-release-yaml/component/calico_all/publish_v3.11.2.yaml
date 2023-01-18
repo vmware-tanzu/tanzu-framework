@@ -1,0 +1,30 @@
+name: calico_all
+publish:
+  - name: app-policy-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico_all/images/app-policy-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/calico_all/$VERSION/publish/lin64/calico_all/images/app-policy-$UNDERSCOREVERSION.tar
+  - name: calicoctl-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico_all/images/calicoctl-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/calico_all/$VERSION/publish/lin64/calico_all/images/calicoctl-$UNDERSCOREVERSION.tar
+  - name: cni-plugin-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico_all/images/cni-plugin-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/calico_all/$VERSION/publish/lin64/calico_all/images/cni-plugin-$UNDERSCOREVERSION.tar
+  - name: kube-controllers-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico_all/images/kube-controllers-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/calico_all/$VERSION/publish/lin64/calico_all/images/kube-controllers-$UNDERSCOREVERSION.tar
+  - name: node-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico_all/images/node-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/calico_all/$VERSION/publish/lin64/calico_all/images/node-$UNDERSCOREVERSION.tar
+  - name: pod2daemon-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico_all/images/pod2daemon-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/calico_all/$VERSION/publish/lin64/calico_all/images/pod2daemon-$UNDERSCOREVERSION.tar
+  - name: typha-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/calico_all/images/typha-$UNDERSCOREVERSION.tar.gz
+    destinationPath: $CHANNEL/image-builder/calico_all/$VERSION/publish/lin64/calico_all/images/typha-$UNDERSCOREVERSION.tar

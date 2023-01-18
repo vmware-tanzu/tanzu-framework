@@ -1,0 +1,11 @@
+componentBuilds:
+- name: cert-manager-package
+  version: v1.5.3+vmware.2-tkg.2-cert-manager-tf-v0.17.0
+  channel: "395110461068036753"
+  url: https://buildweb.eng.vmware.com/ob/19368209/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.5.3_vmware.2-tkg.2-tf-v0.17.0
+      sha256: e4b2967b7b0779dc363ca0411fa098e251ba4c1fcd97cf1b976ea71b23aee2c4
+  cachehash: a7c62c828e85dc6e08be4689f1c2bcc0
+  publishhash: 08b8d2296442618f07837aec7f5d1c39

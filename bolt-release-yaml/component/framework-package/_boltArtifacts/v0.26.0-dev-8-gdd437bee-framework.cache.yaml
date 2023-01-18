@@ -1,0 +1,7 @@
+name: framework-package
+goBuildComponentCaches:
+- version: v0.26.0-dev-8-gdd437bee-framework
+  url: https://buildweb.eng.vmware.com/ob/20200864/
+  buildNumber: bora-20200864
+  buildStatus: SUCCEEDED
+  hash: b1d6b36ace18fa28135df686bb9a0934

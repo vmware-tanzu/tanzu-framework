@@ -1,0 +1,7 @@
+name: crash-diagnostics
+goBuildComponentCaches:
+- version: v0.3.7+vmware.3
+  url: https://buildweb.eng.vmware.com/ob/19244175/
+  buildNumber: bora-19244175
+  buildStatus: SUCCEEDED
+  hash: fdc50db3cb6611146ff315c241e94ad2

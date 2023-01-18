@@ -1,0 +1,11 @@
+name: multus-cni
+managedComponents:
+- version: v3.7.1+vmware.1
+  upstreamTag: v3.7.1
+  mirrorCherryPicks: []
+  gobuildBaseBranch: vmware-3.7.1~77eb4eb9f0454f842d40b0c91db087be9e47bfe0
+  dependencies:
+    gobuild.golangVersion: 1.15.12
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.imageRepository: vmware.io
+    gobuild.imageName: multus-cni

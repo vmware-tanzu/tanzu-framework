@@ -1,0 +1,10 @@
+name: tkg_release
+aggregators:
+- version: v1.5.0-20211029
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~54fd8e91dc1e83a2516f9fd947fe358378d97364
+  dependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32
+  componentReferences:
+  - name: tkg-compatibility
+    version:
+    - v1.5.0-20211029

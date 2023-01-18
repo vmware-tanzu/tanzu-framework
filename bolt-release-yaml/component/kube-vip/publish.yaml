@@ -1,0 +1,7 @@
+name: kube-vip
+publish:
+  - name: kubeVipImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube-vip/images/kube-vip-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube-vip/images/kube-vip-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kube-vip:$UNDERSCOREVERSION

@@ -1,0 +1,7 @@
+name: envoy
+unmanagedComponents:
+  - version: v1.23.3+vmware.1
+    gobuildBranch: vmware-1.23.3~f0f19c349089940d27b02b69eed1648786cdcf91
+    dependencies:
+      gobuild.golangVersion: 1.18.2
+      gobuild.linux_hosttype: linux-centos72-gc32

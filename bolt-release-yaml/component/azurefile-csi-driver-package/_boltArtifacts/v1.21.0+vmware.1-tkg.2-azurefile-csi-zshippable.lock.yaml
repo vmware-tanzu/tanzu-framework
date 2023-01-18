@@ -1,0 +1,28 @@
+name: azurefile-csi-driver-package
+goBuildComponentLocks:
+- version: v1.21.0+vmware.1-tkg.2-azurefile-csi-zshippable
+  gobuildBranch: 443599197808126342-v1.21.0+vmware.1-tkg.2-azurefile-csi-zshippable-azurefile-csi-driver-package
+  gobuildHeadCommit: bdd2577b3de54192d14e074c2b0beeb22ce19807
+  hash: 1a31cc8e91eab33b67e937099269bc9c
+  componentLockReferences:
+  - name: csi_attacher
+    version: v3.5.0+vmware.1
+    lockHash: a69238ed56197514317031637d2dd4dd
+  - name: csi_livenessprobe
+    version: v2.7.0+vmware.1
+    lockHash: 9df815a97c15afd7de197284e5475f04
+  - name: csi_node_driver_registrar
+    version: v2.5.1+vmware.1
+    lockHash: cdcb61077b71f67c476ffc370d481266
+  - name: kubernetes-csi_external-resizer
+    version: v1.5.0+vmware.1
+    lockHash: 13abfaab2d071d85d417e13da345d14b
+  - name: csi_provisioner
+    version: v3.2.0+vmware.1
+    lockHash: 4088e4daabf52c05cbc26d2bc8d71c12
+  - name: external-snapshotter
+    version: v5.0.1+vmware.1
+    lockHash: 09034ad6ce82a416ef548803499c883c
+  - name: azurefile-csi-driver
+    version: v1.21.0+vmware.1
+    lockHash: 5498e557a58ea88184b9d055cdff26dd

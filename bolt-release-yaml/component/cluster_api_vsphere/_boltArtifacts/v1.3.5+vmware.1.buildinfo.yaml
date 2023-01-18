@@ -1,0 +1,15 @@
+componentBuilds:
+- name: cluster_api_vsphere
+  version: v1.3.5+vmware.1
+  channel: "433531505696845542"
+  url: https://buildweb.eng.vmware.com/ob/20762716/
+  artifactURL:
+    capvControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-vsphere-controller:v1.3.5_vmware.1
+      sha256: e26bbf1cebb70a712f47a215bcc91f29587c90b195dbd3ec808c44a858927f9a
+  cachehash: 928614a932ffb2b5814f394399af4a33
+  publishhash: f8442a6330b794eaa322ce159a4048a1
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32

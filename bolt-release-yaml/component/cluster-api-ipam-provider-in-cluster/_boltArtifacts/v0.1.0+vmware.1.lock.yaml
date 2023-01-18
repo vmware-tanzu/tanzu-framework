@@ -1,0 +1,7 @@
+name: cluster-api-ipam-provider-in-cluster
+goBuildComponentLocks:
+- version: v0.1.0+vmware.1
+  gobuildBranch: 436797182100673548-v0.1.0+vmware.1-cluster-api-ipam-provider-in-cluster
+  gobuildHeadCommit: a5fb248076e278642c4046489d9c730c3398a33f
+  hash: df66e74dd655b66d957a6cb7dc9a4bdc
+  componentLockReferences: []

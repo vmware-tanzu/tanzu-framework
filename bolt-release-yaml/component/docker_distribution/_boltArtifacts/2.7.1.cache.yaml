@@ -1,0 +1,7 @@
+name: docker_distribution
+goBuildComponentCaches:
+- version: 2.7.1
+  url: https://buildweb.eng.vmware.com/ob/18177898/
+  buildNumber: bora-18177898
+  buildStatus: SUCCEEDED
+  hash: cb4bf743c14a8bb28b7da66ef6f2b34e

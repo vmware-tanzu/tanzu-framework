@@ -1,0 +1,16 @@
+componentBuilds:
+- name: ova-photon-3
+  version: v1.19.12+vmware.1-tkg.2-2347849454212388110
+  channel: "366405366096893585"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/272
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/366405366096893585/component/ova-photon-3/bom-ova-photon-3-v1.19.12+vmware.1-tkg.2-2347849454212388110.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/366405366096893585/component/ova-photon-3/ova-photon-3-v1.19.12+vmware.1-tkg.2-2347849454212388110-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/366405366096893585/component/ova-photon-3/ova-photon-3-v1.19.12+vmware.1-tkg.2-2347849454212388110-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/366405366096893585/component/ova-photon-3/photon-3-kube-v1.19.12+vmware.1-tkg.2-2347849454212388110.ova
+  cachehash: ae2c261dc3876b715234ab5903e19486
+  publishhash: f3fc5ca9ba7168101a1b7196dfa56630

@@ -1,0 +1,7 @@
+name: aad-pod-identity
+goBuildComponentCaches:
+- version: v1.8.13+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/21104106/
+  buildNumber: bora-21104106
+  buildStatus: SUCCEEDED
+  hash: 28466de40d5f1580ce17ac0537e7f6fa

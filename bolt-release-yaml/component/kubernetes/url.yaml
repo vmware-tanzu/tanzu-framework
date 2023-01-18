@@ -1,0 +1,8 @@
+name: kubernetes
+upstreamURL: "https://github.com/kubernetes/kubernetes.git"
+mirrorSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kubernetes.git"
+mirrorOfficialURL: "git@gitlab.eng.vmware.com:core-build/mirrors_github_kubernetes.git"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:core-build/cayman_kubernetes.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/cayman_kubernetes.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:core-build/cayman_kubernetes.git"
+gobuildTarget: "cayman_kubernetes"

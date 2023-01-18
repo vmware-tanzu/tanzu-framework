@@ -1,0 +1,12 @@
+name: configmap-reload
+publish:
+  - name: configmapReloadImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/configmap-reload/images/configmap-reload-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/configmap-reload/images/configmap-reload-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: prometheus/configmap-reload:$UNDERSCOREVERSION
+nonpublish:
+  - name: configmap-reload-executable
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/configmap-reload/executables/configmap-reload-$VERSION-binary-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/configmap-reload/executables/configmap-reload-$VERSION.gz

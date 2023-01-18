@@ -1,0 +1,11 @@
+componentBuilds:
+- name: core-management-plugins-package
+  version: v0.11.0-dev-71-gc09ada87-core-mgmt-plugins
+  channel: "381100411429363306"
+  url: https://buildweb.eng.vmware.com/ob/18910498/
+  artifactURL:
+    core-management-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/core-management-plugins:v0.11.0-dev-71-gc09ada87_vmware.1
+      sha256: f8ad094daecb17efc3d07e54cbec82fe245f33b42dc1162721cf7e39cab3c478
+  cachehash: 9f62c68af9412b37a688fcbab5a3567f
+  publishhash: 0ecf4d581065b27bd73a811ba24a7c7e

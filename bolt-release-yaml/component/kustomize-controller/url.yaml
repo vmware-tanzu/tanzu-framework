@@ -1,0 +1,5 @@
+name: kustomize-controller
+upstreamURL: https://github.com/fluxcd/kustomize-controller.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_kustomize-controller.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kustomize-controller.git
+gobuildTarget: cayman_kustomize-controller

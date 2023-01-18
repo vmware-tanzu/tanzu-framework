@@ -1,0 +1,3 @@
+submodules:
+  - name: harbor/src
+# Harbor OSL is handled separately

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: ako-operator-package
+  version: v1.5.0+vmware.1-tkg.1-ako-operator-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18847965/
+  artifactURL:
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.5.0_vmware.1-tkg.1-20211029
+      sha256: 53a9ebd890ac97d4ef75be02153a983e6e89f8bc8353f40268b81c2989b0b3ae
+  cachehash: b91117686af7b963fb858a1115ebe8b0
+  publishhash: e53f922ccc96191938bdc7d730ac4f37

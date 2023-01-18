@@ -1,0 +1,10 @@
+name: capabilities-package
+goBuildComponentLocks:
+- version: v0.28.0-dev-228-gdd40a61d-capabilities
+  gobuildBranch: 437541439753193054-v0.28.0-dev-228-gdd40a61d-capabilities-capabilities-package
+  gobuildHeadCommit: abcad32dbbdd4d42bd61bd2c6d092f692094f9c0
+  hash: be82b830a56f9a27bb1969675c9926c2
+  componentLockReferences:
+  - name: tanzu-capabilities-controller
+    version: v0.28.0-dev-228-gdd40a61d
+    lockHash: 80401032c46cf9fba57eceeca5a1420c

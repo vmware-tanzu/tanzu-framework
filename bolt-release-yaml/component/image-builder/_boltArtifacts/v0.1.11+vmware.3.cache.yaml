@@ -1,0 +1,7 @@
+name: image-builder
+goBuildComponentCaches:
+- version: v0.1.11+vmware.3
+  url: https://buildweb.eng.vmware.com/ob/19268927/
+  buildNumber: bora-19268927
+  buildStatus: SUCCEEDED
+  hash: da079ebfc69d9efc7827b0d59b85a3c4

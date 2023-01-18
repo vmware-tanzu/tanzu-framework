@@ -1,0 +1,32 @@
+name: ova-rhel-7
+images:
+- version: v1.23.8+vmware.2-tkg.1-3e6b7a84930e5368c38aa867f998ced0
+  osinfo:
+    name: rhel
+    version: "7"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: 1160bf26fd57f0959c07cd3f0aa3e4c017afcdbc
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.6
+  - name: coredns
+    version:
+    - v1.8.6+vmware.7
+  - name: cri_tools
+    version:
+    - v1.22.0+vmware.8
+  - name: etcd
+    version:
+    - v3.5.4+vmware.6
+  - name: containerd
+    version:
+    - v1.6.6+vmware.2
+  - name: kubernetes
+    version:
+    - v1.23.8+vmware.2
+  dependencies:
+    base_iso_sha: 88b42e934c24af65e78e09f0993e4dded128d74ec0af30b89b3cdc02ec48f028
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/rhel-server-7.7-x86_64-dvd.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: dd228b3715c62a41fd300bdc590ad0d30107a5f8

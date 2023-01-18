@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'tkg dailybuild release yaml with rhel-7 image, tkg-bom version: v1.3.0-zlatest.rhel'
+componentReferences:
+- name: tkg_release
+  version:
+  - v1.3.0-zlatest.rhel

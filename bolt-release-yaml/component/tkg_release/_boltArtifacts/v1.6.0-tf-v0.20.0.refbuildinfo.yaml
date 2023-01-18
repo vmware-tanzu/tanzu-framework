@@ -1,0 +1,45 @@
+componentBuilds:
+- name: tkg-compatibility
+  version: v1.6.0-tf-v0.20.0
+  channel: "401415693209223623"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/401415693209223623/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.6.0-tf-v0.20.0.yaml
+  artifactURL:
+    globalTkgCompatibilityImage:
+      url: framework-zshippable/tkg-compatibility:v48
+    tkgCompatibilityImage:
+      url: projects-stg.registry.vmware.com/tkg/framework-zshippable/tkg-compatibility:v48
+      sha256: 56dec633f95e00a27710a6a71ab8146d85dda95c1e8acc7836c3bab586087348
+    tkgCompatibilityYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/401415693209223623/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.6.0-tf-v0.20.0.yaml
+  cachehash: 30a876126b62543db5aa3480d4383d37
+  publishhash: a80beda3bf7b54884285ee1c9fafd3a2
+- name: tanzu-framework-management-packages
+  version: v0.20.0-tf
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19587183/
+  artifactURL:
+    tanzuFrameworkManagementPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/repo:v0.20.0-tf
+      sha256: d26607ebc734776b164489af82cc4b2d80f064dc87959a8ed419b9f47f347710
+  cachehash: 850518b83317b340fc89fccd9e6a8670
+  publishhash: 4632b98ace28a7f1c805dcf64482e1a8
+- name: standalone-plugins-package
+  version: v0.20.0-tf-standalone-plugins
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19585726/
+  artifactURL:
+    standalone-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standalone/standalone-plugins:v0.20.0-tf_vmware.1
+      sha256: 51c94a82fbab08e2a6b3c668a195d5e2b9be19de9ff19abd3b225d8f0a82da32
+  cachehash: 9c790af75bf04680986ccba653ff2260
+  publishhash: 61380dd6e6b4508ddb4529016630a597
+- name: capabilities-package
+  version: v0.20.0-tf-capabilities
+  channel: "401415693209223623"
+  url: https://buildweb.eng.vmware.com/ob/19586445/
+  artifactURL:
+    capabilities.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/capabilities:v0.20.0-tf_vmware.1
+      sha256: 8c27f488ed1bc839ceae7f922be920d903d27fa4238527d253d107eb957c5431
+  cachehash: 34dd6ed478a734bc31e9106e99b22e2c
+  publishhash: 332137e8e677e9b0dbb379437f07fc2d

@@ -1,0 +1,1488 @@
+other:etcd:v0.5.0-alpha.5:
+  license: Apache-2.0
+  name: etcd
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/etcd-v0.5.0-alpha.5.tar.gz
+  other-url: https://go.etcd.io/etcd
+  repository: Other
+  url: ""
+  version: v0.5.0-alpha.5
+other:puerkitobio_urlesc:de5bf2ad4578:
+  license: BSD-3-Clause
+  name: puerkitobio_urlesc
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/PuerkitoBio-urlesc-de5bf2ad4578.tar.gz
+  other-url: https://github.com/PuerkitoBio/urlesc
+  repository: Other
+  url: https://codeload.github.com/PuerkitoBio/urlesc/tar.gz/de5bf2ad4578
+  version: de5bf2ad4578
+other:euank_go-kmsg-parser:v2.0.0:
+  license: Apache-2.0
+  name: euank_go-kmsg-parser
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/euank-go-kmsg-parser-v2.0.0.tar.gz
+  other-url: https://github.com/euank/go-kmsg-parser
+  repository: Other
+  url: https://codeload.github.com/euank/go-kmsg-parser/tar.gz/v2.0.0
+  version: v2.0.0
+other:genproto:8816d57aaa9a:
+  license: Apache-2.0
+  name: genproto
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/google-go_genproto-8816d57aaa9a.tar.gz
+  other-url: https://google.golang.org/genproto
+  repository: Other
+  url: https://codeload.github.com/google/go-genproto/tar.gz/8816d57aaa9a
+  version: 8816d57aaa9a
+other:kubernetes:master:
+  license: Apache-2.0
+  name: kubernetes
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-kubernetes-master.tar.gz
+  other-url: https://k8s.io/kubernetes
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kubernetes/tar.gz/master
+  version: master
+other:armon_circbuf:bbbad097214e:
+  license: MIT
+  name: armon_circbuf
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/armon-circbuf-bbbad097214e.tar.gz
+  other-url: https://github.com/armon/circbuf
+  repository: Other
+  url: https://codeload.github.com/armon/circbuf/tar.gz/bbbad097214e
+  version: bbbad097214e
+other:storageos_go-api_types:v2.2.0:
+  license: UNKNOWN
+  name: storageos_go-api_types
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/storageos-go-api-v2.2.0.tar.gz
+  other-url: https://github.com/storageos/go-api/types
+  repository: Other
+  url: https://codeload.github.com/storageos/go-api/tar.gz/v2.2.0
+  version: v2.2.0
+other:form3tech-oss_jwt-go:v3.2.2:
+  license: MIT
+  name: form3tech-oss_jwt-go
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/form3tech-oss-jwt-go-v3.2.2.tar.gz
+  other-url: https://github.com/form3tech-oss/jwt-go
+  repository: Other
+  url: https://codeload.github.com/form3tech-oss/jwt-go/tar.gz/v3.2.2
+  version: v3.2.2
+other:gogo_protobuf_protoc-gen-gogo_descriptor:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_protoc-gen-gogo_descriptor
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/protoc-gen-gogo/descriptor
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1
+other:containerd_ttrpc:v1.0.2:
+  license: Apache-2.0
+  name: containerd_ttrpc
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/containerd-ttrpc-v1.0.2.tar.gz
+  other-url: https://github.com/containerd/ttrpc
+  repository: Other
+  url: https://codeload.github.com/containerd/ttrpc/tar.gz/v1.0.2
+  version: v1.0.2
+other:warnings_v0:v0.1.1:
+  license: BSD-2-Clause
+  name: warnings_v0
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go_warnings-warnings-v0.1.1.tar.gz
+  other-url: https://gopkg.in/warnings.v0
+  repository: Other
+  url: https://codeload.github.com/go-warnings/warnings/tar.gz/v0.1.1
+  version: v0.1.1
+other:evanphx_json-patch:v4.9.0:
+  license: BSD-3-Clause
+  name: evanphx_json-patch
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/evanphx-json-patch-v4.9.0.tar.gz
+  other-url: https://github.com/evanphx/json-patch
+  repository: Other
+  url: https://codeload.github.com/evanphx/json-patch/tar.gz/v4.9.0
+  version: v4.9.0
+other:docker_docker:v17.12.0:
+  license: Apache-2.0
+  name: docker_docker
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/docker-docker-v17.12.0.tar.gz
+  other-url: https://github.com/docker/docker
+  repository: Other
+  url: https://codeload.github.com/docker/docker/tar.gz/v17.12.0
+  version: v17.12.0
+other:miekg_dns:v1.1.4:
+  license: BSD-3-Clause
+  name: miekg_dns
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/miekg-dns-v1.1.4.tar.gz
+  other-url: https://github.com/miekg/dns
+  repository: Other
+  url: https://codeload.github.com/miekg/dns/tar.gz/v1.1.4
+  version: v1.1.4
+other:karrick_godirwalk:v1.16.1:
+  license: BSD-2-Clause
+  name: karrick_godirwalk
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/karrick-godirwalk-v1.16.1.tar.gz
+  other-url: https://github.com/karrick/godirwalk
+  repository: Other
+  url: https://codeload.github.com/karrick/godirwalk/tar.gz/v1.16.1
+  version: v1.16.1
+other:google_go-cmp:v0.5.2:
+  license: BSD-3-Clause
+  name: google_go-cmp
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/google-go-cmp-v0.5.2.tar.gz
+  other-url: https://github.com/google/go-cmp
+  repository: Other
+  url: https://codeload.github.com/google/go-cmp/tar.gz/v0.5.2
+  version: v0.5.2
+other:thecodeteam_goscaleio:v0.1.0:
+  license: Apache-2.0
+  name: thecodeteam_goscaleio
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/thecodeteam-goscaleio-v0.1.0.tar.gz
+  other-url: https://github.com/thecodeteam/goscaleio
+  repository: Other
+  url: https://codeload.github.com/thecodeteam/goscaleio/tar.gz/v0.1.0
+  version: v0.1.0
+other:microsoft_go-winio:v0.4.15:
+  license: MIT
+  name: microsoft_go-winio
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Microsoft-go-winio-v0.4.15.tar.gz
+  other-url: https://github.com/Microsoft/go-winio
+  repository: Other
+  url: https://codeload.github.com/Microsoft/go-winio/tar.gz/v0.4.15
+  version: v0.4.15
+other:google_gofuzz:v1.1.0:
+  license: Apache-2.0
+  name: google_gofuzz
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/google-gofuzz-v1.1.0.tar.gz
+  other-url: https://github.com/google/gofuzz
+  repository: Other
+  url: https://codeload.github.com/google/gofuzz/tar.gz/v1.1.0
+  version: v1.1.0
+other:yaml_v3:9f266ea9e77c:
+  license: Apache-2.0
+  name: yaml_v3
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go_yaml-yaml-9f266ea9e77c.tar.gz
+  other-url: https://gopkg.in/yaml.v3
+  repository: Other
+  url: https://codeload.github.com/go-yaml/yaml/tar.gz/9f266ea9e77c
+  version: 9f266ea9e77c
+other:atomic:v1.4.0:
+  license: MIT
+  name: atomic
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/uber_go-atomic-v1.4.0.tar.gz
+  other-url: https://go.uber.org/atomic
+  repository: Other
+  url: https://codeload.github.com/uber-go/atomic/tar.gz/v1.4.0
+  version: v1.4.0
+other:emicklei_go-restful:v2.9.5:
+  license: MIT
+  name: emicklei_go-restful
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/emicklei-go-restful-v2.9.5.tar.gz
+  other-url: https://github.com/emicklei/go-restful
+  repository: Other
+  url: https://codeload.github.com/emicklei/go-restful/tar.gz/v2.9.5
+  version: v2.9.5
+other:spf13_cobra:v1.1.1:
+  license: Apache-2.0
+  name: spf13_cobra
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/spf13-cobra-v1.1.1.tar.gz
+  other-url: https://github.com/spf13/cobra
+  repository: Other
+  url: https://codeload.github.com/spf13/cobra/tar.gz/v1.1.1
+  version: v1.1.1
+other:aws_aws-sdk-go_internal_sync_singleflight:v1.35.24:
+  license: BSD-3-Clause
+  name: aws_aws-sdk-go_internal_sync_singleflight
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/aws-aws-sdk-go-v1.35.24.tar.gz
+  other-url: https://github.com/aws/aws-sdk-go/internal/sync/singleflight
+  repository: Other
+  url: https://codeload.github.com/aws/aws-sdk-go/tar.gz/v1.35.24
+  version: v1.35.24
+other:golang_groupcache:8c9f03a8e57e:
+  license: Apache-2.0
+  name: golang_groupcache
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-groupcache-8c9f03a8e57e.tar.gz
+  other-url: https://github.com/golang/groupcache
+  repository: Other
+  url: https://codeload.github.com/golang/groupcache/tar.gz/8c9f03a8e57e
+  version: 8c9f03a8e57e
+other:pkg_errors:v0.9.1:
+  license: BSD-2-Clause
+  name: pkg_errors
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/pkg-errors-v0.9.1.tar.gz
+  other-url: https://github.com/pkg/errors
+  repository: Other
+  url: https://codeload.github.com/pkg/errors/tar.gz/v0.9.1
+  version: v0.9.1
+other:spf13_afero:v1.2.2:
+  license: Apache-2.0
+  name: spf13_afero
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/spf13-afero-v1.2.2.tar.gz
+  other-url: https://github.com/spf13/afero
+  repository: Other
+  url: https://codeload.github.com/spf13/afero/tar.gz/v1.2.2
+  version: v1.2.2
+other:coreos_pkg:399ea9e2e55f:
+  license: Apache-2.0
+  name: coreos_pkg
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/coreos-pkg-399ea9e2e55f.tar.gz
+  other-url: https://github.com/coreos/pkg
+  repository: Other
+  url: https://codeload.github.com/coreos/pkg/tar.gz/399ea9e2e55f
+  version: 399ea9e2e55f
+other:grpc-ecosystem_go-grpc-prometheus:v1.2.0:
+  license: Apache-2.0
+  name: grpc-ecosystem_go-grpc-prometheus
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/grpc-ecosystem-go-grpc-prometheus-v1.2.0.tar.gz
+  other-url: https://github.com/grpc-ecosystem/go-grpc-prometheus
+  repository: Other
+  url: https://codeload.github.com/grpc-ecosystem/go-grpc-prometheus/tar.gz/v1.2.0
+  version: v1.2.0
+other:x_time:3af7569d3a1e:
+  license: BSD-3-Clause
+  name: x_time
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-time-3af7569d3a1e.tar.gz
+  other-url: https://golang.org/x/time
+  repository: Other
+  url: https://codeload.github.com/golang/time/tar.gz/3af7569d3a1e
+  version: 3af7569d3a1e
+other:syndtr_gocapability:d98352740cb2:
+  license: BSD-2-Clause
+  name: syndtr_gocapability
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/syndtr-gocapability-d98352740cb2.tar.gz
+  other-url: https://github.com/syndtr/gocapability
+  repository: Other
+  url: https://codeload.github.com/syndtr/gocapability/tar.gz/d98352740cb2
+  version: d98352740cb2
+other:apimachinery:master:
+  license: Apache-2.0
+  name: apimachinery
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-apimachinery-master.tar.gz
+  other-url: https://k8s.io/apimachinery
+  repository: Other
+  url: https://codeload.github.com/kubernetes/apimachinery/tar.gz/master
+  version: master
+other:docker_spdystream:449fdfce4d96:
+  license: CC-BY-SA-4.0
+  name: docker_spdystream
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/docker-spdystream-449fdfce4d96.tar.gz
+  other-url: https://github.com/docker/spdystream
+  repository: Other
+  url: https://codeload.github.com/docker/spdystream/tar.gz/449fdfce4d96
+  version: 449fdfce4d96
+other:modern-go_reflect2:v1.0.1:
+  license: Apache-2.0
+  name: modern-go_reflect2
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/modern-go-reflect2-v1.0.1.tar.gz
+  other-url: https://github.com/modern-go/reflect2
+  repository: Other
+  url: https://codeload.github.com/modern-go/reflect2/tar.gz/v1.0.1
+  version: v1.0.1
+other:opencontainers_selinux:v1.6.0:
+  license: Apache-2.0
+  name: opencontainers_selinux
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/opencontainers-selinux-v1.6.0.tar.gz
+  other-url: https://github.com/opencontainers/selinux
+  repository: Other
+  url: https://codeload.github.com/opencontainers/selinux/tar.gz/v1.6.0
+  version: v1.6.0
+other:spf13_pflag:v1.0.5:
+  license: BSD-3-Clause
+  name: spf13_pflag
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/spf13-pflag-v1.0.5.tar.gz
+  other-url: https://github.com/spf13/pflag
+  repository: Other
+  url: https://codeload.github.com/spf13/pflag/tar.gz/v1.0.5
+  version: v1.0.5
+other:opencontainers_go-digest:v1.0.0:
+  license: CC-BY-SA-4.0
+  name: opencontainers_go-digest
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/opencontainers-go-digest-v1.0.0.tar.gz
+  other-url: https://github.com/opencontainers/go-digest
+  repository: Other
+  url: https://codeload.github.com/opencontainers/go-digest/tar.gz/v1.0.0
+  version: v1.0.0
+other:protobuf:v1.25.0:
+  license: BSD-3-Clause
+  name: protobuf
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/protobuf-v1.25.0.tar.gz
+  other-url: https://google.golang.org/protobuf
+  repository: Other
+  url: ""
+  version: v1.25.0
+other:beorn7_perks:v1.0.1:
+  license: MIT
+  name: beorn7_perks
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/beorn7-perks-v1.0.1.tar.gz
+  other-url: https://github.com/beorn7/perks
+  repository: Other
+  url: https://codeload.github.com/beorn7/perks/tar.gz/v1.0.1
+  version: v1.0.1
+other:natefinch_lumberjack_v2:v2.0.0:
+  license: MIT
+  name: natefinch_lumberjack_v2
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/natefinch-lumberjack-v2.0.0.tar.gz
+  other-url: https://gopkg.in/natefinch/lumberjack.v2
+  repository: Other
+  url: https://codeload.github.com/natefinch/lumberjack/tar.gz/v2.0.0
+  version: v2.0.0
+other:docker_go-connections:v0.4.0:
+  license: Apache-2.0
+  name: docker_go-connections
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/docker-go-connections-v0.4.0.tar.gz
+  other-url: https://github.com/docker/go-connections
+  repository: Other
+  url: https://codeload.github.com/docker/go-connections/tar.gz/v0.4.0
+  version: v0.4.0
+other:mindprince_gonvml:9ebdce4bb989:
+  license: Apache-2.0
+  name: mindprince_gonvml
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/mindprince-gonvml-9ebdce4bb989.tar.gz
+  other-url: https://github.com/mindprince/gonvml
+  repository: Other
+  url: https://codeload.github.com/mindprince/gonvml/tar.gz/9ebdce4bb989
+  version: 9ebdce4bb989
+other:vmware_govmomi_vim25_xml:v0.20.3:
+  license: BSD-3-Clause
+  name: vmware_govmomi_vim25_xml
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/vmware-govmomi-v0.20.3.tar.gz
+  other-url: https://github.com/vmware/govmomi/vim25/xml
+  repository: Other
+  url: https://codeload.github.com/vmware/govmomi/tar.gz/v0.20.3
+  version: v0.20.3
+other:containerd_console:v1.0.0:
+  license: Apache-2.0
+  name: containerd_console
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/containerd-console-v1.0.0.tar.gz
+  other-url: https://github.com/containerd/console
+  repository: Other
+  url: https://codeload.github.com/containerd/console/tar.gz/v1.0.0
+  version: v1.0.0
+other:prometheus_common_internal_bitbucket_org_ww_goautoneg:v0.10.0:
+  license: Unlicense
+  name: prometheus_common_internal_bitbucket_org_ww_goautoneg
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/prometheus-common-v0.10.0.tar.gz
+  other-url: https://github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
+  repository: Other
+  url: https://codeload.github.com/prometheus/common/tar.gz/v0.10.0
+  version: v0.10.0
+other:apiserver:master:
+  license: Apache-2.0
+  name: apiserver
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-apiserver-master.tar.gz
+  other-url: https://k8s.io/apiserver
+  repository: Other
+  url: https://codeload.github.com/kubernetes/apiserver/tar.gz/master
+  version: master
+other:azure_go-autorest:v14.2.0:
+  license: Apache-2.0
+  name: azure_go-autorest
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-autorest-v14.2.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v14.2.0
+  version: v14.2.0
+other:azure_go-autorest_tracing:v0.6.0:
+  license: Apache-2.0
+  name: azure_go-autorest_tracing
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-autorest-v0.6.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/tracing
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.6.0
+  version: v0.6.0
+other:moby_sys_mountinfo:v0.1.3:
+  license: Apache-2.0
+  name: moby_sys_mountinfo
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/moby-sys-v0.1.3.tar.gz
+  other-url: https://github.com/moby/sys/mountinfo
+  repository: Other
+  url: https://codeload.github.com/moby/sys/tar.gz/v0.1.3
+  version: v0.1.3
+other:storageos_go-api:v2.2.0:
+  license: UNKNOWN
+  name: storageos_go-api
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/storageos-go-api-v2.2.0.tar.gz
+  other-url: https://github.com/storageos/go-api
+  repository: Other
+  url: https://codeload.github.com/storageos/go-api/tar.gz/v2.2.0
+  version: v2.2.0
+other:gogo_protobuf_types:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_types
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/types
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1
+other:storageos_go-api_serror:v2.2.0:
+  license: UNKNOWN
+  name: storageos_go-api_serror
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/storageos-go-api-v2.2.0.tar.gz
+  other-url: https://github.com/storageos/go-api/serror
+  repository: Other
+  url: https://codeload.github.com/storageos/go-api/tar.gz/v2.2.0
+  version: v2.2.0
+other:containernetworking_cni:v0.8.0:
+  license: Apache-2.0
+  name: containernetworking_cni
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/containernetworking-cni-v0.8.0.tar.gz
+  other-url: https://github.com/containernetworking/cni
+  repository: Other
+  url: https://codeload.github.com/containernetworking/cni/tar.gz/v0.8.0
+  version: v0.8.0
+other:docker_distribution:v2.7.1:
+  license: Apache-2.0
+  name: docker_distribution
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/docker-distribution-v2.7.1.tar.gz
+  other-url: https://github.com/docker/distribution
+  repository: Other
+  url: https://codeload.github.com/docker/distribution/tar.gz/v2.7.1
+  version: v2.7.1
+other:mount-utils:master:
+  license: Apache-2.0
+  name: mount-utils
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-mount-utils-master.tar.gz
+  other-url: https://k8s.io/mount-utils
+  repository: Other
+  url: https://codeload.github.com/kubernetes/mount-utils/tar.gz/master
+  version: master
+other:azure_go-autorest_autorest_mocks:v0.4.1:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_mocks
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-autorest-v0.4.1.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/mocks
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.4.1
+  version: v0.4.1
+other:vishvananda_netlink:v1.1.0:
+  license: Apache-2.0
+  name: vishvananda_netlink
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/vishvananda-netlink-v1.1.0.tar.gz
+  other-url: https://github.com/vishvananda/netlink
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netlink/tar.gz/v1.1.0
+  version: v1.1.0
+other:kubelet:master:
+  license: Apache-2.0
+  name: kubelet
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-kubelet-master.tar.gz
+  other-url: https://k8s.io/kubelet
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kubelet/tar.gz/master
+  version: master
+other:go-openapi_spec:v0.19.3:
+  license: Apache-2.0
+  name: go-openapi_spec
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go-openapi-spec-v0.19.3.tar.gz
+  other-url: https://github.com/go-openapi/spec
+  repository: Other
+  url: https://codeload.github.com/go-openapi/spec/tar.gz/v0.19.3
+  version: v0.19.3
+other:gcfg_v1:v1.2.0:
+  license: BSD-3-Clause
+  name: gcfg_v1
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go_gcfg-gcfg-v1.2.0.tar.gz
+  other-url: https://gopkg.in/gcfg.v1
+  repository: Other
+  url: https://codeload.github.com/go-gcfg/gcfg/tar.gz/v1.2.0
+  version: v1.2.0
+other:azure_azure-sdk-for-go:v43.0.0:
+  license: Apache-2.0
+  name: azure_azure-sdk-for-go
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-azure-sdk-for-go-v43.0.0.tar.gz
+  other-url: https://github.com/Azure/azure-sdk-for-go
+  repository: Other
+  url: https://codeload.github.com/Azure/azure-sdk-for-go/tar.gz/v43.0.0
+  version: v43.0.0
+other:mrunalp_fileutils:abd8a0e76976:
+  license: Apache-2.0
+  name: mrunalp_fileutils
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/mrunalp-fileutils-abd8a0e76976.tar.gz
+  other-url: https://github.com/mrunalp/fileutils
+  repository: Other
+  url: https://codeload.github.com/mrunalp/fileutils/tar.gz/abd8a0e76976
+  version: abd8a0e76976
+other:multierr:v1.1.0:
+  license: MIT
+  name: multierr
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/uber_go-multierr-v1.1.0.tar.gz
+  other-url: https://go.uber.org/multierr
+  repository: Other
+  url: https://codeload.github.com/uber-go/multierr/tar.gz/v1.1.0
+  version: v1.1.0
+other:googlecloudplatform_k8s-cloud-provider:7901bc822317:
+  license: Apache-2.0
+  name: googlecloudplatform_k8s-cloud-provider
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/GoogleCloudPlatform-k8s-cloud-provider-7901bc822317.tar.gz
+  other-url: https://github.com/GoogleCloudPlatform/k8s-cloud-provider
+  repository: Other
+  url: https://codeload.github.com/GoogleCloudPlatform/k8s-cloud-provider/tar.gz/7901bc822317
+  version: 7901bc822317
+other:structured-merge-diff_v4:v4.0.2:
+  license: Apache-2.0
+  name: structured-merge-diff_v4
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes_sigs-structured-merge-diff-v4.0.2.tar.gz
+  other-url: https://sigs.k8s.io/structured-merge-diff/v4
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/structured-merge-diff/tar.gz/v4.0.2
+  version: v4.0.2
+other:ghodss_yaml:v1.0.0:
+  license: UNKNOWN
+  name: ghodss_yaml
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/ghodss-yaml-v1.0.0.tar.gz
+  other-url: https://github.com/ghodss/yaml
+  repository: Other
+  url: https://codeload.github.com/ghodss/yaml/tar.gz/v1.0.0
+  version: v1.0.0
+other:coreos_go-semver:v0.3.0:
+  license: Apache-2.0
+  name: coreos_go-semver
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/coreos-go-semver-v0.3.0.tar.gz
+  other-url: https://github.com/coreos/go-semver
+  repository: Other
+  url: https://codeload.github.com/coreos/go-semver/tar.gz/v0.3.0
+  version: v0.3.0
+other:azure_go-autorest_autorest_to:v0.2.0:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_to
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-autorest-v0.2.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/to
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.2.0
+  version: v0.2.0
+other:inf_v0:v0.9.1:
+  license: BSD-3-Clause
+  name: inf_v0
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go_inf-inf-v0.9.1.tar.gz
+  other-url: https://gopkg.in/inf.v0
+  repository: Other
+  url: https://codeload.github.com/go-inf/inf/tar.gz/v0.9.1
+  version: v0.9.1
+other:fsnotify_fsnotify:v1.4.9:
+  license: BSD-3-Clause
+  name: fsnotify_fsnotify
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/fsnotify-fsnotify-v1.4.9.tar.gz
+  other-url: https://github.com/fsnotify/fsnotify
+  repository: Other
+  url: https://codeload.github.com/fsnotify/fsnotify/tar.gz/v1.4.9
+  version: v1.4.9
+other:x_net:69a78807bb2b:
+  license: BSD-3-Clause
+  name: x_net
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-net-69a78807bb2b.tar.gz
+  other-url: https://golang.org/x/net
+  repository: Other
+  url: https://codeload.github.com/golang/net/tar.gz/69a78807bb2b
+  version: 69a78807bb2b
+other:blang_semver:v3.5.1:
+  license: MIT
+  name: blang_semver
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/blang-semver-v3.5.1.tar.gz
+  other-url: https://github.com/blang/semver
+  repository: Other
+  url: https://codeload.github.com/blang/semver/tar.gz/v3.5.1
+  version: v3.5.1
+other:inconshreveable_mousetrap:v1.0.0:
+  license: Apache-2.0
+  name: inconshreveable_mousetrap
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/inconshreveable-mousetrap-v1.0.0.tar.gz
+  other-url: https://github.com/inconshreveable/mousetrap
+  repository: Other
+  url: https://codeload.github.com/inconshreveable/mousetrap/tar.gz/v1.0.0
+  version: v1.0.0
+other:prometheus_procfs:v0.2.0:
+  license: Apache-2.0
+  name: prometheus_procfs
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/prometheus-procfs-v0.2.0.tar.gz
+  other-url: https://github.com/prometheus/procfs
+  repository: Other
+  url: https://codeload.github.com/prometheus/procfs/tar.gz/v0.2.0
+  version: v0.2.0
+other:containerd_containerd:v1.4.1:
+  license: Apache-2.0
+  name: containerd_containerd
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/containerd-containerd-v1.4.1.tar.gz
+  other-url: https://github.com/containerd/containerd
+  repository: Other
+  url: https://codeload.github.com/containerd/containerd/tar.gz/v1.4.1
+  version: v1.4.1
+other:cri-api:master:
+  license: Apache-2.0
+  name: cri-api
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-cri-api-master.tar.gz
+  other-url: https://k8s.io/cri-api
+  repository: Other
+  url: https://codeload.github.com/kubernetes/cri-api/tar.gz/master
+  version: master
+other:cespare_xxhash_v2:v2.1.1:
+  license: MIT
+  name: cespare_xxhash_v2
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/cespare-xxhash-v2.1.1.tar.gz
+  other-url: https://github.com/cespare/xxhash/v2
+  repository: Other
+  url: https://codeload.github.com/cespare/xxhash/tar.gz/v2.1.1
+  version: v2.1.1
+other:imdario_mergo:v0.3.5:
+  license: BSD-3-Clause
+  name: imdario_mergo
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/imdario-mergo-v0.3.5.tar.gz
+  other-url: https://github.com/imdario/mergo
+  repository: Other
+  url: https://codeload.github.com/imdario/mergo/tar.gz/v0.3.5
+  version: v0.3.5
+other:prometheus_common:v0.10.0:
+  license: Apache-2.0
+  name: prometheus_common
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/prometheus-common-v0.10.0.tar.gz
+  other-url: https://github.com/prometheus/common
+  repository: Other
+  url: https://codeload.github.com/prometheus/common/tar.gz/v0.10.0
+  version: v0.10.0
+other:controller-manager:master:
+  license: Apache-2.0
+  name: controller-manager
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-controller-manager-master.tar.gz
+  other-url: https://k8s.io/controller-manager
+  repository: Other
+  url: https://codeload.github.com/kubernetes/controller-manager/tar.gz/master
+  version: master
+other:mitchellh_mapstructure:v1.1.2:
+  license: MIT
+  name: mitchellh_mapstructure
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/mitchellh-mapstructure-v1.1.2.tar.gz
+  other-url: https://github.com/mitchellh/mapstructure
+  repository: Other
+  url: https://codeload.github.com/mitchellh/mapstructure/tar.gz/v1.1.2
+  version: v1.1.2
+other:libopenstorage_openstorage:v1.0.0:
+  license: Apache-2.0
+  name: libopenstorage_openstorage
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/libopenstorage-openstorage-v1.0.0.tar.gz
+  other-url: https://github.com/libopenstorage/openstorage
+  repository: Other
+  url: https://codeload.github.com/libopenstorage/openstorage/tar.gz/v1.0.0
+  version: v1.0.0
+other:azure_go-autorest_autorest_validation:v0.1.0:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_validation
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-autorest-v0.1.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/validation
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.1.0
+  version: v0.1.0
+other:stretchr_objx:v0.2.0:
+  license: MIT
+  name: stretchr_objx
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/stretchr-objx-v0.2.0.tar.gz
+  other-url: https://github.com/stretchr/objx
+  repository: Other
+  url: https://codeload.github.com/stretchr/objx/tar.gz/v0.2.0
+  version: v0.2.0
+other:googleapis_gnostic:v0.4.1:
+  license: Apache-2.0
+  name: googleapis_gnostic
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/googleapis-gnostic-v0.4.1.tar.gz
+  other-url: https://github.com/googleapis/gnostic
+  repository: Other
+  url: https://codeload.github.com/googleapis/gnostic/tar.gz/v0.4.1
+  version: v0.4.1
+other:quobyte_api:v0.1.8:
+  license: BSD-3-Clause
+  name: quobyte_api
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/quobyte-api-v0.1.8.tar.gz
+  other-url: https://github.com/quobyte/api
+  repository: Other
+  url: https://codeload.github.com/quobyte/api/tar.gz/v0.1.8
+  version: v0.1.8
+other:api_internal_third_party_uritemplates:v0.20.0:
+  license: BSD-3-Clause
+  name: api_internal_third_party_uritemplates
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/google_api_go_client-v0.20.0.tar.gz
+  other-url: https://google.golang.org/api/internal/third_party/uritemplates
+  repository: Other
+  url: https://codeload.github.com/google/google-api-go-client/tar.gz/v0.20.0
+  version: v0.20.0
+other:grpc:v1.27.1:
+  license: Apache-2.0
+  name: grpc
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/grpc_go-v1.27.1.tar.gz
+  other-url: https://google.golang.org/grpc
+  repository: Other
+  url: https://codeload.github.com/grpc/grpc-go/tar.gz/v1.27.1
+  version: v1.27.1
+other:googleapis_gax-go_v2:v2.0.5:
+  license: BSD-3-Clause
+  name: googleapis_gax-go_v2
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/googleapis-gax-go-v2.0.5.tar.gz
+  other-url: https://github.com/googleapis/gax-go/v2
+  repository: Other
+  url: https://codeload.github.com/googleapis/gax-go/tar.gz/v2.0.5
+  version: v2.0.5
+other:prometheus_client_model:v0.2.0:
+  license: Apache-2.0
+  name: prometheus_client_model
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/prometheus-client_model-v0.2.0.tar.gz
+  other-url: https://github.com/prometheus/client_model
+  repository: Other
+  url: https://codeload.github.com/prometheus/client_model/tar.gz/v0.2.0
+  version: v0.2.0
+other:utils_inotify:67b214c5f920:
+  license: BSD-3-Clause
+  name: utils_inotify
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-utils-67b214c5f920.tar.gz
+  other-url: https://k8s.io/utils/inotify
+  repository: Other
+  url: https://codeload.github.com/kubernetes/utils/tar.gz/67b214c5f920
+  version: 67b214c5f920
+other:hashicorp_golang-lru:v0.5.1:
+  license: MPL-2.0-no-copyleft-exception
+  name: hashicorp_golang-lru
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/hashicorp-golang-lru-v0.5.1.tar.gz
+  other-url: https://github.com/hashicorp/golang-lru
+  repository: Other
+  url: https://codeload.github.com/hashicorp/golang-lru/tar.gz/v0.5.1
+  version: v0.5.1
+other:pmezard_go-difflib:v1.0.0:
+  license: BSD-3-Clause
+  name: pmezard_go-difflib
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/pmezard-go-difflib-v1.0.0.tar.gz
+  other-url: https://github.com/pmezard/go-difflib
+  repository: Other
+  url: https://codeload.github.com/pmezard/go-difflib/tar.gz/v1.0.0
+  version: v1.0.0
+other:lithammer_dedent:v1.1.0:
+  license: MIT
+  name: lithammer_dedent
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/lithammer-dedent-v1.1.0.tar.gz
+  other-url: https://github.com/lithammer/dedent
+  repository: Other
+  url: https://codeload.github.com/lithammer/dedent/tar.gz/v1.1.0
+  version: v1.1.0
+other:mailru_easyjson:v0.7.0:
+  license: MIT
+  name: mailru_easyjson
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/mailru-easyjson-v0.7.0.tar.gz
+  other-url: https://github.com/mailru/easyjson
+  repository: Other
+  url: https://codeload.github.com/mailru/easyjson/tar.gz/v0.7.0
+  version: v0.7.0
+other:puerkitobio_purell:v1.1.1:
+  license: BSD-3-Clause
+  name: puerkitobio_purell
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/PuerkitoBio-purell-v1.1.1.tar.gz
+  other-url: https://github.com/PuerkitoBio/purell
+  repository: Other
+  url: https://codeload.github.com/PuerkitoBio/purell/tar.gz/v1.1.1
+  version: v1.1.1
+other:mistifyio_go-zfs:f784269be439:
+  license: Apache-2.0
+  name: mistifyio_go-zfs
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/mistifyio-go-zfs-f784269be439.tar.gz
+  other-url: https://github.com/mistifyio/go-zfs
+  repository: Other
+  url: https://codeload.github.com/mistifyio/go-zfs/tar.gz/f784269be439
+  version: f784269be439
+other:asaskevich_govalidator:f61b66f89f4a:
+  license: MIT
+  name: asaskevich_govalidator
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/asaskevich-govalidator-f61b66f89f4a.tar.gz
+  other-url: https://github.com/asaskevich/govalidator
+  repository: Other
+  url: https://codeload.github.com/asaskevich/govalidator/tar.gz/f61b66f89f4a
+  version: f61b66f89f4a
+other:mohae_deepcopy:491d3605edfb:
+  license: MIT
+  name: mohae_deepcopy
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/mohae-deepcopy-491d3605edfb.tar.gz
+  other-url: https://github.com/mohae/deepcopy
+  repository: Other
+  url: https://codeload.github.com/mohae/deepcopy/tar.gz/491d3605edfb
+  version: 491d3605edfb
+other:client-go:master:
+  license: Apache-2.0
+  name: client-go
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-client-go-master.tar.gz
+  other-url: https://k8s.io/client-go
+  repository: Other
+  url: https://codeload.github.com/kubernetes/client-go/tar.gz/master
+  version: master
+other:prometheus_client_golang:v1.7.1:
+  license: Apache-2.0
+  name: prometheus_client_golang
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/prometheus-client_golang-v1.7.1.tar.gz
+  other-url: https://github.com/prometheus/client_golang
+  repository: Other
+  url: https://codeload.github.com/prometheus/client_golang/tar.gz/v1.7.1
+  version: v1.7.1
+other:willf_bitset:d5bec3311243:
+  license: BSD-3-Clause
+  name: willf_bitset
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/willf-bitset-d5bec3311243.tar.gz
+  other-url: https://github.com/willf/bitset
+  repository: Other
+  url: https://codeload.github.com/willf/bitset/tar.gz/d5bec3311243
+  version: d5bec3311243
+other:opencontainers_runc:v1.0.0:
+  license: Apache-2.0
+  name: opencontainers_runc
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/opencontainers-runc-v1.0.0.tar.gz
+  other-url: https://github.com/opencontainers/runc
+  repository: Other
+  url: https://codeload.github.com/opencontainers/runc/tar.gz/v1.0.0
+  version: v1.0.0
+other:gogo_protobuf_gogoproto:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_gogoproto
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/gogoproto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1
+other:vmware_govmomi:v0.20.3:
+  license: Apache-2.0
+  name: vmware_govmomi
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/vmware-govmomi-v0.20.3.tar.gz
+  other-url: https://github.com/vmware/govmomi
+  repository: Other
+  url: https://codeload.github.com/vmware/govmomi/tar.gz/v0.20.3
+  version: v0.20.3
+other:apiserver-network-proxy_konnectivity-client:v0.0.14:
+  license: Apache-2.0
+  name: apiserver-network-proxy_konnectivity-client
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes_sigs-apiserver-network-proxy-v0.0.14.tar.gz
+  other-url: https://sigs.k8s.io/apiserver-network-proxy/konnectivity-client
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/apiserver-network-proxy/tar.gz/v0.0.14
+  version: v0.0.14
+other:mxk_go-flowrate:cca7078d478f:
+  license: BSD-3-Clause
+  name: mxk_go-flowrate
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/mxk-go-flowrate-cca7078d478f.tar.gz
+  other-url: https://github.com/mxk/go-flowrate
+  repository: Other
+  url: https://codeload.github.com/mxk/go-flowrate/tar.gz/cca7078d478f
+  version: cca7078d478f
+other:azure_go-ansiterm:d6e3b3328b78:
+  license: MIT
+  name: azure_go-ansiterm
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-ansiterm-d6e3b3328b78.tar.gz
+  other-url: https://github.com/Azure/go-ansiterm
+  repository: Other
+  url: https://codeload.github.com/Azure/go-ansiterm/tar.gz/d6e3b3328b78
+  version: d6e3b3328b78
+other:yaml:v1.2.0:
+  license: UNKNOWN
+  name: yaml
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes_sigs-yaml-v1.2.0.tar.gz
+  other-url: https://sigs.k8s.io/yaml
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/yaml/tar.gz/v1.2.0
+  version: v1.2.0
+other:csi-translation-lib:master:
+  license: Apache-2.0
+  name: csi-translation-lib
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-csi-translation-lib-master.tar.gz
+  other-url: https://k8s.io/csi-translation-lib
+  repository: Other
+  url: https://codeload.github.com/kubernetes/csi-translation-lib/tar.gz/master
+  version: master
+other:checkpoint-restore_go-criu_v4:v4.1.0:
+  license: Apache-2.0
+  name: checkpoint-restore_go-criu_v4
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/checkpoint-restore-go-criu-v4.1.0.tar.gz
+  other-url: https://github.com/checkpoint-restore/go-criu/v4
+  repository: Other
+  url: https://codeload.github.com/checkpoint-restore/go-criu/tar.gz/v4.1.0
+  version: v4.1.0
+other:vishvananda_netns:db3c7e526aae:
+  license: Apache-2.0
+  name: vishvananda_netns
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/vishvananda-netns-db3c7e526aae.tar.gz
+  other-url: https://github.com/vishvananda/netns
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netns/tar.gz/db3c7e526aae
+  version: db3c7e526aae
+other:cloud-provider:master:
+  license: Apache-2.0
+  name: cloud-provider
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-cloud-provider-master.tar.gz
+  other-url: https://k8s.io/cloud-provider
+  repository: Other
+  url: https://codeload.github.com/kubernetes/cloud-provider/tar.gz/master
+  version: master
+other:modern-go_concurrent:bacd9c7ef1dd:
+  license: Apache-2.0
+  name: modern-go_concurrent
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/modern-go-concurrent-bacd9c7ef1dd.tar.gz
+  other-url: https://github.com/modern-go/concurrent
+  repository: Other
+  url: https://codeload.github.com/modern-go/concurrent/tar.gz/bacd9c7ef1dd
+  version: bacd9c7ef1dd
+other:containerd_cgroups:0dbf7f05ba59:
+  license: Apache-2.0
+  name: containerd_cgroups
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/containerd-cgroups-0dbf7f05ba59.tar.gz
+  other-url: https://github.com/containerd/cgroups
+  repository: Other
+  url: https://codeload.github.com/containerd/cgroups/tar.gz/0dbf7f05ba59
+  version: 0dbf7f05ba59
+other:kubernetes_third_party_forked_golang:master:
+  license: BSD-3-Clause
+  name: kubernetes_third_party_forked_golang
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-kubernetes-master.tar.gz
+  other-url: https://k8s.io/kubernetes/third_party/forked/golang
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kubernetes/tar.gz/master
+  version: master
+other:go-openapi_jsonreference:v0.19.3:
+  license: Apache-2.0
+  name: go-openapi_jsonreference
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go-openapi-jsonreference-v0.19.3.tar.gz
+  other-url: https://github.com/go-openapi/jsonreference
+  repository: Other
+  url: https://codeload.github.com/go-openapi/jsonreference/tar.gz/v0.19.3
+  version: v0.19.3
+other:coreos_go-systemd_v22:v22.1.0:
+  license: Apache-2.0
+  name: coreos_go-systemd_v22
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/coreos-go-systemd-v22.1.0.tar.gz
+  other-url: https://github.com/coreos/go-systemd/v22
+  repository: Other
+  url: https://codeload.github.com/coreos/go-systemd/tar.gz/v22.1.0
+  version: v22.1.0
+other:seccomp_libseccomp-golang:v0.9.1:
+  license: BSD-2-Clause
+  name: seccomp_libseccomp-golang
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/seccomp-libseccomp-golang-v0.9.1.tar.gz
+  other-url: https://github.com/seccomp/libseccomp-golang
+  repository: Other
+  url: https://codeload.github.com/seccomp/libseccomp-golang/tar.gz/v0.9.1
+  version: v0.9.1
+other:matttproud_golang_protobuf_extensions:c182affec369:
+  license: Apache-2.0
+  name: matttproud_golang_protobuf_extensions
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/matttproud-golang_protobuf_extensions-c182affec369.tar.gz
+  other-url: https://github.com/matttproud/golang_protobuf_extensions
+  repository: Other
+  url: https://codeload.github.com/matttproud/golang_protobuf_extensions/tar.gz/c182affec369
+  version: c182affec369
+other:davecgh_go-spew:v1.1.1:
+  license: 0BSD
+  name: davecgh_go-spew
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/davecgh-go-spew-v1.1.1.tar.gz
+  other-url: https://github.com/davecgh/go-spew
+  repository: Other
+  url: https://codeload.github.com/davecgh/go-spew/tar.gz/v1.1.1
+  version: v1.1.1
+other:legacy-cloud-providers:master:
+  license: Apache-2.0
+  name: legacy-cloud-providers
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-legacy-cloud-providers-master.tar.gz
+  other-url: https://k8s.io/legacy-cloud-providers
+  repository: Other
+  url: https://codeload.github.com/kubernetes/legacy-cloud-providers/tar.gz/master
+  version: master
+other:morikuni_aec:v1.0.0:
+  license: MIT
+  name: morikuni_aec
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/morikuni-aec-v1.0.0.tar.gz
+  other-url: https://github.com/morikuni/aec
+  repository: Other
+  url: https://codeload.github.com/morikuni/aec/tar.gz/v1.0.0
+  version: v1.0.0
+other:google_cadvisor:v0.38.5:
+  license: Apache-2.0
+  name: google_cadvisor
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/google-cadvisor-v0.38.5.tar.gz
+  other-url: https://github.com/google/cadvisor
+  repository: Other
+  url: https://codeload.github.com/google/cadvisor/tar.gz/v0.38.5
+  version: v0.38.5
+other:utils:67b214c5f920:
+  license: Apache-2.0
+  name: utils
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-utils-67b214c5f920.tar.gz
+  other-url: https://k8s.io/utils
+  repository: Other
+  url: https://codeload.github.com/kubernetes/utils/tar.gz/67b214c5f920
+  version: 67b214c5f920
+other:storageos_go-api_netutil:v2.2.0:
+  license: UNKNOWN
+  name: storageos_go-api_netutil
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/storageos-go-api-v2.2.0.tar.gz
+  other-url: https://github.com/storageos/go-api/netutil
+  repository: Other
+  url: https://codeload.github.com/storageos/go-api/tar.gz/v2.2.0
+  version: v2.2.0
+other:konsorten_go-windows-terminal-sequences:v1.0.3:
+  license: MIT
+  name: konsorten_go-windows-terminal-sequences
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/konsorten-go-windows-terminal-sequences-v1.0.3.tar.gz
+  other-url: https://github.com/konsorten/go-windows-terminal-sequences
+  repository: Other
+  url: https://codeload.github.com/konsorten/go-windows-terminal-sequences/tar.gz/v1.0.3
+  version: v1.0.3
+other:azure_go-autorest_autorest_adal:v0.9.5:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_adal
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-autorest-v0.9.5.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/adal
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.9.5
+  version: v0.9.5
+other:opencontainers_runc_libcontainer:v1.0.0:
+  license: CC-BY-4.0
+  name: opencontainers_runc_libcontainer
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/opencontainers-runc-v1.0.0.tar.gz
+  other-url: https://github.com/opencontainers/runc/libcontainer
+  repository: Other
+  url: https://codeload.github.com/opencontainers/runc/tar.gz/v1.0.0
+  version: v1.0.0
+other:go-openapi_swag:v0.19.5:
+  license: Apache-2.0
+  name: go-openapi_swag
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go-openapi-swag-v0.19.5.tar.gz
+  other-url: https://github.com/go-openapi/swag
+  repository: Other
+  url: https://codeload.github.com/go-openapi/swag/tar.gz/v0.19.5
+  version: v0.19.5
+other:nytimes_gziphandler:56545f4a5d46:
+  license: Apache-2.0
+  name: nytimes_gziphandler
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/NYTimes-gziphandler-56545f4a5d46.tar.gz
+  other-url: https://github.com/NYTimes/gziphandler
+  repository: Other
+  url: https://codeload.github.com/NYTimes/gziphandler/tar.gz/56545f4a5d46
+  version: 56545f4a5d46
+other:moby_ipvs:v1.0.1:
+  license: Apache-2.0
+  name: moby_ipvs
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/moby-ipvs-v1.0.1.tar.gz
+  other-url: https://github.com/moby/ipvs
+  repository: Other
+  url: https://codeload.github.com/moby/ipvs/tar.gz/v1.0.1
+  version: v1.0.1
+other:satori_go_uuid:v1.2.0:
+  license: MIT
+  name: satori_go_uuid
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/satori-go.uuid-v1.2.0.tar.gz
+  other-url: https://github.com/satori/go.uuid
+  repository: Other
+  url: https://codeload.github.com/satori/go.uuid/tar.gz/v1.2.0
+  version: v1.2.0
+other:kube-scheduler:master:
+  license: Apache-2.0
+  name: kube-scheduler
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-kube-scheduler-master.tar.gz
+  other-url: https://k8s.io/kube-scheduler
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kube-scheduler/tar.gz/master
+  version: master
+other:heketi_heketi:c2e2a4ab7ab9:
+  license: LGPL-3.0-or-later
+  name: heketi_heketi
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/heketi-heketi-c2e2a4ab7ab9.tar.gz
+  other-url: https://github.com/heketi/heketi
+  repository: Other
+  url: https://codeload.github.com/heketi/heketi/tar.gz/c2e2a4ab7ab9
+  version: c2e2a4ab7ab9
+other:coreos_go-systemd:95778dfbb74e:
+  license: Apache-2.0
+  name: coreos_go-systemd
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/coreos-go-systemd-95778dfbb74e.tar.gz
+  other-url: https://github.com/coreos/go-systemd
+  repository: Other
+  url: https://codeload.github.com/coreos/go-systemd/tar.gz/95778dfbb74e
+  version: 95778dfbb74e
+other:digitalocean_godo:v1.27.0:
+  license: MIT
+  name: digitalocean_godo
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/digitalocean-godo-v1.27.0.tar.gz
+  other-url: https://github.com/digitalocean/godo
+  repository: Other
+  url: https://codeload.github.com/digitalocean/godo/tar.gz/v1.27.0
+  version: v1.27.0
+other:yaml_v2:v2.2.8:
+  license: Apache-2.0
+  name: yaml_v2
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go_yaml-yaml-v2.2.8.tar.gz
+  other-url: https://gopkg.in/yaml.v2
+  repository: Other
+  url: https://codeload.github.com/go-yaml/yaml/tar.gz/v2.2.8
+  version: v2.2.8
+other:dgrijalva_jwt-go:v3.2.0:
+  license: MIT
+  name: dgrijalva_jwt-go
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/dgrijalva-jwt-go-v3.2.0.tar.gz
+  other-url: https://github.com/dgrijalva/jwt-go
+  repository: Other
+  url: https://codeload.github.com/dgrijalva/jwt-go/tar.gz/v3.2.0
+  version: v3.2.0
+other:microsoft_hcsshim:5eafd1556990:
+  license: MIT
+  name: microsoft_hcsshim
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Microsoft-hcsshim-5eafd1556990.tar.gz
+  other-url: https://github.com/Microsoft/hcsshim
+  repository: Other
+  url: https://codeload.github.com/Microsoft/hcsshim/tar.gz/5eafd1556990
+  version: 5eafd1556990
+other:docker_go-units:v0.4.0:
+  license: Apache-2.0
+  name: docker_go-units
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/docker-go-units-v0.4.0.tar.gz
+  other-url: https://github.com/docker/go-units
+  repository: Other
+  url: https://codeload.github.com/docker/go-units/tar.gz/v0.4.0
+  version: v0.4.0
+other:clusterhq_flocker-go:2b8b7259d313:
+  license: Apache-2.0
+  name: clusterhq_flocker-go
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/clusterhq-flocker-go-2b8b7259d313.tar.gz
+  other-url: https://github.com/clusterhq/flocker-go
+  repository: Other
+  url: https://codeload.github.com/clusterhq/flocker-go/tar.gz/2b8b7259d313
+  version: 2b8b7259d313
+other:google_uuid:v1.1.2:
+  license: BSD-3-Clause
+  name: google_uuid
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/google-uuid-v1.1.2.tar.gz
+  other-url: https://github.com/google/uuid
+  repository: Other
+  url: https://codeload.github.com/google/uuid/tar.gz/v1.1.2
+  version: v1.1.2
+other:container-storage-interface_spec:v1.2.0:
+  license: Apache-2.0
+  name: container-storage-interface_spec
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/container-storage-interface-spec-v1.2.0.tar.gz
+  other-url: https://github.com/container-storage-interface/spec
+  repository: Other
+  url: https://codeload.github.com/container-storage-interface/spec/tar.gz/v1.2.0
+  version: v1.2.0
+other:azure_go-autorest_autorest_date:v0.3.0:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_date
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-autorest-v0.3.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/date
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.3.0
+  version: v0.3.0
+other:component-base:master:
+  license: Apache-2.0
+  name: component-base
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-component-base-master.tar.gz
+  other-url: https://k8s.io/component-base
+  repository: Other
+  url: https://codeload.github.com/kubernetes/component-base/tar.gz/master
+  version: master
+other:golang_mock:v1.4.1:
+  license: Apache-2.0
+  name: golang_mock
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-mock-v1.4.1.tar.gz
+  other-url: https://github.com/golang/mock
+  repository: Other
+  url: https://codeload.github.com/golang/mock/tar.gz/v1.4.1
+  version: v1.4.1
+other:azure_go-autorest_autorest:v0.11.1:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-autorest-v0.11.1.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.11.1
+  version: v0.11.1
+other:x_sync:cd5d95a43a6e:
+  license: BSD-3-Clause
+  name: x_sync
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-sync-cd5d95a43a6e.tar.gz
+  other-url: https://golang.org/x/sync
+  repository: Other
+  url: https://codeload.github.com/golang/sync/tar.gz/cd5d95a43a6e
+  version: cd5d95a43a6e
+other:cilium_ebpf:1c8d4c9ef775:
+  license: MIT
+  name: cilium_ebpf
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/cilium-ebpf-1c8d4c9ef775.tar.gz
+  other-url: https://github.com/cilium/ebpf
+  repository: Other
+  url: https://codeload.github.com/cilium/ebpf/tar.gz/1c8d4c9ef775
+  version: 1c8d4c9ef775
+other:opencontainers_runtime-spec:4d89ac9fbff6:
+  license: Apache-2.0
+  name: opencontainers_runtime-spec
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/opencontainers-runtime-spec-4d89ac9fbff6.tar.gz
+  other-url: https://github.com/opencontainers/runtime-spec
+  repository: Other
+  url: https://codeload.github.com/opencontainers/runtime-spec/tar.gz/4d89ac9fbff6
+  version: 4d89ac9fbff6
+other:golang_protobuf:v1.4.3:
+  license: BSD-3-Clause
+  name: golang_protobuf
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-protobuf-v1.4.3.tar.gz
+  other-url: https://github.com/golang/protobuf
+  repository: Other
+  url: https://codeload.github.com/golang/protobuf/tar.gz/v1.4.3
+  version: v1.4.3
+other:component-helpers:master:
+  license: Apache-2.0
+  name: component-helpers
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-component-helpers-master.tar.gz
+  other-url: https://k8s.io/component-helpers
+  repository: Other
+  url: https://codeload.github.com/kubernetes/component-helpers/tar.gz/master
+  version: master
+other:munnerz_goautoneg:a7dc8b61c822:
+  license: BSD-3-Clause
+  name: munnerz_goautoneg
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/munnerz-goautoneg-a7dc8b61c822.tar.gz
+  other-url: https://github.com/munnerz/goautoneg
+  repository: Other
+  url: https://codeload.github.com/munnerz/goautoneg/tar.gz/a7dc8b61c822
+  version: a7dc8b61c822
+other:go-logr_logr:v0.2.0:
+  license: Apache-2.0
+  name: go-logr_logr
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go-logr-logr-v0.2.0.tar.gz
+  other-url: https://github.com/go-logr/logr
+  repository: Other
+  url: https://codeload.github.com/go-logr/logr/tar.gz/v0.2.0
+  version: v0.2.0
+other:gophercloud_gophercloud:v0.1.0:
+  license: Apache-2.0
+  name: gophercloud_gophercloud
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/gophercloud-gophercloud-v0.1.0.tar.gz
+  other-url: https://github.com/gophercloud/gophercloud
+  repository: Other
+  url: https://codeload.github.com/gophercloud/gophercloud/tar.gz/v0.1.0
+  version: v0.1.0
+other:gogo_protobuf_sortkeys:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_sortkeys
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/sortkeys
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1
+other:api:v0.20.0:
+  license: BSD-3-Clause
+  name: api
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/google_api_go_client-v0.20.0.tar.gz
+  other-url: https://google.golang.org/api
+  repository: Other
+  url: https://codeload.github.com/google/google-api-go-client/tar.gz/v0.20.0
+  version: v0.20.0
+other:aws_aws-sdk-go:v1.35.24:
+  license: Apache-2.0
+  name: aws_aws-sdk-go
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/aws-aws-sdk-go-v1.35.24.tar.gz
+  other-url: https://github.com/aws/aws-sdk-go
+  repository: Other
+  url: https://codeload.github.com/aws/aws-sdk-go/tar.gz/v1.35.24
+  version: v1.35.24
+other:x_text:v0.3.4:
+  license: BSD-3-Clause
+  name: x_text
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-text-v0.3.4.tar.gz
+  other-url: https://golang.org/x/text
+  repository: Other
+  url: https://codeload.github.com/golang/text/tar.gz/v0.3.4
+  version: v0.3.4
+other:appengine:v1.6.5:
+  license: Apache-2.0
+  name: appengine
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-appengine-v1.6.5.tar.gz
+  other-url: https://google.golang.org/appengine
+  repository: Other
+  url: https://codeload.github.com/golang/appengine/tar.gz/v1.6.5
+  version: v1.6.5
+other:cyphar_filepath-securejoin:v0.2.2:
+  license: BSD-3-Clause
+  name: cyphar_filepath-securejoin
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/cyphar-filepath-securejoin-v0.2.2.tar.gz
+  other-url: https://github.com/cyphar/filepath-securejoin
+  repository: Other
+  url: https://codeload.github.com/cyphar/filepath-securejoin/tar.gz/v0.2.2
+  version: v0.2.2
+other:x_oauth2:bf48bf16ab8d:
+  license: BSD-3-Clause
+  name: x_oauth2
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-oauth2-bf48bf16ab8d.tar.gz
+  other-url: https://golang.org/x/oauth2
+  repository: Other
+  url: https://codeload.github.com/golang/oauth2/tar.gz/bf48bf16ab8d
+  version: bf48bf16ab8d
+other:jeffashton_win_pdh:76bb4ee9f0ab:
+  license: BSD-3-Clause
+  name: jeffashton_win_pdh
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/JeffAshton-win_pdh-76bb4ee9f0ab.tar.gz
+  other-url: https://github.com/JeffAshton/win_pdh
+  repository: Other
+  url: https://codeload.github.com/JeffAshton/win_pdh/tar.gz/76bb4ee9f0ab
+  version: 76bb4ee9f0ab
+other:azure_go-autorest_logger:v0.2.0:
+  license: Apache-2.0
+  name: azure_go-autorest_logger
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/Azure-go-autorest-v0.2.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/logger
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.2.0
+  version: v0.2.0
+other:google_go-querystring:v1.0.0:
+  license: BSD-3-Clause
+  name: google_go-querystring
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/google-go-querystring-v1.0.0.tar.gz
+  other-url: https://github.com/google/go-querystring
+  repository: Other
+  url: https://codeload.github.com/google/go-querystring/tar.gz/v1.0.0
+  version: v1.0.0
+other:go-openapi_jsonpointer:v0.19.3:
+  license: Apache-2.0
+  name: go-openapi_jsonpointer
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go-openapi-jsonpointer-v0.19.3.tar.gz
+  other-url: https://github.com/go-openapi/jsonpointer
+  repository: Other
+  url: https://codeload.github.com/go-openapi/jsonpointer/tar.gz/v0.19.3
+  version: v0.19.3
+other:rubiojr_go-vhd:02e210299021:
+  license: MIT
+  name: rubiojr_go-vhd
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/rubiojr-go-vhd-02e210299021.tar.gz
+  other-url: https://github.com/rubiojr/go-vhd
+  repository: Other
+  url: https://codeload.github.com/rubiojr/go-vhd/tar.gz/02e210299021
+  version: 02e210299021
+other:kubectl:master:
+  license: Apache-2.0
+  name: kubectl
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-kubectl-master.tar.gz
+  other-url: https://k8s.io/kubectl
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kubectl/tar.gz/master
+  version: master
+other:go_opencensus_io:v0.22.3:
+  license: Apache-2.0
+  name: go_opencensus_io
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/opencensus_go-v0.22.3.tar.gz
+  other-url: https://go.opencensus.io
+  repository: Other
+  url: https://codeload.github.com/census-instrumentation/opencensus-go/tar.gz/v0.22.3
+  version: v0.22.3
+other:zap:v1.10.0:
+  license: MIT
+  name: zap
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/uber_go-zap-v1.10.0.tar.gz
+  other-url: https://go.uber.org/zap
+  repository: Other
+  url: https://codeload.github.com/uber-go/zap/tar.gz/v1.10.0
+  version: v1.10.0
+other:opencontainers_image-spec:v1.0.1:
+  license: Apache-2.0
+  name: opencontainers_image-spec
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/opencontainers-image-spec-v1.0.1.tar.gz
+  other-url: https://github.com/opencontainers/image-spec
+  repository: Other
+  url: https://codeload.github.com/opencontainers/image-spec/tar.gz/v1.0.1
+  version: v1.0.1
+other:x_sys:5cba982894dd:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-sys-5cba982894dd.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/5cba982894dd
+  version: 5cba982894dd
+other:kube-openapi:d219536bb9fd:
+  license: Apache-2.0
+  name: kube-openapi
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-kube-openapi-d219536bb9fd.tar.gz
+  other-url: https://k8s.io/kube-openapi
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kube-openapi/tar.gz/d219536bb9fd
+  version: d219536bb9fd
+other:sirupsen_logrus:v1.6.0:
+  license: MIT
+  name: sirupsen_logrus
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/sirupsen-logrus-v1.6.0.tar.gz
+  other-url: https://github.com/sirupsen/logrus
+  repository: Other
+  url: https://codeload.github.com/sirupsen/logrus/tar.gz/v1.6.0
+  version: v1.6.0
+other:api:master:
+  license: Apache-2.0
+  name: api
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-api-master.tar.gz
+  other-url: https://k8s.io/api
+  repository: Other
+  url: https://codeload.github.com/kubernetes/api/tar.gz/master
+  version: master
+other:go-ozzo_ozzo-validation:v3.5.0:
+  license: MIT
+  name: go-ozzo_ozzo-validation
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/go-ozzo-ozzo-validation-v3.5.0.tar.gz
+  other-url: https://github.com/go-ozzo/ozzo-validation
+  repository: Other
+  url: https://codeload.github.com/go-ozzo/ozzo-validation/tar.gz/v3.5.0
+  version: v3.5.0
+other:x_crypto:7f63de1d35b0:
+  license: BSD-3-Clause
+  name: x_crypto
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/golang-crypto-7f63de1d35b0.tar.gz
+  other-url: https://golang.org/x/crypto
+  repository: Other
+  url: https://codeload.github.com/golang/crypto/tar.gz/7f63de1d35b0
+  version: 7f63de1d35b0
+other:json-iterator_go:v1.1.10:
+  license: MIT
+  name: json-iterator_go
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/json-iterator-go-v1.1.10.tar.gz
+  other-url: https://github.com/json-iterator/go
+  repository: Other
+  url: https://codeload.github.com/json-iterator/go/tar.gz/v1.1.10
+  version: v1.1.10
+other:kube-proxy:master:
+  license: Apache-2.0
+  name: kube-proxy
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-kube-proxy-master.tar.gz
+  other-url: https://k8s.io/kube-proxy
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kube-proxy/tar.gz/master
+  version: master
+other:jmespath_go-jmespath:v0.4.0:
+  license: Apache-2.0
+  name: jmespath_go-jmespath
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/jmespath-go-jmespath-v0.4.0.tar.gz
+  other-url: https://github.com/jmespath/go-jmespath
+  repository: Other
+  url: https://codeload.github.com/jmespath/go-jmespath/tar.gz/v0.4.0
+  version: v0.4.0
+other:gogo_protobuf_proto:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_proto
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/proto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1
+other:stretchr_testify:v1.6.1:
+  license: MIT
+  name: stretchr_testify
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/stretchr-testify-v1.6.1.tar.gz
+  other-url: https://github.com/stretchr/testify
+  repository: Other
+  url: https://codeload.github.com/stretchr/testify/tar.gz/v1.6.1
+  version: v1.6.1
+other:godbus_dbus_v5:v5.0.3:
+  license: BSD-2-Clause
+  name: godbus_dbus_v5
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/godbus-dbus-v5.0.3.tar.gz
+  other-url: https://github.com/godbus/dbus/v5
+  repository: Other
+  url: https://codeload.github.com/godbus/dbus/tar.gz/v5.0.3
+  version: v5.0.3
+other:go:v0.54.0:
+  license: Apache-2.0
+  name: go
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/google_cloud_go-v0.54.0.tar.gz
+  other-url: https://cloud.google.com/go
+  repository: Other
+  url: https://codeload.github.com/GoogleCloudPlatform/google-cloud-go/tar.gz/v0.54.0
+  version: v0.54.0
+other:klog_v2:v2.4.0:
+  license: Apache-2.0
+  name: klog_v2
+  other-distribution: /osl_sources/kubernetes-cluster-autoscaler/kubernetes-klog-v2.4.0.tar.gz
+  other-url: https://k8s.io/klog/v2
+  repository: Other
+  url: https://codeload.github.com/kubernetes/klog/tar.gz/v2.4.0
+  version: v2.4.0

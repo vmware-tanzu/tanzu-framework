@@ -1,0 +1,23 @@
+componentBuilds:
+- name: metrics-server-package
+  version: v0.6.2+vmware.1-tkg.1-metrics-server-zshippable
+  channel: "437695119085277011"
+  url: https://buildweb.eng.vmware.com/ob/20916046/
+  artifactURL:
+    metrics-server.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/metrics-server:v0.6.2_vmware.1-tkg.1-zshippable
+      sha256: 1e4062df1fc7b0792a38692a9b6fb96ae7fde39e648f1b7d363a11fd0f234ebe
+  cachehash: a8b55ef0c9f20aaff38f0fd168fdd8e5
+  publishhash: a857a5d53464d803d2e0261e21c846ae
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/metrics-server:v0.6.2_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: metrics-server
+    gobuild.package_type: core
+    gobuild.upstream_image_0: k8s.gcr.io/metrics-server/metrics-server:v0.6.2
+    gobuild.upstream_version: 0.6.2

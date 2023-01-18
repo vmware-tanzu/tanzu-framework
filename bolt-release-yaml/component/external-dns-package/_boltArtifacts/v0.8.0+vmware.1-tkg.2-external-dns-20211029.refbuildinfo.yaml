@@ -1,0 +1,11 @@
+componentBuilds:
+- name: external-dns
+  version: v0.8.0+vmware.1
+  channel: "359743955421681204"
+  url: https://buildweb.eng.vmware.com/ob/18187806/
+  artifactURL:
+    externalDNSImage:
+      url: projects-stg.registry.vmware.com/tkg/external-dns:v0.8.0_vmware.1
+      sha256: 0694239b34149a98b58ab7d478b17d7817b87563b44e3b4936445b105fb96bfc
+  cachehash: 6b67d85d4673befca8a32e19579f0dce
+  publishhash: 175d4662148aa03cb63036434f55e27a

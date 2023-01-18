@@ -1,0 +1,23 @@
+componentBuilds:
+- name: azure-ubuntu-2004
+  version: v1.21.14+vmware.1-tkg.1-31854221756c7771f3bf1c1077edc99b
+  channel: "416406122602168793"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2444
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416406122602168793/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-vhd-v1.21.14+vmware.1-tkg.1-31854221756c7771f3bf1c1077edc99b.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416406122602168793/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.1-tkg.1-31854221756c7771f3bf1c1077edc99b-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416406122602168793/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.1-tkg.1-31854221756c7771f3bf1c1077edc99b-osstpmgt.yaml
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416406122602168793/component/azure-ubuntu-2004/azure-vhd-link-ubuntu-2004-v1.21.14+vmware.1-tkg.1-31854221756c7771f3bf1c1077edc99b.json
+  cachehash: 3d61699dd6b04ea7679be1bbf0c2a362
+  publishhash: 59e059b30c0d67826b8ccee1a079da27
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 88edce31a8cfc66cd906fa364d7ffa7ee9b70cf4
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 9704dae0cb5703afc9f775a959d5fe88a1d6170c

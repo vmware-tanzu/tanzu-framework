@@ -1,0 +1,4 @@
+submodules:
+  - name: source-controller/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,7 @@
+name: calico_all
+goBuildComponentCaches:
+- version: v3.11.2+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/15616039/
+  buildNumber: bora-15616039
+  buildStatus: SUCCEEDED
+  hash: 41a58261ff190b0fcfc943a93fc4642c

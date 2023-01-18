@@ -1,0 +1,34 @@
+componentBuilds:
+- name: pinniped
+  version: v0.12.0+vmware.1
+  channel: "381771865443567203"
+  url: https://buildweb.eng.vmware.com/ob/18931514/
+  artifactURL:
+    pinnipedImage:
+      url: projects-stg.registry.vmware.com/tkg/pinniped:v0.12.0_vmware.1
+      sha256: 19cd1f5b18cad1772ec177b66cd8f8307197cb7dd276ee66d92561d3a856cabe
+  cachehash: fd252bbe7f6f3c0540309452a2c1423a
+  publishhash: 4862264dcdd4c26604f005ab5f25d6d6
+- name: dex
+  version: v2.27.0+vmware.1
+  channel: "348316067031984106"
+  url: https://buildweb.eng.vmware.com/ob/17532874/
+  artifactURL:
+    dexImage:
+      url: projects-stg.registry.vmware.com/tkg/dex:v2.27.0_vmware.1
+      sha256: 64c4a48aaaf5ad6649faf72caecc5352e0510b5051b26c4e177c84c8a8e428a1
+  cachehash: 9ec2dfccb8b6a943116ea132c0ce3f64
+  publishhash: e1ed18c7449d986cb50d6de0148eea24
+- name: tanzu-framework-addons
+  version: v0.11.0-tf
+  channel: "381937132681325669"
+  url: https://buildweb.eng.vmware.com/ob/18937127/
+  artifactURL:
+    tanzuAddonsManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v0.11.0-tf
+      sha256: 87a662382cfa7b090d89d5a0490d48962c5baf0116538d415b256cdd8f6a57f9
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.11.0-tf
+      sha256: 038d598f274fcd713e23adb858c26365fe4eb58a3a5b59da0040962bee01495a
+  cachehash: 8bee14674ebfb211e3a6ff3626a03ceb
+  publishhash: 9bcb224f7eaf2750adf282948c6a9f80

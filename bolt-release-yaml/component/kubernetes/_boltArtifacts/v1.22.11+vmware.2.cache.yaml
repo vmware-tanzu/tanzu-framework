@@ -1,0 +1,7 @@
+name: kubernetes
+goBuildComponentCaches:
+- version: v1.22.11+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/20127993/
+  buildNumber: bora-20127993
+  buildStatus: SUCCEEDED
+  hash: 99a496c4d3ab5f2887ca53105081b2f9

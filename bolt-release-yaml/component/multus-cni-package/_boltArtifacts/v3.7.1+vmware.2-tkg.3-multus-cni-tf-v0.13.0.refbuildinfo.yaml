@@ -1,0 +1,11 @@
+componentBuilds:
+- name: multus-cni
+  version: v3.7.1+vmware.2
+  channel: "379140381478008428"
+  url: https://buildweb.eng.vmware.com/ob/18846689/
+  artifactURL:
+    multusCniImage:
+      url: projects-stg.registry.vmware.com/tkg/multus-cni:v3.7.1_vmware.2
+      sha256: 71a2cc823d548e74daec1b0436f62e402d1b1b228010aac318f912102166bdf8
+  cachehash: 6cbdc1ce514c04866feacbd9db256925
+  publishhash: b5647358c2c84dcc15f3551eb9721292

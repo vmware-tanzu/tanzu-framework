@@ -1,0 +1,10 @@
+name: guest-cluster-auth-service-package
+goBuildComponentLocks:
+- version: v1.0.0-tkg.1-gc-auth-service-tf-v0.25.0
+  gobuildBranch: 419747994561181083-v1.0.0-tkg.1-gc-auth-service-tf-v0.25.0-guest-cluster-auth-service-package
+  gobuildHeadCommit: a7d56c2984e59d353fd58f7bb989f76da3f6306c
+  hash: 3687f27d14af81ce81817b302250b539
+  componentLockReferences:
+  - name: guest-cluster-auth-service
+    version: v1.0.0
+    lockHash: be617ee4f78ada3bed0ee52590d4c87d

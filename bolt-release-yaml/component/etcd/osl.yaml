@@ -1,0 +1,4 @@
+submodules:
+  - name: etcd/src
+    go_mod:
+      - "go.mod"

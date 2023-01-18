@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: cni_plugins 1.1.0
+componentReferences:
+- name: cni_plugins
+  version:
+  - v1.1.0+vmware.1

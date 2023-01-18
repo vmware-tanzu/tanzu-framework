@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkr-service-package
+  version: v0.21.0-dev-9-gad4c4850-tkr-service
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598718/
+  artifactURL:
+    tkr-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-service:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 7c0241f95ab3d3696c3d19303ccd2b4d61221a3d012afd712550c3739680758a
+  cachehash: 84f8dc0b012a724c816306b7289e4a1b
+  publishhash: 01dd05a82383689c2f95054a143c30a5

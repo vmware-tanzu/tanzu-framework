@@ -1,0 +1,11 @@
+name: kscom_release
+nonpublish:
+  - name: tarball
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kscom_release/vmware-kubernetes-$VERSION.tar.gz
+  - name: tarball-sha256
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kscom_release/vmware-kubernetes-$VERSION.tar.gz.sha256
+  - name: tarball-sha256-asc
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kscom_release/vmware-kubernetes-$VERSION.tar.gz.sha256.asc

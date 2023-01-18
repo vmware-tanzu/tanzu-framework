@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: release yaml for azure disk CSI version bump/release, please update the csi component version accordingly through MR
+componentReferences:
+- name: azuredisk-csi-driver
+  version:
+  - v1.5.0+vmware.1

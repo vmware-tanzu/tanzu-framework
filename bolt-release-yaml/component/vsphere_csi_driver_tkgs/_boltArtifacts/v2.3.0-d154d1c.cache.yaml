@@ -1,0 +1,7 @@
+name: vsphere_csi_driver_tkgs
+goBuildComponentCaches:
+- version: v2.3.0-d154d1c
+  url: https://buildweb.eng.vmware.com/ob/19460406/
+  buildNumber: bora-19460406
+  buildStatus: SUCCEEDED
+  hash: ac74445116f09595be0cf6e93882fe54

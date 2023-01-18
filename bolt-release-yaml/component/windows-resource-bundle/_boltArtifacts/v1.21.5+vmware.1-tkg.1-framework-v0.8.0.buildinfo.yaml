@@ -1,0 +1,11 @@
+componentBuilds:
+- name: windows-resource-bundle
+  version: v1.21.5+vmware.1-tkg.1-framework-v0.8.0
+  channel: "378086175413407505"
+  url: https://buildweb.eng.vmware.com/ob/18812135/
+  artifactURL:
+    windowsResourceBundleImage:
+      url: projects-stg.registry.vmware.com/tkg/windows-resource-bundle:v1.21.5_vmware.1-tkg.1-framework-v0.8.0
+      sha256: 78b754b5341e791821347bcba448bf379f8756edaf337fac93912455e1daf600
+  cachehash: b8a29f667254550f42a8dc31396ec51f
+  publishhash: 2803688be300ca5b8619663fa14027c9

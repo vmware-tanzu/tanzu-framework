@@ -1,0 +1,11 @@
+componentBuilds:
+- name: standalone-plugins-package
+  version: v0.11.1-44-gaab2a90f-standalone-plugins
+  channel: "385871429226252393"
+  url: https://buildweb.eng.vmware.com/ob/19065921/
+  artifactURL:
+    standalone-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standalone/standalone-plugins:v0.11.1-44-gaab2a90f_vmware.1
+      sha256: 24eb03964b8e81d905f11518b14429fffe2cd3cdafa5d689bf9959dcaafd662e
+  cachehash: 21aa2bd0792b4df2126a5fbf0ffe42a9
+  publishhash: 61380dd6e6b4508ddb4529016630a597

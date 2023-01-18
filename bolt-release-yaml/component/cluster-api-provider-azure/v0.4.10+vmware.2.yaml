@@ -1,0 +1,12 @@
+name: cluster-api-provider-azure
+managedComponents:
+  - version: v0.4.10+vmware.2
+    upstreamCommit: d58a89e486a10e7168ff2978c9e7ac38ad0d5eb8
+    mirrorCherryPicks:
+    - sha: e5358b8630da8664e0501366479af6e19349c8b8
+      description: 'cherry pick commit that fixes cloud config secret key issue'
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~367b18c32680a6d0912ea35a2aa3f5c3d649d5be
+    dependencies:
+      gobuild.golangVersion: 1.15.3
+      gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos72-gc32

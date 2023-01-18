@@ -1,0 +1,7 @@
+name: csi_provisioner
+goBuildComponentLocks:
+- version: v3.0.0+vmware.1
+  gobuildBranch: vmware-v3.0.0+vmware.1
+  gobuildHeadCommit: 512afa6cab130d03fd4a2a23267556b366f69f08
+  hash: a098be266a6f613112ec156880de00e6
+  componentLockReferences: []

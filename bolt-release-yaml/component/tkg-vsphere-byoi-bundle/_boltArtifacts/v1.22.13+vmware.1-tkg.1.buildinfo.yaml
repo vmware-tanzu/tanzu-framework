@@ -1,0 +1,17 @@
+componentBuilds:
+- name: tkg-vsphere-byoi-bundle
+  version: v1.22.13+vmware.1-tkg.1
+  channel: "437808638728351391"
+  url: https://buildweb.eng.vmware.com/ob/20920213/
+  artifactURL:
+    linuxResourceBundleImage:
+      url: projects-stg.registry.vmware.com/tkg/linux-resource-bundle:v1.22.13_vmware.1-tkg.1
+      sha256: 068af4bf5a4f2699a29303451c18b00d808499b97b05b70508b64a4f120f9562
+  cachehash: 8fb11fd7a8ed216141c175e44648e06b
+  publishhash: e55802fcecc37ee2ad65dd01762fc385
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.golangVersion: "1.16"
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"

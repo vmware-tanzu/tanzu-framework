@@ -1,0 +1,7 @@
+name: external-dns-package
+goBuildComponentCaches:
+- version: v0.10.0+vmware.1-tkg.1-external-dns-rc.3
+  url: https://buildweb.eng.vmware.com/ob/19041702/
+  buildNumber: bora-19041702
+  buildStatus: SUCCEEDED
+  hash: a762edf88393a5c1a7e77d0b26f1254c

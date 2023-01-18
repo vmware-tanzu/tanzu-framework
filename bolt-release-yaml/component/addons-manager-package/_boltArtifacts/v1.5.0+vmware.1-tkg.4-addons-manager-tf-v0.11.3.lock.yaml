@@ -1,0 +1,10 @@
+name: addons-manager-package
+goBuildComponentLocks:
+- version: v1.5.0+vmware.1-tkg.4-addons-manager-tf-v0.11.3
+  gobuildBranch: 400367456293517170-v1.5.0+vmware.1-tkg.4-addons-manager-tf-v0.11.3
+  gobuildHeadCommit: 870cd4ee0edf85f7e65dcd2b35b1d904b0617e6c
+  hash: 426c697c1e5d456cf5bdb922ac5feb31
+  componentLockReferences:
+  - name: tanzu-framework-addons
+    version: v0.11.3-tf
+    lockHash: 95f527481485ff8592636f6030f57911

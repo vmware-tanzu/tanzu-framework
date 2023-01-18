@@ -1,0 +1,23 @@
+componentBuilds:
+- name: ako-operator-v2-package
+  version: v0.28.0-dev-229-g3d0816ce-ako-operator-v2
+  channel: "437943315900437644"
+  url: https://buildweb.eng.vmware.com/ob/20925631/
+  artifactURL:
+    ako-operator-v2.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/ako-operator-v2:v0.28.0-dev-229-g3d0816ce_vmware.1-tkg.1-zshippable
+      sha256: 4090fe11483ccb233563680d1de6fe174d49ecee1d0e53a90affe87920041405
+  cachehash: 41c98a80072cece3781bcb7bdcf590d6
+  publishhash: a0d82ea92f10d568fd8a36a2fea3b44e
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/ako-operator:v1.7.0_vmware.2
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.package_name: ako-operator-v2
+    gobuild.package_type: management
+    gobuild.upstream_image_0: ako-operator:latest
+    gobuild.upstream_version: v0.28.0-dev-229-g3d0816ce

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg_telemetry
+  version: v1.3.1+vmware.1
+  channel: "352259617620769986"
+  url: https://buildweb.eng.vmware.com/ob/17947496
+  artifactURL:
+    tkgTelemetryImage:
+      url: projects-stg.registry.vmware.com/tkg/tkg-telemetry:v1.3.1_vmware.1
+      sha256: 7fb0dfc4ce76c975be92031da8a200f6705d5c7d2b0cd95319939f0951e52678
+  cachehash: fd8aaa7bf6566db250ff00c05d4dc803
+  publishhash: 83c6d03aed674db0e73938e8dc07c525

@@ -1,0 +1,8 @@
+name: calico_all
+upstreamURL: https://github.com/projectcalico/calico.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_projectcalico_calico.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_projectcalico_calico.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_calico_all.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_calico_all.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_calico_all.git
+gobuildTarget: cayman_calico_all

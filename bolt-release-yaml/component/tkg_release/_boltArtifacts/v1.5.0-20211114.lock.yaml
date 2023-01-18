@@ -1,0 +1,16 @@
+name: tkg_release
+goBuildComponentLocks:
+- version: v1.5.0-20211114
+  gobuildBranch: 381565706073840214-v1.5.0-20211114
+  gobuildHeadCommit: 3f70d3fb1eb4546e17b60bf7a0f8d6f904601984
+  hash: 6873b774f994c96223220f8d30cd423d
+  componentLockReferences:
+  - name: tkg-compatibility
+    version: v1.5.0-20211114
+    lockHash: a59c48095326c861f18303153c110a81
+  - name: tanzu-framework-management-packages
+    version: v0.11.0-dev-73-g5e6211b3
+    lockHash: 7a2b4040fc4dbcabd0f56ed598e20b9a
+  - name: standalone-plugins-package
+    version: v0.11.0-dev-73-g5e6211b3-standalone-plugins
+    lockHash: 1b3689cba9d3e71aaf43fe7a5930fcda

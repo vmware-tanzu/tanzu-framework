@@ -1,0 +1,19 @@
+componentBuilds:
+- name: cni_plugins
+  version: v0.8.7+vmware.13-fips.1
+  channel: "375689291638039556"
+  url: https://buildweb.eng.vmware.com/ob/18732163/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732163/publish/lin64/cni_plugins/executables/cni-plugins-v0.8.7+vmware.13-fips.1.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732163/publish/lin64/cni_plugins/debs/kubernetes-cni_0.8.7+vmware.13-fips.1-1_amd64.deb
+    cni_plugins-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732163/publish/lin64/cni_plugins/rpms/rpms/kubernetes-cni-0.8.7-1.el7.vmware.13-fips.1.x86_64.rpm
+    cni_plugins-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732163/publish/lin64/cni_plugins/rpms/srpms/kubernetes-cni-0.8.7-1.el7.vmware.13-fips.1.src.rpm
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/component/cni_plugins/v0.8.7+vmware.13-fips.1/cni-plugins-linux-amd64-v0.8.7+vmware.13-fips.1.tgz
+      sha256: e4df0c19ea912f868abbaff1ae6b0171098ef4caa89b35c9fd27bca626126ca9
+  cachehash: 73f07164530dbf8b9ea1a5886dbdf76a
+  publishhash: 3222edb8e472969768744aa214a6af69

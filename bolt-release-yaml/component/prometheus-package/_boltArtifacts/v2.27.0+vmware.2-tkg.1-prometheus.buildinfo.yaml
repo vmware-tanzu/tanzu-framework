@@ -1,0 +1,35 @@
+componentBuilds:
+- name: prometheus-package
+  version: v2.27.0+vmware.2-tkg.1-prometheus
+  channel: "416341793219543513"
+  url: https://buildweb.eng.vmware.com/ob/20100003/
+  artifactURL:
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.2-tkg.1
+      sha256: 101cb1b293a89369d41875a8f48436a2001323b8cf4ef6d7edd0a3c375d0003f
+  cachehash: 2aa48bf8c04ec787ef3646e120795c1c
+  publishhash: 46897cc6c21c88aff6d73e888ed0a148
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/prometheus/prometheus:v2.27.0_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/prometheus/cadvisor:v0.39.1_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/prometheus/configmap-reload:v0.5.0_vmware.2
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/prometheus/alertmanager:v0.22.2_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/prometheus/pushgateway:v1.4.0_vmware.1
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/prometheus/kube-state-metrics:v1.9.8_vmware.1
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/prometheus/prometheus_node_exporter:v1.1.2_vmware.1
+    gobuild.downstream_version: vmware.2-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: prometheus
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: prom/prometheus:v2.27.0
+    gobuild.upstream_image_1: gcr.io/cadvisor/cadvisor:v0.39.1
+    gobuild.upstream_image_2: jimmidyson/configmap-reload:v0.5.0
+    gobuild.upstream_image_3: prom/alertmanager:v0.22.2
+    gobuild.upstream_image_4: prom/pushgateway:v1.4.0
+    gobuild.upstream_image_5: quay.io/coreos/kube-state-metrics:v1.9.8
+    gobuild.upstream_image_6: quay.io/prometheus/node-exporter:v1.1.2
+    gobuild.upstream_version: 2.27.0

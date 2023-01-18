@@ -1,0 +1,11 @@
+componentBuilds:
+- name: capabilities-package
+  version: v0.19.0-dev-16-g9179e175-capabilities
+  channel: "398165529405178501"
+  url: https://buildweb.eng.vmware.com/ob/19472194/
+  artifactURL:
+    capabilities.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/capabilities:v0.19.0-dev-16-g9179e175_vmware.1
+      sha256: 39f5a984225ccc59654d8bb2f222b9233fcf657299ada4470bcaf08a38cb6f31
+  cachehash: 7765d5d1d140dc133b902698cc8216a4
+  publishhash: 332137e8e677e9b0dbb379437f07fc2d

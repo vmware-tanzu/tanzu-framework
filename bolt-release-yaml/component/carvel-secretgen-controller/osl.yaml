@@ -1,0 +1,4 @@
+submodules:
+  - name: carvel-secretgen-controller/src
+    go_mod:
+      - "go.mod"

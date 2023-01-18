@@ -1,0 +1,15 @@
+componentBuilds:
+- name: cloud_provider_vsphere
+  version: v1.24.0+vmware.1
+  channel: "434689027250063581"
+  url: https://buildweb.eng.vmware.com/ob/20802972/
+  artifactURL:
+    ccmControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.24.0_vmware.1
+      sha256: 85a71657c191c92f30dc40648d3896885392943df8156697f7c96ab898aa39de
+  cachehash: 9d086b850d036605e933bcbe8cad2a2d
+  publishhash: 6c50cc278c08feacb44817ac7309d90c
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: framework release yaml
+componentReferences:
+- name: tkg_release
+  version:
+  - v1.6.0-tf-v0.17.0

@@ -1,0 +1,10 @@
+name: metrics-server-package
+goBuildComponentLocks:
+- version: v0.6.1+vmware.1-tkg.2-metrics-server-tf-v0.26.0
+  gobuildBranch: 427422446405031843-v0.6.1+vmware.1-tkg.2-metrics-server-tf-v0.26.0-metrics-server-package
+  gobuildHeadCommit: 7a5705a2701caba85c95547926812f8f390bfe6f
+  hash: 96bb4da70985aa20daa041c2b28a884d
+  componentLockReferences:
+  - name: metrics-server
+    version: v0.6.1+vmware.1
+    lockHash: 347e279d05f2f23c5683eafc86df3810

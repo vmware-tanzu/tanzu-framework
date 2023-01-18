@@ -1,0 +1,7 @@
+name: configmap-reload
+goBuildComponentLocks:
+- version: v0.5.0+vmware.1
+  gobuildBranch: vmware-0.5.0
+  gobuildHeadCommit: 90f976eff884ddd77de623efce1b80ced4af9cdb
+  hash: d4d83fd42b1ccd7aa5e71e4b15818017
+  componentLockReferences: []

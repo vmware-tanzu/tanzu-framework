@@ -1,0 +1,7 @@
+name: vendir
+goBuildComponentLocks:
+- version: v0.30.1+vmware.1
+  gobuildBranch: vmware-0.30.1
+  gobuildHeadCommit: 2dcad958d8cd7a96e067defcda0065ff1ac79395
+  hash: 945537e32c262e386b9e480809bcb524
+  componentLockReferences: []

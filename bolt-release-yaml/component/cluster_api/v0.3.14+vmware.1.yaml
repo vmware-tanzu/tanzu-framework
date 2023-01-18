@@ -1,0 +1,12 @@
+name: cluster_api
+managedComponents:
+  - version: v0.3.14+vmware.1
+    upstreamTag: v0.3.14
+    mirrorCherryPicks:
+      - sha: e15a955381fd07eb3a98e0121a66fdcdacf1bff4
+      - sha: fa77a96dc782719f9e7ffce7c6ebd14f0c769f10
+    gobuildBaseBranch: vmware-0.3.0+vmware.0
+    dependencies:
+      gobuild.golangVersion: 1.15
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,14 @@
+name: k14s_ytt
+nonpublish:
+  - name: ytt-darwin
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ytt/executables/ytt-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ytt/executables/ytt-darwin-amd64-$VERSION.gz
+  - name: ytt-linux
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ytt/executables/ytt-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ytt/executables/ytt-linux-amd64-$VERSION.gz
+  - name: ytt-windows
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ytt/executables/ytt-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ytt/executables/ytt-windows-amd64-$VERSION.gz

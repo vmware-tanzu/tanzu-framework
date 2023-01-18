@@ -1,0 +1,6 @@
+name: tanzu-framework-management-packages
+publish:
+  - name: tanzuFrameworkManagementPackageRepositoryImage
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework-package-repos/package-repo-bundles/management/tanzu-framework-management-repo-{{underscoredplus (index .config "packageRepositories" 0 "dependencies" "gobuild.releaseVersion")}}.tar.gz
+    destinationPath: packages/management/repo:{{underscoredplus (index .config "packageRepositories" 0 "dependencies" "gobuild.releaseVersion")}}

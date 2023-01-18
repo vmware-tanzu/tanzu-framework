@@ -1,0 +1,7 @@
+name: grafana
+goBuildComponentCaches:
+- version: v7.5.17+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/21108679/
+  buildNumber: bora-21108679
+  buildStatus: SUCCEEDED
+  hash: 3882f12580ec45ece1601eac7474902e

@@ -1,0 +1,22 @@
+componentBuilds:
+- name: ova-rhel-7
+  version: v1.23.8+vmware.2-fips.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071
+  channel: "421723839689427360"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2160
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ova-rhel-7/bom-ova-rhel-7-v1.23.8+vmware.2-fips.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ova-rhel-7/ova-rhel-7-v1.23.8+vmware.2-fips.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071-goss-spec.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ova-rhel-7/rhel-7-kube-v1.23.8+vmware.2-fips.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ova-rhel-7/ova-rhel-7-v1.23.8+vmware.2-fips.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ova-rhel-7/ova-rhel-7-v1.23.8+vmware.2-fips.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071-provenance_result.txt
+  cachehash: 85d6429556076260d2dd3f445d03e77b
+  publishhash: fc8f988dd57bbfc41e2276231cd14604
+  configDependencies:
+    base_iso_sha: 88b42e934c24af65e78e09f0993e4dded128d74ec0af30b89b3cdc02ec48f028
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/rhel-server-7.7-x86_64-dvd.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 214b6bb72386cd4038532eda81b8f9984b165d33

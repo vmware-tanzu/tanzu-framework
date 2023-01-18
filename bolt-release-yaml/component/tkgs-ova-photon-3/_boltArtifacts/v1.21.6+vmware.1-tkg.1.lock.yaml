@@ -1,0 +1,47 @@
+name: tkgs-ova-photon-3
+imageLocks:
+- version: v1.21.6+vmware.1-tkg.1
+  hash: e5da662ab684769bb1197b1a3e24d93e
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.21.6+vmware.1
+    lockHash: 761e75e34962d0e95ff75d0a444edf25
+  - name: etcd
+    version: v3.4.13+vmware.22
+    lockHash: d544313c3efc2bc5379a85a73b84694e
+  - name: coredns
+    version: v1.8.0+vmware.9
+    lockHash: 2045ae47f7242b0aca15de65289e7a62
+  - name: cni_plugins
+    version: v0.8.7+vmware.21
+    lockHash: bb3aca946594e3ddd3cf4a1c67ca3ebb
+  - name: calico_all
+    version: v3.11.2+vmware.1
+    lockHash: 11855a1667ba961611263131f25b11ad
+  - name: guest-cluster-auth-service
+    version: v0.1-71-g64e1c73
+    lockHash: aa57d28d5fa08885212d93f631adddeb
+  - name: antrea
+    version: v0.13.5+vmware.4
+    lockHash: 58afa1c732359edacdddf0d91a886ad9
+  - name: containerd
+    version: v1.4.11+vmware.1
+    lockHash: 6b0d0baff35e7b3cac7aa7587bf64068
+  - name: guest-cluster-cloud-provider
+    version: v0.1-87-gb6bb261
+    lockHash: 5808a2c0bdb3b4535387c4de7f1c43b7
+  - name: vsphere_csi_driver_tkgs
+    version: v2.3.0-d154d1c
+    lockHash: c5551259ed7544f595c12f56199db0a9
+  - name: cloud_provider_vsphere
+    version: v1.21.0+vmware.2
+    lockHash: b01d292524f886f8ce2cf2cff96534ec
+  - name: docker_distribution
+    version: 2.7.1
+    lockHash: b6a7a1fd120db62a3452eb70cf22b51d
+  - name: metrics-server
+    version: v0.4.0+vmware.3
+    lockHash: 63297e6e949747282393c4301190c6c3
+  - name: tkg-core-packages
+    version: v1.22.5+vmware.1-tkg.4
+    lockHash: 393ab46e7aae35b1c8877c3956a42e5d

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tanzu-framework-management-packages
+  version: v0.11.1-90-g43d6060e
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306194/
+  artifactURL:
+    tanzuFrameworkManagementPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/repo:v0.11.1-90-g43d6060e
+      sha256: da7c84888cbf6aa60fb8076f7b815e1d8511fa59f3c49e8a49a6bc65da7172a0
+  cachehash: 3d73bc3c086365f9f57656af793c9995
+  publishhash: 4632b98ace28a7f1c805dcf64482e1a8

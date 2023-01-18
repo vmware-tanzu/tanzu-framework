@@ -1,0 +1,38 @@
+name: tanzu-framework
+publish:
+  - name: tkrImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr/images/tkr-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr/images/tkr-controller-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tkr/tkr-controller-manager:$UNDERSCOREVERSION
+  - name: providerTemplateImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/providers/images/provider-templates/provider-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/providers/images/provider-templates/provider-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/provider/provider-templates:$UNDERSCOREVERSION
+  - name: capabilitiesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/capabilities/images/capabilities-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/capabilities/images/capabilities-controller-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/capabilities/capabilities-controller-manager:$UNDERSCOREVERSION
+nonpublish:
+  - name: tanzu-core-linux-386
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-linux-386.tar
+    checksumPath: ""
+  - name: tanzu-core-linux-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-linux-amd64.tar
+    checksumPath: ""
+  - name: tanzu-core-windows-386
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-windows-386.tar
+    checksumPath: ""
+  - name: tanzu-core-windows-amd64
+    type: file
+    destinationPath: htåtp://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-windows-amd64.tar
+    checksumPath: ""
+  - name: tanzu-core-darwin-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-darwin-amd64.tar
+    checksumPath: ""

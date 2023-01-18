@@ -1,0 +1,36 @@
+componentBuilds:
+- name: tkg_release
+  version: v1.6.1-rc.4
+  channel: "439009110457877889"
+  url: https://buildweb.eng.vmware.com/ob/20967738/
+  artifactURL:
+    dir-node-ova:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/
+    ova-photon-3-v1.21.14+vmware.2-tkg.4-fd7fe2d5325ebcf3175338f2d50aa063_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/ova-photon-3-v1.21.14+vmware.2-tkg.4-fd7fe2d5325ebcf3175338f2d50aa063/photon-3-kube-v1.21.14+vmware.2-tkg.4-fd7fe2d5325ebcf3175338f2d50aa063.ova
+    ova-photon-3-v1.22.13+vmware.1-tkg.1-a10ef8e088cc2c89418bca79a2fcc594_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/ova-photon-3-v1.22.13+vmware.1-tkg.1-a10ef8e088cc2c89418bca79a2fcc594/photon-3-kube-v1.22.13+vmware.1-tkg.1-a10ef8e088cc2c89418bca79a2fcc594.ova
+    ova-photon-3-v1.23.10+vmware.1-tkg.1-efe12079f22627aa1246398eba077476_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/ova-photon-3-v1.23.10+vmware.1-tkg.1-efe12079f22627aa1246398eba077476/photon-3-kube-v1.23.10+vmware.1-tkg.1-efe12079f22627aa1246398eba077476.ova
+    ova-rhel-8-v1.21.14+vmware.2-tkg.1-661a7a84930e5368c38aa867f998cd66_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/ova-rhel-8-v1.21.14+vmware.2-tkg.1-661a7a84930e5368c38aa867f998cd66/rhel-8-kube-v1.21.14+vmware.2-tkg.1-661a7a84930e5368c38aa867f998cd66.ova
+    ova-rhel-8-v1.22.13+vmware.1-tkg.1-338d7a84930e5368c38aa867f998ea44_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/ova-rhel-8-v1.22.13+vmware.1-tkg.1-338d7a84930e5368c38aa867f998ea44/rhel-8-kube-v1.22.13+vmware.1-tkg.1-338d7a84930e5368c38aa867f998ea44.ova
+    ova-rhel-8-v1.23.10+vmware.1-tkg.1-116b7a84930e5368c38aa867f998ce22_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/ova-rhel-8-v1.23.10+vmware.1-tkg.1-116b7a84930e5368c38aa867f998ce22/rhel-8-kube-v1.23.10+vmware.1-tkg.1-116b7a84930e5368c38aa867f998ce22.ova
+    ova-ubuntu-2004-v1.21.14+vmware.2-tkg.5-d793afae5aa18e50bd9175e339904496_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.21.14+vmware.2-tkg.5-d793afae5aa18e50bd9175e339904496/ubuntu-2004-kube-v1.21.14+vmware.2-tkg.5-d793afae5aa18e50bd9175e339904496.ova
+    ova-ubuntu-2004-v1.22.13+vmware.1-tkg.2-ea08b304658a6cf17f5e74dc0ab7544f_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.22.13+vmware.1-tkg.2-ea08b304658a6cf17f5e74dc0ab7544f/ubuntu-2004-kube-v1.22.13+vmware.1-tkg.2-ea08b304658a6cf17f5e74dc0ab7544f.ova
+    ova-ubuntu-2004-v1.23.10+vmware.1-tkg.2-b53d41690f8742e7388f2c553fd9a181_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.23.10+vmware.1-tkg.2-b53d41690f8742e7388f2c553fd9a181/ubuntu-2004-kube-v1.23.10+vmware.1-tkg.2-b53d41690f8742e7388f2c553fd9a181.ova
+    tanzu-cli-bundle-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/tanzu_cli_bundle/tanzu-cli-bundle-darwin-amd64.tar.gz
+    tanzu-cli-bundle-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/tanzu_cli_bundle/tanzu-cli-bundle-linux-amd64.tar.gz
+    tanzu-cli-bundle-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20967738/publish/lin64/tkg_release/tanzu_cli_bundle/tanzu-cli-bundle-windows-amd64.zip
+  cachehash: 32e907dc04fea387d7680c7d44d09e8a
+  publishhash: d4569216fab220408f25c214b908cc14
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32

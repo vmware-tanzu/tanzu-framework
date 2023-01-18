@@ -1,0 +1,7 @@
+name: cni_plugins
+goBuildComponentCaches:
+- version: v1.1.1+vmware.10
+  url: https://buildweb.eng.vmware.com/ob/20532608/
+  buildNumber: bora-20532608
+  buildStatus: SUCCEEDED
+  hash: f0828893337e6fe1f155985de43140e7

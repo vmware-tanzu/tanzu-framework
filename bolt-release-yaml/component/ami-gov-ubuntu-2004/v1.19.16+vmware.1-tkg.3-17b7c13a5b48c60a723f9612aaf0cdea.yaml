@@ -1,0 +1,33 @@
+name: ami-gov-ubuntu-2004
+images:
+- version: v1.19.16+vmware.1-tkg.3-17b7c13a5b48c60a723f9612aaf0cdea
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: ami
+  imageBuilderVersion: 63e3e95c84003f2beef148f297ac9f7159a8a7d4
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.18
+  - name: coredns
+    version:
+    - v1.7.0+vmware.15
+  - name: cri_tools
+    version:
+    - v1.18.0+vmware.11
+  - name: etcd
+    version:
+    - v3.4.13+vmware.19
+  - name: containerd
+    version:
+    - v1.4.12+vmware.1
+  - name: kubernetes
+    version:
+    - v1.19.16+vmware.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: ee098a9e69693ab184837d327b8f46a62c59bd71

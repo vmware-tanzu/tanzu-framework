@@ -1,0 +1,6 @@
+name: velero-plugin-for-microsoft-azure
+unmanagedComponents:
+  - version: v1.5.3+vmware.1
+    gobuildBranch: vmware-1.5.3~daaa50b1127040610c05ad4fd3f4fa1d426c01f8
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

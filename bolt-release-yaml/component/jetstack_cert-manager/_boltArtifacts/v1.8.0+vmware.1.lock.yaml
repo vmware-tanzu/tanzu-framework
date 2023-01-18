@@ -1,0 +1,7 @@
+name: jetstack_cert-manager
+goBuildComponentLocks:
+- version: v1.8.0+vmware.1
+  gobuildBranch: 418725156874120028-v1.8.0+vmware.1-jetstack_cert-manager
+  gobuildHeadCommit: e16498a4a8b3b7cdbe5a15d57d6caa810dbb5810
+  hash: 4542efc9c28796eb4e6f5c03f81e6c2a
+  componentLockReferences: []

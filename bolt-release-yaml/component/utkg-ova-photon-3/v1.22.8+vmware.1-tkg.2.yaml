@@ -1,0 +1,45 @@
+name: utkg-ova-photon-3
+images:
+  - version: v1.22.8+vmware.1-tkg.2
+    osinfo:
+      name: photon
+      version: "3"
+      arch: amd64
+    type: ova
+    imageBuilderVersion: 1f5b12376de566ca5fe05df7b77363fb951f2be1
+    componentReferences:
+      - name: kubernetes
+        version:
+          - v1.22.8+vmware.1
+      - name: coredns
+        version:
+          - v1.8.4+vmware.9
+      - name: etcd
+        version:
+          - v3.5.2+vmware.3
+      - name: containerd
+        version:
+          - v1.5.9+vmware.2
+      - name: cni_plugins
+        version:
+          - v1.1.0+vmware.1
+      - name: docker_distribution
+        version:
+          - 2.7.1
+      - name: vsphere_csi_driver_tkgs
+        version:
+          - v2.4.0
+      - name: tkr-bom
+        version:
+          - v1.22.8+vmware.1-tkg.2-zshippable
+      - name: tkg-core-packages
+        version:
+          - v1.22.8+vmware.1-tkg.2-zshippable
+      - name: gc-compatibility
+        version:
+          - v1.22.8+vmware.1
+    dependencies:
+      base_iso_sha: c2883a42e402a2330d9c39b4d1e071cf9b3b5898
+      base_iso_url: https://packages.vmware.com/photon/3.0/Rev3/iso/photon-minimal-3.0-a383732.iso
+      jenkins.TKGS_BUILDINFO_URL: $REFBUILDINFO_URL
+      jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: eeca1fe9eb6e3f47125702e8afb134ce568a5fc6

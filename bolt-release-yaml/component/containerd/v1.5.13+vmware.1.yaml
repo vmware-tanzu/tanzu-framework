@@ -1,0 +1,6 @@
+name: containerd
+unmanagedComponents:
+  - version: v1.5.13+vmware.1
+    gobuildBranch: vmware-1.5.13~cfa23486b39e35a705f2bdecd8ad3539e39e2db8
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32

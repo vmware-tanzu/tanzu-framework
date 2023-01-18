@@ -1,0 +1,8 @@
+name: csi_attacher
+upstreamURL: https://github.com/kubernetes-csi/external-attacher.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kubernetes-csi_external-attacher.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_kubernetes-csi_external-attacher.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_external-attacher.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_kubernetes-csi_external-attacher.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_external-attacher.git
+gobuildTarget: cayman_csi_attacher

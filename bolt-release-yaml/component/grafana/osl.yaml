@@ -1,0 +1,14 @@
+submodules:
+  - name: grafana/src
+    npm:
+      # - "package.json" There is an error when running npm install for this
+      # - "emails/package.json"
+      # - "packages/grafana-ui/package.json"
+      # - "packages/grafana-e2e/package.json"
+      # - "packages/grafana-data/package.json"
+      # - "packages/grafana-runtime/package.json"
+      # - "packages/grafana-toolkit/package.json"
+      # - "packages/jaeger-ui-components/package.json"
+      # - "packages/grafana-e2e-selectors/package.json"
+    go_mod:
+      - "go.mod"

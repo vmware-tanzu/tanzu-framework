@@ -1,0 +1,11 @@
+componentBuilds:
+- name: metrics-server-package
+  version: v0.5.1+vmware.1-tkg.1-metrics-server-rc.1
+  channel: "381986985960569588"
+  url: https://buildweb.eng.vmware.com/ob/18938929/
+  artifactURL:
+    metrics-server.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/metrics-server:v0.5.1_vmware.1-tkg.1-rc.1
+      sha256: 560475df33cbca9f910fa6cabb884b5839ac77e0247dd33320d76553340ddc72
+  cachehash: 1b3e7e6406e959223401b3af8db59c89
+  publishhash: a857a5d53464d803d2e0261e21c846ae

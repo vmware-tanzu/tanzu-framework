@@ -1,0 +1,14 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 
+componentReferences:
+- name: image-builder-resource-bundle
+  version:
+  - v1.21.14+vmware.2-fips.1-tkg.1
+  - v1.22.11+vmware.2-fips.1-tkg.1
+  - v1.23.8+vmware.2-fips.1-tkg.1
+- name: byoh-k8s-ubuntu-2004
+  version:
+  - v1.21.14+vmware.2-fips.1-tkg.1
+  - v1.22.11+vmware.2-fips.1-tkg.1
+  - v1.23.8+vmware.2-fips.1-tkg.1

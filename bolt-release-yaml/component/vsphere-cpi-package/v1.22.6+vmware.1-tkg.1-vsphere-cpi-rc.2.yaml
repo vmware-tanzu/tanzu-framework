@@ -1,0 +1,22 @@
+name: vsphere-cpi-package
+packages:
+- version: v1.22.6+vmware.1-tkg.1-vsphere-cpi-rc.2
+  upstreamCommit: a430c62ba58118af8363baf5d69a3babea60b9e7
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: cloud_provider_vsphere
+    version:
+    - v1.22.6+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1-tkg.1-rc.2
+    gobuild.downstream_vsphere_cpi_manager: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "cloud_provider_vsphere").artifactURL.ccmControllerImage.url}}'
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: vsphere-cpi
+    gobuild.package_type: core
+    gobuild.upstream_version: 1.22.6
+    gobuild.upstream_vsphere_cpi_manager: gcr.io/cloud-provider-vsphere/cpi/release/manager:v1.22.6

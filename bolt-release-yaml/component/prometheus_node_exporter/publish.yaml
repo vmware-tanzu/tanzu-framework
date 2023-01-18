@@ -1,0 +1,12 @@
+name: prometheus_node_exporter
+publish:
+  - name: prometheusNodeExporterImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/prometheus_node_exporter/images/prometheus_node_exporter-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/prometheus_node_exporter/images/prometheus_node_exporter-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: prometheus/prometheus_node_exporter:$UNDERSCOREVERSION
+nonpublish:
+  - name: prometheus_node_exporter
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/prometheus_node_exporter/executables/prometheus_node_exporter-$UNDERSCOREVERSION.gz
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/prometheus_node_exporter/executables/prometheus_node_exporter-$UNDERSCOREVERSION-binary-checksums.txt

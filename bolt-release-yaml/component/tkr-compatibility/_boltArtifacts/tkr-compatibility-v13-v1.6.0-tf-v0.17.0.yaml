@@ -1,0 +1,72 @@
+version: v13
+managementClusterVersions:
+- version: v1.4.0-zshippable
+  supportedKubernetesVersions:
+  - v1.21.2+vmware.1-tkg.1-zshippable
+  - v1.20.8+vmware.1-tkg.2-zshippable
+  - v1.19.12+vmware.1-tkg.1-zshippable
+- version: v1.5.0-framework-v0.3.0
+  supportedKubernetesVersions:
+  - v1.19.12+vmware.1-tkg.2-framework-v0.3.0
+  - v1.21.2+vmware.1-tkg.2-framework-v0.3.0
+  - v1.20.8+vmware.1-tkg.3-framework-v0.3.0
+- version: v1.5.0-framework-v0.4.0
+  supportedKubernetesVersions:
+  - v1.21.2+vmware.1-tkg.2-framework-v0.4.0
+  - v1.19.12+vmware.1-tkg.2-framework-v0.4.0
+  - v1.20.8+vmware.1-tkg.3-framework-v0.4.0
+- version: v1.5.0-framework-v0.5.0
+  supportedKubernetesVersions:
+  - v1.20.11+vmware.1-tkg.1-framework-v0.5.0
+  - v1.21.5+vmware.1-tkg.1-framework-v0.5.0
+  - v1.19.12+vmware.1-tkg.2-framework-v0.5.0
+- version: v1.5.0-framework-v0.6.0
+  supportedKubernetesVersions:
+  - v1.21.5+vmware.1-tkg.1-framework-v0.6.0
+  - v1.20.11+vmware.1-tkg.1-framework-v0.6.0
+  - v1.19.12+vmware.1-tkg.2-framework-v0.6.0
+- version: v1.5.0-framework-v0.7.0
+  supportedKubernetesVersions:
+  - v1.21.5+vmware.1-tkg.1-framework-v0.7.0
+  - v1.20.11+vmware.1-tkg.1-framework-v0.7.0
+  - v1.19.12+vmware.1-tkg.2-framework-v0.7.0
+- version: v1.5.0-framework-v0.8.0
+  supportedKubernetesVersions:
+  - v1.21.5+vmware.1-tkg.1-framework-v0.8.0
+  - v1.20.11+vmware.1-tkg.1-framework-v0.8.0
+  - v1.19.12+vmware.1-tkg.3-framework-v0.8.0
+- version: v1.5.0-tf-v0.10.0
+  supportedKubernetesVersions:
+  - v1.19.12+vmware.1-tkg.3-tf-v0.10.0
+  - v1.21.5+vmware.1-tkg.1-tf-v0.10.0
+  - v1.20.11+vmware.1-tkg.1-tf-v0.10.0
+- version: v1.5.0-tf-v0.9.0
+  supportedKubernetesVersions:
+  - v1.21.5+vmware.1-tkg.1-tf-v0.9.0
+  - v1.19.12+vmware.1-tkg.3-tf-v0.9.0
+  - v1.20.11+vmware.1-tkg.1-tf-v0.9.0
+- version: v1.5.0-zshippable
+  supportedKubernetesVersions:
+  - v1.21.2+vmware.1-tkg.2-zshippable
+  - v1.20.8+vmware.1-tkg.3-zshippable
+  - v1.19.12+vmware.1-tkg.3-zshippable
+- version: v1.6.0-tf-v0.14.0
+  supportedKubernetesVersions:
+  - v1.22.3+vmware.1-tkg.2-tf-v0.14.0
+  - v1.21.6+vmware.1-tkg.2-tf-v0.14.0
+  - v1.20.12+vmware.1-tkg.2-tf-v0.14.0
+- version: v1.6.0-tf-v0.15.0
+  supportedKubernetesVersions:
+  - v1.20.12+vmware.1-tkg.2-tf-v0.15.0
+  - v1.21.6+vmware.1-tkg.2-tf-v0.15.0
+  - v1.22.3+vmware.1-tkg.2-tf-v0.15.0
+- version: v1.6.0-tf-v0.16.0
+  supportedKubernetesVersions:
+  - v1.21.8+vmware.1-tkg.3-tf-v0.16.0
+  - v1.22.5+vmware.1-tkg.2-tf-v0.16.0
+  - v1.20.14+vmware.1-tkg.3-tf-v0.16.0
+- version: v1.6.0-tf-v0.17.0
+  supportedKubernetesVersions:
+  - v1.21.8+vmware.1-tkg.3-tf-v0.17.0
+  - v1.20.14+vmware.1-tkg.3-tf-v0.17.0
+  - v1.22.5+vmware.1-tkg.2-tf-v0.17.0

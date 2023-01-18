@@ -1,0 +1,9 @@
+name: pinniped
+managedComponents:
+  - version: v0.12.1+vmware.1
+    upstreamTag: v0.12.1
+    gobuildBaseBranch: vmware-main~0454137a4564a06d3912d305405c97797681b899
+    dependencies:
+      gobuild.golangVersion: 1.17.1
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos8

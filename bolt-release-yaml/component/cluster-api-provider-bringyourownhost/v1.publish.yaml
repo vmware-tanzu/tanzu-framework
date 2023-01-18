@@ -1,0 +1,12 @@
+name: cluster-api-provider-bringyourownhost
+publish:
+  - name: byohControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster-api-provider-bringyourownhost/images/cluster-api-byoh-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster-api-provider-bringyourownhost/images/cluster-api-byoh-controller-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/cluster-api-byoh-controller:$UNDERSCOREVERSION
+nonpublish:
+  - name: byoh-hostagent
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster-api-provider-bringyourownhost/executables/byoh-hostagent-$VERSION-linux-amd64.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster-api-provider-bringyourownhost/executables/byoh-hostagent-$VERSION-linux-amd64-executables-checksums.txt

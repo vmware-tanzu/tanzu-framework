@@ -1,0 +1,10 @@
+name: tkr-vsphere-resolver-package
+goBuildComponentLocks:
+- version: v0.28.0-dev-146-gcb1c8439-tkr-vsphere-resolver
+  gobuildBranch: 435393403178485350-v0.28.0-dev-146-gcb1c8439-tkr-vsphere-resolver-tkr-vsphere-resolver-package
+  gobuildHeadCommit: 76c51d866b04e59829d2495def98fe55eea0bbf0
+  hash: 6524a26b4f823f870b8c637768268caf
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.28.0-dev-146-gcb1c8439
+    lockHash: 907b9e77dcd3d8d9c04e5bb0c74cac7d

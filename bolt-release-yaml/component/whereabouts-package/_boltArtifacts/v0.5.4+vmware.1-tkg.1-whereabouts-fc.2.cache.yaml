@@ -1,0 +1,7 @@
+name: whereabouts-package
+goBuildComponentCaches:
+- version: v0.5.4+vmware.1-tkg.1-whereabouts-fc.2
+  url: https://buildweb.eng.vmware.com/ob/20914098/
+  buildNumber: bora-20914098
+  buildStatus: SUCCEEDED
+  hash: f014954a8ca7aded22e9e0f141ec8d3b

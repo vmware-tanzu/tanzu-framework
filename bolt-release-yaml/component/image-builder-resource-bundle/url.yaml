@@ -1,0 +1,8 @@
+name: image-builder-resource-bundle
+upstreamURL: "git@github.com:kubernetes-sigs/sig-windows-tools.git"
+mirrorSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kubernetes-sigs_sig-windows-tools.git"
+mirrorOfficialURL: "git@gitlab.eng.vmware.com:core-build/mirrors_github_kubernetes-sigs_sig-windows-tools.git"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-sigs_sig-windows-tools.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/cayman_kubernetes-sigs_sig-windows-tools.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-sigs_sig-windows-tools.git"
+gobuildTarget: "cayman_kubernetes-sigs_sig-windows-tools"

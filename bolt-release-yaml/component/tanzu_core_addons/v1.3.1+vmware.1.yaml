@@ -1,0 +1,142 @@
+name: tanzu_core_addons
+managedComponents:
+  - version: v1.3.1+vmware.1
+    upstreamCommit: 4ec4c513ce60bf6a1d30342d83b03d451a98d6d2
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-addons~094a7faa8b2b53484b534af85b409b99ab8e5cce
+    dependencies:
+      gobuild.golangVersion: 1.14
+      gobuild.imageRepository: vmware.io
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.tkgBuildContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.14
+      gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.14
+      gobuild.releaseVersion: v1.3.1+vmware.1
+      gobuild.tkgCliVersion: cfe0f7688c7e08c604dcad9959cad1cbbdff4476
+      gobuild.tkgProvidersVersion: 25c87117a1545e65a8c51275a97f8889da552d72
+    bomMetadata:
+      addons:
+        antrea:
+          category: cni
+          clusterTypes:
+          - management
+          - workload
+          addonTemplatesImage:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - antreaTemplatesImage
+          addonContainerImages:
+          - componentRef: antrea
+            imageRefs:
+            - antreaImage
+        calico:
+          category: cni
+          clusterTypes:
+          - management
+          - workload
+          addonTemplatesImage:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - calicoTemplatesImage
+          addonContainerImages:
+          - componentRef: calico_all
+            imageRefs:
+            - calicoCniImage
+            - calicoKubecontrollerImage
+            - calicoNodeImage
+            - calicoPodDaemonImage
+        kapp-controller:
+          category: addons-management
+          clusterTypes:
+          - management
+          - workload
+          addonTemplatesImage:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - kappControllerTemplatesImage
+          addonContainerImages:
+          - componentRef: kapp-controller
+            imageRefs:
+            - kappControllerImage
+        metrics-server:
+          category: metrics
+          clusterTypes:
+          - management
+          - workload
+          addonTemplatesImage:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - metricsServerTemplatesImage
+          addonContainerImages:
+          - componentRef: metrics-server
+            imageRefs:
+            - metricsServerImage
+        pinniped:
+          category: authentication
+          clusterTypes:
+          - management
+          - workload
+          addonTemplatesImage:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - pinnipedTemplatesImage
+          addonContainerImages:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - tkgPinnipedPostDeployImage
+          - componentRef: pinniped
+            imageRefs:
+            - pinnipedImage
+        tanzu-addons-manager:
+          category: addons-management
+          clusterTypes:
+          - management
+          - workload
+          addonTemplatesImage:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - tanzuAddonsManagerTemplatesImage
+          addonContainerImages:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - tanzuAddonsManagerImage
+        vsphere-cpi:
+          category: cpi
+          clusterTypes:
+          - management
+          - workload
+          addonTemplatesImage:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - vsphereCpiTemplatesImage
+          addonContainerImages:
+          - componentRef: cloud_provider_vsphere
+            imageRefs:
+            - ccmControllerImage
+        vsphere-csi:
+          category: csi
+          clusterTypes:
+          - management
+          - workload
+          addonTemplatesImage:
+          - componentRef: tanzu_core_addons
+            imageRefs:
+            - vsphereCsiTemplatesImage
+          addonContainerImages:
+          - componentRef: vsphere_csi_driver
+            imageRefs:
+            - csiControllerImage
+            - csiMetaDataSyncerImage
+          - componentRef: csi_attacher
+            imageRefs:
+            - csiAttacherImage
+          - componentRef: csi_livenessprobe
+            imageRefs:
+            - csiLivenessProbeImage
+          - componentRef: csi_node_driver_registrar
+            imageRefs:
+            - csiNodeDriverRegistrarImage
+          - componentRef: csi_provisioner
+            imageRefs:
+            - csiProvisonerImage
+          - componentRef: kubernetes-csi_external-resizer
+            imageRefs:
+            - csiExternalResizer

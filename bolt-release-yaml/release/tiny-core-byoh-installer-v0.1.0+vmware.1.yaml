@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'build tiny-core-byoh-installer v0.1.0+vmware.1'
+componentReferences:
+  - name: tiny-core-byoh-installer
+    version:
+      - v0.1.0+vmware.1

@@ -1,0 +1,14 @@
+componentBuilds:
+- name: tkg_telemetry
+  version: v2.1.0+vmware.1
+  channel: "442799883271830972"
+  url: https://buildweb.eng.vmware.com/ob/21103982/
+  artifactURL:
+    tkgTelemetryImage:
+      url: projects-stg.registry.vmware.com/tkg/tkg-telemetry:v2.1.0_vmware.1
+      sha256: 1b34d69c3e2c7197d48317074999b7574b35e82b81460810faa3f0ac5ab9c18f
+  cachehash: a95e3bb6fef56cd85e4e70c21759c35e
+  publishhash: 83c6d03aed674db0e73938e8dc07c525
+  configDependencies:
+    gobuild.golangVersion: 1.19.3
+    gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: framework-package
+  version: v0.21.0-dev-58-g5107034a-framework
+  channel: "402963899701269977"
+  url: https://buildweb.eng.vmware.com/ob/19635470/
+  artifactURL:
+    framework.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/framework:v0.21.0-dev-58-g5107034a_vmware.1
+      sha256: 8ea0b091c8cd00016119651a05ad5304cf46f57a86f057993cb1b2221cfebb72
+  cachehash: 927a4774b2e5f36b06e3ded8f116c30d
+  publishhash: 6f3466373266b15bba12702d120e7bc0

@@ -1,0 +1,115 @@
+name: tkr-bom
+boms:
+- version: v1.22.9+vmware.1-fips-tkg.1-rc.3
+  type: tkr
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  dependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha2
+  componentReferences:
+  - name: ako-operator
+    version:
+    - v1.5.0+vmware.6
+  - name: load-balancer-and-ingress-service
+    version:
+    - v1.6.1+vmware.4
+  - name: antrea
+    version:
+    - v1.2.3+vmware.4-advanced
+  - name: tkg-core-packages
+    version:
+    - v1.22.9+vmware.1-tkg.1-rc.3
+  - name: calico_all
+    version:
+    - v3.19.1+vmware.1
+  - name: cloud_provider_vsphere
+    version:
+    - v1.22.6+vmware.1
+  - name: csi_attacher
+    version:
+    - v3.3.0+vmware.1
+  - name: csi_livenessprobe
+    version:
+    - v2.4.0+vmware.1
+  - name: csi_node_driver_registrar
+    version:
+    - v2.3.0+vmware.1
+  - name: kubernetes-csi_external-resizer
+    version:
+    - v1.3.0+vmware.1
+  - name: csi_provisioner
+    version:
+    - v3.0.0+vmware.1
+  - name: vsphere_csi_driver
+    version:
+    - v2.4.1+vmware.1
+  - name: dex
+    version:
+    - v2.30.2+vmware.1
+  - name: kapp-controller
+    version:
+    - v0.30.1+vmware.1
+  - name: carvel-secretgen-controller
+    version:
+    - v0.7.1+vmware.1
+  - name: metrics-server
+    version:
+    - v0.5.1+vmware.1
+  - name: pinniped
+    version:
+    - v0.12.1+vmware.1
+  - name: pinniped-post-deploy
+    version:
+    - v0.11.1
+  - name: tanzu-framework-addons
+    version:
+    - v0.11.5-5-g49a0740e
+  - name: kubernetes
+    version:
+    - v1.22.9+vmware.1-fips
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2-fips
+  - name: coredns
+    version:
+    - v1.8.4+vmware.9-fips
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.9-fips
+  - name: etcd
+    version:
+    - v3.5.4+vmware.2-fips
+  - name: containerd
+    version:
+    - v1.5.11+vmware.1-fips
+  - name: kubernetes-sigs_kind
+    version:
+    - v1.22.9+vmware.1-fips_v0.11.1
+  - name: ami-general-amazon-2
+    version:
+    - v1.22.9+vmware.1-fips-tkg.1-8ac306cf836e7bc4f4a6a55685995f68
+  - name: ami-general-ubuntu-2004
+    version:
+    - v1.22.9+vmware.1-fips-tkg.1-130ff455308320c6661f2b07fae50b76
+  - name: ami-gov-amazon-2
+    version:
+    - v1.22.9+vmware.1-fips-tkg.1-50b845fea7fe39932e5957310cf9d7b9
+  - name: ami-gov-ubuntu-2004
+    version:
+    - v1.22.9+vmware.1-fips-tkg.1-bdc3fcfbd77e7311a6d480e181543c22
+  - name: azure-ubuntu-1804
+    version:
+    - v1.22.9+vmware.1-fips-tkg.1-f5458763143302905e57f5479c914f12
+    - v1.22.9+vmware.1-fips-tkg.1-sig-25f9bc316d5b53945d89040ad6519277
+  - name: azure-ubuntu-2004
+    version:
+    - v1.22.9+vmware.1-fips-tkg.1-94fec9fd91be1efaf8a31e2b02407dbd
+    - v1.22.9+vmware.1-fips-tkg.1-sig-f29eee6923520226b2389eba2b19345b
+  - name: ova-photon-3
+    version:
+    - v1.22.9+vmware.1-fips-tkg.1-54b191ac9602bebaaa39971695295894
+  - name: ova-ubuntu-2004
+    version:
+    - v1.22.9+vmware.1-fips-tkg.1-957bbb1e0c85a171e0317b92b9801f1d
+  - name: windows-resource-bundle
+    version:
+    - v1.22.9+vmware.1-fips-tkg.1

@@ -1,0 +1,10 @@
+name: kube-vip-cloud-provider
+managedComponents:
+- version: v0.0.4+vmware.1
+  upstreamTag: v0.0.4
+  mirrorCherryPicks: []
+  gobuildBaseBranch: vmware-main~fae7b37004c5043b158fbab20e6c37496e718e84
+  dependencies:
+    gobuild.golangVersion: 1.18
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.linux_hosttype: linux-centos72-gc32

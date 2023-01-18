@@ -1,0 +1,7 @@
+name: kubernetes_autoscaler
+goBuildComponentCaches:
+- version: v1.20.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/17825657/
+  buildNumber: bora-17825657
+  buildStatus: SUCCEEDED
+  hash: 1379fb4db227bbb1da289f7fb60122cf

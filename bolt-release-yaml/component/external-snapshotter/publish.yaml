@@ -1,0 +1,13 @@
+name: external-snapshotter
+publish:
+  - name: csiSnapshotterImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/external-snapshotter/images/csi-snapshotter-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/external-snapshotter/images/csi-snapshotter-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: csi/csi-snapshotter:$UNDERSCOREVERSION
+  - name: csiSnapshotControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/external-snapshotter/images/snapshot-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/external-snapshotter/images/snapshot-controller-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: csi/snapshot-controller:$UNDERSCOREVERSION
+  

@@ -1,0 +1,7 @@
+name: azuredisk-csi-driver-package
+goBuildComponentCaches:
+- version: v1.19.0+vmware.1-tkg.1-azuredisk-csi-rc.1
+  url: https://buildweb.eng.vmware.com/ob/20196362/
+  buildNumber: bora-20196362
+  buildStatus: SUCCEEDED
+  hash: cb59fb8383bc73040c4e53b47162c9c3

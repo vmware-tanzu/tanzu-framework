@@ -1,0 +1,22 @@
+name: cluster-autoscaler-package
+packages:
+  - version: v1.24.0+vmware.1-tkg.1-cluster-autoscaler
+    upstreamCommit: 6598c2b23fa1c8295a90bce9b83b8065c190b883
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~2bfb9cde3ea48390361c3090ef98fc33149d3056
+    componentReferences:
+      - name: kubernetes_autoscaler
+        version:
+          - v1.24.0+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+        (index .refbuildinfo "componentBuilds")) "name" "kubernetes_autoscaler").artifactURL.kubernetesAutoscalerImage.url}}'
+      gobuild.downstream_version: vmware.1-tkg.1
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.noMirror: "true"
+      gobuild.package_name: cluster-autoscaler
+      gobuild.package_type: standard
+      gobuild.upstream_image_0: k8s.gcr.io/autoscaling/cluster-autoscaler:v1.24.0
+      gobuild.upstream_version: 1.24.0

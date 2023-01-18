@@ -1,0 +1,7 @@
+name: pinniped
+goBuildComponentCaches:
+- version: v0.4.4+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18359215/
+  buildNumber: bora-18359215
+  buildStatus: SUCCEEDED
+  hash: 05bf638b586e2ad287f8c97dff388ed4

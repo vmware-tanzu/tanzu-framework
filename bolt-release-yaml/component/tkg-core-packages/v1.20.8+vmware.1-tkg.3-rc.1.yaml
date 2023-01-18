@@ -1,0 +1,204 @@
+name: tkg-core-packages
+managedComponents:
+- version: v1.20.8+vmware.1-tkg.3-rc.1
+  upstreamCommit: 7f0d8d9d956a356f4b081d32a1c065e745465538
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-core~2b6e7d257ce15f194220454f8b9074d1753cebe5
+  componentReferences:
+  - name: ako-operator
+    version:
+    - v1.4.0+vmware.1
+  - name: kube_rbac_proxy
+    version:
+    - v0.4.1+vmware.2
+  - name: load-balancer-and-ingress-service
+    version:
+    - v1.4.3+vmware.1
+  - name: antrea
+    version:
+    - v0.11.3+vmware.2
+  - name: calico_all
+    version:
+    - v3.11.3+vmware.1
+  - name: csi_attacher
+    version:
+    - v3.2.0+vmware.1
+  - name: csi_livenessprobe
+    version:
+    - v2.2.0+vmware.1
+  - name: csi_node_driver_registrar
+    version:
+    - v2.1.0+vmware.1
+  - name: kubernetes-csi_external-resizer
+    version:
+    - v1.1.0+vmware.1
+  - name: csi_provisioner
+    version:
+    - v2.2.0+vmware.1
+  - name: vsphere_csi_driver
+    version:
+    - v2.3.0+vmware.1
+  - name: cloud_provider_vsphere
+    version:
+    - v1.20.0+vmware.1
+  - name: tanzu-framework-addons
+    version:
+    - v1.4.1-rc.1
+  - name: metrics-server
+    version:
+    - v0.4.0+vmware.1
+  - name: kapp-controller
+    version:
+    - v0.23.0+vmware.1
+  - name: pinniped
+    version:
+    - v0.4.4+vmware.1
+  - name: dex
+    version:
+    - v2.27.0+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_ako_operator: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "ako-operator" "version" "v1.4.0+vmware.1").artifactURL.akoOperatorImage.url}}'
+    gobuild.downstream_antrea: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "antrea" "version" "v0.11.3+vmware.2").artifactURL.antreaImage.url}}'
+    gobuild.downstream_calico_cni_plugin: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all" "version" "v3.11.3+vmware.1").artifactURL.calicoCniImage.url}}'
+    gobuild.downstream_calico_kube_controller: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all" "version" "v3.11.3+vmware.1").artifactURL.calicoKubecontrollerImage.url}}'
+    gobuild.downstream_calico_node: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all" "version" "v3.11.3+vmware.1").artifactURL.calicoNodeImage.url}}'
+    gobuild.downstream_calico_pod_daemon: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all" "version" "v3.11.3+vmware.1").artifactURL.calicoPodDaemonImage.url}}'
+    gobuild.downstream_dex: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "dex" "version" "v2.27.0+vmware.1").artifactURL.dexImage.url}}'
+    gobuild.downstream_kapp_controller: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kapp-controller" "version"
+      "v0.23.0+vmware.1").artifactURL.kappControllerImage.url}}'
+    gobuild.downstream_kube_rbac_proxy: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kube_rbac_proxy" "version"
+      "v0.4.1+vmware.2").artifactURL.kubeRbacProxyControllerImage.url}}'
+    gobuild.downstream_load_balancer_and_ingress_service: '{{(getElementFromSlice
+      (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds"))
+      "name" "load-balancer-and-ingress-service" "version" "v1.4.3+vmware.1").artifactURL.loadBalancerAndIngressServiceImage.url}}'
+    gobuild.downstream_metrics_server: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "metrics-server" "version" "v0.4.0+vmware.1").artifactURL.metricsServerImage.url}}'
+    gobuild.downstream_pinniped_post_deploy_job: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework-addons" "version"
+      "v1.4.1-rc.1").artifactURL.tkgPinnipedPostDeployImage.url}}'
+    gobuild.downstream_pinniped_server: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "pinniped" "version" "v0.4.4+vmware.1").artifactURL.pinnipedImage.url}}'
+    gobuild.downstream_tanzu_addons_manager: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework-addons" "version"
+      "v1.4.1-rc.1").artifactURL.tanzuAddonsManagerImage.url}}'
+    gobuild.downstream_vsphere_cpi_manager: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "cloud_provider_vsphere" "version"
+      "v1.20.0+vmware.1").artifactURL.ccmControllerImage.url}}'
+    gobuild.downstream_vsphere_csi_attacher: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "csi_attacher" "version" "v3.2.0+vmware.1").artifactURL.csiAttacherImage.url}}'
+    gobuild.downstream_vsphere_csi_driver: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "vsphere_csi_driver" "version"
+      "v2.3.0+vmware.1").artifactURL.csiControllerImage.url}}'
+    gobuild.downstream_vsphere_csi_liveness_probe: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "csi_livenessprobe" "version"
+      "v2.2.0+vmware.1").artifactURL.csiLivenessProbeImage.url}}'
+    gobuild.downstream_vsphere_csi_node_driver_registrar: '{{(getElementFromSlice
+      (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds"))
+      "name" "csi_node_driver_registrar" "version" "v2.1.0+vmware.1").artifactURL.csiNodeDriverRegistrarImage.url}}'
+    gobuild.downstream_vsphere_csi_provisioner: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "csi_provisioner" "version"
+      "v2.2.0+vmware.1").artifactURL.csiProvisonerImage.url}}'
+    gobuild.downstream_vsphere_csi_resizer: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes-csi_external-resizer"
+      "version" "v1.1.0+vmware.1").artifactURL.csiExternalResizer.url}}'
+    gobuild.downstream_vsphere_csi_syncer: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "vsphere_csi_driver" "version"
+      "v2.3.0+vmware.1").artifactURL.csiMetaDataSyncerImage.url}}'
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_versions: kapp-controller:0.23.0:vmware.1-tkg.1-rc.1;vsphere-csi:2.3.0:vmware.1-tkg.3-rc.1;vsphere-cpi:1.20.0:vmware.1-tkg.1-rc.1;metrics-server:0.4.0:vmware.1-tkg.1-rc.1;addons-manager:1.4.0:vmware.1-tkg.2-rc.1;antrea:0.11.3:vmware.2-tkg.1-rc.1;calico:3.11.3:vmware.1-tkg.1-rc.1;pinniped:0.4.4:vmware.1-tkg.2-rc.1;load-balancer-and-ingress-service:1.4.3:vmware.1-tkg.1-rc.1;ako-operator:1.4.0:vmware.1-tkg.1-rc.1;
+    gobuild.releaseVersion: v1.20.8+vmware.1-tkg.3-rc.1
+    gobuild.upstream_ako_operator: projects-stg.registry.vmware.com/tkg/ako-operator:v1.4.0_vmware.1
+    gobuild.upstream_antrea: antrea/antrea-ubuntu:v0.11.3
+    gobuild.upstream_calico_cni_plugin: docker.io/calico/cni:v3.11.3
+    gobuild.upstream_calico_kube_controller: docker.io/calico/kube-controllers:v3.11.3
+    gobuild.upstream_calico_node: docker.io/calico/node:v3.11.3
+    gobuild.upstream_calico_pod_daemon: docker.io/calico/pod2daemon-flexvol:v3.11.3
+    gobuild.upstream_dex: projects.registry.vmware.com/tce/dex:v2.27.0_vmware.1
+    gobuild.upstream_kapp_controller: index.docker.io/k14s/kapp-controller@sha256:d7818225512f149b782323d02193fe5866e0e329a5fa5497e5c6870f390ddb77
+    gobuild.upstream_kube_rbac_proxy: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:v0.4.1_vmware.2
+    gobuild.upstream_load_balancer_and_ingress_service: projects-stg.registry.vmware.com/tkg/ako:v1.4.3_vmware.1
+    gobuild.upstream_metrics_server: k8s.gcr.io/metrics-server/metrics-server:v0.4.0
+    gobuild.upstream_pinniped_post_deploy_job: projects.registry.vmware.com/tce/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.1
+    gobuild.upstream_pinniped_server: docker.io/getpinniped/pinniped-server:v0.4.4
+    gobuild.upstream_tanzu_addons_manager: projects-stg.registry.vmware.com/tkg/sandbox/tanzu_core_addons/tanzu-addons-manager:v1.3.1_vmware.1
+    gobuild.upstream_vsphere_cpi_manager: gcr.io/cloud-provider-vsphere/cpi/release/manager:v1.20.0
+    gobuild.upstream_vsphere_csi_attacher: k8s.gcr.io/sig-storage/csi-attacher:v3.2.0
+    gobuild.upstream_vsphere_csi_driver: gcr.io/cloud-provider-vsphere/csi/release/driver:v2.3.0
+    gobuild.upstream_vsphere_csi_liveness_probe: quay.io/k8scsi/livenessprobe:v2.2.0
+    gobuild.upstream_vsphere_csi_node_driver_registrar: quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
+    gobuild.upstream_vsphere_csi_provisioner: k8s.gcr.io/sig-storage/csi-provisioner:v2.2.0
+    gobuild.upstream_vsphere_csi_resizer: quay.io/k8scsi/csi-resizer:v1.1.0
+    gobuild.upstream_vsphere_csi_syncer: gcr.io/cloud-provider-vsphere/csi/release/syncer:v2.3.0
+  bomMetadata:
+    addons:
+      ako-operator:
+        category: networking
+        clusterTypes:
+        - management
+        packageName: ako-operator.tanzu.vmware.com
+      antrea:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        packageName: antrea.tanzu.vmware.com
+      calico:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        packageName: calico.tanzu.vmware.com
+      kapp-controller:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        packageName: kapp-controller.tanzu.vmware.com
+      load-balancer-and-ingress-service:
+        category: networking
+        clusterTypes:
+        - management
+        - workload
+        packageName: load-balancer-and-ingress-service.tanzu.vmware.com
+      metrics-server:
+        category: metrics
+        clusterTypes:
+        - management
+        - workload
+        packageName: metrics-server.tanzu.vmware.com
+      pinniped:
+        category: authentication
+        clusterTypes:
+        - management
+        - workload
+        packageName: pinniped.tanzu.vmware.com
+      tanzu-addons-manager:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        packageName: addons-manager.tanzu.vmware.com
+      vsphere-cpi:
+        category: cpi
+        clusterTypes:
+        - management
+        - workload
+        packageName: vsphere-cpi.tanzu.vmware.com
+      vsphere-csi:
+        category: csi
+        clusterTypes:
+        - management
+        - workload
+        packageName: vsphere-csi.tanzu.vmware.com

@@ -1,0 +1,8 @@
+name: gangway
+upstreamURL: https://github.com/heptiolabs/gangway.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_gangway.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_gangway.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_gangway.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_gangway.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_gangway.git
+gobuildTarget: cayman_gangway

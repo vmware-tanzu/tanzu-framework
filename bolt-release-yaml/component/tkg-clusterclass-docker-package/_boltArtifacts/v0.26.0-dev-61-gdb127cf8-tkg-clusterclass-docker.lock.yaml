@@ -1,0 +1,10 @@
+name: tkg-clusterclass-docker-package
+goBuildComponentLocks:
+- version: v0.26.0-dev-61-gdb127cf8-tkg-clusterclass-docker
+  gobuildBranch: 422298858937161501-v0.26.0-dev-61-gdb127cf8-tkg-clusterclass-docker-tkg-clusterclass-docker-package
+  gobuildHeadCommit: 4c357e73d901cdf4051251b5972beebeeb69ac09
+  hash: 5d2a1f62afca4deaaa9a9a3e2060b6b3
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.26.0-dev-61-gdb127cf8
+    lockHash: 6016d998338dd9e94ddb34cd1c8560c8

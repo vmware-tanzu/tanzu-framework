@@ -1,0 +1,7 @@
+name: tanzu-framework
+goBuildComponentCaches:
+- version: v0.27.0-dev-6-g2c30a8bc
+  url: https://buildweb.eng.vmware.com/ob/20410377/
+  buildNumber: bora-20410377
+  buildStatus: SUCCEEDED
+  hash: e5440428494593b51173c6fbb9e295cd

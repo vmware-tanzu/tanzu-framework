@@ -1,0 +1,15 @@
+name: tkg-storageclass-package
+packages:
+- version: v0.25.0-dev-25-g9f4dda7d-tkg-storageclass
+  upstreamCommit: 9f4dda7d5e6db714e18d24c3d930470a3c1b05a3
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~da845d112ac034778b6f25be169b9e9cb68cd74c
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-storageclass
+    gobuild.upstream_image_0: tkg-storageclass:latest
+    gobuild.upstream_version: v0.25.0-dev-25-g9f4dda7d

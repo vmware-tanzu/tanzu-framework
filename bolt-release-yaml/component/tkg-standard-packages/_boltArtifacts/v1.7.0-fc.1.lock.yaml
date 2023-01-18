@@ -1,0 +1,52 @@
+name: tkg-standard-packages
+goBuildComponentLocks:
+- version: v1.7.0-fc.1
+  gobuildBranch: 436498364314425218-v1.7.0-fc.1-tkg-standard-packages
+  gobuildHeadCommit: 8c0c8169ef3dd0753fa2f29d1f0ae9641d4f33a0
+  hash: 1e2ec2a846cc76bd8ab9421b55d5ad61
+  componentLockReferences:
+  - name: cert-manager-package
+    version: v1.5.3+vmware.7-tkg.1-cert-manager-fc.1
+    lockHash: 4a06109ef7c83bb979f90538a3d125e7
+  - name: cert-manager-package
+    version: v1.7.2+vmware.3-tkg.1-cert-manager-fc.1
+    lockHash: 9a445e8bd108f65351e0c0a771e34e86
+  - name: cert-manager-package
+    version: v1.9.1+vmware.2-tkg.1-cert-manager-fc.1
+    lockHash: 48340620e3401e83a40b8bfd6ad3c694
+  - name: contour-package
+    version: v1.20.2+vmware.2-tkg.1-contour-fc.1
+    lockHash: 0f0845269e47961cc0f1671e3ce5818b
+  - name: contour-package
+    version: v1.22.0+vmware.2-tkg.1-contour-fc.1
+    lockHash: 241aea76bd5b875a704c43a3bd8c1ede
+  - name: external-dns-package
+    version: v0.10.0+vmware.1-tkg.3-external-dns-fc.1
+    lockHash: 9509799a0e30f647b59fc275f78a6cfa
+  - name: external-dns-package
+    version: v0.11.0+vmware.1-tkg.3-external-dns-fc.1
+    lockHash: 9f83a013c09e7ecf7ceb2bd4623bff31
+  - name: external-dns-package
+    version: v0.12.2+vmware.1-tkg.1-external-dns-fc.1
+    lockHash: 8dcc7b89ef14ab392811cfc6224ac4da
+  - name: fluent-bit-package
+    version: v1.9.5+vmware.1-tkg.1-fluent-bit-fc.1
+    lockHash: 3d41cb5947fff711cd68aa1e65ca3b2d
+  - name: grafana-package
+    version: v7.5.16+vmware.1-tkg.2-grafana-fc.1
+    lockHash: da9f712fc7fd84defcb562dceafb691c
+  - name: prometheus-package
+    version: v2.37.0+vmware.1-tkg.1-prometheus-fc.1
+    lockHash: 25b94a3a215fbb1f2ad836baf0d0f7ed
+  - name: harbor-package
+    version: v2.6.2+vmware.1-tkg.1-harbor-fc.1
+    lockHash: 95273ea6132ef682a43e3bfd73f3c388
+  - name: multus-cni-package
+    version: v3.8.0+vmware.1-tkg.2-multus-cni-fc.1
+    lockHash: 4c5efec2770282e9efadc414b8744136
+  - name: whereabouts-package
+    version: v0.5.4+vmware.1-tkg.1-whereabouts-fc.1
+    lockHash: 8f576a7882d891e4b0ce223013b4049f
+  - name: fluxcd-source-controller-package
+    version: v0.24.4+vmware.1-tkg.3-source-ctrl-fc.1
+    lockHash: f524571b07ac84924e93cc47d01c5065

@@ -1,0 +1,58 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.19.12+vmware.1-tkg.2-framework-v0.6.0
+  gobuildBranch: 375972282452947014-v1.19.12+vmware.1-tkg.2-framework-v0.6.0
+  gobuildHeadCommit: 767a3335443ece45ff86a589bf3916195453bd90
+  hash: 272de490d9ce9ff56351e7e100fe3e71
+  componentLockReferences:
+  - name: ako-operator
+    version: v1.4.0+vmware.1
+    lockHash: 5c77de662b3d9a0bb32d542a8994b455
+  - name: kube_rbac_proxy
+    version: v0.4.1+vmware.2
+    lockHash: 55e2a63cea0ef33e8c1c992b4cab2ce3
+  - name: load-balancer-and-ingress-service
+    version: v1.4.3+vmware.1
+    lockHash: 6408b64e9a3e0e8d38c0b7c62a3042f1
+  - name: antrea
+    version: v0.11.3+vmware.2
+    lockHash: d24d36f55303354ba4cccc3d337a70c4
+  - name: calico_all
+    version: v3.11.3+vmware.1
+    lockHash: c75e07323bb1fb99017dd4816417d643
+  - name: csi_attacher
+    version: v3.2.0+vmware.1
+    lockHash: b6a47e9a04b0695c9ec06b843dc9b77e
+  - name: csi_livenessprobe
+    version: v2.2.0+vmware.1
+    lockHash: b527cdf7bf542e663004dca6634e2b5f
+  - name: csi_node_driver_registrar
+    version: v2.1.0+vmware.1
+    lockHash: 376cf72fbf107bf99272f469cf3b2532
+  - name: kubernetes-csi_external-resizer
+    version: v1.1.0+vmware.1
+    lockHash: 68dd6945cbed208a6384bd140ef246e8
+  - name: csi_provisioner
+    version: v2.2.0+vmware.1
+    lockHash: eb64c8886564c785903f27f873af596e
+  - name: vsphere_csi_driver
+    version: v2.3.0+vmware.1
+    lockHash: ac81e5c3f0c02c9f4d1d0c25634ae0aa
+  - name: cloud_provider_vsphere
+    version: v1.19.1+vmware.1
+    lockHash: 50b7931c585a2bc192f0644b8aa23653
+  - name: tanzu-framework-addons
+    version: v0.6.0-framework
+    lockHash: fb3bf572d64dfe792d7316e004d14681
+  - name: metrics-server
+    version: v0.4.0+vmware.1
+    lockHash: c9e6bf139e525f01c441c24d40b3c63b
+  - name: kapp-controller
+    version: v0.25.0+vmware.1
+    lockHash: 9297fd6079e4ec93c152cff85bf20dc4
+  - name: pinniped
+    version: v0.4.4+vmware.1
+    lockHash: 128412f16d491187b1b108fab3dfac67
+  - name: dex
+    version: v2.27.0+vmware.1
+    lockHash: 7fadc9716955155af933f02b1769b863

@@ -1,0 +1,8 @@
+name: coredns
+upstreamURL: "https://github.com/coredns/coredns.git"
+mirrorSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_coredns.git"
+mirrorOfficialURL: "git@gitlab.eng.vmware.com:core-build/mirrors_github_coredns.git"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:core-build/cayman_coredns.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/cayman_coredns.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:core-build/cayman_coredns.git"
+gobuildTarget: "cayman_coredns"

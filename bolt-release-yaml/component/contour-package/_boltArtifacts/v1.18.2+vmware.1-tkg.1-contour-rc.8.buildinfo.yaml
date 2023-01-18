@@ -1,0 +1,11 @@
+componentBuilds:
+- name: contour-package
+  version: v1.18.2+vmware.1-tkg.1-contour-rc.8
+  channel: "392357564416821484"
+  url: https://buildweb.eng.vmware.com/ob/19279816/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.18.2_vmware.1-tkg.1-rc.8
+      sha256: 0fa15087a20bf738567766d5faf237af928daa975822c581dbdfffb8d29fdf19
+  cachehash: 56cb0e8683113bdb06238a41321d64dc
+  publishhash: acb70bf7bfe4f966ad485fc9e3085f43

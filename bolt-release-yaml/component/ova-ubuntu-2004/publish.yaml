@@ -1,0 +1,15 @@
+name: ova-ubuntu-2004
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-ubuntu-2004/bom-ova-ubuntu-2004-$VERSION.yaml
+  - name: file-image-goss
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-ubuntu-2004/ova-ubuntu-2004-$VERSION-goss-spec.yaml
+  - name: file-image-osstp
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-ubuntu-2004/ova-ubuntu-2004-$VERSION-osstpmgt.yaml
+  - name: file-image-ova
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-ubuntu-2004/ubuntu-2004-kube-$VERSION.ova
+    

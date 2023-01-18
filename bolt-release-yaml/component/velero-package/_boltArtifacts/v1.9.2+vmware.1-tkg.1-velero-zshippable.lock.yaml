@@ -1,0 +1,22 @@
+name: velero-package
+goBuildComponentLocks:
+- version: v1.9.2+vmware.1-tkg.1-velero-zshippable
+  gobuildBranch: 431757010178964832-v1.9.2+vmware.1-tkg.1-velero-zshippable-velero-package
+  gobuildHeadCommit: 684a255d89ffb0381505f5ee284595fe38ed8f99
+  hash: b8f79ae6f8d2b0f18e94f92049d2cb77
+  componentLockReferences:
+  - name: velero
+    version: v1.9.2+vmware.1
+    lockHash: 39d6f057f1605a064e530923d9e3d699
+  - name: velero-plugin-for-aws
+    version: v1.5.1+vmware.1
+    lockHash: 8a5cce12849878a874e199ff95ffdf9c
+  - name: velero-plugin-for-csi
+    version: v0.3.1+vmware.1
+    lockHash: 21e986c3556edb49d05c3c23b1249ee4
+  - name: velero-plugin-for-microsoft-azure
+    version: v1.5.1+vmware.1
+    lockHash: b13177a2600d15ff9129db5d50e2882a
+  - name: velero-plugin-for-vsphere
+    version: v1.4.0+vmware.1
+    lockHash: ac5f0f5a02ef2c5c1ab77fec24329f62

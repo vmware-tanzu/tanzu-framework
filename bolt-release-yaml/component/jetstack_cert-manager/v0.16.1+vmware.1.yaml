@@ -1,0 +1,7 @@
+name: jetstack_cert-manager
+unmanagedComponents:
+  - version: v0.16.1+vmware.1
+    gobuildBranch: vmware-0.16.1
+    dependencies:
+      gobuild.golangVersion: 1.14.4
+      gobuild.linux_hosttype: linux-centos72-gc32

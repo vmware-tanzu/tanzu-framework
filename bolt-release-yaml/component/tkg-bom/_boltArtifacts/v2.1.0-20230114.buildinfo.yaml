@@ -1,0 +1,16 @@
+componentBuilds:
+- name: tkg-bom
+  version: v2.1.0-20230114
+  channel: "443226375822808206"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/443226375822808206/component/tkg-bom/_boltArtifacts/tkg-bom-v2.1.0-20230114.yaml
+  artifactURL:
+    tkgBomImage:
+      url: projects-stg.registry.vmware.com/tkg/tkg-bom:v2.1.0-20230114
+      sha256: 8facf51aaa73a8131b6bb7ab1291461174eeaa51f6f8cf680aa14231e730cef4
+    tkgBomYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/443226375822808206/component/tkg-bom/_boltArtifacts/tkg-bom-v2.1.0-20230114.yaml
+  cachehash: b4c1751e15378b379276e67659f46622
+  publishhash: cf1a513802b84bc3dbf2413af53348c5
+  configDependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha2
+    componentTanzuCoreVersion: v0.28.0-dev-327-g2438ab22

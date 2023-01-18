@@ -1,0 +1,10 @@
+name: capabilities-package
+goBuildComponentLocks:
+- version: v0.21.0-tf-capabilities
+  gobuildBranch: 406498763599797778-v0.21.0-tf-capabilities-capabilities-package
+  gobuildHeadCommit: 95fcc95f35282286ea396b0a8b7ce3a856a2b302
+  hash: ac3816766b332279eed891ecb7f0ccff
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.21.0-tf
+    lockHash: 1306bf787290c2afacc68815ee579318

@@ -1,0 +1,6 @@
+name: kube-vip-cloud-provider-package
+publish:
+  - name: kube-vip-cloud-provider.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-package-bundle/package-bundles/core/kube-vip-cloud-provider-v{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}.tar.gz
+    destinationPath: packages/core/kube-vip-cloud-provider:v{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}

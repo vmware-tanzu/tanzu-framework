@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'with 7 new TKRs, containerd CVE fix, NOTE: no need to ship the tkg-bom!'
+componentReferences:
+  - name: tkg-bom
+    version:
+    - v1.3.1-patch1

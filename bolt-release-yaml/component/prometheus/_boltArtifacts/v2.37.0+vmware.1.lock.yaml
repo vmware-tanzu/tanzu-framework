@@ -1,0 +1,7 @@
+name: prometheus
+goBuildComponentLocks:
+- version: v2.37.0+vmware.1
+  gobuildBranch: vmware-2.37.0
+  gobuildHeadCommit: c3f60041656b40e25788ca49837467f52da284ee
+  hash: 09625d9d976d2e7abe810b81949ff837
+  componentLockReferences: []

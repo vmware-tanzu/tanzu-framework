@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.22.11+vmware.2-tkg.3-d75e5113cfce3fffdbf5f68f583f2507
+  channel: "419607432428266631"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2716
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419607432428266631/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-vhd-v1.22.11+vmware.2-tkg.3-d75e5113cfce3fffdbf5f68f583f2507.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419607432428266631/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.11+vmware.2-tkg.3-d75e5113cfce3fffdbf5f68f583f2507-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419607432428266631/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.11+vmware.2-tkg.3-d75e5113cfce3fffdbf5f68f583f2507-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419607432428266631/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.11+vmware.2-tkg.3-d75e5113cfce3fffdbf5f68f583f2507-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419607432428266631/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.11+vmware.2-tkg.3-d75e5113cfce3fffdbf5f68f583f2507-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419607432428266631/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.22.11+vmware.2-tkg.3-d75e5113cfce3fffdbf5f68f583f2507.json
+  cachehash: 4ee3a1e854594e230c235448aa8ad0dd
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 1af6af05f3b14a5987cc2e4540d82c1bd47884b8

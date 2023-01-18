@@ -1,0 +1,32 @@
+name: utkg-ova-photon-3
+imageLocks:
+- version: v1.23.10+vmware.1-tkg.1
+  hash: 30236cca2788d643d4503b08a27d2617
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.23.10+vmware.1
+    lockHash: acf51f703976d2f230a2d88f444e7b34
+  - name: coredns
+    version: v1.8.6+vmware.11
+    lockHash: 584b9464b1c2f5d16efaa3aecfeca775
+  - name: etcd
+    version: v3.5.4+vmware.7
+    lockHash: f2762702ce78769ef0b680f73d828411
+  - name: containerd
+    version: v1.6.6+vmware.2
+    lockHash: 506989fbb24cba85136830704fca11aa
+  - name: cni_plugins
+    version: v1.1.1+vmware.7
+    lockHash: e49db13d42060ce135b437c7b0cbbf73
+  - name: docker_distribution
+    version: 2.7.1
+    lockHash: b6a7a1fd120db62a3452eb70cf22b51d
+  - name: tkr-bom
+    version: v1.23.10+vmware.1-tkg.1
+    lockHash: d3baad183577fac685401c897efb46fc
+  - name: tkg-core-packages
+    version: v1.23.10+vmware.1-tkg.1
+    lockHash: 3ec6fdfa3b18e09cec0a802f4486ce0d
+  - name: gc-compatibility
+    version: v1.23.8+vmware.1
+    lockHash: 01df3f3749fbe077ad05700ee5308f15

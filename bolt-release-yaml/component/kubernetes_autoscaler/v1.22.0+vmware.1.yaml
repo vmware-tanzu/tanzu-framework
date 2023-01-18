@@ -1,0 +1,12 @@
+name: kubernetes_autoscaler
+managedComponents:
+  - version: v1.22.0+vmware.1
+    upstreamTag: cluster-autoscaler-1.22.1
+    mirrorCherryPicks: []
+    gobuildBaseBranch: vmware-1.20.0+vmware.0~d626eaee72a46855a4dd7c8cbe85a5a138eddc08
+    dependencies:
+      gobuild.golangVersion: 1.16
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32
+    bomMetadata:
+      k8sversion: v1.22.3+vmware.1

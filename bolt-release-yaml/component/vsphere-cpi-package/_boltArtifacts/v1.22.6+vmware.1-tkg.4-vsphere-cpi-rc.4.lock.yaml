@@ -1,0 +1,10 @@
+name: vsphere-cpi-package
+goBuildComponentLocks:
+- version: v1.22.6+vmware.1-tkg.4-vsphere-cpi-rc.4
+  gobuildBranch: 439009110457877889-v1.22.6+vmware.1-tkg.4-vsphere-cpi-rc.4-vsphere-cpi-package
+  gobuildHeadCommit: ab42e194d4db6854459bbc618e02b18d371dee29
+  hash: 4198717d04a10c2d5d9f868de995d62a
+  componentLockReferences:
+  - name: cloud_provider_vsphere
+    version: v1.22.6+vmware.1
+    lockHash: 92f9c02edd8e56a8d1cf6a19ae6270a4

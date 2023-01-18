@@ -1,0 +1,10 @@
+name: tkg-clusterclass-azure-package
+goBuildComponentLocks:
+- version: v0.26.0-dev-86-g2e6abb75-tkg-clusterclass-azure
+  gobuildBranch: 423646376606334405-v0.26.0-dev-86-g2e6abb75-tkg-clusterclass-azure-tkg-clusterclass-azure-package
+  gobuildHeadCommit: 7914779f03c1de7db6226f0accdf9b3dd4cd12fd
+  hash: 9c22e444643ddf9fa61106f23ffbe7f2
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.26.0-dev-86-g2e6abb75
+    lockHash: e3d83c2509eecda8c3344da915edb5cf

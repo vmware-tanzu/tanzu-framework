@@ -1,0 +1,13 @@
+componentBuilds:
+- name: image-builder
+  version: v0.1.12+vmware.2
+  channel: "421424975832942413"
+  url: https://buildweb.eng.vmware.com/ob/20297182/
+  artifactURL:
+    imagebuilder-tar:
+      url: projects-stg.registry.vmware.com/tkg/image-builder:v0.1.12_vmware.2
+      sha256: 44c74481c03b92225bcf2b0dd8fcc0e153335c88225ce28863926781361efeab
+  cachehash: d2385e42f365313b062b7367709a2484
+  publishhash: 40b5feb1bbf30e83777d74e051441b96
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: pinniped-package
+  version: v0.12.1+vmware.1-tkg.0-pinniped-tf-v0.11.4
+  channel: "402204477005788768"
+  url: https://buildweb.eng.vmware.com/ob/19610594/
+  artifactURL:
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.12.1_vmware.1-tkg.0-tf-v0.11.4
+      sha256: c0ffa1864e8453e984650146afc35b4ebd60ebf2224e782a259cdbba59f134ae
+  cachehash: 700eb3c8c34ef4528406ad7beb730c4d
+  publishhash: deeac3b3022bf44de880663cd7ec52c5

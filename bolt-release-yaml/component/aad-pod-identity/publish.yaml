@@ -1,0 +1,12 @@
+name: aad-pod-identity
+publish:
+  - name: nmiImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/aad-pod-identity/images/nmi-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/aad-pod-identity/images/aad-pod-identity-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/nmi:$UNDERSCOREVERSION
+  - name: micImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/aad-pod-identity/images/mic-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/aad-pod-identity/images/aad-pod-identity-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/mic:$UNDERSCOREVERSION

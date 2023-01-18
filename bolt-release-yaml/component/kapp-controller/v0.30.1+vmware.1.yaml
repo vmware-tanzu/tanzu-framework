@@ -1,0 +1,6 @@
+name: kapp-controller
+unmanagedComponents:
+  - version: v0.30.1+vmware.1
+    gobuildBranch: vmware-0.30.1~b719dd287530403586ef6c577466e68f0346f191
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

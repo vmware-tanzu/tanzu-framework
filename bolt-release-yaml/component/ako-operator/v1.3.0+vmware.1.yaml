@@ -1,0 +1,7 @@
+name: ako-operator
+unmanagedComponents:
+  - version: v1.3.0+vmware.1
+    gobuildBranch: release-v1.3.0
+    dependencies:
+      gobuild.golangVersion: 1.15.0
+      gobuild.linux_hosttype: linux-centos72-gc32

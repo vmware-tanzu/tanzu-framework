@@ -1,0 +1,4 @@
+submodules:
+  - name: cluster_api_aws/src
+    go_mod:
+      - "go.mod"

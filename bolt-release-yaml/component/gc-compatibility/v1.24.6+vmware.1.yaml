@@ -1,0 +1,6 @@
+name: gc-compatibility
+unmanagedComponents:
+  - version: v1.24.6+vmware.1
+    gobuildBranch: k8s-release-1.24~7be35bbf5869f7837edec9c44e9ae7fbc3d04511
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32

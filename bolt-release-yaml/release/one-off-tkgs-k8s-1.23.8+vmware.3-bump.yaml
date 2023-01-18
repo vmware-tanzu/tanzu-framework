@@ -1,0 +1,9 @@
+
+
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'one-off release file to generate k8s 1.23.8+vmware.3 to be consumed for TKGS TKR'
+componentReferences:
+  - name: kubernetes
+    version:
+      - v1.23.8+vmware.3

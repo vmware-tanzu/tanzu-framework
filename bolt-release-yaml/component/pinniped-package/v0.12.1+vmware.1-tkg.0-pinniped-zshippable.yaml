@@ -1,0 +1,48 @@
+# This pinniped-package version was originally created upon backporting TKG-9829 to TKG 1.5.3.
+#
+# At the time of the backporting, there was already a pinniped-package 0.12.1 version
+# (v0.12.1+vmware.1-tkg.1-pinniped-zshippable). However, that pinniped-package 0.12.1 version
+# depended on pinniped-post-deploy v0.17.0. The TKG 1.5.3 graph depended on pinniped-post-deploy
+# v0.11.1, and I did not want to bump the pinniped-post-deploy version since TKG 1.5.3 is a patch
+# release. Therefore, I created this pinniped-package version
+# (v0.12.1+vmware.1-tkg.0-pinniped-zshippable) so that we did not have to bump the version of the
+# pinniped-post-deploy job in TKG 1.5.3.
+#
+# Also, we decided to use tkg.0 (instead of, say, tkg.2) in this pinniped-package version because we
+# wanted to maintain the invariant "for each tkg.x, tkg.y, tkg.x is shipped on an older release line
+# than tkg.y."
+
+name: pinniped-package
+packages:
+- version: v0.12.1+vmware.1-tkg.0-pinniped-zshippable
+  upstreamCommit: 0a309baf3a16714176c344b08ec4faf9a022b822
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: pinniped
+    version:
+    - v0.12.1+vmware.1
+  - name: dex
+    version:
+    - v2.30.2+vmware.1
+  - name: pinniped-post-deploy
+    version:
+    - v0.11.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "pinniped-post-deploy" ).artifactURL.tkgPinnipedPostDeployImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "pinniped").artifactURL.pinnipedImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "dex").artifactURL.dexImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.0-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: pinniped
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects.registry.vmware.com/tce/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.1
+    gobuild.upstream_image_1: docker.io/getpinniped/pinniped-server:v0.12.1
+    gobuild.upstream_image_2: projects.registry.vmware.com/tce/dex:v2.30.2_vmware.1
+    gobuild.upstream_version: 0.12.1

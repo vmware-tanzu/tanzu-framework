@@ -1,0 +1,4 @@
+submodules:
+  - name: external-snapshotter/src
+    go_mod:
+      - "go.mod"

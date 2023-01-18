@@ -1,0 +1,12 @@
+name: tanzu-framework-addons
+publish:
+  - name: tanzuAddonsManagerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework-addons/addons/images/addons-controller-manager/addons-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework-addons/addons/images/addons-controller-manager/addons-controller-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/tanzu-addons-manager:$UNDERSCOREVERSION
+  - name: tkgPinnipedPostDeployImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework-addons/addons/images/tkg-pinniped-post-deploy/tkg-pinniped-post-deploy-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework-addons/addons/images/tkg-pinniped-post-deploy/tkg-pinniped-post-deploy-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/tkg-pinniped-post-deploy:$UNDERSCOREVERSION

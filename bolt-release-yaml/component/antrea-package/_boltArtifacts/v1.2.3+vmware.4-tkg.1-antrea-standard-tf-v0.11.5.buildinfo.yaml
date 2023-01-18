@@ -1,0 +1,23 @@
+componentBuilds:
+- name: antrea-package
+  version: v1.2.3+vmware.4-tkg.1-antrea-standard-tf-v0.11.5
+  channel: "406984023315846503"
+  url: https://buildweb.eng.vmware.com/ob/19773595/
+  artifactURL:
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v1.2.3_vmware.4-tkg.1-standard-tf-v0.11.5
+      sha256: d75a244e0793e75040940990c6bb0cacdb440ab4d36f8a8349cb9e9013f9eae2
+  cachehash: 01e0a1ef91cf370dec678601b1237542
+  publishhash: 3c38157278462aa91841f3ab1a6c790a
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/antrea-standard-debian:v1.2.3_vmware.4
+    gobuild.downstream_version: vmware.4-tkg.1-standard-tf-v0.11.5
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: antrea
+    gobuild.package_type: core
+    gobuild.upstream_image_0: antrea/antrea-ubuntu:v1.2.3
+    gobuild.upstream_version: 1.2.3

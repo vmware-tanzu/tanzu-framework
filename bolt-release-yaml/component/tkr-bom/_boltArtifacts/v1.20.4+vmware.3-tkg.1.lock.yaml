@@ -1,0 +1,92 @@
+name: tkr-bom
+bomLocks:
+- version: v1.20.4+vmware.3-tkg.1
+  hash: "16464372891523153723"
+  componentLockReferences:
+  - name: antrea
+    version: v0.11.3+vmware.1
+    lockHash: "16468667295029254287"
+  - name: calico_all
+    version: v3.11.3+vmware.1
+    lockHash: "18069479671271816948"
+  - name: cloud_provider_vsphere
+    version: v1.18.1+vmware.1
+    lockHash: "2856523807768886846"
+  - name: csi_attacher
+    version: v3.0.0+vmware.1
+    lockHash: "17301729704858836666"
+  - name: csi_livenessprobe
+    version: v2.1.0+vmware.1
+    lockHash: "17556437593516060919"
+  - name: csi_node_driver_registrar
+    version: v2.0.1+vmware.1
+    lockHash: "18285343946628264579"
+  - name: kubernetes-csi_external-resizer
+    version: v1.0.0+vmware.1
+    lockHash: "10681123456486098534"
+  - name: csi_provisioner
+    version: v2.0.0+vmware.1
+    lockHash: "5607666203161642949"
+  - name: vsphere_csi_driver
+    version: v2.1.0+vmware.1
+    lockHash: "9139756633179324543"
+  - name: dex
+    version: v2.27.0+vmware.1
+    lockHash: "10220162914628891750"
+  - name: kapp-controller
+    version: v0.16.0+vmware.1
+    lockHash: "8351241911160019231"
+  - name: metrics-server
+    version: v0.4.0+vmware.1
+    lockHash: "17188879454193180814"
+  - name: pinniped
+    version: v0.4.1+vmware.1
+    lockHash: "10765976895398428403"
+  - name: tanzu_core_addons
+    version: v1.3.0
+    lockHash: "16591353790909962690"
+  - name: kubernetes
+    version: v1.20.4+vmware.3
+    lockHash: "18256697504082213192"
+  - name: cni_plugins
+    version: v0.8.7+vmware.5
+    lockHash: "4058395626922087165"
+  - name: coredns
+    version: v1.7.0+vmware.8
+    lockHash: "5984217886241777614"
+  - name: cri_tools
+    version: v1.19.0+vmware.2
+    lockHash: "8042627114812197870"
+  - name: etcd
+    version: v3.4.13+vmware.7
+    lockHash: "6026680512878857244"
+  - name: containerd
+    version: v1.4.4+vmware.3
+    lockHash: "5199217500967235205"
+  - name: kubernetes-sigs_kind
+    version: v1.20.4+vmware.1
+    lockHash: "9554292678153475534"
+  - name: ova-photon-3
+    version: v1.20.4+vmware.3-tkg.0-9172102828038715088
+    lockHash: "13781676047031425642"
+  - name: ova-ubuntu-2004
+    version: v1.20.4+vmware.3-tkg.0-3302741404565163514
+    lockHash: "16112216604739514662"
+  - name: ami-general-amazon-2
+    version: v1.20.4+vmware.3-tkg.0-5091855101189862805
+    lockHash: "2674284225217958887"
+  - name: ami-general-ubuntu-2004
+    version: v1.20.4+vmware.3-tkg.0-5344348206747095105
+    lockHash: "17192185568341227916"
+  - name: ami-gov-amazon-2
+    version: v1.20.4+vmware.3-tkg.0-18273404176860392829
+    lockHash: "8988964214174789674"
+  - name: ami-gov-ubuntu-2004
+    version: v1.20.4+vmware.3-tkg.0-13188420440469298887
+    lockHash: "2355112612719592899"
+  - name: azure-ubuntu-1804
+    version: v1.20.4+vmware.3-tkg.0-10930477000847971346
+    lockHash: "18432795086579866193"
+  - name: azure-ubuntu-2004
+    version: v1.20.4+vmware.3-tkg.0-9993722069121312789
+    lockHash: "1664036317294691735"

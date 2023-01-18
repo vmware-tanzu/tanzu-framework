@@ -1,0 +1,31 @@
+name: ova-ubuntu-1804
+images:
+  - version: v1.20.1+vmware.2-tkg.1.3-3161359046336510236
+    osinfo: 
+      name: ubuntu
+      version: 1804
+      arch: amd64
+    type: ova
+    imageBuilderVersion: 675b064470578a38974bd52d30df5ec431da8474
+    componentReferences: 
+      - name: coredns
+        version:
+        - v1.7.0+vmware.7
+      - name: kubernetes
+        version:
+        - v1.20.1+vmware.2
+      - name: etcd
+        version:
+        - v3.4.13+vmware.6
+      - name: cri_tools
+        version:
+        - v1.19.0+vmware.1
+      - name: cni_plugins
+        version:
+        - v0.8.7+vmware.4
+      - name: containerd
+        version:
+        - v1.4.3+vmware.1
+    dependencies:
+      base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-18.04.2-server-amd64.iso
+      base_iso_sha: a2cb36dc010d98ad9253ea5ad5a07fd6b409e3412c48f1860536970b073c98f5

@@ -1,0 +1,21 @@
+name: multus-cni-package
+packages:
+  - version: v3.7.1+vmware.2-tkg.3-multus-cni-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: 44dd013c20b999480c3ef82420a22f8144b2be04
+    componentReferences:
+      - name: multus-cni
+        version:
+        - v3.7.1+vmware.2
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: multus-cni
+      gobuild.upstream_image_0: "ghcr.io/k8snetworkplumbingwg/multus-cni:v3.7.1"
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "multus-cni").artifactURL.multusCniImage.url}}'
+      gobuild.upstream_version: 3.7.1
+      gobuild.downstream_version: vmware.2-tkg.3-zshippable
+      gobuild.package_type: standard
+      gobuild.noMirror: "true"

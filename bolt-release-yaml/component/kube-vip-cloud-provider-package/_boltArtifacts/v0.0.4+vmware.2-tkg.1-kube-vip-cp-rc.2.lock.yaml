@@ -1,0 +1,10 @@
+name: kube-vip-cloud-provider-package
+goBuildComponentLocks:
+- version: v0.0.4+vmware.2-tkg.1-kube-vip-cp-rc.2
+  gobuildBranch: 442519250544895703-v0.0.4+vmware.2-tkg.1-kube-vip-cp-rc.2-kube-vip-cloud-provider-package
+  gobuildHeadCommit: 4d5218504ad5447ac1d4b546df08502726943fb9
+  hash: f0c43c49b286b78d57313adc2d57a138
+  componentLockReferences:
+  - name: kube-vip-cloud-provider
+    version: v0.0.4+vmware.2
+    lockHash: 15caf43235b3b778aeedfb074c50fe22

@@ -1,0 +1,20 @@
+componentBuilds:
+- name: guest-cluster-cloud-provider
+  version: v0.1-87-gb6bb261
+  channel: "377871877214835016"
+  url: https://buildweb.eng.vmware.com/ob/18205241/
+  artifactURL:
+    guest-cluster-cloud-provider-1.19-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-cloud-provider/v0.1-87-gb6bb261/publish/add-on/1.19/vmware-guest-cluster.yaml
+      sha256: e3313763ef949388d27dd6114ee2caf29dad695c1b26637058f4ea5689f52051
+    guest-cluster-cloud-provider-1.20-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-cloud-provider/v0.1-87-gb6bb261/publish/add-on/1.20/vmware-guest-cluster.yaml
+      sha256: e3313763ef949388d27dd6114ee2caf29dad695c1b26637058f4ea5689f52051
+    guest-cluster-cloud-provider-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-cloud-provider/v0.1-87-gb6bb261/publish/guest-cluster-cloud-provider.tar
+      sha256: fa35503dd2a9703b6ce4a10fd5fc7f4c2a8c885ddd85c3f12652ce0bcdc49baf
+    osstp-golang-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-cloud-provider/v0.1-87-gb6bb261/publish/osstp_golang.yml
+      sha256: 63344cc1656689fb5f5ebf3e2c710ce38bb11cc2e97af72f37376768f7fcd7d6
+  cachehash: 2d6b318b9d2f479b309c0cd7ddffcf4d
+  publishhash: f98d3f714e2e2a7e54b7c0ecaa15bc4f

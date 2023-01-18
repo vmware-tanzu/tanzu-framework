@@ -1,0 +1,7 @@
+name: kbld
+goBuildComponentCaches:
+- version: v0.24.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/17552008/
+  buildNumber: bora-17552008
+  buildStatus: SUCCEEDED
+  hash: "14286427437465618432"

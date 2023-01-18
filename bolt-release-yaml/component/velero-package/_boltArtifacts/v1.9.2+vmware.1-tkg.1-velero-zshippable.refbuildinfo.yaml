@@ -1,0 +1,78 @@
+componentBuilds:
+- name: velero
+  version: v1.9.2+vmware.1
+  channel: "430277087694166856"
+  url: https://buildweb.eng.vmware.com/ob/20549971
+  artifactURL:
+    restic:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20549971/publish/lin64/velero/executables/restic
+    velero-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20549971/publish/lin64/velero/executables/velero-linux-v1.9.2+vmware.1.gz
+    velero-mac:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20549971/publish/lin64/velero/executables/velero-mac-v1.9.2+vmware.1.gz
+    velero-windows64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20549971/publish/lin64/velero/executables/velero-windows64-v1.9.2+vmware.1.gz
+    veleroImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero:v1.9.2_vmware.1
+      sha256: b5986da6d335d2e0fb5a55ac74b1add51ba8f3f49e433306f422b9a8f247b71a
+    veleroResticRestoreHelperImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-restic-restore-helper:v1.9.2_vmware.1
+      sha256: e8a5bfc84aea8ff1bc1831aa6ca8958ae645c6b4b89b899e29a4112be5df665d
+  cachehash: 6c1dcff7e53fe91f9c60ac640bcaaaf4
+  publishhash: cc9556cf0bff2cfe5dd8ac387b47f478
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: velero-plugin-for-aws
+  version: v1.5.1+vmware.1
+  channel: "430277087694166856"
+  url: https://buildweb.eng.vmware.com/ob/20589037
+  artifactURL:
+    veleroPluginForAwsImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-aws:v1.5.1_vmware.1
+      sha256: 28174ad1e643bb16e517dc186d266f08de60a0b997394d9540525ca9bca8a5d5
+  cachehash: b74a0575b3debb17475f2697f4fa6a41
+  publishhash: 809d13556e731ee46dcc47e5788ddcc0
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: velero-plugin-for-csi
+  version: v0.3.1+vmware.1
+  channel: "430277087694166856"
+  url: https://buildweb.eng.vmware.com/ob/20603535
+  artifactURL:
+    veleroPluginForCsiImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-csi:v0.3.1_vmware.1
+      sha256: cf35c582f37b87407058d4e589cc480ff6d3b46a8ad7b58d1cddb3ebeac4927a
+  cachehash: a01d342705135bfae7fc3616ef8a4c5f
+  publishhash: a2c08cb1b2b9e594353d5ddaf95b1acd
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: velero-plugin-for-microsoft-azure
+  version: v1.5.1+vmware.1
+  channel: "430277087694166856"
+  url: https://buildweb.eng.vmware.com/ob/20600396
+  artifactURL:
+    veleroPluginForMicrosoftAzureImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-microsoft-azure:v1.5.1_vmware.1
+      sha256: c5e998c7e7b4cc8c2ff8329e5f0846f444bf50fde1ab7539feed3f0ee53bcf27
+  cachehash: d9cabd1e4c2b3754a14eaf5439e99c41
+  publishhash: dd26fb1994405b746f97394c7de4a401
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: velero-plugin-for-vsphere
+  version: v1.4.0+vmware.1
+  channel: "423378244868281535"
+  url: https://buildweb.eng.vmware.com/ob/20367244
+  artifactURL:
+    veleroBackupDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/backup-driver:v1.4.0_vmware.1
+      sha256: d91286aa87eb3fb53686ce38059597bfaf49af23b1972730799406e08ada860a
+    veleroDataManagerForPluginImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/data-manager-for-plugin:v1.4.0_vmware.1
+      sha256: 0af897375117349a23546bc3f1adc52d8c506b7a9f82c27acfba8c0392d7e52d
+    veleroPluginForVsphereImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-vsphere:v1.4.0_vmware.1
+      sha256: 71b6d5b363e4b7835af55966f21e9b662c6cdbc90050bd7b919559165deaaba5
+  cachehash: bae8fe9772f3f6825d0c4f5e861c9623
+  publishhash: 0ffc6f00e9b2ca613fa6e21f1ea52316
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32

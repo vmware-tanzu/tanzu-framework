@@ -1,0 +1,25 @@
+componentBuilds:
+- name: ami-gov-ubuntu-2004
+  version: v1.21.14+vmware.2-fips.1-tkg.5-5c5517c7af3cf9da385ad4ecc66fe3a5
+  channel: "436911358504609501"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/3560
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-gov-ubuntu-2004/bom-ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-5c5517c7af3cf9da385ad4ecc66fe3a5.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-5c5517c7af3cf9da385ad4ecc66fe3a5-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-5c5517c7af3cf9da385ad4ecc66fe3a5-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-5c5517c7af3cf9da385ad4ecc66fe3a5-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/436911358504609501/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.21.14+vmware.2-fips.1-tkg.5-5c5517c7af3cf9da385ad4ecc66fe3a5-provenance_result.txt
+  cachehash: 44baf3fd79b9304ce649ab9228705d2e
+  publishhash: 7ac7828afdf1bda432400e35b5619835
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: baf534da10fea37e31c60543b5aecf10cc7f75d1
+    jenkins.UBUNTU_2004_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-stig-hardening.git
+    jenkins.UBUNTU_2004_STIG_VERSION: 04d8e41453a83bb62e1eb145ca7537ac54652b29

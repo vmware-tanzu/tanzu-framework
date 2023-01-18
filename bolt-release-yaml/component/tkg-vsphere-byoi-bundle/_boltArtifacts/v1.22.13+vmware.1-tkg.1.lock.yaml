@@ -1,0 +1,34 @@
+name: tkg-vsphere-byoi-bundle
+goBuildComponentLocks:
+- version: v1.22.13+vmware.1-tkg.1
+  gobuildBranch: 437808638728351391-v1.22.13+vmware.1-tkg.1-tkg-vsphere-byoi-bundle
+  gobuildHeadCommit: f6d957a4ebeb3223832782af21c55494f2eedeca
+  hash: 9730a752ad6cbfb255bb554048e37957
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.22.13+vmware.1
+    lockHash: 92e7827403ef61c734ffd4c126f36fec
+  - name: coredns
+    version: v1.8.4+vmware.10
+    lockHash: ff7e5a9a9a14d8ba24755c7c0f3adad9
+  - name: etcd
+    version: v3.5.4+vmware.2
+    lockHash: e624c97266c12742a272f1047404874e
+  - name: containerd
+    version: v1.5.13+vmware.1
+    lockHash: cb597e991a7b71b009e66fcb7ee80be9
+  - name: cni_plugins
+    version: v1.1.1+vmware.2
+    lockHash: 6d46aaf822c63d16ed1c4b0f19bbe2ab
+  - name: docker_distribution
+    version: 2.7.1
+    lockHash: b6a7a1fd120db62a3452eb70cf22b51d
+  - name: tkr-bom
+    version: v1.22.13+vmware.1-tkg.1-zshippable
+    lockHash: 2e2ff57d18375e1281cf40137399bb83
+  - name: tkg-core-packages
+    version: v1.22.13+vmware.1-tkg.1-zshippable
+    lockHash: 1a208b7cb158592185e9cb1ea4b8373d
+  - name: gc-compatibility
+    version: v1.22.11+vmware.1
+    lockHash: 095d175420c0e20e84cc73feefc151c3

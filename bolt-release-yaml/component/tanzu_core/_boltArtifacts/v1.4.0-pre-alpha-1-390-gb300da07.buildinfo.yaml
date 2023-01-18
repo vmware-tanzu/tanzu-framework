@@ -1,0 +1,24 @@
+componentBuilds:
+- name: tanzu_core
+  version: v1.4.0-pre-alpha-1-390-gb300da07
+  channel: "361770662274039729"
+  url: https://buildweb.eng.vmware.com/ob/18255455/
+  artifactURL:
+    providerTemplateImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/provider/provider-templates:v1.4.0-pre-alpha-1-390-gb300da07
+      sha256: 59b542a4a0f80f1db82123f0d8f20205bff1ad74b771215f352b80c80b4edf73
+    tanzu-core-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18255455/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-darwin-amd64.tar
+    tanzu-core-linux-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18255455/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-linux-386.tar
+    tanzu-core-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18255455/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-linux-amd64.tar
+    tanzu-core-windows-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18255455/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-windows-386.tar
+    tanzu-core-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18255455/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-windows-amd64.tar
+    tkrImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-controller-manager:v1.4.0-pre-alpha-1-390-gb300da07
+      sha256: 3fd330d62482e1d8f27d2d4f3773f2b67e9339eff57cdf15395fca8c1c3e9572
+  cachehash: "189473879933758446"
+  publishhash: "16270051248683328478"

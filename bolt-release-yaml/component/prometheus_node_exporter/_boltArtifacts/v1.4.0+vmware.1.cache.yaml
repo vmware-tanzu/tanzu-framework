@@ -1,0 +1,7 @@
+name: prometheus_node_exporter
+goBuildComponentCaches:
+- version: v1.4.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20835412/
+  buildNumber: bora-20835412
+  buildStatus: SUCCEEDED
+  hash: 021f3a11f93ccb48bf0330b8b9521ebc

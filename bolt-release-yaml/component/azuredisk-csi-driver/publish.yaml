@@ -1,0 +1,7 @@
+name: azuredisk-csi-driver
+publish:
+  - name: azurediskCsiDriverImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/azuredisk-csi-driver/images/azuredisk-csi-driver-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/azuredisk-csi-driver/images/azuredisk-csi-driver-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/azuredisk-csi-driver:$UNDERSCOREVERSION

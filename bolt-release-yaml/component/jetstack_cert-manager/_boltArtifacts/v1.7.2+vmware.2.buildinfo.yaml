@@ -1,0 +1,22 @@
+componentBuilds:
+- name: jetstack_cert-manager
+  version: v1.7.2+vmware.2
+  channel: "426422648734523327"
+  url: https://buildweb.eng.vmware.com/ob/20494099/
+  artifactURL:
+    certMgrControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cert-manager-controller:v1.7.2_vmware.2
+      sha256: 66087b1a0bc0c222e8b905a015cab8bfa0b8546c7aef58b85fc0afabae036caf
+    certMgrInjectorImage:
+      url: projects-stg.registry.vmware.com/tkg/cert-manager-cainjector:v1.7.2_vmware.2
+      sha256: ccf213e6a7a143b3188dd60376be2a3e5fab3aa4f3cbcd8c5f658b9bd924d1b5
+    certMgrWebhookImage:
+      url: projects-stg.registry.vmware.com/tkg/cert-manager-webhook:v1.7.2_vmware.2
+      sha256: 613738628e7372f787f54a6e83159976b2d0715fcb7825251ee28ce2140c9aed
+  cachehash: f6b2bb2cd3effba2d9de7eaec30449fb
+  publishhash: 489194fbbad37689fd4c4b0020fa0d06
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.7
+    gobuild.harborGolangBase: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang
+    gobuild.linux_hosttype: linux-centos8

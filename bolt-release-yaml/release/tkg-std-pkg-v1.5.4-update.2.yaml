@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off effort to release the tkg-standard-package v1.5.4-update.2 for TMC"
+componentReferences:
+- name: tkg-standard-packages
+  version:
+  - v1.5.4-update.2

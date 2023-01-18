@@ -1,0 +1,5 @@
+type: version-updater
+releaseFile: 1.3.0_tkg.yaml
+componentVersionUpdaters:
+  - name: tanzu_core
+    upstreamBranch: release-1.3

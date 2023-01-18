@@ -1,0 +1,22 @@
+componentBuilds:
+- name: featuregates-package
+  version: v0.27.0-dev-15-g48a70736-featuregates
+  channel: "425263639277082822"
+  url: https://buildweb.eng.vmware.com/ob/20446643/
+  artifactURL:
+    featuregates.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/featuregates:v0.27.0-dev-15-g48a70736_vmware.1
+      sha256: 66018bf3865b86ace713826ada23dbc643ac8d263f29b640ad822ada14b52eab
+  cachehash: db622784b51bb40323581e491f38ef5c
+  publishhash: a84f576c1e0db926d2b0a811be60a75f
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/featuregates/featuregates-controller-manager:v0.27.0-dev-15-g48a70736
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: featuregates
+    gobuild.upstream_image_0: featuregates-controller-manager:latest
+    gobuild.upstream_version: v0.27.0-dev-15-g48a70736

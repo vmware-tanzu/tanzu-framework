@@ -1,0 +1,19 @@
+componentBuilds:
+- name: cni_plugins
+  version: v0.8.7+vmware.11
+  channel: "355673595789209196"
+  url: https://buildweb.eng.vmware.com/ob/18055171/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055171/publish/lin64/cni_plugins/executables/cni-plugins-v0.8.7+vmware.11.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055171/publish/lin64/cni_plugins/debs/kubernetes-cni_0.8.7+vmware.11-1_amd64.deb
+    cni_plugins-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055171/publish/lin64/cni_plugins/rpms/rpms/kubernetes-cni-0.8.7-1.el7.vmware.11.x86_64.rpm
+    cni_plugins-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18055171/publish/lin64/cni_plugins/rpms/srpms/kubernetes-cni-0.8.7-1.el7.vmware.11.src.rpm
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/355673595789209196/component/cni_plugins/v0.8.7+vmware.11/cni-plugins-linux-amd64-v0.8.7+vmware.11.tgz
+      sha256: 70f1675b10ec530463bd66f60569a78925b0c6227998eefa0b1513d69e9ba547
+  cachehash: ad60d8a06626943acdc9a9f2c3afc1d6
+  publishhash: 3222edb8e472969768744aa214a6af69

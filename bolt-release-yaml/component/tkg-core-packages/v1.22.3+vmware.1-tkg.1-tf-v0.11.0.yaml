@@ -1,0 +1,115 @@
+name: tkg-core-packages
+packageRepositories:
+- version: v1.22.3+vmware.1-tkg.1-tf-v0.11.0
+  upstreamCommit: c9430230105153613c38825b7b0481c0d573e890
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repository-bundle~5d5b2964c7f7dae28351b9f5b42a9b6d630a3b8b
+  componentReferences:
+  - name: addons-manager-package
+    version:
+    - v1.5.0+vmware.1-tkg.1-addons-manager-tf-v0.11.0
+  - name: ako-operator-package
+    version:
+    - v1.5.0+vmware.1-tkg.1-ako-operator-tf-v0.11.0
+  - name: load-balancer-and-ingress-service-package
+    version:
+    - v1.6.1+vmware.1-tkg.1-ako-tf-v0.11.0
+  - name: antrea-package
+    version:
+    - v1.2.3+vmware.2-tkg.1-antrea-tf-v0.11.0
+  - name: calico-package
+    version:
+    - v3.19.1+vmware.1-tkg.3-calico-tf-v0.11.0
+  - name: vsphere-csi-package
+    version:
+    - v2.3.0+vmware.1-tkg.4-vsphere-csi-tf-v0.11.0
+  - name: vsphere-cpi-package
+    version:
+    - v1.22.3+vmware.1-tkg.1-vsphere-cpi-tf-v0.11.0
+  - name: metrics-server-package
+    version:
+    - v0.5.1+vmware.1-tkg.1-metrics-server-tf-v0.11.0
+  - name: kapp-controller-package
+    version:
+    - v0.28.0+vmware.1-tkg.1-kapp-controller-tf-v0.11.0
+  - name: secretgen-controller-package
+    version:
+    - v0.5.0+vmware.1-tkg.1-secgen-ctl-tf-v0.11.0
+  - name: pinniped-package
+    version:
+    - v0.12.0+vmware.1-tkg.1-pinniped-tf-v0.11.0
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_type: core
+    gobuild.releaseVersion: v1.22.3+vmware.1-tkg.1-tf-v0.11.0
+  bomMetadata:
+    addons:
+      ako-operator:
+        category: networking
+        clusterTypes:
+        - management
+        packageName: ako-operator.tanzu.vmware.com
+      antrea:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        packageName: antrea.tanzu.vmware.com
+      calico:
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+        packageName: calico.tanzu.vmware.com
+      kapp-controller:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        packageName: kapp-controller.tanzu.vmware.com
+      load-balancer-and-ingress-service:
+        category: networking
+        clusterTypes:
+        - management
+        - workload
+        packageName: load-balancer-and-ingress-service.tanzu.vmware.com
+      metrics-server:
+        category: metrics
+        clusterTypes:
+        - management
+        - workload
+        packageName: metrics-server.tanzu.vmware.com
+      pinniped:
+        category: authentication
+        clusterTypes:
+        - management
+        - workload
+        packageName: pinniped.tanzu.vmware.com
+      secretgen-controller:
+        category: secret-generation-and-sharing
+        clusterTypes:
+        - management
+        - workload
+        packageName: secretgen-controller.tanzu.vmware.com
+      tanzu-addons-manager:
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+        packageName: addons-manager.tanzu.vmware.com
+      vsphere-cpi:
+        category: cpi
+        clusterTypes:
+        - management
+        - workload
+        packageName: vsphere-cpi.tanzu.vmware.com
+      vsphere-csi:
+        category: csi
+        clusterTypes:
+        - management
+        - workload
+        packageName: vsphere-csi.tanzu.vmware.com

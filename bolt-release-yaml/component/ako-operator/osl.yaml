@@ -1,0 +1,4 @@
+submodules:
+  - name: ako-operator/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,7 @@
+name: kapp-controller-package
+goBuildComponentCaches:
+- version: v0.34.0+vmware.1-tkg.1-kapp-controller-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20002316/
+  buildNumber: bora-20002316
+  buildStatus: SUCCEEDED
+  hash: 3a303f7af937fd0230108bdd5b0000bf

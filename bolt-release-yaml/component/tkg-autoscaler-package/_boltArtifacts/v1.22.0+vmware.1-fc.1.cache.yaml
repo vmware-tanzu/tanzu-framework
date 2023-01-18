@@ -1,0 +1,7 @@
+name: tkg-autoscaler-package
+goBuildComponentCaches:
+- version: v1.22.0+vmware.1-fc.1
+  url: https://buildweb.eng.vmware.com/ob/20870108/
+  buildNumber: bora-20870108
+  buildStatus: SUCCEEDED
+  hash: b5e785729e59d05a8b00eb279f48b4e3

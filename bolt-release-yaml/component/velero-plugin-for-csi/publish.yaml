@@ -1,0 +1,7 @@
+name: velero-plugin-for-csi
+publish:
+  - name: veleroPluginForCsiImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-csi/images/velero-plugin-for-csi-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-csi/images/velero-plugin-for-csi-$UNDERSCOREVERSION-checksums.txt
+    destinationPath: velero/velero-plugin-for-csi:$UNDERSCOREVERSION

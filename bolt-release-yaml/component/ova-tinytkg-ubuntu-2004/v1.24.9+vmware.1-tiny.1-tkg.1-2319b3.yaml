@@ -1,0 +1,18 @@
+name: ova-tinytkg-ubuntu-2004
+images:
+- version: v1.24.9+vmware.1-tiny.1-tkg.1-2319b3
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: f3f67a6f9fe7365aa9862abf382ba38f944e4464
+  componentReferences:
+  - name: tinykube
+    version:
+    - v1.24.9+vmware.1-tiny.1
+  dependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.TINY_TKG: true
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 96cc28bb2a1a478a1dd5fe3b5d4b2ec33b317358

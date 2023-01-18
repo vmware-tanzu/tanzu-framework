@@ -1,0 +1,296 @@
+componentBuilds:
+- name: calico_all
+  version: v3.11.2+vmware.1
+  channel: "360325491594417716"
+  url: https://buildweb.eng.vmware.com/ob/15616039
+  artifactURL:
+    app-policy-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/app-policy-v3.11.2_vmware.1.tar
+      sha256: 789caff1a016c88c44b6ec3eb03b175fe18ed2df758f1fc05cb027caf2dc845d
+    calicoctl-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/calicoctl-v3.11.2_vmware.1.tar
+      sha256: 0323588e56a9a7c73541bbe408da28a4df2e733be36e6e2e3d95b0273821d772
+    cni-plugin-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/cni-plugin-v3.11.2_vmware.1.tar
+      sha256: 41bfcf7eadf6b314dc03940232e1146226d4a12c17fc78f2f713fb356b770483
+    kube-controllers-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/kube-controllers-v3.11.2_vmware.1.tar
+      sha256: d82ca2e9020212093ae44276d7553e363a6284841808e5ddeea117831539d140
+    node-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/node-v3.11.2_vmware.1.tar
+      sha256: 004aabad4ec6841530ee2e7ee00a1f9536be375fb47cac00d9e169495b86f040
+    pod2daemon-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/pod2daemon-v3.11.2_vmware.1.tar
+      sha256: 5468279c31037c634870c25a1b7db39d739339b517423784ef1d289362eaaf27
+    typha-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/calico_all/v3.11.2+vmware.1/publish/lin64/calico_all/images/typha-v3.11.2_vmware.1.tar
+      sha256: 1bb0fe4d45762aa93a42593d18f2ed1281686a489c77aeebe7cc40f936003a59
+  cachehash: "2920853152231456541"
+  publishhash: "11895336015164775264"
+- name: vsphere_csi_driver_tkgs
+  version: vsphere70u3-5212290-e831b6d
+  channel: "361853137323039255"
+  url: https://buildweb.eng.vmware.com/ob/18205242/
+  artifactURL:
+    csi-node-driver-registrar-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/361853137323039255/image-builder/vsphere-csi-driver/vsphere70u3-5212290-e831b6d/publish/lin64/vsphere_csi_driver/images/csi-node-driver-registrar.tar
+      sha256: 16981cb78a5bd9be648b6ee3820164b7ee4b713ed90774b8fa8d47dfabcee4d3
+    csi_attacher-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/361853137323039255/image-builder/vsphere-csi-driver/vsphere70u3-5212290-e831b6d/publish/lin64/vsphere_csi_driver/images/csi_attacher.tar
+      sha256: 3e611e74aa84171df2a086922e5b092879b36ebeb1aa1008e7d2ad7344c43c3b
+    csi_livenessprobe-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/361853137323039255/image-builder/vsphere-csi-driver/vsphere70u3-5212290-e831b6d/publish/lin64/vsphere_csi_driver/images/csi_livenessprobe.tar
+      sha256: 3dd92755c6a497d958f582c8da03f845f2b531e79edb97ed023505df838c0329
+    csi_provisioner-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/361853137323039255/image-builder/vsphere-csi-driver/vsphere70u3-5212290-e831b6d/publish/lin64/vsphere_csi_driver/images/csi_provisioner.tar
+      sha256: a6fa93e18d94e2bf36a1baf292d0c2371191bdd2b60ff969103ef570913104dc
+    kubernetes-csi_external-resizer-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/361853137323039255/image-builder/vsphere-csi-driver/vsphere70u3-5212290-e831b6d/publish/lin64/vsphere_csi_driver/images/kubernetes-csi_external-resizer.tar
+      sha256: 0e294e10dc5891199cc17f4554f352cda58af2e126d8e1e072d7e7ed8dc3d99a
+    syncer-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/361853137323039255/image-builder/vsphere-csi-driver/vsphere70u3-5212290-e831b6d/publish/lin64/vsphere_csi_driver/images/syncer.tar
+      sha256: e7ee31fc984d63fb478605845b9ca27c3921b87acccfcdf153daf32e81c7178d
+    vsphere-csi-driver-1.19-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/361853137323039255/image-builder/vsphere-csi-driver/vsphere70u3-5212290-e831b6d/publish/add-on/1.19/pvcsi.yaml
+      sha256: ccdff98f807f304d9a4bc82ddd8767ddcf5a2bef32021a803d4a6e1330371c33
+    vsphere-csi-driver-1.20-add-on:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/361853137323039255/image-builder/vsphere-csi-driver/vsphere70u3-5212290-e831b6d/publish/add-on/1.20/pvcsi.yaml
+      sha256: 560ed333efc9a37de4e61a57fb7ee65f132985fbefbb905b6449f5b51e8c8b46
+    vsphere-csi-vsphere-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/361853137323039255/image-builder/vsphere-csi-driver/vsphere70u3-5212290-e831b6d/publish/lin64/vsphere_csi_driver/images/vsphere-csi-vsphere.tar
+      sha256: 51f15705305705f340bdf0a54003a8bd50eb873fec976dee339dc2dbba196e71
+  cachehash: "9893869727102261867"
+  publishhash: "6423632382640079140"
+- name: kubernetes
+  version: v1.19.7+vmware.1
+  channel: "360325491594417716"
+  url: https://buildweb.eng.vmware.com/ob/18205252/
+  artifactURL:
+    e2e-test_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/kubernetes/v1.19.7+vmware.1/bin/linux/amd64/e2e-test.tar
+      sha256: e5d5fe3dbb0a250517f3c5ddcee70a00cd8e3958c9a0088c097c24719fed9ad8
+    file-kubeadm-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/kubernetes/v1.19.7+vmware.1/bin/linux/amd64/kubeadm
+      sha256: 26fe56c3804b0338281d12e91b0434de1e129a535fbd3b4487a470ec671288fa
+    file-kubectl-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/kubernetes/v1.19.7+vmware.1/bin/linux/amd64/kubectl
+      sha256: 4193e5bc80cfb2ec94561306d5fe6149a82ac5941c5dd85324c703806f1c7726
+    file-kubelet-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/kubernetes/v1.19.7+vmware.1/bin/linux/amd64/kubelet
+      sha256: 63ad8c8a2e63c2e96ba369db582151d3f532443e995bbe02ca3ad478bd6d4cba
+    kube-apiserver_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/kubernetes/v1.19.7+vmware.1/bin/linux/amd64/kube-apiserver.tar
+      sha256: e21c4671021115bbb78336f65009941da3f4a4bb7cd55453719e4d4ae092f58c
+    kube-controller-manager_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/kubernetes/v1.19.7+vmware.1/bin/linux/amd64/kube-controller-manager.tar
+      sha256: 83246c6278123249be47cff7171177fd3d2c4d320ee867dd0232eb92541f93ea
+    kube-proxy_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/kubernetes/v1.19.7+vmware.1/bin/linux/amd64/kube-proxy.tar
+      sha256: 51f025ab754240c33226889197bf2da66234e010673133ccca7572ed0f40c5cd
+    kube-scheduler_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/kubernetes/v1.19.7+vmware.1/bin/linux/amd64/kube-scheduler.tar
+      sha256: b0f850092b11418f679bcff12602bdfd9e7bce04150b7d0497144861b59cbaa2
+    kubeAPIServer:
+      url: projects-stg.registry.vmware.com/tkg/kube-apiserver:v1.19.7_vmware.1
+      sha256: 0709889b8abbad690211d7f4af9c45668d1de455e47bd37bb97df42814866c39
+    kubeControllerManager:
+      url: projects-stg.registry.vmware.com/tkg/kube-controller-manager:v1.19.7_vmware.1
+      sha256: 0dfc0ebf298972e13bad856dc88490d953797d3c7b56edf9c15b858ad853a437
+    kubeE2e:
+      url: projects-stg.registry.vmware.com/tkg/e2e-test:v1.19.7_vmware.1
+      sha256: a1f3bd51b320d9d68d8aa2a70dd696530607a4ffd2acf474734e9be3adc21c4d
+    kubeProxy:
+      url: projects-stg.registry.vmware.com/tkg/kube-proxy:v1.19.7_vmware.1
+      sha256: 41e7c5e3081832a8bf4a56e29253dee21c75fb6192137df833985102d398bbda
+    kubeScheduler:
+      url: projects-stg.registry.vmware.com/tkg/kube-scheduler:v1.19.7_vmware.1
+      sha256: 298a7bb70c188e6875e0aa96594fb52cde34fad0208c6505271d3dc1656616bb
+    kubeadm-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/debs/kubeadm_v1.19.7+vmware.1-1_amd64.deb
+    kubeadm-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/executables/kubeadm-linux-v1.19.7+vmware.1.gz
+    kubeadm-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/rpms/rpms/kubeadm-v1.19.7+vmware.1-1.el7.vmware.1.x86_64.rpm
+    kubectl-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/debs/kubectl_v1.19.7+vmware.1-1_amd64.deb
+    kubectl-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/executables/kubectl-linux-v1.19.7+vmware.1.gz
+    kubectl-mac:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/executables/kubectl-mac-v1.19.7+vmware.1.gz
+    kubectl-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/rpms/rpms/kubectl-v1.19.7+vmware.1-1.el7.vmware.1.x86_64.rpm
+    kubectl-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/executables/kubectl-windows-v1.19.7+vmware.1.exe.gz
+    kubelet-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/debs/kubelet_v1.19.7+vmware.1-1_amd64.deb
+    kubelet-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/executables/kubelet-linux-v1.19.7+vmware.1.gz
+    kubelet-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/rpms/rpms/kubelet-v1.19.7+vmware.1-1.el7.vmware.1.x86_64.rpm
+    kubelet-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/lin64/kubernetes/rpms/srpms/kubelet-v1.19.7+vmware.1-1.el7.vmware.1.src.rpm
+    kubernetes-tar:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18205252/publish/kubernetes.tgz
+    pause:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.2
+      sha256: e3bb4145a86af81f738b47aa57ba5e0f8fbc28efe42a42e8a28363dfdfad3b1e
+    pause_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/kubernetes/v1.19.7+vmware.1/bin/linux/amd64/pause.tar
+      sha256: 6781e9256bb2691aa136767aebe6165c95214ca06373f38f4d9ca355d310126d
+  cachehash: "5094408928751167005"
+  publishhash: "12695880163140525837"
+- name: coredns
+  version: v1.7.0+vmware.7
+  channel: "339509079221207047"
+  url: https://buildweb.eng.vmware.com/ob/17533301/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.7.0_vmware.7
+      sha256: 0015ffd34a93a7267b2a4f2724356786a645d0b7ca15cd219b7cdad7d6b39cbc
+  cachehash: "14820714614751415265"
+  publishhash: "11928902777439069502"
+- name: etcd
+  version: v3.4.13+vmware.6
+  channel: "339509079221207047"
+  url: https://buildweb.eng.vmware.com/ob/17533338/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.4.13_vmware.6
+      sha256: 514e36a54fca57dd955c4375ad6ebf46ebcd4fcc4bce084c2b21b94a530d2916
+  cachehash: "1717751468759364903"
+  publishhash: "18435072924747397998"
+- name: antrea
+  version: v0.13.5+vmware.3
+  channel: "370641550255867398"
+  url: https://buildweb.eng.vmware.com/ob/18516306/
+  artifactURL:
+    antctl:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18516306/publish/lin64/antrea/executables/antctl-v0.13.5+vmware.3.gz
+    antrea-1.19-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/370641550255867398/image-builder/antrea/v0.13.5+vmware.3/publish/add-on/1.19/antrea.yaml
+      sha256: 9cd754e1c9b96ec2be416a96cff22958d6e7a2db5c5ef5d4c0cbf5f9cdc588a5
+    antrea-1.20-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/370641550255867398/image-builder/antrea/v0.13.5+vmware.3/publish/add-on/1.20/antrea.yaml
+      sha256: 9cd754e1c9b96ec2be416a96cff22958d6e7a2db5c5ef5d4c0cbf5f9cdc588a5
+    antrea-1.21-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/370641550255867398/image-builder/antrea/v0.13.5+vmware.3/publish/add-on/1.21/antrea.yaml
+      sha256: 9cd754e1c9b96ec2be416a96cff22958d6e7a2db5c5ef5d4c0cbf5f9cdc588a5
+    antrea-debian-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/370641550255867398/image-builder/antrea/v0.13.5+vmware.3/publish/lin64/antrea/images/antrea-debian-v0.13.5_vmware.3.tar
+      sha256: 09a70ebfbed46ee05feda7c80611cc960f74a62e75f4c8924005b469ba0c0add
+    antrea-photon-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/370641550255867398/image-builder/antrea/v0.13.5+vmware.3/publish/lin64/antrea/images/antrea-photon-v0.13.5_vmware.3.tar
+      sha256: a4d8a2c00e65cac77a31d690a82cb41851132e132c1db0f60da39144ad6e600e
+    antrea-ubuntu-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/370641550255867398/image-builder/antrea/v0.13.5+vmware.3/publish/lin64/antrea/images/antrea-ubuntu-v0.13.5_vmware.3.tar
+      sha256: 41b8f54d791a7b8d2aaae87bd26dcb8bed3230bdaff6b58d3342002148d495e3
+    antrea-windows:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/370641550255867398/image-builder/antrea/v0.13.5+vmware.3/publish/antrea-windows-advanced.zip
+      sha256: 16f916f20fd0fcf92d2697e4c9cf316d97fe433308dcfa0c180c0cfbc71b9353
+    antreaImage:
+      url: projects-stg.registry.vmware.com/tkg/antrea/antrea-debian:v0.13.5_vmware.3
+      sha256: c0d432336a86d08ee97ebe4d4783eae72a19d85e8544977e7e058955aa440702
+    manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18516306/publish/lin64/antrea/manifests/antrea-v0.13.5+vmware.3.yml
+  cachehash: "11926892115340828465"
+  publishhash: "17236977435119439002"
+- name: guest-cluster-cloud-provider
+  version: v0.1-87-gb6bb261
+  channel: "360325491594417716"
+  url: https://buildweb.eng.vmware.com/ob/18205241/
+  artifactURL:
+    guest-cluster-cloud-provider-1.19-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-cloud-provider/v0.1-87-gb6bb261/publish/add-on/1.19/vmware-guest-cluster.yaml
+      sha256: e3313763ef949388d27dd6114ee2caf29dad695c1b26637058f4ea5689f52051
+    guest-cluster-cloud-provider-1.20-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-cloud-provider/v0.1-87-gb6bb261/publish/add-on/1.20/vmware-guest-cluster.yaml
+      sha256: e3313763ef949388d27dd6114ee2caf29dad695c1b26637058f4ea5689f52051
+    guest-cluster-cloud-provider-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-cloud-provider/v0.1-87-gb6bb261/publish/guest-cluster-cloud-provider.tar
+      sha256: fa35503dd2a9703b6ce4a10fd5fc7f4c2a8c885ddd85c3f12652ce0bcdc49baf
+    osstp-golang-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-cloud-provider/v0.1-87-gb6bb261/publish/osstp_golang.yml
+      sha256: 63344cc1656689fb5f5ebf3e2c710ce38bb11cc2e97af72f37376768f7fcd7d6
+  cachehash: "582438928233275897"
+  publishhash: "12563759210104604413"
+- name: guest-cluster-auth-service
+  version: v0.1-71-g64e1c73
+  channel: "360325491594417716"
+  url: https://buildweb.eng.vmware.com/ob/18089802
+  artifactURL:
+    generate-key-and-csr-sh:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/artifacts/generate_key_and_csr.sh
+      sha256: a2dfd21e9392383c18dd913c16f34edf0fec6bc2f0c530884eb797cec8445f9f
+    guest-cluster-auth-service-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/artifacts/guest-cluster-auth-svc.yaml
+      sha256: 4e2be62a54bb084bc9dcd7b82a01b78b502b20d0d0714249b28e0b0ba0d285f9
+    guest-cluster-auth-service-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/guest-cluster-auth-service.tar
+      sha256: b5dfe120629f2dbeacd6198be9418f47dca8b9b07fb0a6aba55becde912e5f0c
+    guest-cluster-auth-service-keys-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/artifacts/guest-cluster-auth-svc-keys.yaml
+      sha256: c2897f878b614fdff162efe5c0841a967f8d4455b915b35b060e3dc94b0aa46a
+    guest-cluster-auth-service-webhook-config-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/artifacts/webhook-config.yaml
+      sha256: c615e3e003c7ac20c72205f6ff712451d8105f701bc1fe3200629a546fedce38
+    osstp-golang-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/osstp_golang.yml
+      sha256: f1c91a19fe54fd310597305636c5d27971ca37dc558217856fc76931636fd4d1
+  cachehash: "14146571743002533741"
+  publishhash: "6371853823718297681"
+- name: docker_distribution
+  version: 2.7.1
+  channel: "360325491594417716"
+  url: https://buildweb.eng.vmware.com/ob/18177898/
+  artifactURL:
+    docker_distribution-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/360325491594417716/image-builder/docker_distribution/2.7.1/publish/lin64/docker_distribution_container_image.tar
+      sha256: 178540da3fc12477848ef5444094084aadb05a6fe8dbf3f4ee6ce91e24dbb5ce
+  cachehash: "2352456985704652442"
+  publishhash: "1705851740607933636"
+- name: cni_plugins
+  version: v0.8.7+vmware.4
+  channel: "339601446989201415"
+  url: https://buildweb.eng.vmware.com/ob/17536646/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17536646/publish/lin64/cni_plugins/executables/cni-plugins-v0.8.7+vmware.4.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17536646/publish/lin64/cni_plugins/debs/kubernetes-cni_v0.8.7+vmware.4-1_amd64.deb
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/339601446989201415/component/cni_plugins/v0.8.7+vmware.4/cni-plugins-linux-amd64-v0.8.7+vmware.4.tgz
+      sha256: 8fc3d30e9083784396ad9e53b378f2d50742039f710d9ddbcf82ee960d2ed3cb
+  cachehash: "6351494927294520230"
+  publishhash: "1996599465128284170"
+- name: containerd
+  version: v1.4.6+vmware.1
+  channel: "358742785123218152"
+  url: https://buildweb.eng.vmware.com/ob/18154214/
+  artifactURL:
+    file-containerd-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/358742785123218152/component/containerd/cri-containerd-v1.4.6+vmware.1.linux-amd64.tar
+      sha256: 4a30d16db5218179502efbdefce032672cb049045e2bc89f694f402d03d206bb
+    file-containerd-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/358742785123218152/component/containerd/cri-containerd-v1.4.6+vmware.1.windows-amd64.tar
+      sha256: af8f2271bd84a6077e38308861ce76bd2647b31e1b985943bddcde433067c9f5
+  cachehash: "5814421771283343207"
+  publishhash: "8035408288853737008"
+- name: metrics-server
+  version: v0.4.0+vmware.2
+  channel: "367748582524121133"
+  url: https://buildweb.eng.vmware.com/ob/18463987/
+  artifactURL:
+    metrics-server-1.19-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/367748582524121133/image-builder/metrics-server/v0.4.0+vmware.2/publish/add-on/1.19/metrics-server.yaml
+      sha256: c8b1bdb443be1abd0656ab7efd010830f1ecae6965ea06cbe8b7fb6358ee76f5
+    metrics-server-1.20-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/367748582524121133/image-builder/metrics-server/v0.4.0+vmware.2/publish/add-on/1.20/metrics-server.yaml
+      sha256: c8b1bdb443be1abd0656ab7efd010830f1ecae6965ea06cbe8b7fb6358ee76f5
+    metrics-server-image:
+      url: projects-stg.registry.vmware.com/tkg/metrics-server:v0.4.0_vmware.2
+      sha256: 7c454fbd7e4f505107ff076f2fc22967ec9e39ca4c152f1c863aae45260c94cd
+    metrics-server-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/367748582524121133/image-builder/metrics-server/v0.4.0+vmware.2/publish/lin64/metrics-server/images/metrics-server-v0.4.0_vmware.2.tar
+      sha256: 67c4cf0cf35c7f8e73d19c8e1b504cc83c091663156fe6a5a6ce1909dc99c734
+  cachehash: "750919139095885966"
+  publishhash: "17847579252622247986"

@@ -1,0 +1,21 @@
+name: vmware-private_tanzu-cli-tkg-plugins
+managedComponents:
+- version: v1.3.0-zlatest.2
+  upstreamCommit: 0fe57de31ec436a39468138c981d38f1b6aa3d83
+  mirrorCherryPicks:
+  - sha: 644f2e66b1acc299809f1730c2a4344abf5f13d9
+    description: redirect tkg-cli and tkg-provider to local in go.mod
+  gobuildBaseBranch: vmware-0.0.0+vmware.0
+  componentReferences:
+  - name: tanzu_core
+    version:
+    - v1.3.0-zlatest.2
+  - name: tkg-bom
+    version:
+    - v1.3.0-zlatest.2
+  dependencies:
+    gobuild.golangVersion: "1.14"
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.tkgBuildContainer: gcr.io/eminent-nation-87317/golang-ci:1.4
+    gobuild.tkgCliVersion: release-1.3
+    gobuild.tkgProvidersVersion: release-1.3

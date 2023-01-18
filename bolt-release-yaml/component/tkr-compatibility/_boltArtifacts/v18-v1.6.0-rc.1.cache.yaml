@@ -1,0 +1,6 @@
+name: tkr-compatibility
+bomCaches:
+- version: v18-v1.6.0-rc.1
+  channel: "418621578654257502"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/418621578654257502/component/tkr-compatibility/_boltArtifacts/tkr-compatibility-v18-v1.6.0-rc.1.yaml
+  hash: adedc17934ee1a1966060fed0fe51569

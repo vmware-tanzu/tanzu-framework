@@ -1,0 +1,13 @@
+componentBuilds:
+- name: configmap-reload
+  version: v0.3.0+vmware.1
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/16911247
+  artifactURL:
+    configmap-reload-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-16911247/publish/lin64/configmap-reload/executables/configmap-reload-v0.3.0+vmware.1.gz
+    configmapReloadImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/configmap-reload:v0.3.0_vmware.1
+      sha256: 7c9c5c362bb15017b04843b2182a9f6a168dc8871d84f2cedcb1c096fffc9507
+  cachehash: 1fd8754dc3c654bd9ab08cd48a76f1d9
+  publishhash: bda1bfb9fe11c54c392f09ab8d78d109

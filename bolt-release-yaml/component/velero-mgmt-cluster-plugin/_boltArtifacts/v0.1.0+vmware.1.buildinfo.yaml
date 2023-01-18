@@ -1,0 +1,13 @@
+componentBuilds:
+- name: velero-mgmt-cluster-plugin
+  version: v0.1.0+vmware.1
+  channel: "443028219805836912"
+  url: https://buildweb.eng.vmware.com/ob/21106569
+  artifactURL:
+    velero-mgmt-cluster-plugin:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-mgmt-cluster-plugin:v0.1.0_vmware.1
+      sha256: a6544269cb01a7e6f48a847d41396d9497ba3326a56d9bd7ddd0d4ffa199e3e7
+  cachehash: 314b0dec687f4c870ec14faaf8830df2
+  publishhash: f577bf281f6d89d87b66059ce0814fc0
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8

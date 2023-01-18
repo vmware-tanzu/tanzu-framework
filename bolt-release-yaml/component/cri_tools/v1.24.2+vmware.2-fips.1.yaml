@@ -1,0 +1,16 @@
+name: cri_tools
+managedComponents:
+- version: v1.24.2+vmware.2-fips.1
+  upstreamTag: v1.24.2
+  mirrorCherryPicks:
+  - sha: 636bfe7fc2a1a829f821a27d82ca7a342d62832f
+    description: Makefile respects `CGO_ENABLED` env value
+  gobuildBaseBranch: vmware-1.21.0+vmware.0~35257a0fddafc68da07f1ea1072552322c81f5c2
+  dependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "1"
+    gobuild.golangImageName: go
+    gobuild.golangImageRegistry: fips-runtime-containers-docker-local.artifactory.eng.vmware.com
+    gobuild.golangImageVersion: 1.19.1
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8

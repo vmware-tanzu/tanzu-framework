@@ -1,0 +1,35 @@
+name: azure-ubuntu-2004
+images:
+- version: v1.22.7+vmware.1-tkg.1-213bfe27b83c66d7539280cee05ad1ec
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: azure
+  imageBuilderVersion: 63e3e95c84003f2beef148f297ac9f7159a8a7d4
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v0.9.1+vmware.12
+  - name: coredns
+    version:
+    - v1.8.4+vmware.8
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.8
+  - name: etcd
+    version:
+    - v3.5.2+vmware.2
+  - name: containerd
+    version:
+    - v1.5.9+vmware.2
+  - name: kubernetes
+    version:
+    - v1.22.7+vmware.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERION: 6d7355edf6416602c575a0a6ce4eb77e229162ee
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 55461adbb53fee9a3f8c1d0c25a37fd2eaecf9d8

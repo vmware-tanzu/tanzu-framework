@@ -1,0 +1,293 @@
+# Changes from v14:
+# publish cluster, kubernetes-release, feature plugins to a static tags
+name: tanzu-framework
+publish:
+  - name: capabilitiesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/capabilities/images/capabilities-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/capabilities/images/capabilities-controller-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/capabilities/capabilities-controller-manager-tf:$UNDERSCOREVERSION
+  - name: tkrImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr/images/tkr-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr/images/tkr-controller-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tkr/tkr-controller-manager:$UNDERSCOREVERSION
+  - name: providerTemplateImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/providers/images/provider-templates/provider-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/providers/images/provider-templates/provider-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/provider/provider-templates:$UNDERSCOREVERSION
+  - name: featuregatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/features/images/featuregates-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/features/images/featuregates-controller-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/featuregates/featuregates-controller-manager:$UNDERSCOREVERSION
+  - name: tkrInfraMachineImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/infra-machine/images/tkr-infra-machine-webhook-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/infra-machine/images/tkr-infra-machine-webhook-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tkr/tkr-infra-machine-webhook:$UNDERSCOREVERSION
+  - name: tkrResolverImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr-resolver/images/tkr-resolver-cluster-webhook-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr-resolver/images/tkr-resolver-cluster-webhook-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tkr/tkr-resolver-cluster-webhook:$UNDERSCOREVERSION
+  - name: tkrConversionWebhookImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr-conversion/images/tkr-conversion-webhook-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr-conversion/images/tkr-conversion-webhook-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tkr/tkr-conversion-webhook:$UNDERSCOREVERSION
+  - name: tkrStatusControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr-status/images/tkr-status-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr-status/images/tkr-status-controller-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tkr/tkr-status-controller:$UNDERSCOREVERSION
+  - name: tkrSourceControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr-source/images/tkr-source-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tkr-source/images/tkr-source-controller-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tkr/tkr-source-controller:$UNDERSCOREVERSION
+  - name: objectPropagationControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/object-propagation/images/object-propagation-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/object-propagation/images/object-propagation-controller-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/objectpropogation/object-propagation-controller:$UNDERSCOREVERSION
+
+  - name: clipluginsLoginLinuxAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/login-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/login-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/login-linux-amd64:$UNDERSCOREVERSION
+  - name: clipluginsLoginWindowsAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/login-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/login-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/login-windows-amd64:$UNDERSCOREVERSION
+  - name: clipluginsLoginDarwinAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/login-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/login-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/login-darwin-amd64:$UNDERSCOREVERSION
+
+  - name: clipluginsManagementClusterLinuxAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/management-cluster-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/management-cluster-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/management-cluster-linux-amd64:$UNDERSCOREVERSION
+  - name: clipluginsManagementClusterWindowsAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/management-cluster-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/management-cluster-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/management-cluster-windows-amd64:$UNDERSCOREVERSION
+  - name: clipluginsManagementClusterDarwinAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/management-cluster-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/management-cluster-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/management-cluster-darwin-amd64:$UNDERSCOREVERSION
+
+  - name: clipluginsPackageLinuxAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/package-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/package-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/package-linux-amd64:$UNDERSCOREVERSION
+  - name: clipluginsPackageWindowsAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/package-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/package-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/package-windows-amd64:$UNDERSCOREVERSION
+  - name: clipluginsPackageDarwinAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/package-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/package-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/package-darwin-amd64:$UNDERSCOREVERSION
+
+  - name: clipluginsClusterLinuxAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/cluster-linux-amd64:$UNDERSCOREVERSION
+  - name: clipluginsClusterWindowsAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/cluster-windows-amd64:$UNDERSCOREVERSION
+  - name: clipluginsClusterDarwinAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/cluster-darwin-amd64:$UNDERSCOREVERSION
+
+  - name: clipluginsKubernetesReleaseLinuxAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/kubernetes-release-linux-amd64:$UNDERSCOREVERSION
+  - name: clipluginsKubernetesReleaseWindowsAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/kubernetes-release-windows-amd64:$UNDERSCOREVERSION
+  - name: clipluginsKubernetesReleaseDarwinAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/kubernetes-release-darwin-amd64:$UNDERSCOREVERSION
+
+  - name: clipluginsFeatureLinuxAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/feature-linux-amd64:$UNDERSCOREVERSION
+  - name: clipluginsFeatureWindowsAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/feature-windows-amd64:$UNDERSCOREVERSION
+  - name: clipluginsFeatureDarwinAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/feature-darwin-amd64:$UNDERSCOREVERSION
+
+  - name: clipluginsTelemetryLinuxAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/telemetry-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/telemetry-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/telemetry-linux-amd64:$UNDERSCOREVERSION
+  - name: clipluginsTelemetryWindowsAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/telemetry-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/telemetry-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/telemetry-windows-amd64:$UNDERSCOREVERSION
+  - name: clipluginsTelemetryDarwinAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/telemetry-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/telemetry-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/telemetry-darwin-amd64:$UNDERSCOREVERSION
+
+  - name: clipluginsPinnipedAuthLinuxAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/pinniped-auth-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/pinniped-auth-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/pinniped-auth-linux-amd64:$UNDERSCOREVERSION
+  - name: clipluginsPinnipedAuthWindowsAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/pinniped-auth-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/pinniped-auth-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/pinniped-auth-windows-amd64:$UNDERSCOREVERSION
+  - name: clipluginsPinnipedAuthDarwinAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/pinniped-auth-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/pinniped-auth-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/pinniped-auth-darwin-amd64:$UNDERSCOREVERSION
+
+  - name: clipluginsSecretLinuxAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/secret-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/secret-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/secret-linux-amd64:$UNDERSCOREVERSION
+  - name: clipluginsSecretWindowsAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/secret-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/secret-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/secret-windows-amd64:$UNDERSCOREVERSION
+  - name: clipluginsSecretDarwinAmd64Image
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/secret-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/secret-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/secret-darwin-amd64:$UNDERSCOREVERSION
+
+  # Also publish cluster, kubernetes-release and feature plugin to a static tag
+
+  - name: clipluginsClusterLinuxAmd64StaticImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/cluster-linux-amd64:$MAJORMINORVERSION
+  - name: clipluginsClusterWindowsAmd64StaticImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/cluster-windows-amd64:$MAJORMINORVERSION
+  - name: clipluginsClusterDarwinAmd64StaticImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/cluster-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/cluster-darwin-amd64:$MAJORMINORVERSION
+
+  - name: clipluginsKubernetesReleaseLinuxAmd64StaticImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/kubernetes-release-linux-amd64:$MAJORMINORVERSION
+  - name: clipluginsKubernetesReleaseWindowsAmd64StaticImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/kubernetes-release-windows-amd64:$MAJORMINORVERSION
+  - name: clipluginsKubernetesReleaseDarwinAmd64StaticImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/kubernetes-release-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/kubernetes-release-darwin-amd64:$MAJORMINORVERSION
+
+  - name: clipluginsFeatureLinuxAmd64StaticImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-linux-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-linux-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/feature-linux-amd64:$MAJORMINORVERSION
+  - name: clipluginsFeatureWindowsAmd64StaticImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-windows-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-windows-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/feature-windows-amd64:$MAJORMINORVERSION
+  - name: clipluginsFeatureDarwinAmd64StaticImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-darwin-amd64-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/cliplugins/images/feature-darwin-amd64-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tanzu-cli-plugins/feature-darwin-amd64:$MAJORMINORVERSION
+
+nonpublish:
+  - name: tanzu-core-linux-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-linux-amd64.tar.gz
+    checksumPath: ""
+  - name: tanzu-core-windows-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-windows-amd64.zip
+    checksumPath: ""
+  - name: tanzu-core-darwin-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-darwin-amd64.tar.gz
+    checksumPath: ""
+
+  - name: tanzu-framework-plugins-context-darwin-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-context-darwin-amd64.tar.gz
+    checksumPath: ""
+  - name: tanzu-framework-plugins-context-linux-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-context-linux-amd64.tar.gz
+    checksumPath: ""
+  - name: tanzu-framework-plugins-context-windows-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-context-windows-amd64.zip
+    checksumPath: ""
+
+  - name: tanzu-framework-plugins-standalone-darwin-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-standalone-darwin-amd64.tar.gz
+    checksumPath: ""
+  - name: tanzu-framework-plugins-standalone-linux-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-standalone-linux-amd64.tar.gz
+    checksumPath: ""
+  - name: tanzu-framework-plugins-standalone-windows-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-plugins-standalone-windows-amd64.zip
+    checksumPath: ""
+
+  - name: context-scoped-plugin-static
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework/context_scoped_plugins/context-scoped-plugins-static.yaml
+    checksumPath: ""

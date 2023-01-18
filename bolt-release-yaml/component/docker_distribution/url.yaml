@@ -1,0 +1,9 @@
+name: docker_distribution
+upstreamURL: https://github.com/distribution/distribution
+mirrorSandboxURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_docker_distribution.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_docker_distribution.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_docker_distribution.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_docker_distribution.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_docker_distribution.git
+gobuildTarget: cayman_docker_distribution
+

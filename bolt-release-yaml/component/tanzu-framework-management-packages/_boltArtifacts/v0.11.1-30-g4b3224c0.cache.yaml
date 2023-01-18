@@ -1,0 +1,7 @@
+name: tanzu-framework-management-packages
+goBuildComponentCaches:
+- version: v0.11.1-30-g4b3224c0
+  url: https://buildweb.eng.vmware.com/ob/19040787/
+  buildNumber: bora-19040787
+  buildStatus: SUCCEEDED
+  hash: aff37ba4d19bac2df0b90e3f719ec224

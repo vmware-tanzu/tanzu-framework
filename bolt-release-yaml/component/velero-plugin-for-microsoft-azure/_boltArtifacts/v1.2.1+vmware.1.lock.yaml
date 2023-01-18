@@ -1,0 +1,7 @@
+name: velero-plugin-for-microsoft-azure
+goBuildComponentLocks:
+- version: v1.2.1+vmware.1
+  gobuildBranch: vmware-1.2.1
+  gobuildHeadCommit: 77c1217214bfc50802c8fb019c8862de448e1002
+  hash: 118a0bdc2e92f32817a395ea4e9713ab
+  componentLockReferences: []

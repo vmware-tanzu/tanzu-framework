@@ -1,0 +1,33 @@
+name: ami-gov-amazon-2
+images:
+- version: v1.22.11+vmware.2-fips.1-tkg.1-b69eaddba6eb6fe0a9e8a514b7d64d3b
+  osinfo:
+    name: amazon
+    version: "2"
+    arch: amd64
+  type: ami
+  imageBuilderVersion: 1160bf26fd57f0959c07cd3f0aa3e4c017afcdbc
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2-fips.1
+  - name: coredns
+    version:
+    - v1.8.4+vmware.10-fips.1
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.9-fips.1
+  - name: etcd
+    version:
+    - v3.5.4+vmware.2-fips.1
+  - name: containerd
+    version:
+    - v1.5.13+vmware.1-fips.1
+  - name: kubernetes
+    version:
+    - v1.22.11+vmware.2-fips.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 214b6bb72386cd4038532eda81b8f9984b165d33

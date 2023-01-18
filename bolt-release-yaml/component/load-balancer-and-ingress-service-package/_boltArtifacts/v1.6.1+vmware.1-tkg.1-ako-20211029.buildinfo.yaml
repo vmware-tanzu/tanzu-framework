@@ -1,0 +1,11 @@
+componentBuilds:
+- name: load-balancer-and-ingress-service-package
+  version: v1.6.1+vmware.1-tkg.1-ako-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18847993/
+  artifactURL:
+    load-balancer-and-ingress-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/load-balancer-and-ingress-service:v1.6.1_vmware.1-tkg.1-20211029
+      sha256: 14da905c24ca74b897b59b53762ca16488855a634f9841b43f19eee6a1c2925b
+  cachehash: b80f12b58b69c8ec08dadfd394c29978
+  publishhash: e76b568ebe8a5803434d226a6e35101b

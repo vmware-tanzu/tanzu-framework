@@ -1,0 +1,7 @@
+name: tkg-core-packages
+goBuildComponentCaches:
+- version: v1.22.11+vmware.2-tkg.3-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20232484/
+  buildNumber: bora-20232484
+  buildStatus: SUCCEEDED
+  hash: 03f5d7b2c5428cc6bc9ec613eb610399

@@ -1,0 +1,26 @@
+componentBuilds:
+- name: capabilities-package
+  version: v0.26.0-dev-31-gac3165c8-capabilities
+  channel: "420069506417718656"
+  url: https://buildweb.eng.vmware.com/ob/20248783/
+  artifactURL:
+    capabilities.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/capabilities:v0.26.0-dev-31-gac3165c8_vmware.1
+      sha256: 3cb5d7b71d505b3ef3fd8905b87cf44b7f16a0da5e7b8c24bdde4945db05c611
+    packageCR:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20248783/publish/lin64/tanzu-framework-package-bundles/packages/capabilities.tanzu.vmware.com/0.26.0-dev-31-gac3165c8+vmware.1.yml
+    packageMetadata:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20248783/publish/lin64/tanzu-framework-package-bundles/packages/capabilities.tanzu.vmware.com/metadata.yml
+  cachehash: 926b6b3ff20d5887fd3e41d7d2b9e6ac
+  publishhash: fbaef798f2e7493a3b44d74adab66d72
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/capabilities/capabilities-controller-manager:v0.26.0-dev-31-gac3165c8
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: capabilities
+    gobuild.upstream_image_0: capabilities-controller-manager:latest
+    gobuild.upstream_version: v0.26.0-dev-31-gac3165c8

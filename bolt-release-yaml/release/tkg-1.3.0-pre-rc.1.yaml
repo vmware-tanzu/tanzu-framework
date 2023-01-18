@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'example release yaml for testing'
+componentReferences:
+  - name: tkg_release
+    version:
+      - v1.3.0-pre-rc.1

@@ -1,0 +1,18 @@
+name: cliplugins-package
+packages:
+- version: v0.22.0-dev-57-gd9465b25-cliplugins
+  upstreamCommit: d9465b2590cc5af3703d81844cf72c391d0c11bd
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~6e3af24fe9aaf733aac54396a994b011380604b9
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.22.0-dev-57-gd9465b25
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: cliplugins
+    gobuild.upstream_version: v0.22.0-dev-57-gd9465b25

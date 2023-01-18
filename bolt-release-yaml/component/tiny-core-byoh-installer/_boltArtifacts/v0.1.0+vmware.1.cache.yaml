@@ -1,0 +1,7 @@
+name: tiny-core-byoh-installer
+goBuildComponentCaches:
+- version: v0.1.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20526795/
+  buildNumber: bora-20526795
+  buildStatus: SUCCEEDED
+  hash: 0d3a8f64cf8d42c9a7aae43151f9c257

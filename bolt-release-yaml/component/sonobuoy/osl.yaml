@@ -1,0 +1,4 @@
+submodules:
+  - name: sonobuoy/src
+    go_mod:
+      - "go.mod"

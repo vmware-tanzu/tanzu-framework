@@ -1,0 +1,4490 @@
+baseos:deb:accountsservice:0.6.45-1ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'accountsservice'
+    version: '0.6.45-1ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:acl:2.2.52-3build1:ubuntu:
+    repository: BaseOS
+    name: 'acl'
+    version: '2.2.52-3build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:acpid:1:2.0.28-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'acpid'
+    version: '1:2.0.28-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:adduser:3.116ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'adduser'
+    version: '3.116ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:apparmor:2.12-4ubuntu5.1:ubuntu:
+    repository: BaseOS
+    name: 'apparmor'
+    version: '2.12-4ubuntu5.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:apport:2.20.9-0ubuntu7.23:ubuntu:
+    repository: BaseOS
+    name: 'apport'
+    version: '2.20.9-0ubuntu7.23'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:apport-symptoms:0.20:ubuntu:
+    repository: BaseOS
+    name: 'apport-symptoms'
+    version: '0.20'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:apt:1.6.12ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'apt'
+    version: '1.6.12ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:apt-transport-https:1.6.12ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'apt-transport-https'
+    version: '1.6.12ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'apt'
+baseos:deb:apt-utils:1.6.12ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'apt-utils'
+    version: '1.6.12ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'apt'
+baseos:deb:at:3.1.20-3.1ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'at'
+    version: '3.1.20-3.1ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:auditd:1:2.8.2-1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'auditd'
+    version: '1:2.8.2-1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'audit'
+baseos:deb:base-files:10.1ubuntu2.10:ubuntu:
+    repository: BaseOS
+    name: 'base-files'
+    version: '10.1ubuntu2.10'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:base-passwd:3.5.44:ubuntu:
+    repository: BaseOS
+    name: 'base-passwd'
+    version: '3.5.44'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:bash:4.4.18-2ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'bash'
+    version: '4.4.18-2ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:bash-completion:1:2.8-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'bash-completion'
+    version: '1:2.8-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:bc:1.07.1-2:ubuntu:
+    repository: BaseOS
+    name: 'bc'
+    version: '1.07.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:bcache-tools:1.0.8-2ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'bcache-tools'
+    version: '1.0.8-2ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:bind9-host:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'bind9-host'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:binutils:2.30-21ubuntu1~18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'binutils'
+    version: '2.30-21ubuntu1~18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:binutils-common:2.30-21ubuntu1~18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'binutils-common'
+    version: '2.30-21ubuntu1~18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'binutils'
+baseos:deb:binutils-x86-64-linux-gnu:2.30-21ubuntu1~18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'binutils-x86-64-linux-gnu'
+    version: '2.30-21ubuntu1~18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'binutils'
+baseos:deb:bsdmainutils:11.1.2ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'bsdmainutils'
+    version: '11.1.2ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:bsdutils:1:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'bsdutils'
+    version: '1:2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'util-linux (2.31.1-0.4ubuntu3.7)'
+baseos:deb:btrfs-progs:4.15.1-1build1:ubuntu:
+    repository: BaseOS
+    name: 'btrfs-progs'
+    version: '4.15.1-1build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:btrfs-tools:4.15.1-1build1:ubuntu:
+    repository: BaseOS
+    name: 'btrfs-tools'
+    version: '4.15.1-1build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'btrfs-progs'
+baseos:deb:build-essential:12.4ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'build-essential'
+    version: '12.4ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:busybox-initramfs:1:1.27.2-2ubuntu3.3:ubuntu:
+    repository: BaseOS
+    name: 'busybox-initramfs'
+    version: '1:1.27.2-2ubuntu3.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'busybox'
+baseos:deb:busybox-static:1:1.27.2-2ubuntu3.3:ubuntu:
+    repository: BaseOS
+    name: 'busybox-static'
+    version: '1:1.27.2-2ubuntu3.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'busybox'
+baseos:deb:byobu:5.125-0ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'byobu'
+    version: '5.125-0ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:bzip2:1.0.6-8.1ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'bzip2'
+    version: '1.0.6-8.1ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ca-certificates:20210119~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'ca-certificates'
+    version: '20210119~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:chrony:3.2-4ubuntu4.5:ubuntu:
+    repository: BaseOS
+    name: 'chrony'
+    version: '3.2-4ubuntu4.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:cifs-utils:2:6.8-1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'cifs-utils'
+    version: '2:6.8-1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:cloud-guest-utils:0.30-0ubuntu5:ubuntu:
+    repository: BaseOS
+    name: 'cloud-guest-utils'
+    version: '0.30-0ubuntu5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cloud-utils'
+baseos:deb:cloud-init:20.4.1-0ubuntu1~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'cloud-init'
+    version: '20.4.1-0ubuntu1~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:cloud-initramfs-copymods:0.40ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'cloud-initramfs-copymods'
+    version: '0.40ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cloud-initramfs-tools'
+baseos:deb:cloud-initramfs-dyn-netconf:0.40ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'cloud-initramfs-dyn-netconf'
+    version: '0.40ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cloud-initramfs-tools'
+baseos:deb:command-not-found:18.04.5:ubuntu:
+    repository: BaseOS
+    name: 'command-not-found'
+    version: '18.04.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:command-not-found-data:18.04.5:ubuntu:
+    repository: BaseOS
+    name: 'command-not-found-data'
+    version: '18.04.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'command-not-found'
+baseos:deb:conntrack:1:1.4.4+snapshot20161117-6ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'conntrack'
+    version: '1:1.4.4+snapshot20161117-6ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'conntrack-tools'
+baseos:deb:console-setup:1.178ubuntu2.9:ubuntu:
+    repository: BaseOS
+    name: 'console-setup'
+    version: '1.178ubuntu2.9'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:console-setup-linux:1.178ubuntu2.9:ubuntu:
+    repository: BaseOS
+    name: 'console-setup-linux'
+    version: '1.178ubuntu2.9'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'console-setup'
+baseos:deb:coreutils:8.28-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'coreutils'
+    version: '8.28-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:cpio:2.12+dfsg-6ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'cpio'
+    version: '2.12+dfsg-6ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:cpp:4:7.4.0-1ubuntu2.3:ubuntu:
+    repository: BaseOS
+    name: 'cpp'
+    version: '4:7.4.0-1ubuntu2.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-defaults (1.176ubuntu2.3)'
+baseos:deb:cpp-7:7.5.0-3ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'cpp-7'
+    version: '7.5.0-3ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-7'
+baseos:deb:crda:3.18-1build1:ubuntu:
+    repository: BaseOS
+    name: 'crda'
+    version: '3.18-1build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:cron:3.0pl1-128.1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'cron'
+    version: '3.0pl1-128.1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:cryptsetup:2:2.0.2-1ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'cryptsetup'
+    version: '2:2.0.2-1ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:cryptsetup-bin:2:2.0.2-1ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'cryptsetup-bin'
+    version: '2:2.0.2-1ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cryptsetup'
+baseos:deb:curl:7.58.0-2ubuntu3.12:ubuntu:
+    repository: BaseOS
+    name: 'curl'
+    version: '7.58.0-2ubuntu3.12'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:dash:0.5.8-2.10:ubuntu:
+    repository: BaseOS
+    name: 'dash'
+    version: '0.5.8-2.10'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:dbus:1.12.2-1ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'dbus'
+    version: '1.12.2-1ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:debconf:1.5.66ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'debconf'
+    version: '1.5.66ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:debconf-i18n:1.5.66ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'debconf-i18n'
+    version: '1.5.66ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'debconf'
+baseos:deb:debianutils:4.8.4:ubuntu:
+    repository: BaseOS
+    name: 'debianutils'
+    version: '4.8.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:dh-python:3.20180325ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'dh-python'
+    version: '3.20180325ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:diffutils:1:3.6-1:ubuntu:
+    repository: BaseOS
+    name: 'diffutils'
+    version: '1:3.6-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:dirmngr:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'dirmngr'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:distro-info-data:0.37ubuntu0.9:ubuntu:
+    repository: BaseOS
+    name: 'distro-info-data'
+    version: '0.37ubuntu0.9'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:dmeventd:2:1.02.145-4.1ubuntu3.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'dmeventd'
+    version: '2:1.02.145-4.1ubuntu3.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lvm2 (2.02.176-4.1ubuntu3.18.04.3)'
+baseos:deb:dmidecode:3.1-1ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'dmidecode'
+    version: '3.1-1ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:dmsetup:2:1.02.145-4.1ubuntu3.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'dmsetup'
+    version: '2:1.02.145-4.1ubuntu3.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lvm2 (2.02.176-4.1ubuntu3.18.04.3)'
+baseos:deb:dns-root-data:2018013001:ubuntu:
+    repository: BaseOS
+    name: 'dns-root-data'
+    version: '2018013001'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:dnsmasq-base:2.79-1ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'dnsmasq-base'
+    version: '2.79-1ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'dnsmasq'
+baseos:deb:dnsutils:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'dnsutils'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:dosfstools:4.1-1:ubuntu:
+    repository: BaseOS
+    name: 'dosfstools'
+    version: '4.1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:dpkg:1.19.0.5ubuntu2.3:ubuntu:
+    repository: BaseOS
+    name: 'dpkg'
+    version: '1.19.0.5ubuntu2.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:dpkg-dev:1.19.0.5ubuntu2.3:ubuntu:
+    repository: BaseOS
+    name: 'dpkg-dev'
+    version: '1.19.0.5ubuntu2.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'dpkg'
+baseos:deb:e2fsprogs:1.44.1-1ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'e2fsprogs'
+    version: '1.44.1-1ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:eatmydata:105-6:ubuntu:
+    repository: BaseOS
+    name: 'eatmydata'
+    version: '105-6'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libeatmydata'
+baseos:deb:ebtables:2.0.10.4-3.5ubuntu2.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'ebtables'
+    version: '2.0.10.4-3.5ubuntu2.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ed:1.10-2.1:ubuntu:
+    repository: BaseOS
+    name: 'ed'
+    version: '1.10-2.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:efibootmgr:15-1:ubuntu:
+    repository: BaseOS
+    name: 'efibootmgr'
+    version: '15-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:eject:2.1.5+deb1+cvs20081104-13.2:ubuntu:
+    repository: BaseOS
+    name: 'eject'
+    version: '2.1.5+deb1+cvs20081104-13.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ethtool:1:4.15-0ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'ethtool'
+    version: '1:4.15-0ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:fakeroot:1.22-2ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'fakeroot'
+    version: '1.22-2ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:fdisk:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'fdisk'
+    version: '2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'util-linux'
+baseos:deb:file:1:5.32-2ubuntu0.4:ubuntu:
+    repository: BaseOS
+    name: 'file'
+    version: '1:5.32-2ubuntu0.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:findutils:4.6.0+git+20170828-2:ubuntu:
+    repository: BaseOS
+    name: 'findutils'
+    version: '4.6.0+git+20170828-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:fonts-ubuntu-console:0.83-2:ubuntu:
+    repository: BaseOS
+    name: 'fonts-ubuntu-console'
+    version: '0.83-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'fonts-ubuntu'
+baseos:deb:friendly-recovery:0.2.38ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'friendly-recovery'
+    version: '0.2.38ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ftp:0.17-34:ubuntu:
+    repository: BaseOS
+    name: 'ftp'
+    version: '0.17-34'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'netkit-ftp'
+baseos:deb:fuse:2.9.7-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'fuse'
+    version: '2.9.7-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:g++:4:7.4.0-1ubuntu2.3:ubuntu:
+    repository: BaseOS
+    name: 'g++'
+    version: '4:7.4.0-1ubuntu2.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-defaults (1.176ubuntu2.3)'
+baseos:deb:g++-7:7.5.0-3ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'g++-7'
+    version: '7.5.0-3ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-7'
+baseos:deb:gawk:1:4.1.4+dfsg-1build1:ubuntu:
+    repository: BaseOS
+    name: 'gawk'
+    version: '1:4.1.4+dfsg-1build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:gcc:4:7.4.0-1ubuntu2.3:ubuntu:
+    repository: BaseOS
+    name: 'gcc'
+    version: '4:7.4.0-1ubuntu2.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-defaults (1.176ubuntu2.3)'
+baseos:deb:gcc-7:7.5.0-3ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'gcc-7'
+    version: '7.5.0-3ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:gcc-7-base:7.5.0-3ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'gcc-7-base'
+    version: '7.5.0-3ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-7'
+baseos:deb:gcc-8-base:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'gcc-8-base'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:gdisk:1.0.3-1:ubuntu:
+    repository: BaseOS
+    name: 'gdisk'
+    version: '1.0.3-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:geoip-database:20180315-1:ubuntu:
+    repository: BaseOS
+    name: 'geoip-database'
+    version: '20180315-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:gettext-base:0.19.8.1-6ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'gettext-base'
+    version: '0.19.8.1-6ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gettext'
+baseos:deb:gir1.2-glib-2.0:1.56.1-1:ubuntu:
+    repository: BaseOS
+    name: 'gir1.2-glib-2.0'
+    version: '1.56.1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gobject-introspection'
+baseos:deb:git:1:2.17.1-1ubuntu0.7:ubuntu:
+    repository: BaseOS
+    name: 'git'
+    version: '1:2.17.1-1ubuntu0.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:git-man:1:2.17.1-1ubuntu0.7:ubuntu:
+    repository: BaseOS
+    name: 'git-man'
+    version: '1:2.17.1-1ubuntu0.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'git'
+baseos:deb:gnupg:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gnupg'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:gnupg-l10n:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gnupg-l10n'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:gnupg-utils:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gnupg-utils'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:gpg:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gpg'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:gpg-agent:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gpg-agent'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:gpg-wks-client:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gpg-wks-client'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:gpg-wks-server:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gpg-wks-server'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:gpgconf:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gpgconf'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:gpgsm:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gpgsm'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:gpgv:2.2.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'gpgv'
+    version: '2.2.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnupg2'
+baseos:deb:grep:3.1-2build1:ubuntu:
+    repository: BaseOS
+    name: 'grep'
+    version: '3.1-2build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:groff-base:1.22.3-10:ubuntu:
+    repository: BaseOS
+    name: 'groff-base'
+    version: '1.22.3-10'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'groff'
+baseos:deb:grub-common:2.02-2ubuntu8.21:ubuntu:
+    repository: BaseOS
+    name: 'grub-common'
+    version: '2.02-2ubuntu8.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'grub2'
+baseos:deb:grub-efi-amd64-bin:2.02-2ubuntu8.21:ubuntu:
+    repository: BaseOS
+    name: 'grub-efi-amd64-bin'
+    version: '2.02-2ubuntu8.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'grub2'
+baseos:deb:grub-efi-amd64-signed:1.93.24+2.02-2ubuntu8.21:ubuntu:
+    repository: BaseOS
+    name: 'grub-efi-amd64-signed'
+    version: '1.93.24+2.02-2ubuntu8.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'grub2-signed (1.93.24)'
+baseos:deb:grub-gfxpayload-lists:0.7:ubuntu:
+    repository: BaseOS
+    name: 'grub-gfxpayload-lists'
+    version: '0.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:grub-pc:2.02-2ubuntu8.21:ubuntu:
+    repository: BaseOS
+    name: 'grub-pc'
+    version: '2.02-2ubuntu8.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'grub2'
+baseos:deb:grub-pc-bin:2.02-2ubuntu8.21:ubuntu:
+    repository: BaseOS
+    name: 'grub-pc-bin'
+    version: '2.02-2ubuntu8.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'grub2'
+baseos:deb:grub2-common:2.02-2ubuntu8.21:ubuntu:
+    repository: BaseOS
+    name: 'grub2-common'
+    version: '2.02-2ubuntu8.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'grub2'
+baseos:deb:gzip:1.6-5ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'gzip'
+    version: '1.6-5ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:hdparm:9.54+ds-1:ubuntu:
+    repository: BaseOS
+    name: 'hdparm'
+    version: '9.54+ds-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:hostname:3.20:ubuntu:
+    repository: BaseOS
+    name: 'hostname'
+    version: '3.20'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:htop:2.1.0-3:ubuntu:
+    repository: BaseOS
+    name: 'htop'
+    version: '2.1.0-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:info:6.5.0.dfsg.1-2:ubuntu:
+    repository: BaseOS
+    name: 'info'
+    version: '6.5.0.dfsg.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'texinfo'
+baseos:deb:init:1.51:ubuntu:
+    repository: BaseOS
+    name: 'init'
+    version: '1.51'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'init-system-helpers'
+baseos:deb:init-system-helpers:1.51:ubuntu:
+    repository: BaseOS
+    name: 'init-system-helpers'
+    version: '1.51'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:initramfs-tools:0.130ubuntu3.11:ubuntu:
+    repository: BaseOS
+    name: 'initramfs-tools'
+    version: '0.130ubuntu3.11'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:initramfs-tools-bin:0.130ubuntu3.11:ubuntu:
+    repository: BaseOS
+    name: 'initramfs-tools-bin'
+    version: '0.130ubuntu3.11'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'initramfs-tools'
+baseos:deb:initramfs-tools-core:0.130ubuntu3.11:ubuntu:
+    repository: BaseOS
+    name: 'initramfs-tools-core'
+    version: '0.130ubuntu3.11'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'initramfs-tools'
+baseos:deb:install-info:6.5.0.dfsg.1-2:ubuntu:
+    repository: BaseOS
+    name: 'install-info'
+    version: '6.5.0.dfsg.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'texinfo'
+baseos:deb:iproute2:4.15.0-2ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'iproute2'
+    version: '4.15.0-2ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:iptables:1.6.1-2ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'iptables'
+    version: '1.6.1-2ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:iputils-ping:3:20161105-1ubuntu3:ubuntu:
+    repository: BaseOS
+    name: 'iputils-ping'
+    version: '3:20161105-1ubuntu3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'iputils'
+baseos:deb:iputils-tracepath:3:20161105-1ubuntu3:ubuntu:
+    repository: BaseOS
+    name: 'iputils-tracepath'
+    version: '3:20161105-1ubuntu3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'iputils'
+baseos:deb:irqbalance:1.3.0-0.1ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'irqbalance'
+    version: '1.3.0-0.1ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:isc-dhcp-client:4.3.5-3ubuntu7.1:ubuntu:
+    repository: BaseOS
+    name: 'isc-dhcp-client'
+    version: '4.3.5-3ubuntu7.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'isc-dhcp'
+baseos:deb:isc-dhcp-common:4.3.5-3ubuntu7.1:ubuntu:
+    repository: BaseOS
+    name: 'isc-dhcp-common'
+    version: '4.3.5-3ubuntu7.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'isc-dhcp'
+baseos:deb:iso-codes:3.79-1:ubuntu:
+    repository: BaseOS
+    name: 'iso-codes'
+    version: '3.79-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:iw:4.14-0.1:ubuntu:
+    repository: BaseOS
+    name: 'iw'
+    version: '4.14-0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:jq:1.5+dfsg-2:ubuntu:
+    repository: BaseOS
+    name: 'jq'
+    version: '1.5+dfsg-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:kbd:2.0.4-2ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'kbd'
+    version: '2.0.4-2ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:keyboard-configuration:1.178ubuntu2.9:ubuntu:
+    repository: BaseOS
+    name: 'keyboard-configuration'
+    version: '1.178ubuntu2.9'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'console-setup'
+baseos:deb:keyutils:1.5.9-9.2ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'keyutils'
+    version: '1.5.9-9.2ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:klibc-utils:2.0.4-9ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'klibc-utils'
+    version: '2.0.4-9ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'klibc'
+baseos:deb:kmod:24-1ubuntu3.5:ubuntu:
+    repository: BaseOS
+    name: 'kmod'
+    version: '24-1ubuntu3.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:krb5-locales:1.16-2ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'krb5-locales'
+    version: '1.16-2ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'krb5'
+baseos:deb:landscape-common:18.01-0ubuntu3.5:ubuntu:
+    repository: BaseOS
+    name: 'landscape-common'
+    version: '18.01-0ubuntu3.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'landscape-client'
+baseos:deb:language-selector-common:0.188.3:ubuntu:
+    repository: BaseOS
+    name: 'language-selector-common'
+    version: '0.188.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'language-selector'
+baseos:deb:less:487-0.1:ubuntu:
+    repository: BaseOS
+    name: 'less'
+    version: '487-0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libaccountsservice0:0.6.45-1ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'libaccountsservice0'
+    version: '0.6.45-1ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'accountsservice'
+baseos:deb:libacl1:2.2.52-3build1:ubuntu:
+    repository: BaseOS
+    name: 'libacl1'
+    version: '2.2.52-3build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'acl'
+baseos:deb:libalgorithm-diff-perl:1.19.03-1:ubuntu:
+    repository: BaseOS
+    name: 'libalgorithm-diff-perl'
+    version: '1.19.03-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libalgorithm-diff-xs-perl:0.04-5:ubuntu:
+    repository: BaseOS
+    name: 'libalgorithm-diff-xs-perl'
+    version: '0.04-5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libalgorithm-merge-perl:0.08-3:ubuntu:
+    repository: BaseOS
+    name: 'libalgorithm-merge-perl'
+    version: '0.08-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libapparmor1:2.12-4ubuntu5.1:ubuntu:
+    repository: BaseOS
+    name: 'libapparmor1'
+    version: '2.12-4ubuntu5.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'apparmor'
+baseos:deb:libapt-inst2.0:1.6.12ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libapt-inst2.0'
+    version: '1.6.12ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'apt'
+baseos:deb:libapt-pkg5.0:1.6.12ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libapt-pkg5.0'
+    version: '1.6.12ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'apt'
+baseos:deb:libargon2-0:0~20161029-1.1:ubuntu:
+    repository: BaseOS
+    name: 'libargon2-0'
+    version: '0~20161029-1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'argon2'
+baseos:deb:libasan4:7.5.0-3ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libasan4'
+    version: '7.5.0-3ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-7'
+baseos:deb:libasn1-8-heimdal:7.5.0+dfsg-1:ubuntu:
+    repository: BaseOS
+    name: 'libasn1-8-heimdal'
+    version: '7.5.0+dfsg-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'heimdal'
+baseos:deb:libassuan0:2.5.1-2:ubuntu:
+    repository: BaseOS
+    name: 'libassuan0'
+    version: '2.5.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libassuan'
+baseos:deb:libatm1:1:2.5.1-2build1:ubuntu:
+    repository: BaseOS
+    name: 'libatm1'
+    version: '1:2.5.1-2build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-atm'
+baseos:deb:libatomic1:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libatomic1'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:libattr1:1:2.4.47-2build1:ubuntu:
+    repository: BaseOS
+    name: 'libattr1'
+    version: '1:2.4.47-2build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'attr'
+baseos:deb:libaudit-common:1:2.8.2-1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'libaudit-common'
+    version: '1:2.8.2-1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'audit'
+baseos:deb:libaudit1:1:2.8.2-1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'libaudit1'
+    version: '1:2.8.2-1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'audit'
+baseos:deb:libauparse0:1:2.8.2-1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'libauparse0'
+    version: '1:2.8.2-1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'audit'
+baseos:deb:libavahi-client3:0.7-3.1ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libavahi-client3'
+    version: '0.7-3.1ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'avahi'
+baseos:deb:libavahi-common-data:0.7-3.1ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libavahi-common-data'
+    version: '0.7-3.1ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'avahi'
+baseos:deb:libavahi-common3:0.7-3.1ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libavahi-common3'
+    version: '0.7-3.1ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'avahi'
+baseos:deb:libbind9-160:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'libbind9-160'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:libbinutils:2.30-21ubuntu1~18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'libbinutils'
+    version: '2.30-21ubuntu1~18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'binutils'
+baseos:deb:libblkid1:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'libblkid1'
+    version: '2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'util-linux'
+baseos:deb:libbsd0:0.8.7-1ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'libbsd0'
+    version: '0.8.7-1ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libbsd'
+baseos:deb:libbz2-1.0:1.0.6-8.1ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libbz2-1.0'
+    version: '1.0.6-8.1ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bzip2'
+baseos:deb:libc-bin:2.27-3ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'libc-bin'
+    version: '2.27-3ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'glibc'
+baseos:deb:libc-dev-bin:2.27-3ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'libc-dev-bin'
+    version: '2.27-3ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'glibc'
+baseos:deb:libc6:2.27-3ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'libc6'
+    version: '2.27-3ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'glibc'
+baseos:deb:libc6-dev:2.27-3ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'libc6-dev'
+    version: '2.27-3ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'glibc'
+baseos:deb:libcap-ng0:0.7.7-3.1:ubuntu:
+    repository: BaseOS
+    name: 'libcap-ng0'
+    version: '0.7.7-3.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libcap-ng'
+baseos:deb:libcap2:1:2.25-1.2:ubuntu:
+    repository: BaseOS
+    name: 'libcap2'
+    version: '1:2.25-1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libcap2-bin:1:2.25-1.2:ubuntu:
+    repository: BaseOS
+    name: 'libcap2-bin'
+    version: '1:2.25-1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libcap2'
+baseos:deb:libcc1-0:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libcc1-0'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:libcilkrts5:7.5.0-3ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libcilkrts5'
+    version: '7.5.0-3ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-7'
+baseos:deb:libcom-err2:1.44.1-1ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'libcom-err2'
+    version: '1.44.1-1ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'e2fsprogs'
+baseos:deb:libcryptsetup12:2:2.0.2-1ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libcryptsetup12'
+    version: '2:2.0.2-1ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cryptsetup'
+baseos:deb:libcups2:2.2.7-1ubuntu2.8:ubuntu:
+    repository: BaseOS
+    name: 'libcups2'
+    version: '2.2.7-1ubuntu2.8'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cups'
+baseos:deb:libcurl3-gnutls:7.58.0-2ubuntu3.12:ubuntu:
+    repository: BaseOS
+    name: 'libcurl3-gnutls'
+    version: '7.58.0-2ubuntu3.12'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'curl'
+baseos:deb:libcurl4:7.58.0-2ubuntu3.12:ubuntu:
+    repository: BaseOS
+    name: 'libcurl4'
+    version: '7.58.0-2ubuntu3.12'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'curl'
+baseos:deb:libdb5.3:5.3.28-13.1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'libdb5.3'
+    version: '5.3.28-13.1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'db5.3'
+baseos:deb:libdbus-1-3:1.12.2-1ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libdbus-1-3'
+    version: '1.12.2-1ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'dbus'
+baseos:deb:libdebconfclient0:0.213ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libdebconfclient0'
+    version: '0.213ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cdebconf'
+baseos:deb:libdevmapper-event1.02.1:2:1.02.145-4.1ubuntu3.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'libdevmapper-event1.02.1'
+    version: '2:1.02.145-4.1ubuntu3.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lvm2 (2.02.176-4.1ubuntu3.18.04.3)'
+baseos:deb:libdevmapper1.02.1:2:1.02.145-4.1ubuntu3.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'libdevmapper1.02.1'
+    version: '2:1.02.145-4.1ubuntu3.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lvm2 (2.02.176-4.1ubuntu3.18.04.3)'
+baseos:deb:libdns-export1100:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'libdns-export1100'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:libdns1100:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'libdns1100'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:libdpkg-perl:1.19.0.5ubuntu2.3:ubuntu:
+    repository: BaseOS
+    name: 'libdpkg-perl'
+    version: '1.19.0.5ubuntu2.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'dpkg'
+baseos:deb:libdrm-common:2.4.101-2~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'libdrm-common'
+    version: '2.4.101-2~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libdrm'
+baseos:deb:libdrm2:2.4.101-2~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'libdrm2'
+    version: '2.4.101-2~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libdrm'
+baseos:deb:libdumbnet1:1.12-7build1:ubuntu:
+    repository: BaseOS
+    name: 'libdumbnet1'
+    version: '1.12-7build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libdumbnet'
+baseos:deb:libdw1:0.170-0.4ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'libdw1'
+    version: '0.170-0.4ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'elfutils'
+baseos:deb:libeatmydata1:105-6:ubuntu:
+    repository: BaseOS
+    name: 'libeatmydata1'
+    version: '105-6'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libeatmydata'
+baseos:deb:libedit2:3.1-20170329-1:ubuntu:
+    repository: BaseOS
+    name: 'libedit2'
+    version: '3.1-20170329-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libedit'
+baseos:deb:libefiboot1:34-1:ubuntu:
+    repository: BaseOS
+    name: 'libefiboot1'
+    version: '34-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'efivar'
+baseos:deb:libefivar1:34-1:ubuntu:
+    repository: BaseOS
+    name: 'libefivar1'
+    version: '34-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'efivar'
+baseos:deb:libelf1:0.170-0.4ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'libelf1'
+    version: '0.170-0.4ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'elfutils'
+baseos:deb:liberror-perl:0.17025-1:ubuntu:
+    repository: BaseOS
+    name: 'liberror-perl'
+    version: '0.17025-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libestr0:0.1.10-2.1:ubuntu:
+    repository: BaseOS
+    name: 'libestr0'
+    version: '0.1.10-2.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libestr'
+baseos:deb:libevent-2.1-6:2.1.8-stable-4build1:ubuntu:
+    repository: BaseOS
+    name: 'libevent-2.1-6'
+    version: '2.1.8-stable-4build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libevent'
+baseos:deb:libexpat1:2.2.5-3ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libexpat1'
+    version: '2.2.5-3ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'expat'
+baseos:deb:libexpat1-dev:2.2.5-3ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libexpat1-dev'
+    version: '2.2.5-3ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'expat'
+baseos:deb:libext2fs2:1.44.1-1ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'libext2fs2'
+    version: '1.44.1-1ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'e2fsprogs'
+baseos:deb:libfakeroot:1.22-2ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libfakeroot'
+    version: '1.22-2ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'fakeroot'
+baseos:deb:libfastjson4:0.99.8-2:ubuntu:
+    repository: BaseOS
+    name: 'libfastjson4'
+    version: '0.99.8-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libfastjson'
+baseos:deb:libfdisk1:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'libfdisk1'
+    version: '2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'util-linux'
+baseos:deb:libffi6:3.2.1-8:ubuntu:
+    repository: BaseOS
+    name: 'libffi6'
+    version: '3.2.1-8'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libffi'
+baseos:deb:libfile-fcntllock-perl:0.22-3build2:ubuntu:
+    repository: BaseOS
+    name: 'libfile-fcntllock-perl'
+    version: '0.22-3build2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libfreetype6:2.8.1-2ubuntu2.1:ubuntu:
+    repository: BaseOS
+    name: 'libfreetype6'
+    version: '2.8.1-2ubuntu2.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'freetype'
+baseos:deb:libfribidi0:0.19.7-2:ubuntu:
+    repository: BaseOS
+    name: 'libfribidi0'
+    version: '0.19.7-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'fribidi'
+baseos:deb:libfuse2:2.9.7-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libfuse2'
+    version: '2.9.7-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'fuse'
+baseos:deb:libgcc-7-dev:7.5.0-3ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libgcc-7-dev'
+    version: '7.5.0-3ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-7'
+baseos:deb:libgcc1:1:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libgcc1'
+    version: '1:8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8 (8.4.0-1ubuntu1~18.04)'
+baseos:deb:libgcrypt20:1.8.1-4ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libgcrypt20'
+    version: '1.8.1-4ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libgdbm-compat4:1.14.1-6:ubuntu:
+    repository: BaseOS
+    name: 'libgdbm-compat4'
+    version: '1.14.1-6'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gdbm'
+baseos:deb:libgdbm5:1.14.1-6:ubuntu:
+    repository: BaseOS
+    name: 'libgdbm5'
+    version: '1.14.1-6'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gdbm'
+baseos:deb:libgeoip1:1.6.12-1:ubuntu:
+    repository: BaseOS
+    name: 'libgeoip1'
+    version: '1.6.12-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'geoip'
+baseos:deb:libgirepository-1.0-1:1.56.1-1:ubuntu:
+    repository: BaseOS
+    name: 'libgirepository-1.0-1'
+    version: '1.56.1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gobject-introspection'
+baseos:deb:libglib2.0-0:2.56.4-0ubuntu0.18.04.6:ubuntu:
+    repository: BaseOS
+    name: 'libglib2.0-0'
+    version: '2.56.4-0ubuntu0.18.04.6'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'glib2.0'
+baseos:deb:libglib2.0-data:2.56.4-0ubuntu0.18.04.6:ubuntu:
+    repository: BaseOS
+    name: 'libglib2.0-data'
+    version: '2.56.4-0ubuntu0.18.04.6'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'glib2.0'
+baseos:deb:libgmp10:2:6.1.2+dfsg-2:ubuntu:
+    repository: BaseOS
+    name: 'libgmp10'
+    version: '2:6.1.2+dfsg-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gmp'
+baseos:deb:libgnutls30:3.5.18-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'libgnutls30'
+    version: '3.5.18-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gnutls28'
+baseos:deb:libgomp1:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libgomp1'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:libgpg-error0:1.27-6:ubuntu:
+    repository: BaseOS
+    name: 'libgpg-error0'
+    version: '1.27-6'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libgpg-error'
+baseos:deb:libgpm2:1.20.7-5:ubuntu:
+    repository: BaseOS
+    name: 'libgpm2'
+    version: '1.20.7-5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gpm'
+baseos:deb:libgssapi-krb5-2:1.16-2ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libgssapi-krb5-2'
+    version: '1.16-2ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'krb5'
+baseos:deb:libgssapi3-heimdal:7.5.0+dfsg-1:ubuntu:
+    repository: BaseOS
+    name: 'libgssapi3-heimdal'
+    version: '7.5.0+dfsg-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'heimdal'
+baseos:deb:libhcrypto4-heimdal:7.5.0+dfsg-1:ubuntu:
+    repository: BaseOS
+    name: 'libhcrypto4-heimdal'
+    version: '7.5.0+dfsg-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'heimdal'
+baseos:deb:libheimbase1-heimdal:7.5.0+dfsg-1:ubuntu:
+    repository: BaseOS
+    name: 'libheimbase1-heimdal'
+    version: '7.5.0+dfsg-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'heimdal'
+baseos:deb:libheimntlm0-heimdal:7.5.0+dfsg-1:ubuntu:
+    repository: BaseOS
+    name: 'libheimntlm0-heimdal'
+    version: '7.5.0+dfsg-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'heimdal'
+baseos:deb:libhogweed4:3.4-1:ubuntu:
+    repository: BaseOS
+    name: 'libhogweed4'
+    version: '3.4-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'nettle'
+baseos:deb:libhx509-5-heimdal:7.5.0+dfsg-1:ubuntu:
+    repository: BaseOS
+    name: 'libhx509-5-heimdal'
+    version: '7.5.0+dfsg-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'heimdal'
+baseos:deb:libicu60:60.2-3ubuntu3.1:ubuntu:
+    repository: BaseOS
+    name: 'libicu60'
+    version: '60.2-3ubuntu3.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'icu'
+baseos:deb:libidn11:1.33-2.1ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libidn11'
+    version: '1.33-2.1ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libidn'
+baseos:deb:libidn2-0:2.0.4-1.1ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libidn2-0'
+    version: '2.0.4-1.1ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libidn2'
+baseos:deb:libip4tc0:1.6.1-2ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'libip4tc0'
+    version: '1.6.1-2ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'iptables'
+baseos:deb:libip6tc0:1.6.1-2ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'libip6tc0'
+    version: '1.6.1-2ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'iptables'
+baseos:deb:libiptc0:1.6.1-2ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'libiptc0'
+    version: '1.6.1-2ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'iptables'
+baseos:deb:libirs160:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'libirs160'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:libisc-export169:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'libisc-export169'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:libisc169:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'libisc169'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:libisccc160:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'libisccc160'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:libisccfg160:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'libisccfg160'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:libisl19:0.19-1:ubuntu:
+    repository: BaseOS
+    name: 'libisl19'
+    version: '0.19-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'isl'
+baseos:deb:libisns0:0.97-2build1:ubuntu:
+    repository: BaseOS
+    name: 'libisns0'
+    version: '0.97-2build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'open-isns'
+baseos:deb:libitm1:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libitm1'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:libjansson4:2.11-1:ubuntu:
+    repository: BaseOS
+    name: 'libjansson4'
+    version: '2.11-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'jansson'
+baseos:deb:libjq1:1.5+dfsg-2:ubuntu:
+    repository: BaseOS
+    name: 'libjq1'
+    version: '1.5+dfsg-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'jq'
+baseos:deb:libjson-c3:0.12.1-1.3ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'libjson-c3'
+    version: '0.12.1-1.3ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'json-c'
+baseos:deb:libk5crypto3:1.16-2ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libk5crypto3'
+    version: '1.16-2ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'krb5'
+baseos:deb:libkeyutils1:1.5.9-9.2ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'libkeyutils1'
+    version: '1.5.9-9.2ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'keyutils'
+baseos:deb:libklibc:2.0.4-9ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'libklibc'
+    version: '2.0.4-9ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'klibc'
+baseos:deb:libkmod2:24-1ubuntu3.5:ubuntu:
+    repository: BaseOS
+    name: 'libkmod2'
+    version: '24-1ubuntu3.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'kmod'
+baseos:deb:libkrb5-26-heimdal:7.5.0+dfsg-1:ubuntu:
+    repository: BaseOS
+    name: 'libkrb5-26-heimdal'
+    version: '7.5.0+dfsg-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'heimdal'
+baseos:deb:libkrb5-3:1.16-2ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libkrb5-3'
+    version: '1.16-2ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'krb5'
+baseos:deb:libkrb5support0:1.16-2ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libkrb5support0'
+    version: '1.16-2ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'krb5'
+baseos:deb:libksba8:1.3.5-2:ubuntu:
+    repository: BaseOS
+    name: 'libksba8'
+    version: '1.3.5-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libksba'
+baseos:deb:libldap-2.4-2:2.4.45+dfsg-1ubuntu1.10:ubuntu:
+    repository: BaseOS
+    name: 'libldap-2.4-2'
+    version: '2.4.45+dfsg-1ubuntu1.10'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'openldap'
+baseos:deb:libldap-common:2.4.45+dfsg-1ubuntu1.10:ubuntu:
+    repository: BaseOS
+    name: 'libldap-common'
+    version: '2.4.45+dfsg-1ubuntu1.10'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'openldap'
+baseos:deb:libldb1:2:1.2.3-1ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'libldb1'
+    version: '2:1.2.3-1ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ldb'
+baseos:deb:liblocale-gettext-perl:1.07-3build2:ubuntu:
+    repository: BaseOS
+    name: 'liblocale-gettext-perl'
+    version: '1.07-3build2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:liblsan0:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'liblsan0'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:liblvm2app2.2:2.02.176-4.1ubuntu3.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'liblvm2app2.2'
+    version: '2.02.176-4.1ubuntu3.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lvm2'
+baseos:deb:liblvm2cmd2.02:2.02.176-4.1ubuntu3.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'liblvm2cmd2.02'
+    version: '2.02.176-4.1ubuntu3.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lvm2'
+baseos:deb:liblwres160:1:9.11.3+dfsg-1ubuntu1.14:ubuntu:
+    repository: BaseOS
+    name: 'liblwres160'
+    version: '1:9.11.3+dfsg-1ubuntu1.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'bind9'
+baseos:deb:liblxc-common:3.0.3-0ubuntu1~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'liblxc-common'
+    version: '3.0.3-0ubuntu1~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lxc'
+baseos:deb:liblxc1:3.0.3-0ubuntu1~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'liblxc1'
+    version: '3.0.3-0ubuntu1~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lxc'
+baseos:deb:liblz4-1:0.0~r131-2ubuntu3:ubuntu:
+    repository: BaseOS
+    name: 'liblz4-1'
+    version: '0.0~r131-2ubuntu3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lz4'
+baseos:deb:liblzma5:5.2.2-1.3:ubuntu:
+    repository: BaseOS
+    name: 'liblzma5'
+    version: '5.2.2-1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'xz-utils'
+baseos:deb:liblzo2-2:2.08-1.2:ubuntu:
+    repository: BaseOS
+    name: 'liblzo2-2'
+    version: '2.08-1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lzo2'
+baseos:deb:libmagic-mgc:1:5.32-2ubuntu0.4:ubuntu:
+    repository: BaseOS
+    name: 'libmagic-mgc'
+    version: '1:5.32-2ubuntu0.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'file'
+baseos:deb:libmagic1:1:5.32-2ubuntu0.4:ubuntu:
+    repository: BaseOS
+    name: 'libmagic1'
+    version: '1:5.32-2ubuntu0.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'file'
+baseos:deb:libmnl0:1.0.4-2:ubuntu:
+    repository: BaseOS
+    name: 'libmnl0'
+    version: '1.0.4-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libmnl'
+baseos:deb:libmount1:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'libmount1'
+    version: '2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'util-linux'
+baseos:deb:libmpc3:1.1.0-1:ubuntu:
+    repository: BaseOS
+    name: 'libmpc3'
+    version: '1.1.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'mpclib3'
+baseos:deb:libmpdec2:2.4.2-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libmpdec2'
+    version: '2.4.2-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'mpdecimal'
+baseos:deb:libmpfr6:4.0.1-1:ubuntu:
+    repository: BaseOS
+    name: 'libmpfr6'
+    version: '4.0.1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'mpfr4'
+baseos:deb:libmpx2:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libmpx2'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:libmspack0:0.6-3ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'libmspack0'
+    version: '0.6-3ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libmspack'
+baseos:deb:libncurses5:6.1-1ubuntu1.18.04:ubuntu:
+    repository: BaseOS
+    name: 'libncurses5'
+    version: '6.1-1ubuntu1.18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ncurses'
+baseos:deb:libncursesw5:6.1-1ubuntu1.18.04:ubuntu:
+    repository: BaseOS
+    name: 'libncursesw5'
+    version: '6.1-1ubuntu1.18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ncurses'
+baseos:deb:libnetfilter-acct1:1.0.3-1:ubuntu:
+    repository: BaseOS
+    name: 'libnetfilter-acct1'
+    version: '1.0.3-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libnetfilter-acct'
+baseos:deb:libnetfilter-conntrack3:1.0.6-2:ubuntu:
+    repository: BaseOS
+    name: 'libnetfilter-conntrack3'
+    version: '1.0.6-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libnetfilter-conntrack'
+baseos:deb:libnetfilter-cttimeout1:1.0.0-2ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libnetfilter-cttimeout1'
+    version: '1.0.0-2ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libnetfilter-cttimeout'
+baseos:deb:libnetfilter-log1:1.0.1-1.1:ubuntu:
+    repository: BaseOS
+    name: 'libnetfilter-log1'
+    version: '1.0.1-1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libnetfilter-log'
+baseos:deb:libnetplan0:0.99-0ubuntu3~18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'libnetplan0'
+    version: '0.99-0ubuntu3~18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'netplan.io'
+baseos:deb:libnettle6:3.4-1:ubuntu:
+    repository: BaseOS
+    name: 'libnettle6'
+    version: '3.4-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'nettle'
+baseos:deb:libnewt0.52:0.52.20-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libnewt0.52'
+    version: '0.52.20-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'newt'
+baseos:deb:libnfnetlink0:1.0.1-3:ubuntu:
+    repository: BaseOS
+    name: 'libnfnetlink0'
+    version: '1.0.1-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libnfnetlink'
+baseos:deb:libnghttp2-14:1.30.0-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libnghttp2-14'
+    version: '1.30.0-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'nghttp2'
+baseos:deb:libnih1:1.0.3-6ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'libnih1'
+    version: '1.0.3-6ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libnih'
+baseos:deb:libnl-3-200:3.2.29-0ubuntu3:ubuntu:
+    repository: BaseOS
+    name: 'libnl-3-200'
+    version: '3.2.29-0ubuntu3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libnl3'
+baseos:deb:libnl-genl-3-200:3.2.29-0ubuntu3:ubuntu:
+    repository: BaseOS
+    name: 'libnl-genl-3-200'
+    version: '3.2.29-0ubuntu3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libnl3'
+baseos:deb:libnpth0:1.5-3:ubuntu:
+    repository: BaseOS
+    name: 'libnpth0'
+    version: '1.5-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'npth'
+baseos:deb:libnspr4:2:4.18-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libnspr4'
+    version: '2:4.18-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'nspr'
+baseos:deb:libnss-systemd:237-3ubuntu10.44:ubuntu:
+    repository: BaseOS
+    name: 'libnss-systemd'
+    version: '237-3ubuntu10.44'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'systemd'
+baseos:deb:libnss3:2:3.35-2ubuntu2.12:ubuntu:
+    repository: BaseOS
+    name: 'libnss3'
+    version: '2:3.35-2ubuntu2.12'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'nss'
+baseos:deb:libntfs-3g88:1:2017.3.23-2ubuntu0.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'libntfs-3g88'
+    version: '1:2017.3.23-2ubuntu0.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ntfs-3g'
+baseos:deb:libnuma1:2.0.11-2.1ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'libnuma1'
+    version: '2.0.11-2.1ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'numactl'
+baseos:deb:libonig4:6.7.0-1:ubuntu:
+    repository: BaseOS
+    name: 'libonig4'
+    version: '6.7.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libonig'
+baseos:deb:libp11-kit0:0.23.9-2ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'libp11-kit0'
+    version: '0.23.9-2ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'p11-kit'
+baseos:deb:libpam-cap:1:2.25-1.2:ubuntu:
+    repository: BaseOS
+    name: 'libpam-cap'
+    version: '1:2.25-1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libcap2'
+baseos:deb:libpam-modules:1.1.8-3.6ubuntu2.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'libpam-modules'
+    version: '1.1.8-3.6ubuntu2.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pam'
+baseos:deb:libpam-modules-bin:1.1.8-3.6ubuntu2.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'libpam-modules-bin'
+    version: '1.1.8-3.6ubuntu2.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pam'
+baseos:deb:libpam-runtime:1.1.8-3.6ubuntu2.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'libpam-runtime'
+    version: '1.1.8-3.6ubuntu2.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pam'
+baseos:deb:libpam-systemd:237-3ubuntu10.44:ubuntu:
+    repository: BaseOS
+    name: 'libpam-systemd'
+    version: '237-3ubuntu10.44'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'systemd'
+baseos:deb:libpam0g:1.1.8-3.6ubuntu2.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'libpam0g'
+    version: '1.1.8-3.6ubuntu2.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pam'
+baseos:deb:libparted2:3.2-20ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libparted2'
+    version: '3.2-20ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'parted'
+baseos:deb:libpcap0.8:1.8.1-6ubuntu1.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'libpcap0.8'
+    version: '1.8.1-6ubuntu1.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libpcap'
+baseos:deb:libpci3:1:3.5.2-1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'libpci3'
+    version: '1:3.5.2-1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pciutils'
+baseos:deb:libpcre3:2:8.39-9:ubuntu:
+    repository: BaseOS
+    name: 'libpcre3'
+    version: '2:8.39-9'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pcre3'
+baseos:deb:libperl5.26:5.26.1-6ubuntu0.5:ubuntu:
+    repository: BaseOS
+    name: 'libperl5.26'
+    version: '5.26.1-6ubuntu0.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'perl'
+baseos:deb:libpipeline1:1.5.0-1:ubuntu:
+    repository: BaseOS
+    name: 'libpipeline1'
+    version: '1.5.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libpipeline'
+baseos:deb:libplymouth4:0.9.3-1ubuntu7.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'libplymouth4'
+    version: '0.9.3-1ubuntu7.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'plymouth'
+baseos:deb:libpng16-16:1.6.34-1ubuntu0.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'libpng16-16'
+    version: '1.6.34-1ubuntu0.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libpng1.6'
+baseos:deb:libpolkit-agent-1-0:0.105-20ubuntu0.18.04.5:ubuntu:
+    repository: BaseOS
+    name: 'libpolkit-agent-1-0'
+    version: '0.105-20ubuntu0.18.04.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'policykit-1'
+baseos:deb:libpolkit-backend-1-0:0.105-20ubuntu0.18.04.5:ubuntu:
+    repository: BaseOS
+    name: 'libpolkit-backend-1-0'
+    version: '0.105-20ubuntu0.18.04.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'policykit-1'
+baseos:deb:libpolkit-gobject-1-0:0.105-20ubuntu0.18.04.5:ubuntu:
+    repository: BaseOS
+    name: 'libpolkit-gobject-1-0'
+    version: '0.105-20ubuntu0.18.04.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'policykit-1'
+baseos:deb:libpopt0:1.16-11:ubuntu:
+    repository: BaseOS
+    name: 'libpopt0'
+    version: '1.16-11'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'popt'
+baseos:deb:libprocps6:2:3.3.12-3ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libprocps6'
+    version: '2:3.3.12-3ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'procps'
+baseos:deb:libpsl5:0.19.1-5build1:ubuntu:
+    repository: BaseOS
+    name: 'libpsl5'
+    version: '0.19.1-5build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libpsl'
+baseos:deb:libpython-all-dev:2.7.15~rc1-1:ubuntu:
+    repository: BaseOS
+    name: 'libpython-all-dev'
+    version: '2.7.15~rc1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-defaults'
+baseos:deb:libpython-dev:2.7.15~rc1-1:ubuntu:
+    repository: BaseOS
+    name: 'libpython-dev'
+    version: '2.7.15~rc1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-defaults'
+baseos:deb:libpython-stdlib:2.7.15~rc1-1:ubuntu:
+    repository: BaseOS
+    name: 'libpython-stdlib'
+    version: '2.7.15~rc1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-defaults'
+baseos:deb:libpython2.7:2.7.17-1~18.04ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libpython2.7'
+    version: '2.7.17-1~18.04ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python2.7'
+baseos:deb:libpython2.7-dev:2.7.17-1~18.04ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libpython2.7-dev'
+    version: '2.7.17-1~18.04ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python2.7'
+baseos:deb:libpython2.7-minimal:2.7.17-1~18.04ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libpython2.7-minimal'
+    version: '2.7.17-1~18.04ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python2.7'
+baseos:deb:libpython2.7-stdlib:2.7.17-1~18.04ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'libpython2.7-stdlib'
+    version: '2.7.17-1~18.04ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python2.7'
+baseos:deb:libpython3-dev:3.6.7-1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libpython3-dev'
+    version: '3.6.7-1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3-defaults'
+baseos:deb:libpython3-stdlib:3.6.7-1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libpython3-stdlib'
+    version: '3.6.7-1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3-defaults'
+baseos:deb:libpython3.6:3.6.9-1~18.04ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'libpython3.6'
+    version: '3.6.9-1~18.04ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3.6'
+baseos:deb:libpython3.6-dev:3.6.9-1~18.04ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'libpython3.6-dev'
+    version: '3.6.9-1~18.04ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3.6'
+baseos:deb:libpython3.6-minimal:3.6.9-1~18.04ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'libpython3.6-minimal'
+    version: '3.6.9-1~18.04ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3.6'
+baseos:deb:libpython3.6-stdlib:3.6.9-1~18.04ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'libpython3.6-stdlib'
+    version: '3.6.9-1~18.04ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3.6'
+baseos:deb:libquadmath0:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libquadmath0'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:libreadline5:5.2+dfsg-3build1:ubuntu:
+    repository: BaseOS
+    name: 'libreadline5'
+    version: '5.2+dfsg-3build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'readline5'
+baseos:deb:libreadline7:7.0-3:ubuntu:
+    repository: BaseOS
+    name: 'libreadline7'
+    version: '7.0-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'readline'
+baseos:deb:libroken18-heimdal:7.5.0+dfsg-1:ubuntu:
+    repository: BaseOS
+    name: 'libroken18-heimdal'
+    version: '7.5.0+dfsg-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'heimdal'
+baseos:deb:librtmp1:2.4+20151223.gitfa8646d.1-1:ubuntu:
+    repository: BaseOS
+    name: 'librtmp1'
+    version: '2.4+20151223.gitfa8646d.1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'rtmpdump'
+baseos:deb:libsasl2-2:2.1.27~101-g0780600+dfsg-3ubuntu2.3:ubuntu:
+    repository: BaseOS
+    name: 'libsasl2-2'
+    version: '2.1.27~101-g0780600+dfsg-3ubuntu2.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cyrus-sasl2'
+baseos:deb:libsasl2-modules:2.1.27~101-g0780600+dfsg-3ubuntu2.3:ubuntu:
+    repository: BaseOS
+    name: 'libsasl2-modules'
+    version: '2.1.27~101-g0780600+dfsg-3ubuntu2.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cyrus-sasl2'
+baseos:deb:libsasl2-modules-db:2.1.27~101-g0780600+dfsg-3ubuntu2.3:ubuntu:
+    repository: BaseOS
+    name: 'libsasl2-modules-db'
+    version: '2.1.27~101-g0780600+dfsg-3ubuntu2.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cyrus-sasl2'
+baseos:deb:libseccomp2:2.4.3-1ubuntu3.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'libseccomp2'
+    version: '2.4.3-1ubuntu3.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libseccomp'
+baseos:deb:libselinux1:2.7-2build2:ubuntu:
+    repository: BaseOS
+    name: 'libselinux1'
+    version: '2.7-2build2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libselinux'
+baseos:deb:libsemanage-common:2.7-2build2:ubuntu:
+    repository: BaseOS
+    name: 'libsemanage-common'
+    version: '2.7-2build2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libsemanage'
+baseos:deb:libsemanage1:2.7-2build2:ubuntu:
+    repository: BaseOS
+    name: 'libsemanage1'
+    version: '2.7-2build2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libsemanage'
+baseos:deb:libsepol1:2.7-1:ubuntu:
+    repository: BaseOS
+    name: 'libsepol1'
+    version: '2.7-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libsepol'
+baseos:deb:libsigsegv2:2.12-1:ubuntu:
+    repository: BaseOS
+    name: 'libsigsegv2'
+    version: '2.12-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libsigsegv'
+baseos:deb:libslang2:2.3.1a-3ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libslang2'
+    version: '2.3.1a-3ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'slang2'
+baseos:deb:libsmartcols1:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'libsmartcols1'
+    version: '2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'util-linux'
+baseos:deb:libsqlite3-0:3.22.0-1ubuntu0.4:ubuntu:
+    repository: BaseOS
+    name: 'libsqlite3-0'
+    version: '3.22.0-1ubuntu0.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'sqlite3'
+baseos:deb:libss2:1.44.1-1ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'libss2'
+    version: '1.44.1-1ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'e2fsprogs'
+baseos:deb:libssl1.0.0:1.0.2n-1ubuntu5.6:ubuntu:
+    repository: BaseOS
+    name: 'libssl1.0.0'
+    version: '1.0.2n-1ubuntu5.6'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'openssl1.0'
+baseos:deb:libssl1.1:1.1.1-1ubuntu2.1~18.04.8:ubuntu:
+    repository: BaseOS
+    name: 'libssl1.1'
+    version: '1.1.1-1ubuntu2.1~18.04.8'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'openssl'
+baseos:deb:libstdc++-7-dev:7.5.0-3ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libstdc++-7-dev'
+    version: '7.5.0-3ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-7'
+baseos:deb:libstdc++6:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libstdc++6'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:libsystemd0:237-3ubuntu10.44:ubuntu:
+    repository: BaseOS
+    name: 'libsystemd0'
+    version: '237-3ubuntu10.44'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'systemd'
+baseos:deb:libtalloc2:2.1.10-2ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libtalloc2'
+    version: '2.1.10-2ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'talloc'
+baseos:deb:libtasn1-6:4.13-2:ubuntu:
+    repository: BaseOS
+    name: 'libtasn1-6'
+    version: '4.13-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libtdb1:1.3.15-2:ubuntu:
+    repository: BaseOS
+    name: 'libtdb1'
+    version: '1.3.15-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'tdb'
+baseos:deb:libtevent0:0.9.34-1:ubuntu:
+    repository: BaseOS
+    name: 'libtevent0'
+    version: '0.9.34-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'tevent'
+baseos:deb:libtext-charwidth-perl:0.04-7.1:ubuntu:
+    repository: BaseOS
+    name: 'libtext-charwidth-perl'
+    version: '0.04-7.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libtext-iconv-perl:1.7-5build6:ubuntu:
+    repository: BaseOS
+    name: 'libtext-iconv-perl'
+    version: '1.7-5build6'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libtext-wrapi18n-perl:0.06-7.1:ubuntu:
+    repository: BaseOS
+    name: 'libtext-wrapi18n-perl'
+    version: '0.06-7.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libtinfo5:6.1-1ubuntu1.18.04:ubuntu:
+    repository: BaseOS
+    name: 'libtinfo5'
+    version: '6.1-1ubuntu1.18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ncurses'
+baseos:deb:libtsan0:8.4.0-1ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libtsan0'
+    version: '8.4.0-1ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-8'
+baseos:deb:libubsan0:7.5.0-3ubuntu1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'libubsan0'
+    version: '7.5.0-3ubuntu1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'gcc-7'
+baseos:deb:libudev1:237-3ubuntu10.44:ubuntu:
+    repository: BaseOS
+    name: 'libudev1'
+    version: '237-3ubuntu10.44'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'systemd'
+baseos:deb:libunistring2:0.9.9-0ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'libunistring2'
+    version: '0.9.9-0ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libunistring'
+baseos:deb:libunwind8:1.2.1-8:ubuntu:
+    repository: BaseOS
+    name: 'libunwind8'
+    version: '1.2.1-8'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libunwind'
+baseos:deb:libusb-1.0-0:2:1.0.21-2:ubuntu:
+    repository: BaseOS
+    name: 'libusb-1.0-0'
+    version: '2:1.0.21-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libusb-1.0'
+baseos:deb:libutempter0:1.1.6-3:ubuntu:
+    repository: BaseOS
+    name: 'libutempter0'
+    version: '1.1.6-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libutempter'
+baseos:deb:libuuid1:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'libuuid1'
+    version: '2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'util-linux'
+baseos:deb:libuv1:1.18.0-3:ubuntu:
+    repository: BaseOS
+    name: 'libuv1'
+    version: '1.18.0-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libwbclient0:2:4.7.6+dfsg~ubuntu-0ubuntu2.21:ubuntu:
+    repository: BaseOS
+    name: 'libwbclient0'
+    version: '2:4.7.6+dfsg~ubuntu-0ubuntu2.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'samba'
+baseos:deb:libwind0-heimdal:7.5.0+dfsg-1:ubuntu:
+    repository: BaseOS
+    name: 'libwind0-heimdal'
+    version: '7.5.0+dfsg-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'heimdal'
+baseos:deb:libwrap0:7.6.q-27:ubuntu:
+    repository: BaseOS
+    name: 'libwrap0'
+    version: '7.6.q-27'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'tcp-wrappers'
+baseos:deb:libx11-6:2:1.6.4-3ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'libx11-6'
+    version: '2:1.6.4-3ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libx11'
+baseos:deb:libx11-data:2:1.6.4-3ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'libx11-data'
+    version: '2:1.6.4-3ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libx11'
+baseos:deb:libxau6:1:1.0.8-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'libxau6'
+    version: '1:1.0.8-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libxau'
+baseos:deb:libxcb1:1.13-2~ubuntu18.04:ubuntu:
+    repository: BaseOS
+    name: 'libxcb1'
+    version: '1.13-2~ubuntu18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libxcb'
+baseos:deb:libxdmcp6:1:1.1.2-3:ubuntu:
+    repository: BaseOS
+    name: 'libxdmcp6'
+    version: '1:1.1.2-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libxdmcp'
+baseos:deb:libxext6:2:1.3.3-1:ubuntu:
+    repository: BaseOS
+    name: 'libxext6'
+    version: '2:1.3.3-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libxext'
+baseos:deb:libxml2:2.9.4+dfsg1-6.1ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'libxml2'
+    version: '2.9.4+dfsg1-6.1ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:libxmlsec1:1.2.25-1build1:ubuntu:
+    repository: BaseOS
+    name: 'libxmlsec1'
+    version: '1.2.25-1build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'xmlsec1'
+baseos:deb:libxmlsec1-openssl:1.2.25-1build1:ubuntu:
+    repository: BaseOS
+    name: 'libxmlsec1-openssl'
+    version: '1.2.25-1build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'xmlsec1'
+baseos:deb:libxmuu1:2:1.1.2-2:ubuntu:
+    repository: BaseOS
+    name: 'libxmuu1'
+    version: '2:1.1.2-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libxmu'
+baseos:deb:libxslt1.1:1.1.29-5ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'libxslt1.1'
+    version: '1.1.29-5ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libxslt'
+baseos:deb:libxtables12:1.6.1-2ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'libxtables12'
+    version: '1.6.1-2ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'iptables'
+baseos:deb:libyaml-0-2:0.1.7-2ubuntu3:ubuntu:
+    repository: BaseOS
+    name: 'libyaml-0-2'
+    version: '0.1.7-2ubuntu3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libyaml'
+baseos:deb:libzstd1:1.3.3+dfsg-2ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'libzstd1'
+    version: '1.3.3+dfsg-2ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'libzstd'
+baseos:deb:linux-azure:5.4.0.1040.20:ubuntu:
+    repository: BaseOS
+    name: 'linux-azure'
+    version: '5.4.0.1040.20'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-meta-azure-5.4'
+baseos:deb:linux-azure-5.4-cloud-tools-5.4.0-1039:5.4.0-1039.41~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-azure-5.4-cloud-tools-5.4.0-1039'
+    version: '5.4.0-1039.41~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-azure-5.4-cloud-tools-5.4.0-1040:5.4.0-1040.42~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-azure-5.4-cloud-tools-5.4.0-1040'
+    version: '5.4.0-1040.42~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-azure-5.4-headers-5.4.0-1039:5.4.0-1039.41~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-azure-5.4-headers-5.4.0-1039'
+    version: '5.4.0-1039.41~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-azure-5.4-headers-5.4.0-1040:5.4.0-1040.42~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-azure-5.4-headers-5.4.0-1040'
+    version: '5.4.0-1040.42~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-azure-5.4-tools-5.4.0-1039:5.4.0-1039.41~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-azure-5.4-tools-5.4.0-1039'
+    version: '5.4.0-1039.41~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-azure-5.4-tools-5.4.0-1040:5.4.0-1040.42~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-azure-5.4-tools-5.4.0-1040'
+    version: '5.4.0-1040.42~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-base:4.5ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'linux-base'
+    version: '4.5ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:linux-base-sgx:4.5ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'linux-base-sgx'
+    version: '4.5ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-base'
+baseos:deb:linux-cloud-tools-4.15.0-136:4.15.0-136.140:ubuntu:
+    repository: BaseOS
+    name: 'linux-cloud-tools-4.15.0-136'
+    version: '4.15.0-136.140'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux'
+baseos:deb:linux-cloud-tools-4.15.0-136-generic:4.15.0-136.140:ubuntu:
+    repository: BaseOS
+    name: 'linux-cloud-tools-4.15.0-136-generic'
+    version: '4.15.0-136.140'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux'
+baseos:deb:linux-cloud-tools-5.4.0-1039-azure:5.4.0-1039.41~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-cloud-tools-5.4.0-1039-azure'
+    version: '5.4.0-1039.41~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-cloud-tools-5.4.0-1040-azure:5.4.0-1040.42~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-cloud-tools-5.4.0-1040-azure'
+    version: '5.4.0-1040.42~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-cloud-tools-azure:5.4.0.1040.20:ubuntu:
+    repository: BaseOS
+    name: 'linux-cloud-tools-azure'
+    version: '5.4.0.1040.20'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-meta-azure-5.4'
+baseos:deb:linux-cloud-tools-common:4.15.0-136.140:ubuntu:
+    repository: BaseOS
+    name: 'linux-cloud-tools-common'
+    version: '4.15.0-136.140'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux'
+baseos:deb:linux-cloud-tools-virtual:4.15.0.136.123:ubuntu:
+    repository: BaseOS
+    name: 'linux-cloud-tools-virtual'
+    version: '4.15.0.136.123'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-meta'
+baseos:deb:linux-headers-4.15.0-135:4.15.0-135.139:ubuntu:
+    repository: BaseOS
+    name: 'linux-headers-4.15.0-135'
+    version: '4.15.0-135.139'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux'
+baseos:deb:linux-headers-5.4.0-1039-azure:5.4.0-1039.41~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-headers-5.4.0-1039-azure'
+    version: '5.4.0-1039.41~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-headers-5.4.0-1040-azure:5.4.0-1040.42~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-headers-5.4.0-1040-azure'
+    version: '5.4.0-1040.42~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-headers-azure:5.4.0.1040.20:ubuntu:
+    repository: BaseOS
+    name: 'linux-headers-azure'
+    version: '5.4.0.1040.20'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-meta-azure-5.4'
+baseos:deb:linux-image-5.4.0-1039-azure:5.4.0-1039.41~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-image-5.4.0-1039-azure'
+    version: '5.4.0-1039.41~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-signed-azure-5.4'
+baseos:deb:linux-image-5.4.0-1040-azure:5.4.0-1040.42~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-image-5.4.0-1040-azure'
+    version: '5.4.0-1040.42~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-signed-azure-5.4'
+baseos:deb:linux-image-azure:5.4.0.1040.20:ubuntu:
+    repository: BaseOS
+    name: 'linux-image-azure'
+    version: '5.4.0.1040.20'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-meta-azure-5.4'
+baseos:deb:linux-libc-dev:4.15.0-136.140:ubuntu:
+    repository: BaseOS
+    name: 'linux-libc-dev'
+    version: '4.15.0-136.140'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux'
+baseos:deb:linux-modules-5.4.0-1039-azure:5.4.0-1039.41~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-modules-5.4.0-1039-azure'
+    version: '5.4.0-1039.41~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-modules-5.4.0-1040-azure:5.4.0-1040.42~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-modules-5.4.0-1040-azure'
+    version: '5.4.0-1040.42~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-modules-extra-5.4.0-1039-azure:5.4.0-1039.41~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-modules-extra-5.4.0-1039-azure'
+    version: '5.4.0-1039.41~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-modules-extra-5.4.0-1040-azure:5.4.0-1040.42~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-modules-extra-5.4.0-1040-azure'
+    version: '5.4.0-1040.42~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-tools-4.15.0-136:4.15.0-136.140:ubuntu:
+    repository: BaseOS
+    name: 'linux-tools-4.15.0-136'
+    version: '4.15.0-136.140'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux'
+baseos:deb:linux-tools-4.15.0-136-generic:4.15.0-136.140:ubuntu:
+    repository: BaseOS
+    name: 'linux-tools-4.15.0-136-generic'
+    version: '4.15.0-136.140'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux'
+baseos:deb:linux-tools-5.4.0-1039-azure:5.4.0-1039.41~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-tools-5.4.0-1039-azure'
+    version: '5.4.0-1039.41~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-tools-5.4.0-1040-azure:5.4.0-1040.42~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'linux-tools-5.4.0-1040-azure'
+    version: '5.4.0-1040.42~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-azure-5.4'
+baseos:deb:linux-tools-azure:5.4.0.1040.20:ubuntu:
+    repository: BaseOS
+    name: 'linux-tools-azure'
+    version: '5.4.0.1040.20'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-meta-azure-5.4'
+baseos:deb:linux-tools-common:4.15.0-136.140:ubuntu:
+    repository: BaseOS
+    name: 'linux-tools-common'
+    version: '4.15.0-136.140'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux'
+baseos:deb:linux-tools-virtual:4.15.0.136.123:ubuntu:
+    repository: BaseOS
+    name: 'linux-tools-virtual'
+    version: '4.15.0.136.123'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'linux-meta'
+baseos:deb:locales:2.27-3ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'locales'
+    version: '2.27-3ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'glibc'
+baseos:deb:login:1:4.5-1ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'login'
+    version: '1:4.5-1ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'shadow'
+baseos:deb:logrotate:3.11.0-0.1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'logrotate'
+    version: '3.11.0-0.1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:lsb-base:9.20170808ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'lsb-base'
+    version: '9.20170808ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lsb'
+baseos:deb:lsb-release:9.20170808ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'lsb-release'
+    version: '9.20170808ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lsb'
+baseos:deb:lshw:02.18-0.1ubuntu6.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'lshw'
+    version: '02.18-0.1ubuntu6.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:lsof:4.89+dfsg-0.1:ubuntu:
+    repository: BaseOS
+    name: 'lsof'
+    version: '4.89+dfsg-0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:lsscsi:0.28-0.1:ubuntu:
+    repository: BaseOS
+    name: 'lsscsi'
+    version: '0.28-0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ltrace:0.7.3-6ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'ltrace'
+    version: '0.7.3-6ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:lvm2:2.02.176-4.1ubuntu3.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'lvm2'
+    version: '2.02.176-4.1ubuntu3.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:lxcfs:3.0.3-0ubuntu1~18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'lxcfs'
+    version: '3.0.3-0ubuntu1~18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:lxd:3.0.3-0ubuntu1~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'lxd'
+    version: '3.0.3-0ubuntu1~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:lxd-client:3.0.3-0ubuntu1~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'lxd-client'
+    version: '3.0.3-0ubuntu1~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'lxd'
+baseos:deb:make:4.1-9.1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'make'
+    version: '4.1-9.1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'make-dfsg'
+baseos:deb:man-db:2.8.3-2ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'man-db'
+    version: '2.8.3-2ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:manpages:4.15-1:ubuntu:
+    repository: BaseOS
+    name: 'manpages'
+    version: '4.15-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:manpages-dev:4.15-1:ubuntu:
+    repository: BaseOS
+    name: 'manpages-dev'
+    version: '4.15-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'manpages'
+baseos:deb:mawk:1.3.3-17ubuntu3:ubuntu:
+    repository: BaseOS
+    name: 'mawk'
+    version: '1.3.3-17ubuntu3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:mdadm:4.1~rc1-3~ubuntu18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'mdadm'
+    version: '4.1~rc1-3~ubuntu18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:mime-support:3.60ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'mime-support'
+    version: '3.60ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:mlocate:0.26-2ubuntu3.1:ubuntu:
+    repository: BaseOS
+    name: 'mlocate'
+    version: '0.26-2ubuntu3.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:mokutil:0.3.0+1538710437.fb6250f-0ubuntu2~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'mokutil'
+    version: '0.3.0+1538710437.fb6250f-0ubuntu2~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:motd-news-config:10.1ubuntu2.10:ubuntu:
+    repository: BaseOS
+    name: 'motd-news-config'
+    version: '10.1ubuntu2.10'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'base-files'
+baseos:deb:mount:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'mount'
+    version: '2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'util-linux'
+baseos:deb:mtr-tiny:0.92-1:ubuntu:
+    repository: BaseOS
+    name: 'mtr-tiny'
+    version: '0.92-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'mtr'
+baseos:deb:multiarch-support:2.27-3ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'multiarch-support'
+    version: '2.27-3ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'glibc'
+baseos:deb:nano:2.9.3-2:ubuntu:
+    repository: BaseOS
+    name: 'nano'
+    version: '2.9.3-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ncurses-base:6.1-1ubuntu1.18.04:ubuntu:
+    repository: BaseOS
+    name: 'ncurses-base'
+    version: '6.1-1ubuntu1.18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ncurses'
+baseos:deb:ncurses-bin:6.1-1ubuntu1.18.04:ubuntu:
+    repository: BaseOS
+    name: 'ncurses-bin'
+    version: '6.1-1ubuntu1.18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ncurses'
+baseos:deb:ncurses-term:6.1-1ubuntu1.18.04:ubuntu:
+    repository: BaseOS
+    name: 'ncurses-term'
+    version: '6.1-1ubuntu1.18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ncurses'
+baseos:deb:net-tools:1.60+git20161116.90da8a0-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'net-tools'
+    version: '1.60+git20161116.90da8a0-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:netbase:5.4:ubuntu:
+    repository: BaseOS
+    name: 'netbase'
+    version: '5.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:netcat-openbsd:1.187-1ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'netcat-openbsd'
+    version: '1.187-1ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:netplan.io:0.99-0ubuntu3~18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'netplan.io'
+    version: '0.99-0ubuntu3~18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:networkd-dispatcher:1.7-0ubuntu3.3:ubuntu:
+    repository: BaseOS
+    name: 'networkd-dispatcher'
+    version: '1.7-0ubuntu3.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:nplan:0.99-0ubuntu3~18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'nplan'
+    version: '0.99-0ubuntu3~18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'netplan.io'
+baseos:deb:ntfs-3g:1:2017.3.23-2ubuntu0.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'ntfs-3g'
+    version: '1:2017.3.23-2ubuntu0.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:open-iscsi:2.0.874-5ubuntu2.10:ubuntu:
+    repository: BaseOS
+    name: 'open-iscsi'
+    version: '2.0.874-5ubuntu2.10'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:open-vm-tools:2:11.0.5-4ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'open-vm-tools'
+    version: '2:11.0.5-4ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:openssh-client:1:7.6p1-4ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'openssh-client'
+    version: '1:7.6p1-4ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'openssh'
+baseos:deb:openssh-server:1:7.6p1-4ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'openssh-server'
+    version: '1:7.6p1-4ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'openssh'
+baseos:deb:openssh-sftp-server:1:7.6p1-4ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'openssh-sftp-server'
+    version: '1:7.6p1-4ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'openssh'
+baseos:deb:openssl:1.1.1-1ubuntu2.1~18.04.8:ubuntu:
+    repository: BaseOS
+    name: 'openssl'
+    version: '1.1.1-1ubuntu2.1~18.04.8'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:os-prober:1.74ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'os-prober'
+    version: '1.74ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:overlayroot:0.40ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'overlayroot'
+    version: '0.40ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'cloud-initramfs-tools'
+baseos:deb:parted:3.2-20ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'parted'
+    version: '3.2-20ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:passwd:1:4.5-1ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'passwd'
+    version: '1:4.5-1ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'shadow'
+baseos:deb:pastebinit:1.5-2:ubuntu:
+    repository: BaseOS
+    name: 'pastebinit'
+    version: '1.5-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:patch:2.7.6-2ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'patch'
+    version: '2.7.6-2ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:pciutils:1:3.5.2-1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'pciutils'
+    version: '1:3.5.2-1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:perl:5.26.1-6ubuntu0.5:ubuntu:
+    repository: BaseOS
+    name: 'perl'
+    version: '5.26.1-6ubuntu0.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:perl-base:5.26.1-6ubuntu0.5:ubuntu:
+    repository: BaseOS
+    name: 'perl-base'
+    version: '5.26.1-6ubuntu0.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'perl'
+baseos:deb:perl-modules-5.26:5.26.1-6ubuntu0.5:ubuntu:
+    repository: BaseOS
+    name: 'perl-modules-5.26'
+    version: '5.26.1-6ubuntu0.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'perl'
+baseos:deb:pinentry-curses:1.1.0-1:ubuntu:
+    repository: BaseOS
+    name: 'pinentry-curses'
+    version: '1.1.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pinentry'
+baseos:deb:plymouth:0.9.3-1ubuntu7.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'plymouth'
+    version: '0.9.3-1ubuntu7.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:plymouth-theme-ubuntu-text:0.9.3-1ubuntu7.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'plymouth-theme-ubuntu-text'
+    version: '0.9.3-1ubuntu7.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'plymouth'
+baseos:deb:policykit-1:0.105-20ubuntu0.18.04.5:ubuntu:
+    repository: BaseOS
+    name: 'policykit-1'
+    version: '0.105-20ubuntu0.18.04.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:pollinate:4.33-0ubuntu1~18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'pollinate'
+    version: '4.33-0ubuntu1~18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:popularity-contest:1.66ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'popularity-contest'
+    version: '1.66ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:powermgmt-base:1.33:ubuntu:
+    repository: BaseOS
+    name: 'powermgmt-base'
+    version: '1.33'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:procps:2:3.3.12-3ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'procps'
+    version: '2:3.3.12-3ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:psmisc:23.1-1ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'psmisc'
+    version: '23.1-1ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:publicsuffix:20180223.1310-1:ubuntu:
+    repository: BaseOS
+    name: 'publicsuffix'
+    version: '20180223.1310-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python:2.7.15~rc1-1:ubuntu:
+    repository: BaseOS
+    name: 'python'
+    version: '2.7.15~rc1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-defaults'
+baseos:deb:python-all:2.7.15~rc1-1:ubuntu:
+    repository: BaseOS
+    name: 'python-all'
+    version: '2.7.15~rc1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-defaults'
+baseos:deb:python-all-dev:2.7.15~rc1-1:ubuntu:
+    repository: BaseOS
+    name: 'python-all-dev'
+    version: '2.7.15~rc1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-defaults'
+baseos:deb:python-apt:1.6.5ubuntu0.5:ubuntu:
+    repository: BaseOS
+    name: 'python-apt'
+    version: '1.6.5ubuntu0.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python-apt-common:1.6.5ubuntu0.5:ubuntu:
+    repository: BaseOS
+    name: 'python-apt-common'
+    version: '1.6.5ubuntu0.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-apt'
+baseos:deb:python-asn1crypto:0.24.0-1:ubuntu:
+    repository: BaseOS
+    name: 'python-asn1crypto'
+    version: '0.24.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'asn1crypto'
+baseos:deb:python-cffi-backend:1.11.5-1:ubuntu:
+    repository: BaseOS
+    name: 'python-cffi-backend'
+    version: '1.11.5-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-cffi'
+baseos:deb:python-crypto:2.6.1-8ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'python-crypto'
+    version: '2.6.1-8ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python-cryptography:2.1.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'python-cryptography'
+    version: '2.1.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python-dbus:1.2.6-1:ubuntu:
+    repository: BaseOS
+    name: 'python-dbus'
+    version: '1.2.6-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'dbus-python'
+baseos:deb:python-dev:2.7.15~rc1-1:ubuntu:
+    repository: BaseOS
+    name: 'python-dev'
+    version: '2.7.15~rc1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-defaults'
+baseos:deb:python-enum34:1.1.6-2:ubuntu:
+    repository: BaseOS
+    name: 'python-enum34'
+    version: '1.1.6-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'enum34'
+baseos:deb:python-gi:3.26.1-2ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'python-gi'
+    version: '3.26.1-2ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pygobject'
+baseos:deb:python-idna:2.6-1:ubuntu:
+    repository: BaseOS
+    name: 'python-idna'
+    version: '2.6-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python-ipaddress:1.0.17-1:ubuntu:
+    repository: BaseOS
+    name: 'python-ipaddress'
+    version: '1.0.17-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python-keyring:10.6.0-1:ubuntu:
+    repository: BaseOS
+    name: 'python-keyring'
+    version: '10.6.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python-keyrings.alt:3.0-1:ubuntu:
+    repository: BaseOS
+    name: 'python-keyrings.alt'
+    version: '3.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'keyrings.alt'
+baseos:deb:python-ldb:2:1.2.3-1ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'python-ldb'
+    version: '2:1.2.3-1ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ldb'
+baseos:deb:python-minimal:2.7.15~rc1-1:ubuntu:
+    repository: BaseOS
+    name: 'python-minimal'
+    version: '2.7.15~rc1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-defaults'
+baseos:deb:python-parted:3.11.1-1ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'python-parted'
+    version: '3.11.1-1ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pyparted'
+baseos:deb:python-pip:9.0.1-2.3~ubuntu1.18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'python-pip'
+    version: '9.0.1-2.3~ubuntu1.18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python-pip-whl:9.0.1-2.3~ubuntu1.18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'python-pip-whl'
+    version: '9.0.1-2.3~ubuntu1.18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-pip'
+baseos:deb:python-pkg-resources:39.0.1-2:ubuntu:
+    repository: BaseOS
+    name: 'python-pkg-resources'
+    version: '39.0.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-setuptools'
+baseos:deb:python-samba:2:4.7.6+dfsg~ubuntu-0ubuntu2.21:ubuntu:
+    repository: BaseOS
+    name: 'python-samba'
+    version: '2:4.7.6+dfsg~ubuntu-0ubuntu2.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'samba'
+baseos:deb:python-secretstorage:2.3.1-2:ubuntu:
+    repository: BaseOS
+    name: 'python-secretstorage'
+    version: '2.3.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python-setuptools:39.0.1-2:ubuntu:
+    repository: BaseOS
+    name: 'python-setuptools'
+    version: '39.0.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python-six:1.11.0-2:ubuntu:
+    repository: BaseOS
+    name: 'python-six'
+    version: '1.11.0-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'six'
+baseos:deb:python-talloc:2.1.10-2ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'python-talloc'
+    version: '2.1.10-2ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'talloc'
+baseos:deb:python-tdb:1.3.15-2:ubuntu:
+    repository: BaseOS
+    name: 'python-tdb'
+    version: '1.3.15-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'tdb'
+baseos:deb:python-wheel:0.30.0-0.2:ubuntu:
+    repository: BaseOS
+    name: 'python-wheel'
+    version: '0.30.0-0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'wheel'
+baseos:deb:python-xdg:0.25-4ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'python-xdg'
+    version: '0.25-4ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pyxdg'
+baseos:deb:python2.7:2.7.17-1~18.04ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'python2.7'
+    version: '2.7.17-1~18.04ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python2.7-dev:2.7.17-1~18.04ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'python2.7-dev'
+    version: '2.7.17-1~18.04ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python2.7'
+baseos:deb:python2.7-minimal:2.7.17-1~18.04ubuntu1.2:ubuntu:
+    repository: BaseOS
+    name: 'python2.7-minimal'
+    version: '2.7.17-1~18.04ubuntu1.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python2.7'
+baseos:deb:python3:3.6.7-1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'python3'
+    version: '3.6.7-1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3-defaults'
+baseos:deb:python3-apport:2.20.9-0ubuntu7.23:ubuntu:
+    repository: BaseOS
+    name: 'python3-apport'
+    version: '2.20.9-0ubuntu7.23'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'apport'
+baseos:deb:python3-apt:1.6.5ubuntu0.5:ubuntu:
+    repository: BaseOS
+    name: 'python3-apt'
+    version: '1.6.5ubuntu0.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-apt'
+baseos:deb:python3-asn1crypto:0.24.0-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-asn1crypto'
+    version: '0.24.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'asn1crypto'
+baseos:deb:python3-attr:17.4.0-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-attr'
+    version: '17.4.0-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-attrs'
+baseos:deb:python3-automat:0.6.0-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-automat'
+    version: '0.6.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'automat'
+baseos:deb:python3-blinker:1.4+dfsg1-0.1:ubuntu:
+    repository: BaseOS
+    name: 'python3-blinker'
+    version: '1.4+dfsg1-0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'blinker'
+baseos:deb:python3-certifi:2018.1.18-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-certifi'
+    version: '2018.1.18-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-certifi'
+baseos:deb:python3-cffi-backend:1.11.5-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-cffi-backend'
+    version: '1.11.5-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-cffi'
+baseos:deb:python3-chardet:3.0.4-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-chardet'
+    version: '3.0.4-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'chardet'
+baseos:deb:python3-click:6.7-3:ubuntu:
+    repository: BaseOS
+    name: 'python3-click'
+    version: '6.7-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-click'
+baseos:deb:python3-colorama:0.3.7-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-colorama'
+    version: '0.3.7-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-colorama'
+baseos:deb:python3-commandnotfound:18.04.5:ubuntu:
+    repository: BaseOS
+    name: 'python3-commandnotfound'
+    version: '18.04.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'command-not-found'
+baseos:deb:python3-configobj:5.0.6-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-configobj'
+    version: '5.0.6-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'configobj'
+baseos:deb:python3-constantly:15.1.0-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-constantly'
+    version: '15.1.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'constantly'
+baseos:deb:python3-crypto:2.6.1-8ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'python3-crypto'
+    version: '2.6.1-8ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-crypto'
+baseos:deb:python3-cryptography:2.1.4-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'python3-cryptography'
+    version: '2.1.4-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-cryptography'
+baseos:deb:python3-dbus:1.2.6-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-dbus'
+    version: '1.2.6-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'dbus-python'
+baseos:deb:python3-debconf:1.5.66ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'python3-debconf'
+    version: '1.5.66ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'debconf'
+baseos:deb:python3-debian:0.1.32:ubuntu:
+    repository: BaseOS
+    name: 'python3-debian'
+    version: '0.1.32'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-debian'
+baseos:deb:python3-dev:3.6.7-1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'python3-dev'
+    version: '3.6.7-1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3-defaults'
+baseos:deb:python3-distro-info:0.18ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'python3-distro-info'
+    version: '0.18ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'distro-info'
+baseos:deb:python3-distupgrade:1:18.04.42:ubuntu:
+    repository: BaseOS
+    name: 'python3-distupgrade'
+    version: '1:18.04.42'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ubuntu-release-upgrader'
+baseos:deb:python3-distutils:3.6.9-1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'python3-distutils'
+    version: '3.6.9-1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3-stdlib-extensions'
+baseos:deb:python3-gdbm:3.6.9-1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'python3-gdbm'
+    version: '3.6.9-1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3-stdlib-extensions'
+baseos:deb:python3-gi:3.26.1-2ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'python3-gi'
+    version: '3.26.1-2ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pygobject'
+baseos:deb:python3-httplib2:0.9.2+dfsg-1ubuntu0.3:ubuntu:
+    repository: BaseOS
+    name: 'python3-httplib2'
+    version: '0.9.2+dfsg-1ubuntu0.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-httplib2'
+baseos:deb:python3-hyperlink:17.3.1-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-hyperlink'
+    version: '17.3.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'hyperlink'
+baseos:deb:python3-idna:2.6-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-idna'
+    version: '2.6-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-idna'
+baseos:deb:python3-incremental:16.10.1-3:ubuntu:
+    repository: BaseOS
+    name: 'python3-incremental'
+    version: '16.10.1-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'incremental'
+baseos:deb:python3-jinja2:2.10-1ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'python3-jinja2'
+    version: '2.10-1ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'jinja2'
+baseos:deb:python3-json-pointer:1.10-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-json-pointer'
+    version: '1.10-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-json-pointer'
+baseos:deb:python3-jsonpatch:1.19+really1.16-1fakesync1:ubuntu:
+    repository: BaseOS
+    name: 'python3-jsonpatch'
+    version: '1.19+really1.16-1fakesync1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-json-patch'
+baseos:deb:python3-jsonschema:2.6.0-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-jsonschema'
+    version: '2.6.0-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-jsonschema'
+baseos:deb:python3-jwt:1.5.3+ds1-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-jwt'
+    version: '1.5.3+ds1-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pyjwt'
+baseos:deb:python3-keyring:10.6.0-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-keyring'
+    version: '10.6.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-keyring'
+baseos:deb:python3-keyrings.alt:3.0-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-keyrings.alt'
+    version: '3.0-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'keyrings.alt'
+baseos:deb:python3-lib2to3:3.6.9-1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'python3-lib2to3'
+    version: '3.6.9-1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3-stdlib-extensions'
+baseos:deb:python3-markupsafe:1.0-1build1:ubuntu:
+    repository: BaseOS
+    name: 'python3-markupsafe'
+    version: '1.0-1build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'markupsafe'
+baseos:deb:python3-minimal:3.6.7-1~18.04:ubuntu:
+    repository: BaseOS
+    name: 'python3-minimal'
+    version: '3.6.7-1~18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3-defaults'
+baseos:deb:python3-netifaces:0.10.4-0.1build4:ubuntu:
+    repository: BaseOS
+    name: 'python3-netifaces'
+    version: '0.10.4-0.1build4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'netifaces'
+baseos:deb:python3-newt:0.52.20-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'python3-newt'
+    version: '0.52.20-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'newt'
+baseos:deb:python3-oauthlib:2.0.6-1:ubuntu:
+    repository: BaseOS
+    name: 'python3-oauthlib'
+    version: '2.0.6-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-oauthlib'
+baseos:deb:python3-openssl:17.5.0-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'python3-openssl'
+    version: '17.5.0-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pyopenssl'
+baseos:deb:python3-pam:0.4.2-13.2ubuntu4:ubuntu:
+    repository: BaseOS
+    name: 'python3-pam'
+    version: '0.4.2-13.2ubuntu4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-pam'
+baseos:deb:python3-pip:9.0.1-2.3~ubuntu1.18.04.4:ubuntu:
+    repository: BaseOS
+    name: 'python3-pip'
+    version: '9.0.1-2.3~ubuntu1.18.04.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-pip'
+baseos:deb:python3-pkg-resources:39.0.1-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-pkg-resources'
+    version: '39.0.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-setuptools'
+baseos:deb:python3-problem-report:2.20.9-0ubuntu7.23:ubuntu:
+    repository: BaseOS
+    name: 'python3-problem-report'
+    version: '2.20.9-0ubuntu7.23'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'apport'
+baseos:deb:python3-pyasn1:0.4.2-3:ubuntu:
+    repository: BaseOS
+    name: 'python3-pyasn1'
+    version: '0.4.2-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pyasn1'
+baseos:deb:python3-pyasn1-modules:0.2.1-0.2:ubuntu:
+    repository: BaseOS
+    name: 'python3-pyasn1-modules'
+    version: '0.2.1-0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-pyasn1-modules'
+baseos:deb:python3-requests:2.18.4-2ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'python3-requests'
+    version: '2.18.4-2ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'requests'
+baseos:deb:python3-requests-unixsocket:0.1.5-3:ubuntu:
+    repository: BaseOS
+    name: 'python3-requests-unixsocket'
+    version: '0.1.5-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-requests-unixsocket'
+baseos:deb:python3-secretstorage:2.3.1-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-secretstorage'
+    version: '2.3.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-secretstorage'
+baseos:deb:python3-serial:3.4-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-serial'
+    version: '3.4-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pyserial'
+baseos:deb:python3-service-identity:16.0.0-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-service-identity'
+    version: '16.0.0-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-service-identity'
+baseos:deb:python3-setuptools:39.0.1-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-setuptools'
+    version: '39.0.1-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-setuptools'
+baseos:deb:python3-six:1.11.0-2:ubuntu:
+    repository: BaseOS
+    name: 'python3-six'
+    version: '1.11.0-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'six'
+baseos:deb:python3-software-properties:0.96.24.32.14:ubuntu:
+    repository: BaseOS
+    name: 'python3-software-properties'
+    version: '0.96.24.32.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'software-properties'
+baseos:deb:python3-systemd:234-1build1:ubuntu:
+    repository: BaseOS
+    name: 'python3-systemd'
+    version: '234-1build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-systemd'
+baseos:deb:python3-twisted:17.9.0-2ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'python3-twisted'
+    version: '17.9.0-2ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'twisted'
+baseos:deb:python3-twisted-bin:17.9.0-2ubuntu0.1:ubuntu:
+    repository: BaseOS
+    name: 'python3-twisted-bin'
+    version: '17.9.0-2ubuntu0.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'twisted'
+baseos:deb:python3-update-manager:1:18.04.11.13:ubuntu:
+    repository: BaseOS
+    name: 'python3-update-manager'
+    version: '1:18.04.11.13'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'update-manager'
+baseos:deb:python3-urllib3:1.22-1ubuntu0.18.04.2:ubuntu:
+    repository: BaseOS
+    name: 'python3-urllib3'
+    version: '1.22-1ubuntu0.18.04.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python-urllib3'
+baseos:deb:python3-wheel:0.30.0-0.2:ubuntu:
+    repository: BaseOS
+    name: 'python3-wheel'
+    version: '0.30.0-0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'wheel'
+baseos:deb:python3-xdg:0.25-4ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'python3-xdg'
+    version: '0.25-4ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pyxdg'
+baseos:deb:python3-yaml:3.12-1build2:ubuntu:
+    repository: BaseOS
+    name: 'python3-yaml'
+    version: '3.12-1build2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'pyyaml'
+baseos:deb:python3-zope.interface:4.3.2-1build2:ubuntu:
+    repository: BaseOS
+    name: 'python3-zope.interface'
+    version: '4.3.2-1build2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'zope.interface'
+baseos:deb:python3.6:3.6.9-1~18.04ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'python3.6'
+    version: '3.6.9-1~18.04ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:python3.6-dev:3.6.9-1~18.04ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'python3.6-dev'
+    version: '3.6.9-1~18.04ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3.6'
+baseos:deb:python3.6-minimal:3.6.9-1~18.04ubuntu1.3:ubuntu:
+    repository: BaseOS
+    name: 'python3.6-minimal'
+    version: '3.6.9-1~18.04ubuntu1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'python3.6'
+baseos:deb:readline-common:7.0-3:ubuntu:
+    repository: BaseOS
+    name: 'readline-common'
+    version: '7.0-3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'readline'
+baseos:deb:rsync:3.1.2-2.1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'rsync'
+    version: '3.1.2-2.1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:rsyslog:8.32.0-1ubuntu4:ubuntu:
+    repository: BaseOS
+    name: 'rsyslog'
+    version: '8.32.0-1ubuntu4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:run-one:1.17-0ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'run-one'
+    version: '1.17-0ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:samba-common:2:4.7.6+dfsg~ubuntu-0ubuntu2.21:ubuntu:
+    repository: BaseOS
+    name: 'samba-common'
+    version: '2:4.7.6+dfsg~ubuntu-0ubuntu2.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'samba'
+baseos:deb:samba-common-bin:2:4.7.6+dfsg~ubuntu-0ubuntu2.21:ubuntu:
+    repository: BaseOS
+    name: 'samba-common-bin'
+    version: '2:4.7.6+dfsg~ubuntu-0ubuntu2.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'samba'
+baseos:deb:samba-libs:2:4.7.6+dfsg~ubuntu-0ubuntu2.21:ubuntu:
+    repository: BaseOS
+    name: 'samba-libs'
+    version: '2:4.7.6+dfsg~ubuntu-0ubuntu2.21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'samba'
+baseos:deb:sbsigntool:0.6-3.2ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'sbsigntool'
+    version: '0.6-3.2ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:screen:4.6.2-1ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'screen'
+    version: '4.6.2-1ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:secureboot-db:1.4~ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'secureboot-db'
+    version: '1.4~ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:sed:4.4-2:ubuntu:
+    repository: BaseOS
+    name: 'sed'
+    version: '4.4-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:sensible-utils:0.0.12:ubuntu:
+    repository: BaseOS
+    name: 'sensible-utils'
+    version: '0.0.12'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:shared-mime-info:1.9-2:ubuntu:
+    repository: BaseOS
+    name: 'shared-mime-info'
+    version: '1.9-2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:shim:15+1552672080.a4a1fbe-0ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'shim'
+    version: '15+1552672080.a4a1fbe-0ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:shim-signed:1.37~18.04.8+15+1552672080.a4a1fbe-0ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'shim-signed'
+    version: '1.37~18.04.8+15+1552672080.a4a1fbe-0ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'shim-signed (1.37~18.04.8)'
+baseos:deb:snapd:2.48.3+18.04:ubuntu:
+    repository: BaseOS
+    name: 'snapd'
+    version: '2.48.3+18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:socat:1.7.3.2-2ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'socat'
+    version: '1.7.3.2-2ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:software-properties-common:0.96.24.32.14:ubuntu:
+    repository: BaseOS
+    name: 'software-properties-common'
+    version: '0.96.24.32.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'software-properties'
+baseos:deb:sosreport:3.9.1-1ubuntu0.18.04.3:ubuntu:
+    repository: BaseOS
+    name: 'sosreport'
+    version: '3.9.1-1ubuntu0.18.04.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:squashfs-tools:1:4.3-6ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'squashfs-tools'
+    version: '1:4.3-6ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ssh-import-id:5.7-0ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'ssh-import-id'
+    version: '5.7-0ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:strace:4.21-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'strace'
+    version: '4.21-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:sudo:1.8.21p2-3ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'sudo'
+    version: '1.8.21p2-3ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:systemd:237-3ubuntu10.44:ubuntu:
+    repository: BaseOS
+    name: 'systemd'
+    version: '237-3ubuntu10.44'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:systemd-sysv:237-3ubuntu10.44:ubuntu:
+    repository: BaseOS
+    name: 'systemd-sysv'
+    version: '237-3ubuntu10.44'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'systemd'
+baseos:deb:sysvinit-utils:2.88dsf-59.10ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'sysvinit-utils'
+    version: '2.88dsf-59.10ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'sysvinit'
+baseos:deb:tar:1.29b-2ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'tar'
+    version: '1.29b-2ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:tcpdump:4.9.3-0ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'tcpdump'
+    version: '4.9.3-0ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:telnet:0.17-41:ubuntu:
+    repository: BaseOS
+    name: 'telnet'
+    version: '0.17-41'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'netkit-telnet'
+baseos:deb:time:1.7-25.1build1:ubuntu:
+    repository: BaseOS
+    name: 'time'
+    version: '1.7-25.1build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:tmux:2.6-3ubuntu0.2:ubuntu:
+    repository: BaseOS
+    name: 'tmux'
+    version: '2.6-3ubuntu0.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:tzdata:2021a-0ubuntu0.18.04:ubuntu:
+    repository: BaseOS
+    name: 'tzdata'
+    version: '2021a-0ubuntu0.18.04'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ubuntu-advantage-tools:17:ubuntu:
+    repository: BaseOS
+    name: 'ubuntu-advantage-tools'
+    version: '17'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ubuntu-keyring:2018.09.18.1~18.04.0:ubuntu:
+    repository: BaseOS
+    name: 'ubuntu-keyring'
+    version: '2018.09.18.1~18.04.0'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:ubuntu-minimal:1.417.5:ubuntu:
+    repository: BaseOS
+    name: 'ubuntu-minimal'
+    version: '1.417.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ubuntu-meta'
+baseos:deb:ubuntu-release-upgrader-core:1:18.04.42:ubuntu:
+    repository: BaseOS
+    name: 'ubuntu-release-upgrader-core'
+    version: '1:18.04.42'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ubuntu-release-upgrader'
+baseos:deb:ubuntu-server:1.417.5:ubuntu:
+    repository: BaseOS
+    name: 'ubuntu-server'
+    version: '1.417.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ubuntu-meta'
+baseos:deb:ubuntu-standard:1.417.5:ubuntu:
+    repository: BaseOS
+    name: 'ubuntu-standard'
+    version: '1.417.5'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'ubuntu-meta'
+baseos:deb:ucf:3.0038:ubuntu:
+    repository: BaseOS
+    name: 'ucf'
+    version: '3.0038'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:udev:237-3ubuntu10.44:ubuntu:
+    repository: BaseOS
+    name: 'udev'
+    version: '237-3ubuntu10.44'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'systemd'
+baseos:deb:ufw:0.36-0ubuntu0.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'ufw'
+    version: '0.36-0ubuntu0.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:uidmap:1:4.5-1ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'uidmap'
+    version: '1:4.5-1ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'shadow'
+baseos:deb:unattended-upgrades:1.1ubuntu1.18.04.14:ubuntu:
+    repository: BaseOS
+    name: 'unattended-upgrades'
+    version: '1.1ubuntu1.18.04.14'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:unzip:6.0-21ubuntu1.1:ubuntu:
+    repository: BaseOS
+    name: 'unzip'
+    version: '6.0-21ubuntu1.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:update-manager-core:1:18.04.11.13:ubuntu:
+    repository: BaseOS
+    name: 'update-manager-core'
+    version: '1:18.04.11.13'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'update-manager'
+baseos:deb:update-notifier-common:3.192.1.9:ubuntu:
+    repository: BaseOS
+    name: 'update-notifier-common'
+    version: '3.192.1.9'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'update-notifier'
+baseos:deb:ureadahead:0.100.0-21:ubuntu:
+    repository: BaseOS
+    name: 'ureadahead'
+    version: '0.100.0-21'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:usbutils:1:007-4build1:ubuntu:
+    repository: BaseOS
+    name: 'usbutils'
+    version: '1:007-4build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:util-linux:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'util-linux'
+    version: '2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:uuid-runtime:2.31.1-0.4ubuntu3.7:ubuntu:
+    repository: BaseOS
+    name: 'uuid-runtime'
+    version: '2.31.1-0.4ubuntu3.7'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'util-linux'
+baseos:deb:vim:2:8.0.1453-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'vim'
+    version: '2:8.0.1453-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:vim-common:2:8.0.1453-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'vim-common'
+    version: '2:8.0.1453-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'vim'
+baseos:deb:vim-runtime:2:8.0.1453-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'vim-runtime'
+    version: '2:8.0.1453-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'vim'
+baseos:deb:vim-tiny:2:8.0.1453-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'vim-tiny'
+    version: '2:8.0.1453-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'vim'
+baseos:deb:walinuxagent:2.2.45-0ubuntu1~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'walinuxagent'
+    version: '2.2.45-0ubuntu1~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:wget:1.19.4-1ubuntu2.2:ubuntu:
+    repository: BaseOS
+    name: 'wget'
+    version: '1.19.4-1ubuntu2.2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:whiptail:0.52.20-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'whiptail'
+    version: '0.52.20-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'newt'
+baseos:deb:wireless-regdb:2020.11.20-0ubuntu1~18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'wireless-regdb'
+    version: '2020.11.20-0ubuntu1~18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:xauth:1:1.0.10-1:ubuntu:
+    repository: BaseOS
+    name: 'xauth'
+    version: '1:1.0.10-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:xdelta3:3.0.11-dfsg-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'xdelta3'
+    version: '3.0.11-dfsg-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:xdg-user-dirs:0.17-1ubuntu1:ubuntu:
+    repository: BaseOS
+    name: 'xdg-user-dirs'
+    version: '0.17-1ubuntu1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:xfsprogs:4.9.0+nmu1ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'xfsprogs'
+    version: '4.9.0+nmu1ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:xkb-data:2.23.1-1ubuntu1.18.04.1:ubuntu:
+    repository: BaseOS
+    name: 'xkb-data'
+    version: '2.23.1-1ubuntu1.18.04.1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'xkeyboard-config'
+baseos:deb:xxd:2:8.0.1453-1ubuntu1.4:ubuntu:
+    repository: BaseOS
+    name: 'xxd'
+    version: '2:8.0.1453-1ubuntu1.4'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'vim'
+baseos:deb:xz-utils:5.2.2-1.3:ubuntu:
+    repository: BaseOS
+    name: 'xz-utils'
+    version: '5.2.2-1.3'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:zerofree:1.0.4-1:ubuntu:
+    repository: BaseOS
+    name: 'zerofree'
+    version: '1.0.4-1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:zip:3.0-11build1:ubuntu:
+    repository: BaseOS
+    name: 'zip'
+    version: '3.0-11build1'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+baseos:deb:zlib1g:1:1.2.11.dfsg-0ubuntu2:ubuntu:
+    repository: BaseOS
+    name: 'zlib1g'
+    version: '1:1.2.11.dfsg-0ubuntu2'
+    baseos-style: deb
+    baseos-osname: 'ubuntu'
+    baseos-source: 'zlib'

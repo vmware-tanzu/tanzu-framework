@@ -1,0 +1,29 @@
+name: calico-package
+packages:
+- version: v3.19.1+vmware.1-tkg.2-calico-20211029
+  upstreamCommit: 44dd013c20b999480c3ef82420a22f8144b2be04
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: calico_all
+    version:
+    - v3.19.1+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all").artifactURL.calicoCniImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all").artifactURL.calicoKubecontrollerImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all").artifactURL.calicoNodeImage.url}}'
+    gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "calico_all").artifactURL.calicoPodDaemonImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.2-20211029
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: calico
+    gobuild.package_type: core
+    gobuild.upstream_image_0: docker.io/calico/cni:v3.19.1
+    gobuild.upstream_image_1: docker.io/calico/kube-controllers:v3.19.1
+    gobuild.upstream_image_2: docker.io/calico/node:v3.19.1
+    gobuild.upstream_image_3: docker.io/calico/pod2daemon-flexvol:v3.19.1
+    gobuild.upstream_version: 3.19.1

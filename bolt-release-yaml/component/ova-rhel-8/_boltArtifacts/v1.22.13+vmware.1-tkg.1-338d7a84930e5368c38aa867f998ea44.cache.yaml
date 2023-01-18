@@ -1,0 +1,8 @@
+name: ova-rhel-8
+imageCaches:
+- version: v1.22.13+vmware.1-tkg.1-338d7a84930e5368c38aa867f998ea44
+  channel: "432505954798429963"
+  hash: baa7a031e2476861e950db0e0adaf9b8
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2667
+  buildNumber: "2667"
+  buildStatus: SUCCEEDED

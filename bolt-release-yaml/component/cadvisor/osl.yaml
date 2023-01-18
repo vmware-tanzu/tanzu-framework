@@ -1,0 +1,4 @@
+submodules:
+  - name: cadvisor/src
+    go_mod:
+      - "go.mod"

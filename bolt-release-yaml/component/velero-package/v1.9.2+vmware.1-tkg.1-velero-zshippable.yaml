@@ -1,0 +1,41 @@
+name: velero-package
+packages:
+  - version: v1.9.2+vmware.1-tkg.1-velero-zshippable
+    upstreamCommit: c0fcdea2f3c298783c8e4c0e0a1cc4724da2bbd4
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+    componentReferences:
+      - name: velero
+        version:
+        - v1.9.2+vmware.1
+      - name: velero-plugin-for-aws
+        version:
+        - v1.5.1+vmware.1
+      - name: velero-plugin-for-csi
+        version:
+        - v0.3.1+vmware.1
+      - name: velero-plugin-for-microsoft-azure
+        version:
+        - v1.5.1+vmware.1
+      - name: velero-plugin-for-vsphere
+        version:
+        - v1.4.0+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: velero
+      gobuild.upstream_version: 1.9.2
+      gobuild.downstream_version: vmware.1-tkg.1-zshippable
+      gobuild.package_type: standard
+      gobuild.noMirror: "true"
+      gobuild.upstream_image_0: "velero/velero:v1.9.2"
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "velero" ).artifactURL.veleroImage.url}}'
+      gobuild.upstream_image_1: "velero/velero-plugin-for-aws:v1.5.1"
+      gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "velero-plugin-for-aws" ).artifactURL.veleroPluginForAwsImage.url}}'
+      gobuild.upstream_image_2: "velero/velero-plugin-for-csi:v0.3.1"
+      gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "velero-plugin-for-csi" ).artifactURL.veleroPluginForCsiImage.url}}'
+      gobuild.upstream_image_3: "velero/velero-plugin-for-microsoft-azure:v1.5.1"
+      gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "velero-plugin-for-microsoft-azure" ).artifactURL.veleroPluginForMicrosoftAzureImage.url}}'
+      gobuild.upstream_image_4: "velero/velero-plugin-for-vsphere:v1.4.0"
+      gobuild.downstream_image_4: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds")) "name" "velero-plugin-for-vsphere" ).artifactURL.veleroPluginForVsphereImage.url}}'

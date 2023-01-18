@@ -1,0 +1,14 @@
+name: cluster_api
+managedComponents:
+- version: v1.1.5+vmware.1
+  upstreamTag: v1.1.5
+  gobuildBaseBranch: vmware-0.3.0+vmware.0~d7d37a8c6505e96e6d1c412b51424d0f1d26a7bb
+  mirrorCherryPicks:
+  - sha: b180d9bb87c7e3c4bff6887d97511d8da09a0f00
+    description: fix the dockerhub ratelimit error for CAPI
+  - sha: 100a9dd90e0adc6bbc124a800c45db63b4ed0f1e
+    description: fix the dockerhub ratelimit error for CAPD
+  dependencies:
+    gobuild.golangVersion: 1.17
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.linux_hosttype: linux-centos8

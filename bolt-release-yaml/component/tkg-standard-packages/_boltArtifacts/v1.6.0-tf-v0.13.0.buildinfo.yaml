@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-standard-packages
+  version: v1.6.0-tf-v0.13.0
+  channel: "385847605512399811"
+  url: https://buildweb.eng.vmware.com/ob/19065239/
+  artifactURL:
+    tanzuStandardPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.6.0-tf-v0.13.0
+      sha256: 8ff396d9b21c1505c96e12c454f7ec4002d1e5174a2290d77df1ecb5b6584503
+  cachehash: df29057da1a0a5df5880a652a23e5f70
+  publishhash: 921227668c0e32e4d6fe8038487b734c

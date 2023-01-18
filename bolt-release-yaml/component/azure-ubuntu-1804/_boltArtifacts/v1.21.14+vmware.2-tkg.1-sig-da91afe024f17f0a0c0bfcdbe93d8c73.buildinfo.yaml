@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.21.14+vmware.2-tkg.1-sig-da91afe024f17f0a0c0bfcdbe93d8c73
+  channel: "417569215029974416"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2579
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-sig-v1.21.14+vmware.2-tkg.1-sig-da91afe024f17f0a0c0bfcdbe93d8c73.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.1-sig-da91afe024f17f0a0c0bfcdbe93d8c73-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.1-sig-da91afe024f17f0a0c0bfcdbe93d8c73-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.1-sig-da91afe024f17f0a0c0bfcdbe93d8c73-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.1-sig-da91afe024f17f0a0c0bfcdbe93d8c73-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.21.14+vmware.2-tkg.1-sig-da91afe024f17f0a0c0bfcdbe93d8c73.json
+  cachehash: 2adf6bf0c01a22ab2ea7d44648d7faa3
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: dd228b3715c62a41fd300bdc590ad0d30107a5f8

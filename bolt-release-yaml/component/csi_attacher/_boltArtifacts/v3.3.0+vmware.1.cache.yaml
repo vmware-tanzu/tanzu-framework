@@ -1,0 +1,7 @@
+name: csi_attacher
+goBuildComponentCaches:
+- version: v3.3.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18965995/
+  buildNumber: bora-18965995
+  buildStatus: SUCCEEDED
+  hash: b96b4baf407a4085b7f4e129f80de354

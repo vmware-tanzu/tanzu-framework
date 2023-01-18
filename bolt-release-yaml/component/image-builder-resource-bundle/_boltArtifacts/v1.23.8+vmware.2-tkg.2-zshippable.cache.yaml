@@ -1,0 +1,7 @@
+name: image-builder-resource-bundle
+goBuildComponentCaches:
+- version: v1.23.8+vmware.2-tkg.2-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20811422/
+  buildNumber: bora-20811422
+  buildStatus: SUCCEEDED
+  hash: 00c8d975e8f480d854c852a2f645a53e

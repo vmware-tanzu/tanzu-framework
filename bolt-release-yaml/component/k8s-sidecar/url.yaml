@@ -1,0 +1,8 @@
+name: k8s-sidecar
+upstreamURL: https://github.com/kiwigrid/k8s-sidecar.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_k8s-sidecar.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_k8s-sidecar.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_k8s-sidecar.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_k8s-sidecar.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_k8s-sidecar.git
+gobuildTarget: cayman_k8s-sidecar

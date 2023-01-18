@@ -1,0 +1,7 @@
+name: gc-compatibility
+goBuildComponentLocks:
+- version: v1.21.11+vmware.1
+  gobuildBranch: k8s-release-1.21
+  gobuildHeadCommit: 9387beac59638e222d209a635df85ac42cb4376d
+  hash: 3abc6fab85e7440d0b6864dfae58f86f
+  componentLockReferences: []

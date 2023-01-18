@@ -1,0 +1,40 @@
+name: vsphere-pv-csi-package
+packages:
+- version: v2.3.0+vmware.1-tkg.1-vsphere-pv-csi-rc.2
+  upstreamCommit: f4f5f05244d31a91a4cdbdf6908c02930a3604cf
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: vsphere_csi_driver_tkgs
+    version:
+    - v2.3.0
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "vsphere_csi_driver_tkgs").artifactURL.csiControllerImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "vsphere_csi_driver_tkgs").artifactURL.csiMetaDataSyncerImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "vsphere_csi_driver_tkgs").artifactURL.csiAttacherImage.url}}'
+    gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "vsphere_csi_driver_tkgs").artifactURL.csiNodeDriverRegistrarImage.url}}'
+    gobuild.downstream_image_4: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "vsphere_csi_driver_tkgs").artifactURL.csiProvisonerImage.url}}'
+    gobuild.downstream_image_5: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "vsphere_csi_driver_tkgs").artifactURL.csiExternalResizer.url}}'
+    gobuild.downstream_image_6: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "vsphere_csi_driver_tkgs").artifactURL.csiLivenessProbeImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.1-rc.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: vsphere-pv-csi
+    gobuild.package_type: core
+    gobuild.upstream_image_0: gcr.io/cloud-provider-vsphere/csi/release/driver:v2.3.0
+    gobuild.upstream_image_1: gcr.io/cloud-provider-vsphere/csi/release/syncer:v2.3.0
+    gobuild.upstream_image_2: k8s.gcr.io/sig-storage/csi-attacher:v3.2.1
+    gobuild.upstream_image_3: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.1.0
+    gobuild.upstream_image_4: k8s.gcr.io/sig-storage/csi-provisioner:v2.1.0
+    gobuild.upstream_image_5: k8s.gcr.io/sig-storage/csi-resizer:v1.2.0
+    gobuild.upstream_image_6: k8s.gcr.io/sig-storage/livenessprobe:v2.3.0
+    gobuild.upstream_version: 2.3.0

@@ -1,0 +1,21 @@
+componentBuilds:
+- name: ami-gov-ubuntu-2004
+  version: v1.22.11+vmware.1-tkg.1-d705ff0f67d10212d8edf2a1394d747b
+  channel: "416420159478050496"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/2479
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416420159478050496/component/ami-gov-ubuntu-2004/bom-ami-gov-ubuntu-2004-v1.22.11+vmware.1-tkg.1-d705ff0f67d10212d8edf2a1394d747b.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416420159478050496/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.22.11+vmware.1-tkg.1-d705ff0f67d10212d8edf2a1394d747b-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416420159478050496/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.22.11+vmware.1-tkg.1-d705ff0f67d10212d8edf2a1394d747b-osstpmgt.yaml
+  cachehash: d802d0b4ceaf88c27db99f2029bee11e
+  publishhash: 1a087d047b2d648ef2c583e2ef33e0c4
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 88edce31a8cfc66cd906fa364d7ffa7ee9b70cf4
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 9704dae0cb5703afc9f775a959d5fe88a1d6170c

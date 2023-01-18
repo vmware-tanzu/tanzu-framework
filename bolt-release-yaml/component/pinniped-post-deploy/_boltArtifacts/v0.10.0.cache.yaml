@@ -1,0 +1,7 @@
+name: pinniped-post-deploy
+goBuildComponentCaches:
+- version: v0.10.0
+  url: https://buildweb.eng.vmware.com/ob/19294174/
+  buildNumber: bora-19294174
+  buildStatus: SUCCEEDED
+  hash: bf0e809824fcb2abf28921f91d7ae064

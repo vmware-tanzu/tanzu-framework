@@ -1,0 +1,11 @@
+name: ova-rhel-7
+imageCaches:
+- version: v1.18.16+vmware.1-tkg.0-2838566783145377226
+  channel: "345464092128970917"
+  imageCacheOVA:
+    url: http://10.163.0.194/kscom-generic-local/TKG/channels/345464092128970917/component/ova-rhel-7/rhel-7-kube-v1.18.16+vmware.1-tkg.0-2838566783145377226.ova
+    imageSHA: 990f595969a715b6ee77959b3e381f45d01ed7fce321cd5baf364634c5825c36
+  hash: "10169954860689907636"
+  url: https://kscom.svc.eng.vmware.com/job/build-ova-v1alpha2/118
+  buildNumber: "118"
+  buildStatus: SUCCEEDED

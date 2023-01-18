@@ -1,0 +1,225 @@
+other:pushgateway:v1.4.0:
+  license: Apache-2.0
+  name: pushgateway
+  other-distribution: /osl_sources/core-build-mirrors_github_pushgateway-v1.4.0.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_pushgateway
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_pushgateway/-/archive/v1.4.0/mirrors_github_pushgateway-v1.4.0.tar.gz
+  version: v1.4.0
+other:x_net:f5854403a974:
+  license: BSD-3-Clause
+  name: x_net
+  other-distribution: /osl_sources/golang-net-f5854403a974.tar.gz
+  other-url: https://golang.org/x/net
+  repository: Other
+  url: https://codeload.github.com/golang/net/tar.gz/f5854403a974
+  version: f5854403a974
+other:alecthomas_kingpin_v2:v2.2.6:
+  license: MIT
+  name: alecthomas_kingpin_v2
+  other-distribution: /osl_sources/alecthomas-kingpin-v2.2.6.tar.gz
+  other-url: https://gopkg.in/alecthomas/kingpin.v2
+  repository: Other
+  url: https://codeload.github.com/alecthomas/kingpin/tar.gz/v2.2.6
+  version: v2.2.6
+other:alecthomas_units:f65c72e2690d:
+  license: MIT
+  name: alecthomas_units
+  other-distribution: /osl_sources/alecthomas-units-f65c72e2690d.tar.gz
+  other-url: https://github.com/alecthomas/units
+  repository: Other
+  url: https://codeload.github.com/alecthomas/units/tar.gz/f65c72e2690d
+  version: f65c72e2690d
+other:prometheus_common_internal_bitbucket_org_ww_goautoneg:v0.15.0:
+  license: Unlicense
+  name: prometheus_common_internal_bitbucket_org_ww_goautoneg
+  other-distribution: /osl_sources/prometheus-common-v0.15.0.tar.gz
+  other-url: https://github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
+  repository: Other
+  url: https://codeload.github.com/prometheus/common/tar.gz/v0.15.0
+  version: v0.15.0
+other:prometheus_client_golang:v1.9.0:
+  license: Apache-2.0
+  name: prometheus_client_golang
+  other-distribution: /osl_sources/prometheus-client_golang-v1.9.0.tar.gz
+  other-url: https://github.com/prometheus/client_golang
+  repository: Other
+  url: https://codeload.github.com/prometheus/client_golang/tar.gz/v1.9.0
+  version: v1.9.0
+other:x_text:v0.3.3:
+  license: BSD-3-Clause
+  name: x_text
+  other-distribution: /osl_sources/golang-text-v0.3.3.tar.gz
+  other-url: https://golang.org/x/text
+  repository: Other
+  url: https://codeload.github.com/golang/text/tar.gz/v0.3.3
+  version: v0.3.3
+other:beorn7_perks:v1.0.1:
+  license: MIT
+  name: beorn7_perks
+  other-distribution: /osl_sources/beorn7-perks-v1.0.1.tar.gz
+  other-url: https://github.com/beorn7/perks
+  repository: Other
+  url: https://codeload.github.com/beorn7/perks/tar.gz/v1.0.1
+  version: v1.0.1
+other:prometheus_exporter-toolkit:v0.5.1:
+  license: Apache-2.0
+  name: prometheus_exporter-toolkit
+  other-distribution: /osl_sources/prometheus-exporter-toolkit-v0.5.1.tar.gz
+  other-url: https://github.com/prometheus/exporter-toolkit
+  repository: Other
+  url: https://codeload.github.com/prometheus/exporter-toolkit/tar.gz/v0.5.1
+  version: v0.5.1
+other:protobuf:v1.23.0:
+  license: BSD-3-Clause
+  name: protobuf
+  other-distribution: /osl_sources/protobuf-v1.23.0.tar.gz
+  other-url: https://google.golang.org/protobuf
+  repository: Other
+  url: ""
+  version: v1.23.0
+other:shurcool_httpfs:8d4bc4ba7749:
+  license: MIT
+  name: shurcool_httpfs
+  other-distribution: /osl_sources/shurcooL-httpfs-8d4bc4ba7749.tar.gz
+  other-url: https://github.com/shurcooL/httpfs
+  repository: Other
+  url: https://codeload.github.com/shurcooL/httpfs/tar.gz/8d4bc4ba7749
+  version: 8d4bc4ba7749
+other:jpillora_backoff:v1.0.0:
+  license: MIT
+  name: jpillora_backoff
+  other-distribution: /osl_sources/jpillora-backoff-v1.0.0.tar.gz
+  other-url: https://github.com/jpillora/backoff
+  repository: Other
+  url: https://codeload.github.com/jpillora/backoff/tar.gz/v1.0.0
+  version: v1.0.0
+other:julienschmidt_httprouter:v1.3.0:
+  license: BSD-3-Clause
+  name: julienschmidt_httprouter
+  other-distribution: /osl_sources/julienschmidt-httprouter-v1.3.0.tar.gz
+  other-url: https://github.com/julienschmidt/httprouter
+  repository: Other
+  url: https://codeload.github.com/julienschmidt/httprouter/tar.gz/v1.3.0
+  version: v1.3.0
+other:go-logfmt_logfmt:v0.5.0:
+  license: MIT
+  name: go-logfmt_logfmt
+  other-distribution: /osl_sources/go-logfmt-logfmt-v0.5.0.tar.gz
+  other-url: https://github.com/go-logfmt/logfmt
+  repository: Other
+  url: https://codeload.github.com/go-logfmt/logfmt/tar.gz/v0.5.0
+  version: v0.5.0
+other:shurcool_vfsgen:0d455de96546:
+  license: MIT
+  name: shurcool_vfsgen
+  other-distribution: /osl_sources/shurcooL-vfsgen-0d455de96546.tar.gz
+  other-url: https://github.com/shurcooL/vfsgen
+  repository: Other
+  url: https://codeload.github.com/shurcooL/vfsgen/tar.gz/0d455de96546
+  version: 0d455de96546
+other:prometheus_procfs:v0.2.0:
+  license: Apache-2.0
+  name: prometheus_procfs
+  other-distribution: /osl_sources/prometheus-procfs-v0.2.0.tar.gz
+  other-url: https://github.com/prometheus/procfs
+  repository: Other
+  url: https://codeload.github.com/prometheus/procfs/tar.gz/v0.2.0
+  version: v0.2.0
+other:x_sys:f9fddec55a1e:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/golang-sys-f9fddec55a1e.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/f9fddec55a1e
+  version: f9fddec55a1e
+other:golang_protobuf:v1.4.3:
+  license: BSD-3-Clause
+  name: golang_protobuf
+  other-distribution: /osl_sources/golang-protobuf-v1.4.3.tar.gz
+  other-url: https://github.com/golang/protobuf
+  repository: Other
+  url: https://codeload.github.com/golang/protobuf/tar.gz/v1.4.3
+  version: v1.4.3
+other:alecthomas_template:fb15b899a751:
+  license: BSD-3-Clause
+  name: alecthomas_template
+  other-distribution: /osl_sources/alecthomas-template-fb15b899a751.tar.gz
+  other-url: https://github.com/alecthomas/template
+  repository: Other
+  url: https://codeload.github.com/alecthomas/template/tar.gz/fb15b899a751
+  version: fb15b899a751
+other:mwitkow_go-conntrack:2f068394615f:
+  license: Apache-2.0
+  name: mwitkow_go-conntrack
+  other-distribution: /osl_sources/mwitkow-go-conntrack-2f068394615f.tar.gz
+  other-url: https://github.com/mwitkow/go-conntrack
+  repository: Other
+  url: https://codeload.github.com/mwitkow/go-conntrack/tar.gz/2f068394615f
+  version: 2f068394615f
+other:go-kit_kit:v0.10.0:
+  license: MIT
+  name: go-kit_kit
+  other-distribution: /osl_sources/go-kit-kit-v0.10.0.tar.gz
+  other-url: https://github.com/go-kit/kit
+  repository: Other
+  url: https://codeload.github.com/go-kit/kit/tar.gz/v0.10.0
+  version: v0.10.0
+other:cespare_xxhash_v2:v2.1.1:
+  license: MIT
+  name: cespare_xxhash_v2
+  other-distribution: /osl_sources/cespare-xxhash-v2.1.1.tar.gz
+  other-url: https://github.com/cespare/xxhash/v2
+  repository: Other
+  url: https://codeload.github.com/cespare/xxhash/tar.gz/v2.1.1
+  version: v2.1.1
+other:pkg_errors:v0.9.1:
+  license: BSD-2-Clause
+  name: pkg_errors
+  other-distribution: /osl_sources/pkg-errors-v0.9.1.tar.gz
+  other-url: https://github.com/pkg/errors
+  repository: Other
+  url: https://codeload.github.com/pkg/errors/tar.gz/v0.9.1
+  version: v0.9.1
+other:prometheus_common:v0.15.0:
+  license: Apache-2.0
+  name: prometheus_common
+  other-distribution: /osl_sources/prometheus-common-v0.15.0.tar.gz
+  other-url: https://github.com/prometheus/common
+  repository: Other
+  url: https://codeload.github.com/prometheus/common/tar.gz/v0.15.0
+  version: v0.15.0
+other:yaml_v2:v2.4.0:
+  license: Apache-2.0
+  name: yaml_v2
+  other-distribution: /osl_sources/go_yaml-yaml-v2.4.0.tar.gz
+  other-url: https://gopkg.in/yaml.v2
+  repository: Other
+  url: https://codeload.github.com/go-yaml/yaml/tar.gz/v2.4.0
+  version: v2.4.0
+other:x_crypto:5f87f3452ae9:
+  license: BSD-3-Clause
+  name: x_crypto
+  other-distribution: /osl_sources/golang-crypto-5f87f3452ae9.tar.gz
+  other-url: https://golang.org/x/crypto
+  repository: Other
+  url: https://codeload.github.com/golang/crypto/tar.gz/5f87f3452ae9
+  version: 5f87f3452ae9
+other:matttproud_golang_protobuf_extensions:v1.0.1:
+  license: Apache-2.0
+  name: matttproud_golang_protobuf_extensions
+  other-distribution: /osl_sources/matttproud-golang_protobuf_extensions-v1.0.1.tar.gz
+  other-url: https://github.com/matttproud/golang_protobuf_extensions
+  repository: Other
+  url: https://codeload.github.com/matttproud/golang_protobuf_extensions/tar.gz/v1.0.1
+  version: v1.0.1
+other:prometheus_client_model:v0.2.0:
+  license: Apache-2.0
+  name: prometheus_client_model
+  other-distribution: /osl_sources/prometheus-client_model-v0.2.0.tar.gz
+  other-url: https://github.com/prometheus/client_model
+  repository: Other
+  url: https://codeload.github.com/prometheus/client_model/tar.gz/v0.2.0
+  version: v0.2.0

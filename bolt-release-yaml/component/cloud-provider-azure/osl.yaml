@@ -1,0 +1,4 @@
+submodules:
+  - name: cloud-provider-azure/src
+    go_mod:
+      - "go.mod"

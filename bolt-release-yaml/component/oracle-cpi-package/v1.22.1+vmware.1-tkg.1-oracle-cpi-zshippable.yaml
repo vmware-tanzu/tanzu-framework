@@ -1,0 +1,46 @@
+name: oracle-cpi-package
+packages:
+  - version: v1.22.1+vmware.1-tkg.1-oracle-cpi-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: d3013b5be7148d657a8dd372379b75d4d3556206
+    componentReferences:
+      - name: oci-cloud-controller-manager
+        version:
+        - v1.22.1+vmware.1
+      - name: csi_attacher
+        version:
+        - v3.4.0+vmware.1
+      - name: csi_node_driver_registrar
+        version:
+        - v2.5.0+vmware.1
+      - name: csi_provisioner
+        version:
+        - v3.1.0+vmware.2
+      - name: kubernetes-csi_external-resizer
+        version:
+        - v1.4.0+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: oracle-cpi
+      gobuild.upstream_image_0: ghcr.io/oracle/cloud-provider-oci:v1.22.1
+      gobuild.upstream_image_1: k8s.gcr.io/sig-storage/csi-attacher:v3.4.0
+      gobuild.upstream_image_2: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.0
+      gobuild.upstream_image_3: k8s.gcr.io/sig-storage/csi-provisioner:v2.2.2
+      gobuild.upstream_image_4: k8s.gcr.io/sig-storage/csi-resizer:v1.2.0
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+        (index .refbuildinfo "componentBuilds")) "name" "oci-cloud-controller-manager").artifactURL.ccmOracleControllerImage.url}}'
+      gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+        (index .refbuildinfo "componentBuilds")) "name" "csi_attacher").artifactURL.csiAttacherImage.url}}'      
+      gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+        (index .refbuildinfo "componentBuilds")) "name" "csi_node_driver_registrar").artifactURL.csiNodeDriverRegistrarImage.url}}'
+      gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+        (index .refbuildinfo "componentBuilds")) "name" "csi_provisioner").artifactURL.csiProvisonerImage.url}}'        
+      gobuild.downstream_image_4: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+        (index .refbuildinfo "componentBuilds")) "name" "kubernetes-csi_external-resizer").artifactURL.csiExternalResizer.url}}'
+      gobuild.upstream_version: 1.22.1
+      gobuild.downstream_version: vmware.1-tkg.1-zshippable
+      gobuild.package_type: core
+      gobuild.noMirror: "true"

@@ -1,0 +1,7 @@
+name: dex
+unmanagedComponents:
+  - version: v2.30.2+vmware.1
+    gobuildBranch: vmware-2.30.2
+    dependencies:
+      gobuild.golangVersion: 1.16.6
+      gobuild.linux_hosttype: linux-centos72-gc32

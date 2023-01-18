@@ -1,0 +1,4 @@
+submodules:
+  - name: kube_rbac_proxy/src
+    go_mod:
+      - "go.mod"

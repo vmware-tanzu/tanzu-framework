@@ -1,0 +1,4 @@
+submodules:
+  - name: kube-state-metrics/src
+    go_mod:
+      - "go.mod"

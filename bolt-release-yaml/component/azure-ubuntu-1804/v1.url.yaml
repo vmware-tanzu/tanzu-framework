@@ -1,0 +1,2 @@
+name: azure-ubuntu-1804
+jenkinsJobName: image-pipelines/job/tkgm-build-azure

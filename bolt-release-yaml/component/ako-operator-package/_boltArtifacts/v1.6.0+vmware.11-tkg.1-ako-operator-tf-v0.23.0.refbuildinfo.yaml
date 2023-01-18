@@ -1,0 +1,16 @@
+componentBuilds:
+- name: ako-operator
+  version: v1.6.0+vmware.11
+  channel: "410478833859306963"
+  url: https://buildweb.eng.vmware.com/ob/19896480/
+  artifactURL:
+    ako-operator-manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19896480/publish/lin64/ako-operator/manifests/ako-operator-manifests-v1.6.0+vmware.11.tar.gz
+    akoOperatorImage:
+      url: projects-stg.registry.vmware.com/tkg/ako-operator:v1.6.0_vmware.11
+      sha256: 050ecdbb428eb9f4e3db804fa0ad5ea9fe028a384d4d6e242fa0b48e136e820d
+  cachehash: 9da77d4a95ab9d3ef20d187c3806d8f2
+  publishhash: 55118b52ea31a46857b9e642b571299b
+  configDependencies:
+    gobuild.golangVersion: 1.16.0
+    gobuild.linux_hosttype: linux-centos72-gc32

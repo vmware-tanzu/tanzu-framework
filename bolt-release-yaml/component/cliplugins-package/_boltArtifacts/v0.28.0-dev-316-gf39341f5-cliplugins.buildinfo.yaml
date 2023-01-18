@@ -1,0 +1,20 @@
+componentBuilds:
+- name: cliplugins-package
+  version: v0.28.0-dev-316-gf39341f5-cliplugins
+  channel: "442873817811937554"
+  url: https://buildweb.eng.vmware.com/ob/21107189/
+  artifactURL:
+    cliplugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/cliplugins:v0.28.0-dev-316-gf39341f5_vmware.1
+      sha256: d4e983965a8a6a693f5d87f8da6451ce1320982621fb909f7c7f6bfac3d7c0bd
+  cachehash: 445a83e0a169f6a80bfde3477cc26bde
+  publishhash: 01d554c5620ad211ea3f84dfa5447fa7
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: cliplugins
+    gobuild.upstream_version: v0.28.0-dev-316-gf39341f5

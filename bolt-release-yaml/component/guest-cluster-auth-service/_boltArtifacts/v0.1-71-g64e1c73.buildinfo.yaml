@@ -1,0 +1,26 @@
+componentBuilds:
+- name: guest-cluster-auth-service
+  version: v0.1-71-g64e1c73
+  channel: "377871877214835016"
+  url: https://buildweb.eng.vmware.com/ob/18089802
+  artifactURL:
+    generate-key-and-csr-sh:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/artifacts/generate_key_and_csr.sh
+      sha256: a2dfd21e9392383c18dd913c16f34edf0fec6bc2f0c530884eb797cec8445f9f
+    guest-cluster-auth-service-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/artifacts/guest-cluster-auth-svc.yaml
+      sha256: 4e2be62a54bb084bc9dcd7b82a01b78b502b20d0d0714249b28e0b0ba0d285f9
+    guest-cluster-auth-service-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/guest-cluster-auth-service.tar
+      sha256: b5dfe120629f2dbeacd6198be9418f47dca8b9b07fb0a6aba55becde912e5f0c
+    guest-cluster-auth-service-keys-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/artifacts/guest-cluster-auth-svc-keys.yaml
+      sha256: c2897f878b614fdff162efe5c0841a967f8d4455b915b35b060e3dc94b0aa46a
+    guest-cluster-auth-service-webhook-config-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/artifacts/webhook-config.yaml
+      sha256: c615e3e003c7ac20c72205f6ff712451d8105f701bc1fe3200629a546fedce38
+    osstp-golang-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/guest-cluster-auth-service/v0.1-71-g64e1c73/publish/osstp_golang.yml
+      sha256: f1c91a19fe54fd310597305636c5d27971ca37dc558217856fc76931636fd4d1
+  cachehash: 33c065d0c67bb71e43bfcdbc0a68f1c6
+  publishhash: a8040fb35fae035938a280a3f6291063

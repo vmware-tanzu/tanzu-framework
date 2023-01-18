@@ -1,0 +1,6 @@
+name: tkg-bom
+bomCaches:
+- version: v1.5.0-framework-v0.7.0
+  channel: "376916669424999280"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/376916669424999280/component/tkg-bom/_boltArtifacts/tkg-bom-v1.5.0-framework-v0.7.0.yaml
+  hash: e9f1adeb47fdfd90ea1a6df126feb656

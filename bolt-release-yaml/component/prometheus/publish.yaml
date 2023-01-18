@@ -1,0 +1,12 @@
+name: prometheus
+publish:
+  - name: prometheusImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/prometheus/images/prometheus-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/prometheus/images/prometheus-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: prometheus/prometheus:$UNDERSCOREVERSION
+nonpublish:
+  - name: prometheus
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/prometheus/executables/prometheus-$VERSION-binary-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/prometheus/executables/prometheus-$VERSION.gz

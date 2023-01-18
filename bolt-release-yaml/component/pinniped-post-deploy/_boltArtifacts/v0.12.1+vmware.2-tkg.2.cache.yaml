@@ -1,0 +1,7 @@
+name: pinniped-post-deploy
+goBuildComponentCaches:
+- version: v0.12.1+vmware.2-tkg.2
+  url: https://buildweb.eng.vmware.com/ob/20512419/
+  buildNumber: bora-20512419
+  buildStatus: SUCCEEDED
+  hash: 0851801aff98c5c7f5000efeb6afe530

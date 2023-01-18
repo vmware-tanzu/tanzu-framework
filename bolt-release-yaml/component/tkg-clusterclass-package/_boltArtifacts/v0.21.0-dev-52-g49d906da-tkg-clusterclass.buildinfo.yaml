@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-clusterclass-package
+  version: v0.21.0-dev-52-g49d906da-tkg-clusterclass
+  channel: "402820025460745837"
+  url: https://buildweb.eng.vmware.com/ob/19630730/
+  artifactURL:
+    tkg-clusterclass.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass:v0.21.0-dev-52-g49d906da_vmware.1
+      sha256: 6d34d63da41eca99b811c7e20b968357bbc00c5a4abae19154b5fe44f9855a73
+  cachehash: db76a6ac66fc7e996f82c4c601753ffc
+  publishhash: 81b79b50fa2579627d2a9dc4a8ce3b7a

@@ -1,0 +1,7 @@
+name: calico_all
+unmanagedComponents:
+  - version: v3.24.1+vmware.1
+    gobuildBranch: vmware-v3.24.1+vmware.1~f7089626936f2659abadd78d890b12002e526e9c
+    dependencies:
+      gobuild.golangVersion: 1.18
+      gobuild.linux_hosttype: linux-centos8

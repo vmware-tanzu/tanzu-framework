@@ -1,0 +1,20 @@
+name: cluster_api_aws
+publish:
+  - name: capaControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_aws/images/cluster-api-aws-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_aws/images/cluster-api-aws-controller-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/cluster-api-aws-controller:$UNDERSCOREVERSION
+nonpublish:
+  - name: clusterawsadm-darwin-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_aws/executables/clusterawsadm-darwin-amd64-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_aws/executables/clusterawsadm-$VERSION-executables-checksums.txt 
+  - name: clusterawsadm-linux-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_aws/executables/clusterawsadm-linux-amd64-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_aws/executables/clusterawsadm-$VERSION-executables-checksums.txt 
+  - name: clusterawsadm-windows-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_aws/executables/clusterawsadm-windows-amd64-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster_api_aws/executables/clusterawsadm-$VERSION-executables-checksums.txt 

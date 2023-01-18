@@ -1,0 +1,7 @@
+name: tanzu-auth-controller-manager
+publish:
+  - name: tanzuAuthControllerManager
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-auth-controller-manager/images/tanzu-auth-controller-manager/tanzu-auth-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-auth-controller-manager/images/tanzu-auth-controller-manager/tanzu-auth-controller-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: iam/tanzu-auth-controller-manager:$UNDERSCOREVERSION

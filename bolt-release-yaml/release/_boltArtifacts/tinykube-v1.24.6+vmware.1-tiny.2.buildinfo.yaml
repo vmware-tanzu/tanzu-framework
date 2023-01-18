@@ -1,0 +1,75 @@
+componentBuilds:
+- name: tinykube
+  version: v1.24.6+vmware.1-tiny.2
+  channel: "433931504070989248"
+  url: https://buildweb.eng.vmware.com/ob/20778080/
+  artifactURL:
+    tinykube-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/image-builder/tinykube/v1.24.6+vmware.1-tiny.2/publish/lin64/tinykube/executables/tinykube-linux-amd64-v1.24.6_vmware.1-tiny.2.tar
+      sha256: 481cebe14e5fc0ed3f2dc435156a55b17549bb918363bf7922e97c2f40f43244
+    tinykubeExecutable:
+      url: projects-stg.registry.vmware.com/tkg/tinykube/tinykube-linux-amd64:v1.24.6_vmware.1-tiny.2
+      sha256: 21b9bea85af81d1a6df2b48ae5e66b2f2a83680c6348c082464cdf22b1ea9199
+  cachehash: 04771a0117a6599e74bd3dee6b6f8d28
+  publishhash: 5d4cb43022eda840b59f818cff3d605e
+  configDependencies:
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.etcdVersion: v3.4.5+vmware.1-tiny.2
+    gobuild.golangVersion: "1.19"
+    gobuild.noMirror: "true"
+    gobuild.pause: "3.7"
+- name: ova-tinytkg-photon-3
+  version: v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f
+  channel: "433931504070989248"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2889
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-photon-3/bom-ova-tinytkg-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-photon-3/ova-tinytkg-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-photon-3/ova-tinytkg-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-photon-3/photon-3-kube-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-photon-3/ova-tinytkg-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-photon-3/ova-photon-3-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f-provenance_result.txt
+  cachehash: 24b7a514020d5de2e23b72464cbbbdb4
+  publishhash: 22e2933af935119c4827468cb86b283d
+  configDependencies:
+    base_iso_sha: 76fbe13df3f7340c94cf5706a0ec33ffc377c47e
+    base_iso_url: http://10.163.0.228/kscom-generic-local/isos/photon-minimal-3.0-rev3-u1.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 29743bff8dd91a3b50ef193b7b8d7f13ee3af5ac
+    jenkins.PHOTON3_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/photon-3-stig-hardening.git
+    jenkins.PHOTON3_STIG_VERSION: 8cd1ee34346dbd5ebc6abe09cc519fe8216c6335
+    jenkins.TINY_TKG: "true"
+- name: ova-tinytkg-ubuntu-2004
+  version: v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a
+  channel: "433931504070989248"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2890
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-ubuntu-2004/bom-ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-ubuntu-2004/ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-ubuntu-2004/ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-ubuntu-2004/ubuntu-2004-kube-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-ubuntu-2004/ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/433931504070989248/component/ova-tinytkg-ubuntu-2004/ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a-provenance_result.txt
+  cachehash: 5670a848f54b27827ee152a8ec765fb6
+  publishhash: 14dab56acd6ef2606740fcdd68a17cc9
+  configDependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 29743bff8dd91a3b50ef193b7b8d7f13ee3af5ac
+    jenkins.TINY_TKG: "true"
+    jenkins.UBUNTU_2004_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-stig-hardening.git
+    jenkins.UBUNTU_2004_STIG_VERSION: 04d8e41453a83bb62e1eb145ca7537ac54652b29
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 4a4a46289d2e0f7bfee9ac21994a9ea4b32c0528
+testInfraVersion: ca366c9e3aaff4184c5939bda32620090157753b

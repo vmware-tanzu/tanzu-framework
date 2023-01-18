@@ -1,0 +1,14 @@
+componentBuilds:
+- name: vsphere_csi_driver
+  version: v2.3.0-rc.3+vmware.1
+  channel: "364972090564054566"
+  url: https://buildweb.eng.vmware.com/ob/18369270/
+  artifactURL:
+    csiControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/vsphere-block-csi-driver:v2.3.0-rc.3_vmware.1
+      sha256: 03b0d5a50fde0a70184a1dcd68c021dcfbbf3252cacad68f9fe28a4853adf4a3
+    csiMetaDataSyncerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/volume-metadata-syncer:v2.3.0-rc.3_vmware.1
+      sha256: 2b0515f86f5e6089cd6d3c7a37364f2ed400847a5e3cc78d84df0ac1dced6bcc
+  cachehash: 4c8e6e03dcf7d634692698bb2ef4e5ac
+  publishhash: 23c68b22765f008ca6153903e6fb5ae5

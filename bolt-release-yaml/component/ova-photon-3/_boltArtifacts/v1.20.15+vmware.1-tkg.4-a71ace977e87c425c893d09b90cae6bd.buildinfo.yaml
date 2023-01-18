@@ -1,0 +1,24 @@
+componentBuilds:
+- name: ova-photon-3
+  version: v1.20.15+vmware.1-tkg.4-a71ace977e87c425c893d09b90cae6bd
+  channel: "420069418437972911"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2107
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-photon-3/bom-ova-photon-3-v1.20.15+vmware.1-tkg.4-a71ace977e87c425c893d09b90cae6bd.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-photon-3/ova-photon-3-v1.20.15+vmware.1-tkg.4-a71ace977e87c425c893d09b90cae6bd-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-photon-3/ova-photon-3-v1.20.15+vmware.1-tkg.4-a71ace977e87c425c893d09b90cae6bd-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-photon-3/photon-3-kube-v1.20.15+vmware.1-tkg.4-a71ace977e87c425c893d09b90cae6bd.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-photon-3/ova-photon-3-v1.20.15+vmware.1-tkg.4-a71ace977e87c425c893d09b90cae6bd-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/420069418437972911/component/ova-photon-3/ova-photon-3-v1.20.15+vmware.1-tkg.4-a71ace977e87c425c893d09b90cae6bd-provenance_result.txt
+  cachehash: 52eaf71e58dd2d63b9a79a21ed50fc66
+  publishhash: e364f13debf817be6f9a886754cfc5ce
+  configDependencies:
+    base_iso_sha: c2883a42e402a2330d9c39b4d1e071cf9b3b5898
+    base_iso_url: https://packages.vmware.com/photon/3.0/Rev3/iso/photon-minimal-3.0-a383732.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: b5d8c8f94238cb752c431c5692d442f1b71a4c00

@@ -1,0 +1,10 @@
+name: tkg-package
+goBuildComponentLocks:
+- version: v0.24.0-dev-98-g97213dc0-tkg
+  gobuildBranch: 415417866867710887-v0.24.0-dev-98-g97213dc0-tkg-tkg-package
+  gobuildHeadCommit: d16f4b282ceb8bacce3b15afea3924d9b9cf3c40
+  hash: c383b129a74342aa814f1e1690e9e44e
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.24.0-dev-98-g97213dc0
+    lockHash: da86298fa256f1e95f1d81bc9c4ff3f7

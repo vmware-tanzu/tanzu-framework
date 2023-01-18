@@ -1,0 +1,129 @@
+other:imgpkg:v0.2.0:
+  license: Apache-2.0
+  name: imgpkg
+  other-distribution: /osl_sources/core-build-mirrors_github_imgpkg-v0.2.0.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_imgpkg
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_imgpkg/-/archive/v0.2.0/mirrors_github_imgpkg-v0.2.0.tar.gz
+  version: v0.2.0
+other:mattn_go-isatty:v0.0.3:
+  license: MIT
+  name: mattn_go-isatty
+  other-distribution: /osl_sources/mattn-go-isatty-v0.0.3.tar.gz
+  other-url: https://github.com/mattn/go-isatty
+  repository: Other
+  url: https://codeload.github.com/mattn/go-isatty/tar.gz/v0.0.3
+  version: v0.0.3
+other:x_crypto:c126467f60eb:
+  license: BSD-3-Clause
+  name: x_crypto
+  other-distribution: /osl_sources/golang-crypto-c126467f60eb.tar.gz
+  other-url: https://golang.org/x/crypto
+  repository: Other
+  url: https://codeload.github.com/golang/crypto/tar.gz/c126467f60eb
+  version: c126467f60eb
+other:cppforlife_cobrautil:a39a1714c920:
+  license: MIT
+  name: cppforlife_cobrautil
+  other-distribution: /osl_sources/cppforlife-cobrautil-a39a1714c920.tar.gz
+  other-url: https://github.com/cppforlife/cobrautil
+  repository: Other
+  url: https://codeload.github.com/cppforlife/cobrautil/tar.gz/a39a1714c920
+  version: a39a1714c920
+other:x_sync:56d357773e84:
+  license: BSD-3-Clause
+  name: x_sync
+  other-distribution: /osl_sources/golang-sync-56d357773e84.tar.gz
+  other-url: https://golang.org/x/sync
+  repository: Other
+  url: https://codeload.github.com/golang/sync/tar.gz/56d357773e84
+  version: 56d357773e84
+other:fatih_color:v1.7.0:
+  license: MIT
+  name: fatih_color
+  other-distribution: /osl_sources/fatih-color-v1.7.0.tar.gz
+  other-url: https://github.com/fatih/color
+  repository: Other
+  url: https://codeload.github.com/fatih/color/tar.gz/v1.7.0
+  version: v1.7.0
+other:spf13_pflag:v1.0.2:
+  license: BSD-3-Clause
+  name: spf13_pflag
+  other-distribution: /osl_sources/spf13-pflag-v1.0.2.tar.gz
+  other-url: https://github.com/spf13/pflag
+  repository: Other
+  url: https://codeload.github.com/spf13/pflag/tar.gz/v1.0.2
+  version: v1.0.2
+other:x_sys:bd437916bb0e:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/golang-sys-bd437916bb0e.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/bd437916bb0e
+  version: bd437916bb0e
+other:vito_go-interact_interact_terminal:fa338ed9e9ec:
+  license: BSD-3-Clause
+  name: vito_go-interact_interact_terminal
+  other-distribution: /osl_sources/vito-go-interact-fa338ed9e9ec.tar.gz
+  other-url: https://github.com/vito/go-interact/interact/terminal
+  repository: Other
+  url: https://codeload.github.com/vito/go-interact/tar.gz/fa338ed9e9ec
+  version: fa338ed9e9ec
+other:inconshreveable_mousetrap:v1.0.0:
+  license: Apache-2.0
+  name: inconshreveable_mousetrap
+  other-distribution: /osl_sources/inconshreveable-mousetrap-v1.0.0.tar.gz
+  other-url: https://github.com/inconshreveable/mousetrap
+  repository: Other
+  url: https://codeload.github.com/inconshreveable/mousetrap/tar.gz/v1.0.0
+  version: v1.0.0
+other:mattn_go-colorable:v0.0.9:
+  license: MIT
+  name: mattn_go-colorable
+  other-distribution: /osl_sources/mattn-go-colorable-v0.0.9.tar.gz
+  other-url: https://github.com/mattn/go-colorable
+  repository: Other
+  url: https://codeload.github.com/mattn/go-colorable/tar.gz/v0.0.9
+  version: v0.0.9
+other:cppforlife_go-cli-ui:5c4f53402506:
+  license: MIT
+  name: cppforlife_go-cli-ui
+  other-distribution: /osl_sources/cppforlife-go-cli-ui-5c4f53402506.tar.gz
+  other-url: https://github.com/cppforlife/go-cli-ui
+  repository: Other
+  url: https://codeload.github.com/cppforlife/go-cli-ui/tar.gz/5c4f53402506
+  version: 5c4f53402506
+other:vito_go-interact:fa338ed9e9ec:
+  license: MIT
+  name: vito_go-interact
+  other-distribution: /osl_sources/vito-go-interact-fa338ed9e9ec.tar.gz
+  other-url: https://github.com/vito/go-interact
+  repository: Other
+  url: https://codeload.github.com/vito/go-interact/tar.gz/fa338ed9e9ec
+  version: fa338ed9e9ec
+other:yaml_v2:v2.2.4:
+  license: Apache-2.0
+  name: yaml_v2
+  other-distribution: /osl_sources/go_yaml-yaml-v2.2.4.tar.gz
+  other-url: https://gopkg.in/yaml.v2
+  repository: Other
+  url: https://codeload.github.com/go-yaml/yaml/tar.gz/v2.2.4
+  version: v2.2.4
+other:google_go-containerregistry:1d38b9cfdb9d:
+  license: Apache-2.0
+  name: google_go-containerregistry
+  other-distribution: /osl_sources/google-go-containerregistry-1d38b9cfdb9d.tar.gz
+  other-url: https://github.com/google/go-containerregistry
+  repository: Other
+  url: https://codeload.github.com/google/go-containerregistry/tar.gz/1d38b9cfdb9d
+  version: 1d38b9cfdb9d
+other:spf13_cobra:v0.0.3:
+  license: Apache-2.0
+  name: spf13_cobra
+  other-distribution: /osl_sources/spf13-cobra-v0.0.3.tar.gz
+  other-url: https://github.com/spf13/cobra
+  repository: Other
+  url: https://codeload.github.com/spf13/cobra/tar.gz/v0.0.3
+  version: v0.0.3

@@ -1,0 +1,10 @@
+name: multus-cni-package
+goBuildComponentLocks:
+- version: v3.7.1+vmware.2-tkg.2-multus-cni-tf-v0.11.1
+  gobuildBranch: 382781057063213123-v3.7.1+vmware.2-tkg.2-multus-cni-tf-v0.11.1
+  gobuildHeadCommit: b08f5dcb2b24698c9978b91fb93855a17b2f0a5f
+  hash: d83160a908223461281ae1fbe1fcb8c6
+  componentLockReferences:
+  - name: multus-cni
+    version: v3.7.1+vmware.2
+    lockHash: 4e936fc2222c9aec182bafdced17345c

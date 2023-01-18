@@ -1,0 +1,19 @@
+name: azure-ubuntu-1804
+imageCaches:
+- version: v1.20.15+vmware.1-tkg.1-fips.1-azure-ubuntu-1804
+  channel: "403578448653589798"
+  bomAzure:
+    azure:
+    - sku: k8s-1dot20dot15-fips-ubuntu-1804
+      publisher: vmware-inc
+      offer: tkg-capi
+      version: 2022.04.15
+      thirdPartyImage: true
+      osinfo:
+        name: ubuntu
+        version: "1804"
+        arch: amd64
+  hash: e3e3be57061a17148e0eb8cecb083ee3
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/1867
+  buildNumber: "1867"
+  buildStatus: SUCCEEDED

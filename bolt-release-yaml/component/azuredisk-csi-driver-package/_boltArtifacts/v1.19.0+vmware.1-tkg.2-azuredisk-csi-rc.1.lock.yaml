@@ -1,0 +1,28 @@
+name: azuredisk-csi-driver-package
+goBuildComponentLocks:
+- version: v1.19.0+vmware.1-tkg.2-azuredisk-csi-rc.1
+  gobuildBranch: 438986141794854986-v1.19.0+vmware.1-tkg.2-azuredisk-csi-rc.1-azuredisk-csi-driver-package
+  gobuildHeadCommit: 8f930654a46506ac2c45ad21744a181f5bbffcbd
+  hash: d96c921e162c87de57951fd82052731e
+  componentLockReferences:
+  - name: csi_attacher
+    version: v3.4.0+vmware.1
+    lockHash: aa7da92c69a9d649324e141e2f2e6e8b
+  - name: csi_livenessprobe
+    version: v2.6.0+vmware.1
+    lockHash: d8bf235c44a3597e5d8f43cc7165310a
+  - name: csi_node_driver_registrar
+    version: v2.5.0+vmware.1
+    lockHash: ea6fe1f411faff2bbef2ff2193252c89
+  - name: kubernetes-csi_external-resizer
+    version: v1.4.0+vmware.1
+    lockHash: d5636cef49212155dbc1ddf582f0b25b
+  - name: csi_provisioner
+    version: v3.1.0+vmware.2
+    lockHash: 7aa5c8051beb695b4382e1414b03d8fb
+  - name: external-snapshotter
+    version: v5.0.1+vmware.1
+    lockHash: 09034ad6ce82a416ef548803499c883c
+  - name: azuredisk-csi-driver
+    version: v1.19.0+vmware.1
+    lockHash: f1f237a990aa3f7970b5d6f24cde8146

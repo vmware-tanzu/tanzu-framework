@@ -1,0 +1,7 @@
+name: capabilities-package
+goBuildComponentCaches:
+- version: v0.25.4-tf-capabilities
+  url: https://buildweb.eng.vmware.com/ob/20999714/
+  buildNumber: bora-20999714
+  buildStatus: SUCCEEDED
+  hash: 4e0fd476e72376625b5fefe75f65b7f8

@@ -1,0 +1,22 @@
+name: ami-gov-ubuntu-2004
+imageCaches:
+- version: v1.21.2+vmware.1-fips.1-tkg.1-16227761844085092279
+  channel: "377894385779511057"
+  bomAMI:
+    ami:
+      us-gov-east-1:
+      - id: ami-017b201636cb1f691
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      us-gov-west-1:
+      - id: ami-0ce3979bb1ce45316
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+  hash: cb1283f93629fbf7eeb2a7aa931f358b
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/858
+  buildNumber: "858"
+  buildStatus: SUCCEEDED

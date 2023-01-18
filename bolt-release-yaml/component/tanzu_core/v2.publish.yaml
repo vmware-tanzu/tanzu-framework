@@ -1,0 +1,33 @@
+name: tanzu_core
+publish:
+  - name: tkrImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core/tkr/images/tkr-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core/tkr/images/tkr-controller-manager-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/tkr/tkr-controller-manager:$UNDERSCOREVERSION
+  - name: providerTemplateImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core/providers/images/provider-templates/provider-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core/providers/images/provider-templates/provider-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/provider/provider-templates:$UNDERSCOREVERSION
+nonpublish:
+  - name: tanzu-core-linux-386
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-linux-386.tar
+    checksumPath: ""
+  - name: tanzu-core-linux-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-linux-amd64.tar
+    checksumPath: ""
+  - name: tanzu-core-windows-386
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-windows-386.tar
+    checksumPath: ""
+  - name: tanzu-core-windows-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-windows-amd64.tar
+    checksumPath: ""
+  - name: tanzu-core-darwin-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu_core/tanzu_cli/tanzu-core-darwin-amd64.tar
+    checksumPath: ""

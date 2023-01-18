@@ -1,0 +1,3712 @@
+baseos:rpm:acl:2.2.51:14.amzn2:amzn:
+    repository: BaseOS
+    name: 'acl'
+    version: '2.2.51'
+    baseos-style: rpm
+    baseos-source: 'acl-2.2.51-14.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '14.amzn2'
+baseos:rpm:acpid:2.0.19:9.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'acpid'
+    version: '2.0.19'
+    baseos-style: rpm
+    baseos-source: 'acpid-2.0.19-9.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2.0.1'
+baseos:rpm:amazon-linux-extras:1.6.13:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'amazon-linux-extras'
+    version: '1.6.13'
+    baseos-style: rpm
+    baseos-source: 'amazon-linux-extras-1.6.13-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:amazon-linux-extras-yum-plugin:1.6.13:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'amazon-linux-extras-yum-plugin'
+    version: '1.6.13'
+    baseos-style: rpm
+    baseos-source: 'amazon-linux-extras-1.6.13-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:amazon-ssm-agent:3.0.161.0:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'amazon-ssm-agent'
+    version: '3.0.161.0'
+    baseos-style: rpm
+    baseos-source: 'amazon-ssm-agent-3.0.161.0-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:at:3.1.13:24.amzn2:amzn:
+    repository: BaseOS
+    name: 'at'
+    version: '3.1.13'
+    baseos-style: rpm
+    baseos-source: 'at-3.1.13-24.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '24.amzn2'
+baseos:rpm:attr:2.4.46:12.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'attr'
+    version: '2.4.46'
+    baseos-style: rpm
+    baseos-source: 'attr-2.4.46-12.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2.0.2'
+baseos:rpm:audit:2.8.1:3.amzn2.1:amzn:
+    repository: BaseOS
+    name: 'audit'
+    version: '2.8.1'
+    baseos-style: rpm
+    baseos-source: 'audit-2.8.1-3.amzn2.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.1'
+baseos:rpm:audit-libs:2.8.1:3.amzn2.1:amzn:
+    repository: BaseOS
+    name: 'audit-libs'
+    version: '2.8.1'
+    baseos-style: rpm
+    baseos-source: 'audit-2.8.1-3.amzn2.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.1'
+baseos:rpm:authconfig:6.2.8:30.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'authconfig'
+    version: '6.2.8'
+    baseos-style: rpm
+    baseos-source: 'authconfig-6.2.8-30.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '30.amzn2.0.2'
+baseos:rpm:aws-cfn-bootstrap:1.4:34.amzn2:amzn:
+    repository: BaseOS
+    name: 'aws-cfn-bootstrap'
+    version: '1.4'
+    baseos-style: rpm
+    baseos-source: 'aws-cfn-bootstrap-1.4-34.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '34.amzn2'
+baseos:rpm:awscli:1.18.147:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'awscli'
+    version: '1.18.147'
+    baseos-style: rpm
+    baseos-source: 'awscli-1.18.147-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:basesystem:10.0:7.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'basesystem'
+    version: '10.0'
+    baseos-style: rpm
+    baseos-source: 'basesystem-10.0-7.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2.0.1'
+baseos:rpm:bash:4.2.46:34.amzn2:amzn:
+    repository: BaseOS
+    name: 'bash'
+    version: '4.2.46'
+    baseos-style: rpm
+    baseos-source: 'bash-4.2.46-34.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '34.amzn2'
+baseos:rpm:bash-completion:2.1:6.amzn2:amzn:
+    repository: BaseOS
+    name: 'bash-completion'
+    version: '2.1'
+    baseos-style: rpm
+    baseos-source: 'bash-completion-2.1-6.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2'
+baseos:rpm:bc:1.06.95:13.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'bc'
+    version: '1.06.95'
+    baseos-style: rpm
+    baseos-source: 'bc-1.06.95-13.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.amzn2.0.2'
+baseos:rpm:bind-export-libs:9.11.4:26.P2.amzn2.2:amzn:
+    repository: BaseOS
+    name: 'bind-export-libs'
+    version: '9.11.4'
+    baseos-style: rpm
+    baseos-source: 'bind-9.11.4-26.P2.amzn2.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '26.P2.amzn2.2'
+baseos:rpm:bind-libs:9.11.4:26.P2.amzn2.2:amzn:
+    repository: BaseOS
+    name: 'bind-libs'
+    version: '9.11.4'
+    baseos-style: rpm
+    baseos-source: 'bind-9.11.4-26.P2.amzn2.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '26.P2.amzn2.2'
+baseos:rpm:bind-libs-lite:9.11.4:26.P2.amzn2.2:amzn:
+    repository: BaseOS
+    name: 'bind-libs-lite'
+    version: '9.11.4'
+    baseos-style: rpm
+    baseos-source: 'bind-9.11.4-26.P2.amzn2.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '26.P2.amzn2.2'
+baseos:rpm:bind-license:9.11.4:26.P2.amzn2.2:amzn:
+    repository: BaseOS
+    name: 'bind-license'
+    version: '9.11.4'
+    baseos-style: rpm
+    baseos-source: 'bind-9.11.4-26.P2.amzn2.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '26.P2.amzn2.2'
+baseos:rpm:bind-utils:9.11.4:26.P2.amzn2.2:amzn:
+    repository: BaseOS
+    name: 'bind-utils'
+    version: '9.11.4'
+    baseos-style: rpm
+    baseos-source: 'bind-9.11.4-26.P2.amzn2.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '26.P2.amzn2.2'
+baseos:rpm:binutils:2.29.1:30.amzn2:amzn:
+    repository: BaseOS
+    name: 'binutils'
+    version: '2.29.1'
+    baseos-style: rpm
+    baseos-source: 'binutils-2.29.1-30.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '30.amzn2'
+baseos:rpm:blktrace:1.0.5:9.amzn2:amzn:
+    repository: BaseOS
+    name: 'blktrace'
+    version: '1.0.5'
+    baseos-style: rpm
+    baseos-source: 'blktrace-1.0.5-9.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2'
+baseos:rpm:boost-date-time:1.53.0:27.amzn2.0.5:amzn:
+    repository: BaseOS
+    name: 'boost-date-time'
+    version: '1.53.0'
+    baseos-style: rpm
+    baseos-source: 'boost-1.53.0-27.amzn2.0.5.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '27.amzn2.0.5'
+baseos:rpm:boost-system:1.53.0:27.amzn2.0.5:amzn:
+    repository: BaseOS
+    name: 'boost-system'
+    version: '1.53.0'
+    baseos-style: rpm
+    baseos-source: 'boost-1.53.0-27.amzn2.0.5.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '27.amzn2.0.5'
+baseos:rpm:boost-thread:1.53.0:27.amzn2.0.5:amzn:
+    repository: BaseOS
+    name: 'boost-thread'
+    version: '1.53.0'
+    baseos-style: rpm
+    baseos-source: 'boost-1.53.0-27.amzn2.0.5.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '27.amzn2.0.5'
+baseos:rpm:bridge-utils:1.5:9.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'bridge-utils'
+    version: '1.5'
+    baseos-style: rpm
+    baseos-source: 'bridge-utils-1.5-9.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2.0.2'
+baseos:rpm:bzip2:1.0.6:13.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'bzip2'
+    version: '1.0.6'
+    baseos-style: rpm
+    baseos-source: 'bzip2-1.0.6-13.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.amzn2.0.2'
+baseos:rpm:bzip2-libs:1.0.6:13.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'bzip2-libs'
+    version: '1.0.6'
+    baseos-style: rpm
+    baseos-source: 'bzip2-1.0.6-13.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.amzn2.0.2'
+baseos:rpm:ca-certificates:2020.2.41:70.0.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'ca-certificates'
+    version: '2020.2.41'
+    baseos-style: rpm
+    baseos-source: 'ca-certificates-2020.2.41-70.0.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '70.0.amzn2.0.1'
+baseos:rpm:chkconfig:1.7.4:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'chkconfig'
+    version: '1.7.4'
+    baseos-style: rpm
+    baseos-source: 'chkconfig-1.7.4-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:chrony:3.5.1:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'chrony'
+    version: '3.5.1'
+    baseos-style: rpm
+    baseos-source: 'chrony-3.5.1-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:cloud-init:19.3:5.amzn2:amzn:
+    repository: BaseOS
+    name: 'cloud-init'
+    version: '19.3'
+    baseos-style: rpm
+    baseos-source: 'cloud-init-19.3-5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2'
+baseos:rpm:cloud-utils-growpart:0.31:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'cloud-utils-growpart'
+    version: '0.31'
+    baseos-style: rpm
+    baseos-source: 'cloud-utils-growpart-0.31-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:conntrack-tools:1.4.4:5.amzn2.2:amzn:
+    repository: BaseOS
+    name: 'conntrack-tools'
+    version: '1.4.4'
+    baseos-style: rpm
+    baseos-source: 'conntrack-tools-1.4.4-5.amzn2.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.2'
+baseos:rpm:coreutils:8.22:24.amzn2:amzn:
+    repository: BaseOS
+    name: 'coreutils'
+    version: '8.22'
+    baseos-style: rpm
+    baseos-source: 'coreutils-8.22-24.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '24.amzn2'
+baseos:rpm:cpio:2.11:28.amzn2:amzn:
+    repository: BaseOS
+    name: 'cpio'
+    version: '2.11'
+    baseos-style: rpm
+    baseos-source: 'cpio-2.11-28.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '28.amzn2'
+baseos:rpm:cracklib:2.9.0:11.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'cracklib'
+    version: '2.9.0'
+    baseos-style: rpm
+    baseos-source: 'cracklib-2.9.0-11.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2.0.2'
+baseos:rpm:cracklib-dicts:2.9.0:11.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'cracklib-dicts'
+    version: '2.9.0'
+    baseos-style: rpm
+    baseos-source: 'cracklib-2.9.0-11.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2.0.2'
+baseos:rpm:cronie:1.4.11:23.amzn2:amzn:
+    repository: BaseOS
+    name: 'cronie'
+    version: '1.4.11'
+    baseos-style: rpm
+    baseos-source: 'cronie-1.4.11-23.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '23.amzn2'
+baseos:rpm:cronie-anacron:1.4.11:23.amzn2:amzn:
+    repository: BaseOS
+    name: 'cronie-anacron'
+    version: '1.4.11'
+    baseos-style: rpm
+    baseos-source: 'cronie-1.4.11-23.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '23.amzn2'
+baseos:rpm:crontabs:1.11:6.20121102git.amzn2:amzn:
+    repository: BaseOS
+    name: 'crontabs'
+    version: '1.11'
+    baseos-style: rpm
+    baseos-source: 'crontabs-1.11-6.20121102git.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.20121102git.amzn2'
+baseos:rpm:cryptsetup:1.7.4:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'cryptsetup'
+    version: '1.7.4'
+    baseos-style: rpm
+    baseos-source: 'cryptsetup-1.7.4-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:cryptsetup-libs:1.7.4:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'cryptsetup-libs'
+    version: '1.7.4'
+    baseos-style: rpm
+    baseos-source: 'cryptsetup-1.7.4-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:curl:7.61.1:12.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'curl'
+    version: '7.61.1'
+    baseos-style: rpm
+    baseos-source: 'curl-7.61.1-12.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2.0.2'
+baseos:rpm:cyrus-sasl-lib:2.1.26:23.amzn2:amzn:
+    repository: BaseOS
+    name: 'cyrus-sasl-lib'
+    version: '2.1.26'
+    baseos-style: rpm
+    baseos-source: 'cyrus-sasl-2.1.26-23.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '23.amzn2'
+baseos:rpm:cyrus-sasl-plain:2.1.26:23.amzn2:amzn:
+    repository: BaseOS
+    name: 'cyrus-sasl-plain'
+    version: '2.1.26'
+    baseos-style: rpm
+    baseos-source: 'cyrus-sasl-2.1.26-23.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '23.amzn2'
+baseos:rpm:dbus:1.10.24:7.amzn2:amzn:
+    repository: BaseOS
+    name: 'dbus'
+    version: '1.10.24'
+    baseos-style: rpm
+    baseos-source: 'dbus-1.10.24-7.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2'
+baseos:rpm:dbus-libs:1.10.24:7.amzn2:amzn:
+    repository: BaseOS
+    name: 'dbus-libs'
+    version: '1.10.24'
+    baseos-style: rpm
+    baseos-source: 'dbus-1.10.24-7.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2'
+baseos:rpm:device-mapper:1.02.146:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'device-mapper'
+    version: '1.02.146'
+    baseos-style: rpm
+    baseos-source: 'lvm2-2.02.177-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:device-mapper-event:1.02.146:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'device-mapper-event'
+    version: '1.02.146'
+    baseos-style: rpm
+    baseos-source: 'lvm2-2.02.177-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:device-mapper-event-libs:1.02.146:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'device-mapper-event-libs'
+    version: '1.02.146'
+    baseos-style: rpm
+    baseos-source: 'lvm2-2.02.177-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:device-mapper-libs:1.02.146:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'device-mapper-libs'
+    version: '1.02.146'
+    baseos-style: rpm
+    baseos-source: 'lvm2-2.02.177-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:device-mapper-persistent-data:0.7.3:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'device-mapper-persistent-data'
+    version: '0.7.3'
+    baseos-style: rpm
+    baseos-source: 'device-mapper-persistent-data-0.7.3-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:dhclient:4.2.5:77.amzn2.1.1:amzn:
+    repository: BaseOS
+    name: 'dhclient'
+    version: '4.2.5'
+    baseos-style: rpm
+    baseos-source: 'dhcp-4.2.5-77.amzn2.1.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '77.amzn2.1.1'
+baseos:rpm:dhcp-common:4.2.5:77.amzn2.1.1:amzn:
+    repository: BaseOS
+    name: 'dhcp-common'
+    version: '4.2.5'
+    baseos-style: rpm
+    baseos-source: 'dhcp-4.2.5-77.amzn2.1.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '77.amzn2.1.1'
+baseos:rpm:dhcp-libs:4.2.5:77.amzn2.1.1:amzn:
+    repository: BaseOS
+    name: 'dhcp-libs'
+    version: '4.2.5'
+    baseos-style: rpm
+    baseos-source: 'dhcp-4.2.5-77.amzn2.1.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '77.amzn2.1.1'
+baseos:rpm:diffutils:3.3:5.amzn2:amzn:
+    repository: BaseOS
+    name: 'diffutils'
+    version: '3.3'
+    baseos-style: rpm
+    baseos-source: 'diffutils-3.3-5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2'
+baseos:rpm:dmidecode:3.0:5.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'dmidecode'
+    version: '3.0'
+    baseos-style: rpm
+    baseos-source: 'dmidecode-3.0-5.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.2'
+baseos:rpm:dmraid:1.0.0.rc16:28.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'dmraid'
+    version: '1.0.0.rc16'
+    baseos-style: rpm
+    baseos-source: 'dmraid-1.0.0.rc16-28.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '28.amzn2.0.2'
+baseos:rpm:dmraid-events:1.0.0.rc16:28.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'dmraid-events'
+    version: '1.0.0.rc16'
+    baseos-style: rpm
+    baseos-source: 'dmraid-1.0.0.rc16-28.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '28.amzn2.0.2'
+baseos:rpm:dosfstools:3.0.20:10.amzn2:amzn:
+    repository: BaseOS
+    name: 'dosfstools'
+    version: '3.0.20'
+    baseos-style: rpm
+    baseos-source: 'dosfstools-3.0.20-10.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2'
+baseos:rpm:dracut:033:535.amzn2.1.3:amzn:
+    repository: BaseOS
+    name: 'dracut'
+    version: '033'
+    baseos-style: rpm
+    baseos-source: 'dracut-033-535.amzn2.1.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '535.amzn2.1.3'
+baseos:rpm:dracut-config-ec2:1.0:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'dracut-config-ec2'
+    version: '1.0'
+    baseos-style: rpm
+    baseos-source: 'dracut-config-ec2-1.0-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:dracut-config-generic:033:535.amzn2.1.3:amzn:
+    repository: BaseOS
+    name: 'dracut-config-generic'
+    version: '033'
+    baseos-style: rpm
+    baseos-source: 'dracut-033-535.amzn2.1.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '535.amzn2.1.3'
+baseos:rpm:dyninst:9.3.1:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'dyninst'
+    version: '9.3.1'
+    baseos-style: rpm
+    baseos-source: 'dyninst-9.3.1-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:e2fsprogs:1.42.9:19.amzn2:amzn:
+    repository: BaseOS
+    name: 'e2fsprogs'
+    version: '1.42.9'
+    baseos-style: rpm
+    baseos-source: 'e2fsprogs-1.42.9-19.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '19.amzn2'
+baseos:rpm:e2fsprogs-libs:1.42.9:19.amzn2:amzn:
+    repository: BaseOS
+    name: 'e2fsprogs-libs'
+    version: '1.42.9'
+    baseos-style: rpm
+    baseos-source: 'e2fsprogs-1.42.9-19.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '19.amzn2'
+baseos:rpm:ebtables:2.0.10:16.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'ebtables'
+    version: '2.0.10'
+    baseos-style: rpm
+    baseos-source: 'ebtables-2.0.10-16.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '16.amzn2.0.1'
+baseos:rpm:ec2-hibinit-agent:1.0.2:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'ec2-hibinit-agent'
+    version: '1.0.2'
+    baseos-style: rpm
+    baseos-source: 'ec2-hibinit-agent-1.0.2-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:ec2-instance-connect:1.1:13.amzn2:amzn:
+    repository: BaseOS
+    name: 'ec2-instance-connect'
+    version: '1.1'
+    baseos-style: rpm
+    baseos-source: 'ec2-instance-connect-1.1-13.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.amzn2'
+baseos:rpm:ec2-net-utils:1.4:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'ec2-net-utils'
+    version: '1.4'
+    baseos-style: rpm
+    baseos-source: 'ec2-net-utils-1.4-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:ec2-utils:1.2:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'ec2-utils'
+    version: '1.2'
+    baseos-style: rpm
+    baseos-source: 'ec2-utils-1.2-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:ed:1.9:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'ed'
+    version: '1.9'
+    baseos-style: rpm
+    baseos-source: 'ed-1.9-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:elfutils-default-yama-scope:0.176:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'elfutils-default-yama-scope'
+    version: '0.176'
+    baseos-style: rpm
+    baseos-source: 'elfutils-0.176-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:elfutils-libelf:0.176:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'elfutils-libelf'
+    version: '0.176'
+    baseos-style: rpm
+    baseos-source: 'elfutils-0.176-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:elfutils-libs:0.176:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'elfutils-libs'
+    version: '0.176'
+    baseos-style: rpm
+    baseos-source: 'elfutils-0.176-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:epel-release:7:13:amzn:
+    repository: BaseOS
+    name: 'epel-release'
+    version: '7'
+    baseos-style: rpm
+    baseos-source: 'epel-release-7-13.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13'
+baseos:rpm:ethtool:4.8:10.amzn2:amzn:
+    repository: BaseOS
+    name: 'ethtool'
+    version: '4.8'
+    baseos-style: rpm
+    baseos-source: 'ethtool-4.8-10.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2'
+baseos:rpm:expat:2.1.0:12.amzn2:amzn:
+    repository: BaseOS
+    name: 'expat'
+    version: '2.1.0'
+    baseos-style: rpm
+    baseos-source: 'expat-2.1.0-12.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2'
+baseos:rpm:file:5.11:36.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'file'
+    version: '5.11'
+    baseos-style: rpm
+    baseos-source: 'file-5.11-36.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '36.amzn2.0.1'
+baseos:rpm:file-libs:5.11:36.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'file-libs'
+    version: '5.11'
+    baseos-style: rpm
+    baseos-source: 'file-5.11-36.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '36.amzn2.0.1'
+baseos:rpm:filesystem:3.2:25.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'filesystem'
+    version: '3.2'
+    baseos-style: rpm
+    baseos-source: 'filesystem-3.2-25.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '25.amzn2.0.4'
+baseos:rpm:findutils:4.5.11:6.amzn2:amzn:
+    repository: BaseOS
+    name: 'findutils'
+    version: '4.5.11'
+    baseos-style: rpm
+    baseos-source: 'findutils-4.5.11-6.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2'
+baseos:rpm:fipscheck:1.4.1:6.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'fipscheck'
+    version: '1.4.1'
+    baseos-style: rpm
+    baseos-source: 'fipscheck-1.4.1-6.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.0.2'
+baseos:rpm:fipscheck-lib:1.4.1:6.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'fipscheck-lib'
+    version: '1.4.1'
+    baseos-style: rpm
+    baseos-source: 'fipscheck-1.4.1-6.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.0.2'
+baseos:rpm:freetype:2.8:14.amzn2.1:amzn:
+    repository: BaseOS
+    name: 'freetype'
+    version: '2.8'
+    baseos-style: rpm
+    baseos-source: 'freetype-2.8-14.amzn2.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '14.amzn2.1'
+baseos:rpm:fuse:2.9.2:11.amzn2:amzn:
+    repository: BaseOS
+    name: 'fuse'
+    version: '2.9.2'
+    baseos-style: rpm
+    baseos-source: 'fuse-2.9.2-11.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2'
+baseos:rpm:fuse-libs:2.9.2:11.amzn2:amzn:
+    repository: BaseOS
+    name: 'fuse-libs'
+    version: '2.9.2'
+    baseos-style: rpm
+    baseos-source: 'fuse-2.9.2-11.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2'
+baseos:rpm:gawk:4.0.2:4.amzn2.1.2:amzn:
+    repository: BaseOS
+    name: 'gawk'
+    version: '4.0.2'
+    baseos-style: rpm
+    baseos-source: 'gawk-4.0.2-4.amzn2.1.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.1.2'
+baseos:rpm:gdbm:1.13:6.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'gdbm'
+    version: '1.13'
+    baseos-style: rpm
+    baseos-source: 'gdbm-1.13-6.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.0.2'
+baseos:rpm:gdisk:0.8.10:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'gdisk'
+    version: '0.8.10'
+    baseos-style: rpm
+    baseos-source: 'gdisk-0.8.10-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:generic-logos:18.0.0:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'generic-logos'
+    version: '18.0.0'
+    baseos-style: rpm
+    baseos-source: 'generic-logos-18.0.0-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:GeoIP:1.5.0:11.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'GeoIP'
+    version: '1.5.0'
+    baseos-style: rpm
+    baseos-source: 'GeoIP-1.5.0-11.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2.0.2'
+baseos:rpm:gettext:0.19.8.1:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'gettext'
+    version: '0.19.8.1'
+    baseos-style: rpm
+    baseos-source: 'gettext-0.19.8.1-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:gettext-libs:0.19.8.1:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'gettext-libs'
+    version: '0.19.8.1'
+    baseos-style: rpm
+    baseos-source: 'gettext-0.19.8.1-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:glib2:2.56.1:7.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'glib2'
+    version: '2.56.1'
+    baseos-style: rpm
+    baseos-source: 'glib2-2.56.1-7.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2.0.1'
+baseos:rpm:glibc:2.26:41.amzn2:amzn:
+    repository: BaseOS
+    name: 'glibc'
+    version: '2.26'
+    baseos-style: rpm
+    baseos-source: 'glibc-2.26-41.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '41.amzn2'
+baseos:rpm:glibc-all-langpacks:2.26:41.amzn2:amzn:
+    repository: BaseOS
+    name: 'glibc-all-langpacks'
+    version: '2.26'
+    baseos-style: rpm
+    baseos-source: 'glibc-2.26-41.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '41.amzn2'
+baseos:rpm:glibc-common:2.26:41.amzn2:amzn:
+    repository: BaseOS
+    name: 'glibc-common'
+    version: '2.26'
+    baseos-style: rpm
+    baseos-source: 'glibc-2.26-41.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '41.amzn2'
+baseos:rpm:glibc-locale-source:2.26:41.amzn2:amzn:
+    repository: BaseOS
+    name: 'glibc-locale-source'
+    version: '2.26'
+    baseos-style: rpm
+    baseos-source: 'glibc-2.26-41.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '41.amzn2'
+baseos:rpm:glibc-minimal-langpack:2.26:41.amzn2:amzn:
+    repository: BaseOS
+    name: 'glibc-minimal-langpack'
+    version: '2.26'
+    baseos-style: rpm
+    baseos-source: 'glibc-2.26-41.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '41.amzn2'
+baseos:rpm:gmp:6.0.0:15.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'gmp'
+    version: '6.0.0'
+    baseos-style: rpm
+    baseos-source: 'gmp-6.0.0-15.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '15.amzn2.0.2'
+baseos:rpm:gnupg2:2.0.22:5.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'gnupg2'
+    version: '2.0.22'
+    baseos-style: rpm
+    baseos-source: 'gnupg2-2.0.22-5.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.4'
+baseos:rpm:gpgme:1.3.2:5.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'gpgme'
+    version: '1.3.2'
+    baseos-style: rpm
+    baseos-source: 'gpgme-1.3.2-5.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.2'
+baseos:rpm:gpg-pubkey:352c64e5:52ae6884:amzn:
+    repository: BaseOS
+    name: 'gpg-pubkey'
+    version: '352c64e5'
+    baseos-style: rpm
+    baseos-source: '(none)'
+    baseos-osname: 'amzn'
+    baseos-release: '52ae6884'
+baseos:rpm:gpg-pubkey:c87f5b1a:593863f8:amzn:
+    repository: BaseOS
+    name: 'gpg-pubkey'
+    version: 'c87f5b1a'
+    baseos-style: rpm
+    baseos-source: '(none)'
+    baseos-osname: 'amzn'
+    baseos-release: '593863f8'
+baseos:rpm:gpm-libs:1.20.7:15.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'gpm-libs'
+    version: '1.20.7'
+    baseos-style: rpm
+    baseos-source: 'gpm-1.20.7-15.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '15.amzn2.0.2'
+baseos:rpm:grep:2.20:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'grep'
+    version: '2.20'
+    baseos-style: rpm
+    baseos-source: 'grep-2.20-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:groff-base:1.22.2:8.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'groff-base'
+    version: '1.22.2'
+    baseos-style: rpm
+    baseos-source: 'groff-1.22.2-8.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.amzn2.0.2'
+baseos:rpm:grub2:2.02:35.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'grub2'
+    version: '2.02'
+    baseos-style: rpm
+    baseos-source: 'grub2-2.02-35.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '35.amzn2.0.4'
+baseos:rpm:grub2-common:2.02:35.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'grub2-common'
+    version: '2.02'
+    baseos-style: rpm
+    baseos-source: 'grub2-2.02-35.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '35.amzn2.0.4'
+baseos:rpm:grub2-pc:2.02:35.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'grub2-pc'
+    version: '2.02'
+    baseos-style: rpm
+    baseos-source: 'grub2-2.02-35.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '35.amzn2.0.4'
+baseos:rpm:grub2-pc-modules:2.02:35.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'grub2-pc-modules'
+    version: '2.02'
+    baseos-style: rpm
+    baseos-source: 'grub2-2.02-35.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '35.amzn2.0.4'
+baseos:rpm:grub2-tools:2.02:35.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'grub2-tools'
+    version: '2.02'
+    baseos-style: rpm
+    baseos-source: 'grub2-2.02-35.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '35.amzn2.0.4'
+baseos:rpm:grub2-tools-extra:2.02:35.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'grub2-tools-extra'
+    version: '2.02'
+    baseos-style: rpm
+    baseos-source: 'grub2-2.02-35.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '35.amzn2.0.4'
+baseos:rpm:grub2-tools-minimal:2.02:35.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'grub2-tools-minimal'
+    version: '2.02'
+    baseos-style: rpm
+    baseos-source: 'grub2-2.02-35.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '35.amzn2.0.4'
+baseos:rpm:grubby:8.28:23.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'grubby'
+    version: '8.28'
+    baseos-style: rpm
+    baseos-source: 'grubby-8.28-23.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '23.amzn2.0.1'
+baseos:rpm:gssproxy:0.7.0:17.amzn2:amzn:
+    repository: BaseOS
+    name: 'gssproxy'
+    version: '0.7.0'
+    baseos-style: rpm
+    baseos-source: 'gssproxy-0.7.0-17.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '17.amzn2'
+baseos:rpm:gzip:1.5:10.amzn2:amzn:
+    repository: BaseOS
+    name: 'gzip'
+    version: '1.5'
+    baseos-style: rpm
+    baseos-source: 'gzip-1.5-10.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2'
+baseos:rpm:hardlink:1.3:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'hardlink'
+    version: '1.3'
+    baseos-style: rpm
+    baseos-source: 'hardlink-1.3-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:hibagent:1.1.0:5.amzn2:amzn:
+    repository: BaseOS
+    name: 'hibagent'
+    version: '1.1.0'
+    baseos-style: rpm
+    baseos-source: 'hibagent-1.1.0-5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2'
+baseos:rpm:hostname:3.13:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'hostname'
+    version: '3.13'
+    baseos-style: rpm
+    baseos-source: 'hostname-3.13-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:hunspell:1.3.2:16.amzn2:amzn:
+    repository: BaseOS
+    name: 'hunspell'
+    version: '1.3.2'
+    baseos-style: rpm
+    baseos-source: 'hunspell-1.3.2-16.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '16.amzn2'
+baseos:rpm:hunspell-en:0.20121024:6.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'hunspell-en'
+    version: '0.20121024'
+    baseos-style: rpm
+    baseos-source: 'hunspell-en-0.20121024-6.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.0.1'
+baseos:rpm:hunspell-en-GB:0.20121024:6.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'hunspell-en-GB'
+    version: '0.20121024'
+    baseos-style: rpm
+    baseos-source: 'hunspell-en-0.20121024-6.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.0.1'
+baseos:rpm:hunspell-en-US:0.20121024:6.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'hunspell-en-US'
+    version: '0.20121024'
+    baseos-style: rpm
+    baseos-source: 'hunspell-en-0.20121024-6.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.0.1'
+baseos:rpm:hwdata:0.252:9.3.amzn2:amzn:
+    repository: BaseOS
+    name: 'hwdata'
+    version: '0.252'
+    baseos-style: rpm
+    baseos-source: 'hwdata-0.252-9.3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.3.amzn2'
+baseos:rpm:info:5.1:5.amzn2:amzn:
+    repository: BaseOS
+    name: 'info'
+    version: '5.1'
+    baseos-style: rpm
+    baseos-source: 'texinfo-5.1-5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2'
+baseos:rpm:initscripts:9.49.47:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'initscripts'
+    version: '9.49.47'
+    baseos-style: rpm
+    baseos-source: 'initscripts-9.49.47-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:iproute:4.15.0:1.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'iproute'
+    version: '4.15.0'
+    baseos-style: rpm
+    baseos-source: 'iproute-4.15.0-1.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.4'
+baseos:rpm:iptables:1.8.4:10.amzn2.1.2:amzn:
+    repository: BaseOS
+    name: 'iptables'
+    version: '1.8.4'
+    baseos-style: rpm
+    baseos-source: 'iptables-1.8.4-10.amzn2.1.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.1.2'
+baseos:rpm:iptables-libs:1.8.4:10.amzn2.1.2:amzn:
+    repository: BaseOS
+    name: 'iptables-libs'
+    version: '1.8.4'
+    baseos-style: rpm
+    baseos-source: 'iptables-1.8.4-10.amzn2.1.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.1.2'
+baseos:rpm:iputils:20160308:10.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'iputils'
+    version: '20160308'
+    baseos-style: rpm
+    baseos-source: 'iputils-20160308-10.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.0.2'
+baseos:rpm:irqbalance:1.5.0:4.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'irqbalance'
+    version: '1.5.0'
+    baseos-style: rpm
+    baseos-source: 'irqbalance-1.5.0-4.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.1'
+baseos:rpm:jansson:2.10:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'jansson'
+    version: '2.10'
+    baseos-style: rpm
+    baseos-source: 'jansson-2.10-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:jbigkit-libs:2.0:11.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'jbigkit-libs'
+    version: '2.0'
+    baseos-style: rpm
+    baseos-source: 'jbigkit-2.0-11.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2.0.2'
+baseos:rpm:jq:1.5:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'jq'
+    version: '1.5'
+    baseos-style: rpm
+    baseos-source: 'jq-1.5-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:json-c:0.11:4.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'json-c'
+    version: '0.11'
+    baseos-style: rpm
+    baseos-source: 'json-c-0.11-4.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.4'
+baseos:rpm:kbd:1.15.5:15.amzn2:amzn:
+    repository: BaseOS
+    name: 'kbd'
+    version: '1.15.5'
+    baseos-style: rpm
+    baseos-source: 'kbd-1.15.5-15.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '15.amzn2'
+baseos:rpm:kbd-legacy:1.15.5:15.amzn2:amzn:
+    repository: BaseOS
+    name: 'kbd-legacy'
+    version: '1.15.5'
+    baseos-style: rpm
+    baseos-source: 'kbd-1.15.5-15.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '15.amzn2'
+baseos:rpm:kbd-misc:1.15.5:15.amzn2:amzn:
+    repository: BaseOS
+    name: 'kbd-misc'
+    version: '1.15.5'
+    baseos-style: rpm
+    baseos-source: 'kbd-1.15.5-15.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '15.amzn2'
+baseos:rpm:kernel:4.14.219:161.340.amzn2:amzn:
+    repository: BaseOS
+    name: 'kernel'
+    version: '4.14.219'
+    baseos-style: rpm
+    baseos-source: 'kernel-4.14.219-161.340.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '161.340.amzn2'
+baseos:rpm:kernel-tools:4.14.219:161.340.amzn2:amzn:
+    repository: BaseOS
+    name: 'kernel-tools'
+    version: '4.14.219'
+    baseos-style: rpm
+    baseos-source: 'kernel-4.14.219-161.340.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '161.340.amzn2'
+baseos:rpm:keyutils:1.5.8:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'keyutils'
+    version: '1.5.8'
+    baseos-style: rpm
+    baseos-source: 'keyutils-1.5.8-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:keyutils-libs:1.5.8:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'keyutils-libs'
+    version: '1.5.8'
+    baseos-style: rpm
+    baseos-source: 'keyutils-1.5.8-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:kmod:25:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'kmod'
+    version: '25'
+    baseos-style: rpm
+    baseos-source: 'kmod-25-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:kmod-libs:25:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'kmod-libs'
+    version: '25'
+    baseos-style: rpm
+    baseos-source: 'kmod-25-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:kpartx:0.4.9:127.amzn2:amzn:
+    repository: BaseOS
+    name: 'kpartx'
+    version: '0.4.9'
+    baseos-style: rpm
+    baseos-source: 'device-mapper-multipath-0.4.9-127.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '127.amzn2'
+baseos:rpm:kpatch-runtime:0.9.2:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'kpatch-runtime'
+    version: '0.9.2'
+    baseos-style: rpm
+    baseos-source: 'kpatch-0.9.2-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:krb5-libs:1.15.1:37.amzn2.2.2:amzn:
+    repository: BaseOS
+    name: 'krb5-libs'
+    version: '1.15.1'
+    baseos-style: rpm
+    baseos-source: 'krb5-1.15.1-37.amzn2.2.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '37.amzn2.2.2'
+baseos:rpm:langtable:0.0.31:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'langtable'
+    version: '0.0.31'
+    baseos-style: rpm
+    baseos-source: 'langtable-0.0.31-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:langtable-data:0.0.31:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'langtable-data'
+    version: '0.0.31'
+    baseos-style: rpm
+    baseos-source: 'langtable-0.0.31-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:langtable-python:0.0.31:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'langtable-python'
+    version: '0.0.31'
+    baseos-style: rpm
+    baseos-source: 'langtable-0.0.31-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:less:458:9.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'less'
+    version: '458'
+    baseos-style: rpm
+    baseos-source: 'less-458-9.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2.0.2'
+baseos:rpm:libacl:2.2.51:14.amzn2:amzn:
+    repository: BaseOS
+    name: 'libacl'
+    version: '2.2.51'
+    baseos-style: rpm
+    baseos-source: 'acl-2.2.51-14.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '14.amzn2'
+baseos:rpm:libaio:0.3.109:13.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libaio'
+    version: '0.3.109'
+    baseos-style: rpm
+    baseos-source: 'libaio-0.3.109-13.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.amzn2.0.2'
+baseos:rpm:libassuan:2.1.0:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libassuan'
+    version: '2.1.0'
+    baseos-style: rpm
+    baseos-source: 'libassuan-2.1.0-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:libattr:2.4.46:12.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libattr'
+    version: '2.4.46'
+    baseos-style: rpm
+    baseos-source: 'attr-2.4.46-12.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2.0.2'
+baseos:rpm:libbasicobjects:0.1.1:29.amzn2:amzn:
+    repository: BaseOS
+    name: 'libbasicobjects'
+    version: '0.1.1'
+    baseos-style: rpm
+    baseos-source: 'ding-libs-0.6.1-29.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '29.amzn2'
+baseos:rpm:libblkid:2.30.2:2.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'libblkid'
+    version: '2.30.2'
+    baseos-style: rpm
+    baseos-source: 'util-linux-2.30.2-2.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.4'
+baseos:rpm:libcap:2.22:9.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libcap'
+    version: '2.22'
+    baseos-style: rpm
+    baseos-source: 'libcap-2.22-9.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2.0.2'
+baseos:rpm:libcap-ng:0.7.5:4.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'libcap-ng'
+    version: '0.7.5'
+    baseos-style: rpm
+    baseos-source: 'libcap-ng-0.7.5-4.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.4'
+baseos:rpm:libcollection:0.7.0:29.amzn2:amzn:
+    repository: BaseOS
+    name: 'libcollection'
+    version: '0.7.0'
+    baseos-style: rpm
+    baseos-source: 'ding-libs-0.6.1-29.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '29.amzn2'
+baseos:rpm:libcom_err:1.42.9:19.amzn2:amzn:
+    repository: BaseOS
+    name: 'libcom_err'
+    version: '1.42.9'
+    baseos-style: rpm
+    baseos-source: 'e2fsprogs-1.42.9-19.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '19.amzn2'
+baseos:rpm:libconfig:1.4.9:5.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libconfig'
+    version: '1.4.9'
+    baseos-style: rpm
+    baseos-source: 'libconfig-1.4.9-5.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.2'
+baseos:rpm:libcroco:0.6.12:6.amzn2:amzn:
+    repository: BaseOS
+    name: 'libcroco'
+    version: '0.6.12'
+    baseos-style: rpm
+    baseos-source: 'libcroco-0.6.12-6.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2'
+baseos:rpm:libcrypt:2.26:41.amzn2:amzn:
+    repository: BaseOS
+    name: 'libcrypt'
+    version: '2.26'
+    baseos-style: rpm
+    baseos-source: 'glibc-2.26-41.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '41.amzn2'
+baseos:rpm:libcurl:7.61.1:12.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libcurl'
+    version: '7.61.1'
+    baseos-style: rpm
+    baseos-source: 'curl-7.61.1-12.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2.0.2'
+baseos:rpm:libdaemon:0.14:7.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libdaemon'
+    version: '0.14'
+    baseos-style: rpm
+    baseos-source: 'libdaemon-0.14-7.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2.0.2'
+baseos:rpm:libdb:5.3.21:24.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'libdb'
+    version: '5.3.21'
+    baseos-style: rpm
+    baseos-source: 'libdb-5.3.21-24.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '24.amzn2.0.3'
+baseos:rpm:libdb-utils:5.3.21:24.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'libdb-utils'
+    version: '5.3.21'
+    baseos-style: rpm
+    baseos-source: 'libdb-5.3.21-24.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '24.amzn2.0.3'
+baseos:rpm:libdnet:1.12:13.1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libdnet'
+    version: '1.12'
+    baseos-style: rpm
+    baseos-source: 'libdnet-1.12-13.1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.1.amzn2.0.2'
+baseos:rpm:libdrm:2.4.97:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'libdrm'
+    version: '2.4.97'
+    baseos-style: rpm
+    baseos-source: 'libdrm-2.4.97-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:libdwarf:20130207:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libdwarf'
+    version: '20130207'
+    baseos-style: rpm
+    baseos-source: 'libdwarf-20130207-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:libedit:3.0:12.20121213cvs.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libedit'
+    version: '3.0'
+    baseos-style: rpm
+    baseos-source: 'libedit-3.0-12.20121213cvs.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.20121213cvs.amzn2.0.2'
+baseos:rpm:libestr:0.1.9:2.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libestr'
+    version: '0.1.9'
+    baseos-style: rpm
+    baseos-source: 'libestr-0.1.9-2.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.2'
+baseos:rpm:libevent:2.0.21:4.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'libevent'
+    version: '2.0.21'
+    baseos-style: rpm
+    baseos-source: 'libevent-2.0.21-4.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.3'
+baseos:rpm:libfastjson:0.99.4:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'libfastjson'
+    version: '0.99.4'
+    baseos-style: rpm
+    baseos-source: 'libfastjson-0.99.4-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:libfdisk:2.30.2:2.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'libfdisk'
+    version: '2.30.2'
+    baseos-style: rpm
+    baseos-source: 'util-linux-2.30.2-2.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.4'
+baseos:rpm:libffi:3.0.13:18.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libffi'
+    version: '3.0.13'
+    baseos-style: rpm
+    baseos-source: 'libffi-3.0.13-18.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '18.amzn2.0.2'
+baseos:rpm:libgcc:7.3.1:12.amzn2:amzn:
+    repository: BaseOS
+    name: 'libgcc'
+    version: '7.3.1'
+    baseos-style: rpm
+    baseos-source: 'gcc-7.3.1-12.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2'
+baseos:rpm:libgcrypt:1.5.3:14.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libgcrypt'
+    version: '1.5.3'
+    baseos-style: rpm
+    baseos-source: 'libgcrypt-1.5.3-14.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '14.amzn2.0.2'
+baseos:rpm:libgomp:7.3.1:12.amzn2:amzn:
+    repository: BaseOS
+    name: 'libgomp'
+    version: '7.3.1'
+    baseos-style: rpm
+    baseos-source: 'gcc-7.3.1-12.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2'
+baseos:rpm:libgpg-error:1.12:3.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'libgpg-error'
+    version: '1.12'
+    baseos-style: rpm
+    baseos-source: 'libgpg-error-1.12-3.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.3'
+baseos:rpm:libicu:50.2:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'libicu'
+    version: '50.2'
+    baseos-style: rpm
+    baseos-source: 'icu-50.2-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:libidn:1.28:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libidn'
+    version: '1.28'
+    baseos-style: rpm
+    baseos-source: 'libidn-1.28-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:libidn2:2.3.0:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'libidn2'
+    version: '2.3.0'
+    baseos-style: rpm
+    baseos-source: 'libidn2-2.3.0-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:libini_config:1.3.1:29.amzn2:amzn:
+    repository: BaseOS
+    name: 'libini_config'
+    version: '1.3.1'
+    baseos-style: rpm
+    baseos-source: 'ding-libs-0.6.1-29.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '29.amzn2'
+baseos:rpm:libjpeg-turbo:1.2.90:6.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'libjpeg-turbo'
+    version: '1.2.90'
+    baseos-style: rpm
+    baseos-source: 'libjpeg-turbo-1.2.90-6.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.0.3'
+baseos:rpm:libmetalink:0.1.3:13.amzn2:amzn:
+    repository: BaseOS
+    name: 'libmetalink'
+    version: '0.1.3'
+    baseos-style: rpm
+    baseos-source: 'libmetalink-0.1.3-13.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.amzn2'
+baseos:rpm:libmnl:1.0.3:7.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libmnl'
+    version: '1.0.3'
+    baseos-style: rpm
+    baseos-source: 'libmnl-1.0.3-7.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2.0.2'
+baseos:rpm:libmount:2.30.2:2.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'libmount'
+    version: '2.30.2'
+    baseos-style: rpm
+    baseos-source: 'util-linux-2.30.2-2.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.4'
+baseos:rpm:libmspack:0.5:0.8.alpha.amzn2:amzn:
+    repository: BaseOS
+    name: 'libmspack'
+    version: '0.5'
+    baseos-style: rpm
+    baseos-source: 'libmspack-0.5-0.8.alpha.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '0.8.alpha.amzn2'
+baseos:rpm:libnetfilter_conntrack:1.0.6:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libnetfilter_conntrack'
+    version: '1.0.6'
+    baseos-style: rpm
+    baseos-source: 'libnetfilter_conntrack-1.0.6-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:libnetfilter_cthelper:1.0.0:10.amzn2.1:amzn:
+    repository: BaseOS
+    name: 'libnetfilter_cthelper'
+    version: '1.0.0'
+    baseos-style: rpm
+    baseos-source: 'libnetfilter_cthelper-1.0.0-10.amzn2.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.1'
+baseos:rpm:libnetfilter_cttimeout:1.0.0:6.amzn2.1:amzn:
+    repository: BaseOS
+    name: 'libnetfilter_cttimeout'
+    version: '1.0.0'
+    baseos-style: rpm
+    baseos-source: 'libnetfilter_cttimeout-1.0.0-6.amzn2.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.1'
+baseos:rpm:libnetfilter_queue:1.0.2:2.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libnetfilter_queue'
+    version: '1.0.2'
+    baseos-style: rpm
+    baseos-source: 'libnetfilter_queue-1.0.2-2.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.2'
+baseos:rpm:libnfnetlink:1.0.1:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libnfnetlink'
+    version: '1.0.1'
+    baseos-style: rpm
+    baseos-source: 'libnfnetlink-1.0.1-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:libnfsidmap:0.25:19.amzn2:amzn:
+    repository: BaseOS
+    name: 'libnfsidmap'
+    version: '0.25'
+    baseos-style: rpm
+    baseos-source: 'libnfsidmap-0.25-19.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '19.amzn2'
+baseos:rpm:libnghttp2:1.41.0:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'libnghttp2'
+    version: '1.41.0'
+    baseos-style: rpm
+    baseos-source: 'nghttp2-1.41.0-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:libnl3:3.2.28:4.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'libnl3'
+    version: '3.2.28'
+    baseos-style: rpm
+    baseos-source: 'libnl3-3.2.28-4.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.1'
+baseos:rpm:libnl3-cli:3.2.28:4.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'libnl3-cli'
+    version: '3.2.28'
+    baseos-style: rpm
+    baseos-source: 'libnl3-3.2.28-4.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.1'
+baseos:rpm:libpath_utils:0.2.1:29.amzn2:amzn:
+    repository: BaseOS
+    name: 'libpath_utils'
+    version: '0.2.1'
+    baseos-style: rpm
+    baseos-source: 'ding-libs-0.6.1-29.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '29.amzn2'
+baseos:rpm:libpcap:1.5.3:11.amzn2:amzn:
+    repository: BaseOS
+    name: 'libpcap'
+    version: '1.5.3'
+    baseos-style: rpm
+    baseos-source: 'libpcap-1.5.3-11.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2'
+baseos:rpm:libpciaccess:0.14:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'libpciaccess'
+    version: '0.14'
+    baseos-style: rpm
+    baseos-source: 'libpciaccess-0.14-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:libpipeline:1.2.3:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libpipeline'
+    version: '1.2.3'
+    baseos-style: rpm
+    baseos-source: 'libpipeline-1.2.3-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:libpng:1.5.13:8.amzn2:amzn:
+    repository: BaseOS
+    name: 'libpng'
+    version: '1.5.13'
+    baseos-style: rpm
+    baseos-source: 'libpng-1.5.13-8.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.amzn2'
+baseos:rpm:libpwquality:1.2.3:5.amzn2:amzn:
+    repository: BaseOS
+    name: 'libpwquality'
+    version: '1.2.3'
+    baseos-style: rpm
+    baseos-source: 'libpwquality-1.2.3-5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2'
+baseos:rpm:libref_array:0.1.5:29.amzn2:amzn:
+    repository: BaseOS
+    name: 'libref_array'
+    version: '0.1.5'
+    baseos-style: rpm
+    baseos-source: 'ding-libs-0.6.1-29.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '29.amzn2'
+baseos:rpm:libseccomp:2.4.1:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'libseccomp'
+    version: '2.4.1'
+    baseos-style: rpm
+    baseos-source: 'libseccomp-2.4.1-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:libselinux:2.5:12.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libselinux'
+    version: '2.5'
+    baseos-style: rpm
+    baseos-source: 'libselinux-2.5-12.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2.0.2'
+baseos:rpm:libselinux-utils:2.5:12.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libselinux-utils'
+    version: '2.5'
+    baseos-style: rpm
+    baseos-source: 'libselinux-2.5-12.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2.0.2'
+baseos:rpm:libsemanage:2.5:11.amzn2:amzn:
+    repository: BaseOS
+    name: 'libsemanage'
+    version: '2.5'
+    baseos-style: rpm
+    baseos-source: 'libsemanage-2.5-11.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2'
+baseos:rpm:libsepol:2.5:8.1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libsepol'
+    version: '2.5'
+    baseos-style: rpm
+    baseos-source: 'libsepol-2.5-8.1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.1.amzn2.0.2'
+baseos:rpm:libsmartcols:2.30.2:2.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'libsmartcols'
+    version: '2.30.2'
+    baseos-style: rpm
+    baseos-source: 'util-linux-2.30.2-2.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.4'
+baseos:rpm:libss:1.42.9:19.amzn2:amzn:
+    repository: BaseOS
+    name: 'libss'
+    version: '1.42.9'
+    baseos-style: rpm
+    baseos-source: 'e2fsprogs-1.42.9-19.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '19.amzn2'
+baseos:rpm:libssh2:1.4.3:12.amzn2.2.3:amzn:
+    repository: BaseOS
+    name: 'libssh2'
+    version: '1.4.3'
+    baseos-style: rpm
+    baseos-source: 'libssh2-1.4.3-12.amzn2.2.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2.2.3'
+baseos:rpm:libsss_idmap:1.16.5:10.amzn2.6:amzn:
+    repository: BaseOS
+    name: 'libsss_idmap'
+    version: '1.16.5'
+    baseos-style: rpm
+    baseos-source: 'sssd-1.16.5-10.amzn2.6.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.6'
+baseos:rpm:libsss_nss_idmap:1.16.5:10.amzn2.6:amzn:
+    repository: BaseOS
+    name: 'libsss_nss_idmap'
+    version: '1.16.5'
+    baseos-style: rpm
+    baseos-source: 'sssd-1.16.5-10.amzn2.6.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.6'
+baseos:rpm:libstdc++:7.3.1:12.amzn2:amzn:
+    repository: BaseOS
+    name: 'libstdc++'
+    version: '7.3.1'
+    baseos-style: rpm
+    baseos-source: 'gcc-7.3.1-12.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '12.amzn2'
+baseos:rpm:libstoragemgmt:1.6.1:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'libstoragemgmt'
+    version: '1.6.1'
+    baseos-style: rpm
+    baseos-source: 'libstoragemgmt-1.6.1-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:libstoragemgmt-python:1.6.1:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'libstoragemgmt-python'
+    version: '1.6.1'
+    baseos-style: rpm
+    baseos-source: 'libstoragemgmt-1.6.1-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:libstoragemgmt-python-clibs:1.6.1:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'libstoragemgmt-python-clibs'
+    version: '1.6.1'
+    baseos-style: rpm
+    baseos-source: 'libstoragemgmt-1.6.1-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:libsysfs:2.1.0:16.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libsysfs'
+    version: '2.1.0'
+    baseos-style: rpm
+    baseos-source: 'sysfsutils-2.1.0-16.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '16.amzn2.0.2'
+baseos:rpm:libtasn1:4.10:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libtasn1'
+    version: '4.10'
+    baseos-style: rpm
+    baseos-source: 'libtasn1-4.10-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:libteam:1.27:9.amzn2:amzn:
+    repository: BaseOS
+    name: 'libteam'
+    version: '1.27'
+    baseos-style: rpm
+    baseos-source: 'libteam-1.27-9.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2'
+baseos:rpm:libtiff:4.0.3:35.amzn2:amzn:
+    repository: BaseOS
+    name: 'libtiff'
+    version: '4.0.3'
+    baseos-style: rpm
+    baseos-source: 'libtiff-4.0.3-35.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '35.amzn2'
+baseos:rpm:libtirpc:0.2.4:0.16.amzn2:amzn:
+    repository: BaseOS
+    name: 'libtirpc'
+    version: '0.2.4'
+    baseos-style: rpm
+    baseos-source: 'libtirpc-0.2.4-0.16.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '0.16.amzn2'
+baseos:rpm:libtool-ltdl:2.4.2:22.2.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libtool-ltdl'
+    version: '2.4.2'
+    baseos-style: rpm
+    baseos-source: 'libtool-2.4.2-22.2.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '22.2.amzn2.0.2'
+baseos:rpm:libunistring:0.9.3:9.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libunistring'
+    version: '0.9.3'
+    baseos-style: rpm
+    baseos-source: 'libunistring-0.9.3-9.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2.0.2'
+baseos:rpm:libuser:0.60:9.amzn2:amzn:
+    repository: BaseOS
+    name: 'libuser'
+    version: '0.60'
+    baseos-style: rpm
+    baseos-source: 'libuser-0.60-9.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2'
+baseos:rpm:libutempter:1.1.6:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libutempter'
+    version: '1.1.6'
+    baseos-style: rpm
+    baseos-source: 'libutempter-1.1.6-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:libuuid:2.30.2:2.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'libuuid'
+    version: '2.30.2'
+    baseos-style: rpm
+    baseos-source: 'util-linux-2.30.2-2.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.4'
+baseos:rpm:libverto:0.2.5:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libverto'
+    version: '0.2.5'
+    baseos-style: rpm
+    baseos-source: 'libverto-0.2.5-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:libverto-libevent:0.2.5:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libverto-libevent'
+    version: '0.2.5'
+    baseos-style: rpm
+    baseos-source: 'libverto-0.2.5-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:libwebp:0.3.0:7.amzn2:amzn:
+    repository: BaseOS
+    name: 'libwebp'
+    version: '0.3.0'
+    baseos-style: rpm
+    baseos-source: 'libwebp-0.3.0-7.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2'
+baseos:rpm:libxml2:2.9.1:6.amzn2.5.1:amzn:
+    repository: BaseOS
+    name: 'libxml2'
+    version: '2.9.1'
+    baseos-style: rpm
+    baseos-source: 'libxml2-2.9.1-6.amzn2.5.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.5.1'
+baseos:rpm:libxml2-python:2.9.1:6.amzn2.5.1:amzn:
+    repository: BaseOS
+    name: 'libxml2-python'
+    version: '2.9.1'
+    baseos-style: rpm
+    baseos-source: 'libxml2-2.9.1-6.amzn2.5.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.5.1'
+baseos:rpm:libxslt:1.1.28:6.amzn2:amzn:
+    repository: BaseOS
+    name: 'libxslt'
+    version: '1.1.28'
+    baseos-style: rpm
+    baseos-source: 'libxslt-1.1.28-6.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2'
+baseos:rpm:libyaml:0.1.4:11.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'libyaml'
+    version: '0.1.4'
+    baseos-style: rpm
+    baseos-source: 'libyaml-0.1.4-11.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2.0.2'
+baseos:rpm:lm_sensors-libs:3.4.0:8.20160601gitf9185e5.amzn2:amzn:
+    repository: BaseOS
+    name: 'lm_sensors-libs'
+    version: '3.4.0'
+    baseos-style: rpm
+    baseos-source: 'lm_sensors-3.4.0-8.20160601gitf9185e5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.20160601gitf9185e5.amzn2'
+baseos:rpm:logrotate:3.8.6:15.amzn2:amzn:
+    repository: BaseOS
+    name: 'logrotate'
+    version: '3.8.6'
+    baseos-style: rpm
+    baseos-source: 'logrotate-3.8.6-15.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '15.amzn2'
+baseos:rpm:lsof:4.87:6.amzn2:amzn:
+    repository: BaseOS
+    name: 'lsof'
+    version: '4.87'
+    baseos-style: rpm
+    baseos-source: 'lsof-4.87-6.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2'
+baseos:rpm:lua:5.1.4:15.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'lua'
+    version: '5.1.4'
+    baseos-style: rpm
+    baseos-source: 'lua-5.1.4-15.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '15.amzn2.0.2'
+baseos:rpm:lvm2:2.02.177:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'lvm2'
+    version: '2.02.177'
+    baseos-style: rpm
+    baseos-source: 'lvm2-2.02.177-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:lvm2-libs:2.02.177:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'lvm2-libs'
+    version: '2.02.177'
+    baseos-style: rpm
+    baseos-source: 'lvm2-2.02.177-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:lz4:1.7.5:2.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'lz4'
+    version: '1.7.5'
+    baseos-style: rpm
+    baseos-source: 'lz4-1.7.5-2.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.1'
+baseos:rpm:make:3.82:24.amzn2:amzn:
+    repository: BaseOS
+    name: 'make'
+    version: '3.82'
+    baseos-style: rpm
+    baseos-source: 'make-3.82-24.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '24.amzn2'
+baseos:rpm:man-db:2.6.3:9.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'man-db'
+    version: '2.6.3'
+    baseos-style: rpm
+    baseos-source: 'man-db-2.6.3-9.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2.0.3'
+baseos:rpm:man-pages:3.53:5.amzn2:amzn:
+    repository: BaseOS
+    name: 'man-pages'
+    version: '3.53'
+    baseos-style: rpm
+    baseos-source: 'man-pages-3.53-5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2'
+baseos:rpm:man-pages-overrides:7.5.2:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'man-pages-overrides'
+    version: '7.5.2'
+    baseos-style: rpm
+    baseos-source: 'man-pages-overrides-7.5.2-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:mariadb-libs:5.5.68:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'mariadb-libs'
+    version: '5.5.68'
+    baseos-style: rpm
+    baseos-source: 'mariadb-5.5.68-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:mdadm:4.0:5.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'mdadm'
+    version: '4.0'
+    baseos-style: rpm
+    baseos-source: 'mdadm-4.0-5.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.2'
+baseos:rpm:microcode_ctl:2.1:47.amzn2.0.7:amzn:
+    repository: BaseOS
+    name: 'microcode_ctl'
+    version: '2.1'
+    baseos-style: rpm
+    baseos-source: 'microcode_ctl-2.1-47.amzn2.0.7.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '47.amzn2.0.7'
+baseos:rpm:mlocate:0.26:8.amzn2:amzn:
+    repository: BaseOS
+    name: 'mlocate'
+    version: '0.26'
+    baseos-style: rpm
+    baseos-source: 'mlocate-0.26-8.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.amzn2'
+baseos:rpm:mtr:0.92:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'mtr'
+    version: '0.92'
+    baseos-style: rpm
+    baseos-source: 'mtr-0.92-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:nano:2.9.8:2.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'nano'
+    version: '2.9.8'
+    baseos-style: rpm
+    baseos-source: 'nano-2.9.8-2.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.1'
+baseos:rpm:ncurses:6.0:8.20170212.amzn2.1.3:amzn:
+    repository: BaseOS
+    name: 'ncurses'
+    version: '6.0'
+    baseos-style: rpm
+    baseos-source: 'ncurses-6.0-8.20170212.amzn2.1.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.20170212.amzn2.1.3'
+baseos:rpm:ncurses-base:6.0:8.20170212.amzn2.1.3:amzn:
+    repository: BaseOS
+    name: 'ncurses-base'
+    version: '6.0'
+    baseos-style: rpm
+    baseos-source: 'ncurses-6.0-8.20170212.amzn2.1.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.20170212.amzn2.1.3'
+baseos:rpm:ncurses-libs:6.0:8.20170212.amzn2.1.3:amzn:
+    repository: BaseOS
+    name: 'ncurses-libs'
+    version: '6.0'
+    baseos-style: rpm
+    baseos-source: 'ncurses-6.0-8.20170212.amzn2.1.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.20170212.amzn2.1.3'
+baseos:rpm:nettle:2.7.1:8.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'nettle'
+    version: '2.7.1'
+    baseos-style: rpm
+    baseos-source: 'nettle-2.7.1-8.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.amzn2.0.2'
+baseos:rpm:net-tools:2.0:0.22.20131004git.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'net-tools'
+    version: '2.0'
+    baseos-style: rpm
+    baseos-source: 'net-tools-2.0-0.22.20131004git.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '0.22.20131004git.amzn2.0.2'
+baseos:rpm:newt:0.52.15:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'newt'
+    version: '0.52.15'
+    baseos-style: rpm
+    baseos-source: 'newt-0.52.15-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:newt-python:0.52.15:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'newt-python'
+    version: '0.52.15'
+    baseos-style: rpm
+    baseos-source: 'newt-0.52.15-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:nfs-utils:1.3.0:0.54.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'nfs-utils'
+    version: '1.3.0'
+    baseos-style: rpm
+    baseos-source: 'nfs-utils-1.3.0-0.54.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '0.54.amzn2.0.2'
+baseos:rpm:nspr:4.25.0:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'nspr'
+    version: '4.25.0'
+    baseos-style: rpm
+    baseos-source: 'nspr-4.25.0-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:nss:3.53.1:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'nss'
+    version: '3.53.1'
+    baseos-style: rpm
+    baseos-source: 'nss-3.53.1-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:nss-pem:1.0.3:5.amzn2:amzn:
+    repository: BaseOS
+    name: 'nss-pem'
+    version: '1.0.3'
+    baseos-style: rpm
+    baseos-source: 'nss-pem-1.0.3-5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2'
+baseos:rpm:nss-softokn:3.53.1:6.amzn2:amzn:
+    repository: BaseOS
+    name: 'nss-softokn'
+    version: '3.53.1'
+    baseos-style: rpm
+    baseos-source: 'nss-softokn-3.53.1-6.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2'
+baseos:rpm:nss-softokn-freebl:3.53.1:6.amzn2:amzn:
+    repository: BaseOS
+    name: 'nss-softokn-freebl'
+    version: '3.53.1'
+    baseos-style: rpm
+    baseos-source: 'nss-softokn-3.53.1-6.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2'
+baseos:rpm:nss-sysinit:3.53.1:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'nss-sysinit'
+    version: '3.53.1'
+    baseos-style: rpm
+    baseos-source: 'nss-3.53.1-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:nss-tools:3.53.1:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'nss-tools'
+    version: '3.53.1'
+    baseos-style: rpm
+    baseos-source: 'nss-3.53.1-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:nss-util:3.53.1:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'nss-util'
+    version: '3.53.1'
+    baseos-style: rpm
+    baseos-source: 'nss-util-3.53.1-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:ntsysv:1.7.4:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'ntsysv'
+    version: '1.7.4'
+    baseos-style: rpm
+    baseos-source: 'chkconfig-1.7.4-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:numactl-libs:2.0.9:7.amzn2:amzn:
+    repository: BaseOS
+    name: 'numactl-libs'
+    version: '2.0.9'
+    baseos-style: rpm
+    baseos-source: 'numactl-2.0.9-7.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2'
+baseos:rpm:oniguruma:5.9.6:1.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'oniguruma'
+    version: '5.9.6'
+    baseos-style: rpm
+    baseos-source: 'oniguruma-5.9.6-1.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.4'
+baseos:rpm:openldap:2.4.44:22.amzn2:amzn:
+    repository: BaseOS
+    name: 'openldap'
+    version: '2.4.44'
+    baseos-style: rpm
+    baseos-source: 'openldap-2.4.44-22.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '22.amzn2'
+baseos:rpm:openssh:7.4p1:21.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'openssh'
+    version: '7.4p1'
+    baseos-style: rpm
+    baseos-source: 'openssh-7.4p1-21.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '21.amzn2.0.1'
+baseos:rpm:openssh-clients:7.4p1:21.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'openssh-clients'
+    version: '7.4p1'
+    baseos-style: rpm
+    baseos-source: 'openssh-7.4p1-21.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '21.amzn2.0.1'
+baseos:rpm:openssh-server:7.4p1:21.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'openssh-server'
+    version: '7.4p1'
+    baseos-style: rpm
+    baseos-source: 'openssh-7.4p1-21.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '21.amzn2.0.1'
+baseos:rpm:openssl:1.0.2k:19.amzn2.0.6:amzn:
+    repository: BaseOS
+    name: 'openssl'
+    version: '1.0.2k'
+    baseos-style: rpm
+    baseos-source: 'openssl-1.0.2k-19.amzn2.0.6.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '19.amzn2.0.6'
+baseos:rpm:openssl-libs:1.0.2k:19.amzn2.0.6:amzn:
+    repository: BaseOS
+    name: 'openssl-libs'
+    version: '1.0.2k'
+    baseos-style: rpm
+    baseos-source: 'openssl-1.0.2k-19.amzn2.0.6.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '19.amzn2.0.6'
+baseos:rpm:open-vm-tools:10.3.0:4.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'open-vm-tools'
+    version: '10.3.0'
+    baseos-style: rpm
+    baseos-source: 'open-vm-tools-10.3.0-4.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.3'
+baseos:rpm:os-prober:1.58:9.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'os-prober'
+    version: '1.58'
+    baseos-style: rpm
+    baseos-source: 'os-prober-1.58-9.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2.0.2'
+baseos:rpm:p11-kit:0.23.22:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'p11-kit'
+    version: '0.23.22'
+    baseos-style: rpm
+    baseos-source: 'p11-kit-0.23.22-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:p11-kit-trust:0.23.22:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'p11-kit-trust'
+    version: '0.23.22'
+    baseos-style: rpm
+    baseos-source: 'p11-kit-0.23.22-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:pam:1.1.8:23.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'pam'
+    version: '1.1.8'
+    baseos-style: rpm
+    baseos-source: 'pam-1.1.8-23.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '23.amzn2.0.1'
+baseos:rpm:parted:3.1:29.amzn2:amzn:
+    repository: BaseOS
+    name: 'parted'
+    version: '3.1'
+    baseos-style: rpm
+    baseos-source: 'parted-3.1-29.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '29.amzn2'
+baseos:rpm:passwd:0.79:5.amzn2:amzn:
+    repository: BaseOS
+    name: 'passwd'
+    version: '0.79'
+    baseos-style: rpm
+    baseos-source: 'passwd-0.79-5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2'
+baseos:rpm:pciutils:3.5.1:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'pciutils'
+    version: '3.5.1'
+    baseos-style: rpm
+    baseos-source: 'pciutils-3.5.1-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:pciutils-libs:3.5.1:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'pciutils-libs'
+    version: '3.5.1'
+    baseos-style: rpm
+    baseos-source: 'pciutils-3.5.1-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:pcre2:10.23:2.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'pcre2'
+    version: '10.23'
+    baseos-style: rpm
+    baseos-source: 'pcre2-10.23-2.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.2'
+baseos:rpm:pcre:8.32:17.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'pcre'
+    version: '8.32'
+    baseos-style: rpm
+    baseos-source: 'pcre-8.32-17.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '17.amzn2.0.2'
+baseos:rpm:perl:5.16.3:299.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'perl'
+    version: '5.16.3'
+    baseos-style: rpm
+    baseos-source: 'perl-5.16.3-299.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '299.amzn2.0.1'
+baseos:rpm:perl-Carp:1.26:244.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-Carp'
+    version: '1.26'
+    baseos-style: rpm
+    baseos-source: 'perl-Carp-1.26-244.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '244.amzn2'
+baseos:rpm:perl-constant:1.27:2.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'perl-constant'
+    version: '1.27'
+    baseos-style: rpm
+    baseos-source: 'perl-constant-1.27-2.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.1'
+baseos:rpm:perl-Encode:2.51:7.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'perl-Encode'
+    version: '2.51'
+    baseos-style: rpm
+    baseos-source: 'perl-Encode-2.51-7.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2.0.2'
+baseos:rpm:perl-Exporter:5.68:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-Exporter'
+    version: '5.68'
+    baseos-style: rpm
+    baseos-source: 'perl-Exporter-5.68-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:perl-File-Path:2.09:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-File-Path'
+    version: '2.09'
+    baseos-style: rpm
+    baseos-source: 'perl-File-Path-2.09-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:perl-File-Temp:0.23.01:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-File-Temp'
+    version: '0.23.01'
+    baseos-style: rpm
+    baseos-source: 'perl-File-Temp-0.23.01-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:perl-Filter:1.49:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'perl-Filter'
+    version: '1.49'
+    baseos-style: rpm
+    baseos-source: 'perl-Filter-1.49-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:perl-Getopt-Long:2.40:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-Getopt-Long'
+    version: '2.40'
+    baseos-style: rpm
+    baseos-source: 'perl-Getopt-Long-2.40-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:perl-HTTP-Tiny:0.033:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-HTTP-Tiny'
+    version: '0.033'
+    baseos-style: rpm
+    baseos-source: 'perl-HTTP-Tiny-0.033-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:perl-libs:5.16.3:299.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'perl-libs'
+    version: '5.16.3'
+    baseos-style: rpm
+    baseos-source: 'perl-5.16.3-299.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '299.amzn2.0.1'
+baseos:rpm:perl-macros:5.16.3:299.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'perl-macros'
+    version: '5.16.3'
+    baseos-style: rpm
+    baseos-source: 'perl-5.16.3-299.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '299.amzn2.0.1'
+baseos:rpm:perl-parent:0.225:244.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'perl-parent'
+    version: '0.225'
+    baseos-style: rpm
+    baseos-source: 'perl-parent-0.225-244.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '244.amzn2.0.1'
+baseos:rpm:perl-PathTools:3.40:5.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'perl-PathTools'
+    version: '3.40'
+    baseos-style: rpm
+    baseos-source: 'perl-PathTools-3.40-5.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.2'
+baseos:rpm:perl-Pod-Escapes:1.04:299.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'perl-Pod-Escapes'
+    version: '1.04'
+    baseos-style: rpm
+    baseos-source: 'perl-5.16.3-299.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '299.amzn2.0.1'
+baseos:rpm:perl-podlators:2.5.1:3.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'perl-podlators'
+    version: '2.5.1'
+    baseos-style: rpm
+    baseos-source: 'perl-podlators-2.5.1-3.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.1'
+baseos:rpm:perl-Pod-Perldoc:3.20:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-Pod-Perldoc'
+    version: '3.20'
+    baseos-style: rpm
+    baseos-source: 'perl-Pod-Perldoc-3.20-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:perl-Pod-Simple:3.28:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-Pod-Simple'
+    version: '3.28'
+    baseos-style: rpm
+    baseos-source: 'perl-Pod-Simple-3.28-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:perl-Pod-Usage:1.63:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-Pod-Usage'
+    version: '1.63'
+    baseos-style: rpm
+    baseos-source: 'perl-Pod-Usage-1.63-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:perl-Scalar-List-Utils:1.27:248.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'perl-Scalar-List-Utils'
+    version: '1.27'
+    baseos-style: rpm
+    baseos-source: 'perl-Scalar-List-Utils-1.27-248.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '248.amzn2.0.2'
+baseos:rpm:perl-Socket:2.010:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'perl-Socket'
+    version: '2.010'
+    baseos-style: rpm
+    baseos-source: 'perl-Socket-2.010-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:perl-Storable:2.45:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'perl-Storable'
+    version: '2.45'
+    baseos-style: rpm
+    baseos-source: 'perl-Storable-2.45-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:perl-Text-ParseWords:3.29:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-Text-ParseWords'
+    version: '3.29'
+    baseos-style: rpm
+    baseos-source: 'perl-Text-ParseWords-3.29-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:perl-threads:1.87:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'perl-threads'
+    version: '1.87'
+    baseos-style: rpm
+    baseos-source: 'perl-threads-1.87-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:perl-threads-shared:1.43:6.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'perl-threads-shared'
+    version: '1.43'
+    baseos-style: rpm
+    baseos-source: 'perl-threads-shared-1.43-6.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2.0.2'
+baseos:rpm:perl-Time-HiRes:1.9725:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'perl-Time-HiRes'
+    version: '1.9725'
+    baseos-style: rpm
+    baseos-source: 'perl-Time-HiRes-1.9725-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:perl-Time-Local:1.2300:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'perl-Time-Local'
+    version: '1.2300'
+    baseos-style: rpm
+    baseos-source: 'perl-Time-Local-1.2300-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:pinentry:0.8.1:17.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'pinentry'
+    version: '0.8.1'
+    baseos-style: rpm
+    baseos-source: 'pinentry-0.8.1-17.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '17.amzn2.0.2'
+baseos:rpm:pkgconfig:0.27.1:4.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'pkgconfig'
+    version: '0.27.1'
+    baseos-style: rpm
+    baseos-source: 'pkgconfig-0.27.1-4.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.2'
+baseos:rpm:plymouth:0.8.9:0.28.20140113.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'plymouth'
+    version: '0.8.9'
+    baseos-style: rpm
+    baseos-source: 'plymouth-0.8.9-0.28.20140113.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '0.28.20140113.amzn2.0.2'
+baseos:rpm:plymouth-core-libs:0.8.9:0.28.20140113.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'plymouth-core-libs'
+    version: '0.8.9'
+    baseos-style: rpm
+    baseos-source: 'plymouth-0.8.9-0.28.20140113.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '0.28.20140113.amzn2.0.2'
+baseos:rpm:plymouth-scripts:0.8.9:0.28.20140113.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'plymouth-scripts'
+    version: '0.8.9'
+    baseos-style: rpm
+    baseos-source: 'plymouth-0.8.9-0.28.20140113.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '0.28.20140113.amzn2.0.2'
+baseos:rpm:pm-utils:1.4.1:27.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'pm-utils'
+    version: '1.4.1'
+    baseos-style: rpm
+    baseos-source: 'pm-utils-1.4.1-27.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '27.amzn2.0.1'
+baseos:rpm:policycoreutils:2.5:22.amzn2:amzn:
+    repository: BaseOS
+    name: 'policycoreutils'
+    version: '2.5'
+    baseos-style: rpm
+    baseos-source: 'policycoreutils-2.5-22.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '22.amzn2'
+baseos:rpm:popt:1.13:16.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'popt'
+    version: '1.13'
+    baseos-style: rpm
+    baseos-source: 'popt-1.13-16.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '16.amzn2.0.2'
+baseos:rpm:procps-ng:3.3.10:26.amzn2:amzn:
+    repository: BaseOS
+    name: 'procps-ng'
+    version: '3.3.10'
+    baseos-style: rpm
+    baseos-source: 'procps-ng-3.3.10-26.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '26.amzn2'
+baseos:rpm:psacct:6.6.1:13.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'psacct'
+    version: '6.6.1'
+    baseos-style: rpm
+    baseos-source: 'psacct-6.6.1-13.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.amzn2.0.2'
+baseos:rpm:psmisc:22.20:15.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'psmisc'
+    version: '22.20'
+    baseos-style: rpm
+    baseos-source: 'psmisc-22.20-15.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '15.amzn2.0.2'
+baseos:rpm:pth:2.0.7:23.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'pth'
+    version: '2.0.7'
+    baseos-style: rpm
+    baseos-source: 'pth-2.0.7-23.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '23.amzn2.0.2'
+baseos:rpm:pygpgme:0.3:9.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'pygpgme'
+    version: '0.3'
+    baseos-style: rpm
+    baseos-source: 'pygpgme-0.3-9.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2.0.3'
+baseos:rpm:pyliblzma:0.5.3:11.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'pyliblzma'
+    version: '0.5.3'
+    baseos-style: rpm
+    baseos-source: 'pyliblzma-0.5.3-11.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2.0.2'
+baseos:rpm:pystache:0.5.3:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'pystache'
+    version: '0.5.3'
+    baseos-style: rpm
+    baseos-source: 'pystache-0.5.3-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:python:2.7.18:1.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'python'
+    version: '2.7.18'
+    baseos-style: rpm
+    baseos-source: 'python-2.7.18-1.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.3'
+baseos:rpm:python2-botocore:1.18.6:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python2-botocore'
+    version: '1.18.6'
+    baseos-style: rpm
+    baseos-source: 'python-botocore-1.18.6-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:python2-cryptography:1.7.2:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'python2-cryptography'
+    version: '1.7.2'
+    baseos-style: rpm
+    baseos-source: 'python-cryptography-1.7.2-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:python2-dateutil:2.6.0:3.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python2-dateutil'
+    version: '2.6.0'
+    baseos-style: rpm
+    baseos-source: 'python-dateutil-2.6.0-3.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.1'
+baseos:rpm:python2-futures:3.0.5:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'python2-futures'
+    version: '3.0.5'
+    baseos-style: rpm
+    baseos-source: 'python-futures-3.0.5-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:python2-jmespath:0.9.3:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python2-jmespath'
+    version: '0.9.3'
+    baseos-style: rpm
+    baseos-source: 'python-jmespath-0.9.3-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:python2-jsonschema:2.5.1:3.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python2-jsonschema'
+    version: '2.5.1'
+    baseos-style: rpm
+    baseos-source: 'python-jsonschema-2.5.1-3.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.1'
+baseos:rpm:python2-lockfile:0.11.0:17.el7:amzn:
+    repository: BaseOS
+    name: 'python2-lockfile'
+    version: '0.11.0'
+    baseos-style: rpm
+    baseos-source: 'python-lockfile-0.11.0-17.el7.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '17.el7'
+baseos:rpm:python2-oauthlib:2.0.1:8.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python2-oauthlib'
+    version: '2.0.1'
+    baseos-style: rpm
+    baseos-source: 'python-oauthlib-2.0.1-8.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.amzn2.0.1'
+baseos:rpm:python2-pip:9.0.3:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'python2-pip'
+    version: '9.0.3'
+    baseos-style: rpm
+    baseos-source: 'python-pip-9.0.3-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:python2-pyasn1:0.1.9:7.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python2-pyasn1'
+    version: '0.1.9'
+    baseos-style: rpm
+    baseos-source: 'python-pyasn1-0.1.9-7.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2.0.1'
+baseos:rpm:python2-rpm:4.11.3:40.amzn2.0.5:amzn:
+    repository: BaseOS
+    name: 'python2-rpm'
+    version: '4.11.3'
+    baseos-style: rpm
+    baseos-source: 'rpm-4.11.3-40.amzn2.0.5.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '40.amzn2.0.5'
+baseos:rpm:python2-rsa:3.4.1:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python2-rsa'
+    version: '3.4.1'
+    baseos-style: rpm
+    baseos-source: 'python-rsa-3.4.1-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:python2-s3transfer:0.3.3:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python2-s3transfer'
+    version: '0.3.3'
+    baseos-style: rpm
+    baseos-source: 'python-s3transfer-0.3.3-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:python2-setuptools:38.4.0:3.amzn2.0.6:amzn:
+    repository: BaseOS
+    name: 'python2-setuptools'
+    version: '38.4.0'
+    baseos-style: rpm
+    baseos-source: 'python-setuptools-38.4.0-3.amzn2.0.6.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.6'
+baseos:rpm:python2-simplejson:3.10.0:2.el7:amzn:
+    repository: BaseOS
+    name: 'python2-simplejson'
+    version: '3.10.0'
+    baseos-style: rpm
+    baseos-source: 'python-simplejson-3.10.0-2.el7.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.el7'
+baseos:rpm:python3:3.7.9:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'python3'
+    version: '3.7.9'
+    baseos-style: rpm
+    baseos-source: 'python3-3.7.9-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:python3-libs:3.7.9:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'python3-libs'
+    version: '3.7.9'
+    baseos-style: rpm
+    baseos-source: 'python3-3.7.9-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:python3-pip:9.0.3:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'python3-pip'
+    version: '9.0.3'
+    baseos-style: rpm
+    baseos-source: 'python-pip-9.0.3-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:python3-setuptools:38.4.0:3.amzn2.0.6:amzn:
+    repository: BaseOS
+    name: 'python3-setuptools'
+    version: '38.4.0'
+    baseos-style: rpm
+    baseos-source: 'python-setuptools-38.4.0-3.amzn2.0.6.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.6'
+baseos:rpm:python-babel:0.9.6:8.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python-babel'
+    version: '0.9.6'
+    baseos-style: rpm
+    baseos-source: 'babel-0.9.6-8.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.amzn2.0.1'
+baseos:rpm:python-backports:1.0:8.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'python-backports'
+    version: '1.0'
+    baseos-style: rpm
+    baseos-source: 'python-backports-1.0-8.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.amzn2.0.2'
+baseos:rpm:python-backports-ssl_match_hostname:3.5.0.1:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-backports-ssl_match_hostname'
+    version: '3.5.0.1'
+    baseos-style: rpm
+    baseos-source: 'python-backports-ssl_match_hostname-3.5.0.1-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:python-cffi:1.6.0:5.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'python-cffi'
+    version: '1.6.0'
+    baseos-style: rpm
+    baseos-source: 'python-cffi-1.6.0-5.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.2'
+baseos:rpm:python-chardet:2.2.1:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-chardet'
+    version: '2.2.1'
+    baseos-style: rpm
+    baseos-source: 'python-chardet-2.2.1-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:python-colorama:0.3.2:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-colorama'
+    version: '0.3.2'
+    baseos-style: rpm
+    baseos-source: 'python-colorama-0.3.2-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:python-configobj:4.7.2:7.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-configobj'
+    version: '4.7.2'
+    baseos-style: rpm
+    baseos-source: 'python-configobj-4.7.2-7.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2'
+baseos:rpm:python-daemon:1.6:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-daemon'
+    version: '1.6'
+    baseos-style: rpm
+    baseos-source: 'python-daemon-1.6-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:python-devel:2.7.18:1.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'python-devel'
+    version: '2.7.18'
+    baseos-style: rpm
+    baseos-source: 'python-2.7.18-1.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.3'
+baseos:rpm:python-docutils:0.12:0.2.20140510svn7747.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-docutils'
+    version: '0.12'
+    baseos-style: rpm
+    baseos-source: 'python-docutils-0.12-0.2.20140510svn7747.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '0.2.20140510svn7747.amzn2'
+baseos:rpm:python-enum34:1.0.4:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-enum34'
+    version: '1.0.4'
+    baseos-style: rpm
+    baseos-source: 'python-enum34-1.0.4-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:python-idna:2.4:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-idna'
+    version: '2.4'
+    baseos-style: rpm
+    baseos-source: 'python-idna-2.4-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:python-iniparse:0.4:9.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-iniparse'
+    version: '0.4'
+    baseos-style: rpm
+    baseos-source: 'python-iniparse-0.4-9.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2'
+baseos:rpm:python-ipaddress:1.0.16:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-ipaddress'
+    version: '1.0.16'
+    baseos-style: rpm
+    baseos-source: 'python-ipaddress-1.0.16-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:python-jinja2:2.7.2:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-jinja2'
+    version: '2.7.2'
+    baseos-style: rpm
+    baseos-source: 'python-jinja2-2.7.2-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:python-jsonpatch:1.2:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-jsonpatch'
+    version: '1.2'
+    baseos-style: rpm
+    baseos-source: 'python-jsonpatch-1.2-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:python-jsonpointer:1.9:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-jsonpointer'
+    version: '1.9'
+    baseos-style: rpm
+    baseos-source: 'python-jsonpointer-1.9-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:python-jwcrypto:0.4.2:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-jwcrypto'
+    version: '0.4.2'
+    baseos-style: rpm
+    baseos-source: 'python-jwcrypto-0.4.2-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:python-kitchen:1.1.1:5.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-kitchen'
+    version: '1.1.1'
+    baseos-style: rpm
+    baseos-source: 'python-kitchen-1.1.1-5.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2'
+baseos:rpm:python-libs:2.7.18:1.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'python-libs'
+    version: '2.7.18'
+    baseos-style: rpm
+    baseos-source: 'python-2.7.18-1.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.3'
+baseos:rpm:python-markupsafe:0.11:10.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'python-markupsafe'
+    version: '0.11'
+    baseos-style: rpm
+    baseos-source: 'python-markupsafe-0.11-10.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.0.2'
+baseos:rpm:python-netifaces:0.10.4:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'python-netifaces'
+    version: '0.10.4'
+    baseos-style: rpm
+    baseos-source: 'python-netifaces-0.10.4-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:python-pillow:2.0.0:21.gitd1c6db8.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python-pillow'
+    version: '2.0.0'
+    baseos-style: rpm
+    baseos-source: 'python-pillow-2.0.0-21.gitd1c6db8.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '21.gitd1c6db8.amzn2.0.1'
+baseos:rpm:python-ply:3.4:11.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-ply'
+    version: '3.4'
+    baseos-style: rpm
+    baseos-source: 'python-ply-3.4-11.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2'
+baseos:rpm:python-pycparser:2.14:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-pycparser'
+    version: '2.14'
+    baseos-style: rpm
+    baseos-source: 'python-pycparser-2.14-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:python-pycurl:7.19.0:19.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'python-pycurl'
+    version: '7.19.0'
+    baseos-style: rpm
+    baseos-source: 'python-pycurl-7.19.0-19.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '19.amzn2.0.2'
+baseos:rpm:python-repoze-lru:0.4:3.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-repoze-lru'
+    version: '0.4'
+    baseos-style: rpm
+    baseos-source: 'python-repoze-lru-0.4-3.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2'
+baseos:rpm:python-requests:2.6.0:7.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-requests'
+    version: '2.6.0'
+    baseos-style: rpm
+    baseos-source: 'python-requests-2.6.0-7.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2'
+baseos:rpm:python-six:1.9.0:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'python-six'
+    version: '1.9.0'
+    baseos-style: rpm
+    baseos-source: 'python-six-1.9.0-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:python-urlgrabber:3.10:9.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python-urlgrabber'
+    version: '3.10'
+    baseos-style: rpm
+    baseos-source: 'python-urlgrabber-3.10-9.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2.0.1'
+baseos:rpm:python-urllib3:1.25.7:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'python-urllib3'
+    version: '1.25.7'
+    baseos-style: rpm
+    baseos-source: 'python-urllib3-1.25.7-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:pyxattr:0.5.1:5.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'pyxattr'
+    version: '0.5.1'
+    baseos-style: rpm
+    baseos-source: 'pyxattr-0.5.1-5.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.2'
+baseos:rpm:PyYAML:3.10:11.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'PyYAML'
+    version: '3.10'
+    baseos-style: rpm
+    baseos-source: 'PyYAML-3.10-11.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2.0.2'
+baseos:rpm:qrencode-libs:3.4.1:3.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'qrencode-libs'
+    version: '3.4.1'
+    baseos-style: rpm
+    baseos-source: 'qrencode-3.4.1-3.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.2'
+baseos:rpm:quota:4.01:17.amzn2:amzn:
+    repository: BaseOS
+    name: 'quota'
+    version: '4.01'
+    baseos-style: rpm
+    baseos-source: 'quota-4.01-17.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '17.amzn2'
+baseos:rpm:quota-nls:4.01:17.amzn2:amzn:
+    repository: BaseOS
+    name: 'quota-nls'
+    version: '4.01'
+    baseos-style: rpm
+    baseos-source: 'quota-4.01-17.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '17.amzn2'
+baseos:rpm:rdate:1.4:25.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'rdate'
+    version: '1.4'
+    baseos-style: rpm
+    baseos-source: 'rdate-1.4-25.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '25.amzn2.0.1'
+baseos:rpm:readline:6.2:10.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'readline'
+    version: '6.2'
+    baseos-style: rpm
+    baseos-source: 'readline-6.2-10.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.0.2'
+baseos:rpm:rng-tools:6.8:3.amzn2.0.5:amzn:
+    repository: BaseOS
+    name: 'rng-tools'
+    version: '6.8'
+    baseos-style: rpm
+    baseos-source: 'rng-tools-6.8-3.amzn2.0.5.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '3.amzn2.0.5'
+baseos:rpm:rootfiles:8.1:11.amzn2:amzn:
+    repository: BaseOS
+    name: 'rootfiles'
+    version: '8.1'
+    baseos-style: rpm
+    baseos-source: 'rootfiles-8.1-11.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2'
+baseos:rpm:rpcbind:0.2.0:44.amzn2:amzn:
+    repository: BaseOS
+    name: 'rpcbind'
+    version: '0.2.0'
+    baseos-style: rpm
+    baseos-source: 'rpcbind-0.2.0-44.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '44.amzn2'
+baseos:rpm:rpm:4.11.3:40.amzn2.0.5:amzn:
+    repository: BaseOS
+    name: 'rpm'
+    version: '4.11.3'
+    baseos-style: rpm
+    baseos-source: 'rpm-4.11.3-40.amzn2.0.5.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '40.amzn2.0.5'
+baseos:rpm:rpm-build-libs:4.11.3:40.amzn2.0.5:amzn:
+    repository: BaseOS
+    name: 'rpm-build-libs'
+    version: '4.11.3'
+    baseos-style: rpm
+    baseos-source: 'rpm-4.11.3-40.amzn2.0.5.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '40.amzn2.0.5'
+baseos:rpm:rpm-libs:4.11.3:40.amzn2.0.5:amzn:
+    repository: BaseOS
+    name: 'rpm-libs'
+    version: '4.11.3'
+    baseos-style: rpm
+    baseos-source: 'rpm-4.11.3-40.amzn2.0.5.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '40.amzn2.0.5'
+baseos:rpm:rpm-plugin-systemd-inhibit:4.11.3:40.amzn2.0.5:amzn:
+    repository: BaseOS
+    name: 'rpm-plugin-systemd-inhibit'
+    version: '4.11.3'
+    baseos-style: rpm
+    baseos-source: 'rpm-4.11.3-40.amzn2.0.5.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '40.amzn2.0.5'
+baseos:rpm:rsync:3.1.2:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'rsync'
+    version: '3.1.2'
+    baseos-style: rpm
+    baseos-source: 'rsync-3.1.2-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:rsyslog:8.24.0:52.amzn2:amzn:
+    repository: BaseOS
+    name: 'rsyslog'
+    version: '8.24.0'
+    baseos-style: rpm
+    baseos-source: 'rsyslog-8.24.0-52.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '52.amzn2'
+baseos:rpm:scl-utils:20130529:18.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'scl-utils'
+    version: '20130529'
+    baseos-style: rpm
+    baseos-source: 'scl-utils-20130529-18.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '18.amzn2.0.1'
+baseos:rpm:screen:4.1.0:0.25.20120314git3c2946.amzn2:amzn:
+    repository: BaseOS
+    name: 'screen'
+    version: '4.1.0'
+    baseos-style: rpm
+    baseos-source: 'screen-4.1.0-0.25.20120314git3c2946.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '0.25.20120314git3c2946.amzn2'
+baseos:rpm:sed:4.2.2:5.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'sed'
+    version: '4.2.2'
+    baseos-style: rpm
+    baseos-source: 'sed-4.2.2-5.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.2'
+baseos:rpm:selinux-policy:3.13.1:192.amzn2.6.7:amzn:
+    repository: BaseOS
+    name: 'selinux-policy'
+    version: '3.13.1'
+    baseos-style: rpm
+    baseos-source: 'selinux-policy-3.13.1-192.amzn2.6.7.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '192.amzn2.6.7'
+baseos:rpm:selinux-policy-targeted:3.13.1:192.amzn2.6.7:amzn:
+    repository: BaseOS
+    name: 'selinux-policy-targeted'
+    version: '3.13.1'
+    baseos-style: rpm
+    baseos-source: 'selinux-policy-3.13.1-192.amzn2.6.7.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '192.amzn2.6.7'
+baseos:rpm:setserial:2.17:33.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'setserial'
+    version: '2.17'
+    baseos-style: rpm
+    baseos-source: 'setserial-2.17-33.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '33.amzn2.0.1'
+baseos:rpm:setup:2.8.71:10.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'setup'
+    version: '2.8.71'
+    baseos-style: rpm
+    baseos-source: 'setup-2.8.71-10.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.0.1'
+baseos:rpm:setuptool:1.19.11:8.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'setuptool'
+    version: '1.19.11'
+    baseos-style: rpm
+    baseos-source: 'setuptool-1.19.11-8.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.amzn2.0.1'
+baseos:rpm:sgpio:1.2.0.10:13.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'sgpio'
+    version: '1.2.0.10'
+    baseos-style: rpm
+    baseos-source: 'sgpio-1.2.0.10-13.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.amzn2.0.1'
+baseos:rpm:shadow-utils:4.1.5.1:24.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'shadow-utils'
+    version: '4.1.5.1'
+    baseos-style: rpm
+    baseos-source: 'shadow-utils-4.1.5.1-24.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '24.amzn2.0.2'
+baseos:rpm:shared-mime-info:1.8:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'shared-mime-info'
+    version: '1.8'
+    baseos-style: rpm
+    baseos-source: 'shared-mime-info-1.8-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:slang:2.2.4:11.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'slang'
+    version: '2.2.4'
+    baseos-style: rpm
+    baseos-source: 'slang-2.2.4-11.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2.0.2'
+baseos:rpm:socat:1.7.3.2:2.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'socat'
+    version: '1.7.3.2'
+    baseos-style: rpm
+    baseos-source: 'socat-1.7.3.2-2.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.1'
+baseos:rpm:sqlite:3.7.17:8.amzn2.1.1:amzn:
+    repository: BaseOS
+    name: 'sqlite'
+    version: '3.7.17'
+    baseos-style: rpm
+    baseos-source: 'sqlite-3.7.17-8.amzn2.1.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '8.amzn2.1.1'
+baseos:rpm:sssd-client:1.16.5:10.amzn2.6:amzn:
+    repository: BaseOS
+    name: 'sssd-client'
+    version: '1.16.5'
+    baseos-style: rpm
+    baseos-source: 'sssd-1.16.5-10.amzn2.6.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.6'
+baseos:rpm:strace:4.26:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'strace'
+    version: '4.26'
+    baseos-style: rpm
+    baseos-source: 'strace-4.26-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:sudo:1.8.23:10.amzn2.1:amzn:
+    repository: BaseOS
+    name: 'sudo'
+    version: '1.8.23'
+    baseos-style: rpm
+    baseos-source: 'sudo-1.8.23-10.amzn2.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.1'
+baseos:rpm:sysctl-defaults:1.0:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'sysctl-defaults'
+    version: '1.0'
+    baseos-style: rpm
+    baseos-source: 'sysctl-defaults-1.0-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:sysstat:10.1.5:18.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'sysstat'
+    version: '10.1.5'
+    baseos-style: rpm
+    baseos-source: 'sysstat-10.1.5-18.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '18.amzn2.0.1'
+baseos:rpm:systemd:219:57.amzn2.0.12:amzn:
+    repository: BaseOS
+    name: 'systemd'
+    version: '219'
+    baseos-style: rpm
+    baseos-source: 'systemd-219-57.amzn2.0.12.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '57.amzn2.0.12'
+baseos:rpm:systemd-libs:219:57.amzn2.0.12:amzn:
+    repository: BaseOS
+    name: 'systemd-libs'
+    version: '219'
+    baseos-style: rpm
+    baseos-source: 'systemd-219-57.amzn2.0.12.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '57.amzn2.0.12'
+baseos:rpm:systemd-sysv:219:57.amzn2.0.12:amzn:
+    repository: BaseOS
+    name: 'systemd-sysv'
+    version: '219'
+    baseos-style: rpm
+    baseos-source: 'systemd-219-57.amzn2.0.12.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '57.amzn2.0.12'
+baseos:rpm:system-release:2:13.amzn2:amzn:
+    repository: BaseOS
+    name: 'system-release'
+    version: '2'
+    baseos-style: rpm
+    baseos-source: 'system-release-2-13.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '13.amzn2'
+baseos:rpm:systemtap-runtime:4.2:1.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'systemtap-runtime'
+    version: '4.2'
+    baseos-style: rpm
+    baseos-source: 'systemtap-4.2-1.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.1'
+baseos:rpm:sysvinit-tools:2.88:14.dsf.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'sysvinit-tools'
+    version: '2.88'
+    baseos-style: rpm
+    baseos-source: 'sysvinit-2.88-14.dsf.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '14.dsf.amzn2.0.2'
+baseos:rpm:tar:1.26:35.amzn2:amzn:
+    repository: BaseOS
+    name: 'tar'
+    version: '1.26'
+    baseos-style: rpm
+    baseos-source: 'tar-1.26-35.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '35.amzn2'
+baseos:rpm:tcpdump:4.9.2:4.amzn2.1:amzn:
+    repository: BaseOS
+    name: 'tcpdump'
+    version: '4.9.2'
+    baseos-style: rpm
+    baseos-source: 'tcpdump-4.9.2-4.amzn2.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.1'
+baseos:rpm:tcp_wrappers:7.6:77.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'tcp_wrappers'
+    version: '7.6'
+    baseos-style: rpm
+    baseos-source: 'tcp_wrappers-7.6-77.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '77.amzn2.0.2'
+baseos:rpm:tcp_wrappers-libs:7.6:77.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'tcp_wrappers-libs'
+    version: '7.6'
+    baseos-style: rpm
+    baseos-source: 'tcp_wrappers-7.6-77.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '77.amzn2.0.2'
+baseos:rpm:tcsh:6.18.01:15.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'tcsh'
+    version: '6.18.01'
+    baseos-style: rpm
+    baseos-source: 'tcsh-6.18.01-15.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '15.amzn2.0.2'
+baseos:rpm:teamd:1.27:9.amzn2:amzn:
+    repository: BaseOS
+    name: 'teamd'
+    version: '1.27'
+    baseos-style: rpm
+    baseos-source: 'libteam-1.27-9.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '9.amzn2'
+baseos:rpm:time:1.7:45.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'time'
+    version: '1.7'
+    baseos-style: rpm
+    baseos-source: 'time-1.7-45.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '45.amzn2.0.2'
+baseos:rpm:traceroute:2.0.22:2.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'traceroute'
+    version: '2.0.22'
+    baseos-style: rpm
+    baseos-source: 'traceroute-2.0.22-2.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.1'
+baseos:rpm:tzdata:2020d:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'tzdata'
+    version: '2020d'
+    baseos-style: rpm
+    baseos-source: 'tzdata-2020d-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:unzip:6.0:43.amzn2:amzn:
+    repository: BaseOS
+    name: 'unzip'
+    version: '6.0'
+    baseos-style: rpm
+    baseos-source: 'unzip-6.0-43.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '43.amzn2'
+baseos:rpm:update-motd:1.1.2:2.amzn2:amzn:
+    repository: BaseOS
+    name: 'update-motd'
+    version: '1.1.2'
+    baseos-style: rpm
+    baseos-source: 'update-motd-1.1.2-2.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2'
+baseos:rpm:usermode:1.111:5.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'usermode'
+    version: '1.111'
+    baseos-style: rpm
+    baseos-source: 'usermode-1.111-5.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '5.amzn2.0.2'
+baseos:rpm:ustr:1.0.4:16.amzn2.0.3:amzn:
+    repository: BaseOS
+    name: 'ustr'
+    version: '1.0.4'
+    baseos-style: rpm
+    baseos-source: 'ustr-1.0.4-16.amzn2.0.3.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '16.amzn2.0.3'
+baseos:rpm:util-linux:2.30.2:2.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'util-linux'
+    version: '2.30.2'
+    baseos-style: rpm
+    baseos-source: 'util-linux-2.30.2-2.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '2.amzn2.0.4'
+baseos:rpm:vim-common:8.1.1602:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'vim-common'
+    version: '8.1.1602'
+    baseos-style: rpm
+    baseos-source: 'vim-8.1.1602-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:vim-enhanced:8.1.1602:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'vim-enhanced'
+    version: '8.1.1602'
+    baseos-style: rpm
+    baseos-source: 'vim-8.1.1602-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:vim-filesystem:8.1.1602:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'vim-filesystem'
+    version: '8.1.1602'
+    baseos-style: rpm
+    baseos-source: 'vim-8.1.1602-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:vim-minimal:8.1.1602:1.amzn2:amzn:
+    repository: BaseOS
+    name: 'vim-minimal'
+    version: '8.1.1602'
+    baseos-style: rpm
+    baseos-source: 'vim-8.1.1602-1.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2'
+baseos:rpm:virt-what:1.18:4.amzn2:amzn:
+    repository: BaseOS
+    name: 'virt-what'
+    version: '1.18'
+    baseos-style: rpm
+    baseos-source: 'virt-what-1.18-4.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2'
+baseos:rpm:wget:1.14:18.amzn2.1:amzn:
+    repository: BaseOS
+    name: 'wget'
+    version: '1.14'
+    baseos-style: rpm
+    baseos-source: 'wget-1.14-18.amzn2.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '18.amzn2.1'
+baseos:rpm:which:2.20:7.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'which'
+    version: '2.20'
+    baseos-style: rpm
+    baseos-source: 'which-2.20-7.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2.0.2'
+baseos:rpm:words:3.0:22.amzn2:amzn:
+    repository: BaseOS
+    name: 'words'
+    version: '3.0'
+    baseos-style: rpm
+    baseos-source: 'words-3.0-22.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '22.amzn2'
+baseos:rpm:xfsdump:3.1.8:6.amzn2:amzn:
+    repository: BaseOS
+    name: 'xfsdump'
+    version: '3.1.8'
+    baseos-style: rpm
+    baseos-source: 'xfsdump-3.1.8-6.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '6.amzn2'
+baseos:rpm:xfsprogs:4.5.0:18.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'xfsprogs'
+    version: '4.5.0'
+    baseos-style: rpm
+    baseos-source: 'xfsprogs-4.5.0-18.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '18.amzn2.0.1'
+baseos:rpm:xmlsec1:1.2.20:7.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'xmlsec1'
+    version: '1.2.20'
+    baseos-style: rpm
+    baseos-source: 'xmlsec1-1.2.20-7.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2.0.1'
+baseos:rpm:xmlsec1-openssl:1.2.20:7.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'xmlsec1-openssl'
+    version: '1.2.20'
+    baseos-style: rpm
+    baseos-source: 'xmlsec1-1.2.20-7.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2.0.1'
+baseos:rpm:xz:5.2.2:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'xz'
+    version: '5.2.2'
+    baseos-style: rpm
+    baseos-source: 'xz-5.2.2-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:xz-libs:5.2.2:1.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'xz-libs'
+    version: '5.2.2'
+    baseos-style: rpm
+    baseos-source: 'xz-5.2.2-1.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '1.amzn2.0.2'
+baseos:rpm:yajl:2.0.4:4.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'yajl'
+    version: '2.0.4'
+    baseos-style: rpm
+    baseos-source: 'yajl-2.0.4-4.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '4.amzn2.0.1'
+baseos:rpm:yum:3.4.3:158.amzn2.0.4:amzn:
+    repository: BaseOS
+    name: 'yum'
+    version: '3.4.3'
+    baseos-style: rpm
+    baseos-source: 'yum-3.4.3-158.amzn2.0.4.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '158.amzn2.0.4'
+baseos:rpm:yum-langpacks:0.4.2:7.amzn2:amzn:
+    repository: BaseOS
+    name: 'yum-langpacks'
+    version: '0.4.2'
+    baseos-style: rpm
+    baseos-source: 'yum-langpacks-0.4.2-7.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '7.amzn2'
+baseos:rpm:yum-metadata-parser:1.1.4:10.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'yum-metadata-parser'
+    version: '1.1.4'
+    baseos-style: rpm
+    baseos-source: 'yum-metadata-parser-1.1.4-10.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '10.amzn2.0.2'
+baseos:rpm:yum-plugin-priorities:1.1.31:46.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'yum-plugin-priorities'
+    version: '1.1.31'
+    baseos-style: rpm
+    baseos-source: 'yum-utils-1.1.31-46.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '46.amzn2.0.1'
+baseos:rpm:yum-utils:1.1.31:46.amzn2.0.1:amzn:
+    repository: BaseOS
+    name: 'yum-utils'
+    version: '1.1.31'
+    baseos-style: rpm
+    baseos-source: 'yum-utils-1.1.31-46.amzn2.0.1.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '46.amzn2.0.1'
+baseos:rpm:zip:3.0:11.amzn2.0.2:amzn:
+    repository: BaseOS
+    name: 'zip'
+    version: '3.0'
+    baseos-style: rpm
+    baseos-source: 'zip-3.0-11.amzn2.0.2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '11.amzn2.0.2'
+baseos:rpm:zlib:1.2.7:18.amzn2:amzn:
+    repository: BaseOS
+    name: 'zlib'
+    version: '1.2.7'
+    baseos-style: rpm
+    baseos-source: 'zlib-1.2.7-18.amzn2.src.rpm'
+    baseos-osname: 'amzn'
+    baseos-release: '18.amzn2'

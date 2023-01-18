@@ -1,0 +1,17 @@
+componentBuilds:
+- name: cloud_provider_vsphere
+  version: v1.21.0+vmware.2
+  channel: "397877045679359427"
+  url: https://buildweb.eng.vmware.com/ob/19460407/
+  artifactURL:
+    ccmControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.21.0_vmware.2
+      sha256: e23c8e60a9e0ef66596a9bd6f7e5ab2ee6656a7f53bcd74893a4f71908941646
+    cloud_provider_vsphere-1.21-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/397877045679359427/image-builder/cloud_provider_vsphere/v1.21.0+vmware.2/publish/add-on/1.21/cloud-controller-manager.yaml
+      sha256: 5b2327d2010fe5ab2fe337dc08689603c592a5bb0afbf0c29dc9a9d0b47a9b8e
+    cloud_provider_vsphere-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/397877045679359427/image-builder/cloud_provider_vsphere/v1.21.0+vmware.2/publish/cloud_provider_vsphere.tar
+      sha256: 5e7f400ddc6c67eea5de82adb4d73e9bea33cb6843af87ebb14895798d6b90b0
+  cachehash: 2f396adda8b831b92b256596cae5e70e
+  publishhash: daa50c65f7d27f34df84609af089117e

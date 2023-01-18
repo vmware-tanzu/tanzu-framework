@@ -1,0 +1,8 @@
+name: dex
+upstreamURL: https://github.com/dexidp/dex.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_dexidp_dex.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_dexidp_dex.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_dex.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_dex.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_dex.git
+gobuildTarget: cayman_dex

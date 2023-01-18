@@ -1,0 +1,6 @@
+name: tkg-bom
+bomCaches:
+- version: v1.6.1-zshippable
+  channel: "438895988736789927"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438895988736789927/component/tkg-bom/_boltArtifacts/tkg-bom-v1.6.1-zshippable.yaml
+  hash: 2085d9545dd19fbda7008fd187223209

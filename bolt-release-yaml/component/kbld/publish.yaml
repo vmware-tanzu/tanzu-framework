@@ -1,0 +1,14 @@
+name: kbld
+nonpublish:
+  - name: kbld-darwin
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kbld/executables/kbld-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kbld/executables/kbld-darwin-amd64-$VERSION.gz
+  - name: kbld-linux
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kbld/executables/kbld-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kbld/executables/kbld-linux-amd64-$VERSION.gz
+  - name: kbld-windows
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kbld/executables/kbld-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kbld/executables/kbld-windows-amd64-$VERSION.gz

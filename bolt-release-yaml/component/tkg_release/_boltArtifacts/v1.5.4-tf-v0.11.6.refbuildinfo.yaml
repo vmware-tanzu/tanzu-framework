@@ -1,0 +1,87 @@
+componentBuilds:
+- name: tkg-compatibility
+  version: v1.5.4-tf-v0.11.6
+  channel: "408313050429395931"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/408313050429395931/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.5.4-tf-v0.11.6.yaml
+  artifactURL:
+    globalTkgCompatibilityImage:
+      url: framework-zshippable/tkg-compatibility:v56
+    tkgCompatibilityImage:
+      url: projects-stg.registry.vmware.com/tkg/framework-zshippable/tkg-compatibility:v56
+      sha256: 995d7d522a20c6509e0e00d1b3650a5c13661f7cea01e7c7eb651cd9a6d53717
+    tkgCompatibilityYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/408313050429395931/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.5.4-tf-v0.11.6.yaml
+  cachehash: 5cedcaed3679e8cdf40f8eaf0b69ab51
+  publishhash: a80beda3bf7b54884285ee1c9fafd3a2
+  configDependencies:
+    customCompatibilityImageDstPath: framework-zshippable/tkg-compatibility
+    customGlobalCompatibilityFileName: framework-tkg-compatibility.yaml
+- name: tanzu-framework-management-packages
+  version: v0.11.6-tf
+  channel: "408313050429395931"
+  url: https://buildweb.eng.vmware.com/ob/19823183/
+  artifactURL:
+    tanzuFrameworkManagementPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/repo:v0.11.6-tf
+      sha256: f2b2bc0f16859fa567c87dee45ff85557a6c8e4bb05b06dc7e68768b9ed3d58e
+  cachehash: f5cf9cced2f9b53adeefedb46845e0d8
+  publishhash: 4632b98ace28a7f1c805dcf64482e1a8
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_type: management
+    gobuild.releaseVersion: v0.11.6-tf
+- name: standalone-plugins-package
+  version: v0.11.6-tf-standalone-plugins
+  channel: "408313050429395931"
+  url: https://buildweb.eng.vmware.com/ob/19823110/
+  artifactURL:
+    standalone-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standalone/standalone-plugins:v0.11.6-tf_vmware.1
+      sha256: f5bcd8ba4682e2bb883be94dbc458b4d42e6e76f171e00f8789f3844dfb14682
+  cachehash: 10ea9a30db598862bdf709717357a8c9
+  publishhash: 61380dd6e6b4508ddb4529016630a597
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/login-linux-amd64:v0.11.6-tf
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/login-darwin-amd64:v0.11.6-tf
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/login-windows-amd64:v0.11.6-tf
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/management-cluster-linux-amd64:v0.11.6-tf
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/management-cluster-darwin-amd64:v0.11.6-tf
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/management-cluster-windows-amd64:v0.11.6-tf
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/package-linux-amd64:v0.11.6-tf
+    gobuild.downstream_image_7: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/package-darwin-amd64:v0.11.6-tf
+    gobuild.downstream_image_8: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/package-windows-amd64:v0.11.6-tf
+    gobuild.downstream_image_9: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/pinniped-auth-linux-amd64:v0.11.6-tf
+    gobuild.downstream_image_10: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/pinniped-auth-darwin-amd64:v0.11.6-tf
+    gobuild.downstream_image_11: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/pinniped-auth-windows-amd64:v0.11.6-tf
+    gobuild.downstream_image_12: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/secret-linux-amd64:v0.11.6-tf
+    gobuild.downstream_image_13: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/secret-darwin-amd64:v0.11.6-tf
+    gobuild.downstream_image_14: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/secret-windows-amd64:v0.11.6-tf
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: standalone-plugins
+    gobuild.package_type: standalone
+    gobuild.upstream_image_0: tanzu-cli-plugins/login-linux-amd64:latest
+    gobuild.upstream_image_1: tanzu-cli-plugins/login-darwin-amd64:latest
+    gobuild.upstream_image_2: tanzu-cli-plugins/login-windows-amd64:latest
+    gobuild.upstream_image_3: tanzu-cli-plugins/management-cluster-linux-amd64:latest
+    gobuild.upstream_image_4: tanzu-cli-plugins/management-cluster-darwin-amd64:latest
+    gobuild.upstream_image_5: tanzu-cli-plugins/management-cluster-windows-amd64:latest
+    gobuild.upstream_image_6: tanzu-cli-plugins/package-linux-amd64:latest
+    gobuild.upstream_image_7: tanzu-cli-plugins/package-darwin-amd64:latest
+    gobuild.upstream_image_8: tanzu-cli-plugins/package-windows-amd64:latest
+    gobuild.upstream_image_9: tanzu-cli-plugins/pinniped-auth-linux-amd64:latest
+    gobuild.upstream_image_10: tanzu-cli-plugins/pinniped-auth-darwin-amd64:latest
+    gobuild.upstream_image_11: tanzu-cli-plugins/pinniped-auth-windows-amd64:latest
+    gobuild.upstream_image_12: tanzu-cli-plugins/secret-linux-amd64:latest
+    gobuild.upstream_image_13: tanzu-cli-plugins/secret-darwin-amd64:latest
+    gobuild.upstream_image_14: tanzu-cli-plugins/secret-windows-amd64:latest
+    gobuild.upstream_version: v0.11.6-tf

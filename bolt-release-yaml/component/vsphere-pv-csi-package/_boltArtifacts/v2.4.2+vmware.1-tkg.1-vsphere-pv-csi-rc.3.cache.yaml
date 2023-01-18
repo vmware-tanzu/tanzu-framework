@@ -1,0 +1,7 @@
+name: vsphere-pv-csi-package
+goBuildComponentCaches:
+- version: v2.4.2+vmware.1-tkg.1-vsphere-pv-csi-rc.3
+  url: https://buildweb.eng.vmware.com/ob/20301188/
+  buildNumber: bora-20301188
+  buildStatus: SUCCEEDED
+  hash: 4c8df3a6b3bed5f91d37b444076a6da8

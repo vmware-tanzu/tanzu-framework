@@ -1,0 +1,8 @@
+name: ova-tinytkg-ubuntu-2004
+imageLocks:
+- version: v1.24.6+vmware.1-tiny.1-tkg.1-2319b304658a6cf17f5e74dc0ab7659a
+  hash: 021cc0c3fbe6a14ec9865fee770a4873
+  componentLockReferences:
+  - name: tinykube
+    version: v1.24.6+vmware.1-tinykube.2
+    lockHash: fe738177261690ae11ad2f4b1583250a

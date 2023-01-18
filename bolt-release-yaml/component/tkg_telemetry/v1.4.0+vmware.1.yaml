@@ -1,0 +1,7 @@
+name: tkg_telemetry
+unmanagedComponents:
+  - version: v1.4.0+vmware.1
+    gobuildBranch: vmware-1.4.0~c5d2e29002bc521e9cc3fcb56776df3302e559fe
+    dependencies:
+      gobuild.golangVersion: 1.13.6
+      gobuild.linux_hosttype: linux-centos8

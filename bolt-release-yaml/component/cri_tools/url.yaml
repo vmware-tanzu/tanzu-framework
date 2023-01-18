@@ -1,0 +1,8 @@
+name: cri_tools
+upstreamURL: https://github.com/kubernetes-sigs/cri-tools.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_cri-tools.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_cri-tools.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_cri_tools.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_cri_tools.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_cri_tools.git
+gobuildTarget: cayman_cri_tools

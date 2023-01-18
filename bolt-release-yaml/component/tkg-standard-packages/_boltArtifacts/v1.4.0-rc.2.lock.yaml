@@ -1,0 +1,55 @@
+name: tkg-standard-packages
+goBuildComponentLocks:
+- version: v1.4.0-rc.2
+  gobuildBranch: 367843806831232094-v1.4.0-rc.2
+  gobuildHeadCommit: 040e6e72635ec9f7aa8543d4e42ebd718b226453
+  hash: 927a47f8902233eafac0b5b23422b096
+  componentLockReferences:
+  - name: jetstack_cert-manager
+    version: v1.1.0+vmware.1
+    lockHash: 533ed2bc39d5cf3d483da45130c6fe7e
+  - name: contour
+    version: v1.17.1+vmware.1
+    lockHash: 60341af32f9a611adbd302e5477176ce
+  - name: envoy
+    version: v1.18.3+vmware.1
+    lockHash: 099e1b5d43a68ef287d69d9fa81c05b4
+  - name: external-dns
+    version: v0.8.0+vmware.1
+    lockHash: 10463ad7541630ddc1af7d1deed1bc55
+  - name: fluent-bit
+    version: v1.7.5+vmware.1
+    lockHash: aef01bd4cc71c9d7197e9d67eba1993a
+  - name: grafana
+    version: v7.5.7+vmware.1
+    lockHash: f4820c5e649d7ccd4f34f085b4f3ef40
+  - name: k8s-sidecar
+    version: v1.12.1+vmware.1
+    lockHash: 779fc05411dd21db1af1af07881a62aa
+  - name: cadvisor
+    version: v0.39.1+vmware.1
+    lockHash: 85ff9ae901cd89423bb23160e7c35e07
+  - name: configmap-reload
+    version: v0.5.0+vmware.1
+    lockHash: b6ae782540f42903194d78362436fcb7
+  - name: alertmanager
+    version: v0.22.2+vmware.1
+    lockHash: cfd111da22f7bcb6b75725e5ac74ba65
+  - name: prometheus
+    version: v2.27.0+vmware.1
+    lockHash: 9d1b5234aa58c4add68a9abba62467a8
+  - name: pushgateway
+    version: v1.4.0+vmware.1
+    lockHash: 4b20228b46f0e03cf38dfc2b5abbfe82
+  - name: kube-state-metrics
+    version: v1.9.8+vmware.1
+    lockHash: 9f1035ce8519bc45ea06b3fd49b240e8
+  - name: prometheus_node_exporter
+    version: v1.1.2+vmware.1
+    lockHash: a8c414c6495d14d66238540be4eea9aa
+  - name: harbor
+    version: v2.2.3+vmware.1
+    lockHash: be37451d35ba15ca056e5a39e80e94c0
+  - name: multus-cni
+    version: v3.7.1+vmware.1
+    lockHash: 5ca6fb15f5d9178be5fa17606487edf7

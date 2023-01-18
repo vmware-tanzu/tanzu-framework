@@ -1,0 +1,7 @@
+name: harbor
+goBuildComponentCaches:
+- version: v2.1.3+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/17799753
+  buildNumber: bora-17799753
+  buildStatus: SUCCEEDED
+  hash: 078a8c9e812110c0724795679a4538d1

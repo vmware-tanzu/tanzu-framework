@@ -1,0 +1,8 @@
+name: kubernetes-sigs_kind
+unmanagedComponents:
+  - version: v1.19.12+vmware.1
+    gobuildBranch: vmware-1.19.12~445baed317b0dbf6ec613baa8113abf53370f0fb
+    dependencies:
+      gobuild.golangVersion: 1.13.14
+      gobuild.linux_hosttype: linux-centos8
+      kindKubeadmAPIVersion: kind.x-k8s.io/v1alpha4

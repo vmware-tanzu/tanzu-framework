@@ -1,0 +1,19 @@
+componentBuilds:
+- name: tkg-compatibility
+  version: v1.6.0-fips.1
+  channel: "429564556528846614"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429564556528846614/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.6.0-fips.1.yaml
+  artifactURL:
+    globalTkgCompatibilityImage:
+      url: fips/tkg-compatibility:v6
+    tkgCompatibilityImage:
+      url: projects-stg.registry.vmware.com/tkg/fips/tkg-compatibility:v6
+      sha256: f8dcc6fb915be98bf7c085fce65a8bdae49258d696f87fd4153895d75bfb5a26
+    tkgCompatibilityYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429564556528846614/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.6.0-fips.1.yaml
+  cachehash: 00030a1b9498452b55e52a11d2cb9ab4
+  publishhash: a80beda3bf7b54884285ee1c9fafd3a2
+  configDependencies:
+    customCompatibilityImageDstPath: fips/tkg-compatibility
+    customGlobalCompatibilityFileName: fips-tkg-compatibility.yaml
+    managementClusterPluginVersion: v0.25.0

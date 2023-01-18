@@ -1,0 +1,7 @@
+name: pinniped-post-deploy
+goBuildComponentLocks:
+- version: v0.14.0
+  gobuildBranch: 389194136940465124-v0.14.0
+  gobuildHeadCommit: ae1e976ffb7d14935884b8afd7a59295e1991b81
+  hash: e59e2d71c6abbb58c3e274dcc2cdd67d
+  componentLockReferences: []

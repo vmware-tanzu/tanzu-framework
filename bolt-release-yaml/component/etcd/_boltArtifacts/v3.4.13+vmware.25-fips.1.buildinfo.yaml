@@ -1,0 +1,11 @@
+componentBuilds:
+- name: etcd
+  version: v3.4.13+vmware.25-fips.1
+  channel: "394306514107536922"
+  url: https://buildweb.eng.vmware.com/ob/19343257/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.4.13_vmware.25-fips.1
+      sha256: c6a66ef4d3fceb7367a7f9af9ef62424ec12e2cf328f3a1bdab0186b4549cfdd
+  cachehash: 9c57b0600b43b625cbe348532fbe7f05
+  publishhash: 8d295061a104d02aaac3cda5e7d85ab7

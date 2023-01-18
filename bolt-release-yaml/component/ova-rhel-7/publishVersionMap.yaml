@@ -1,0 +1,25 @@
+versionMap:
+  v1.17.16+vmware.2-tkg.0-9408441755225876124: publish.yaml
+  v1.18.16+vmware.1-tkg.0-2838566783145377226: publish.yaml
+  v1.19.8+vmware.1-tkg.0-7842774394153480464: publish.yaml
+  v1.20.4+vmware.1-tkg.0-17224738054041245834: publish.yaml
+  v1.21.8+vmware.1-tkg.1-00001: publish.yaml
+  v1.21.11+vmware.1-tkg.2-51cd979c502bec8f2ca043761e101a46: publish.yaml
+  v1.21.11+vmware.1-tkg.3-62cd979c502bec8f2ca043761e101a57: publish.yaml
+  v1.21.14+vmware.1-tkg.1-074a725df3f650ca410c3776a9600b85: publish.yaml
+  v1.21.14+vmware.2-fips.1-tkg.1-72f5ad93aea7f23c7e3cbe77a566fd6b: v1.publish.yaml
+  v1.21.14+vmware.2-tkg.1-3175b4370ddad80fac481b9f35ce4b39: v1.publish.yaml
+  v1.22.5+vmware.1-tkg.1-00001: publish.yaml
+  v1.22.8+vmware.1-tkg.2-650808ca05b56631e7628b37e456604a: publish.yaml
+  v1.22.8+vmware.1-tkg.3-760808ca05b56631e7628b37e456605b: publish.yaml
+  v1.22.11+vmware.1-tkg.1-8b9f1e3b5cbf19076e8325237cb2f157: publish.yaml
+  v1.22.11+vmware.2-fips.1-tkg.1-e08e80f12aa4733f78830524ce972344: v1.publish.yaml
+  v1.22.11+vmware.2-tkg.1-1c55939b581b0d800642ef65b76c3f12: v1.publish.yaml
+  v1.23.3+vmware.1-tkg.1-00001: publish.yaml
+  v1.23.5+vmware.1-tkg.1-00001: publish.yaml
+  v1.23.5+vmware.1-tkg.1-6037c440d310277144abdfdcf2baf566: publish.yaml
+  v1.23.5+vmware.1-tkg.2-7137c440d310277144abdfdcf2baf577: publish.yaml
+  v1.23.8+vmware.1-tkg.1-e5124839d130b99ba919f006f5f1ee4c: publish.yaml
+  v1.23.8+vmware.2-fips.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071: v1.publish.yaml
+  v1.23.8+vmware.2-tkg.1-3e6b7a84930e5368c38aa867f998ced0: v1.publish.yaml
+  v1.23.13+vmware.1-tkg.1-83324c2b9c83823f63e813d9e9dd1071: v1.publish.yaml

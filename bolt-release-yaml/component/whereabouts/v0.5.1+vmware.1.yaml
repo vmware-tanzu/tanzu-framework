@@ -1,0 +1,11 @@
+name: whereabouts
+managedComponents:
+- version: v0.5.1+vmware.1
+  upstreamTag: v0.5.1
+  mirrorCherryPicks: []
+  gobuildBaseBranch: vmware-0.5.1~ed5025486acca1e80cdbc0de65590b9de8fc9203
+  dependencies:
+    gobuild.golangVersion: 1.15.12
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.imageRepository: vmware.io
+    gobuild.imageName: whereabouts

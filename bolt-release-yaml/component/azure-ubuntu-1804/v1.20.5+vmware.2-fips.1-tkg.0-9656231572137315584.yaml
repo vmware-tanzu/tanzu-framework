@@ -1,0 +1,31 @@
+name: azure-ubuntu-1804
+images:
+- version: v1.20.5+vmware.2-fips.1-tkg.0-9656231572137315584
+  osinfo:
+    name: ubuntu
+    version: "1804"
+    arch: amd64
+  type: azure
+  imageBuilderVersion: 86866696e9b93f89bee1f7828d7c08a64eb1a3d4
+  componentReferences:
+  - name: coredns
+    version:
+    - v1.7.0+vmware.8-fips.1
+  - name: kubernetes
+    version:
+    - v1.20.5+vmware.2-fips.1
+  - name: etcd
+    version:
+    - v3.4.13+vmware.7-fips.1
+  - name: cri_tools
+    version:
+    - v1.19.0+vmware.3-fips.1
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.6-fips.1
+  - name: containerd
+    version:
+    - v1.4.4+vmware.3-fips.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""

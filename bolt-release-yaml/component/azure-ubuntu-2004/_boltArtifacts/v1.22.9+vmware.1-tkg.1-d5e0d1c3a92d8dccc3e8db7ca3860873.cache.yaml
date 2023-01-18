@@ -1,0 +1,19 @@
+name: azure-ubuntu-2004
+imageCaches:
+- version: v1.22.9+vmware.1-tkg.1-d5e0d1c3a92d8dccc3e8db7ca3860873
+  channel: "406305181253281175"
+  bomAzure:
+    azure:
+    - sku: k8s-1dot22dot9-ubuntu-2004
+      publisher: vmware-inc
+      offer: tkg-capi
+      version: 2022.05.04
+      thirdPartyImage: true
+      osinfo:
+        name: ubuntu
+        version: "2004"
+        arch: amd64
+  hash: fd75a8b12d6f51982f9d683791b75481
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2015
+  buildNumber: "2015"
+  buildStatus: SUCCEEDED

@@ -1,0 +1,27 @@
+componentBuilds:
+- name: cert-manager-package
+  version: v1.5.3+vmware.6-tkg.1-cert-manager-zshippable
+  channel: "430874383427311419"
+  url: https://buildweb.eng.vmware.com/ob/20667004/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.5.3_vmware.6-tkg.1-zshippable
+      sha256: 34da2e01e3a7dcee997a72d8769a8e3a576e779bc028068c996032bb81f96bfb
+  cachehash: a62466025316a171dea61d7d0bb61344
+  publishhash: 08b8d2296442618f07837aec7f5d1c39
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/cert-manager-cainjector:v1.5.3_vmware.6
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/cert-manager-controller:v1.5.3_vmware.6
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/cert-manager-webhook:v1.5.3_vmware.6
+    gobuild.downstream_version: vmware.6-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: cert-manager
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: quay.io/jetstack/cert-manager-cainjector:v1.5.3
+    gobuild.upstream_image_1: quay.io/jetstack/cert-manager-controller:v1.5.3
+    gobuild.upstream_image_2: quay.io/jetstack/cert-manager-webhook:v1.5.3
+    gobuild.upstream_version: 1.5.3

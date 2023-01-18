@@ -1,0 +1,49 @@
+name: tkg-standard-packages
+goBuildComponentLocks:
+- version: v2.1.1-zshippable
+  gobuildBranch: 443597062202726435-v2.1.1-zshippable-tkg-standard-packages
+  gobuildHeadCommit: cc47a848392f1f47bb3015f83e2348e3cfde6883
+  hash: 59bbef70e8830fa06d3a55593a99e6f9
+  componentLockReferences:
+  - name: cert-manager-package
+    version: v1.5.3+vmware.7-tkg.1-cert-manager-zshippable
+    lockHash: 9f92f18d455913bd36747f76c80887e7
+  - name: cert-manager-package
+    version: v1.7.2+vmware.3-tkg.1-cert-manager-zshippable
+    lockHash: df750382e15b3e0c053ff9d59336c156
+  - name: cert-manager-package
+    version: v1.10.1+vmware.1-tkg.1-cert-manager-zshippable
+    lockHash: d337901565b90ce3df108767cefa162b
+  - name: contour-package
+    version: v1.22.3+vmware.1-tkg.1-contour-zshippable
+    lockHash: eb28bba7b49516ea4153fd762a76bb30
+  - name: external-dns-package
+    version: v0.10.0+vmware.1-tkg.3-external-dns-zshippable
+    lockHash: cb171dd3b6cc3fd7c96e4ded311cb8bd
+  - name: external-dns-package
+    version: v0.11.0+vmware.1-tkg.3-external-dns-zshippable
+    lockHash: 480caee3a1c247fe7ae639805e4ea11c
+  - name: external-dns-package
+    version: v0.12.2+vmware.4-tkg.1-external-dns-zshippable
+    lockHash: 3efe68fac9994fffae5d7a27ae34475a
+  - name: fluent-bit-package
+    version: v1.9.5+vmware.1-tkg.1-fluent-bit-zshippable
+    lockHash: 37c935d48331573c703c9f51f7f50727
+  - name: grafana-package
+    version: v7.5.16+vmware.1-tkg.2-grafana-zshippable
+    lockHash: f7ffc79f8ee6134facf8942f29fa89a7
+  - name: prometheus-package
+    version: v2.37.0+vmware.1-tkg.1-prometheus-zshippable
+    lockHash: 5c582986fdb012c386af1871c32251c9
+  - name: harbor-package
+    version: v2.6.3+vmware.1-tkg.1-harbor-zshippable
+    lockHash: c0c8da15a29139c9d4c0df16f327d8f2
+  - name: multus-cni-package
+    version: v3.8.0+vmware.2-tkg.2-multus-cni-zshippable
+    lockHash: 16cf3b1b8419ef79481a83fc73bd6c57
+  - name: whereabouts-package
+    version: v0.5.4+vmware.1-tkg.1-whereabouts-zshippable
+    lockHash: 1bd6d9667463b476cbcb470864a8ca12
+  - name: fluxcd-source-controller-package
+    version: v0.24.4+vmware.1-tkg.3-source-ctrl-zshippable
+    lockHash: 5f9422a927fbeda57bb65569f89f99ba

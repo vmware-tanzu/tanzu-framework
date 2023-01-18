@@ -1,0 +1,11 @@
+componentBuilds:
+- name: csi_provisioner
+  version: v2.1.0+vmware.4
+  channel: "354679577366233886"
+  url: https://buildweb.eng.vmware.com/ob/17901644
+  artifactURL:
+    csiProvisonerImage:
+      url: projects-stg.registry.vmware.com/tkg/csi/csi-provisioner:v2.1.0_vmware.4
+      sha256: 7c28d1a01b28f2969313860250411d86a5f3e5c8b7cd20f6e7942260dc24789c
+  cachehash: af3605528efa1d33f1dc76222b87b730
+  publishhash: 4764f174cbd6be97bb004d2ae1648bd0

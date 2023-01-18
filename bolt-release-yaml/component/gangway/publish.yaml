@@ -1,0 +1,7 @@
+name: gangway
+publish:
+  - name: gangwayImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/gangway/images/gangway-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/gangway/images/gangway-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: gangway:$UNDERSCOREVERSION

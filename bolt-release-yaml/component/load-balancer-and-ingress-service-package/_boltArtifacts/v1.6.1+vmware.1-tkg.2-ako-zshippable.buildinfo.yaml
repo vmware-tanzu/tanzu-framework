@@ -1,0 +1,11 @@
+componentBuilds:
+- name: load-balancer-and-ingress-service-package
+  version: v1.6.1+vmware.1-tkg.2-ako-zshippable
+  channel: "384267674311524251"
+  url: https://buildweb.eng.vmware.com/ob/19012999/
+  artifactURL:
+    load-balancer-and-ingress-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/load-balancer-and-ingress-service:v1.6.1_vmware.1-tkg.2-zshippable
+      sha256: 0e81dd0cf84ecd0220dc23a024daa16c1e77e06c0bf8bdabef2900cd93acb312
+  cachehash: 728a669742d04ba63decede99b5546e7
+  publishhash: e76b568ebe8a5803434d226a6e35101b

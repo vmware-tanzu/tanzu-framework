@@ -1,0 +1,23 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.23.15+vmware.1-tkg.1-b4b65417f09dd016a266cb98df1adf90
+  channel: "442449717675168203"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/4361
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/442449717675168203/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-vhd-v1.23.15+vmware.1-tkg.1-b4b65417f09dd016a266cb98df1adf90.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/442449717675168203/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.15+vmware.1-tkg.1-b4b65417f09dd016a266cb98df1adf90-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/442449717675168203/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.15+vmware.1-tkg.1-b4b65417f09dd016a266cb98df1adf90-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/442449717675168203/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.15+vmware.1-tkg.1-b4b65417f09dd016a266cb98df1adf90-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/442449717675168203/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.23.15+vmware.1-tkg.1-b4b65417f09dd016a266cb98df1adf90.json
+  cachehash: 9bc7af664d9af517546d2d2a7e16905a
+  publishhash: c71221609d0fb4b0aebc4a096f6884ef
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 1ab13f750d3b94a72b8e1d15e16f8cedf4ca33bf

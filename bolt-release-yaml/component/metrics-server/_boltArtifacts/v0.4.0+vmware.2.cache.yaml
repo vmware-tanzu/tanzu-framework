@@ -1,0 +1,7 @@
+name: metrics-server
+goBuildComponentCaches:
+- version: v0.4.0+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/18804398/
+  buildNumber: bora-18804398
+  buildStatus: SUCCEEDED
+  hash: c1184a5f26f220b95b5a0146deccc44b

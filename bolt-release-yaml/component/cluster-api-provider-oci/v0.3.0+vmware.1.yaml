@@ -1,0 +1,10 @@
+name: cluster-api-provider-oci
+managedComponents:
+- version: v0.3.0+vmware.1
+  upstreamTag: v0.3.0
+  mirrorCherryPicks: []
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~d52ef6eba4f701be8d6e0e48ab9f41545d10ee56
+  dependencies:
+    gobuild.golangVersion: 1.17
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,8 @@
+name: ova-harbor
+nonpublish:
+  - name: file-image-ova
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-harbor/photon-4-harbor-$VERSION.ova
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-harbor/bom-ova-photon-4-$VERSION.yaml

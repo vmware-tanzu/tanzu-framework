@@ -1,0 +1,7 @@
+name: kscom_release
+goBuildComponentCaches:
+- version: v1.18.18+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/17898279/
+  buildNumber: bora-17898279
+  buildStatus: SUCCEEDED
+  hash: 6e07f1c9a748ce83f8c772b0ec1d225b

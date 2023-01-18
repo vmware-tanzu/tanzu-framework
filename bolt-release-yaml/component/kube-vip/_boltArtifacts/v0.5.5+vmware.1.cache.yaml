@@ -1,0 +1,7 @@
+name: kube-vip
+goBuildComponentCaches:
+- version: v0.5.5+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20762850/
+  buildNumber: bora-20762850
+  buildStatus: SUCCEEDED
+  hash: 9c8fb89706bee95b986d47e51e507878

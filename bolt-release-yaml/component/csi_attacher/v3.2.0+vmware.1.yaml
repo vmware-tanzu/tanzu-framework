@@ -1,0 +1,10 @@
+name: csi_attacher
+managedComponents:
+  - version: v3.2.0+vmware.1
+    upstreamTag: v3.2.0
+    mirrorCherryPicks: []
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~fdba789d221e6f4fe78bb87c6243ce8606e5df4f
+    dependencies:
+      gobuild.golangVersion: 1.15.0
+      gobuild.linux_hosttype: linux-centos72-gc32
+      gobuild.containerNamePrefix: vmware.io

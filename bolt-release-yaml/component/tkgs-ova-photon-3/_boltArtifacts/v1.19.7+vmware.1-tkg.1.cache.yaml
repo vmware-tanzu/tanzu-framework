@@ -1,0 +1,9 @@
+name: tkgs-ova-photon-3
+imageCaches:
+- version: v1.19.7+vmware.1-tkg.1
+  channel: "370641550255867398"
+  imageCacheOVA: {}
+  hash: "4483901112874137552"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgs-build-ova/73
+  buildNumber: "73"
+  buildStatus: SUCCEEDED

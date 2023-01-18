@@ -1,0 +1,22 @@
+name: ami-gov-ubuntu-2004
+imageCaches:
+- version: v1.21.14+vmware.2-tkg.5-f049d9e1fdcc6f5546db4ac192d80ad1
+  channel: "438895988736789927"
+  bomAMI:
+    ami:
+      us-gov-east-1:
+      - id: ami-03f17e7d9bbad55eb
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+      us-gov-west-1:
+      - id: ami-0d6bcd66319191aa3
+        osinfo:
+          name: ubuntu
+          version: "2004"
+          arch: amd64
+  hash: be60f1cc26e1bbed99e3b7c796100791
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/3895
+  buildNumber: "3895"
+  buildStatus: SUCCEEDED

@@ -1,0 +1,7 @@
+name: prometheus_node_exporter
+goBuildComponentLocks:
+- version: v0.18.1+vmware.1
+  gobuildBranch: vmware-0.18.1
+  gobuildHeadCommit: a94f21dbe55848abfe09975db3898747a0ace772
+  hash: cf12c0317781c0a3016af1f364f3efa3
+  componentLockReferences: []

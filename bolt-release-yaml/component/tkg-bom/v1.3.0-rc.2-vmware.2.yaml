@@ -1,0 +1,178 @@
+name: tkg-bom
+boms:
+  - version: v1.3.0-rc.2-vmware.2
+    type: tkg
+    imageRepository: projects-stg.registry.vmware.com/tkg
+    k8sVersion: v1.20.4+vmware.1-tkg.1-rc.2-vmware.2
+    dependencies:
+      componentTanzuCoreVersion: v1.3.0-rc.2-vmware.2
+      componentTanzuCliTkgPluginVersion: v1.3.0-rc.2-vmware.2
+    componentReferences:
+      - name: ako-operator
+        version:
+          - v1.3.0+vmware.1
+      - name: alertmanager
+        version:
+          - v0.20.0+vmware.1
+      - name: antrea
+        version:
+          - v0.11.1+vmware.5
+      - name: cadvisor
+        version:
+          - v0.36.0+vmware.1
+      - name: calico_all
+        version:
+          - v3.11.3+vmware.1
+      - name: cloud_provider_vsphere
+        version:
+          - v1.18.0+vmware.1
+      - name: cloud-provider-azure
+        version:
+          - v0.5.1+vmware.2
+      - name: cluster_api
+        version:
+          - v0.3.14+vmware.1
+      - name: cluster_api_aws
+        version:
+          - v0.6.4+vmware.1
+      - name: cluster_api_vsphere
+        version:
+          - v0.7.4+vmware.1
+      - name: cluster-api-provider-azure
+        version:
+          - v0.4.8-47-gfbb2d55b
+      - name: configmap-reload
+        version:
+          - v0.3.0+vmware.1
+      - name: contour
+        version:
+          - v1.11.0+vmware.1
+      - name: crash-diagnostics
+        version:
+          - v0.3.2+vmware.2
+      - name: csi_attacher
+        version:
+          - v3.0.0+vmware.1
+      - name: csi_livenessprobe
+        version:
+          - v2.1.0+vmware.1
+      - name: csi_node_driver_registrar
+        version:
+          - v2.0.1+vmware.1
+      - name: csi_provisioner
+        version:
+          - v2.0.0+vmware.1
+      - name: dex
+        version:
+          - v2.27.0+vmware.1
+      - name: envoy
+        version:
+          - v1.16.2+vmware.1
+      - name: external-dns
+        version:
+          - v0.7.4+vmware.1
+      - name: fluent-bit
+        version:
+          - v1.6.9+vmware.1
+      - name: gangway
+        version:
+          - v3.2.0+vmware.2
+      - name: grafana
+        version:
+          - v7.3.5+vmware.1
+      - name: harbor
+        version:
+          - v2.1.3+vmware.1
+      - name: imgpkg
+        version:
+          - v0.2.0+vmware.1
+      - name: jetstack_cert-manager
+        version:
+          - v0.16.1+vmware.1
+      - name: k8s-sidecar
+        version:
+          - v0.1.144+vmware.1
+      - name: k14s_kapp
+        version:
+          - v0.33.0+vmware.1
+      - name: k14s_ytt
+        version:
+          - v0.30.0+vmware.1
+      - name: kapp-controller
+        version:
+          - v0.16.0+vmware.1
+      - name: kbld
+        version:
+          - v0.24.0+vmware.1
+      - name: kube_rbac_proxy
+        version:
+          - v0.4.1+vmware.2
+      - name: kube-state-metrics
+        version:
+          - v1.9.5+vmware.1
+      - name: kube-vip
+        version:
+          - v0.3.2+vmware.1
+      - name: kubernetes_autoscaler
+        version:
+          - v1.20.0+vmware.1
+          - v1.19.1+vmware.1
+          - v1.18.3+vmware.1
+          - v1.17.4+vmware.1
+      - name: kubernetes-sigs_kind
+        version:
+          - v1.20.4+vmware.1
+      - name: load-balancer-and-ingress-service
+        version:
+          - v1.3.2+vmware.1
+      - name: metrics-server
+        version:
+         - v0.4.0+vmware.1
+      - name: pinniped
+        version:
+          - v0.4.1+vmware.1
+      - name: prometheus
+        version:
+          - v2.18.1+vmware.1
+      - name: prometheus_node_exporter
+        version:
+          - v0.18.1+vmware.1
+      - name: pushgateway
+        version:
+          - v1.2.0+vmware.1
+      - name: sonobuoy
+        version:
+          - v0.20.0+vmware.1
+      - name: tkg_extensions
+        version:
+          - v1.3.0+vmware.1
+      - name: tkg_telemetry
+        version:
+          - v1.3.0+vmware.1
+      - name: tkr-bom
+        version:
+          - v1.20.4+vmware.1-tkg.1-rc.2-vmware.2
+          - v1.19.8+vmware.1-tkg.1-rc.2-vmware.2
+          - v1.18.16+vmware.1-tkg.1-rc.2-vmware.2
+          - v1.17.16+vmware.2-tkg.1-rc.2-vmware.2
+      - name: tkr-compatibility
+        version:
+          - v1
+      - name: velero
+        version:
+          - v1.5.3+vmware.1
+      - name: velero-plugin-for-aws
+        version:
+          - v1.1.0+vmware.1
+      - name: velero-plugin-for-microsoft-azure
+        version:
+          - v1.1.0+vmware.1
+      - name: velero-plugin-for-vsphere
+        version:
+          - v1.0.2+vmware.1
+      - name: vsphere_csi_driver
+        version:
+          - v2.1.0+vmware.1
+      - name: pinniped
+        version:
+          - v0.4.1+vmware.1

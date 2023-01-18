@@ -1,0 +1,4 @@
+submodules:
+  - name: crash-diagnostics/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'one-off release file to change the kscom_release version 1.20.15 in tkg 1.5.4 https://jira.eng.vmware.com/browse/TKG-10853'
+componentReferences:
+  - name: kscom_release
+    version:
+      - v1.20.15+vmware.1

@@ -1,0 +1,23 @@
+name: guest-cluster-auth-service-package
+packages:
+- version: v1.1.0-tkg.1-gc-auth-service-rc.1
+  upstreamCommit: 99ff5376be52b054d54c52a44916f1e2a20be24f
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: guest-cluster-auth-service
+    version:
+    - v1.1.0
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "guest-cluster-auth-service"
+      ).artifactURL.guestClusterAuthServiceImage.url}}'
+    gobuild.downstream_version: tkg.1-rc.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: guest-cluster-auth-service
+    gobuild.package_type: core
+    gobuild.upstream_image_0: guest-cluster-auth-service/guest-cluster-auth-service:v1.1.0
+    gobuild.upstream_version: 1.1.0

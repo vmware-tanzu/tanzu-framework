@@ -1,0 +1,28 @@
+name: ako-operator-package
+packages:
+  - version: v1.5.0+vmware.5-tkg.1-ako-operator-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: ecde0a044da7459b6afc25de76b01f0d9e188d1b
+    componentReferences:
+      - name: ako-operator
+        version:
+        - v1.5.0+vmware.5
+      - name: kube_rbac_proxy
+        version:
+        - v0.11.0+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: ako-operator
+      gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/ako-operator:v1.5.0_vmware.1
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "ako-operator").artifactURL.akoOperatorImage.url}}'
+      gobuild.upstream_image_1: registry.tkg.vmware.run/cluster-api/kube-rbac-proxy:v0.4.1_vmware.2
+      gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kube_rbac_proxy").artifactURL.kubeRbacProxyControllerImage.url}}'
+      gobuild.upstream_version: 1.5.0
+      gobuild.downstream_version: vmware.5-tkg.1-zshippable
+      gobuild.package_type: core
+      gobuild.noMirror: "true"

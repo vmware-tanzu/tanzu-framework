@@ -1,0 +1,12 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'release yaml file to build tkg 1.4.1 rtm tkg-packages, this is only for cip process, no need to build this release yaml file'
+componentReferences:
+- name: tkg-standard-packages
+  version:
+    - v1.4.2
+- name: tkg-core-packages
+  version:
+    - v1.21.8+vmware.1-tkg.2
+    - v1.20.14+vmware.1-tkg.2
+    - v1.19.16+vmware.1-tkg.1

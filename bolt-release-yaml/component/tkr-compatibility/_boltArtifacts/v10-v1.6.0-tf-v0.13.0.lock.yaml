@@ -1,0 +1,5 @@
+name: tkr-compatibility
+bomLocks:
+- version: v10-v1.6.0-tf-v0.13.0
+  hash: e2061b2bb8202373f1c15ae3802ae1d1
+  componentLockReferences: []

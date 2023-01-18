@@ -1,0 +1,6 @@
+name: k14s_ytt
+unmanagedComponents:
+  - version: v0.30.0+vmware.1
+    gobuildBranch: vmware-0.30.0
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

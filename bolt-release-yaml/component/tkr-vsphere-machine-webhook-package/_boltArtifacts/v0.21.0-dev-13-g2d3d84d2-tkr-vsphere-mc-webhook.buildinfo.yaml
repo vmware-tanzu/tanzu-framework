@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkr-vsphere-machine-webhook-package
+  version: v0.21.0-dev-13-g2d3d84d2-tkr-vsphere-mc-webhook
+  channel: "401356794678482201"
+  url: https://buildweb.eng.vmware.com/ob/19583970/
+  artifactURL:
+    tkr-vsphere-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-vsphere-machine-webhook:v0.21.0-dev-13-g2d3d84d2_vmware.1
+      sha256: 73e4a8182ae6458005cad4a118f66f2057ca40cf96245febb41811bd5f4b5a86
+  cachehash: 28af4b0dd4d61c0fb03750c5f7cc900b
+  publishhash: 69f620efe14baf84f0899b4e9dcaf3fb

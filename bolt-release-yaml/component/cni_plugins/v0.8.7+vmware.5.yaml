@@ -1,0 +1,10 @@
+name: cni_plugins
+managedComponents:
+  - version: v0.8.7+vmware.5
+    upstreamTag: v0.8.7
+    mirrorCherryPicks: []
+    gobuildBaseBranch: vmware-0.8.0+vmware.0
+    dependencies:
+      gobuild.golangVersion: 1.15.8
+      gobuild.linux_hosttype: linux-centos8
+      generateDebRpmChangelog: true

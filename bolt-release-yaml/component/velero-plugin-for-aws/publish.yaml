@@ -1,0 +1,7 @@
+name: velero-plugin-for-aws
+publish:
+  - name: veleroPluginForAwsImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-aws/images/velero-plugin-for-aws-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-aws/images/velero-plugin-for-aws-$UNDERSCOREVERSION-checksums.txt
+    destinationPath: velero/velero-plugin-for-aws:$UNDERSCOREVERSION

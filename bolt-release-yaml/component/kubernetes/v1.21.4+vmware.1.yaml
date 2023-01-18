@@ -1,0 +1,49 @@
+name: kubernetes
+managedComponents:
+- version: v1.21.4+vmware.1
+  upstreamTag: v1.21.4
+  mirrorCherryPicks:
+  - sha: 024275a23fa6b677b921d9659e02c1394db1846d
+    description: fixes to 'docker save' to work in cayman env
+  - sha: b05c74892c3e8770ce98f27edcbae3ebb0c86d61
+    description: change build conformance image to pull debian image from harbor cache
+      registry
+  - sha: 52a63ebf33834a18a99d04cae5c5b89ef7ff2a17
+    description: Change pause tag to 3.4.1 in Makefile
+  - sha: 66d5e829c2ae52b51650d842110d412adaf1635b
+    description: ENV vars can override pause's kube-cross version
+  gobuildBaseBranch: vmware-1.21.0+vmware.0~f00840342bd9e0a9264492bdb973f5033ad9f354
+  dependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.KUBE_BASE_IMAGE_REGISTRY: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.cgoEnabled: "0"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.debian_base_image: debian-base-amd64:buster-v1.8.0
+    gobuild.debian_iptable_image: debian-iptables-amd64:buster-v1.6.5
+    gobuild.golangImageVersion: 1.16.7
+    gobuild.golangVersion: 1.16.6
+    gobuild.kubeCrossImageRef: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes_release" "version"
+      "v0.9.0+vmware.2") "artifactURL" "kube-cross" "url"}}'
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: 3.4.1
+    kubeadmAPIVersion: kubeadm.k8s.io/v1beta2
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.19
+  - name: coredns
+    version:
+    - v1.8.0+vmware.7
+  - name: cri_tools
+    version:
+    - v1.20.0+vmware.5
+  - name: etcd
+    version:
+    - v3.4.13+vmware.20
+  - name: containerd
+    version:
+    - v1.4.6+vmware.1
+  - name: kubernetes_release
+    version:
+    - v0.9.0+vmware.2

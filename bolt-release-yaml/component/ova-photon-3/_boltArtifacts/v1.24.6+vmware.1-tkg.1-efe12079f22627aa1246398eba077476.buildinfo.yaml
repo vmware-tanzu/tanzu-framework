@@ -1,0 +1,26 @@
+componentBuilds:
+- name: ova-photon-3
+  version: v1.24.6+vmware.1-tkg.1-efe12079f22627aa1246398eba077476
+  channel: "432632354729661563"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2739
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ova-photon-3/bom-ova-photon-3-v1.24.6+vmware.1-tkg.1-efe12079f22627aa1246398eba077476.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ova-photon-3/ova-photon-3-v1.24.6+vmware.1-tkg.1-efe12079f22627aa1246398eba077476-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ova-photon-3/ova-photon-3-v1.24.6+vmware.1-tkg.1-efe12079f22627aa1246398eba077476-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ova-photon-3/photon-3-kube-v1.24.6+vmware.1-tkg.1-efe12079f22627aa1246398eba077476.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ova-photon-3/ova-photon-3-v1.24.6+vmware.1-tkg.1-efe12079f22627aa1246398eba077476-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ova-photon-3/ova-photon-3-v1.24.6+vmware.1-tkg.1-efe12079f22627aa1246398eba077476-provenance_result.txt
+  cachehash: ae4feac8fedcb0096e89bd56e0167c37
+  publishhash: e364f13debf817be6f9a886754cfc5ce
+  configDependencies:
+    base_iso_sha: 76fbe13df3f7340c94cf5706a0ec33ffc377c47e
+    base_iso_url: http://10.163.0.228/kscom-generic-local/isos/photon-minimal-3.0-rev3-u1.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 3a1d4e12b2a0ea8488826c19ae51ff1de411da3a
+    jenkins.PHOTON3_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/photon-3-stig-hardening.git
+    jenkins.PHOTON3_STIG_VERSION: 8cd1ee34346dbd5ebc6abe09cc519fe8216c6335

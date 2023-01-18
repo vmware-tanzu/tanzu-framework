@@ -1,0 +1,27 @@
+componentBuilds:
+- name: azure-ubuntu-2004
+  version: v1.21.14+vmware.2-tkg.1-sig-2c7bd0a037ffc06f845d230089ca0793
+  channel: "417569215029974416"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2583
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-sig-v1.21.14+vmware.2-tkg.1-sig-2c7bd0a037ffc06f845d230089ca0793.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.1-sig-2c7bd0a037ffc06f845d230089ca0793-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.1-sig-2c7bd0a037ffc06f845d230089ca0793-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.1-sig-2c7bd0a037ffc06f845d230089ca0793-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.1-sig-2c7bd0a037ffc06f845d230089ca0793-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417402115216909262/component/azure-ubuntu-2004/azure-vhd-link-ubuntu-2004-v1.21.14+vmware.2-tkg.1-sig-2c7bd0a037ffc06f845d230089ca0793.json
+  cachehash: 72d57b3e0cfe6d59769a74ba313138d9
+  publishhash: 8767b511de6ea0a35615b8bcac003cf8
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 88edce31a8cfc66cd906fa364d7ffa7ee9b70cf4
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: dd228b3715c62a41fd300bdc590ad0d30107a5f8

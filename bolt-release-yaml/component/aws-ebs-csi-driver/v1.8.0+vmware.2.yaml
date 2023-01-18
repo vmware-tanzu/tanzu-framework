@@ -1,0 +1,9 @@
+name: aws-ebs-csi-driver
+managedComponents:
+  - version: v1.8.0+vmware.2
+    upstreamTag: v1.8.0
+    gobuildBaseBranch: v1.8.0+vmware.2~ecb0570bb089e6f1df4411b09902e5d0aca8852b
+    dependencies:
+      gobuild.golangVersion: 1.17
+      gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8

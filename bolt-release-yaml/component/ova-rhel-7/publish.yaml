@@ -1,0 +1,11 @@
+name: ova-rhel-7
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-rhel-7/bom-ova-rhel-7-$VERSION.yaml
+  - name: file-image-goss
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-rhel-7/ova-rhel-7-$VERSION-goss-spec.yaml
+  - name: file-image-ova
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ova-rhel-7/rhel-7-kube-$VERSION.ova

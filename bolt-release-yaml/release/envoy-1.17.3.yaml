@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: Envoy 1.17.3 with CVE fixes
+componentReferences:
+- name: envoy
+  version:
+  - v1.17.3+vmware.1

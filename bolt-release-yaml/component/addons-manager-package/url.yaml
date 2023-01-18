@@ -1,0 +1,6 @@
+name: addons-manager-package
+upstreamURL: "git@gitlab.eng.vmware.com:core-build/tkg-packages.git"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:core-build/cayman_tkg-packages.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/cayman_tkg-packages.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:core-build/cayman_tkg-packages.git"
+gobuildTarget: "cayman_tkg-package-bundle"

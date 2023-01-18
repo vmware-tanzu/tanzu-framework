@@ -1,0 +1,12 @@
+name: velero-plugin-for-vsphere
+publish:
+  - name: veleroPluginForVsphereImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-vsphere/images/velero-plugin-for-vsphere-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-vsphere/images/velero-plugin-for-vsphere-$UNDERSCOREVERSION-checksums.txt
+    destinationPath: velero/velero-plugin-for-vsphere:$UNDERSCOREVERSION
+  - name: veleroDataManagerForPluginImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-vsphere/images/data-manager-for-plugin-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-vsphere/images/data-manager-for-plugin-$UNDERSCOREVERSION-checksums.txt
+    destinationPath: velero/data-manager-for-plugin:$UNDERSCOREVERSION

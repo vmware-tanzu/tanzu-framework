@@ -1,0 +1,13 @@
+componentBuilds:
+- name: prometheus_node_exporter
+  version: v1.1.2+vmware.1
+  channel: "368427556086537656"
+  url: https://buildweb.eng.vmware.com/ob/18468860/
+  artifactURL:
+    prometheus_node_exporter:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18468860/publish/lin64/prometheus_node_exporter/executables/prometheus_node_exporter-v1.1.2_vmware.1-binary-checksums.txt
+    prometheusNodeExporterImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/prometheus_node_exporter:v1.1.2_vmware.1
+      sha256: fb60a1618d016db12291197f6af703737ae793dbba6dc33a532afb1930007709
+  cachehash: d73cf4bc01d395b8fec625df8e1b82e6
+  publishhash: ed41a13c6c6fbd1a27ca81dfdb29c2f5

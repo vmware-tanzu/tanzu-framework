@@ -1,0 +1,56 @@
+componentBuilds:
+- name: cni_plugins
+  version: v0.8.7+vmware.4
+  channel: "339601446989201415"
+  url: https://buildweb.eng.vmware.com/ob/17536646/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17536646/publish/lin64/cni_plugins/executables/cni-plugins-v0.8.7+vmware.4.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17536646/publish/lin64/cni_plugins/debs/kubernetes-cni_v0.8.7+vmware.4-1_amd64.deb
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/339601446989201415/component/cni_plugins/v0.8.7+vmware.4/cni-plugins-linux-amd64-v0.8.7+vmware.4.tgz
+      sha256: 8fc3d30e9083784396ad9e53b378f2d50742039f710d9ddbcf82ee960d2ed3cb
+  cachehash: "6351494927294520230"
+  publishhash: "1996599465128284170"
+- name: coredns
+  version: v1.7.0+vmware.7
+  channel: "339509079221207047"
+  url: https://buildweb.eng.vmware.com/ob/17533301/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.7.0_vmware.7
+      sha256: 0015ffd34a93a7267b2a4f2724356786a645d0b7ca15cd219b7cdad7d6b39cbc
+  cachehash: "14820714614751415265"
+  publishhash: "11928902777439069502"
+- name: cri_tools
+  version: v1.18.0+vmware.4
+  channel: "339636364955877383"
+  url: https://buildweb.eng.vmware.com/ob/17538187/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17538187/publish/lin64/cri_tools/executables/crictl-v1.18.0+vmware.4.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17538187/publish/lin64/cri_tools/debs/cri-tools_v1.18.0+vmware.4-1_amd64.deb
+  cachehash: "13595011083885866562"
+  publishhash: "13674994235894672485"
+- name: etcd
+  version: v3.4.13+vmware.6
+  channel: "339509079221207047"
+  url: https://buildweb.eng.vmware.com/ob/17533338/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.4.13_vmware.6
+      sha256: 514e36a54fca57dd955c4375ad6ebf46ebcd4fcc4bce084c2b21b94a530d2916
+  cachehash: "1717751468759364903"
+  publishhash: "18435072924747397998"
+- name: containerd
+  version: v1.4.3+vmware.1
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/17448618
+  artifactURL:
+    file-containerd-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/339501120126713863/component/containerd/cri-containerd-v1.4.3+vmware.1.linux-amd64.tar
+      sha256: 75920d6c69cd916f03ed2509a5d5d342cab20f046337894c6fb0b34715a76efc
+  cachehash: "18161320460936637232"
+  publishhash: "8510344491335398560"

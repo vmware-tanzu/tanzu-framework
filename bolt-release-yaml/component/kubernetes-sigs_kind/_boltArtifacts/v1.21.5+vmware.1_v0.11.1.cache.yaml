@@ -1,0 +1,7 @@
+name: kubernetes-sigs_kind
+goBuildComponentCaches:
+- version: v1.21.5+vmware.1_v0.11.1
+  url: https://buildweb.eng.vmware.com/ob/18664965/
+  buildNumber: bora-18664965
+  buildStatus: SUCCEEDED
+  hash: "3850782555091225951"

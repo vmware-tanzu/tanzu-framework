@@ -1,0 +1,14 @@
+componentBuilds:
+- name: k8s-sidecar
+  version: v1.15.6+vmware.2
+  channel: "429767100073011018"
+  url: https://buildweb.eng.vmware.com/ob/20625086/
+  artifactURL:
+    k8sSidecarImage:
+      url: projects-stg.registry.vmware.com/tkg/grafana/k8s-sidecar:v1.15.6_vmware.2
+      sha256: 7be553e140b8c4eed9e17ab856b08d09d26cff572efa22d06daa151d7f57c88a
+  cachehash: db07633a13e1fe598143c2c9aaf26fd0
+  publishhash: 72ab576eccae4627ad6464390c7a9440
+  configDependencies:
+    gobuild.golangVersion: "1.16"
+    gobuild.linux_hosttype: linux-centos72-gc32

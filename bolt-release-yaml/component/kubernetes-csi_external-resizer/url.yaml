@@ -1,0 +1,7 @@
+name: kubernetes-csi_external-resizer
+mirrorSandboxURL: "git@gitlab.eng.vmware.com:core-build/mirrors_github_kubernetes-csi_external-resizer.git"
+mirrorOfficialURL: "git@gitlab.eng.vmware.com:core-build/mirrors_github_kubernetes-csi_external-resizer.git"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_external-resizer.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_external-resizer.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_external-resizer.git"
+gobuildTarget: "cayman_kubernetes-csi_external-resizer"

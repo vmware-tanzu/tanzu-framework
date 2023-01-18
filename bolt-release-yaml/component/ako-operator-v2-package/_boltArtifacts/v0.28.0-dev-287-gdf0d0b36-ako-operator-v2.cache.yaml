@@ -1,0 +1,7 @@
+name: ako-operator-v2-package
+goBuildComponentCaches:
+- version: v0.28.0-dev-287-gdf0d0b36-ako-operator-v2
+  url: https://buildweb.eng.vmware.com/ob/21074436/
+  buildNumber: bora-21074436
+  buildStatus: SUCCEEDED
+  hash: 7aa41748c2467b81b5387232110c2af8

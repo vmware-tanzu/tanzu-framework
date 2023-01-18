@@ -1,0 +1,7 @@
+name: metrics-server-package
+goBuildComponentCaches:
+- version: v0.6.2+vmware.1-tkg.1-metrics-server-rc.3
+  url: https://buildweb.eng.vmware.com/ob/21115154/
+  buildNumber: bora-21115154
+  buildStatus: SUCCEEDED
+  hash: 965e9e48402592f6c934cdfe446db578

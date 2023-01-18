@@ -1,0 +1,5 @@
+name: gc-compatibility
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/gc-compatibility.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/gc-compatibility.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/gc-compatibility.git
+gobuildTarget: gc-compatibility

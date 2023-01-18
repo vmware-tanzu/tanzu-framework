@@ -1,0 +1,11 @@
+componentBuilds:
+- name: secretgen-controller-package
+  version: v0.7.1+vmware.1-tkg.2-secgen-ctl-tf-v0.12.0
+  channel: "383006240755701827"
+  url: https://buildweb.eng.vmware.com/ob/18972879/
+  artifactURL:
+    secretgen-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/secretgen-controller:v0.7.1_vmware.1-tkg.2-tf-v0.12.0
+      sha256: a602ace622cb551036d68249440c464b7ee0dc41cd7670f5c064dafa418322e3
+  cachehash: 6d139974b8f073df9434b6e0b2246595
+  publishhash: 5e2cf1e775d67dbdb526c3013035dd63

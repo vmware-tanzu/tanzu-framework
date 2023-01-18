@@ -1,0 +1,7 @@
+name: pinniped-package
+goBuildComponentCaches:
+- version: v0.4.4+vmware.1-tkg.4-pinniped-zshippable
+  url: https://buildweb.eng.vmware.com/ob/19294184/
+  buildNumber: bora-19294184
+  buildStatus: SUCCEEDED
+  hash: 883bf9c57872cb8043f97c3eaa481727

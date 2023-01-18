@@ -1,0 +1,22 @@
+name: kubernetes
+goBuildComponentLocks:
+- version: v1.25.0+vmware.1
+  gobuildBranch: 425327401455585102-v1.25.0+vmware.1-kubernetes
+  gobuildHeadCommit: 2c9b0c2e4a65d416e7674eb292e44f1b6c5ad7e5
+  hash: abc155abce8045bb6868640805c03855
+  componentLockReferences:
+  - name: cni_plugins
+    version: v1.1.1+vmware.9
+    lockHash: 604bc2ce8e8748ad18d47271980096b9
+  - name: coredns
+    version: v1.9.3+vmware.1
+    lockHash: c5410c5b159ed347b9d37a440495b161
+  - name: cri_tools
+    version: v1.24.2+vmware.1
+    lockHash: f04397a9fef9b518215ba1e464be6b16
+  - name: etcd
+    version: v3.5.4+vmware.9
+    lockHash: 69ddb3e59a143fa10a92984ac6ceeb49
+  - name: kubernetes_release
+    version: v0.14.0+vmware.1
+    lockHash: d5d7c00f02a18771dd610493e52c7d45

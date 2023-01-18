@@ -1,0 +1,7 @@
+name: fluxcd-helm-controller-package
+goBuildComponentCaches:
+- version: v0.21.0+vmware.1-tkg.1-helm-ctrl
+  url: https://buildweb.eng.vmware.com/ob/19891213/
+  buildNumber: bora-19891213
+  buildStatus: SUCCEEDED
+  hash: cb4fff414117ed7880babd5fdac0b06f

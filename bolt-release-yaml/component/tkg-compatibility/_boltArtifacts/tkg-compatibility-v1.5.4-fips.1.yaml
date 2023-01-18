@@ -1,0 +1,14 @@
+version: v4
+managementClusterPluginVersions:
+- version: v0.11.4
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.3-fips.1
+- version: v0.11.6
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.4-fips.1
+- version: v1.4.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.0-fips.1

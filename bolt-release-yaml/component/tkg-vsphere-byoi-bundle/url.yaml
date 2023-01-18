@@ -1,0 +1,6 @@
+name: tkg-vsphere-byoi-bundle
+upstreamURL: "git@gitlab.eng.vmware.com:core-build/tkg-byoi-resource-bundle.git"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:core-build/tkg-vsphere-byoi-bundle.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/tkg-vsphere-byoi-bundle.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:core-build/tkg-vsphere-byoi-bundle.git"
+gobuildTarget: "tkg-vsphere-byoi-bundle"

@@ -1,0 +1,8 @@
+name: contour
+upstreamURL: https://github.com/projectcontour/contour.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_contour.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_contour.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_contour.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_contour.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_contour.git
+gobuildTarget: cayman_contour

@@ -1,0 +1,13 @@
+name: containerd
+publish:
+  - name: file-containerd-linux-amd64
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/containerd/executables/cri-containerd-$VERSION.linux-amd64.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/containerd/executables/cri-containerd-$VERSION-executables-checksums.txt
+    destinationPath: $CHANNEL/component/containerd/cri-containerd-$VERSION.linux-amd64.tar
+
+  - name: file-containerd-windows-amd64
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/containerd/executables/cri-containerd-$VERSION.windows-amd64.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/containerd/executables/cri-containerd-$VERSION-executables-checksums.txt
+    destinationPath: $CHANNEL/component/containerd/cri-containerd-$VERSION.windows-amd64.tar

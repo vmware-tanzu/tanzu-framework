@@ -1,0 +1,31 @@
+componentBuilds:
+- name: antrea
+  version: v1.5.3+vmware.2
+  channel: "439586309955135094"
+  url: https://buildweb.eng.vmware.com/ob/20134953
+  artifactURL:
+    antrea-1.20-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/antrea/v1.5.3+vmware.2/publish/add-on/1.20/antrea.yaml
+      sha256: 8a2a091222048ac52eab275b7e0cf5fea877f25ba3e290b89a66145a5bfd8159
+    antrea-1.21-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/antrea/v1.5.3+vmware.2/publish/add-on/1.21/antrea.yaml
+      sha256: 8a2a091222048ac52eab275b7e0cf5fea877f25ba3e290b89a66145a5bfd8159
+    antrea-1.22-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/antrea/v1.5.3+vmware.2/publish/add-on/1.22/antrea.yaml
+      sha256: 8a2a091222048ac52eab275b7e0cf5fea877f25ba3e290b89a66145a5bfd8159
+    antrea-1.23-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/antrea/v1.5.3+vmware.2/publish/add-on/1.23/antrea.yaml
+      sha256: 8a2a091222048ac52eab275b7e0cf5fea877f25ba3e290b89a66145a5bfd8159
+    antrea-photon-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/antrea/v1.5.3+vmware.2/publish/photon/images/antrea-photon-v1.5.3_vmware.2.tar
+      sha256: 26653aa506059168d384f8f933154eceb53d40af9912480ecf6bec3466f7ba3a
+    antreaImage:
+      url: projects-stg.registry.vmware.com/tkg/antrea/antrea-photon:v1.5.3_vmware.2
+      sha256: b0d662515c30de3bd6663488d124faf19398dce1d398199dd2f411bfce615f45
+  cachehash: 7e873d9a073efd30fd1d64fc077cab87
+  publishhash: 06dfa548719e9814926ae66f094d994c
+  configDependencies:
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32
+    packageType: advanced
+    packageVersion: v1.5.3+vmware.2

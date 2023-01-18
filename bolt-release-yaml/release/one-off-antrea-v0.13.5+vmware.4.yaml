@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off effort to build antrea v0.13.5+vmware.4, UPS need this for POC purpose"
+componentReferences:
+- name: antrea
+  version:
+  - v0.13.5+vmware.4

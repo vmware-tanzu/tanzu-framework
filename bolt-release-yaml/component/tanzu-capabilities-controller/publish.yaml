@@ -1,0 +1,7 @@
+name: tanzu-capabilities-controller
+publish:
+  - name: capabilitiesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-capabilities-controller/capabilities/images/capabilities-controller-manager-{{index .config "managedComponents" 0 "dependencies" "gobuild.releaseVersion"}}.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-capabilities-controller/capabilities/images/capabilities-controller-manager-{{index .config "managedComponents" 0 "dependencies" "gobuild.releaseVersion"}}-image-checksums.txt
+    destinationPath: tanzu_core/capabilities/capabilities-controller-manager:$UNDERSCOREVERSION

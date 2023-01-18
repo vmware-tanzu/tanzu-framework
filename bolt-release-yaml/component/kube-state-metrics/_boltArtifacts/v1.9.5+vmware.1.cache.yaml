@@ -1,0 +1,7 @@
+name: kube-state-metrics
+goBuildComponentCaches:
+- version: v1.9.5+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/16911222
+  buildNumber: bora-16911222
+  buildStatus: SUCCEEDED
+  hash: "9851359489471121240"

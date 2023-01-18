@@ -1,0 +1,5 @@
+versionMap:
+  v1.22.13+vmware.1-tkg.1: publish.yaml
+  v1.22.13+vmware.1-tkg.1-zshippable: publish.yaml
+  v1.23.10+vmware.1-tkg.1: publish.yaml
+  v1.23.10+vmware.1-tkg.1-zshippable: publish.yaml

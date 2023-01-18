@@ -1,0 +1,7 @@
+name: tiny-core-byoh-installer
+goBuildComponentLocks:
+- version: v0.1.0+vmware.1
+  gobuildBranch: 427228331516106907-v0.1.0+vmware.1-tiny-core-byoh-installer
+  gobuildHeadCommit: 911fabbd5bbe1012d2c986f3631765fdfc68b349
+  hash: 5d10869b1fe7488e399dbda2791037c4
+  componentLockReferences: []

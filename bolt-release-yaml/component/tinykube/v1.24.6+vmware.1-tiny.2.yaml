@@ -1,0 +1,12 @@
+name: tinykube
+managedComponents:
+  - version: v1.24.6+vmware.1-tiny.2
+    upstreamCommit: 7d26f9746d4298fcaa006c432a072d9df6e5d7e1
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~83e3978597293e89168d4a7a6e0c11045c244726
+    dependencies:
+      gobuild.golangVersion: 1.19
+      gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+      gobuild.noMirror: "true"
+      gobuild.etcdVersion: "v3.4.5+vmware.1-tiny.2"
+      gobuild.pause: "3.7"
+      kubeadmAPIVersion: "kubeadm.k8s.io/v1beta3"

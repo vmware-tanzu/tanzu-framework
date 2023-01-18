@@ -1,0 +1,14 @@
+# one time effort the generate the first version of tkg-compatiblity for the tce v0.9.0 release
+name: tkg-compatibility
+boms:
+- version: v1.4.0-framework-v0.2.1
+  type: tkg-compatibility
+  dependencies:
+    # this line doesn't matter, the final artifacts will be promoted to http://projects.registry.vmware.com/tkg/framework-zshippable/tkg-compatibility:v1
+    customCompatibilityImageDstPath: tce-zshippable/tkg-compatibility
+    customGlobalCompatibilityFileName: tce-tkg-compatibility.yaml
+    managementClusterPluginVersion: v0.2.1
+  componentReferences:
+  - name: tkg-bom
+    version:
+    - v1.4.0

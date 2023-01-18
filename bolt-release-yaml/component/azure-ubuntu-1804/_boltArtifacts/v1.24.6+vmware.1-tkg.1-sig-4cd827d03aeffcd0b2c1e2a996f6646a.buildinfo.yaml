@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.24.6+vmware.1-tkg.1-sig-4cd827d03aeffcd0b2c1e2a996f6646a
+  channel: "432632354729661563"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/3551
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-sig-v1.24.6+vmware.1-tkg.1-sig-4cd827d03aeffcd0b2c1e2a996f6646a.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.24.6+vmware.1-tkg.1-sig-4cd827d03aeffcd0b2c1e2a996f6646a-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.24.6+vmware.1-tkg.1-sig-4cd827d03aeffcd0b2c1e2a996f6646a-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.24.6+vmware.1-tkg.1-sig-4cd827d03aeffcd0b2c1e2a996f6646a-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.24.6+vmware.1-tkg.1-sig-4cd827d03aeffcd0b2c1e2a996f6646a-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.24.6+vmware.1-tkg.1-sig-4cd827d03aeffcd0b2c1e2a996f6646a.json
+  cachehash: 8346050bbc86377211450ece1b28df34
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 3a1d4e12b2a0ea8488826c19ae51ff1de411da3a

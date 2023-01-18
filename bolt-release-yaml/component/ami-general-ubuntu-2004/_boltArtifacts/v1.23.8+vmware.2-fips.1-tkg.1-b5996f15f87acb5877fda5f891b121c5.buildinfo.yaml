@@ -1,0 +1,24 @@
+componentBuilds:
+- name: ami-general-ubuntu-2004
+  version: v1.23.8+vmware.2-fips.1-tkg.1-b5996f15f87acb5877fda5f891b121c5
+  channel: "421723839689427360"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/2749
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-general-ubuntu-2004/bom-ami-general-ubuntu-2004-v1.23.8+vmware.2-fips.1-tkg.1-b5996f15f87acb5877fda5f891b121c5.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.23.8+vmware.2-fips.1-tkg.1-b5996f15f87acb5877fda5f891b121c5-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.23.8+vmware.2-fips.1-tkg.1-b5996f15f87acb5877fda5f891b121c5-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.23.8+vmware.2-fips.1-tkg.1-b5996f15f87acb5877fda5f891b121c5-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/421723839689427360/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.23.8+vmware.2-fips.1-tkg.1-b5996f15f87acb5877fda5f891b121c5-provenance_result.txt
+  cachehash: 826cb3b408a43bdbcdd66e7cabc44c47
+  publishhash: 367c6af81c0b09e9841c9c749a141d0f
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 88edce31a8cfc66cd906fa364d7ffa7ee9b70cf4
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 214b6bb72386cd4038532eda81b8f9984b165d33

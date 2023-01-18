@@ -1,0 +1,11 @@
+componentBuilds:
+- name: velero-plugin-for-microsoft-azure
+  version: v1.4.1+vmware.1
+  channel: "400477957732175870"
+  url: https://buildweb.eng.vmware.com/ob/19511481/
+  artifactURL:
+    veleroPluginForMicrosoftAzureImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-microsoft-azure:v1.4.1_vmware.1
+      sha256: 4335b45d93b4f3d845c6ed7040be1c2861899ee8d3ed470ec91b3407a3f231cd
+  cachehash: 6f63b35711aa49be8bd571abe51f08cd
+  publishhash: dd26fb1994405b746f97394c7de4a401

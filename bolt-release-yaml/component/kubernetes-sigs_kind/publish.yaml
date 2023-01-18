@@ -1,0 +1,7 @@
+name: kubernetes-sigs_kind
+publish:
+  - name: kindNodeImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kind/images/node-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kind/images/node-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kind/node:$UNDERSCOREVERSION

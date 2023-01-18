@@ -1,0 +1,8 @@
+name: csi_node_driver_registrar
+upstreamURL: https://github.com/kubernetes-csi/node-driver-registrar.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kubernetes-csi_node-driver-registrar.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_kubernetes-csi_node-driver-registrar.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_node-driver-registrar.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_kubernetes-csi_node-driver-registrar.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_node-driver-registrar.git
+gobuildTarget: cayman_csi_registrar

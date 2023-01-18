@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: release yaml for special CPI version bump/release, please update the cpi component version accordingly through MR
+componentReferences:
+- name: cloud_provider_vsphere
+  version:
+  - v1.21.0+vmware.1

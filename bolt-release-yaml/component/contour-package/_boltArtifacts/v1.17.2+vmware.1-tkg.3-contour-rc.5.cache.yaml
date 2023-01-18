@@ -1,0 +1,7 @@
+name: contour-package
+goBuildComponentCaches:
+- version: v1.17.2+vmware.1-tkg.3-contour-rc.5
+  url: https://buildweb.eng.vmware.com/ob/19168990/
+  buildNumber: bora-19168990
+  buildStatus: SUCCEEDED
+  hash: 7ec62f39e207945c220d52fde7d264c3

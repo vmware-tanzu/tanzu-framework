@@ -1,0 +1,40 @@
+componentBuilds:
+- name: cluster-autoscaler-package
+  version: v1.24.0+vmware.1-tkg.1-cluster-autoscaler
+  channel: "439826413793584802"
+  url: https://buildweb.eng.vmware.com/ob/20998653/
+  artifactURL:
+    cluster-autoscaler.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cluster-autoscaler:v1.24.0_vmware.1-tkg.1
+      sha256: 3654882ef0f81c90699a7b53f04d9cfbcddfc2975ebb8a055963b0d740202185
+  cachehash: 67d104ae6c911108f2bd5672cd741ef3
+  publishhash: 7c9b05f5cf7553914147e1ff381a2192
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/cluster-autoscaler:v1.24.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: cluster-autoscaler
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: k8s.gcr.io/autoscaling/cluster-autoscaler:v1.24.0
+    gobuild.upstream_version: 1.24.0
+- name: kubernetes_autoscaler
+  version: v1.24.0+vmware.1
+  channel: "434377758420768998"
+  url: https://buildweb.eng.vmware.com/ob/20790917/
+  artifactURL:
+    kubernetesAutoscalerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-autoscaler:v1.24.0_vmware.1
+      sha256: f97e6c6ae9b7ddab076ce07f8e5fb375805da816bec5263f3dc2964239f195a2
+  cachehash: b7cde5f86eccbb1b4d200424e0cef75c
+  publishhash: 8a0c6d09778ce295307c65f8fc340a30
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: d57f6d5ac383df870967fe2c3498e9c1767cef81
+testInfraVersion: 5ef8afc77d25c67fc3de26259f1209a75b503e8c

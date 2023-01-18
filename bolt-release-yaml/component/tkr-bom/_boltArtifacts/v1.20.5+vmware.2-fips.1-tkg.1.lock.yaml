@@ -1,0 +1,92 @@
+name: tkr-bom
+bomLocks:
+- version: v1.20.5+vmware.2-fips.1-tkg.1
+  hash: "17956594236164549495"
+  componentLockReferences:
+  - name: antrea
+    version: v0.11.3+vmware.2
+    lockHash: "14779297475799250573"
+  - name: calico_all
+    version: v3.11.3+vmware.1
+    lockHash: "18069479671271816948"
+  - name: cloud_provider_vsphere
+    version: v1.18.1+vmware.1
+    lockHash: "2856523807768886846"
+  - name: csi_attacher
+    version: v3.0.0+vmware.1
+    lockHash: "17301729704858836666"
+  - name: csi_livenessprobe
+    version: v2.1.0+vmware.1
+    lockHash: "17556437593516060919"
+  - name: csi_node_driver_registrar
+    version: v2.0.1+vmware.1
+    lockHash: "18285343946628264579"
+  - name: kubernetes-csi_external-resizer
+    version: v1.0.0+vmware.1
+    lockHash: "10681123456486098534"
+  - name: csi_provisioner
+    version: v2.0.0+vmware.1
+    lockHash: "5607666203161642949"
+  - name: vsphere_csi_driver
+    version: v2.1.0+vmware.1
+    lockHash: "9139756633179324543"
+  - name: dex
+    version: v2.27.0+vmware.1
+    lockHash: "10220162914628891750"
+  - name: kapp-controller
+    version: v0.18.0+vmware.1
+    lockHash: "10051944761711585129"
+  - name: metrics-server
+    version: v0.4.0+vmware.1
+    lockHash: "17188879454193180814"
+  - name: pinniped
+    version: v0.4.1+vmware.1
+    lockHash: "10765976895398428403"
+  - name: tanzu_core_addons
+    version: v1.3.1
+    lockHash: "7542782414735611911"
+  - name: kubernetes
+    version: v1.20.5+vmware.2-fips.1
+    lockHash: "13619795188739947187"
+  - name: cni_plugins
+    version: v0.8.7+vmware.6-fips.1
+    lockHash: "1598940353152505203"
+  - name: coredns
+    version: v1.7.0+vmware.8-fips.1
+    lockHash: "6405907258117049528"
+  - name: cri_tools
+    version: v1.19.0+vmware.3-fips.1
+    lockHash: "12974417196946658592"
+  - name: etcd
+    version: v3.4.13+vmware.7-fips.1
+    lockHash: "9615084115317204109"
+  - name: containerd
+    version: v1.4.4+vmware.3-fips.1
+    lockHash: "6388735152136191939"
+  - name: kubernetes-sigs_kind
+    version: v1.20.5+vmware.2-fips.1
+    lockHash: "11919915424026031059"
+  - name: ova-photon-3
+    version: v1.20.5+vmware.2-fips.1-tkg.1-2906265301732622558
+    lockHash: "13140420821479624863"
+  - name: ova-ubuntu-2004
+    version: v1.20.5+vmware.2-fips.1-tkg.1-1322649752416528758
+    lockHash: "11550868025632333951"
+  - name: ami-general-amazon-2
+    version: v1.20.5+vmware.2-fips.1-tkg.0-10599179351059228663
+    lockHash: "10524757998591882011"
+  - name: ami-general-ubuntu-2004
+    version: v1.20.5+vmware.2-fips.1-tkg.0-2520625088490528804
+    lockHash: "3721086681493549836"
+  - name: ami-gov-amazon-2
+    version: v1.20.5+vmware.2-fips.1-tkg.0-4684221311333811950
+    lockHash: "16726601156844084780"
+  - name: ami-gov-ubuntu-2004
+    version: v1.20.5+vmware.2-fips.1-tkg.0-1586026093209005473
+    lockHash: "8608411427897117520"
+  - name: azure-ubuntu-1804
+    version: v1.20.5+vmware.2-fips.1-tkg.0-9656231572137315584
+    lockHash: "16341700869075290591"
+  - name: azure-ubuntu-2004
+    version: v1.20.5+vmware.2-fips.1-tkg.0-6347152012419818941
+    lockHash: "6950931458386557080"

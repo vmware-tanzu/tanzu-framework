@@ -1,0 +1,7 @@
+name: aws-ebs-csi-driver-package
+goBuildComponentCaches:
+- version: v1.8.0+vmware.2-tkg.2-aws-ebs-csi-20230114
+  url: https://buildweb.eng.vmware.com/ob/21120039/
+  buildNumber: bora-21120039
+  buildStatus: SUCCEEDED
+  hash: 5ffc43e49716870514d5712409eadca4

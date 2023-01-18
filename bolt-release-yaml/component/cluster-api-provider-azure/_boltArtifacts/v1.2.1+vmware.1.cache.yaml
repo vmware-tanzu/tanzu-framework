@@ -1,0 +1,7 @@
+name: cluster-api-provider-azure
+goBuildComponentCaches:
+- version: v1.2.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/19886667/
+  buildNumber: bora-19886667
+  buildStatus: SUCCEEDED
+  hash: 3d0e43a3ba8f68f24ace72a12f7579b2

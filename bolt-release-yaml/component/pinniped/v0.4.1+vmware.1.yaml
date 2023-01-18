@@ -1,0 +1,7 @@
+name: pinniped
+unmanagedComponents:
+  - version: v0.4.1+vmware.1
+    gobuildBranch: vmware-0.4.1
+    dependencies:
+      gobuild.golangVersion: 1.15.7
+      gobuild.linux_hosttype: linux-centos8

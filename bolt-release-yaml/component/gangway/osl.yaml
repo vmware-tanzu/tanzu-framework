@@ -1,0 +1,4 @@
+submodules:
+  - name: gangway/src
+    go_dep:
+      - "Gopkg.toml"

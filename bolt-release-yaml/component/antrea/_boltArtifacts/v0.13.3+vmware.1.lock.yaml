@@ -1,0 +1,7 @@
+name: antrea
+goBuildComponentLocks:
+- version: v0.13.3+vmware.1
+  gobuildBranch: vmware-0.13.3
+  gobuildHeadCommit: 948f235f0f0735016bb676f182551fed23fc8b24
+  hash: 3a25550e7c17d2c3b4651f9e44ff65c9
+  componentLockReferences: []

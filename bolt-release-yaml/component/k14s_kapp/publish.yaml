@@ -1,0 +1,14 @@
+name: k14s_kapp
+nonpublish:
+  - name: kapp-darwin
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp/executables/kapp-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp/executables/kapp-darwin-amd64-$VERSION.gz
+  - name: kapp-linux
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp/executables/kapp-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp/executables/kapp-linux-amd64-$VERSION.gz
+  - name: kapp-windows
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp/executables/kapp-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp/executables/kapp-windows-amd64-$VERSION.gz

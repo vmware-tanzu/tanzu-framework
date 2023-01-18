@@ -1,0 +1,19 @@
+name: azure-ubuntu-1804
+imageCaches:
+- version: v1.20.7+vmware.1-tkg.0-12988543419467778252
+  channel: "356533717398767712"
+  bomAzure:
+    azure:
+    - sku: k8s-1dot20dot7-ubuntu-1804
+      publisher: vmware-inc
+      offer: tkg-capi
+      version: 2021.05.26
+      thirdPartyImage: true
+      osinfo:
+        name: ubuntu
+        version: "1804"
+        arch: amd64
+  hash: "1916637233792618276"
+  url: https://kscom.svc.eng.vmware.com/job/build-azure-v1alpha2/372
+  buildNumber: "372"
+  buildStatus: SUCCEEDED

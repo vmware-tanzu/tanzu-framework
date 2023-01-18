@@ -1,0 +1,7 @@
+name: carvel-secretgen-controller
+goBuildComponentLocks:
+- version: v0.11.0+vmware.2
+  gobuildBranch: vmware-0.11.0
+  gobuildHeadCommit: 06b8481ff4fea88f627dc04ff8c310920d2ddd6a
+  hash: b80458ec6603ca22dd96e25867ab480d
+  componentLockReferences: []

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: build component/guest-cluster-auth-service-package/v1.0.0-tkg.3-gc-auth-service-zshippable.yaml
+componentReferences:
+- name: guest-cluster-auth-service-package
+  version:
+  - v1.0.0-tkg.3-gc-auth-service-zshippable

@@ -1,0 +1,7 @@
+name: tanzu-capabilities-controller
+goBuildComponentLocks:
+- version: v0.28.0-dev-229-g3d0816ce
+  gobuildBranch: 437943315900437644-v0.28.0-dev-229-g3d0816ce-tanzu-capabilities-controller
+  gobuildHeadCommit: 53ba517813a1a39963ae79753f264c9982c705c2
+  hash: a3be6ba6865bf0153e3345917bec9635
+  componentLockReferences: []

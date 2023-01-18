@@ -1,0 +1,7 @@
+name: coredns
+goBuildComponentCaches:
+- version: v1.8.4+vmware.3
+  url: https://buildweb.eng.vmware.com/ob/18640567/
+  buildNumber: bora-18640567
+  buildStatus: SUCCEEDED
+  hash: e9bd2fcd2d97d9e295bfe4889073ca66

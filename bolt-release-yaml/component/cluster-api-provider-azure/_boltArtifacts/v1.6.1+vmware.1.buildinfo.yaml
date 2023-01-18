@@ -1,0 +1,15 @@
+componentBuilds:
+- name: cluster-api-provider-azure
+  version: v1.6.1+vmware.1
+  channel: "442953120121650445"
+  url: https://buildweb.eng.vmware.com/ob/21109787/
+  artifactURL:
+    capzControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-azure-controller:v1.6.1_vmware.1
+      sha256: bdb97f94f13e333627e772d9f1b091d09a46f3366adde3e373cf11c15acb3682
+  cachehash: f4e2b335766558712c08e52361b01209
+  publishhash: c151f17688eecfa647e8cc5639adbafa
+  configDependencies:
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangVersion: "1.19"
+    gobuild.linux_hosttype: linux-centos72-gc32

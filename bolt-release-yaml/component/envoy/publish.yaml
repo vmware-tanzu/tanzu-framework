@@ -1,0 +1,12 @@
+name: envoy
+publish:
+  - name: envoyImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/envoy/images/envoy-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/envoy/images/envoy-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: envoy:$UNDERSCOREVERSION
+nonpublish:
+  - name: envoy-file
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/envoy/executables/envoy-$VERSION-binary-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/envoy/executables/envoy-$VERSION.gz

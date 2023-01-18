@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkr-docker-machine-webhook-package
+  version: v0.20.0-dev-21-gb491197a-tkr-docker-mc-webhook
+  channel: "400477957732175870"
+  url: https://buildweb.eng.vmware.com/ob/19555081/
+  artifactURL:
+    tkr-docker-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-docker-machine-webhook:v0.20.0-dev-21-gb491197a_vmware.1
+      sha256: d5c89add39eaaa3477dbb96552b53002c762bdb088c1ad6a085ef5eb86b85eb2
+  cachehash: db65cb8901a7c65dede68f41d2fe3fc6
+  publishhash: 6cdfe8cb58a326f7a23f5f3cdb1fd92f

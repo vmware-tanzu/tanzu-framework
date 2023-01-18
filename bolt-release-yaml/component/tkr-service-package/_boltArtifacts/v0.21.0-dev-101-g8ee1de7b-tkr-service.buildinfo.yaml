@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkr-service-package
+  version: v0.21.0-dev-101-g8ee1de7b-tkr-service
+  channel: "404100428075113766"
+  url: https://buildweb.eng.vmware.com/ob/19675274/
+  artifactURL:
+    tkr-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-service:v0.21.0-dev-101-g8ee1de7b_vmware.1
+      sha256: 22a815aee6c359773d9896c9e322199760023641ce7a798dc4b4cf3d4d53ba15
+  cachehash: 219dadd93ebe8ec1de9af7c042902735
+  publishhash: 01dd05a82383689c2f95054a143c30a5

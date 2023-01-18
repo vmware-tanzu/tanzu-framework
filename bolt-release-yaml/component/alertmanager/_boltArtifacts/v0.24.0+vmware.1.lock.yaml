@@ -1,0 +1,7 @@
+name: alertmanager
+goBuildComponentLocks:
+- version: v0.24.0+vmware.1
+  gobuildBranch: vmware-0.24.0
+  gobuildHeadCommit: 3da876a4dd5269cda7fab72d6c4b5d2573e4f869
+  hash: 4e33cade0ba036bbca1e5a9f6cae81e3
+  componentLockReferences: []

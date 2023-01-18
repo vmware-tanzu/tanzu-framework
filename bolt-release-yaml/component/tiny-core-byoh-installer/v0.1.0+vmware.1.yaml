@@ -1,0 +1,9 @@
+name: tiny-core-byoh-installer
+managedComponents:
+  - version: v0.1.0+vmware.1
+    upstreamCommit: 5f86b06cd708be353a6bb4220f374ba79b102ee8
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~0c456b20a7f0d65730d06ed9feb14cf34ab18912
+    dependencies:
+      gobuild.golangVersion: 1.17
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.noMirror: "true"

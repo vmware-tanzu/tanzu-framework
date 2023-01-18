@@ -1,0 +1,7 @@
+name: velero-mgmt-cluster-plugin
+goBuildComponentCaches:
+- version: v0.1.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/21106569
+  buildNumber: bora-21106569
+  buildStatus: SUCCEEDED
+  hash: ae15cefc3e87d09a306ddd0df8b273b7

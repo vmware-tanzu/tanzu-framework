@@ -1,0 +1,11 @@
+componentBuilds:
+- name: antrea-package
+  version: v1.2.3+vmware.3-tkg.2-antrea-zshippable
+  channel: "386002643513827894"
+  url: https://buildweb.eng.vmware.com/ob/19071152/
+  artifactURL:
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v1.2.3_vmware.3-tkg.2-zshippable
+      sha256: 32163fe52e0f923717e8fec69677fa6da973ea6048574ed34425f635455e443b
+  cachehash: 763658c2189dc6a9ab206f645e5c1990
+  publishhash: 3c38157278462aa91841f3ab1a6c790a

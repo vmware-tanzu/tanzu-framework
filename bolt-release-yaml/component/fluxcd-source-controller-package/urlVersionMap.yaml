@@ -1,0 +1,21 @@
+versionMap:
+  v0.24.4+vmware.1-tkg.1-source-ctrl: url.yaml
+  v0.24.4+vmware.1-tkg.1-source-ctrl-zshippable: url.yaml
+  v0.24.4+vmware.1-tkg.2-source-ctrl: url.yaml
+  v0.24.4+vmware.1-tkg.2-source-ctrl-zshippable: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-20230103: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-20230112: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-20230114: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-fc.1: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-fc.2: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-rc.1: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-rc.2: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-rc.3: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-tf-v0.26.0: url.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-zshippable: url.yaml
+  v0.24.4+vmware.1-tkg.4-source-ctrl: url.yaml
+  v0.24.4+vmware.1-tkg.4-source-ctrl-rc.3: url.yaml
+  v0.24.4+vmware.1-tkg.4-source-ctrl-tf-v0.25.1: url.yaml
+  v0.24.4+vmware.1-tkg.4-source-ctrl-zshippable: url.yaml
+  v0.24.4+vmware.1-tkg.5-source-ctrl: url.yaml
+  v0.24.4+vmware.1-tkg.5-source-ctrl-zshippable: url.yaml

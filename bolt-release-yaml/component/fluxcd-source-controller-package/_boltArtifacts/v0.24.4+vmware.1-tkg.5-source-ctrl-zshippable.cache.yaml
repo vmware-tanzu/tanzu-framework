@@ -1,0 +1,7 @@
+name: fluxcd-source-controller-package
+goBuildComponentCaches:
+- version: v0.24.4+vmware.1-tkg.5-source-ctrl-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20984635/
+  buildNumber: bora-20984635
+  buildStatus: SUCCEEDED
+  hash: 79619e152e0eaa276ec2ffe91701cdb8

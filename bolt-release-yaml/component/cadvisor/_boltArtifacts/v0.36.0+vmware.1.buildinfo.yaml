@@ -1,0 +1,13 @@
+componentBuilds:
+- name: cadvisor
+  version: v0.36.0+vmware.1
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/16911240
+  artifactURL:
+    cadvisor-file:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-16911240/publish/lin64/cadvisor/executables/cadvisor-v0.36.0+vmware.1.gz
+    cadvisorImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/cadvisor:v0.36.0_vmware.1
+      sha256: 927d0ef9876c149420d0b2b8f7587db010aa05ca1b4606a38fa023bb3947d263
+  cachehash: 8fbc3c4e0c132b90f2f12dda5d673d4d
+  publishhash: 285d855e885d94bfb6db092b70f6464f

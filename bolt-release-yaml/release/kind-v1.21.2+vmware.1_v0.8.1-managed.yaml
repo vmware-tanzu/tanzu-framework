@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'build kind v1.21.2+vmware.1_v0.8.1 managed component'
+componentReferences:
+- name: kubernetes-sigs_kind
+  version:
+  - v1.21.2+vmware.1_v0.8.1

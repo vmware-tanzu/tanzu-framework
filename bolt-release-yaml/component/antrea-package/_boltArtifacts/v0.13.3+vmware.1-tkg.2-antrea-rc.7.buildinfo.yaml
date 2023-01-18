@@ -1,0 +1,11 @@
+componentBuilds:
+- name: antrea-package
+  version: v0.13.3+vmware.1-tkg.2-antrea-rc.7
+  channel: "391959729934442873"
+  url: https://buildweb.eng.vmware.com/ob/19265018/
+  artifactURL:
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v0.13.3_vmware.1-tkg.2-rc.7
+      sha256: 5a8c52888ad7823ab93e6dcf76eb83411f9348b49120b7972da10347867d54b2
+  cachehash: 1f23862486218c2214ea819b1df063a5
+  publishhash: 3c38157278462aa91841f3ab1a6c790a

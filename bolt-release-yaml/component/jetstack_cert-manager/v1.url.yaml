@@ -1,0 +1,8 @@
+name: jetstack_cert-manager
+upstreamURL: https://github.com/jetstack/cert-manager.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_jetstack_cert-manager.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_jetstack_cert-manager.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_jetstack_cert-manager.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_jetstack_cert-manager.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_jetstack_cert-manager.git
+gobuildTarget: cayman_jetstack_cert-manager

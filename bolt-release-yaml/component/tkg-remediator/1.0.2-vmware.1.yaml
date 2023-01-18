@@ -1,0 +1,6 @@
+name: tkg-remediator
+unmanagedComponents:
+  - version: 1.0.2-vmware.1
+    gobuildBranch: main~691dfee7e0f2be0c3507e238d4c111551fd6ead5
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

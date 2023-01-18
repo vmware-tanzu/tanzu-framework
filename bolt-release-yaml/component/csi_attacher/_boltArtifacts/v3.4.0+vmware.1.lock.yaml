@@ -1,0 +1,7 @@
+name: csi_attacher
+goBuildComponentLocks:
+- version: v3.4.0+vmware.1
+  gobuildBranch: 416456499934561712-v3.4.0+vmware.1-csi_attacher
+  gobuildHeadCommit: 8b798e8d1b16046072134cef63d57f67a7e9520a
+  hash: dc0effb46b7262766ef6a336d24ad4e9
+  componentLockReferences: []

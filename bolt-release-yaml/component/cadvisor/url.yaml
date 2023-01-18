@@ -1,0 +1,8 @@
+name: cadvisor
+upstreamURL: https://github.com/google/cadvisor.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_cadvisor.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_cadvisor.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_cadvisor.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_cadvisor.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_cadvisor.git
+gobuildTarget: cayman_cadvisor

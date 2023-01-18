@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.22.15+vmware.1-tkg.2-6f3f68b0771a8e9d9ca63d6968f06adb
+  channel: "429759541517752534"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/3166
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-vhd-v1.22.15+vmware.1-tkg.2-6f3f68b0771a8e9d9ca63d6968f06adb.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.15+vmware.1-tkg.2-6f3f68b0771a8e9d9ca63d6968f06adb-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.15+vmware.1-tkg.2-6f3f68b0771a8e9d9ca63d6968f06adb-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.15+vmware.1-tkg.2-6f3f68b0771a8e9d9ca63d6968f06adb-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.22.15+vmware.1-tkg.2-6f3f68b0771a8e9d9ca63d6968f06adb-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429759541517752534/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.22.15+vmware.1-tkg.2-6f3f68b0771a8e9d9ca63d6968f06adb.json
+  cachehash: 152b7e230c89a75716a1c5667a8a2be5
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 82997ba0a868d0e17a837ebd5c0c99126493dc6f

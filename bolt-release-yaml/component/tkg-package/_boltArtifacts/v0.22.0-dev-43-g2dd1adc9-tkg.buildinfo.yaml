@@ -1,0 +1,21 @@
+componentBuilds:
+- name: tkg-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkg
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19818003/
+  artifactURL:
+    tkg.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: db5506e3ae673809ba27002e93847cf76cefa29c710d5be5c14968bfbec2e470
+  cachehash: 7e6da4b7520b2ec1f9db022c9d915a30
+  publishhash: b50bfb418ec98d4f672d28d855f6e5b2
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9

@@ -1,0 +1,7 @@
+name: csi_livenessprobe
+publish:
+  - name: csiLivenessProbeImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/csi_livenessprobe/images/csi-livenessprobe-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/csi_livenessprobe/images/csi-livenessprobe-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: csi/csi-livenessprobe:$UNDERSCOREVERSION

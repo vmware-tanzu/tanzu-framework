@@ -1,0 +1,7 @@
+name: tkg_telemetry
+goBuildComponentCaches:
+- version: v1.5.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18893176/
+  buildNumber: bora-18893176
+  buildStatus: SUCCEEDED
+  hash: fc387669aba99d0f53c5605ea8fe9c0d

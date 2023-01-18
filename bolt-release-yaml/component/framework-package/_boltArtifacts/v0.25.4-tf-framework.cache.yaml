@@ -1,0 +1,7 @@
+name: framework-package
+goBuildComponentCaches:
+- version: v0.25.4-tf-framework
+  url: https://buildweb.eng.vmware.com/ob/21000071/
+  buildNumber: bora-21000071
+  buildStatus: SUCCEEDED
+  hash: d42ecfa6abdd031d47c545b5fa5d78e9

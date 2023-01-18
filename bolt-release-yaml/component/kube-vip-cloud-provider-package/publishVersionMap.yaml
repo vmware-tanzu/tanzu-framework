@@ -1,0 +1,11 @@
+versionMap:
+  v0.0.4+vmware.1-tkg.1-kube-vip-cp-fc.1: publish.yaml
+  v0.0.4+vmware.1-tkg.1-kube-vip-cp-fc.2: publish.yaml
+  v0.0.4+vmware.1-tkg.1-kube-vip-cp-rc.1: publish.yaml
+  v0.0.4+vmware.1-tkg.1-kube-vip-cp-zshippable: publish.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-20230103: publish.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-20230112: publish.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-20230114: publish.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-rc.2: publish.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-rc.3: publish.yaml
+  v0.0.4+vmware.2-tkg.1-kube-vip-cp-zshippable: publish.yaml

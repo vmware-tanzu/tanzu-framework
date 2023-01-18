@@ -1,0 +1,9 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'one-off release file to update gobuild branch in image-builder-resource-bundle'
+componentReferences:
+  - name: image-builder-resource-bundle
+    version:
+      - v1.21.14+vmware.2-tkg.1-fix
+      - v1.22.11+vmware.2-tkg.1-fix
+      - v1.23.8+vmware.2-tkg.1-fix

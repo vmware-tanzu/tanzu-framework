@@ -1,0 +1,8 @@
+name: velero-plugin-for-vsphere
+upstreamURL: https://github.com/vmware-tanzu/velero-plugin-for-vsphere.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_velero-plugin-for-vsphere.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_velero-plugin-for-vsphere
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_velero-plugin-for-vsphere.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_velero-plugin-for-vsphere.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_velero-plugin-for-vsphere.git
+gobuildTarget: cayman_velero-plugin-for-vsphere

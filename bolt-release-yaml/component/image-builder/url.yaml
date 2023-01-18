@@ -1,0 +1,5 @@
+name: image-builder
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-sigs_image-builder.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-sigs_image-builder.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-sigs_image-builder.git
+gobuildTarget: cayman_kubernetes-sigs_image-builder

@@ -1,0 +1,7 @@
+name: addons-manager-package
+goBuildComponentCaches:
+- version: v1.5.0+vmware.1-tkg.3-addons-manager-zshippable
+  url: https://buildweb.eng.vmware.com/ob/19343361/
+  buildNumber: bora-19343361
+  buildStatus: SUCCEEDED
+  hash: 2fd4a4846c641396e56ef20e15ed2d0d

@@ -1,0 +1,4 @@
+name: k14s_ytt
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_k14s_ytt.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_k14s_ytt.git
+gobuildTarget: cayman_k14s_ytt

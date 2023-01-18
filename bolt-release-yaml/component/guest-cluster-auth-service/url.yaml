@@ -1,0 +1,5 @@
+name: guest-cluster-auth-service
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/guest-cluster-auth-service.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/guest-cluster-auth-service.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/guest-cluster-auth-service.git
+gobuildTarget: guest-cluster-auth-service

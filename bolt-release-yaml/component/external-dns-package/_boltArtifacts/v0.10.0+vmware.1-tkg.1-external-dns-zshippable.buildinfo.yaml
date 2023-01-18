@@ -1,0 +1,11 @@
+componentBuilds:
+- name: external-dns-package
+  version: v0.10.0+vmware.1-tkg.1-external-dns-zshippable
+  channel: "391381672550998393"
+  url: https://buildweb.eng.vmware.com/ob/19245886/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.10.0_vmware.1-tkg.1-zshippable
+      sha256: 7fb8c3df92a7a70f0e4f3dbe8aa6c3f35fd52b45394187394f2370d2a5e12044
+  cachehash: 2011ea46511594714c39a3a793a402de
+  publishhash: 19b8613fad519068fc2d01dbd771545b

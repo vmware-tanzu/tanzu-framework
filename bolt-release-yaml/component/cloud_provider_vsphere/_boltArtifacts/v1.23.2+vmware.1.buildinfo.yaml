@@ -1,0 +1,27 @@
+componentBuilds:
+- name: cloud_provider_vsphere
+  version: v1.23.2+vmware.1
+  channel: "439586309955135094"
+  url: https://buildweb.eng.vmware.com/ob/20989153/
+  artifactURL:
+    ccmControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.23.2_vmware.1
+      sha256: d642d7e76a29dd9eef4f050091d2c2bf158457c21616d3815faf18ea9a74d891
+    cloud_provider_vsphere-1.21-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/cloud_provider_vsphere/v1.23.2+vmware.1/publish/add-on/1.21/cloud-controller-manager.yaml
+      sha256: 7b21ce9c6971cf58bbb291e90ff57f3f478f0071b76e9345fd06077639248352
+    cloud_provider_vsphere-1.22-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/cloud_provider_vsphere/v1.23.2+vmware.1/publish/add-on/1.22/cloud-controller-manager.yaml
+      sha256: 9cffb99d3bb591aa246c0c2220c78eb738f8b38bd6c3d7353a37c82157e9b684
+    cloud_provider_vsphere-1.23-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/cloud_provider_vsphere/v1.23.2+vmware.1/publish/add-on/1.23/cloud-controller-manager.yaml
+      sha256: 90ef7c08d1588f374947804ee052c050377e2abe0a1ad40d5728e6a2c73340e6
+    cloud_provider_vsphere-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/439586309955135094/image-builder/cloud_provider_vsphere/v1.23.2+vmware.1/publish/cloud_provider_vsphere.tar
+      sha256: e10c60d0a49038f0d7d61075ee32dbcae0f0c4e19b3892c12f77fca3279a3f44
+  cachehash: 580d5d96b94503b6174f2019346b1aef
+  publishhash: af6f4c393ebec0f580434f5993474807
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32

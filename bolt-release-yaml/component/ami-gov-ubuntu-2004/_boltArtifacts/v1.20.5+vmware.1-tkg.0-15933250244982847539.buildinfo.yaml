@@ -1,0 +1,14 @@
+componentBuilds:
+- name: ami-gov-ubuntu-2004
+  version: v1.20.5+vmware.1-tkg.0-15933250244982847539
+  channel: "350344759685963874"
+  url: https://kscom.svc.eng.vmware.com/job/build-ami-gov-v1alpha2/149
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/350344759685963874/component/ami-gov-ubuntu-2004/bom-ami-gov-ubuntu-2004-v1.20.5+vmware.1-tkg.0-15933250244982847539.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/350344759685963874/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.20.5+vmware.1-tkg.0-15933250244982847539-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/350344759685963874/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.20.5+vmware.1-tkg.0-15933250244982847539-osstpmgt.yaml
+  cachehash: 6e03a58ab940fb94fd87a0297061e32b
+  publishhash: 1a087d047b2d648ef2c583e2ef33e0c4

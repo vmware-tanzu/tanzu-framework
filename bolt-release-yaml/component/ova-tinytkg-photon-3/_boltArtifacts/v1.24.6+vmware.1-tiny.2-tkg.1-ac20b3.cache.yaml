@@ -1,0 +1,11 @@
+name: ova-tinytkg-photon-3
+imageCaches:
+- version: v1.24.6+vmware.1-tiny.2-tkg.1-ac20b3
+  channel: "436516627840771386"
+  imageCacheOVA:
+    url: http://10.163.0.228/kscom-generic-local/TKG/channels/436516627840771386/component/ova-tinytkg-photon-3/photon-3-kube-v1.24.6+vmware.1-tiny.2-tkg.1-ac20b3.ova
+    imageSHA: 4b1a7e86f791a955c901cb241994887b67e303a1dfa6d67ecd994dd0b37b4545
+  hash: 0e342a5f15c91d1834118a04a6068ecd
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2984
+  buildNumber: "2984"
+  buildStatus: SUCCEEDED

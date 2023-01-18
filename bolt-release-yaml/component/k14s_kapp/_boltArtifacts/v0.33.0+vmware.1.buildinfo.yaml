@@ -1,0 +1,14 @@
+componentBuilds:
+- name: k14s_kapp
+  version: v0.33.0+vmware.1
+  channel: "340055273651568647"
+  url: https://buildweb.eng.vmware.com/ob/17552006/
+  artifactURL:
+    kapp-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17552006/publish/lin64/kapp/executables/kapp-darwin-amd64-v0.33.0+vmware.1.gz
+    kapp-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17552006/publish/lin64/kapp/executables/kapp-linux-amd64-v0.33.0+vmware.1.gz
+    kapp-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17552006/publish/lin64/kapp/executables/kapp-windows-amd64-v0.33.0+vmware.1.gz
+  cachehash: "10500667298428447700"
+  publishhash: "12809465735937655240"

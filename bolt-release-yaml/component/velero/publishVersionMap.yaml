@@ -1,0 +1,10 @@
+versionMap:
+  v1.5.3+vmware.1: publish.yaml
+  v1.5.4+vmware.1: publish.yaml
+  v1.6.2+vmware.1: publish.yaml
+  v1.7.0+vmware.1: v1.publish.yaml
+  v1.8.1+vmware.1: v2.publish.yaml
+  v1.9.2+vmware.1: v2.publish.yaml
+  v1.9.3+vmware.1: v2.publish.yaml
+  v1.9.4+vmware.1: v2.publish.yaml
+  v1.9.5+vmware.1: v2.publish.yaml

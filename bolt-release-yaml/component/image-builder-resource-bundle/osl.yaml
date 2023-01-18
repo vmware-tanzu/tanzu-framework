@@ -1,0 +1,4 @@
+submodules:
+  - name: image-builder-resource-bundle/src
+    go_mod:
+      - "go.mod"

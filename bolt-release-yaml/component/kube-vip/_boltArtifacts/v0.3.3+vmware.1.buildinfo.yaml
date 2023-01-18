@@ -1,0 +1,11 @@
+componentBuilds:
+- name: kube-vip
+  version: v0.3.3+vmware.1
+  channel: "351078764077124997"
+  url: https://buildweb.eng.vmware.com/ob/17910858/
+  artifactURL:
+    kubeVipImage:
+      url: projects-stg.registry.vmware.com/tkg/kube-vip:v0.3.3_vmware.1
+      sha256: c39b83947258d4d75ff3b7b0193d5dd470e28cb43e4329aa957addfc74f4d953
+  cachehash: f07f3504f09920a3b079243d83d83ca2
+  publishhash: 4dc86baafbb4a81d9d1b57eee6f3b764

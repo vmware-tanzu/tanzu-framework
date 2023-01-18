@@ -1,0 +1,10 @@
+name: tkg_release
+goBuildComponentLocks:
+- version: v1.3.0-pre-rc.1
+  gobuildBranch: 341119568342706184-v1.3.0-pre-rc.1
+  gobuildHeadCommit: 4551769d22468062283a26d3e88f5188975459c0
+  hash: "16944617046088448331"
+  componentLockReferences:
+  - name: vmware-private_tanzu-cli-tkg-plugins
+    version: v1.3.0-pre-rc.1
+    lockHash: "16697850577725881470"

@@ -1,0 +1,28 @@
+name: tkr-compatibility
+boms:
+- version: v3-v1.3.1-patch1
+  type: compatibility
+  compatibilityMetadata:
+    version: v3
+    managementClusterVersions:
+    - version: v1.3.1
+      supportedKubernetesVersions:
+      - v1.19.8+vmware.3-tkg.1
+      - v1.20.5+vmware.2-tkg.1
+      - v1.18.17+vmware.2-tkg.1
+      - v1.20.4+vmware.3-tkg.1
+      - v1.19.9+vmware.2-tkg.1
+      - v1.18.16+vmware.3-tkg.1
+      - v1.17.16+vmware.3-tkg.1
+    - version: v1.3.1-patch1
+      supportedKubernetesVersions:
+      - v1.19.8+vmware.3-tkg.1
+      - v1.20.5+vmware.2-tkg.1
+      - v1.18.17+vmware.2-tkg.1
+      - v1.20.4+vmware.3-tkg.1
+      - v1.19.9+vmware.2-tkg.1
+      - v1.18.16+vmware.3-tkg.1
+      - v1.17.16+vmware.3-tkg.1
+  dependencies:
+    rtmVersions:
+    - v1.3.1

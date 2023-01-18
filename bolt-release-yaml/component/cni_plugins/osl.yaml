@@ -1,0 +1,4 @@
+submodules:
+  - name: cni_plugins/src
+    go_mod:
+      - "go.mod"

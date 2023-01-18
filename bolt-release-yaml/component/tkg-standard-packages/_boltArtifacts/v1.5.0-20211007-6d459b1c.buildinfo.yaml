@@ -1,0 +1,35 @@
+componentBuilds:
+- name: tkg-standard-packages
+  version: v1.5.0-20211007-6d459b1c
+  channel: "376002337593904295"
+  url: https://buildweb.eng.vmware.com/ob/18743040/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.1.0_vmware.1-tkg.3-20211007-6d459b1c
+      sha256: 90008da7e2e860abb62f68650881296e6e2b80679ae18772ccb4603d02926088
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.17.1_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: fc59062a17cc353ef557b51eabe6dc120127722b380e99ec3430500a674a11ed
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.8.0_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: 44bd79a15d3e3c32cc8a69268d7c88c40466a5842b4085d83d009aef248396d1
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: 639da26461301493435a15ba272afd5eac2b2387125a9185750ae21474c062b6
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: dffced1aab6902d7a48b1f7f04c5405ea4d1923b187d16fbf1dbfe56b64a9bb2
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: 7d7e1810a504282ced67f698dbb1b17ae27f51433f68863ffa71257f82e358b1
+    multus-cni.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: 6201d995c2bd5909093f0a7754a709ea7bdbdebae1cb8e75b5f45701f2f54921
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.1-tkg.2-20211007-6d459b1c
+      sha256: 22043b9fb37e417882b4c9713c5197c8e161fd9fd901826b628897cc49419f32
+    tanzuStandardPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.5.0-20211007-6d459b1c
+      sha256: 905740611074c848827ad0d17744a17534816b91bf9212c45740b2c9fb469d44
+  cachehash: 541b71b53f6a399a7af75b04280faf40
+  publishhash: a4f28efc0df15a4910ee38d0861f397b

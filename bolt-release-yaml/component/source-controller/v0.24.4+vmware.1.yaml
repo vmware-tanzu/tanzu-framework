@@ -1,0 +1,7 @@
+name: source-controller
+unmanagedComponents:
+  - version: v0.24.4+vmware.1
+    gobuildBranch: vmware-0.24.4~35d3d54d4a5f95892fff785f0b3d2136a77eeff8
+    dependencies:
+      gobuild.golangVersion: 1.17.6
+      gobuild.linux_hosttype: linux-centos72-gc32

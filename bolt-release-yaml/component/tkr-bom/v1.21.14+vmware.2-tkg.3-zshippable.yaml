@@ -1,0 +1,115 @@
+name: tkr-bom
+boms:
+- version: v1.21.14+vmware.2-tkg.3-zshippable
+  type: tkr
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  dependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha2
+  componentReferences:
+  - name: ako-operator
+    version:
+    - v1.5.0+vmware.6
+  - name: load-balancer-and-ingress-service
+    version:
+    - v1.6.1+vmware.4
+  - name: antrea
+    version:
+    - v0.13.3+vmware.1
+  - name: tkg-core-packages
+    version:
+    - v1.21.14+vmware.2-tkg.3-zshippable
+  - name: calico_all
+    version:
+    - v3.19.1+vmware.1
+  - name: cloud_provider_vsphere
+    version:
+    - v1.21.3+vmware.1
+  - name: csi_attacher
+    version:
+    - v3.2.0+vmware.1
+  - name: csi_livenessprobe
+    version:
+    - v2.2.0+vmware.1
+  - name: csi_node_driver_registrar
+    version:
+    - v2.1.0+vmware.1
+  - name: kubernetes-csi_external-resizer
+    version:
+    - v1.1.0+vmware.1
+  - name: csi_provisioner
+    version:
+    - v2.2.0+vmware.1
+  - name: vsphere_csi_driver
+    version:
+    - v2.3.0+vmware.1
+  - name: dex
+    version:
+    - v2.27.0+vmware.1
+  - name: kapp-controller
+    version:
+    - v0.30.1+vmware.1
+  - name: carvel-secretgen-controller
+    version:
+    - v0.7.1+vmware.1
+  - name: metrics-server
+    version:
+    - v0.5.1+vmware.1
+  - name: pinniped
+    version:
+    - v0.4.4+vmware.1
+  - name: pinniped-post-deploy
+    version:
+    - v0.10.0
+  - name: tanzu-framework-addons
+    version:
+    - v0.11.6-1-g90440e2b
+  - name: kubernetes
+    version:
+    - v1.21.14+vmware.2
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2
+  - name: coredns
+    version:
+    - v1.8.0+vmware.14
+  - name: cri_tools
+    version:
+    - v1.20.0+vmware.11
+  - name: etcd
+    version:
+    - v3.4.18+vmware.1
+  - name: containerd
+    version:
+    - v1.5.13+vmware.1
+  - name: kubernetes-sigs_kind
+    version:
+    - v1.21.14+vmware.2-tkg.1_v0.11.1
+  - name: ami-general-amazon-2
+    version:
+    - v1.21.14+vmware.2-tkg.3-bf18d71d616798f6ce65305b1b22aef6
+  - name: ami-general-ubuntu-2004
+    version:
+    - v1.21.14+vmware.2-tkg.3-d7986a77313a91412765cc19eed2d276
+  - name: ami-gov-amazon-2
+    version:
+    - v1.21.14+vmware.2-tkg.3-2f73213f5e08aa2559b8f4fa51025fa5
+  - name: ami-gov-ubuntu-2004
+    version:
+    - v1.21.14+vmware.2-tkg.3-5b92700a824baf4bd70365b3998a443d
+  - name: azure-ubuntu-1804
+    version:
+    - v1.21.14+vmware.2-tkg.3-2eac879ff3b3ac932ed0b82b34ddf02a
+    - v1.21.14+vmware.2-tkg.3-sig-9aaed09a938e38816cae0afed38120a0
+  - name: azure-ubuntu-2004
+    version:
+    - v1.21.14+vmware.2-tkg.3-f5f2e08ae32be0e839e6055f6c03cd9a
+    - v1.21.14+vmware.2-tkg.3-sig-2e55c190e0ab34d564eafb3c6404dbe4
+  - name: ova-photon-3
+    version:
+    - v1.21.14+vmware.2-tkg.3-8798177dc921af6987b64be1d84ef6c9
+  - name: ova-ubuntu-2004
+    version:
+    - v1.21.14+vmware.2-tkg.3-e0ab8976d638dbb5f92031e79950a784
+  - name: windows-resource-bundle
+    version:
+    - v1.21.14+vmware.2-tkg.3-zshippable

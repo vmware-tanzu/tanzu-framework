@@ -1,0 +1,7 @@
+name: guest-cluster-auth-service-package
+goBuildComponentCaches:
+- version: v1.1.0-tkg.1-gc-auth-service-rc.2
+  url: https://buildweb.eng.vmware.com/ob/21093010/
+  buildNumber: bora-21093010
+  buildStatus: SUCCEEDED
+  hash: 1401b6665a65c6c52b1ac7b3f044d0c3

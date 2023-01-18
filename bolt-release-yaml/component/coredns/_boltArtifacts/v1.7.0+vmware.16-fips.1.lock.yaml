@@ -1,0 +1,7 @@
+name: coredns
+goBuildComponentLocks:
+- version: v1.7.0+vmware.16-fips.1
+  gobuildBranch: 418306238414067154-v1.7.0+vmware.16-fips.1-coredns
+  gobuildHeadCommit: 4bbbe819eb98e0c6d4aaf2059c246228960729a4
+  hash: 60033e9e2d9c7b107d8891efe1e0ad72
+  componentLockReferences: []

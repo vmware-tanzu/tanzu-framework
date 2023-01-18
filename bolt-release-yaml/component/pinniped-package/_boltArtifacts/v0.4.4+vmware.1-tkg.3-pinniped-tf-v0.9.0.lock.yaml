@@ -1,0 +1,16 @@
+name: pinniped-package
+goBuildComponentLocks:
+- version: v0.4.4+vmware.1-tkg.3-pinniped-tf-v0.9.0
+  gobuildBranch: 379154940125296236-v0.4.4+vmware.1-tkg.3-pinniped-tf-v0.9.0
+  gobuildHeadCommit: 8222efff344bc5180f5adc84aa7e437a58d6dde6
+  hash: 6939d610dc1bd2ce4076a232af7de5e2
+  componentLockReferences:
+  - name: pinniped
+    version: v0.4.4+vmware.1
+    lockHash: 128412f16d491187b1b108fab3dfac67
+  - name: dex
+    version: v2.27.0+vmware.1
+    lockHash: 7fadc9716955155af933f02b1769b863
+  - name: tanzu-framework-addons
+    version: v0.9.0-tf
+    lockHash: e5c596346f4b18ff41a0bce43304f92a

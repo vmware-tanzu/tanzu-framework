@@ -1,0 +1,7 @@
+name: tkr-aws-machine-webhook-package
+goBuildComponentCaches:
+- version: v0.25.3-tf-tkr-aws-mc-webhook
+  url: https://buildweb.eng.vmware.com/ob/20846774/
+  buildNumber: bora-20846774
+  buildStatus: SUCCEEDED
+  hash: f12c90b2e6963854c68784d5b1b76313

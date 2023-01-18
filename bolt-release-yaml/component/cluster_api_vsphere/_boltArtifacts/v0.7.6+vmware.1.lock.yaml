@@ -1,0 +1,7 @@
+name: cluster_api_vsphere
+goBuildComponentLocks:
+- version: v0.7.6+vmware.1
+  gobuildBranch: 345115672168122632-v0.7.6+vmware.1
+  gobuildHeadCommit: ff891a02c67aa34d13e195451c275a83a2012942
+  hash: "13297454320928016939"
+  componentLockReferences: []

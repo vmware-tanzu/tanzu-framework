@@ -1,0 +1,7 @@
+name: kustomize-controller
+goBuildComponentCaches:
+- version: v0.24.4+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/19865714
+  buildNumber: bora-19865714
+  buildStatus: SUCCEEDED
+  hash: a1ba9a180473046ab994199218eb89ad

@@ -1,0 +1,20 @@
+componentBuilds:
+- name: tkg-clusterclass-oci-package
+  version: v0.28.0-dev-327-g2438ab22-tkg-clusterclass-oci
+  channel: "443226375822808206"
+  url: https://buildweb.eng.vmware.com/ob/21120298/
+  artifactURL:
+    tkg-clusterclass-oci.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkg-clusterclass-oci:v0.28.0-dev-327-g2438ab22_vmware.1
+      sha256: 45cc78b038d0541dd36784afb35da92675a87a366b9ecc809e6a891ddceb77fd
+  cachehash: e17f81c72fd0a34c1a703df595c78dc8
+  publishhash: c28192f07e2255ae7bd0c8cd5715cc6c
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-oci
+    gobuild.upstream_version: v0.28.0-dev-327-g2438ab22

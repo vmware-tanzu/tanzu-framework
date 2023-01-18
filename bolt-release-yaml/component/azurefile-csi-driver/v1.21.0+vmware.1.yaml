@@ -1,0 +1,10 @@
+name: azurefile-csi-driver
+managedComponents:
+  - version: v1.21.0+vmware.1
+    upstreamTag: v1.21.0
+    gobuildBaseBranch: v1.21.0+vmware.1~bb0397728ed7f37546eb09e57c7f95cea2c37618
+    dependencies:
+      gobuild.golangVersion: 1.17
+      gobuild.releaseVersion: v1.21.0+vmware.1
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos8

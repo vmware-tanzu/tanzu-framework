@@ -1,0 +1,312 @@
+other:modern-go_concurrent:bacd9c7ef1dd:
+  license: Apache-2.0
+  name: modern-go_concurrent
+  other-distribution: /osl_sources/tanzu_core_pinniped/modern-go-concurrent-bacd9c7ef1dd.tar.gz
+  other-url: https://github.com/modern-go/concurrent
+  repository: Other
+  url: https://codeload.github.com/modern-go/concurrent/tar.gz/bacd9c7ef1dd
+  version: bacd9c7ef1dd
+other:davecgh_go-spew:v1.1.1:
+  license: 0BSD
+  name: davecgh_go-spew
+  other-distribution: /osl_sources/tanzu_core_pinniped/davecgh-go-spew-v1.1.1.tar.gz
+  other-url: https://github.com/davecgh/go-spew
+  repository: Other
+  url: https://codeload.github.com/davecgh/go-spew/tar.gz/v1.1.1
+  version: v1.1.1
+other:utils:67b214c5f920:
+  license: Apache-2.0
+  name: utils
+  other-distribution: /osl_sources/tanzu_core_pinniped/kubernetes-utils-67b214c5f920.tar.gz
+  other-url: https://k8s.io/utils
+  repository: Other
+  url: https://codeload.github.com/kubernetes/utils/tar.gz/67b214c5f920
+  version: 67b214c5f920
+other:x_crypto:c1f2f97bffc9:
+  license: BSD-3-Clause
+  name: x_crypto
+  other-distribution: /osl_sources/tanzu_core_pinniped/golang-crypto-c1f2f97bffc9.tar.gz
+  other-url: https://golang.org/x/crypto
+  repository: Other
+  url: https://codeload.github.com/golang/crypto/tar.gz/c1f2f97bffc9
+  version: c1f2f97bffc9
+other:generated_1_19_apis:546b8b5d25c6:
+  license: Apache-2.0
+  name: generated_1_19_apis
+  other-distribution: /osl_sources/tanzu_core_pinniped/generated_1_19_apis-546b8b5d25c6.tar.gz
+  other-url: https://go.pinniped.dev/generated/1.19/apis
+  repository: Other
+  url: ""
+  version: 546b8b5d25c6
+other:apimachinery:v0.20.1:
+  license: Apache-2.0
+  name: apimachinery
+  other-distribution: /osl_sources/tanzu_core_pinniped/kubernetes-apimachinery-v0.20.1.tar.gz
+  other-url: https://k8s.io/apimachinery
+  repository: Other
+  url: https://codeload.github.com/kubernetes/apimachinery/tar.gz/v0.20.1
+  version: v0.20.1
+other:x_net:69a78807bb2b:
+  license: BSD-3-Clause
+  name: x_net
+  other-distribution: /osl_sources/tanzu_core_pinniped/golang-net-69a78807bb2b.tar.gz
+  other-url: https://golang.org/x/net
+  repository: Other
+  url: https://codeload.github.com/golang/net/tar.gz/69a78807bb2b
+  version: 69a78807bb2b
+other:x_sys:789bb1bd4061:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/tanzu_core_pinniped/golang-sys-789bb1bd4061.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/789bb1bd4061
+  version: 789bb1bd4061
+other:x_text:v0.3.4:
+  license: BSD-3-Clause
+  name: x_text
+  other-distribution: /osl_sources/tanzu_core_pinniped/golang-text-v0.3.4.tar.gz
+  other-url: https://golang.org/x/text
+  repository: Other
+  url: https://codeload.github.com/golang/text/tar.gz/v0.3.4
+  version: v0.3.4
+other:multierr:v1.5.0:
+  license: MIT
+  name: multierr
+  other-distribution: /osl_sources/tanzu_core_pinniped/uber_go-multierr-v1.5.0.tar.gz
+  other-url: https://go.uber.org/multierr
+  repository: Other
+  url: https://codeload.github.com/uber-go/multierr/tar.gz/v1.5.0
+  version: v1.5.0
+other:golang_protobuf:v1.4.3:
+  license: BSD-3-Clause
+  name: golang_protobuf
+  other-distribution: /osl_sources/tanzu_core_pinniped/golang-protobuf-v1.4.3.tar.gz
+  other-url: https://github.com/golang/protobuf
+  repository: Other
+  url: https://codeload.github.com/golang/protobuf/tar.gz/v1.4.3
+  version: v1.4.3
+other:klog_v2:v2.4.0:
+  license: Apache-2.0
+  name: klog_v2
+  other-distribution: /osl_sources/tanzu_core_pinniped/kubernetes-klog-v2.4.0.tar.gz
+  other-url: https://k8s.io/klog/v2
+  repository: Other
+  url: https://codeload.github.com/kubernetes/klog/tar.gz/v2.4.0
+  version: v2.4.0
+other:spf13_pflag:v1.0.5:
+  license: BSD-3-Clause
+  name: spf13_pflag
+  other-distribution: /osl_sources/tanzu_core_pinniped/spf13-pflag-v1.0.5.tar.gz
+  other-url: https://github.com/spf13/pflag
+  repository: Other
+  url: https://codeload.github.com/spf13/pflag/tar.gz/v1.0.5
+  version: v1.0.5
+other:gogo_protobuf_proto:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_proto
+  other-distribution: /osl_sources/tanzu_core_pinniped/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/proto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1
+other:client-go:v0.19.5:
+  license: Apache-2.0
+  name: client-go
+  other-distribution: /osl_sources/tanzu_core_pinniped/kubernetes-client-go-v0.19.5.tar.gz
+  other-url: https://k8s.io/client-go
+  repository: Other
+  url: https://codeload.github.com/kubernetes/client-go/tar.gz/v0.19.5
+  version: v0.19.5
+other:x_oauth2:5d25da1a8d43:
+  license: BSD-3-Clause
+  name: x_oauth2
+  other-distribution: /osl_sources/tanzu_core_pinniped/golang-oauth2-5d25da1a8d43.tar.gz
+  other-url: https://golang.org/x/oauth2
+  repository: Other
+  url: https://codeload.github.com/golang/oauth2/tar.gz/5d25da1a8d43
+  version: 5d25da1a8d43
+other:imdario_mergo:v0.3.10:
+  license: BSD-3-Clause
+  name: imdario_mergo
+  other-distribution: /osl_sources/tanzu_core_pinniped/imdario-mergo-v0.3.10.tar.gz
+  other-url: https://github.com/imdario/mergo
+  repository: Other
+  url: https://codeload.github.com/imdario/mergo/tar.gz/v0.3.10
+  version: v0.3.10
+other:yaml:v1.2.0:
+  license: UNKNOWN
+  name: yaml
+  other-distribution: /osl_sources/tanzu_core_pinniped/kubernetes_sigs-yaml-v1.2.0.tar.gz
+  other-url: https://sigs.k8s.io/yaml
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/yaml/tar.gz/v1.2.0
+  version: v1.2.0
+other:x_term:f5c789dd3221:
+  license: BSD-3-Clause
+  name: x_term
+  other-distribution: /osl_sources/tanzu_core_pinniped/golang-term-f5c789dd3221.tar.gz
+  other-url: https://golang.org/x/term
+  repository: Other
+  url: https://codeload.github.com/golang/term/tar.gz/f5c789dd3221
+  version: f5c789dd3221
+other:structured-merge-diff_v4:v4.0.2:
+  license: Apache-2.0
+  name: structured-merge-diff_v4
+  other-distribution: /osl_sources/tanzu_core_pinniped/kubernetes_sigs-structured-merge-diff-v4.0.2.tar.gz
+  other-url: https://sigs.k8s.io/structured-merge-diff/v4
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/structured-merge-diff/tar.gz/v4.0.2
+  version: v4.0.2
+other:api:v0.19.5:
+  license: Apache-2.0
+  name: api
+  other-distribution: /osl_sources/tanzu_core_pinniped/kubernetes-api-v0.19.5.tar.gz
+  other-url: https://k8s.io/api
+  repository: Other
+  url: https://codeload.github.com/kubernetes/api/tar.gz/v0.19.5
+  version: v0.19.5
+other:zap:v1.16.0:
+  license: MIT
+  name: zap
+  other-distribution: /osl_sources/tanzu_core_pinniped/uber_go-zap-v1.16.0.tar.gz
+  other-url: https://go.uber.org/zap
+  repository: Other
+  url: https://codeload.github.com/uber-go/zap/tar.gz/v1.16.0
+  version: v1.16.0
+other:x_time:3af7569d3a1e:
+  license: BSD-3-Clause
+  name: x_time
+  other-distribution: /osl_sources/tanzu_core_pinniped/golang-time-3af7569d3a1e.tar.gz
+  other-url: https://golang.org/x/time
+  repository: Other
+  url: https://codeload.github.com/golang/time/tar.gz/3af7569d3a1e
+  version: 3af7569d3a1e
+other:yaml_v3:eeeca48fe776:
+  license: Apache-2.0
+  name: yaml_v3
+  other-distribution: /osl_sources/tanzu_core_pinniped/go_yaml-yaml-eeeca48fe776.tar.gz
+  other-url: https://gopkg.in/yaml.v3
+  repository: Other
+  url: https://codeload.github.com/go-yaml/yaml/tar.gz/eeeca48fe776
+  version: eeeca48fe776
+other:controller-runtime:v0.7.0:
+  license: Apache-2.0
+  name: controller-runtime
+  other-distribution: /osl_sources/tanzu_core_pinniped/kubernetes_sigs-controller-runtime-v0.7.0.tar.gz
+  other-url: https://sigs.k8s.io/controller-runtime
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/controller-runtime/tar.gz/v0.7.0
+  version: v0.7.0
+other:yaml_v2:v2.3.0:
+  license: Apache-2.0
+  name: yaml_v2
+  other-distribution: /osl_sources/tanzu_core_pinniped/go_yaml-yaml-v2.3.0.tar.gz
+  other-url: https://gopkg.in/yaml.v2
+  repository: Other
+  url: https://codeload.github.com/go-yaml/yaml/tar.gz/v2.3.0
+  version: v2.3.0
+other:atomic:v1.6.0:
+  license: MIT
+  name: atomic
+  other-distribution: /osl_sources/tanzu_core_pinniped/uber_go-atomic-v1.6.0.tar.gz
+  other-url: https://go.uber.org/atomic
+  repository: Other
+  url: https://codeload.github.com/uber-go/atomic/tar.gz/v1.6.0
+  version: v1.6.0
+other:gogo_protobuf_sortkeys:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_sortkeys
+  other-distribution: /osl_sources/tanzu_core_pinniped/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/sortkeys
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1
+other:go-logr_logr:v0.3.0:
+  license: Apache-2.0
+  name: go-logr_logr
+  other-distribution: /osl_sources/tanzu_core_pinniped/go-logr-logr-v0.3.0.tar.gz
+  other-url: https://github.com/go-logr/logr
+  repository: Other
+  url: https://codeload.github.com/go-logr/logr/tar.gz/v0.3.0
+  version: v0.3.0
+other:inf_v0:v0.9.1:
+  license: BSD-3-Clause
+  name: inf_v0
+  other-distribution: /osl_sources/tanzu_core_pinniped/go_inf-inf-v0.9.1.tar.gz
+  other-url: https://gopkg.in/inf.v0
+  repository: Other
+  url: https://codeload.github.com/go-inf/inf/tar.gz/v0.9.1
+  version: v0.9.1
+other:jetstack_cert-manager:v1.1.0:
+  license: Apache-2.0
+  name: jetstack_cert-manager
+  other-distribution: /osl_sources/tanzu_core_pinniped/jetstack-cert-manager-v1.1.0.tar.gz
+  other-url: https://github.com/jetstack/cert-manager
+  repository: Other
+  url: https://codeload.github.com/jetstack/cert-manager/tar.gz/v1.1.0
+  version: v1.1.0
+other:appengine:v1.6.6:
+  license: Apache-2.0
+  name: appengine
+  other-distribution: /osl_sources/tanzu_core_pinniped/golang-appengine-v1.6.6.tar.gz
+  other-url: https://google.golang.org/appengine
+  repository: Other
+  url: https://codeload.github.com/golang/appengine/tar.gz/v1.6.6
+  version: v1.6.6
+other:apiextensions-apiserver:v0.19.2:
+  license: Apache-2.0
+  name: apiextensions-apiserver
+  other-distribution: /osl_sources/tanzu_core_pinniped/kubernetes-apiextensions-apiserver-v0.19.2.tar.gz
+  other-url: https://k8s.io/apiextensions-apiserver
+  repository: Other
+  url: https://codeload.github.com/kubernetes/apiextensions-apiserver/tar.gz/v0.19.2
+  version: v0.19.2
+other:googleapis_gnostic:v0.5.1:
+  license: Apache-2.0
+  name: googleapis_gnostic
+  other-distribution: /osl_sources/tanzu_core_pinniped/googleapis-gnostic-v0.5.1.tar.gz
+  other-url: https://github.com/googleapis/gnostic
+  repository: Other
+  url: https://codeload.github.com/googleapis/gnostic/tar.gz/v0.5.1
+  version: v0.5.1
+other:modern-go_reflect2:v1.0.1:
+  license: Apache-2.0
+  name: modern-go_reflect2
+  other-distribution: /osl_sources/tanzu_core_pinniped/modern-go-reflect2-v1.0.1.tar.gz
+  other-url: https://github.com/modern-go/reflect2
+  repository: Other
+  url: https://codeload.github.com/modern-go/reflect2/tar.gz/v1.0.1
+  version: v1.0.1
+other:json-iterator_go:v1.1.10:
+  license: MIT
+  name: json-iterator_go
+  other-distribution: /osl_sources/tanzu_core_pinniped/json-iterator-go-v1.1.10.tar.gz
+  other-url: https://github.com/json-iterator/go
+  repository: Other
+  url: https://codeload.github.com/json-iterator/go/tar.gz/v1.1.10
+  version: v1.1.10
+other:google_gofuzz:v1.2.0:
+  license: Apache-2.0
+  name: google_gofuzz
+  other-distribution: /osl_sources/tanzu_core_pinniped/google-gofuzz-v1.2.0.tar.gz
+  other-url: https://github.com/google/gofuzz
+  repository: Other
+  url: https://codeload.github.com/google/gofuzz/tar.gz/v1.2.0
+  version: v1.2.0
+other:protobuf:v1.25.0:
+  license: BSD-3-Clause
+  name: protobuf
+  other-distribution: /osl_sources/tanzu_core_pinniped/protobuf-v1.25.0.tar.gz
+  other-url: https://google.golang.org/protobuf
+  repository: Other
+  url: ""
+  version: v1.25.0
+other:generated_1_19_client:546b8b5d25c6:
+  license: Apache-2.0
+  name: generated_1_19_client
+  other-distribution: /osl_sources/tanzu_core_pinniped/generated_1_19_client-546b8b5d25c6.tar.gz
+  other-url: https://go.pinniped.dev/generated/1.19/client
+  repository: Other
+  url: ""
+  version: 546b8b5d25c6

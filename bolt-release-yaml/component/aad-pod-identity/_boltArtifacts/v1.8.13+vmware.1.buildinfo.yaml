@@ -1,0 +1,19 @@
+componentBuilds:
+- name: aad-pod-identity
+  version: v1.8.13+vmware.1
+  channel: "430911080315780559"
+  url: https://buildweb.eng.vmware.com/ob/20668452/
+  artifactURL:
+    micImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/mic:v1.8.13_vmware.1
+      sha256: b8f52dc22ae77c1a7c7e40d659bcf2d617db7570f28eb0f3493b53249e5ad8ab
+    nmiImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/nmi:v1.8.13_vmware.1
+      sha256: bf09bbe8efe5531f42601721bf3e3d4da802c4465b2bbee6b3d3106494d56cbd
+  cachehash: 6fce21c1e11e538aed42117a300cabb2
+  publishhash: 50aabeb606c793f9c64b2ae523bfb705
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.19"
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.releaseVersion: v1.8.13+vmware.1

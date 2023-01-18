@@ -1,0 +1,4 @@
+submodules:
+  - name: load-balancer-and-ingress-services-for-kubernetes/src
+    go_mod:
+      - "go.mod"

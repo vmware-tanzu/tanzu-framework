@@ -1,0 +1,14 @@
+componentBuilds:
+- name: velero-plugin-for-vsphere
+  version: v1.0.2+vmware.1
+  channel: "340484410459553799"
+  url: https://buildweb.eng.vmware.com/ob/17525948
+  artifactURL:
+    veleroDataManagerForPluginImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/data-manager-for-plugin:v1.0.2_vmware.1
+      sha256: 5e722ca3a12039e0c90a2f098be851e955747ec1889f0111f40b48d14c08b37a
+    veleroPluginForVsphereImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-vsphere:v1.0.2_vmware.1
+      sha256: 043d1756fc6eec4c8fb7c5291f99a3d994b34fe10334b98831105aa2e74f9d3a
+  cachehash: "368850704501877956"
+  publishhash: "16309643292987744457"

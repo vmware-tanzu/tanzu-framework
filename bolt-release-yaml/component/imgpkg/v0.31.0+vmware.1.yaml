@@ -1,0 +1,6 @@
+name: imgpkg
+unmanagedComponents:
+  - version: v0.31.0+vmware.1
+    gobuildBranch: vmware-0.31.0~cadc78a2f24b4fa5c333233675ca5611ccae576c
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

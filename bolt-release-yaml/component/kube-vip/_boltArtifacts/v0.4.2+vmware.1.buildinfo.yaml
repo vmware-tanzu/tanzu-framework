@@ -1,0 +1,15 @@
+componentBuilds:
+- name: kube-vip
+  version: v0.4.2+vmware.1
+  channel: "416435786951435365"
+  url: https://buildweb.eng.vmware.com/ob/20103233/
+  artifactURL:
+    kubeVipImage:
+      url: projects-stg.registry.vmware.com/tkg/kube-vip:v0.4.2_vmware.1
+      sha256: fd67e66a3e00daf45103324394650ff3deb9e3b302daacaa84a539b7b9843883
+  cachehash: e2717188c4313628e0338d67c640542f
+  publishhash: 4dc86baafbb4a81d9d1b57eee6f3b764
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: 1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32

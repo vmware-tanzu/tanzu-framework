@@ -1,0 +1,10 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: create new prometheus images
+componentReferences:
+- name: prometheus
+  version:
+  - v2.37.0+vmware.1
+- name: prometheus_node_exporter
+  version:
+  - v1.4.0+vmware.1

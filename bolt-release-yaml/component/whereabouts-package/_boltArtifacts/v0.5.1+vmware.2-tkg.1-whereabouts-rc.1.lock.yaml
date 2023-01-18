@@ -1,0 +1,10 @@
+name: whereabouts-package
+goBuildComponentLocks:
+- version: v0.5.1+vmware.2-tkg.1-whereabouts-rc.1
+  gobuildBranch: 418621578654257502-v0.5.1+vmware.2-tkg.1-whereabouts-rc.1-whereabouts-package
+  gobuildHeadCommit: dd093489f764834e94b9c41ab7953dbcf42f77c3
+  hash: e8faa33b2ac8510e23635a30ce8aa7cf
+  componentLockReferences:
+  - name: whereabouts
+    version: v0.5.1+vmware.2
+    lockHash: a7554b18ccc4a37408710f7cecb177bf

@@ -1,0 +1,9 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: tkg 1.6.0 osl process
+componentReferences:
+- name: image-builder-resource-bundle
+  version:
+  - v1.21.14+vmware.2-tkg.1-zshippable
+  - v1.22.11+vmware.2-tkg.1-zshippable
+  - v1.23.8+vmware.2-tkg.1-zshippable

@@ -1,0 +1,7 @@
+name: fluent-bit
+publish:
+  - name: fluentBitImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/fluent-bit/images/fluent-bit-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/fluent-bit/images/fluent-bit-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: fluent-bit:$UNDERSCOREVERSION

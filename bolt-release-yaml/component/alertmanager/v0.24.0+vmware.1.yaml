@@ -1,0 +1,7 @@
+name: alertmanager
+unmanagedComponents:
+  - version: v0.24.0+vmware.1
+    gobuildBranch: vmware-0.24.0~3da876a4dd5269cda7fab72d6c4b5d2573e4f869
+    dependencies:
+      gobuild.golangVersion: 1.16
+      gobuild.linux_hosttype: linux-centos72-gc32

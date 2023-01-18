@@ -1,0 +1,40 @@
+name: prometheus-package
+packages:
+- version: v2.27.0+vmware.2-tkg.2-prometheus-tf-v0.14.0
+  upstreamCommit: f82e463cae6ea1659ddba1bf8e05c84f804ae784
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: cadvisor
+    version:
+    - v0.39.1+vmware.1
+  - name: configmap-reload
+    version:
+    - v0.5.0+vmware.2
+  - name: alertmanager
+    version:
+    - v0.22.2+vmware.1
+  - name: prometheus
+    version:
+    - v2.27.0+vmware.1
+  - name: pushgateway
+    version:
+    - v1.4.0+vmware.1
+  - name: kube-state-metrics
+    version:
+    - v1.9.8+vmware.1
+  - name: prometheus_node_exporter
+    version:
+    - v1.1.2+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "prometheus").artifactURL.prometheusImage.url}}'
+    gobuild.downstream_version: vmware.2-tkg.2-tf-v0.14.0
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: prometheus
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: prom/prometheus:v2.27.0
+    gobuild.upstream_version: 2.27.0

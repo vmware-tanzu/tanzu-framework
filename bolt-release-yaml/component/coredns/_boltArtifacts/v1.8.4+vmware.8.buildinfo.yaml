@@ -1,0 +1,11 @@
+componentBuilds:
+- name: coredns
+  version: v1.8.4+vmware.8
+  channel: "398147984849684767"
+  url: https://buildweb.eng.vmware.com/ob/19471248/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.8.4_vmware.8
+      sha256: d3053d3a84336ea533d300252a30e7ab0462f50d1518b971a4d171bbd527a045
+  cachehash: cbb06f60a6c610957e6eac268bee69a3
+  publishhash: 5b23bb15efee643a4e09b711428a8a57

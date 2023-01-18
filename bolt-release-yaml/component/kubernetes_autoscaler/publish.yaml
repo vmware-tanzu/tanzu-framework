@@ -1,0 +1,7 @@
+name: kubernetes_autoscaler
+publish: 
+  - name: kubernetesAutoscalerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes_autoscaler/images/cluster-autoscaler-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes_autoscaler/images/cluster-autoscaler-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-autoscaler:$UNDERSCOREVERSION

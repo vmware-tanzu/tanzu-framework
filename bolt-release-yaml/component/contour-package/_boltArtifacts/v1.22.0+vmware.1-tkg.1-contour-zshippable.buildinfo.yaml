@@ -1,0 +1,25 @@
+componentBuilds:
+- name: contour-package
+  version: v1.22.0+vmware.1-tkg.1-contour-zshippable
+  channel: "428747345132289333"
+  url: https://buildweb.eng.vmware.com/ob/20585787/
+  artifactURL:
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.22.0_vmware.1-tkg.1-zshippable
+      sha256: a5127b203d422012b9fa560c4d4fc3c27aac239c0e14fd9cd46049c90e38d02f
+  cachehash: 84f8d578128d21efc5e545ec873f05b7
+  publishhash: acb70bf7bfe4f966ad485fc9e3085f43
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/contour:v1.22.0_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/envoy:v1.23.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: contour
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: ghcr.io/projectcontour/contour:v1.22.0
+    gobuild.upstream_image_1: docker.io/envoyproxy/envoy:v1.23.0
+    gobuild.upstream_version: 1.22.0

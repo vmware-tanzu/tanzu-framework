@@ -1,0 +1,24 @@
+componentBuilds:
+- name: ami-general-ubuntu-2004
+  version: v1.22.11+vmware.2-fips.1-tkg.1-2747d74e44044b14016ba0717a7c8277
+  channel: "422754065710093771"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/2773
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/422754065710093771/component/ami-general-ubuntu-2004/bom-ami-general-ubuntu-2004-v1.22.11+vmware.2-fips.1-tkg.1-2747d74e44044b14016ba0717a7c8277.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/422754065710093771/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.22.11+vmware.2-fips.1-tkg.1-2747d74e44044b14016ba0717a7c8277-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/422754065710093771/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.22.11+vmware.2-fips.1-tkg.1-2747d74e44044b14016ba0717a7c8277-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/422754065710093771/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.22.11+vmware.2-fips.1-tkg.1-2747d74e44044b14016ba0717a7c8277-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/422754065710093771/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.22.11+vmware.2-fips.1-tkg.1-2747d74e44044b14016ba0717a7c8277-provenance_result.txt
+  cachehash: b8bf5c4a246703b43933047beddfdff1
+  publishhash: 367c6af81c0b09e9841c9c749a141d0f
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 88edce31a8cfc66cd906fa364d7ffa7ee9b70cf4
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 214b6bb72386cd4038532eda81b8f9984b165d33

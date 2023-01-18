@@ -1,0 +1,10 @@
+name: kscom_release
+goBuildComponentLocks:
+- version: v1.20.8+vmware.1-fips.1
+  gobuildBranch: 375689291638039556-v1.20.8+vmware.1-fips.1
+  gobuildHeadCommit: eaca27310a62b113898674453b84aeac9aaf9a8b
+  hash: f24d0a4ff5199e0a68ccfe21e464e5e6
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.20.8+vmware.1-fips.1
+    lockHash: 70bb7768b6ef27aa81669faae758e753

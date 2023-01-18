@@ -1,0 +1,9 @@
+name: sonobuoy
+managedComponents:
+  - version: v0.56.13+vmware.1
+    upstreamTag: v0.56.13
+    gobuildBaseBranch: vmware-0.56.13~6ae3807d5476c5513aaa486aeb2147fa36252bbe
+    dependencies:
+      gobuild.golangVersion: 1.19.4
+      gobuild.linux_hosttype: linux-centos72-gc32
+      gobuild.containerNamePrefix: vmware.io

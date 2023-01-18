@@ -1,0 +1,24 @@
+name: cluster-api-provider-bringyourownhost
+managedComponents:
+  - version: v0.2.0+vmware.2
+    upstreamCommit: 783badf2949e3980e7c19f825da9523e81e3e0ad
+    mirrorCherryPicks: [ ]
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~49f144891bd868784a3816383aea2d5f088de68d
+    dependencies:
+      gobuild.golangVersion: 1.17.8
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    componentReferences:
+    - name: kubernetes
+      version:
+      - v1.23.5+vmware.1
+    - name: containerd
+      version:
+      - v1.6.0+vmware.2
+    - name: cri_tools
+      version:
+      - v1.22.0+vmware.5
+    - name: cni_plugins
+      version:
+      - v1.1.0+vmware.2

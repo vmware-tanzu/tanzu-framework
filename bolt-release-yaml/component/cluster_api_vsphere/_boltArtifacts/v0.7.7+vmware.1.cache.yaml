@@ -1,0 +1,7 @@
+name: cluster_api_vsphere
+goBuildComponentCaches:
+- version: v0.7.7+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/17904050/
+  buildNumber: bora-17904050
+  buildStatus: SUCCEEDED
+  hash: 609cc1013b889b904c3cc73c7020d937

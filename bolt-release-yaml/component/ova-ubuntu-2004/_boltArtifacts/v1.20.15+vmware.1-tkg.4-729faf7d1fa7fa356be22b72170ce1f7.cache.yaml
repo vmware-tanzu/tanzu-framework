@@ -1,0 +1,11 @@
+name: ova-ubuntu-2004
+imageCaches:
+- version: v1.20.15+vmware.1-tkg.4-729faf7d1fa7fa356be22b72170ce1f7
+  channel: "420069418437972911"
+  imageCacheOVA:
+    url: http://10.163.0.194/kscom-generic-local/TKG/channels/420069418437972911/component/ova-ubuntu-2004/ubuntu-2004-kube-v1.20.15+vmware.1-tkg.4-729faf7d1fa7fa356be22b72170ce1f7.ova
+    imageSHA: e376f7d204c71c65980bb49ffec57c1ec7cef881f2eb1ea2655b65e629b96ba4
+  hash: dcca9e95669430e69ed1b8f09637cf78
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2106
+  buildNumber: "2106"
+  buildStatus: SUCCEEDED

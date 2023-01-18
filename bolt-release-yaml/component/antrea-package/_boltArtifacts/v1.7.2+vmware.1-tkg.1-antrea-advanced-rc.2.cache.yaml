@@ -1,0 +1,7 @@
+name: antrea-package
+goBuildComponentCaches:
+- version: v1.7.2+vmware.1-tkg.1-antrea-advanced-rc.2
+  url: https://buildweb.eng.vmware.com/ob/21093060/
+  buildNumber: bora-21093060
+  buildStatus: SUCCEEDED
+  hash: ae64acc8351d2a838111c07a1e28731d

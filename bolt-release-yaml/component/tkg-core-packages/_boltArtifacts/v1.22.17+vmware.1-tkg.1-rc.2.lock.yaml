@@ -1,0 +1,58 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.22.17+vmware.1-tkg.1-rc.2
+  gobuildBranch: 442519250544895703-v1.22.17+vmware.1-tkg.1-rc.2-tkg-core-packages
+  gobuildHeadCommit: d0e513eccf3f8cc00ca7275b474d6e9e378970db
+  hash: 2a7ffd7f52a8de4a7626af2f272d7723
+  componentLockReferences:
+  - name: addons-manager-package
+    version: v1.6.0+vmware.1-tkg.2-addons-manager-rc.2
+    lockHash: 7ba8fbf6db1f42126979f47d4679227c
+  - name: ako-operator-package
+    version: v1.7.0+vmware.3-tkg.1-ako-operator-rc.2
+    lockHash: 67e88bc2bab151e0ac853e87f85f767d
+  - name: load-balancer-and-ingress-service-package
+    version: v1.8.2+vmware.1-tkg.1-ako-rc.2
+    lockHash: 1244565fa1d46df8bda5cb2b0bdd6464
+  - name: antrea-package
+    version: v1.7.2+vmware.1-tkg.1-antrea-advanced-rc.2
+    lockHash: c601f48ceaa20685a30ead0b51cbc207
+  - name: calico-package
+    version: v3.24.1+vmware.1-tkg.1-calico-rc.2
+    lockHash: 6fd2397969a9944baaa49cd0332c0dd2
+  - name: vsphere-csi-package
+    version: v2.6.2+vmware.2-tkg.1-vsphere-csi-rc.2
+    lockHash: 9b7623c4869cb13fcb8db63db1d84b03
+  - name: vsphere-pv-csi-package
+    version: v2.6.0+vmware.1-tkg.1-vsphere-pv-csi-rc.2
+    lockHash: 43e964002b111ace2d10c95ea85ebf08
+  - name: vsphere-cpi-package
+    version: v1.22.7+vmware.1-tkg.1-vsphere-cpi-rc.2
+    lockHash: ea795aeb7ecf9fda4f504ea6383b96d5
+  - name: metrics-server-package
+    version: v0.6.2+vmware.1-tkg.1-metrics-server-rc.2
+    lockHash: 01ffbb5ead589e29b27994fb841f48d4
+  - name: kapp-controller-package
+    version: v0.41.5+vmware.1-tkg.1-kapp-controller-rc.2
+    lockHash: 12f69a5d1382f3effd08fc8a46866dbc
+  - name: kube-vip-cloud-provider-package
+    version: v0.0.4+vmware.2-tkg.1-kube-vip-cp-rc.2
+    lockHash: 260b696745cdbe7d62f7e36b32746100
+  - name: secretgen-controller-package
+    version: v0.11.2+vmware.1-tkg.1-secgen-ctl-rc.2
+    lockHash: 728e757769646785d0239d026ee872b2
+  - name: pinniped-package
+    version: v0.12.1+vmware.2-tkg.3-pinniped-rc.2
+    lockHash: bd1a0647d815dc47b4b8ae7bf21c45ac
+  - name: guest-cluster-auth-service-package
+    version: v1.1.0-tkg.1-gc-auth-service-rc.2
+    lockHash: 574776ab5bd69c48d63ecef258137ddc
+  - name: aws-ebs-csi-driver-package
+    version: v1.8.0+vmware.2-tkg.2-aws-ebs-csi-rc.2
+    lockHash: 25a615a39a5709cbb7db9ba5943913e0
+  - name: azuredisk-csi-driver-package
+    version: v1.19.0+vmware.1-tkg.2-azuredisk-csi-rc.2
+    lockHash: bcc2cf4ddebac7cbab7b08a2a5914d9b
+  - name: azurefile-csi-driver-package
+    version: v1.21.0+vmware.1-tkg.1-azurefile-csi
+    lockHash: 213d0d6008d2ecd48bbdcc20577e43aa

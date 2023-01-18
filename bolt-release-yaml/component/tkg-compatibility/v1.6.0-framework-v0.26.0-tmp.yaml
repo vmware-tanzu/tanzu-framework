@@ -1,0 +1,17 @@
+# this file had a bug when originally created, notice the
+# difference in line 4 and line 13: v1.6.0 vs v.17.0 - we
+# mistakenly ran the automation with v1.6.0 while it should've run
+# with 1.7.0, now that the file was merged, bolt wont allow
+# renaming the files, thus changing line no 17 directly
+name: tkg-compatibility
+boms:
+- version: v1.6.0-framework-v0.26.0-tmp
+  type: tkg-compatibility
+  dependencies:
+    customCompatibilityImageDstPath: framework-zshippable/tkg-compatibility
+    customGlobalCompatibilityFileName: framework-tkg-compatibility.yaml
+    managementClusterPluginVersion: v0.26.0,v0.27.0-dev
+  componentReferences:
+  - name: tkg-bom
+    version:
+    - v1.7.0-zshippable

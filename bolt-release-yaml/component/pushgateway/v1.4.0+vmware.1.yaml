@@ -1,0 +1,7 @@
+name: pushgateway
+unmanagedComponents:
+  - version: v1.4.0+vmware.1
+    gobuildBranch: vmware-1.4.0~6658e22419031d0a25a5ee694d723980a3c03c6d
+    dependencies:
+      gobuild.golangVersion: 1.14
+      gobuild.linux_hosttype: linux-centos72-gc32

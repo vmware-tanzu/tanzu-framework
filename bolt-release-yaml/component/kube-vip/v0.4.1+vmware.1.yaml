@@ -1,0 +1,9 @@
+name: kube-vip
+managedComponents:
+  - version: v0.4.1+vmware.1
+    upstreamTag: v0.4.1
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~9b9fba46d181ee4b85639608a836240294aa62b8
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32
+      gobuild.golangVersion: 1.17.7
+      gobuild.containerNamePrefix: vmware.io

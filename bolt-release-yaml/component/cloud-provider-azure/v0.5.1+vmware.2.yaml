@@ -1,0 +1,9 @@
+# This version was originaly a managed component
+# This version was converted unmanaged to work with new build service
+# Consider making the next version a managed component
+name: cloud-provider-azure
+unmanagedComponents:
+  - version: v0.5.1+vmware.2
+    gobuildBranch: vmware-0.5.1+vmware.2
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32

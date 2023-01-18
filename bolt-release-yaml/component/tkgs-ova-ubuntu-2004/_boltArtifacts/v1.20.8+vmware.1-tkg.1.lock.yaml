@@ -1,0 +1,41 @@
+name: tkgs-ova-ubuntu-2004
+imageLocks:
+- version: v1.20.8+vmware.1-tkg.1
+  hash: "13425511129040556603"
+  componentLockReferences:
+  - name: calico_all
+    version: v3.11.2+vmware.1
+    lockHash: "12213207622810482375"
+  - name: vsphere_csi_driver_tkgs
+    version: vsphere70u3-5212290-e831b6d
+    lockHash: "13105881762066969752"
+  - name: kubernetes
+    version: v1.20.8+vmware.1
+    lockHash: "209087964061644325"
+  - name: coredns
+    version: v1.7.0+vmware.12
+    lockHash: "13010924154530806913"
+  - name: etcd
+    version: v3.4.13+vmware.14
+    lockHash: "2599290256995468511"
+  - name: antrea
+    version: v0.13.5+vmware.3
+    lockHash: "9002870060148804203"
+  - name: guest-cluster-cloud-provider
+    version: v0.1-87-gb6bb261
+    lockHash: "11385692613937805419"
+  - name: guest-cluster-auth-service
+    version: v0.1-71-g64e1c73
+    lockHash: "7377708730595700932"
+  - name: docker_distribution
+    version: 2.7.1
+    lockHash: "18233323700383608307"
+  - name: cni_plugins
+    version: v0.8.7+vmware.4
+    lockHash: "8906124615055591059"
+  - name: containerd
+    version: v1.4.6+vmware.1
+    lockHash: "16537077462211485974"
+  - name: metrics-server
+    version: v0.4.0+vmware.2
+    lockHash: "15850770206340225654"

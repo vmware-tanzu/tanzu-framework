@@ -1,0 +1,7 @@
+name: tiny-core-byoh-installer
+publish:
+  - name: tinyCoreBYOHInstallerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tiny-core-byoh-installer/images/tiny-core-byoh-installer-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tiny-core-byoh-installer/images/tiny-core-byoh-installer-controller-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tinykube/tiny-core-byoh-installer-controller:$UNDERSCOREVERSION

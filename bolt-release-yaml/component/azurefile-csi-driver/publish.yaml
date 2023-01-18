@@ -1,0 +1,7 @@
+name: azurefile-csi-driver
+publish:
+  - name: azurefileCsiDriverImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/azurefile-csi-driver/images/azurefile-csi-driver-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/azurefile-csi-driver/images/azurefile-csi-driver-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/azurefile-csi-driver:$UNDERSCOREVERSION

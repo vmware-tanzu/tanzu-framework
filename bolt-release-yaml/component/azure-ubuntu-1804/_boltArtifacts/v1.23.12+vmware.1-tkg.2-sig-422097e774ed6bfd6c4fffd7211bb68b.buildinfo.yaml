@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.23.12+vmware.1-tkg.2-sig-422097e774ed6bfd6c4fffd7211bb68b
+  channel: "430743032892004161"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/3316
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/430743032892004161/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-sig-v1.23.12+vmware.1-tkg.2-sig-422097e774ed6bfd6c4fffd7211bb68b.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/430743032892004161/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.12+vmware.1-tkg.2-sig-422097e774ed6bfd6c4fffd7211bb68b-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/430743032892004161/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.12+vmware.1-tkg.2-sig-422097e774ed6bfd6c4fffd7211bb68b-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/430743032892004161/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.12+vmware.1-tkg.2-sig-422097e774ed6bfd6c4fffd7211bb68b-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/430743032892004161/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.12+vmware.1-tkg.2-sig-422097e774ed6bfd6c4fffd7211bb68b-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/430743032892004161/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.23.12+vmware.1-tkg.2-sig-422097e774ed6bfd6c4fffd7211bb68b.json
+  cachehash: 573b2514db7b7b8d5ea9f36d3ccba4ba
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 3a1d4e12b2a0ea8488826c19ae51ff1de411da3a

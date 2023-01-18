@@ -1,0 +1,7 @@
+name: external-dns-package
+goBuildComponentCaches:
+- version: v0.12.2+vmware.1-tkg.1-external-dns-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20585785/
+  buildNumber: bora-20585785
+  buildStatus: SUCCEEDED
+  hash: 571824ac63ceb07582d9e27b9439acd2

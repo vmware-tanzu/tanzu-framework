@@ -1,0 +1,23 @@
+name: antrea-package
+packages:
+  - version: v0.13.3+vmware.1-tkg.3-antrea-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: 44dd013c20b999480c3ef82420a22f8144b2be04
+    componentReferences:
+      - name: antrea
+        version:
+          - v0.13.3+vmware.1
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: antrea
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "antrea").artifactURL.antreaImage.url}}'
+      gobuild.upstream_image_0: antrea/antrea-ubuntu:v0.13.3
+      gobuild.upstream_version: 0.13.3
+      gobuild.downstream_version: vmware.1-tkg.3-zshippable
+      gobuild.package_type: core
+      gobuild.noMirror: "true"
+      

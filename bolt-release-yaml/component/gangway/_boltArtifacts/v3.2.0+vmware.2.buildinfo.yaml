@@ -1,0 +1,11 @@
+componentBuilds:
+- name: gangway
+  version: v3.2.0+vmware.2
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/16911238
+  artifactURL:
+    gangwayImage:
+      url: projects-stg.registry.vmware.com/tkg/gangway:v3.2.0_vmware.2
+      sha256: 0c02a754542c5bbace09d5dbda04c071ede3bd3129b6c6268c9c1f6ae4c3e1b4
+  cachehash: 3c98ac2f129009e8a1b3521a6c0266a0
+  publishhash: 2881b01bc2d878a1993a1f5c7223972e

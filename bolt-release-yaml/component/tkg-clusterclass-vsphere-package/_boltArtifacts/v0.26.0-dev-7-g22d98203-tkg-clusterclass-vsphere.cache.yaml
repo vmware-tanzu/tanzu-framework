@@ -1,0 +1,7 @@
+name: tkg-clusterclass-vsphere-package
+goBuildComponentCaches:
+- version: v0.26.0-dev-7-g22d98203-tkg-clusterclass-vsphere
+  url: https://buildweb.eng.vmware.com/ob/20196564/
+  buildNumber: bora-20196564
+  buildStatus: SUCCEEDED
+  hash: e462fe42962bf9efea3d159c869dac94

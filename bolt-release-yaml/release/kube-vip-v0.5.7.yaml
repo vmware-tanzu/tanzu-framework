@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'build new kube-vip components'
+componentReferences:
+  - name: kube-vip
+    version:
+      - v0.5.7+vmware.1

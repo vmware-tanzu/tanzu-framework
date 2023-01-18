@@ -1,0 +1,7 @@
+name: velero-plugin-for-csi
+goBuildComponentLocks:
+- version: v0.3.2+vmware.1
+  gobuildBranch: vmware-0.3.2
+  gobuildHeadCommit: 315d898a17a6874c83d552a621a5ae43b1e42541
+  hash: f7e4c01e96073ba19287a3a3bf8d30ff
+  componentLockReferences: []

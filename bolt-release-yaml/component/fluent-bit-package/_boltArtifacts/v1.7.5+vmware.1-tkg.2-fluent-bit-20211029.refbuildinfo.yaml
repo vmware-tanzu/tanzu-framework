@@ -1,0 +1,11 @@
+componentBuilds:
+- name: fluent-bit
+  version: v1.7.5+vmware.1
+  channel: "359457002566470305"
+  url: https://buildweb.eng.vmware.com/ob/18055472/
+  artifactURL:
+    fluentBitImage:
+      url: projects-stg.registry.vmware.com/tkg/fluent-bit:v1.7.5_vmware.1
+      sha256: a3c976fdc7df528e044d678076cf42869d5c93eea7ee9ea38760935613e83c68
+  cachehash: f5f816787d9f23b29e70fa2fef85979d
+  publishhash: 9472a5621e642f00949ae080ba051670

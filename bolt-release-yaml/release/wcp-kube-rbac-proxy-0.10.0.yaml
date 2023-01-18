@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: "projects-stg.registry.vmware.com/tkg"
+description: "one off build to build kube-rbac-proxy v0.10.0"
+componentReferences:
+  - name: kube_rbac_proxy
+    version:
+      - v0.10.0+vmware.1

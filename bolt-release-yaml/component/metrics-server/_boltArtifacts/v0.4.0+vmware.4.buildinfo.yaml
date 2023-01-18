@@ -1,0 +1,31 @@
+componentBuilds:
+- name: metrics-server
+  version: v0.4.0+vmware.4
+  channel: "413023196174906209"
+  url: https://buildweb.eng.vmware.com/ob/19983617/
+  artifactURL:
+    metrics-server-1.19-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/413023196174906209/image-builder/metrics-server/v0.4.0+vmware.4/publish/add-on/1.19/metrics-server.yaml
+      sha256: c8b1bdb443be1abd0656ab7efd010830f1ecae6965ea06cbe8b7fb6358ee76f5
+    metrics-server-1.20-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/413023196174906209/image-builder/metrics-server/v0.4.0+vmware.4/publish/add-on/1.20/metrics-server.yaml
+      sha256: c8b1bdb443be1abd0656ab7efd010830f1ecae6965ea06cbe8b7fb6358ee76f5
+    metrics-server-1.21-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/413023196174906209/image-builder/metrics-server/v0.4.0+vmware.4/publish/add-on/1.21/metrics-server.yaml
+      sha256: c8b1bdb443be1abd0656ab7efd010830f1ecae6965ea06cbe8b7fb6358ee76f5
+    metrics-server-1.22-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/413023196174906209/image-builder/metrics-server/v0.4.0+vmware.4/publish/add-on/1.22/metrics-server.yaml
+      sha256: c8b1bdb443be1abd0656ab7efd010830f1ecae6965ea06cbe8b7fb6358ee76f5
+    metrics-server-image:
+      url: projects-stg.registry.vmware.com/tkg/metrics-server:v0.4.0_vmware.4
+      sha256: 29202d41d937f4069d32954f705f8fbdcbf6b4db7b63cd2cf1deba83282b9967
+    metrics-server-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/413023196174906209/image-builder/metrics-server/v0.4.0+vmware.4/publish/lin64/metrics-server/images/metrics-server-v0.4.0_vmware.4.tar
+      sha256: e39129397205eca5ef8eeaa54c2493b7ce342fb18589956a1faaba8749ad1760
+  cachehash: 3a4ac918b46765058b4256c6887bd615
+  publishhash: 677954988e8f3d7b8eb5ea2f90e1b665
+  configDependencies:
+    gobuild.golangVersion: 1.13.6
+    gobuild.imageName: metrics-server
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8

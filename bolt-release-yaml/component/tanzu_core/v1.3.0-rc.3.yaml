@@ -1,0 +1,16 @@
+name: tanzu_core
+managedComponents:
+- version: v1.3.0-rc.3
+  upstreamTag: v1.3.0-rc.3
+  gobuildBaseBranch: vmware-0.0.0+vmware.0
+  componentReferences:
+  - name: tkg-bom
+    version:
+    - v1.3.0-rc.3
+  dependencies:
+    gobuild.golangVersion: "1.14"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.tkgBuildContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.14
+    gobuild.tkgCliVersion: v1.3.0-rc.3
+    gobuild.tkgProvidersVersion: v1.3.0-rc.3

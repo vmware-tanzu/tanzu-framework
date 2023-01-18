@@ -1,0 +1,14 @@
+componentBuilds:
+- name: azurefile-csi-driver
+  version: v1.4.0+vmware.1
+  channel: "364818381804671657"
+  url: https://buildweb.eng.vmware.com/ob/18363313/
+  artifactURL:
+    azurefileCsiDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/azurefile-csi-driver:v1.4.0_vmware.1
+      sha256: cf2bfb06f19eafc8b0ea5c50b40aca70bf0248f4e057180363ddab90b3f08c4b
+  cachehash: "14016163007048018752"
+  publishhash: "10525789341472995903"
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: c984da331cfb745cd725351bf9bcc9ae4e2d0b6b
+testInfraVersion: d68cd5f82cc7f6f0b8851de72b6c1284752f7f62

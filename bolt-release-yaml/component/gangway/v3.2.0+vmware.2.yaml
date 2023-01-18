@@ -1,0 +1,7 @@
+name: gangway
+unmanagedComponents:
+  - version: v3.2.0+vmware.2
+    gobuildBranch: vmware-3.2.0+vmware.2
+    dependencies:
+      gobuild.golangVersion: 1.13.6
+      gobuild.linux_hosttype: linux-centos72-gc32

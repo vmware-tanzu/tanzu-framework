@@ -1,0 +1,7 @@
+name: vsphere-cpi-package
+goBuildComponentCaches:
+- version: v1.21.3+vmware.1-tkg.2-vsphere-cpi-rc.2
+  url: https://buildweb.eng.vmware.com/ob/19645986/
+  buildNumber: bora-19645986
+  buildStatus: SUCCEEDED
+  hash: 494c32b57609deac3f2afe488b7e6c8a

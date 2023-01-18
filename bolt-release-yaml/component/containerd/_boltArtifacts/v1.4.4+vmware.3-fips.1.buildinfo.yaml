@@ -1,0 +1,14 @@
+componentBuilds:
+- name: containerd
+  version: v1.4.4+vmware.3-fips.1
+  channel: "365980136601851537"
+  url: https://buildweb.eng.vmware.com/ob/18404014/
+  artifactURL:
+    file-containerd-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/component/containerd/cri-containerd-v1.4.4+vmware.3-fips.1.linux-amd64.tar
+      sha256: 786596aae68c6bb1b1e29c5db3cacf92023034a032afaa8edc39e2e6904cc0dd
+    file-containerd-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/component/containerd/cri-containerd-v1.4.4+vmware.3-fips.1.windows-amd64.tar
+      sha256: 158b1550fb0269420cfe1d70f38a95560f95c9434f945281ca85b1353bba834d
+  cachehash: 7f4b1fdad182cd3aeefaf59c5aaea812
+  publishhash: 9e0db9cd194cc80024ae3095e4ef41b3

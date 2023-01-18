@@ -1,0 +1,5 @@
+name: load-balancer-and-ingress-service
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_load-balancer-and-ingress-services-for-kubernetes.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_load-balancer-and-ingress-services-for-kubernetes.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_load-balancer-and-ingress-services-for-kubernetes.git
+gobuildTarget: cayman_load-balancer-and-ingress-service

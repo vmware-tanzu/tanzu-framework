@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-2004
+  version: v1.21.14+vmware.2-tkg.4-5b5287c9fb67c933b455ba22a49b4ac5
+  channel: "419778727015095641"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2743
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-vhd-v1.21.14+vmware.2-tkg.4-5b5287c9fb67c933b455ba22a49b4ac5.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.4-5b5287c9fb67c933b455ba22a49b4ac5-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.4-5b5287c9fb67c933b455ba22a49b4ac5-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.4-5b5287c9fb67c933b455ba22a49b4ac5-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.4-5b5287c9fb67c933b455ba22a49b4ac5-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-2004/azure-vhd-link-ubuntu-2004-v1.21.14+vmware.2-tkg.4-5b5287c9fb67c933b455ba22a49b4ac5.json
+  cachehash: 22c47d8813023845ac36674c32c1c4f3
+  publishhash: 8767b511de6ea0a35615b8bcac003cf8
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: b5d8c8f94238cb752c431c5692d442f1b71a4c00

@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-clusterclass-azure-package
+  version: v0.17.0-dev-37-g4e383ca5-tkg-clusterclass-azure
+  channel: "394845164176162914"
+  url: https://buildweb.eng.vmware.com/ob/19359516/
+  artifactURL:
+    tkg-clusterclass-azure.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-azure:v0.17.0-dev-37-g4e383ca5_vmware.1
+      sha256: b09d00c3a62dbb849de9ae43fbfbf0505a83fb81e828fcf424bc4661ecebe1ea
+  cachehash: 0f6977a913cc07f912ba9e5f5c357c56
+  publishhash: c2418f93c73e5c7d0921d16401e3c74e

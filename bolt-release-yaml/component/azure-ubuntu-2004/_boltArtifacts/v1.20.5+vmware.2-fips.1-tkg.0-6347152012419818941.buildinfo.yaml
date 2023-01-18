@@ -1,0 +1,14 @@
+componentBuilds:
+- name: azure-ubuntu-2004
+  version: v1.20.5+vmware.2-fips.1-tkg.0-6347152012419818941
+  channel: "366583225507698167"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/268
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/366583225507698167/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-vhd-v1.20.5+vmware.2-fips.1-tkg.0-6347152012419818941.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/366583225507698167/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.20.5+vmware.2-fips.1-tkg.0-6347152012419818941-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/366583225507698167/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.20.5+vmware.2-fips.1-tkg.0-6347152012419818941-osstpmgt.yaml
+  cachehash: "16994185364026616463"
+  publishhash: "7987077672333346755"

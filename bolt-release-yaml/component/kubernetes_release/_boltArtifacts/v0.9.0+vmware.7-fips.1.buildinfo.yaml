@@ -1,0 +1,11 @@
+componentBuilds:
+- name: kubernetes_release
+  version: v0.9.0+vmware.7-fips.1
+  channel: "394306514107536922"
+  url: https://buildweb.eng.vmware.com/ob/19343245/
+  artifactURL:
+    kube-cross:
+      url: projects-stg.registry.vmware.com/tkg/kube-cross:v0.9.0_vmware.7-fips.1
+      sha256: e2742d37f397a9cbca5412c3241fb99ac41b81d59e45f1696aef1411f961c258
+  cachehash: f98ca9a149a65a8255e7514bb5402ec4
+  publishhash: 7021b2705a89024d325dd8f94088cd62

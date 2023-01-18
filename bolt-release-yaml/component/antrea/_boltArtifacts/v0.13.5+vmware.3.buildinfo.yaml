@@ -1,0 +1,36 @@
+componentBuilds:
+- name: antrea
+  version: v0.13.5+vmware.3
+  channel: "377871877214835016"
+  url: https://buildweb.eng.vmware.com/ob/18516306/
+  artifactURL:
+    antctl:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18516306/publish/lin64/antrea/executables/antctl-v0.13.5+vmware.3.gz
+    antrea-1.19-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/antrea/v0.13.5+vmware.3/publish/add-on/1.19/antrea.yaml
+      sha256: 9cd754e1c9b96ec2be416a96cff22958d6e7a2db5c5ef5d4c0cbf5f9cdc588a5
+    antrea-1.20-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/antrea/v0.13.5+vmware.3/publish/add-on/1.20/antrea.yaml
+      sha256: 9cd754e1c9b96ec2be416a96cff22958d6e7a2db5c5ef5d4c0cbf5f9cdc588a5
+    antrea-1.21-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/antrea/v0.13.5+vmware.3/publish/add-on/1.21/antrea.yaml
+      sha256: 9cd754e1c9b96ec2be416a96cff22958d6e7a2db5c5ef5d4c0cbf5f9cdc588a5
+    antrea-debian-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/antrea/v0.13.5+vmware.3/publish/lin64/antrea/images/antrea-debian-v0.13.5_vmware.3.tar
+      sha256: 09a70ebfbed46ee05feda7c80611cc960f74a62e75f4c8924005b469ba0c0add
+    antrea-photon-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/antrea/v0.13.5+vmware.3/publish/lin64/antrea/images/antrea-photon-v0.13.5_vmware.3.tar
+      sha256: a4d8a2c00e65cac77a31d690a82cb41851132e132c1db0f60da39144ad6e600e
+    antrea-ubuntu-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/antrea/v0.13.5+vmware.3/publish/lin64/antrea/images/antrea-ubuntu-v0.13.5_vmware.3.tar
+      sha256: 41b8f54d791a7b8d2aaae87bd26dcb8bed3230bdaff6b58d3342002148d495e3
+    antrea-windows:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/antrea/v0.13.5+vmware.3/publish/antrea-windows-advanced.zip
+      sha256: 16f916f20fd0fcf92d2697e4c9cf316d97fe433308dcfa0c180c0cfbc71b9353
+    antreaImage:
+      url: projects-stg.registry.vmware.com/tkg/antrea/antrea-debian:v0.13.5_vmware.3
+      sha256: c0d432336a86d08ee97ebe4d4783eae72a19d85e8544977e7e058955aa440702
+    manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18516306/publish/lin64/antrea/manifests/antrea-v0.13.5+vmware.3.yml
+  cachehash: 61e7eb063e95e6b4d6d29dbbf4a3a32d
+  publishhash: dea3595d7ff1fa0808b9ed79e46cf81b

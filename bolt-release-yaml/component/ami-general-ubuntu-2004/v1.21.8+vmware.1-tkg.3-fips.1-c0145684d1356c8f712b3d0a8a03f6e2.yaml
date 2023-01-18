@@ -1,0 +1,32 @@
+name: ami-general-ubuntu-2004
+images:
+- version: v1.21.8+vmware.1-tkg.3-fips.1-c0145684d1356c8f712b3d0a8a03f6e2
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: ami
+  imageBuilderVersion: 63e3e95c84003f2beef148f297ac9f7159a8a7d4
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.23-fips.1
+  - name: coredns
+    version:
+    - v1.8.0+vmware.11-fips.1
+  - name: cri_tools
+    version:
+    - v1.20.0+vmware.9-fips.1
+  - name: etcd
+    version:
+    - v3.4.13+vmware.25-fips.1
+  - name: containerd
+    version:
+    - v1.5.9+vmware.1-fips.1
+  - name: kubernetes
+    version:
+    - v1.21.8+vmware.1-fips.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: ee098a9e69693ab184837d327b8f46a62c59bd71

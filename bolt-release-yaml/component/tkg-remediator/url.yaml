@@ -1,0 +1,5 @@
+name: tkg-remediator
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/tkg-remediator.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/tkg-remediator.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/tkg-remediator.git
+gobuildTarget: tkg-remediator

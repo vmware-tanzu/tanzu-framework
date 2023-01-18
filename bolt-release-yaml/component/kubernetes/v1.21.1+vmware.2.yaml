@@ -1,0 +1,39 @@
+name: kubernetes
+managedComponents:
+- version: v1.21.1+vmware.2
+  upstreamTag: v1.21.1
+  mirrorCherryPicks:
+  - sha: 024275a23fa6b677b921d9659e02c1394db1846d
+    description: fixes to 'docker save' to work in cayman env
+  - sha: b05c74892c3e8770ce98f27edcbae3ebb0c86d61
+    description: change build conformance image to pull debian image from harbor cache
+      registry
+  - sha: 52a63ebf33834a18a99d04cae5c5b89ef7ff2a17
+    description: Change pause tag to 3.4.1 in Makefile
+  gobuildBaseBranch: vmware-1.21.0+vmware.0~1971b86a9384bd221f57c9ec21685252898d6626
+  dependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.KUBE_BASE_IMAGE_REGISTRY: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.debian_base_image: debian-base-amd64:buster-v1.6.0
+    gobuild.debian_iptable_image: debian-iptables-amd64:buster-v1.6.0
+    gobuild.golangVersion: 1.16.4
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: 3.4.1
+    kubeadmAPIVersion: kubeadm.k8s.io/v1beta2
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.11
+  - name: coredns
+    version:
+    - v1.8.0+vmware.3
+  - name: cri_tools
+    version:
+    - v1.20.0+vmware.2
+  - name: etcd
+    version:
+    - v3.4.13+vmware.12
+  - name: containerd
+    version:
+    - v1.4.4+vmware.3

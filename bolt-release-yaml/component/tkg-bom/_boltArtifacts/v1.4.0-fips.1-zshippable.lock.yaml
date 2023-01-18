@@ -1,0 +1,140 @@
+name: tkg-bom
+bomLocks:
+- version: v1.4.0-fips.1-zshippable
+  hash: 1bf5f41fc4bee2c2927586dc05358b21
+  componentLockReferences:
+  - name: alertmanager
+    version: v0.22.2+vmware.1
+    lockHash: cfd111da22f7bcb6b75725e5ac74ba65
+  - name: cadvisor
+    version: v0.39.1+vmware.1
+    lockHash: 85ff9ae901cd89423bb23160e7c35e07
+  - name: cloud-provider-azure
+    version: v0.7.4+vmware.1
+    lockHash: 17a40ba159ba65587a62796409fd5e89
+  - name: aad-pod-identity
+    version: v1.6.3+vmware.2
+    lockHash: 4c94f6c6f7520f04b1656c94a5bd3ae6
+  - name: cluster_api
+    version: v0.3.23+vmware.1
+    lockHash: 274c1706994f030cfb4592d5ca2f1168
+  - name: cluster_api_aws
+    version: v0.6.6+vmware.1
+    lockHash: d185da7af194da635131928cb06cc8e7
+  - name: cluster_api_vsphere
+    version: v0.7.10+vmware.1
+    lockHash: 17d1811b665bbd60e15ba410155d0fc3
+  - name: cluster-api-provider-azure
+    version: v0.4.15+vmware.1
+    lockHash: 2ba7fe0dc802e1ba35630e8bd794695e
+  - name: configmap-reload
+    version: v0.5.0+vmware.1
+    lockHash: b6ae782540f42903194d78362436fcb7
+  - name: contour
+    version: v1.17.1+vmware.1
+    lockHash: 60341af32f9a611adbd302e5477176ce
+  - name: crash-diagnostics
+    version: v0.3.3+vmware.1
+    lockHash: 93e78d4843ac5b1889a56c6dfe5ff86b
+  - name: envoy
+    version: v1.18.3+vmware.1
+    lockHash: 099e1b5d43a68ef287d69d9fa81c05b4
+  - name: external-dns
+    version: v0.8.0+vmware.1
+    lockHash: 10463ad7541630ddc1af7d1deed1bc55
+  - name: fluent-bit
+    version: v1.7.5+vmware.1
+    lockHash: aef01bd4cc71c9d7197e9d67eba1993a
+  - name: gangway
+    version: v3.2.0+vmware.2
+    lockHash: 3b866257c293c8344913a5ecd8676326
+  - name: grafana
+    version: v7.5.7+vmware.1
+    lockHash: f4820c5e649d7ccd4f34f085b4f3ef40
+  - name: harbor
+    version: v2.2.3+vmware.1
+    lockHash: be37451d35ba15ca056e5a39e80e94c0
+  - name: imgpkg
+    version: v0.10.0+vmware.1
+    lockHash: b156444304d91ea53fd9331af2514db1
+  - name: jetstack_cert-manager
+    version: v1.1.0+vmware.1
+    lockHash: 533ed2bc39d5cf3d483da45130c6fe7e
+  - name: k8s-sidecar
+    version: v1.12.1+vmware.1
+    lockHash: 779fc05411dd21db1af1af07881a62aa
+  - name: k14s_kapp
+    version: v0.37.0+vmware.1
+    lockHash: 4e4ad2e9ce1a68a27f695d31083ca30d
+  - name: k14s_ytt
+    version: v0.34.0+vmware.1
+    lockHash: f2e5a165b7ecbb3757cd17d140c11889
+  - name: vendir
+    version: v0.21.1+vmware.1
+    lockHash: eb8aeba601cb563cd9efe9dc44a3c79e
+  - name: kbld
+    version: v0.30.0+vmware.1
+    lockHash: fd78ad609e0934162af970937f9068cd
+  - name: kube_rbac_proxy
+    version: v0.8.0+vmware.1
+    lockHash: 4453f4b36a1aaaa26db9d284878902a1
+  - name: kube-state-metrics
+    version: v1.9.8+vmware.1
+    lockHash: 9f1035ce8519bc45ea06b3fd49b240e8
+  - name: kube-vip
+    version: v0.3.3+vmware.1
+    lockHash: 9de4c905494a732fcea369fd0c0b3bbb
+  - name: kubernetes_autoscaler
+    version: v1.21.0+vmware.1
+    lockHash: 8fd667fc03e3789f182f9df1c14bf801
+  - name: kubernetes_autoscaler
+    version: v1.20.0+vmware.1
+    lockHash: 8469a1cdf35d80b57e50d9b7c13e3cf9
+  - name: kubernetes-sigs_kind
+    version: v1.21.2+vmware.1-fips.1
+    lockHash: bdd0afba854fe39039cd4c39e9d0e56b
+  - name: prometheus
+    version: v2.27.0+vmware.1
+    lockHash: 9d1b5234aa58c4add68a9abba62467a8
+  - name: prometheus_node_exporter
+    version: v1.1.2+vmware.1
+    lockHash: a8c414c6495d14d66238540be4eea9aa
+  - name: pushgateway
+    version: v1.4.0+vmware.1
+    lockHash: 4b20228b46f0e03cf38dfc2b5abbfe82
+  - name: sonobuoy
+    version: v0.20.0+vmware.1
+    lockHash: 9155c49f0fdb9b7828979c61839baa33
+  - name: tkg-standard-packages
+    version: v1.4.0
+    lockHash: bc552c2685d2c20c18c0a3ee657dee72
+  - name: tkg_telemetry
+    version: v1.4.0+vmware.1
+    lockHash: 89d4cc99ff7a4a979b9316b2aa5410a9
+  - name: tkr-bom
+    version: v1.21.2+vmware.1-fips.1-tkg.1-zshippable
+    lockHash: 831c9ff89973b08c2361c3c2e2593dc8
+  - name: tkr-bom
+    version: v1.20.8+vmware.1-fips.1-tkg.2-zshippable
+    lockHash: 5216aabadcb40306251d6d44a1bf84ee
+  - name: tkr-compatibility
+    version: v7-v1.4.0-fips.1-zshippable
+    lockHash: d4def87013fe2e2a831615ca777dd432
+  - name: velero
+    version: v1.6.2+vmware.1
+    lockHash: 8ee98c9110e81398a55e4a36e42ed46e
+  - name: velero-plugin-for-aws
+    version: v1.2.1+vmware.1
+    lockHash: 5be9e70b3e851968bac9d9a61301690d
+  - name: velero-plugin-for-microsoft-azure
+    version: v1.2.1+vmware.1
+    lockHash: a02a11bc36fae446160f1f6449f6feff
+  - name: velero-plugin-for-vsphere
+    version: v1.1.1+vmware.1
+    lockHash: 3d146e0caec842f311db8b95d47700c1
+  - name: multus-cni
+    version: v3.7.1+vmware.1
+    lockHash: 5ca6fb15f5d9178be5fa17606487edf7
+  - name: image-builder
+    version: v0.1.9+vmware.1
+    lockHash: 060039c66a1359b6f696eb15c6e5b891

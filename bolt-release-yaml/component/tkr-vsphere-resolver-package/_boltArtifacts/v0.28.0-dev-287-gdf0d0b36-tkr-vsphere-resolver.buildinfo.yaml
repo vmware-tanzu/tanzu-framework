@@ -1,0 +1,22 @@
+componentBuilds:
+- name: tkr-vsphere-resolver-package
+  version: v0.28.0-dev-287-gdf0d0b36-tkr-vsphere-resolver
+  channel: "442008849449254323"
+  url: https://buildweb.eng.vmware.com/ob/21074539/
+  artifactURL:
+    tkr-vsphere-resolver.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkr-vsphere-resolver:v0.28.0-dev-287-gdf0d0b36_vmware.1
+      sha256: d67335c29adc44fab1d995b4998ddfb3d7d2500f53c6e375f803b0210d8a3af1
+  cachehash: 9dc9b4a9656e1afb46ca05a6692a52be
+  publishhash: d84c7f9cb99bf099ab004d51186b56a0
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-vsphere-cluster-webhook:v0.28.0-dev-287-gdf0d0b36
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-vsphere-resolver
+    gobuild.upstream_image_0: tkr-vsphere-cluster-webhook:latest
+    gobuild.upstream_version: v0.28.0-dev-287-gdf0d0b36

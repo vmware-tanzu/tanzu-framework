@@ -1,0 +1,10 @@
+name: tkg-clusterclass-oci-package
+goBuildComponentLocks:
+- version: v0.28.0-dev-315-g22033bdc-tkg-clusterclass-oci
+  gobuildBranch: 442592012659591302-v0.28.0-dev-315-g22033bdc-tkg-clusterclass-oci-tkg-clusterclass-oci-package
+  gobuildHeadCommit: 8e4ca6f3a2dfdd1fbb06ae2aea62f90a9e50f063
+  hash: a55b71aad8ecdea94dbcd51a6c23f4d7
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.28.0-dev-315-g22033bdc
+    lockHash: b888c46dd36b9a7e3c93f9afa1645290

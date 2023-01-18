@@ -1,0 +1,12 @@
+name: kapp-controller
+publish: 
+  - name: kappControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp-controller/images/kapp-controller-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp-controller/images/kapp-controller-$UNDERSCOREVERSION-images-checksums.txt
+    destinationPath: kapp-controller:$UNDERSCOREVERSION
+nonpublish:
+  - name: kapp-controller-executable
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp-controller/executables/kapp-controller-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kapp-controller/executables/kapp-controller-linux-amd64-$VERSION.gz

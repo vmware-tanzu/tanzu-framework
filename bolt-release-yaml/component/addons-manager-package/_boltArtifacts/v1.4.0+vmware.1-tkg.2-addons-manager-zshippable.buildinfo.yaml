@@ -1,0 +1,11 @@
+componentBuilds:
+- name: addons-manager-package
+  version: v1.4.0+vmware.1-tkg.2-addons-manager-zshippable
+  channel: "378905753051761029"
+  url: https://buildweb.eng.vmware.com/ob/18838730/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/addons-manager:v1.4.0_vmware.1-tkg.2-zshippable
+      sha256: 858fb9ac27eb984020637d557584c47e12f773ed757b6d5597b65a28838f2f90
+  cachehash: b514cb4dc713a25d32eeeb58b9ba24e2
+  publishhash: 58a059db5fc330daefe5cd936034d00c

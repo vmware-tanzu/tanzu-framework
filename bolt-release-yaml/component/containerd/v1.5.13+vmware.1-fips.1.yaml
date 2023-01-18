@@ -1,0 +1,7 @@
+name: containerd
+unmanagedComponents:
+  - version: v1.5.13+vmware.1-fips.1
+    gobuildBranch: v1.5.13+vmware.1-fips.1~f68c50de28adb86a6c36ac07358336179229a39f
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32
+      # cri-tools will be updated as part of the component/cri-tools.

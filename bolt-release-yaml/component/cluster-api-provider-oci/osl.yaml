@@ -1,0 +1,4 @@
+submodules:
+  - name: cluster-api-provider-oci/src
+    go_mod:
+      - "go.mod"

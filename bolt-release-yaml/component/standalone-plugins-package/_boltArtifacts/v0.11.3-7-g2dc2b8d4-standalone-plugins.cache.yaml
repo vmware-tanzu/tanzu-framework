@@ -1,0 +1,7 @@
+name: standalone-plugins-package
+goBuildComponentCaches:
+- version: v0.11.3-7-g2dc2b8d4-standalone-plugins
+  url: https://buildweb.eng.vmware.com/ob/19576586/
+  buildNumber: bora-19576586
+  buildStatus: SUCCEEDED
+  hash: 9bc67ee5d0ad211b544cc9a9fd065733

@@ -1,0 +1,16 @@
+componentBuilds:
+- name: kustomize-controller
+  version: v0.24.4+vmware.1
+  channel: "410191984452443484"
+  url: https://buildweb.eng.vmware.com/ob/19865714
+  artifactURL:
+    kustomizeControllerExecutable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19865714/publish/lin64/kustomize-controller/executables/kustomize-controller-v0.24.4+vmware.1
+    kustomizeControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/fluxcd/kustomize-controller:v0.24.4_vmware.1
+      sha256: 020c32144a4d990b2a45ca942ac4aed97b210582e8501c7ad56b3c162e11fdb5
+  cachehash: 7577fc0cfc2f3675754200f08410e18e
+  publishhash: 8281fd6f18974b4b8156ae08aa7d7e43
+  configDependencies:
+    gobuild.golangVersion: 1.17.6
+    gobuild.linux_hosttype: linux-centos72-gc32

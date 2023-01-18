@@ -1,0 +1,8 @@
+name: cluster-api-provider-oci
+upstreamURL: git@github.com:oracle/cluster-api-provider-oci.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_cluster-api-provider-oci.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_cluster-api-provider-oci.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_cluster-api-provider-oci.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_cluster-api-provider-oci.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_cluster-api-provider-oci.git
+gobuildTarget: cayman_cluster-api-provider-oci

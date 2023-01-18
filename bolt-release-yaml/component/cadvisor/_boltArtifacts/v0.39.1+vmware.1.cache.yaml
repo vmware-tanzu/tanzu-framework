@@ -1,0 +1,7 @@
+name: cadvisor
+goBuildComponentCaches:
+- version: v0.39.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18468984/
+  buildNumber: bora-18468984
+  buildStatus: SUCCEEDED
+  hash: 9c1f8f93fdffe8d74d945376dcc957f3

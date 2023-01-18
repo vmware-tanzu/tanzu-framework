@@ -1,0 +1,32 @@
+name: ova-ubuntu-2004
+images:
+- version: v1.22.1+vmware.1-tkg.1-132753077055033639
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: e56122226e1447eb21327f2ac4f98bde0e422b83
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v0.9.1+vmware.3
+  - name: coredns
+    version:
+    - v1.8.4+vmware.3
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.3
+  - name: etcd
+    version:
+    - v3.5.0+vmware.3
+  - name: containerd
+    version:
+    - v1.5.5+vmware.2
+  - name: kubernetes
+    version:
+    - v1.22.1+vmware.1
+  dependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: e8e53644a9fe8bbd273ba7a4c4061da994404692

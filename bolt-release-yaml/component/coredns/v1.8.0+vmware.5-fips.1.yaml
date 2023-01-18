@@ -1,0 +1,24 @@
+name: coredns
+managedComponents:
+- version: v1.8.0+vmware.5-fips.1
+  upstreamTag: v1.8.0
+  mirrorCherryPicks:
+    - sha: c0db71f5b745416500103b0636b2c7b4fb38d9f8
+      description: 'Makefile respects `$CGO_ENABLED`'
+    - sha: 489915c2a8f891963def2d8f8f3369635ed94711
+      description: 'Base image can be specified via `--build-arg`'
+    - sha: d614196a61866d14a4af02c8a6c9791d07e0223d
+      description: 'Debian image is configurable via `--build-arg`'
+    - sha: 569720a38dcc0bd8fd0bee8d64c62e69eee0a0d7
+      description: 'apt sources uses build-artifactory.eng.vmware.com'
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~57ac6d6792a5120b845f937f7aab0de38e130b07
+  dependencies:
+    gobuild.golangImageRegistry: # intentionally blank
+    gobuild.golangImageName: "goboring/golang" # `_/` prefix require `library/` prefix in harbor cache
+    gobuild.golangImageVersion: "1.16.5b7"
+    gobuild.cgoEnabled: 1
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.base_image: debian-base-amd64:buster-v1.2.0
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.imagePath: coredns
+    gobuild.linux_hosttype: linux-centos8

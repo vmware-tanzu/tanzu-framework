@@ -1,0 +1,22 @@
+name: kapp-controller-package
+packages:
+  - version: v0.30.1+vmware.1-tkg.2-kapp-controller-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: f25a8cceb7098dfc443a661bf45ad44d8f432385
+    componentReferences:
+      - name: kapp-controller
+        version:
+          - v0.30.1+vmware.1
+    dependencies:
+      gobuild.noMirror: "true"
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: kapp-controller
+      gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kapp-controller").artifactURL.kappControllerImage.url}}'
+      gobuild.upstream_image_0: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:4141b93108b1f3431e786638a115a7e0876d756e7a13acfddd7aaa3bae41e202
+      gobuild.upstream_version: 0.30.1
+      gobuild.downstream_version: vmware.1-tkg.2-zshippable
+      gobuild.package_type: core
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg

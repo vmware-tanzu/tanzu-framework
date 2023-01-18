@@ -1,0 +1,10 @@
+name: cloud-provider-azure
+unmanagedComponents:
+  - version: v1.24.10+vmware.1
+    upstreamTag: v1.24.10
+    gobuildBranch: vmware-1.24.10+vmware.1~dd11d90e806d9af03197387eef428b3b1c16784d
+    dependencies:
+      gobuild.golangVersion: 1.19.2-buster
+      gobuild.releaseVersion: v1.24.10+vmware.1
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,70 @@
+name: tkgs-ova-ubuntu-2004
+images:
+  - version: v1.21.6+vmware.1-tkg.2
+    osinfo:
+      name: ubuntu
+      version: "2004"
+      arch: amd64
+    type: ova
+    imageBuilderVersion: 9330b3d349a952d0e799fc61aa931c7593f24b0b
+    componentReferences:
+      - name: kubernetes
+        version:
+          - v1.21.6+vmware.1
+      - name: etcd
+        version:
+          - v3.4.13+vmware.22
+      - name: coredns
+        version:
+          - v1.8.0+vmware.9
+      - name: cni_plugins
+        version:
+          - v0.8.7+vmware.21
+      - name: calico_all
+        version:
+          - v3.11.2+vmware.1
+      - name: guest-cluster-auth-service
+        version:
+          - v0.1-71-g64e1c73
+      - name: cloud_provider_vsphere
+        version:
+          - v1.21.0+vmware.2
+      - name: vsphere_csi_driver_tkgs
+        version:
+          - v2.3.0-d154d1c
+      - name: antrea
+        version:
+          - v0.13.5+vmware.4
+      - name: containerd
+        version:
+          - v1.4.11+vmware.1
+      - name: metrics-server
+        version:
+          - v0.4.0+vmware.3
+      - name: docker_distribution
+        version:
+          - 2.7.1
+    dependencies:
+      base_iso_sha: f11bda2f2caed8f420802b59f382c25160b114ccc665dbac9c5046e7fceaced2
+      base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04.1-legacy-server-amd64.iso
+      jenkins.TKGS_BUILDINFO_URL: $REFBUILDINFO_URL
+      jenkins.TARGET: ubuntu-2004-efi
+      #According to https://jira.eng.vmware.com/browse/GCM-5892 , this commit hash should actually be
+      #685ae509111454abbce146b5320ebf00cc9a4717
+      #
+      #However, in spite of not changing the commit hash, the build given to system test has the correct artifacts.
+      #
+      #We believe this is because of an issue with Jenkins where the latest commit hash from image-builder was used regardless
+      #of what was provided here.
+      #
+      #Original build given to ST: https://buildweb.eng.vmware.com/ob/19241071/
+      #Jenkins job: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgs-build-ova/100/consoleFull
+      #
+      #Build approved by ST: https://buildweb.eng.vmware.com/ob/19344082/
+      #Jenkins job: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgs-build-ova/108/consoleFull
+      #
+      #As can be seen in the Jenkins log, 108 fixes the bug even though we are using the wrong commit hash.
+      #
+      #Since modifying this commit hash would require a full system test run through, we are adding this comment and leaving this
+      #hash as it is.
+      jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: f6ff3f08f1a6085d8f185163d5e5a264caa88dd4

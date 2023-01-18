@@ -1,0 +1,52 @@
+name: tkg-core-packages
+publish:
+- name: ako-operator.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/ako-operator-v1.5.0_vmware.1-tkg.1-20211013-a683575c.tar.gz
+  destinationPath: packages/core/ako-operator:v1.5.0_vmware.1-tkg.1-20211013-a683575c
+- name: load-balancer-and-ingress-service.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/load-balancer-and-ingress-service-v1.5.3_vmware.1-tkg.1-20211013-a683575c.tar.gz
+  destinationPath: packages/core/load-balancer-and-ingress-service:v1.5.3_vmware.1-tkg.1-20211013-a683575c
+- name: antrea.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/antrea-v0.11.3_vmware.2-tkg.2-20211013-a683575c.tar.gz
+  destinationPath: packages/core/antrea:v0.11.3_vmware.2-tkg.2-20211013-a683575c
+- name: calico.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/calico-v3.11.3_vmware.1-tkg.2-20211013-a683575c.tar.gz
+  destinationPath: packages/core/calico:v3.11.3_vmware.1-tkg.2-20211013-a683575c
+- name: vsphere-csi.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/vsphere-csi-v2.3.0_vmware.1-tkg.3-20211013-a683575c.tar.gz
+  destinationPath: packages/core/vsphere-csi:v2.3.0_vmware.1-tkg.3-20211013-a683575c
+- name: vsphere-cpi.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/vsphere-cpi-v1.20.0_vmware.1-tkg.2-20211013-a683575c.tar.gz
+  destinationPath: packages/core/vsphere-cpi:v1.20.0_vmware.1-tkg.2-20211013-a683575c
+- name: addons-manager.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/addons-manager-v1.4.0_vmware.1-tkg.2-20211013-a683575c.tar.gz
+  destinationPath: packages/core/addons-manager:v1.4.0_vmware.1-tkg.2-20211013-a683575c
+- name: metrics-server.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/metrics-server-v0.4.0_vmware.1-tkg.2-20211013-a683575c.tar.gz
+  destinationPath: packages/core/metrics-server:v0.4.0_vmware.1-tkg.2-20211013-a683575c
+- name: kapp-controller.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/kapp-controller-v0.25.0_vmware.1-tkg.1-20211013-a683575c.tar.gz
+  destinationPath: packages/core/kapp-controller:v0.25.0_vmware.1-tkg.1-20211013-a683575c
+- name: secretgen-controller.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/secretgen-controller-v0.5.0_vmware.1-tkg.1-20211013-a683575c.tar.gz
+  destinationPath: packages/core/secretgen-controller:v0.5.0_vmware.1-tkg.1-20211013-a683575c
+- name: pinniped.tanzu.vmware.com
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-bundles/core/pinniped-v0.4.4_vmware.1-tkg.2-20211013-a683575c.tar.gz
+  destinationPath: packages/core/pinniped:v0.4.4_vmware.1-tkg.2-20211013-a683575c
+- name: tanzuCorePackageRepositoryImage
+  type: imgpkg-bundle
+  sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-core-packages/package-repo-bundles/core/tkg-core-repo-{{underscoredplus
+    (index .config "managedComponents" 0 "dependencies" "gobuild.releaseVersion")}}.tar.gz
+  destinationPath: packages/core/repo:{{underscoredplus (index .config "managedComponents"
+    0 "dependencies" "gobuild.releaseVersion")}}

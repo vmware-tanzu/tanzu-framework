@@ -1,0 +1,18 @@
+componentBuilds:
+- name: tinykube
+  version: v1.22.13+vmware.1
+  channel: "427359637323417911"
+  url: https://buildweb.eng.vmware.com/ob/20532293/
+  artifactURL:
+    tinykubeExecutable:
+      url: projects-stg.registry.vmware.com/tkg/tinykube/tinykube-linux-amd64:v1.22.13_vmware.1
+      sha256: ec507fb9d847df44527519c594b40ade091e8ebf18b467362a46ca4746bd69d9
+  cachehash: 1eddbb19bbabbfb02ccb5d4fd7ed0218
+  publishhash: 6e149714308578bc6fb045693224a6e7
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.noMirror: "true"
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 6a696b948f8f082740b318e4e645672017482ed4
+testInfraVersion: aa0af0931947f6f3e125d16a1576aa92edd582d7

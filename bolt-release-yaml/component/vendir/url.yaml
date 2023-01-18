@@ -1,0 +1,4 @@
+name: vendir
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_carvel-vendir.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_carvel-vendir.git
+gobuildTarget: cayman_carvel-vendir

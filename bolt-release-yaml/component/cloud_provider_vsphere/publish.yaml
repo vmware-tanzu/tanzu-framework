@@ -1,0 +1,7 @@
+name: cloud_provider_vsphere
+publish:
+  - name: ccmControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cloud_provider_vsphere/images/cloud-provider-vsphere-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cloud_provider_vsphere/images/cloud-provider-vsphere-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: ccm/manager:$UNDERSCOREVERSION

@@ -1,0 +1,19 @@
+name: tkg-clusterclass-azure-package
+packages:
+- version: v0.20.0-dev-33-g4e1c8c4c-tkg-clusterclass-azure
+  upstreamCommit: 4e1c8c4cf0b3040c45090f4aef4291e45aa02313
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~ab726d3afc0fc8720fa8afc822b6292c7ea0a370
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.20.0-dev-33-g4e1c8c4c
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-azure
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.20.0-dev-33-g4e1c8c4c

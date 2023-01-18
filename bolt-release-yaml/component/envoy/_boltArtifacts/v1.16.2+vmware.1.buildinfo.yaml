@@ -1,0 +1,13 @@
+componentBuilds:
+- name: envoy
+  version: v1.16.2+vmware.1
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/17448739
+  artifactURL:
+    envoy-file:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17448739/publish/lin64/envoy/executables/envoy-v1.16.2+vmware.1.gz
+    envoyImage:
+      url: projects-stg.registry.vmware.com/tkg/envoy:v1.16.2_vmware.1
+      sha256: 4664b9723dbf7255e256613bd6eab510020ecfdf9dd6fc676242d45144ed4f3d
+  cachehash: "18076567156715706458"
+  publishhash: "9240563484861638280"

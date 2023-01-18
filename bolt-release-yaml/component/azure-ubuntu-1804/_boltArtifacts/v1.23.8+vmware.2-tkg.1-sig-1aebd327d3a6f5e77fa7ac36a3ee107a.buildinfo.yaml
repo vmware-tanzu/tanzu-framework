@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.23.8+vmware.2-tkg.1-sig-1aebd327d3a6f5e77fa7ac36a3ee107a
+  channel: "417569215029974416"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2566
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-sig-v1.23.8+vmware.2-tkg.1-sig-1aebd327d3a6f5e77fa7ac36a3ee107a.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.8+vmware.2-tkg.1-sig-1aebd327d3a6f5e77fa7ac36a3ee107a-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.8+vmware.2-tkg.1-sig-1aebd327d3a6f5e77fa7ac36a3ee107a-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.8+vmware.2-tkg.1-sig-1aebd327d3a6f5e77fa7ac36a3ee107a-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.23.8+vmware.2-tkg.1-sig-1aebd327d3a6f5e77fa7ac36a3ee107a-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/417352500593561757/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.23.8+vmware.2-tkg.1-sig-1aebd327d3a6f5e77fa7ac36a3ee107a.json
+  cachehash: 2d35871167c602ec1e77d40001ef9094
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: dd228b3715c62a41fd300bdc590ad0d30107a5f8

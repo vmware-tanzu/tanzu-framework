@@ -1,0 +1,35 @@
+# STIG Enabled for 1.6.0 and later release only
+name: ova-photon-3
+images:
+- version: v1.22.8+vmware.1-tkg.4-f89148b2a4aa7ef6d5380cc365cac8ef
+  osinfo:
+    name: photon
+    version: "3"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: 5fe7d29f65605bb5b1055035ca343c7b53818a42
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.0+vmware.1
+  - name: coredns
+    version:
+    - v1.8.4+vmware.9
+  - name: cri_tools
+    version:
+    - v1.21.0+vmware.9
+  - name: etcd
+    version:
+    - v3.5.2+vmware.3
+  - name: containerd
+    version:
+    - v1.5.9+vmware.2
+  - name: kubernetes
+    version:
+    - v1.22.8+vmware.1
+  dependencies:
+    base_iso_sha: c2883a42e402a2330d9c39b4d1e071cf9b3b5898
+    base_iso_url: https://packages.vmware.com/photon/3.0/Rev3/iso/photon-minimal-3.0-a383732.iso
+    jenkins.PHOTON3_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/photon-3-stig-hardening.git
+    jenkins.PHOTON3_STIG_VERSION: 8cd1ee34346dbd5ebc6abe09cc519fe8216c6335
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 03e66808b526af58c4c58a8220bc6038513f769d

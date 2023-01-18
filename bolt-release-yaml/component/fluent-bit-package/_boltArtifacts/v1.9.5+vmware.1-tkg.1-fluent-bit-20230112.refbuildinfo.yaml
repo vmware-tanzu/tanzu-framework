@@ -1,0 +1,14 @@
+componentBuilds:
+- name: fluent-bit
+  version: v1.9.5+vmware.1
+  channel: "430798158176459638"
+  url: https://buildweb.eng.vmware.com/ob/20626116
+  artifactURL:
+    fluentBitImage:
+      url: projects-stg.registry.vmware.com/tkg/fluent-bit:v1.9.5_vmware.1
+      sha256: d567675d8a13b880628345b9c74afc073df9ffa47e4b49675ca936a72104cd5a
+  cachehash: fe3a1117e912efd27497b3f8f6817301
+  publishhash: 9472a5621e642f00949ae080ba051670
+  configDependencies:
+    gobuild.golangVersion: 1.13.6
+    gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,7 @@
+name: cluster-api-ipam-provider-in-cluster
+goBuildComponentCaches:
+- version: v0.1.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20882259/
+  buildNumber: bora-20882259
+  buildStatus: SUCCEEDED
+  hash: 431b9e446f8b1b480071d472424b44d8

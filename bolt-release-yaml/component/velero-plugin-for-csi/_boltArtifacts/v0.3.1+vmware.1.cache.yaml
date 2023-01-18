@@ -1,0 +1,7 @@
+name: velero-plugin-for-csi
+goBuildComponentCaches:
+- version: v0.3.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20603535
+  buildNumber: bora-20603535
+  buildStatus: SUCCEEDED
+  hash: 3a91443df45d8448521dd98027f59b71

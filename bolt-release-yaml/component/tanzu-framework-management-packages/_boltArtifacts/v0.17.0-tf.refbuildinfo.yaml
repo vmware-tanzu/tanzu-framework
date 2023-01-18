@@ -1,0 +1,81 @@
+componentBuilds:
+- name: featuregates-package
+  version: v0.17.0-tf-featuregates
+  channel: "395110461068036753"
+  url: https://buildweb.eng.vmware.com/ob/19368534/
+  artifactURL:
+    featuregates.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/featuregates:v0.17.0-tf_vmware.1
+      sha256: ff56edf799f2a8c94f19fd72e14c45eb794a69cc9f2b45736110a9b60fd70f28
+  cachehash: d01af590b476973191e03943d9b4c10e
+  publishhash: b18039830ec752877daef8e6ef1178e5
+- name: core-management-plugins-package
+  version: v0.17.0-tf-core-mgmt-plugins
+  channel: "395110461068036753"
+  url: https://buildweb.eng.vmware.com/ob/19368510/
+  artifactURL:
+    core-management-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/core-management-plugins:v0.17.0-tf_vmware.1
+      sha256: 40e67fe2d9d99804363089b3d2af65d39c48930255a954f699e9cb057d081b6e
+  cachehash: 877eae7d90dcedf5b304d838d02c2f32
+  publishhash: 0ecf4d581065b27bd73a811ba24a7c7e
+- name: tkg-package
+  version: v0.17.0-tf-tkg
+  channel: "395110461068036753"
+  url: https://buildweb.eng.vmware.com/ob/19368535/
+  artifactURL:
+    tkg.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg:v0.17.0-tf_vmware.1
+      sha256: 0db3c27b46a2509d4f66de6412ef00d0837091bc1ea270230340ccae52474614
+  cachehash: c987374e9f622b0dd416bc13e04a867e
+  publishhash: b50bfb418ec98d4f672d28d855f6e5b2
+- name: tkg-clusterclass-package
+  version: v0.17.0-tf-tkg-clusterclass
+  channel: "395110461068036753"
+  url: https://buildweb.eng.vmware.com/ob/19368508/
+  artifactURL:
+    tkg-clusterclass.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass:v0.17.0-tf_vmware.1
+      sha256: 6d34d63da41eca99b811c7e20b968357bbc00c5a4abae19154b5fe44f9855a73
+  cachehash: df9557cb809f960da181c29137d769f6
+  publishhash: 81b79b50fa2579627d2a9dc4a8ce3b7a
+- name: tkg-clusterclass-aws-package
+  version: v0.17.0-tf-tkg-clusterclass-aws
+  channel: "395110461068036753"
+  url: https://buildweb.eng.vmware.com/ob/19368536/
+  artifactURL:
+    tkg-clusterclass-aws.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-aws:v0.17.0-tf_vmware.1
+      sha256: b76a455156722b99de517449e7c9f7a0574348defb3d088194edb913b159680c
+  cachehash: 4c98a3f2dc14872199a1b131601cbcc6
+  publishhash: 125ec7a1bc39baef747260e4f78167fa
+- name: tkg-clusterclass-vsphere-package
+  version: v0.17.0-tf-tkg-clusterclass-vsphere
+  channel: "395110461068036753"
+  url: https://buildweb.eng.vmware.com/ob/19368511/
+  artifactURL:
+    tkg-clusterclass-vsphere.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-vsphere:v0.17.0-tf_vmware.1
+      sha256: 0fd4a9f3699de9e00d46bc9638d1bff3527f3d82a123d2b3c2a780cae271cd17
+  cachehash: 3338d21f2784780f74f67d6b904ac366
+  publishhash: d03e78e5fad5fe181b44a702c65769ab
+- name: tkg-clusterclass-azure-package
+  version: v0.17.0-tf-tkg-clusterclass-azure
+  channel: "395110461068036753"
+  url: https://buildweb.eng.vmware.com/ob/19368532/
+  artifactURL:
+    tkg-clusterclass-azure.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-azure:v0.17.0-tf_vmware.1
+      sha256: b09d00c3a62dbb849de9ae43fbfbf0505a83fb81e828fcf424bc4661ecebe1ea
+  cachehash: 09f78125637a10bd8b1306a0bf902c69
+  publishhash: c2418f93c73e5c7d0921d16401e3c74e
+- name: tkg-clusterclass-docker-package
+  version: v0.17.0-tf-tkg-clusterclass-docker
+  channel: "395110461068036753"
+  url: https://buildweb.eng.vmware.com/ob/19368509/
+  artifactURL:
+    tkg-clusterclass-docker.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-docker:v0.17.0-tf_vmware.1
+      sha256: c35b9b2c810fa5e46f5108dcb217848e226610d1977e6f51708faa175693c41d
+  cachehash: c2a84670d56811e0e8590e272cc1c2cd
+  publishhash: 7bd05f927afe0e6ab7d7d37ee4f30d36

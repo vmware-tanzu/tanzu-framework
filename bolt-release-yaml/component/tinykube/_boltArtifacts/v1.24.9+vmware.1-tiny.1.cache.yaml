@@ -1,0 +1,7 @@
+name: tinykube
+goBuildComponentCaches:
+- version: v1.24.9+vmware.1-tiny.1
+  url: https://buildweb.eng.vmware.com/ob/20987677/
+  buildNumber: bora-20987677
+  buildStatus: SUCCEEDED
+  hash: efe65ef92479974d6ec1f11d057c29d5

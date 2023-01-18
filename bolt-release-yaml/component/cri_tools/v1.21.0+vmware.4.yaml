@@ -1,0 +1,12 @@
+name: cri_tools
+managedComponents:
+- version: v1.21.0+vmware.4
+  upstreamTag: v1.21.0
+  gobuildBaseBranch: vmware-1.21.0+vmware.0~c12b88b8655312ce41b8194668e0457f6d0c81e4
+  dependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "0"
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.16.8
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8

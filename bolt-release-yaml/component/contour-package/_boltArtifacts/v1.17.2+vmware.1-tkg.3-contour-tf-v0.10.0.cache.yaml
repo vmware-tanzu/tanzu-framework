@@ -1,0 +1,7 @@
+name: contour-package
+goBuildComponentCaches:
+- version: v1.17.2+vmware.1-tkg.3-contour-tf-v0.10.0
+  url: https://buildweb.eng.vmware.com/ob/18870171/
+  buildNumber: bora-18870171
+  buildStatus: SUCCEEDED
+  hash: 723eef836dcc4d9da018dfe9aaa8d64e

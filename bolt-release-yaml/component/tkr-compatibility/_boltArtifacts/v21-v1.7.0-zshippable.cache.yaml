@@ -1,0 +1,6 @@
+name: tkr-compatibility
+bomCaches:
+- version: v21-v1.7.0-zshippable
+  channel: "441932587791814641"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441932587791814641/component/tkr-compatibility/_boltArtifacts/tkr-compatibility-v21-v1.7.0-zshippable.yaml
+  hash: f453484f2af1e0209e933e2a0e58dcde

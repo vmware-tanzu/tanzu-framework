@@ -1,0 +1,23 @@
+componentBuilds:
+- name: fluxcd-helm-controller-package
+  version: v0.21.0+vmware.1-tkg.1-helm-ctrl-zshippable
+  channel: "410191984452443484"
+  url: https://buildweb.eng.vmware.com/ob/19885955/
+  artifactURL:
+    fluxcd-helm-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluxcd-helm-controller:v0.21.0_vmware.1-tkg.1-zshippable
+      sha256: 2c4696672f8c0865b15c201208602a0ec78e870d866657969164a9067f4d9978
+  cachehash: 3b55f39c3bc22e848b8b445acf7df49b
+  publishhash: 3c5ee72907ec3f9ee25978efc1875524
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluxcd/helm-controller:v0.21.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluxcd-helm-controller
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluxcd/helm-controller:v0.21.0
+    gobuild.upstream_version: 0.21.0

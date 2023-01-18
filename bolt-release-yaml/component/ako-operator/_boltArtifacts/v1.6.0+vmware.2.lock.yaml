@@ -1,0 +1,7 @@
+name: ako-operator
+goBuildComponentLocks:
+- version: v1.6.0+vmware.2
+  gobuildBranch: 393433574470079939-v1.6.0+vmware.2
+  gobuildHeadCommit: 33e83e4c194aa9faf14b56a52409fab012a9861f
+  hash: 52112d39e56b5976d1c9f7355d74b03e
+  componentLockReferences: []

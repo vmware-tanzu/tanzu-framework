@@ -1,0 +1,7 @@
+name: tkg_extensions
+goBuildComponentLocks:
+- version: v1.3.0+vmware.1
+  gobuildBranch: vmware-1.3.0
+  gobuildHeadCommit: 93b3f75041e1b098ef1403f44bf52d150720816f
+  hash: "4989867218862136489"
+  componentLockReferences: []

@@ -1,0 +1,7 @@
+name: etcd
+goBuildComponentLocks:
+- version: v3.5.5+vmware.2
+  gobuildBranch: 436521437331752676-v3.5.5+vmware.2-etcd
+  gobuildHeadCommit: 218fc28400615f53c7ddec889621fbe281ac08a6
+  hash: 63b7560e40de04a6f62036625e77e699
+  componentLockReferences: []

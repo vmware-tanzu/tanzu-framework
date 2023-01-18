@@ -1,0 +1,23 @@
+componentBuilds:
+- name: fluent-bit-package
+  version: v1.8.15+vmware.1-tkg.1-fluent-bit-tf-v0.25.1
+  channel: "427263834957289364"
+  url: https://buildweb.eng.vmware.com/ob/20528373/
+  artifactURL:
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.8.15_vmware.1-tkg.1-tf-v0.25.1
+      sha256: d9e6bed7cc431b5bbb32d02a533229d302e5b9ceec492a129b82c05853fe1f2c
+  cachehash: 79859faaeed268154b6e2aae60d76a76
+  publishhash: 51ef43745ce53777a2a953caa9ef223e
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluent-bit:v1.8.15_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-tf-v0.25.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluent-bit
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluent/fluent-bit:1.8.15
+    gobuild.upstream_version: 1.8.15

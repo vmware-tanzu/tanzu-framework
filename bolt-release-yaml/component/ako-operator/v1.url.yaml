@@ -1,0 +1,8 @@
+name: ako-operator
+upstreamURL: https://github.com/vmware-samples/load-balancer-operator-for-kubernetes.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_load-balancer-operator-for-kubernetes.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_load-balancer-operator-for-kubernetes.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_load-balancer-operator-for-kubernetes.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_load-balancer-operator-for-kubernetes.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_load-balancer-operator-for-kubernetes.git
+gobuildTarget: cayman_ako-operator

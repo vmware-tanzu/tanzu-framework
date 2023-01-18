@@ -1,0 +1,5 @@
+name: vsphere_csi_driver_tkgs
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/vsphere-csi-driver.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/vsphere-csi-driver.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/vsphere-csi-driver.git
+gobuildTarget: vsphere_csi_driver

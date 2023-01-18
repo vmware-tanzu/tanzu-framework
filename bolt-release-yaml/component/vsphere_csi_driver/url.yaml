@@ -1,0 +1,8 @@
+name: vsphere_csi_driver
+upstreamURL: https://github.com/kubernetes-sigs/vsphere-csi-driver.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_vsphere-csi-driver.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_vsphere-csi-driver.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_vsphere-csi-driver.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_vsphere-csi-driver.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_vsphere-csi-driver.git
+gobuildTarget: cayman_vsphere_csi_driver

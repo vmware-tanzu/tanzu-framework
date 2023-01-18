@@ -1,0 +1,7 @@
+name: fluent-bit-package
+goBuildComponentCaches:
+- version: v1.7.5+vmware.2-tkg.2-fluent-bit-tf-v0.18.0
+  url: https://buildweb.eng.vmware.com/ob/19508250/
+  buildNumber: bora-19508250
+  buildStatus: SUCCEEDED
+  hash: 584f802e990de75d53eb8f4d2fa8c07c

@@ -1,0 +1,19 @@
+name: azure-ubuntu-2004
+imageCaches:
+- version: v1.19.8+vmware.1-tkg.0-17830837866390253536
+  channel: "344690011397949605"
+  bomAzure:
+    azure:
+    - sku: k8s-1dot19dot8-ubuntu-2004
+      publisher: vmware-inc
+      offer: tkg-capi
+      version: 2021.03.05
+      thirdPartyImage: true
+      osinfo:
+        name: ubuntu
+        version: "2004"
+        arch: amd64
+  hash: 5ec1e0d8a163d33d4cc7630e325f51d5
+  url: https://kscom.svc.eng.vmware.com/job/build-azure-v1alpha2/168
+  buildNumber: "168"
+  buildStatus: SUCCEEDED

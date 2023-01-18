@@ -1,0 +1,16 @@
+name: kubernetes-sigs_kind
+goBuildComponentLocks:
+- version: v1.19.16+vmware.1
+  gobuildBranch: 394898738608345194-v1.19.16+vmware.1
+  gobuildHeadCommit: df91f91ec3c258c528d0ce89841a75bad3dbd041
+  hash: 979068beacce193b66347ff3219e61d6
+  componentLockReferences:
+  - name: coredns
+    version: v1.7.0+vmware.15
+    lockHash: 5a1c960ecf2f104f7dbfe63ef5097e68
+  - name: etcd
+    version: v3.4.13+vmware.19
+    lockHash: 7c6bfd3517774e74ccd326a451931863
+  - name: kubernetes
+    version: v1.19.16+vmware.1
+    lockHash: 6367e6d2c63805130614d38ce89b1265

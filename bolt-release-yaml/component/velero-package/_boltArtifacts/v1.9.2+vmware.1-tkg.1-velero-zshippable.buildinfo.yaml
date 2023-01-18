@@ -1,0 +1,31 @@
+componentBuilds:
+- name: velero-package
+  version: v1.9.2+vmware.1-tkg.1-velero-zshippable
+  channel: "431757010178964832"
+  url: https://buildweb.eng.vmware.com/ob/20698304/
+  artifactURL:
+    velero.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/velero:v1.9.2_vmware.1-tkg.1-zshippable
+      sha256: 0f4381e723940f58f3bc8421bd319dd49fca78080ff489abe66607c9d1420ed5
+  cachehash: 2fc323d2b932b1dbc35a3c5f620a0664
+  publishhash: b5b39508584eb12e5d6ed2ad9f710be8
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/velero/velero:v1.9.2_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-aws:v1.5.1_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-csi:v0.3.1_vmware.1
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-microsoft-azure:v1.5.1_vmware.1
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-vsphere:v1.4.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: velero
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: velero/velero:v1.9.2
+    gobuild.upstream_image_1: velero/velero-plugin-for-aws:v1.5.1
+    gobuild.upstream_image_2: velero/velero-plugin-for-csi:v0.3.1
+    gobuild.upstream_image_3: velero/velero-plugin-for-microsoft-azure:v1.5.1
+    gobuild.upstream_image_4: velero/velero-plugin-for-vsphere:v1.4.0
+    gobuild.upstream_version: 1.9.2

@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-1804
+  version: v1.21.14+vmware.2-tkg.4-sig-cfe9e4d0efcd90aa82673f7cd34e61a0
+  channel: "419778727015095641"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2732
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-sig-v1.21.14+vmware.2-tkg.4-sig-cfe9e4d0efcd90aa82673f7cd34e61a0.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.4-sig-cfe9e4d0efcd90aa82673f7cd34e61a0-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.4-sig-cfe9e4d0efcd90aa82673f7cd34e61a0-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.4-sig-cfe9e4d0efcd90aa82673f7cd34e61a0-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-1804/azure-ubuntu-1804-v1.21.14+vmware.2-tkg.4-sig-cfe9e4d0efcd90aa82673f7cd34e61a0-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419778727015095641/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-v1.21.14+vmware.2-tkg.4-sig-cfe9e4d0efcd90aa82673f7cd34e61a0.json
+  cachehash: c8986cac4597e5d7b024ffbe08c1c6b1
+  publishhash: 962d8c7eb389dade410d79c16b7427c3
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: b5d8c8f94238cb752c431c5692d442f1b71a4c00

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'tkgs photon tkr for testing build process'
+componentReferences:
+  - name: tkgs-ova-photon-3
+    version:
+      - v1.21.6+vmware.1-tkg.2

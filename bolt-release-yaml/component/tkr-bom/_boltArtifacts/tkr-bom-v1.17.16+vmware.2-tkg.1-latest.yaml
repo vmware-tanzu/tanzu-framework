@@ -1,0 +1,313 @@
+release:
+  version: v1.17.16+vmware.2-tkg.1-latest
+components:
+  cni_plugins:
+  - version: v0.8.7+vmware.3
+  containerd:
+  - version: v1.4.3+vmware.1
+  coredns:
+  - version: v1.6.5+vmware.12
+    images:
+      coredns:
+        imagePath: coredns
+        tag: v1.6.5_vmware.12
+  cri_tools:
+  - version: v1.16.1+vmware.8
+  etcd:
+  - version: v3.4.3+vmware.13
+    images:
+      etcd:
+        imagePath: etcd
+        tag: v3.4.3_vmware.13
+  kubernetes:
+  - version: v1.17.16+vmware.2
+    images:
+      kubeAPIServer:
+        imagePath: kube-apiserver
+        tag: v1.17.16_vmware.2
+      kubeControllerManager:
+        imagePath: kube-controller-manager
+        tag: v1.17.16_vmware.2
+      kubeE2e:
+        imagePath: e2e-test
+        tag: v1.17.16_vmware.2
+      kubeProxy:
+        imagePath: kube-proxy
+        tag: v1.17.16_vmware.2
+      kubeScheduler:
+        imagePath: kube-scheduler
+        tag: v1.17.16_vmware.2
+      pause:
+        imagePath: pause
+        tag: "3.1"
+kubeadmConfigSpec:
+  apiVersion: kubeadm.k8s.io/v1beta2
+  kind: ClusterConfiguration
+  imageRepository: projects.registry.vmware.com/tkg
+  kubernetesVersion: v1.17.16+vmware.2
+  etcd:
+    local:
+      dataDir: /var/lib/etcd
+      imageRepository: projects.registry.vmware.com/tkg
+      imageTag: v3.4.3_vmware.13
+  dns:
+    type: CoreDNS
+    imageRepository: projects.registry.vmware.com/tkg
+    imageTag: v1.6.5_vmware.12
+ova:
+- name: ova-photon-3
+  osinfo:
+    name: photon
+    version: "3"
+    arch: amd64
+  version: v1.17.16+vmware.2-tkg.0-2766760546902094721
+- name: ova-ubuntu-2004
+  osinfo:
+    name: ubuntu
+    version: "20.04"
+    arch: amd64
+  version: v1.17.16+vmware.2-tkg.0-13075399354022698785
+ami:
+  ap-northeast-1:
+  - id: ami-032a2d2cdf21d9139
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0dc51b843d2b6302e
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  ap-northeast-2:
+  - id: ami-07dac6b3666dc315b
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0a5e980d0ea1b8338
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  ap-south-1:
+  - id: ami-0843d5e12be31fb42
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0c7da125c825ac58f
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  ap-southeast-1:
+  - id: ami-02d10b0eeec69ea0c
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0f492c9bf599600bf
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  ap-southeast-2:
+  - id: ami-0d30cc1b6153a3449
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0eb933bfd7c969c3d
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  eu-central-1:
+  - id: ami-0976bdfce6335951b
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-098d59354a9bbd746
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  eu-west-1:
+  - id: ami-0b330d8f3f31f25ec
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-045354ddf43aab66e
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  eu-west-2:
+  - id: ami-0da7ddfeb8f9dc648
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0dca1f8c2e77532e9
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  eu-west-3:
+  - id: ami-0b7c24a138a28ffce
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0152dabcb3406d0ac
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  sa-east-1:
+  - id: ami-026c868b3f4e6a515
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0354686d48e99a4b6
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-east-1:
+  - id: ami-0f290dd9d2f2ff64e
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0a38b3ad9123cf927
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-east-2:
+  - id: ami-07b560e16e1229dfe
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-041a32707e9824e11
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-gov-east-1:
+  - id: ami-01716a2c45a18346f
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0bed45c876445d430
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-gov-west-1:
+  - id: ami-0d614b5a4be9a2626
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0e3859e28957ca5bb
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+  us-west-2:
+  - id: ami-0901176432dfb9a47
+    osinfo:
+      name: amazon
+      version: "2"
+      arch: amd64
+  - id: ami-0ab9b1e6ea9861da9
+    osinfo:
+      name: ubuntu
+      version: "20.04"
+      arch: amd64
+azure:
+- sku: k8s-1dot17dot16-ubuntu-1804
+  publisher: vmware-inc
+  offer: tkg-capi
+  version: 2021.01.14
+  thirdPartyImage: true
+  osinfo:
+    name: ubuntu
+    version: "18.04"
+    arch: amd64
+- sku: k8s-1dot17dot16-ubuntu-2004
+  publisher: vmware-inc
+  offer: tkg-capi
+  version: 2021.01.14
+  thirdPartyImage: true
+  osinfo:
+    name: ubuntu
+    version: "20.04"
+    arch: amd64
+imageConfig:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+addons:
+  antrea:
+    category: cni
+    clusterTypes:
+    - management
+    - worload
+    templatesImagePath: tanzu_core/addons/antrea-templates
+    templatesImageTag: v1.3.0-latest
+  calico:
+    category: cni
+    clusterTypes:
+    - management
+    - worload
+    templatesImagePath: tanzu_core/addons/calico-templates
+    templatesImageTag: v1.3.0-latest
+  kapp-controller:
+    category: addons-management
+    clusterTypes:
+    - management
+    - workload
+    templatesImagePath: tanzu_core/addons/kapp-controller-templates
+    templatesImageTag: v1.3.0-latest
+  metrics-server:
+    category: metrics
+    clusterTypes:
+    - management
+    - workload
+    templatesImagePath: tanzu_core/addons/metrics-server-templates
+    templatesImageTag: v1.3.0-latest
+  pinniped:
+    category: authentication
+    clusterTypes:
+    - management
+    - workload
+    templatesImagePath: tanzu_core/addons/pinniped-templates
+    templatesImageTag: v1.3.0-latest
+  tanzu-addons-manager:
+    category: addons-management
+    clusterTypes:
+    - management
+    - worload
+    templatesImagePath: tanzu_core/addons/tanzu-addons-manager-templates
+    templatesImageTag: v1.3.0-latest
+  vsphere-cpi:
+    category: cpi
+    clusterTypes:
+    - management
+    - workload
+    templatesImagePath: tanzu_core/addons/vsphere-cpi-templates
+    templatesImageTag: v1.3.0-latest
+  vsphere-csi:
+    category: csi
+    clusterTypes:
+    - management
+    - workload
+    templatesImagePath: tanzu_core/addons/vsphere-csi-templates
+    templatesImageTag: v1.3.0-latest

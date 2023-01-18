@@ -1,0 +1,7 @@
+name: contour
+goBuildComponentLocks:
+- version: v1.22.0+vmware.1
+  gobuildBranch: vmware-1.22.0
+  gobuildHeadCommit: 98adf409739f397c73eec004039d211a9fd7aafb
+  hash: fc041968499cede6b5844e1f1944f836
+  componentLockReferences: []

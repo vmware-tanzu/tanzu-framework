@@ -1,0 +1,11 @@
+name: tkg-compatibility
+boms:
+- version: v1.5.1
+  type: tkg-compatibility
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.11.1-92-g4d578570
+  - name: tkg-bom
+    version:
+    - v1.5.1

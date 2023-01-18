@@ -1,0 +1,8 @@
+name: tkg-cli
+upstreamURL: "git@github.com:vmware-tanzu-private/tkg-cli.git"
+mirrorSandboxURL: "git@github.com:vmware-tanzu-private/tkg-cli.git"
+mirrorOfficialURL: "git@github.com:vmware-tanzu-private/tkg-cli.git"
+gobuildBaseURL: "git@github.com:vmware-tanzu-private/tkg-cli.git"
+gobuildSandboxURL: "git@github.com:vmware-tanzu-private/tkg-cli.git"
+gobuildOfficialURL: "git@github.com:vmware-tanzu-private/tkg-cli.git"
+gobuildTarget: "tkg-cli"

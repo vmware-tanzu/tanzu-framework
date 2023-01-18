@@ -1,0 +1,17 @@
+componentBuilds:
+- name: cluster_api_aws
+  version: v0.6.4+vmware.1
+  channel: "340062906747977735"
+  url: https://buildweb.eng.vmware.com/ob/17552861/
+  artifactURL:
+    capaControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-aws-controller:v0.6.4_vmware.1
+      sha256: 8a9c7ffac1decf933ec684cfeb00bfbd97c8778b5d11d0b3959f27c74e35bdad
+    clusterawsadm-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17552861/publish/lin64/cluster_api_aws/executables/clusterawsadm-darwin-amd64-v0.6.4+vmware.1.gz
+    clusterawsadm-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17552861/publish/lin64/cluster_api_aws/executables/clusterawsadm-linux-amd64-v0.6.4+vmware.1.gz
+    clusterawsadm-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17552861/publish/lin64/cluster_api_aws/executables/clusterawsadm-windows-amd64-v0.6.4+vmware.1.gz
+  cachehash: 0a30145fbd825fb9763f10657a0b9022
+  publishhash: 2b54af78b378f25751ec15fc710d7e89

@@ -1,0 +1,7 @@
+name: crash-diagnostics
+unmanagedComponents:
+  - version: v0.3.7+vmware.3
+    gobuildBranch: vmware-0.3.7+vmware.3~3c97e122d67e8276f3ac2ff1b33e14a8f78506e3
+    dependencies:
+      gobuild.golangVersion: 1.17.2
+      gobuild.linux_hosttype: linux-centos72-gc32

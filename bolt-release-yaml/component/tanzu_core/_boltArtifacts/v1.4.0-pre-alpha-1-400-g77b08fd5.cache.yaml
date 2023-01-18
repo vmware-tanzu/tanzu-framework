@@ -1,0 +1,7 @@
+name: tanzu_core
+goBuildComponentCaches:
+- version: v1.4.0-pre-alpha-1-400-g77b08fd5
+  url: https://buildweb.eng.vmware.com/ob/18258267/
+  buildNumber: bora-18258267
+  buildStatus: SUCCEEDED
+  hash: "2952205938405690040"

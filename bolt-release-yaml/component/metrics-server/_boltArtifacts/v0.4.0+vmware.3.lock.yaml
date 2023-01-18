@@ -1,0 +1,7 @@
+name: metrics-server
+goBuildComponentLocks:
+- version: v0.4.0+vmware.3
+  gobuildBranch: 397877045679359427-v0.4.0+vmware.3
+  gobuildHeadCommit: a126e3a04df6d68d8f3a60fe7828c794812f061a
+  hash: 8a9d99af641dc2bde42e7935236b14f0
+  componentLockReferences: []

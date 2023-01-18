@@ -1,0 +1,7 @@
+name: guest-cluster-cloud-provider
+unmanagedComponents:
+  - version: v0.1-87-gb6bb261
+    gobuildBranch: master~b26e6539ca43914363095b487792bb20a1157c4d
+    dependencies:
+      gobuild.golangVersion: 1.13.6
+      gobuild.linux_hosttype: linux-centos72-gc32

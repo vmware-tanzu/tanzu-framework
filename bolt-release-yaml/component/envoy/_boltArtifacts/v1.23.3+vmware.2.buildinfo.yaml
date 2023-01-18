@@ -1,0 +1,16 @@
+componentBuilds:
+- name: envoy
+  version: v1.23.3+vmware.2
+  channel: "441789511156926060"
+  url: https://buildweb.eng.vmware.com/ob/21066049/
+  artifactURL:
+    envoy-file:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21066049/publish/lin64/envoy/executables/envoy-v1.23.3+vmware.2.gz
+    envoyImage:
+      url: projects-stg.registry.vmware.com/tkg/envoy:v1.23.3_vmware.2
+      sha256: c06a457ed08879be2f877dbd6637d988f2630ca68e7606bf8fcbf84ec239bda9
+  cachehash: 06305506648b7f5d7ed3221ea1397a75
+  publishhash: 3a5e5d703be3cf01ad5f0a7d676427cf
+  configDependencies:
+    gobuild.golangVersion: 1.18.9
+    gobuild.linux_hosttype: linux-centos72-gc32

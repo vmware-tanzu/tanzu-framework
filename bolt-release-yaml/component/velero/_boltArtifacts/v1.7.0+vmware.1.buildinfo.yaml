@@ -1,0 +1,22 @@
+componentBuilds:
+- name: velero
+  version: v1.7.0+vmware.1
+  channel: "379768400555062892"
+  url: https://buildweb.eng.vmware.com/ob/18858993/
+  artifactURL:
+    restic:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18858993/publish/lin64/velero/executables/restic
+    velero-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18858993/publish/lin64/velero/executables/velero-linux-v1.7.0+vmware.1.gz
+    velero-mac:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18858993/publish/lin64/velero/executables/velero-mac-v1.7.0+vmware.1.gz
+    velero-windows64:
+      url: ""
+    veleroImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero:v1.7.0_vmware.1
+      sha256: dfac84e8569360aab9b43905a97aaba7053532754752851e724033b085e6ef36
+    veleroResticRestoreHelperImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-restic-restore-helper:v1.7.0_vmware.1
+      sha256: 7a8dbe98af9f82e23cf2ca4664db398148c8e972617957e1e80a2b83f07c54f0
+  cachehash: d6093b168f5880fb5e1a2791395b1ed3
+  publishhash: ac72742cda22aebf77fb89bfd58429b3

@@ -1,0 +1,10 @@
+name: cluster-api-ipam-provider-in-cluster
+managedComponents:
+- version: v0.1.0+vmware.1
+  upstreamTag: v0.1.0-alpha.1
+  mirrorCherryPicks: []
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~f242795fd7ec456065d4d71c6464ad29f2b66768
+  dependencies:
+    gobuild.golangVersion: 1.18
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8

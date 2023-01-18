@@ -1,0 +1,14 @@
+componentBuilds:
+- name: vendir
+  version: v0.23.0+vmware.1
+  channel: "379908959433158268"
+  url: https://buildweb.eng.vmware.com/ob/18663365
+  artifactURL:
+    vendir-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18663365/publish/lin64/vendir/executables/vendir-darwin-amd64-v0.23.0+vmware.1.gz
+    vendir-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18663365/publish/lin64/vendir/executables/vendir-linux-amd64-v0.23.0+vmware.1.gz
+    vendir-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18663365/publish/lin64/vendir/executables/vendir-windows-amd64-v0.23.0+vmware.1.gz
+  cachehash: 5eff2c940215e9d252d6b7d1bb4f1e8f
+  publishhash: c8763a3774dadf65e08a58bc4dac5df5

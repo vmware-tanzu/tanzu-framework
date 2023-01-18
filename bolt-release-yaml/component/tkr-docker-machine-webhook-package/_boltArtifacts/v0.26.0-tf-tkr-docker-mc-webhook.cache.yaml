@@ -1,0 +1,7 @@
+name: tkr-docker-machine-webhook-package
+goBuildComponentCaches:
+- version: v0.26.0-tf-tkr-docker-mc-webhook
+  url: https://buildweb.eng.vmware.com/ob/20535310/
+  buildNumber: bora-20535310
+  buildStatus: SUCCEEDED
+  hash: 85d82388231a800a98d364b87d52ad69

@@ -1,0 +1,61 @@
+name: tkg-standard-packages
+packageRepositories:
+- version: v1.5.4-tf-v0.11.6
+  upstreamCommit: 3f328923166a5d1055c68824d66604919cec37bd
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repository-bundle~4b619c1edba4781291edd18401a029716a22115a
+  componentReferences:
+  - name: cert-manager-package
+    version:
+    - v1.5.3+vmware.2-tkg.1-cert-manager
+  - name: contour-package
+    version:
+    - v1.17.2+vmware.1-tkg.3-contour
+    - v1.18.2+vmware.1-tkg.1-contour
+  - name: external-dns-package
+    version:
+    - v0.10.0+vmware.1-tkg.1-external-dns
+  - name: fluent-bit-package
+    version:
+    - v1.7.5+vmware.2-tkg.1-fluent-bit
+  - name: grafana-package
+    version:
+    - v7.5.7+vmware.2-tkg.1-grafana
+  - name: prometheus-package
+    version:
+    - v2.27.0+vmware.2-tkg.1-prometheus
+  - name: harbor-package
+    version:
+    - v2.3.3+vmware.1-tkg.1-harbor
+  - name: multus-cni-package
+    version:
+    - v3.7.1+vmware.2-tkg.2-multus-cni
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_type: standard
+    gobuild.releaseVersion: v1.5.4-tf-v0.11.6
+  additionalRefBuildInfo:
+    cert-manager-package:
+    - v1.1.0+vmware.1-tkg.2-cert-manager
+    - v1.1.0+vmware.2-tkg.1-cert-manager
+    contour-package:
+    - v1.17.1+vmware.1-tkg.1-contour
+    - v1.17.2+vmware.1-tkg.2-contour
+    external-dns-package:
+    - v0.8.0+vmware.1-tkg.1-external-dns
+    fluent-bit-package:
+    - v1.7.5+vmware.1-tkg.1-fluent-bit
+    grafana-package:
+    - v7.5.7+vmware.1-tkg.1-grafana
+    harbor-package:
+    - v2.2.3+vmware.1-tkg.1-harbor
+    - v2.2.3+vmware.1-tkg.2-harbor
+    multus-cni-package:
+    - v3.7.1+vmware.1-tkg.1-multus-cni
+    - v3.7.1+vmware.2-tkg.1-multus-cni
+    prometheus-package:
+    - v2.27.0+vmware.1-tkg.1-prometheus

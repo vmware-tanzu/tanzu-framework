@@ -1,0 +1,7 @@
+name: kube-state-metrics
+goBuildComponentLocks:
+- version: v2.6.0+vmware.1
+  gobuildBranch: vmware-2.6.0
+  gobuildHeadCommit: ba853c9235d7b2f5c01ab5d8f8857e6610b7fdc3
+  hash: 4c30797de0aa7baa04ddfa9918fb0e7e
+  componentLockReferences: []

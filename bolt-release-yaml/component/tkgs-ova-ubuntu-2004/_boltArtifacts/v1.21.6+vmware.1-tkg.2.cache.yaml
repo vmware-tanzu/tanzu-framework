@@ -1,0 +1,11 @@
+name: tkgs-ova-ubuntu-2004
+imageCaches:
+- version: v1.21.6+vmware.1-tkg.2
+  channel: "409447921650538914"
+  imageCacheOVA:
+    url: http://10.163.0.130/kscom-generic-local/TKG/channels/409447921650538914/component/tkgs-ova-ubuntu-2004/ubuntu-2004-efi-v1.21.6---vmware.1.ova
+    imageSHA: 71ae54af8a6d8ff748c2525c12009827542e8b790067267a888a63b672f44f42
+  hash: 7b4f8f49dfed7ca44ff04e0cc65decfa
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgs-build-ova/186
+  buildNumber: "186"
+  buildStatus: SUCCEEDED

@@ -1,0 +1,15 @@
+componentBuilds:
+- name: pinniped-post-deploy
+  version: v0.12.1+vmware.1-tkg.1
+  channel: "412206261619165753"
+  url: https://buildweb.eng.vmware.com/ob/19955544/
+  artifactURL:
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.12.1_vmware.1-tkg.1
+      sha256: 1245d57e094502acdfeef081ad659b7a79bde08b06e1810bd587503d018766e0
+  cachehash: f33757167cb6ce3510f241e853dfb66d
+  publishhash: 03c0cd95ce0420b17ca801b9936f9c62
+  configDependencies:
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v0.12.1+vmware.1-tkg.1

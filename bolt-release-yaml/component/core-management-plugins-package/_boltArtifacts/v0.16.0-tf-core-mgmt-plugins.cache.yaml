@@ -1,0 +1,7 @@
+name: core-management-plugins-package
+goBuildComponentCaches:
+- version: v0.16.0-tf-core-mgmt-plugins
+  url: https://buildweb.eng.vmware.com/ob/19291048/
+  buildNumber: bora-19291048
+  buildStatus: SUCCEEDED
+  hash: b142c437fc9a159b2e853a178ad401f5

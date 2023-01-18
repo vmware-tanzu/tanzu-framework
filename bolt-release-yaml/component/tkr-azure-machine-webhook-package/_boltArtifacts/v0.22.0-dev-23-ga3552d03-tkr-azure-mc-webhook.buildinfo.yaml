@@ -1,0 +1,23 @@
+componentBuilds:
+- name: tkr-azure-machine-webhook-package
+  version: v0.22.0-dev-23-ga3552d03-tkr-azure-mc-webhook
+  channel: "407143385560806694"
+  url: https://buildweb.eng.vmware.com/ob/19780500/
+  artifactURL:
+    tkr-azure-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-azure-machine-webhook:v0.22.0-dev-23-ga3552d03_vmware.1
+      sha256: c8e797226fe8f98e9eaa4ccac8f66aaba7b42b9be3b49a272fe4580a9ce355dd
+  cachehash: 44f1892aac458b7236f94d0c471d5b5c
+  publishhash: c9cb2d5c797f64d3b0eb7d32aea8041b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-infra-machine-webhook:v0.22.0-dev-23-ga3552d03
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-azure-machine-webhook
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tkr-infra-machine-webhook:latest
+    gobuild.upstream_version: v0.22.0-dev-23-ga3552d03

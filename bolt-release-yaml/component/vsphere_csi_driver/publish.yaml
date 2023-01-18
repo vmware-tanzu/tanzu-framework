@@ -1,0 +1,12 @@
+name: vsphere_csi_driver
+publish:
+  - name: csiControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/vsphere-csi-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/vsphere-csi-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: csi/vsphere-block-csi-driver:$UNDERSCOREVERSION
+  - name: csiMetaDataSyncerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/syncer-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/syncer-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: csi/volume-metadata-syncer:$UNDERSCOREVERSION

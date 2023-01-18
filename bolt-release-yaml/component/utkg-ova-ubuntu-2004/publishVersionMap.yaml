@@ -1,0 +1,10 @@
+versionMap:
+  v1.21.11+vmware.1-tkg.1: publish.yaml
+  v1.22.8+vmware.1-tkg.1: publish.yaml
+  v1.22.11+vmware.1-tkg.1: publish.yaml
+  v1.22.13+vmware.1-tkg.1: publish.yaml
+  v1.23.5+vmware.1-tkg.1: publish.yaml
+  v1.23.8+vmware.1-tkg.1: publish.yaml
+  v1.23.10+vmware.1-tkg.1: publish.yaml
+  v1.24.6+vmware.1-tkg.1: publish.yaml
+  v1.24.9+vmware.1-tkg.1: publish.yaml

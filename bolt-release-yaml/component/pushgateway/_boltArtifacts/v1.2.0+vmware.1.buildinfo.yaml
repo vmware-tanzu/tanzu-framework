@@ -1,0 +1,13 @@
+componentBuilds:
+- name: pushgateway
+  version: v1.2.0+vmware.1
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/16911265
+  artifactURL:
+    pushgateway-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-16911265/publish/lin64/pushgateway/executables/pushgateway-v1.2.0+vmware.1.gz
+    pushgatewayImage:
+      url: projects-stg.registry.vmware.com/tkg/pushgateway:v1.2.0_vmware.1
+      sha256: 005b09fe2d5ac51629bd69bd07ad63c609e5c35a6f7cd187958f5805fe8b5c75
+  cachehash: "14079574909706508015"
+  publishhash: "7765397414909634765"

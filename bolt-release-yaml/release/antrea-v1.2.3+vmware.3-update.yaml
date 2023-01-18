@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'rebuild existing antrea and publish more things'
+componentReferences:
+  - name: antrea
+    version:
+      - v1.2.3+vmware.3

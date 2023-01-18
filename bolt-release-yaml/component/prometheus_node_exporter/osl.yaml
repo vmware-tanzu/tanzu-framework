@@ -1,0 +1,4 @@
+submodules:
+  - name: prometheus_node_exporter/src
+    go_mod:
+      - "go.mod"

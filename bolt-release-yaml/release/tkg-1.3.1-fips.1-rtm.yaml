@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'FIPS variant with a single TKr, 1.20.x. NOTE: no need to ship the tkg-bom!'
+componentReferences:
+  - name: tkg_release
+    version:
+    - v1.3.1-fips.1

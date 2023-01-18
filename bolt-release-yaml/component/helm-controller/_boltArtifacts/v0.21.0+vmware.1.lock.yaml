@@ -1,0 +1,7 @@
+name: helm-controller
+goBuildComponentLocks:
+- version: v0.21.0+vmware.1
+  gobuildBranch: vmware-0.21.0
+  gobuildHeadCommit: 8aab5c0917e052aa0da04a96043d03b03dc8f188
+  hash: e757fed787d1686653d860d5b7624eb1
+  componentLockReferences: []

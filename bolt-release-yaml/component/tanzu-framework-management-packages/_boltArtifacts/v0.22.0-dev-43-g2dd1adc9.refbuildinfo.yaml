@@ -1,0 +1,401 @@
+componentBuilds:
+- name: addons-manager-v2-package
+  version: v0.22.0-dev-43-g2dd1adc9-addons-manager-v2
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817418/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/addons-manager:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: 374f14aea98c94d520bd1e4902b97f0ee2efb40026208b074b7b8f958ac27561
+  cachehash: 154fb3ce5f09227fbe2de0374771da62
+  publishhash: 47c9e122345d0a07333cca528b3eb406
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: addons-manager
+    gobuild.package_type: management
+    gobuild.upstream_image_0: addons-controller:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: featuregates-package
+  version: v0.22.0-dev-43-g2dd1adc9-featuregates
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19818106/
+  artifactURL:
+    featuregates.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/featuregates:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: 49c0b1483e8b92c574fbaff82062176da08a9c9f14321b71b6a149334285560c
+  cachehash: 46870bf7f66416e42108e6c5a24fe0f3
+  publishhash: b18039830ec752877daef8e6ef1178e5
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/featuregates/featuregates-controller-manager:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: featuregates
+    gobuild.package_type: management
+    gobuild.upstream_image_0: featuregates-controller-manager:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: core-management-plugins-package
+  version: v0.22.0-dev-43-g2dd1adc9-core-mgmt-plugins
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817811/
+  artifactURL:
+    core-management-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/core-management-plugins:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: a01cb335b396b7a2c8d75e5e6ae817fffc211717b9638d48e4707a55ecfde55e
+  cachehash: 5bef7f29f1740aaec52e4a54f192aa2b
+  publishhash: 0ecf4d581065b27bd73a811ba24a7c7e
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/cluster-linux-amd64:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/cluster-darwin-amd64:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/cluster-windows-amd64:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/kubernetes-release-linux-amd64:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/kubernetes-release-darwin-amd64:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/kubernetes-release-windows-amd64:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/feature-linux-amd64:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_7: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/feature-darwin-amd64:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_8: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/feature-windows-amd64:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: core-management-plugins
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tanzu-cli-plugins/cluster-linux-amd64:latest
+    gobuild.upstream_image_1: tanzu-cli-plugins/cluster-darwin-amd64:latest
+    gobuild.upstream_image_2: tanzu-cli-plugins/cluster-windows-amd64:latest
+    gobuild.upstream_image_3: tanzu-cli-plugins/kubernetes-release-linux-amd64:latest
+    gobuild.upstream_image_4: tanzu-cli-plugins/kubernetes-release-darwin-amd64:latest
+    gobuild.upstream_image_5: tanzu-cli-plugins/kubernetes-release-windows-amd64:latest
+    gobuild.upstream_image_6: tanzu-cli-plugins/feature-linux-amd64:latest
+    gobuild.upstream_image_7: tanzu-cli-plugins/feature-darwin-amd64:latest
+    gobuild.upstream_image_8: tanzu-cli-plugins/feature-windows-amd64:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkg-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkg
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19818003/
+  artifactURL:
+    tkg.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: db5506e3ae673809ba27002e93847cf76cefa29c710d5be5c14968bfbec2e470
+  cachehash: 7e6da4b7520b2ec1f9db022c9d915a30
+  publishhash: b50bfb418ec98d4f672d28d855f6e5b2
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkg-clusterclass-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkg-clusterclass
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19818005/
+  artifactURL:
+    tkg-clusterclass.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: 08ea8e46721036b6d3bdfd10b9d76bcd607ed62a3b34dc8c6d43e5b1f82db88a
+  cachehash: 38fa5461ebc930bacfd47c8c6ff8202d
+  publishhash: 81b79b50fa2579627d2a9dc4a8ce3b7a
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkg-clusterclass-aws-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkg-clusterclass-aws
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19818297/
+  artifactURL:
+    tkg-clusterclass-aws.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-aws:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: b76a455156722b99de517449e7c9f7a0574348defb3d088194edb913b159680c
+  cachehash: 02e8dc36cc17dcb6ab92ff487df8e1e5
+  publishhash: 125ec7a1bc39baef747260e4f78167fa
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-aws
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkg-clusterclass-vsphere-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkg-clusterclass-vsphere
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817809/
+  artifactURL:
+    tkg-clusterclass-vsphere.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-vsphere:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: 0fd4a9f3699de9e00d46bc9638d1bff3527f3d82a123d2b3c2a780cae271cd17
+  cachehash: c320c5f90e9baeaa4406967d894dfc75
+  publishhash: d03e78e5fad5fe181b44a702c65769ab
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-vsphere
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkg-clusterclass-azure-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkg-clusterclass-azure
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817944/
+  artifactURL:
+    tkg-clusterclass-azure.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-azure:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: b09d00c3a62dbb849de9ae43fbfbf0505a83fb81e828fcf424bc4661ecebe1ea
+  cachehash: e3a6151596e8e7b7bd80aee17c88104a
+  publishhash: c2418f93c73e5c7d0921d16401e3c74e
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-azure
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkg-clusterclass-docker-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkg-clusterclass-docker
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19818093/
+  artifactURL:
+    tkg-clusterclass-docker.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-docker:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: c35b9b2c810fa5e46f5108dcb217848e226610d1977e6f51708faa175693c41d
+  cachehash: f5f55e370e044e1023171b6d8fdb83b1
+  publishhash: 7bd05f927afe0e6ab7d7d37ee4f30d36
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-docker
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkr-aws-machine-webhook-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkr-aws-mc-webhook
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817914/
+  artifactURL:
+    tkr-aws-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-aws-machine-webhook:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: 44d76757b38f43ca6e13d3e934838ea5bfb4f9f90fd5ea6f287f7b7b4a966b19
+  cachehash: cd33c32390deccc4101d9104b54c1ff5
+  publishhash: 7e24bdf0b1f18b22cbd421c328459a23
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-infra-machine-webhook:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-aws-machine-webhook
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tkr-infra-machine-webhook:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkr-azure-machine-webhook-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkr-azure-mc-webhook
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19818004/
+  artifactURL:
+    tkr-azure-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-azure-machine-webhook:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: 2be343f1766647fbcba22da98ee5def057bbf5cd8c6ab924cbe0b4d013b8020d
+  cachehash: 558fa6aeebe4acce1da889b04888d8c6
+  publishhash: c9cb2d5c797f64d3b0eb7d32aea8041b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-infra-machine-webhook:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-azure-machine-webhook
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tkr-infra-machine-webhook:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkr-docker-machine-webhook-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkr-docker-mc-webhook
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19818006/
+  artifactURL:
+    tkr-docker-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-docker-machine-webhook:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: 53a1cd8daf06b764ec06e20c09b5413ae3a43a487bf2317cadb6b26a9e877fdc
+  cachehash: 838f6b6a3c04cd1a7a666c66f94575b0
+  publishhash: 6cdfe8cb58a326f7a23f5f3cdb1fd92f
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-infra-machine-webhook:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-docker-machine-webhook
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tkr-infra-machine-webhook:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkr-vsphere-machine-webhook-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkr-vsphere-mc-webhook
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817920/
+  artifactURL:
+    tkr-vsphere-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-vsphere-machine-webhook:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: 184459ea43abec574ab62e20a6a728a3f582d53a047913beb2dcc63f0f612f90
+  cachehash: 851ef4f4d78eb0df82ef0403c0c78b0b
+  publishhash: 69f620efe14baf84f0899b4e9dcaf3fb
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-infra-machine-webhook:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-vsphere-machine-webhook
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tkr-infra-machine-webhook:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkr-service-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkr-service
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817915/
+  artifactURL:
+    tkr-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-service:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: da2b59c3af84f57233d896f5afb5a057394d11a6f07469cc2f6ddede05c5b025
+  cachehash: 583c9dfb05b08d7bf87629491bdb93a3
+  publishhash: 01dd05a82383689c2f95054a143c30a5
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-resolver-cluster-webhook:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-conversion-webhook:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-status-controller:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-service
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tkr-resolver-cluster-webhook:latest
+    gobuild.upstream_image_1: tkr-conversion-webhook:latest
+    gobuild.upstream_image_2: tkr-status-controller:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: cliplugins-package
+  version: v0.22.0-dev-43-g2dd1adc9-cliplugins
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817813/
+  artifactURL:
+    cliplugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/cliplugins:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: ebd922c281d624cf3cd6ba7a126bf9c896fe62195d40e15447badae09607ff3a
+  cachehash: 79eb78e1e9e23f9bca76a8ad8d82982c
+  publishhash: 579adbcc1c0c49544db57f2381497d5a
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: cliplugins
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: framework-package
+  version: v0.22.0-dev-43-g2dd1adc9-framework
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817912/
+  artifactURL:
+    framework.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/framework:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: ccb89eaf9defdcc15f1a7571e66c7fb3bc322572569dd100950b92f2aa9cabe3
+  cachehash: 052f083beb0b986158943abe996db635
+  publishhash: 6f3466373266b15bba12702d120e7bc0
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: framework
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tanzu-auth-package
+  version: v0.22.0-dev-43-g2dd1adc9-tanzu-auth-pkg
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817416/
+  artifactURL:
+    tanzu-auth.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tanzu-auth:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: d849236262a4a4f24d45412b0ecfeea6b57a9302c20ac62b60779c52c4abf1df
+  cachehash: 70c80c6ee6f6e87c222f94f6e0a378df
+  publishhash: 86203f814faec29c603529c67c442101
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/iam/tanzu-auth-controller-manager:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tanzu-auth
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tanzu-auth-controller-manager:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9
+- name: tkr-source-controller-package
+  version: v0.22.0-dev-43-g2dd1adc9-tkr-source-controller
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817812/
+  artifactURL:
+    tkr-source-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-source-controller:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: a0f5caf6762d4ab510724288c6a21c7f9c198533d658d903e41f0650fc296f73
+  cachehash: 69e94d357d497e121bd619b6800f506a
+  publishhash: fdfa7439bf7ed933bb320bae69e06a09
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-source-controller:v0.22.0-dev-43-g2dd1adc9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-source-controller
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tkr-source-controller:latest
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9

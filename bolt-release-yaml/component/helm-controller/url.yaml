@@ -1,0 +1,5 @@
+name: helm-controller
+upstreamURL: https://github.com/fluxcd/helm-controller.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_helm-controller.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_helm-controller.git
+gobuildTarget: cayman_helm-controller

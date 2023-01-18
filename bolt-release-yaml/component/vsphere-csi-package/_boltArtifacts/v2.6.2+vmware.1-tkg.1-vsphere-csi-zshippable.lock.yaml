@@ -1,0 +1,28 @@
+name: vsphere-csi-package
+goBuildComponentLocks:
+- version: v2.6.2+vmware.1-tkg.1-vsphere-csi-zshippable
+  gobuildBranch: 434514545780721481-v2.6.2+vmware.1-tkg.1-vsphere-csi-zshippable-vsphere-csi-package
+  gobuildHeadCommit: 6444313dd5519aa5d61c17e4bff96b3b0b72071a
+  hash: c0ba5538999caf081832bf2e74e7e84c
+  componentLockReferences:
+  - name: csi_attacher
+    version: v3.4.0+vmware.1
+    lockHash: aa7da92c69a9d649324e141e2f2e6e8b
+  - name: csi_livenessprobe
+    version: v2.7.0+vmware.1
+    lockHash: 9df815a97c15afd7de197284e5475f04
+  - name: csi_node_driver_registrar
+    version: v2.5.1+vmware.1
+    lockHash: cdcb61077b71f67c476ffc370d481266
+  - name: kubernetes-csi_external-resizer
+    version: v1.4.0+vmware.1
+    lockHash: d5636cef49212155dbc1ddf582f0b25b
+  - name: csi_provisioner
+    version: v3.2.1+vmware.1
+    lockHash: 4a725576ef1f3ee3db20803b7adf53dc
+  - name: vsphere_csi_driver
+    version: v2.6.2+vmware.1
+    lockHash: 24eca07243541316751375a12e281aed
+  - name: external-snapshotter
+    version: v5.0.1+vmware.1
+    lockHash: 09034ad6ce82a416ef548803499c883c

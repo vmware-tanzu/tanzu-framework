@@ -1,0 +1,16 @@
+componentBuilds:
+- name: source-controller
+  version: v0.24.4+vmware.1
+  channel: "410191984452443484"
+  url: https://buildweb.eng.vmware.com/ob/19878462
+  artifactURL:
+    sourceControllerExecutable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19878462/publish/lin64/source-controller/executables/source-controller-v0.24.4+vmware.1
+    sourceControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/fluxcd/source-controller:v0.24.4_vmware.1
+      sha256: f9ecf5760c82760773cd0065838a58b0d1562489e79d425684c87f155531434e
+  cachehash: 838a94b5013ef2165bc341599320b0c0
+  publishhash: 3a20472801c6c6485efe436de3230040
+  configDependencies:
+    gobuild.golangVersion: 1.17.6
+    gobuild.linux_hosttype: linux-centos72-gc32

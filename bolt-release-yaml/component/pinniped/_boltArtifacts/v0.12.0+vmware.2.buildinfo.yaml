@@ -1,0 +1,11 @@
+componentBuilds:
+- name: pinniped
+  version: v0.12.0+vmware.2
+  channel: "392141163965995560"
+  url: https://buildweb.eng.vmware.com/ob/19271584/
+  artifactURL:
+    pinnipedImage:
+      url: projects-stg.registry.vmware.com/tkg/pinniped:v0.12.0_vmware.2
+      sha256: 937a2fbe4300e443b2c1f86add8b28bb40a92877ca1e003571254ac32aa13c80
+  cachehash: 97348a96f0be4817d27e4c1d3e62c0e4
+  publishhash: 4862264dcdd4c26604f005ab5f25d6d6

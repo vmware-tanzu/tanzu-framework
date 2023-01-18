@@ -1,0 +1,7 @@
+name: tkg_release
+goBuildComponentCaches:
+- version: v1.5.0-rc.7
+  url: https://buildweb.eng.vmware.com/ob/19265412/
+  buildNumber: bora-19265412
+  buildStatus: SUCCEEDED
+  hash: 324867951f3c514fab296c411976c9a6

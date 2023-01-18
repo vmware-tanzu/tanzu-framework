@@ -1,0 +1,35 @@
+componentBuilds:
+- name: tanzu-framework
+  version: v0.8.0-framework
+  channel: "378086175413407505"
+  url: https://buildweb.eng.vmware.com/ob/18812137/
+  artifactURL:
+    capabilitiesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/capabilities/capabilities-controller-manager:v0.8.0-framework
+      sha256: c364930814df40cb6896aa4fe41e42fd9c137a32ec39cbba06203e890d39d84e
+    providerTemplateImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/provider/provider-templates:v0.8.0-framework
+      sha256: 5ae3bc7bbb1f24d777a4ef8fb20d183b9ad8d9da3dbde4b33f1490ddcc715159
+    tanzu-core-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18812137/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-darwin-amd64.tar.gz
+    tanzu-core-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18812137/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-linux-amd64.tar.gz
+    tanzu-core-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18812137/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-windows-amd64.zip
+    tkrImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-controller-manager:v0.8.0-framework
+      sha256: 2f2744a2dabf30df84bd05af5e30cfd9177ff7e603fd90d4e5370c00e919c97f
+  cachehash: d38991646efe54c5cb2d16d17b6fd134
+  publishhash: 11ea040bbf0a5619b636efb9aa1b9338
+- name: tkg-bom
+  version: v1.5.0-framework-v0.8.0
+  channel: "378086175413407505"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/378086175413407505/component/tkg-bom/_boltArtifacts/tkg-bom-v1.5.0-framework-v0.8.0.yaml
+  artifactURL:
+    tkgBomImage:
+      url: projects-stg.registry.vmware.com/tkg/tkg-bom:v1.5.0-framework-v0.8.0
+      sha256: 30cfded40ae87f3d46ea3ff38f88ec2ba3f881a2a9a1eae9819ad676ff3ba80f
+    tkgBomYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/378086175413407505/component/tkg-bom/_boltArtifacts/tkg-bom-v1.5.0-framework-v0.8.0.yaml
+  cachehash: 049f24da8415fadb2085c9eefabcc521
+  publishhash: cf1a513802b84bc3dbf2413af53348c5

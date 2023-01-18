@@ -1,0 +1,7 @@
+name: cri_tools
+goBuildComponentCaches:
+- version: v1.23.0+vmware.6
+  url: https://buildweb.eng.vmware.com/ob/20870865/
+  buildNumber: bora-20870865
+  buildStatus: SUCCEEDED
+  hash: 2eaefa80bf86db327bb93e0930662ea0

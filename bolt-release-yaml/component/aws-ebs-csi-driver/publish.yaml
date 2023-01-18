@@ -1,0 +1,7 @@
+name: aws-ebs-csi-driver
+publish:
+  - name: awsEbsCsiDriverImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/aws-ebs-csi-driver/images/aws-ebs-csi-driver-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/aws-ebs-csi-driver/images/aws-ebs-csi-driver-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: csi/aws-ebs-csi-driver:$UNDERSCOREVERSION

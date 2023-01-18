@@ -1,0 +1,7 @@
+name: csi_provisioner
+goBuildComponentCaches:
+- version: v2.0.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/17192689
+  buildNumber: bora-17192689
+  buildStatus: SUCCEEDED
+  hash: dbf0893ae89157dbfe551d6c1eb73045

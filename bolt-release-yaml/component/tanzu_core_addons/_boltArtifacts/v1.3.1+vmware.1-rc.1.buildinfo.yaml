@@ -1,0 +1,38 @@
+componentBuilds:
+- name: tanzu_core_addons
+  version: v1.3.1+vmware.1-rc.1
+  channel: "352364420426412562"
+  url: https://buildweb.eng.vmware.com/ob/17952436/
+  artifactURL:
+    antreaTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/antrea-templates:v1.3.1_vmware.1-rc.1
+      sha256: 3d7a8b9bd1ba4b304a3493f4a637f7f24fa8de07c1b893a1c0ba678b1b9a731d
+    calicoTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/calico-templates:v1.3.1_vmware.1-rc.1
+      sha256: 33f515e0d26135a151b57283df85b65e90c28e12a8a0d18227ed817c66194e76
+    kappControllerTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/kapp-controller-templates:v1.3.1_vmware.1-rc.1
+      sha256: ef5d0d4ca2cdc863a46fb1080be4d076097b2c606d273960c6daa025de6f771f
+    metricsServerTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/metrics-server-templates:v1.3.1_vmware.1-rc.1
+      sha256: 35f79438f661e205ad0fdf0f0be41a0d17f65daebe299cb4dbda164bb8d12fa7
+    pinnipedTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/pinniped-templates:v1.3.1_vmware.1-rc.1
+      sha256: 71c6dc1fd3adc19dbeefbddd31b908629cf85ca2e61e56e42c97ebcee4b7c63d
+    tanzuAddonsManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v1.3.1_vmware.1-rc.1
+      sha256: 9d75c14962dfd707d71d4c452488f4f0e7d0761f9fcf9c478bc7acf65ae3dd20
+    tanzuAddonsManagerTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager-templates:v1.3.1_vmware.1-rc.1
+      sha256: 59b7527d7b94fa6cbce710badb102f501f816d9675e07166a3f95c4744c3dc69
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.1_vmware.1-rc.1
+      sha256: 1fc8a019c9936ff39513f40202c23cd0e22262b3835618f3e85cd5ba1ecf8aad
+    vsphereCpiTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/vsphere-cpi-templates:v1.3.1_vmware.1-rc.1
+      sha256: 8befde366aec81491117fa2a0735146c9f01bc968ff2699bffefd8def37e0151
+    vsphereCsiTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/vsphere-csi-templates:v1.3.1_vmware.1-rc.1
+      sha256: 6755f7ef7ca8f095b458f84fc48477c91179f4fedb246fc98797f7d92d7c46bd
+  cachehash: 4258ce76ca7f079eb411eaa18c5007ac
+  publishhash: e1b30135c1426b3f16866b63cab627b6

@@ -1,0 +1,6 @@
+name: docker_distribution
+publish:
+  - name: docker_distribution-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/docker_distribution_container_image.tar
+    destinationPath: $CHANNEL/image-builder/docker_distribution/$VERSION/publish/lin64/docker_distribution_container_image.tar

@@ -1,0 +1,8 @@
+name: envoy
+upstreamURL: https://github.com/envoyproxy/envoy.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_envoy.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_envoy.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_envoy.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_envoy.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_envoy.git
+gobuildTarget: cayman_envoy

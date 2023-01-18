@@ -1,0 +1,18 @@
+versionMap:
+  v0.1.0+vmware.1: publish.yaml
+  v0.1.0+vmware.2: publish.yaml
+  v0.1.0+vmware.3: publish.yaml
+  v0.1.0+vmware.3-fips.1: publish.yaml
+  v0.1.0+vmware.4: publish.yaml
+  v0.1.0+vmware.5: publish.yaml
+  v0.1.0+vmware.5-fips.1: publish.yaml
+  v0.1.0+vmware.6: publish.yaml
+  v0.1.0+vmware.7: publish.yaml
+  v0.1.0+vmware.7-fips: v1.publish.yaml
+  v0.1.0+vmware.8: v1.publish.yaml
+  v0.1.0+vmware.9: v1.publish.yaml
+  v0.2.0+vmware.1: publish.yaml
+  v0.2.0+vmware.2: v1.publish.yaml
+  v0.2.0+vmware.3: v1.publish.yaml
+  v0.2.0+vmware.4: v1.publish.yaml
+  v0.2.0+vmware.5: v1.publish.yaml

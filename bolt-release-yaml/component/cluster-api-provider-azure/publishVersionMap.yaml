@@ -1,0 +1,14 @@
+versionMap:
+  v0.4.8-47-gfbb2d55b: publish.yaml
+  v0.4.10+vmware.1: publish.yaml
+  v0.4.10+vmware.2: publish.yaml
+  v0.4.15+vmware.1: publish.yaml
+  v1.0.0+vmware.2: publish.yaml
+  v1.0.1+vmware.1: publish.yaml
+  v1.0.2+vmware.1: publish.yaml
+  v1.2.1+vmware.1: publish.yaml
+  v1.4.0+vmware.1: publish.yaml
+  v1.4.0+vmware.2: publish.yaml
+  v1.4.5+vmware.1: publish.yaml
+  v1.5.3+vmware.1: publish.yaml
+  v1.6.1+vmware.1: publish.yaml

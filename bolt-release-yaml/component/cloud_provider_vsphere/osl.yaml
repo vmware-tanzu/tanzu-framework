@@ -1,0 +1,4 @@
+submodules:
+  - name: cloud_provider_vsphere/src
+    go_mod:
+      - "go.mod"

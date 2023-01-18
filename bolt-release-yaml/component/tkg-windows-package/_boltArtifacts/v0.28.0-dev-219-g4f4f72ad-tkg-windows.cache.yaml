@@ -1,0 +1,7 @@
+name: tkg-windows-package
+goBuildComponentCaches:
+- version: v0.28.0-dev-219-g4f4f72ad-tkg-windows
+  url: https://buildweb.eng.vmware.com/ob/20903294/
+  buildNumber: bora-20903294
+  buildStatus: SUCCEEDED
+  hash: e3d6f1d57ebc8a1686df97cc2d0136cd

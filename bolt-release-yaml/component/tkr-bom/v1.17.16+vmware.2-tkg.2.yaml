@@ -1,0 +1,96 @@
+name: tkr-bom
+boms:
+  - version: v1.17.16+vmware.2-tkg.2
+    type: tkr
+    imageRepository: projects.registry.vmware.com/tkg
+    dependencies:
+      apiVersion: run.tanzu.vmware.com/v1alpha1
+      noOVAPublish: "true"
+    componentReferences:
+      - name: antrea
+        version:
+          - v0.11.3+vmware.1
+      - name: calico_all
+        version:
+          - v3.11.3+vmware.1
+      - name: cloud_provider_vsphere
+        version:
+          - v1.18.1+vmware.1
+      - name: csi_attacher
+        version:
+          - v3.0.0+vmware.1
+      - name: csi_livenessprobe
+        version:
+          - v2.1.0+vmware.1
+      - name: csi_node_driver_registrar
+        version: 
+          - v2.0.1+vmware.1
+      - name: kubernetes-csi_external-resizer
+        version:
+          - v1.0.0+vmware.1
+      - name: csi_provisioner
+        version:
+          - v2.0.0+vmware.1
+      - name: vsphere_csi_driver
+        version:
+          - v2.1.0+vmware.1
+      - name: dex
+        version:
+          - v2.27.0+vmware.1
+      - name: kapp-controller
+        version:
+          - v0.16.0+vmware.1
+      - name: metrics-server
+        version:
+         - v0.4.0+vmware.1
+      - name: pinniped
+        version:
+          - v0.4.1+vmware.1
+      - name: tanzu_core_addons
+        version:
+          - v1.3.0
+      - name: kubernetes
+        version:
+          - v1.17.16+vmware.2
+      - name: cni_plugins
+        version:
+          - v0.8.7+vmware.3
+      - name: coredns
+        version:
+          - v1.6.5+vmware.12
+      - name: cri_tools
+        version:
+          - v1.16.1+vmware.8
+      - name: etcd
+        version:
+          - v3.4.3+vmware.13
+      - name: containerd
+        version:
+          - v1.4.3+vmware.1
+      - name: kubernetes-sigs_kind
+        version:
+          - v1.17.16+vmware.2
+      - name: ova-photon-3
+        version:
+          - v1.17.16+vmware.2-tkg.0-2766760546902094721
+      - name: ova-ubuntu-2004
+        version:
+          - v1.17.16+vmware.2-tkg.0-13075399354022698785
+      - name: ami-general-amazon-2
+        version:
+          - v1.17.16+vmware.2-tkg.0-10691293317867454560
+      - name: ami-general-ubuntu-2004
+        version:
+          - v1.17.16+vmware.2-tkg.0-14681125241143008736
+      - name: ami-gov-amazon-2
+        version:
+          - v1.17.16+vmware.2-tkg.0-17194255082611885204
+      - name: ami-gov-ubuntu-2004
+        version:
+          - v1.17.16+vmware.2-tkg.0-2879414544283150988
+      - name: azure-ubuntu-1804
+        version:
+          - v1.17.16+vmware.2-tkg.0-14697761810952006450
+      - name: azure-ubuntu-2004
+        version:
+          - v1.17.16+vmware.2-tkg.0-15735473114817167875

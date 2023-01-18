@@ -1,0 +1,69 @@
+name: tanzu-framework-management-packages
+packageRepositories:
+- version: v0.22.0-dev-59-g59ffcdbb
+  upstreamCommit: 59ffcdbb3b129ad4d8af01ea6c9b647433051ade
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repos~38dca04ab120731b2d7b86f3767509e3c994b698
+  componentReferences:
+  - name: addons-manager-v2-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-addons-manager-v2
+  - name: featuregates-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-featuregates
+  - name: core-management-plugins-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-core-mgmt-plugins
+  - name: tkg-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkg
+  - name: tkg-clusterclass-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkg-clusterclass
+  - name: tkg-clusterclass-aws-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkg-clusterclass-aws
+  - name: tkg-clusterclass-vsphere-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkg-clusterclass-vsphere
+  - name: tkg-clusterclass-azure-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkg-clusterclass-azure
+  - name: tkg-clusterclass-docker-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkg-clusterclass-docker
+  - name: tkr-aws-machine-webhook-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkr-aws-mc-webhook
+  - name: tkr-azure-machine-webhook-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkr-azure-mc-webhook
+  - name: tkr-docker-machine-webhook-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkr-docker-mc-webhook
+  - name: tkr-vsphere-machine-webhook-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkr-vsphere-mc-webhook
+  - name: tkr-service-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkr-service
+  - name: cliplugins-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-cliplugins
+  - name: framework-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-framework
+  - name: tanzu-auth-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tanzu-auth-pkg
+  - name: tkr-source-controller-package
+    version:
+    - v0.22.0-dev-59-g59ffcdbb-tkr-source-controller
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_type: management
+    gobuild.releaseVersion: v0.22.0-dev-59-g59ffcdbb

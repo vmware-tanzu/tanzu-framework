@@ -1,0 +1,23 @@
+componentBuilds:
+- name: external-dns-package
+  version: v0.12.2+vmware.3-tkg.1-external-dns-zshippable
+  channel: "436792637404513807"
+  url: https://buildweb.eng.vmware.com/ob/20882162/
+  artifactURL:
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.12.2_vmware.3-tkg.1-zshippable
+      sha256: 74ed65907fe204121820375ea01045c63933c2b0c9d6b88e4a8398cc35961bd2
+  cachehash: 8685b2e7b9ce0325b6261041c741006e
+  publishhash: 19b8613fad519068fc2d01dbd771545b
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/external-dns:v0.12.2_vmware.3
+    gobuild.downstream_version: vmware.3-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: external-dns
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: k8s.gcr.io/external-dns/external-dns
+    gobuild.upstream_version: 0.12.2

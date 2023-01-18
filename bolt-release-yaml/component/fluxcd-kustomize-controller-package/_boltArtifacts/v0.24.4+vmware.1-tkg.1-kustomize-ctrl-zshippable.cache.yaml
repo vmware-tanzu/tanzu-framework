@@ -1,0 +1,7 @@
+name: fluxcd-kustomize-controller-package
+goBuildComponentCaches:
+- version: v0.24.4+vmware.1-tkg.1-kustomize-ctrl-zshippable
+  url: https://buildweb.eng.vmware.com/ob/19885957/
+  buildNumber: bora-19885957
+  buildStatus: SUCCEEDED
+  hash: a2f5fa9faa405c93461107ebd4232201

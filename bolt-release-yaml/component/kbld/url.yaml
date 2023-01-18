@@ -1,0 +1,4 @@
+name: kbld
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_kbld.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kbld.git
+gobuildTarget: cayman_kbld

@@ -1,0 +1,25 @@
+componentBuilds:
+- name: ami-gov-ubuntu-2004
+  version: v1.23.10+vmware.1-tkg.1-5256ee847fe991a36754a8ec6ab821f3
+  channel: "432505954798429963"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/3321
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/ami-gov-ubuntu-2004/bom-ami-gov-ubuntu-2004-v1.23.10+vmware.1-tkg.1-5256ee847fe991a36754a8ec6ab821f3.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.23.10+vmware.1-tkg.1-5256ee847fe991a36754a8ec6ab821f3-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.23.10+vmware.1-tkg.1-5256ee847fe991a36754a8ec6ab821f3-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.23.10+vmware.1-tkg.1-5256ee847fe991a36754a8ec6ab821f3-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432505954798429963/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-v1.23.10+vmware.1-tkg.1-5256ee847fe991a36754a8ec6ab821f3-provenance_result.txt
+  cachehash: 6adb2219999dd27660d3e6329ebcb5da
+  publishhash: 7ac7828afdf1bda432400e35b5619835
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 61df636aa984cd9788609cd48d6a1d99cf1eb87e
+    jenkins.UBUNTU_2004_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-stig-hardening.git
+    jenkins.UBUNTU_2004_STIG_VERSION: 04d8e41453a83bb62e1eb145ca7537ac54652b29

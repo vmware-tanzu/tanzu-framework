@@ -1,0 +1,13 @@
+componentBuilds:
+- name: contour
+  version: v1.12.0+vmware.1
+  channel: "344401269907000195"
+  url: https://buildweb.eng.vmware.com/ob/17664633
+  artifactURL:
+    contour-file:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17664633/publish/lin64/contour/executables/contour-v1.12.0+vmware.1
+    contourImage:
+      url: projects-stg.registry.vmware.com/tkg/contour:v1.12.0_vmware.1
+      sha256: 193e791d78ab92d1a6fd84ae79a8b211243c47f843767c59a1c64f4399ccb026
+  cachehash: e941a37552ef5cf5e07c58f61be079e6
+  publishhash: f11286aaa402efd28a5cd0db970d543b

@@ -1,0 +1,39 @@
+name: tanzu-framework-management-packages
+packageRepositories:
+- version: v0.18.0-dev-21-g117361dc
+  upstreamCommit: 117361dcd503b54af30d213cda4875c411f4c8c7
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repos~67441f86a837e6291a71d393f68479fb45630974
+  componentReferences:
+  - name: featuregates-package
+    version:
+    - v0.18.0-dev-21-g117361dc-featuregates
+  - name: core-management-plugins-package
+    version:
+    - v0.18.0-dev-21-g117361dc-core-mgmt-plugins
+  - name: tkg-package
+    version:
+    - v0.18.0-dev-21-g117361dc-tkg
+  - name: tkg-clusterclass-package
+    version:
+    - v0.18.0-dev-21-g117361dc-tkg-clusterclass
+  - name: tkg-clusterclass-aws-package
+    version:
+    - v0.18.0-dev-21-g117361dc-tkg-clusterclass-aws
+  - name: tkg-clusterclass-vsphere-package
+    version:
+    - v0.18.0-dev-21-g117361dc-tkg-clusterclass-vsphere
+  - name: tkg-clusterclass-azure-package
+    version:
+    - v0.18.0-dev-21-g117361dc-tkg-clusterclass-azure
+  - name: tkg-clusterclass-docker-package
+    version:
+    - v0.18.0-dev-21-g117361dc-tkg-clusterclass-docker
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_type: management
+    gobuild.releaseVersion: v0.18.0-dev-21-g117361dc

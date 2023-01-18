@@ -1,0 +1,7 @@
+name: prometheus_node_exporter
+unmanagedComponents:
+  - version: v0.18.1+vmware.1
+    gobuildBranch: vmware-0.18.1
+    dependencies:
+      gobuild.golangVersion: 1.14
+      gobuild.linux_hosttype: linux-centos72-gc32

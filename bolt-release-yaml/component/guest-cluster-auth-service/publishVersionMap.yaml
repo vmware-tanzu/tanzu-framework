@@ -1,0 +1,7 @@
+versionMap:
+  v0.1-71-g64e1c73: publish.yaml
+  v0.1-68-gac93c34: v2.publish.yaml
+  v0.1-72-g6fbef38: publish-photon.yaml
+  v1.0.0: utkg.publish.yaml
+  v1.1.0: utkg.publish.yaml
+

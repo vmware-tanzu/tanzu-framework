@@ -1,0 +1,7 @@
+name: capabilities-package
+goBuildComponentCaches:
+- version: v0.25.0-dev-62-g59b46aa2-capabilities
+  url: https://buildweb.eng.vmware.com/ob/20118174/
+  buildNumber: bora-20118174
+  buildStatus: SUCCEEDED
+  hash: 34e52e13fa92fec891a94413d8911f60

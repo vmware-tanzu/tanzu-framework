@@ -1,0 +1,26 @@
+componentBuilds:
+- name: antrea
+  version: v1.5.2+vmware.3-advanced
+  channel: "410354369666491224"
+  url: https://buildweb.eng.vmware.com/ob/19848240
+  artifactURL:
+    antctl:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19848240/publish/lin64/antrea/executables/antctl-v1.5.2+vmware.3.gz
+    antrea-debian-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/410354369666491224/image-builder/antrea/v1.5.2+vmware.3/publish/lin64/antrea/images/antrea-advanced-debian-v1.5.2_vmware.3.tar
+      sha256: 5f4889d45aadbc39c2bb0ef2de952b2324dfed66f5bf8c4ea7e4029af922398c
+    antrea-windows:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/410354369666491224/image-builder/antrea/v1.5.2+vmware.3/publish/antrea-windows-advanced.zip
+      sha256: bd3932ea96c3d91686bf16f57fdee23a53b8d9f605d76889e9b3d0537d028e0a
+    antreaImage:
+      url: projects-stg.registry.vmware.com/tkg/antrea-advanced-debian:v1.5.2_vmware.3
+      sha256: cdfc77d3fc85f0eb12babc0b335eb4c78d13acbdd06860ca5c5800ec64a68b36
+    manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19848240/publish/lin64/antrea/manifests/antrea-v1.5.2+vmware.3.yml
+  cachehash: 65153a803a0e4d9ffb4c1f98bbdb0b85
+  publishhash: 04359fed8f13ec99d73fb9026fe4a97e
+  configDependencies:
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32
+    packageType: advanced
+    packageVersion: v1.5.2+vmware.3

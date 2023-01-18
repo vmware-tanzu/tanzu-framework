@@ -1,0 +1,11 @@
+componentBuilds:
+- name: cloud_provider_vsphere
+  version: v1.20.0+vmware.1
+  channel: "364710644613651337"
+  url: https://buildweb.eng.vmware.com/ob/18359216/
+  artifactURL:
+    ccmControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/ccm/manager:v1.20.0_vmware.1
+      sha256: 40ada92e64ea77fd8c4445d92c857995f8fb8e1fea5330dcf68723e10fa68af0
+  cachehash: 1d00667ef52fbfb634983a11209fd12b
+  publishhash: 6c50cc278c08feacb44817ac7309d90c

@@ -1,0 +1,35 @@
+componentBuilds:
+- name: tkg-standard-packages
+  version: v1.4.0-rc.2
+  channel: "367843806831232094"
+  url: https://buildweb.eng.vmware.com/ob/18467653/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.1.0_vmware.1-tkg.2-rc.2
+      sha256: 90008da7e2e860abb62f68650881296e6e2b80679ae18772ccb4603d02926088
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.17.1_vmware.1-tkg.1-rc.2
+      sha256: fc59062a17cc353ef557b51eabe6dc120127722b380e99ec3430500a674a11ed
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.8.0_vmware.1-tkg.1-rc.2
+      sha256: 44bd79a15d3e3c32cc8a69268d7c88c40466a5842b4085d83d009aef248396d1
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.1-rc.2
+      sha256: be0ac6acf58cd72bc7dd440c9ee4dd0835e7bc79638634e13ba03d2522c16113
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.1-tkg.1-rc.2
+      sha256: 2bc639a1eded087b7a19269268b645457042850d2fe582571f06e26269115602
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.1-rc.2
+      sha256: bdfcc322157ef73a959930f772fdb116089e508e4eacc00db01e9c07736f2c56
+    multus-cni.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.1-tkg.1-rc.2
+      sha256: e808c542eb49e7da27b4ae5ab820b24a668bc88105ee9e06a1347ffcad0098f0
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.1-tkg.1-rc.2
+      sha256: 744d0fcf88972d9737a0193e855a4fb6bc355bab40779705a9c7caecea375c85
+    tanzuStandardPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.4.0-rc.2
+      sha256: b3dfc9d835df9259def007555e70e9aa25254cfa015476542af9ac1ad5f745fe
+  cachehash: ffa593a5b137513c22eb93f073098bd6
+  publishhash: 1182b92cd06b18e223c96a085cbbc6e4

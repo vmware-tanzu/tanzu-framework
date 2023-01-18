@@ -1,0 +1,8 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off effort to rebuild and republisn the 1.4.0 fips.1 tkr-bom"
+componentReferences:
+ - name: tkr-bom
+   version:
+    - v1.21.2+vmware.1-fips.1-tkg.1
+    - v1.20.8+vmware.1-fips.1-tkg.2

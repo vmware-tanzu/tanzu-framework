@@ -1,0 +1,7 @@
+name: cadvisor
+goBuildComponentLocks:
+- version: v0.36.0+vmware.1
+  gobuildBranch: vmware-0.36.0
+  gobuildHeadCommit: 4af70c2f18530f1260db681c6081415e323be1b3
+  hash: 8e431cdc09bf471e3bc60cfd9d2de4f6
+  componentLockReferences: []

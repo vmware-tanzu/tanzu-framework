@@ -1,0 +1,7 @@
+name: cloud-provider-azure
+goBuildComponentLocks:
+- version: v1.1.26+vmware.1
+  gobuildBranch: vmware-1.1.26+vmware.1
+  gobuildHeadCommit: f9f9fca1a577b9964b29e0c42d59cfd3d29ad1f2
+  hash: 9fe0b9d59ad013c93a928a4413f43bd7
+  componentLockReferences: []

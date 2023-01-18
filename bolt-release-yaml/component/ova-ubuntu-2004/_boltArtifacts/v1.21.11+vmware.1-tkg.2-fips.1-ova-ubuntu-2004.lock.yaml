@@ -1,0 +1,23 @@
+name: ova-ubuntu-2004
+imageLocks:
+- version: v1.21.11+vmware.1-tkg.2-fips.1-ova-ubuntu-2004
+  hash: 17b21a1aeb3140b59ed7d9b2d77990eb
+  componentLockReferences:
+  - name: cni_plugins
+    version: v1.1.0+vmware.1-fips.1
+    lockHash: 0a9dc24ff5679ba893e5c60fddedb286
+  - name: coredns
+    version: v1.8.0+vmware.11-fips.1
+    lockHash: 8be23470d4430a0e19c405f5322d7f2e
+  - name: cri_tools
+    version: v1.20.0+vmware.9-fips.1
+    lockHash: 46a999bf8e593b9aed5f07a71a109071
+  - name: etcd
+    version: v3.4.13+vmware.25-fips.1
+    lockHash: da7a9ee70dec5703b193c81e96ce01aa
+  - name: containerd
+    version: v1.5.9+vmware.1-fips.1
+    lockHash: 39f3bc3eb0c930184e00030237a4f957
+  - name: kubernetes
+    version: v1.21.11+vmware.1-fips.1
+    lockHash: ca1d28925d96062336d30521c59d6c1d

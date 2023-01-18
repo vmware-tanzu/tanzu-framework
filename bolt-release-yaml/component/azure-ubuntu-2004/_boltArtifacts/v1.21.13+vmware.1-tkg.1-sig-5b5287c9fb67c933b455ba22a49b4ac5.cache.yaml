@@ -1,0 +1,8 @@
+name: azure-ubuntu-2004
+imageCaches:
+- version: v1.21.13+vmware.1-tkg.1-sig-5b5287c9fb67c933b455ba22a49b4ac5
+  channel: "415270169250636549"
+  hash: 0930163c49dd53d89d34f47c70e2bd8f
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2292
+  buildNumber: "2292"
+  buildStatus: SUCCEEDED

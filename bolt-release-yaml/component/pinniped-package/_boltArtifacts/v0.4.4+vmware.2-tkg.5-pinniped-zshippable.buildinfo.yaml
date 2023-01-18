@@ -1,0 +1,27 @@
+componentBuilds:
+- name: pinniped-package
+  version: v0.4.4+vmware.2-tkg.5-pinniped-zshippable
+  channel: "420462416233505362"
+  url: https://buildweb.eng.vmware.com/ob/20263815/
+  artifactURL:
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.4.4_vmware.2-tkg.5-zshippable
+      sha256: ad2b92cb2779d7de2ba9f3133942cddca69e58380038e38b8282c14292477c07
+  cachehash: a164feb7b282abbc500b8dba9720e590
+  publishhash: deeac3b3022bf44de880663cd7ec52c5
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.10.0_vmware.2-tkg.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/pinniped:v0.4.4_vmware.1
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/dex:v2.27.0_vmware.1
+    gobuild.downstream_version: vmware.2-tkg.5-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: pinniped
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects.registry.vmware.com/tce/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.1
+    gobuild.upstream_image_1: docker.io/getpinniped/pinniped-server:v0.4.4
+    gobuild.upstream_image_2: projects.registry.vmware.com/tce/dex:v2.27.0_vmware.1
+    gobuild.upstream_version: 0.4.4

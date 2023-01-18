@@ -1,0 +1,11 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'build azure images '
+componentReferences:
+  - name: azure-ubuntu-1804
+    version:
+      - v1.22.3+vmware.1-tkg.2-bda7a4a32b2b8ae4fa420dab6d493b82
+  - name: azure-ubuntu-2004
+    version:
+      - v1.22.3+vmware.1-tkg.2-c55984be65e2849088d965610fe090d3
+      

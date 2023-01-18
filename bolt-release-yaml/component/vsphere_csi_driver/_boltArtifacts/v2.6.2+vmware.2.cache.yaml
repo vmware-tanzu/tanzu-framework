@@ -1,0 +1,7 @@
+name: vsphere_csi_driver
+goBuildComponentCaches:
+- version: v2.6.2+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/20838259/
+  buildNumber: bora-20838259
+  buildStatus: SUCCEEDED
+  hash: aa383bfa0a4c4729d505939bfc1cf62f

@@ -1,0 +1,10 @@
+name: addons-manager-v2-package
+goBuildComponentLocks:
+- version: v0.20.0-dev-33-g4e1c8c4c-addons-manager-v2
+  gobuildBranch: 401202659274531790-v0.20.0-dev-33-g4e1c8c4c-addons-manager-v2
+  gobuildHeadCommit: c95e986411501e41292bbfcba79bf4109b490c85
+  hash: ad6a4836d2c81351a999e19b12ac5326
+  componentLockReferences:
+  - name: tanzu-framework-addons
+    version: v0.20.0-dev-33-g4e1c8c4c
+    lockHash: f909e16c827732042414cec4335b8d9d

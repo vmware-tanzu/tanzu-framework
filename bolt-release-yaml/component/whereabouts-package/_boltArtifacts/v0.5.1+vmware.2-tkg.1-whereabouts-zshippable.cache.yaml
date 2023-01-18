@@ -1,0 +1,7 @@
+name: whereabouts-package
+goBuildComponentCaches:
+- version: v0.5.1+vmware.2-tkg.1-whereabouts-zshippable
+  url: https://buildweb.eng.vmware.com/ob/19936354/
+  buildNumber: bora-19936354
+  buildStatus: SUCCEEDED
+  hash: b1f6d03cb5b844d0737bc59364049696

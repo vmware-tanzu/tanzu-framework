@@ -1,0 +1,10 @@
+name: standalone-plugins-package
+goBuildComponentLocks:
+- version: v0.11.1-87-g7f001928-standalone-plugins
+  gobuildBranch: 391217605941195111-v0.11.1-87-g7f001928-standalone-plugins
+  gobuildHeadCommit: ea92a91bdebebbe412efbe5824e240986168c6ca
+  hash: 8ac06e0b950ed56c0f1d67801fbdc272
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.11.1-87-g7f001928
+    lockHash: def1867db17e31bd676fef0de89ffd8b

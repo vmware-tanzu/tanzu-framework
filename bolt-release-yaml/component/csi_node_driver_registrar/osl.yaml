@@ -1,0 +1,4 @@
+submodules:
+  - name: csi_node_driver_registrar/src
+    go_mod:
+      - "go.mod"

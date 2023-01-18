@@ -1,0 +1,10 @@
+name: tkg-clusterclass-package
+goBuildComponentLocks:
+- version: v0.27.0-dev-74-g5c4802df-tkg-clusterclass
+  gobuildBranch: 427260951608171331-v0.27.0-dev-74-g5c4802df-tkg-clusterclass-tkg-clusterclass-package
+  gobuildHeadCommit: 10706e724e9431222e9bb76677deb53151deeadf
+  hash: 6695a4d57871f3d4eef1db5c074d0163
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.27.0-dev-74-g5c4802df
+    lockHash: 7862f594a88363cf3f71d652b57a83ef

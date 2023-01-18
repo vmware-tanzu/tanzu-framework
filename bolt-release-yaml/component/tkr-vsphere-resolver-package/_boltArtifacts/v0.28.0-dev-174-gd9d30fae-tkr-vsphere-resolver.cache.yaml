@@ -1,0 +1,7 @@
+name: tkr-vsphere-resolver-package
+goBuildComponentCaches:
+- version: v0.28.0-dev-174-gd9d30fae-tkr-vsphere-resolver
+  url: https://buildweb.eng.vmware.com/ob/20866323/
+  buildNumber: bora-20866323
+  buildStatus: SUCCEEDED
+  hash: 001af2b11995e70369649dc05ed29568

@@ -1,0 +1,23 @@
+name: ova-ubuntu-2004
+imageLocks:
+- version: v1.18.17+vmware.2-tkg.1-9647604180039035735
+  hash: "2152096693573377651"
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.18.17+vmware.2
+    lockHash: "17411146292829708539"
+  - name: cni_plugins
+    version: v0.8.7+vmware.7
+    lockHash: "2553094499531162134"
+  - name: coredns
+    version: v1.6.7+vmware.8
+    lockHash: "16877299815023643603"
+  - name: cri_tools
+    version: v1.17.0+vmware.6
+    lockHash: "16530545095246721429"
+  - name: etcd
+    version: v3.4.3+vmware.13
+    lockHash: "2838439884730118873"
+  - name: containerd
+    version: v1.4.4+vmware.3
+    lockHash: "5199217500967235205"

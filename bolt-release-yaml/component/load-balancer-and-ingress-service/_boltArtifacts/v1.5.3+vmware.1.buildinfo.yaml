@@ -1,0 +1,11 @@
+componentBuilds:
+- name: load-balancer-and-ingress-service
+  version: v1.5.3+vmware.1
+  channel: "375997958690196647"
+  url: https://buildweb.eng.vmware.com/ob/18742310/
+  artifactURL:
+    loadBalancerAndIngressServiceImage:
+      url: projects-stg.registry.vmware.com/tkg/ako:v1.5.3_vmware.1
+      sha256: c18cb363f09b9f337d1a987b583206c774db26746d0dffe5a06725fcf3030cd2
+  cachehash: 2ee310a125062bfc82c19ca015312c3a
+  publishhash: bb17bbba17855da73f84f1c52a694ff4

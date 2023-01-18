@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: tkg release yaml
+componentReferences:
+- name: tkg_release
+  version:
+  - v1.4.0-rc.3

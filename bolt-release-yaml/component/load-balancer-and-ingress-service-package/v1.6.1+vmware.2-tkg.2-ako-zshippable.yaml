@@ -1,0 +1,24 @@
+name: load-balancer-and-ingress-service-package
+packages:
+  - version: v1.6.1+vmware.2-tkg.2-ako-zshippable
+    gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+    upstreamCommit: 715b99be2776fca6ae29e2a03e4ef83fb5ea3968
+    componentReferences:
+      - name: load-balancer-and-ingress-service
+        version:
+        - v1.6.1+vmware.2
+    dependencies:
+      gobuild.IS_RTM_BUILD: "False"
+      gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+      gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos8
+      gobuild.package_name: load-balancer-and-ingress-service
+      gobuild.downstream_image_0: '{{(getElementFromSlice
+      (convertSliceOfInterfaceToSliceOfMapStringInterface (index .refbuildinfo "componentBuilds"))
+      "name" "load-balancer-and-ingress-service").artifactURL.loadBalancerAndIngressServiceImage.url}}'
+      gobuild.upstream_image_0: projects-stg.registry.vmware.com/tkg/ako:v1.6.1_vmware.1
+      gobuild.upstream_version: 1.6.1
+      gobuild.downstream_version: vmware.2-tkg.2-zshippable
+      gobuild.package_type: core
+      gobuild.noMirror: "true"
+      

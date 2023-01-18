@@ -1,0 +1,79 @@
+componentBuilds:
+- name: kubernetes
+  version: v1.20.8+vmware.1-fips.1
+  channel: "375689291638039556"
+  url: https://buildweb.eng.vmware.com/ob/18732220/
+  artifactURL:
+    e2e-test_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/image-builder/kubernetes/v1.20.8+vmware.1-fips.1/bin/linux/amd64/e2e-test.tar
+      sha256: 15e27f6a45279ccb01ece930744fbc21a7383180ffa80a88fb7f1c8390c89114
+    file-kubeadm-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/image-builder/kubernetes/v1.20.8+vmware.1-fips.1/bin/linux/amd64/kubeadm
+      sha256: 3d952593bc877f272174a8ed0baf95de19ea55b93cd085ab277cb79074bf1d45
+    file-kubectl-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/image-builder/kubernetes/v1.20.8+vmware.1-fips.1/bin/linux/amd64/kubectl
+      sha256: b0aa14cfb215bff27974ee8c852aaf354b858bd7c23913709be8895327112737
+    file-kubelet-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/image-builder/kubernetes/v1.20.8+vmware.1-fips.1/bin/linux/amd64/kubelet
+      sha256: 4fc3289aec43a4433ceb4c6623a13cc4c004cfae54383317418db6fbfb92e36d
+    kube-apiserver_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/image-builder/kubernetes/v1.20.8+vmware.1-fips.1/bin/linux/amd64/kube-apiserver.tar
+      sha256: dbf05e785b1e5741af625cd497c6a9614491161d3be58a463c6de0e71c5e4fb4
+    kube-controller-manager_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/image-builder/kubernetes/v1.20.8+vmware.1-fips.1/bin/linux/amd64/kube-controller-manager.tar
+      sha256: 5fe6334933b00e31682f73d414e161a9d079cad466c4d473f9e971cb05fd9957
+    kube-proxy_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/image-builder/kubernetes/v1.20.8+vmware.1-fips.1/bin/linux/amd64/kube-proxy.tar
+      sha256: 10259c96eca8e0162f7035f76911659b2fcd90f4d359aff13132f5e2b289b6ce
+    kube-scheduler_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/image-builder/kubernetes/v1.20.8+vmware.1-fips.1/bin/linux/amd64/kube-scheduler.tar
+      sha256: d887d1c9571153ccf74dde867a08fcd7cfc65d08fc06b7c92506ee6a0c206e5e
+    kubeAPIServer:
+      url: projects-stg.registry.vmware.com/tkg/kube-apiserver:v1.20.8_vmware.1-fips.1
+      sha256: 128e1b1ce0ca60613356439ad9f8e56dfdc983f45c03bfa4e1ea4b768cd878ef
+    kubeControllerManager:
+      url: projects-stg.registry.vmware.com/tkg/kube-controller-manager:v1.20.8_vmware.1-fips.1
+      sha256: 947d862b9bf766fc5311a593a6cb6009f65b6a498e816926c52c869bda01fdba
+    kubeE2e:
+      url: projects-stg.registry.vmware.com/tkg/e2e-test:v1.20.8_vmware.1-fips.1
+      sha256: 7657933f3781357ad0bcda64a7478ff1bc4c2792d850758879cbc1d271326974
+    kubeProxy:
+      url: projects-stg.registry.vmware.com/tkg/kube-proxy:v1.20.8_vmware.1-fips.1
+      sha256: f6afc2e10ecf6b019182c36a94bff1c9a05b329367c9faea973d241162372946
+    kubeScheduler:
+      url: projects-stg.registry.vmware.com/tkg/kube-scheduler:v1.20.8_vmware.1-fips.1
+      sha256: bedba03de131a11901867a11a75d1aa0c671c690a233c6f6c2876f19c43f776f
+    kubeadm-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/debs/kubeadm_1.20.8+vmware.1-fips.1-1_amd64.deb
+    kubeadm-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/executables/kubeadm-linux-v1.20.8+vmware.1-fips.1.gz
+    kubeadm-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/rpms/rpms/kubeadm-1.20.8-1.el7.vmware.1-fips.1.x86_64.rpm
+    kubectl-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/debs/kubectl_1.20.8+vmware.1-fips.1-1_amd64.deb
+    kubectl-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/executables/kubectl-linux-v1.20.8+vmware.1-fips.1.gz
+    kubectl-mac:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/executables/kubectl-mac-v1.20.8+vmware.1-fips.1.gz
+    kubectl-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/rpms/rpms/kubectl-1.20.8-1.el7.vmware.1-fips.1.x86_64.rpm
+    kubectl-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/executables/kubectl-windows-v1.20.8+vmware.1-fips.1.exe.gz
+    kubelet-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/debs/kubelet_1.20.8+vmware.1-fips.1-1_amd64.deb
+    kubelet-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/executables/kubelet-linux-v1.20.8+vmware.1-fips.1.gz
+    kubelet-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/rpms/rpms/kubelet-1.20.8-1.el7.vmware.1-fips.1.x86_64.rpm
+    kubelet-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/lin64/kubernetes/rpms/srpms/kubelet-1.20.8-1.el7.vmware.1-fips.1.src.rpm
+    kubernetes-tar:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18732220/publish/kubernetes.tgz
+    pause:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.2
+      sha256: ce9df8975dfa7e0c88896731ddc941fe43831defa9232d7164ea215135d78162
+    pause_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/375689291638039556/image-builder/kubernetes/v1.20.8+vmware.1-fips.1/bin/linux/amd64/pause.tar
+      sha256: 4212eeb15a9fd0d5841ad56285f61f6b42502012d155d37b91f57e110dcc8289
+  cachehash: f5eab1411ab4e700530f114264ec3c1f
+  publishhash: 6b67445456e029c8665474afa14809d7

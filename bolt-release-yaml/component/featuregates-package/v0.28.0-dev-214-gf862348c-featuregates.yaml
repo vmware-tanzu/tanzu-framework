@@ -1,0 +1,21 @@
+name: featuregates-package
+packages:
+- version: v0.28.0-dev-214-gf862348c-featuregates
+  upstreamCommit: f862348c59a1a9ac5d534a8750a7730c1c3abf77
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~9b44bed767f6c3f658dd03f40730b325803703cf
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.28.0-dev-214-gf862348c
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.featuregatesImage.url}}'
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: featuregates
+    gobuild.upstream_image_0: featuregates-controller-manager:latest
+    gobuild.upstream_version: v0.28.0-dev-214-gf862348c

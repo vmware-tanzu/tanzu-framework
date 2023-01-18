@@ -1,0 +1,10 @@
+name: fluent-bit-package
+goBuildComponentLocks:
+- version: v1.9.5+vmware.1-tkg.1-fluent-bit-20230112
+  gobuildBranch: 442873817811937554-v1.9.5+vmware.1-tkg.1-fluent-bit-20230112-fluent-bit-package
+  gobuildHeadCommit: ff03d67199dfeff08f9298242f174e7a46fe0ccf
+  hash: 151255e89d509a618601dd14387e9435
+  componentLockReferences:
+  - name: fluent-bit
+    version: v1.9.5+vmware.1
+    lockHash: 72af0ead72d02ffbc2397c87046b4d62

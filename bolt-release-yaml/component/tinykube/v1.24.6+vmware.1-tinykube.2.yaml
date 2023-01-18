@@ -1,0 +1,10 @@
+name: tinykube
+managedComponents:
+  - version: v1.24.6+vmware.1-tinykube.2
+    upstreamCommit: 5268dc196162b8475ba73b30b621365dd2013d6d
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~83e3978597293e89168d4a7a6e0c11045c244726
+    dependencies:
+      gobuild.golangVersion: 1.19
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.noMirror: "true"
+      gobuild.etcdVersion: "v3.4.5+vmware.1-tinykube.2"

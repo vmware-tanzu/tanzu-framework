@@ -1,0 +1,14 @@
+componentBuilds:
+- name: ami-general-ubuntu-2004
+  version: v1.20.8+vmware.1-fips.1-tkg.1-398335202374832156
+  channel: "377894385779511057"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/865
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377894385779511057/component/ami-general-ubuntu-2004/bom-ami-general-ubuntu-2004-v1.20.8+vmware.1-fips.1-tkg.1-398335202374832156.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377894385779511057/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.20.8+vmware.1-fips.1-tkg.1-398335202374832156-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377894385779511057/component/ami-general-ubuntu-2004/ami-general-ubuntu-2004-v1.20.8+vmware.1-fips.1-tkg.1-398335202374832156-osstpmgt.yaml
+  cachehash: 837c2ca9b7af63f3eb9ace52c6ea700d
+  publishhash: 66e14f88003894c7bba1dcc21f4e3a50

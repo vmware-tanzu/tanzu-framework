@@ -1,0 +1,11 @@
+componentBuilds:
+- name: coredns
+  version: v1.7.0+vmware.8-fips.1
+  channel: "366012077988419217"
+  url: https://buildweb.eng.vmware.com/ob/18405156/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.7.0_vmware.8-fips.1
+      sha256: eeb97a54de60d96d135ab6665f4de5e5fc86ba36613ab7794e445a4a43486b13
+  cachehash: 576af5f0f76cf93e64135e82fa716eef
+  publishhash: 5b23bb15efee643a4e09b711428a8a57

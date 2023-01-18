@@ -1,0 +1,7 @@
+name: gangway
+goBuildComponentCaches:
+- version: v3.2.0+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/16911238
+  buildNumber: bora-16911238
+  buildStatus: SUCCEEDED
+  hash: 765c6edc866206a3ad6946a8f4b7fe32

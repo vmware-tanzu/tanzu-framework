@@ -1,0 +1,4 @@
+submodules:
+  - name: oci-cloud-controller-manager/src
+    go_mod:
+      - "go.mod"

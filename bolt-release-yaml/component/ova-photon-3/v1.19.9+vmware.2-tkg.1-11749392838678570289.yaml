@@ -1,0 +1,31 @@
+name: ova-photon-3
+images:
+- version: v1.19.9+vmware.2-tkg.1-11749392838678570289
+  osinfo:
+    name: photon
+    version: "3"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: 212059706cb1b319c5dcdc39752048fb41e2cb54
+  componentReferences:
+  - name: kubernetes
+    version:
+    - v1.19.9+vmware.2
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.6
+  - name: coredns
+    version:
+    - v1.7.0+vmware.8
+  - name: cri_tools
+    version:
+    - v1.18.0+vmware.6
+  - name: etcd
+    version:
+    - v3.4.13+vmware.7
+  - name: containerd
+    version:
+    - v1.4.4+vmware.3
+  dependencies:
+    base_iso_sha: c2883a42e402a2330d9c39b4d1e071cf9b3b5898
+    base_iso_url: https://packages.vmware.com/photon/3.0/Rev3/iso/photon-minimal-3.0-a383732.iso

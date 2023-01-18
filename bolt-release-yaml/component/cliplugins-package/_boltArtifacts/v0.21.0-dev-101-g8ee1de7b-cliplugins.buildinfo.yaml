@@ -1,0 +1,11 @@
+componentBuilds:
+- name: cliplugins-package
+  version: v0.21.0-dev-101-g8ee1de7b-cliplugins
+  channel: "404100428075113766"
+  url: https://buildweb.eng.vmware.com/ob/19675321/
+  artifactURL:
+    cliplugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/cliplugins:v0.21.0-dev-101-g8ee1de7b_vmware.1
+      sha256: ebd922c281d624cf3cd6ba7a126bf9c896fe62195d40e15447badae09607ff3a
+  cachehash: b22728249109f3afe63cb7c05dabc5d1
+  publishhash: 579adbcc1c0c49544db57f2381497d5a

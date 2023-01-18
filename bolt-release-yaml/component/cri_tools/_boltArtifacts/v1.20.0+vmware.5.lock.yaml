@@ -1,0 +1,7 @@
+name: cri_tools
+goBuildComponentLocks:
+- version: v1.20.0+vmware.5
+  gobuildBranch: 368670365955715117-v1.20.0+vmware.5
+  gobuildHeadCommit: 9766b31e79aef8fa3b210e6c757f58595ad6a8f9
+  hash: 30cc5226eaea0a0e8d353f32b57fa289
+  componentLockReferences: []

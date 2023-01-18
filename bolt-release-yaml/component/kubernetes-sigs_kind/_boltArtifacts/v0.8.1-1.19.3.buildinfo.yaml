@@ -1,0 +1,7 @@
+componentBuilds:
+- name: kubernetes-sigs_kind
+  version: v0.8.1-1.19.3
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/17165260
+  cachehash: "17011462870368449431"
+  publishhash: "3780400148387780679"

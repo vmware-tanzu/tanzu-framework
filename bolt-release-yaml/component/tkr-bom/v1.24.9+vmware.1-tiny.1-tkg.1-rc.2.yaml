@@ -1,0 +1,97 @@
+name: tkr-bom
+boms:
+- version: v1.24.9+vmware.1-tiny.1-tkg.1-rc.2
+  type: tkr
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  dependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha3
+    vsphere-edge:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: cert-manager.tanzu.vmware.com
+        - refName: tkg-storageclass.tanzu.vmware.com
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        cpi:
+          refName: vsphere-cpi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cpi.tanzu.vmware.com
+              kind: VSphereCPIConfig
+              version: v1alpha1
+        csi:
+          refName: vsphere-csi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: csi.tanzu.vmware.com
+              kind: VSphereCSIConfig
+              version: v1alpha1
+        kapp:
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    vsphere-edgePackageDeployNamespace: tkg-system
+    componentTanzuCoreVersion: main
+  componentReferences:
+  - name: kube-vip
+    version:
+    - v0.5.7+vmware.1
+  - name: coredns
+    version:
+    - v1.8.6+vmware.15
+  - name: tinykube
+    version:
+    - v1.24.9+vmware.1-tiny.1
+  - name: tkg-core-packages
+    version:
+    - v1.24.9+vmware.1-tkg.1-rc.2
+  - name: tkg-standard-packages
+    version:
+    - v2.1.0-rc.2 
+  - name: ova-tinytkg-photon-3
+    version:
+    - v1.24.9+vmware.1-tiny.1-tkg.1-ac20b3
+  - name: ova-tinytkg-ubuntu-2004
+    version:
+    - v1.24.9+vmware.1-tiny.1-tkg.1-2319b3
+  - name: cert-manager-package
+    version:
+    - v1.10.1+vmware.1-tkg.1-cert-manager-rc.2                       
+  - name: antrea
+    version:
+    - v1.7.2+vmware.1-advanced
+  - name: calico_all
+    version:
+    - v3.24.1+vmware.1
+  - name: cloud_provider_vsphere
+    version:
+    - v1.24.3+vmware.1
+  - name: vsphere_csi_driver
+    version:
+    - v2.6.2+vmware.2
+  - name: kapp-controller
+    version:
+    - v0.41.5+vmware.1
+  - name: carvel-secretgen-controller
+    version:
+    - v0.11.2+vmware.1
+  - name: tkg-storageclass-package
+    version:
+    - v0.28.0-dev-311-gd293a088-tkg-storageclass
+

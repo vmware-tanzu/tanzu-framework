@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off effort to temporarily change tanzu-framework v0.25.0 release tkg-compatibility matrix"
+componentReferences:
+- name: tkg-compatibility
+  version:
+  - v1.6.0-framework-v0.25.0-tmp

@@ -1,0 +1,7 @@
+name: cloud_provider_vsphere
+goBuildComponentLocks:
+- version: v1.21.0+vmware.1
+  gobuildBranch: 362779761702894170-v1.21.0+vmware.1
+  gobuildHeadCommit: 102d7f412bc76f083c287d5e674cb75836a7b01e
+  hash: 2fa04851d6b789e3773e56b8758aec87
+  componentLockReferences: []

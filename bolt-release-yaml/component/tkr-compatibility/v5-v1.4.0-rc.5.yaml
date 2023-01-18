@@ -1,0 +1,15 @@
+name: tkr-compatibility
+boms:
+- version: v5-v1.4.0-rc.5
+  type: compatibility
+  compatibilityMetadata:
+    version: v5
+    managementClusterVersions:
+    - version: v1.4.0-rc.5
+      supportedKubernetesVersions:
+      - v1.19.12+vmware.1-tkg.1-rc.5
+      - v1.21.2+vmware.1-tkg.1-rc.5
+      - v1.20.8+vmware.1-tkg.2-rc.5
+  dependencies:
+    rtmVersions:
+    - v1.4.0

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'GC Compatibility for k8s v1.23.8'
+componentReferences:
+  - name: gc-compatibility
+    version:
+      - v1.23.8+vmware.1

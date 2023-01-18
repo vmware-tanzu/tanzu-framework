@@ -1,0 +1,7 @@
+name: guest-cluster-auth-service
+unmanagedComponents:
+  - version: v1.1.0
+    gobuildBranch: master~1510c03d5fc74c850243c2c3681fca872730bed8
+    dependencies:
+      gobuild.golangVersion: 1.18.6
+      gobuild.linux_hosttype: linux-centos72-gc32

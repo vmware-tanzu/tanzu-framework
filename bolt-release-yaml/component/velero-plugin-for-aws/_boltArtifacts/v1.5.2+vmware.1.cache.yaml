@@ -1,0 +1,7 @@
+name: velero-plugin-for-aws
+goBuildComponentCaches:
+- version: v1.5.2+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20790370
+  buildNumber: bora-20790370
+  buildStatus: SUCCEEDED
+  hash: 04b6382e474da2641b94b0ec054cf1f7

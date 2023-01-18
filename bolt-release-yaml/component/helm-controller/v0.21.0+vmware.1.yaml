@@ -1,0 +1,7 @@
+name: helm-controller
+unmanagedComponents:
+  - version: v0.21.0+vmware.1
+    gobuildBranch: vmware-0.21.0~8aab5c0917e052aa0da04a96043d03b03dc8f188
+    dependencies:
+      gobuild.golangVersion: 1.17.6
+      gobuild.linux_hosttype: linux-centos72-gc32

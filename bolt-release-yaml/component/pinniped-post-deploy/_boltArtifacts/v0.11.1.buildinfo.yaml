@@ -1,0 +1,11 @@
+componentBuilds:
+- name: pinniped-post-deploy
+  version: v0.11.1
+  channel: "389306558447617807"
+  url: https://buildweb.eng.vmware.com/ob/19173347/
+  artifactURL:
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.11.1
+      sha256: 1439306f5187521c3181e504a346cccc06c1890fd766323502f02793d2e253d1
+  cachehash: fbb68f366598221eaf025f1920afdf73
+  publishhash: 03c0cd95ce0420b17ca801b9936f9c62

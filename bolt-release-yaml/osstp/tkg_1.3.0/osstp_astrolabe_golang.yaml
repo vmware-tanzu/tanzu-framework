@@ -1,0 +1,273 @@
+other:astrolabe:v0.1.1-3-g8abdf8f2:
+  license: Apache-2.0
+  name: astrolabe
+  other-distribution: /osl_sources/astrolabe/astrolabe-v0.1.1-3-g8abdf8f2.tar.gz
+  other-url: https://gitlab.eng.vmware.com:core-build/astrolabe
+  repository: Other
+  tlp: "true"
+  url: ""
+  version: v0.1.1-3-g8abdf8f2
+other:konsorten_go-windows-terminal-sequences:v1.0.2:
+  license: MIT
+  name: konsorten_go-windows-terminal-sequences
+  other-distribution: /osl_sources/astrolabe/konsorten-go-windows-terminal-sequences-v1.0.2.tar.gz
+  other-url: https://github.com/konsorten/go-windows-terminal-sequences
+  repository: Other
+  url: https://codeload.github.com/konsorten/go-windows-terminal-sequences/tar.gz/v1.0.2
+  version: v1.0.2
+other:vmware_govmomi_vim25_xml:f2eef8fc745f:
+  license: BSD-3-Clause
+  name: vmware_govmomi_vim25_xml
+  other-distribution: /osl_sources/astrolabe/vmware-govmomi-f2eef8fc745f.tar.gz
+  other-url: https://github.com/vmware/govmomi/vim25/xml
+  repository: Other
+  url: https://codeload.github.com/vmware/govmomi/tar.gz/f2eef8fc745f
+  version: f2eef8fc745f
+other:go-openapi_swag:v0.19.8:
+  license: Apache-2.0
+  name: go-openapi_swag
+  other-distribution: /osl_sources/astrolabe/go-openapi-swag-v0.19.8.tar.gz
+  other-url: https://github.com/go-openapi/swag
+  repository: Other
+  url: https://codeload.github.com/go-openapi/swag/tar.gz/v0.19.8
+  version: v0.19.8
+other:go-openapi_strfmt:v0.19.5:
+  license: Apache-2.0
+  name: go-openapi_strfmt
+  other-distribution: /osl_sources/astrolabe/go-openapi-strfmt-v0.19.5.tar.gz
+  other-url: https://github.com/go-openapi/strfmt
+  repository: Other
+  url: https://codeload.github.com/go-openapi/strfmt/tar.gz/v0.19.5
+  version: v0.19.5
+other:jmespath_go-jmespath:c2b33e8439af:
+  license: Apache-2.0
+  name: jmespath_go-jmespath
+  other-distribution: /osl_sources/astrolabe/jmespath-go-jmespath-c2b33e8439af.tar.gz
+  other-url: https://github.com/jmespath/go-jmespath
+  repository: Other
+  url: https://codeload.github.com/jmespath/go-jmespath/tar.gz/c2b33e8439af
+  version: c2b33e8439af
+other:google_uuid:v1.1.1:
+  license: BSD-3-Clause
+  name: google_uuid
+  other-distribution: /osl_sources/astrolabe/google-uuid-v1.1.1.tar.gz
+  other-url: https://github.com/google/uuid
+  repository: Other
+  url: https://codeload.github.com/google/uuid/tar.gz/v1.1.1
+  version: v1.1.1
+other:go-openapi_jsonpointer:v0.19.3:
+  license: Apache-2.0
+  name: go-openapi_jsonpointer
+  other-distribution: /osl_sources/astrolabe/go-openapi-jsonpointer-v0.19.3.tar.gz
+  other-url: https://github.com/go-openapi/jsonpointer
+  repository: Other
+  url: https://codeload.github.com/go-openapi/jsonpointer/tar.gz/v0.19.3
+  version: v0.19.3
+other:aws_aws-sdk-go_internal_sync_singleflight:v1.29.19:
+  license: BSD-3-Clause
+  name: aws_aws-sdk-go_internal_sync_singleflight
+  other-distribution: /osl_sources/astrolabe/aws-aws-sdk-go-v1.29.19.tar.gz
+  other-url: https://github.com/aws/aws-sdk-go/internal/sync/singleflight
+  repository: Other
+  url: https://codeload.github.com/aws/aws-sdk-go/tar.gz/v1.29.19
+  version: v1.29.19
+other:mattn_go-isatty:v0.0.9:
+  license: MIT
+  name: mattn_go-isatty
+  other-distribution: /osl_sources/astrolabe/mattn-go-isatty-v0.0.9.tar.gz
+  other-url: https://github.com/mattn/go-isatty
+  repository: Other
+  url: https://codeload.github.com/mattn/go-isatty/tar.gz/v0.0.9
+  version: v0.0.9
+other:go-openapi_analysis:v0.19.10:
+  license: Apache-2.0
+  name: go-openapi_analysis
+  other-distribution: /osl_sources/astrolabe/go-openapi-analysis-v0.19.10.tar.gz
+  other-url: https://github.com/go-openapi/analysis
+  repository: Other
+  url: https://codeload.github.com/go-openapi/analysis/tar.gz/v0.19.10
+  version: v0.19.10
+other:puerkitobio_urlesc:de5bf2ad4578:
+  license: BSD-3-Clause
+  name: puerkitobio_urlesc
+  other-distribution: /osl_sources/astrolabe/PuerkitoBio-urlesc-de5bf2ad4578.tar.gz
+  other-url: https://github.com/PuerkitoBio/urlesc
+  repository: Other
+  url: https://codeload.github.com/PuerkitoBio/urlesc/tar.gz/de5bf2ad4578
+  version: de5bf2ad4578
+other:asaskevich_govalidator:475eaeb16496:
+  license: MIT
+  name: asaskevich_govalidator
+  other-distribution: /osl_sources/astrolabe/asaskevich-govalidator-475eaeb16496.tar.gz
+  other-url: https://github.com/asaskevich/govalidator
+  repository: Other
+  url: https://codeload.github.com/asaskevich/govalidator/tar.gz/475eaeb16496
+  version: 475eaeb16496
+other:go-openapi_errors:v0.19.4:
+  license: Apache-2.0
+  name: go-openapi_errors
+  other-distribution: /osl_sources/astrolabe/go-openapi-errors-v0.19.4.tar.gz
+  other-url: https://github.com/go-openapi/errors
+  repository: Other
+  url: https://codeload.github.com/go-openapi/errors/tar.gz/v0.19.4
+  version: v0.19.4
+other:go-openapi_validate:v0.19.7:
+  license: Apache-2.0
+  name: go-openapi_validate
+  other-distribution: /osl_sources/astrolabe/go-openapi-validate-v0.19.7.tar.gz
+  other-url: https://github.com/go-openapi/validate
+  repository: Other
+  url: https://codeload.github.com/go-openapi/validate/tar.gz/v0.19.7
+  version: v0.19.7
+other:aws_aws-sdk-go:v1.29.19:
+  license: Apache-2.0
+  name: aws_aws-sdk-go
+  other-distribution: /osl_sources/astrolabe/aws-aws-sdk-go-v1.29.19.tar.gz
+  other-url: https://github.com/aws/aws-sdk-go
+  repository: Other
+  url: https://codeload.github.com/aws/aws-sdk-go/tar.gz/v1.29.19
+  version: v1.29.19
+other:mailru_easyjson:v0.7.1:
+  license: MIT
+  name: mailru_easyjson
+  other-distribution: /osl_sources/astrolabe/mailru-easyjson-v0.7.1.tar.gz
+  other-url: https://github.com/mailru/easyjson
+  repository: Other
+  url: https://codeload.github.com/mailru/easyjson/tar.gz/v0.7.1
+  version: v0.7.1
+other:puerkitobio_purell:v1.1.1:
+  license: BSD-3-Clause
+  name: puerkitobio_purell
+  other-distribution: /osl_sources/astrolabe/PuerkitoBio-purell-v1.1.1.tar.gz
+  other-url: https://github.com/PuerkitoBio/purell
+  repository: Other
+  url: https://codeload.github.com/PuerkitoBio/purell/tar.gz/v1.1.1
+  version: v1.1.1
+other:pkg_errors:v0.9.1:
+  license: BSD-2-Clause
+  name: pkg_errors
+  other-distribution: /osl_sources/astrolabe/pkg-errors-v0.9.1.tar.gz
+  other-url: https://github.com/pkg/errors
+  repository: Other
+  url: https://codeload.github.com/pkg/errors/tar.gz/v0.9.1
+  version: v0.9.1
+other:go-openapi_jsonreference:v0.19.3:
+  license: Apache-2.0
+  name: go-openapi_jsonreference
+  other-distribution: /osl_sources/astrolabe/go-openapi-jsonreference-v0.19.3.tar.gz
+  other-url: https://github.com/go-openapi/jsonreference
+  repository: Other
+  url: https://codeload.github.com/go-openapi/jsonreference/tar.gz/v0.19.3
+  version: v0.19.3
+other:labstack_echo:v3.3.10:
+  license: MIT
+  name: labstack_echo
+  other-distribution: /osl_sources/astrolabe/labstack-echo-v3.3.10.tar.gz
+  other-url: https://github.com/labstack/echo
+  repository: Other
+  url: https://codeload.github.com/labstack/echo/tar.gz/v3.3.10
+  version: v3.3.10
+other:docker_go-units:v0.4.0:
+  license: Apache-2.0
+  name: docker_go-units
+  other-distribution: /osl_sources/astrolabe/docker-go-units-v0.4.0.tar.gz
+  other-url: https://github.com/docker/go-units
+  repository: Other
+  url: https://codeload.github.com/docker/go-units/tar.gz/v0.4.0
+  version: v0.4.0
+other:valyala_bytebufferpool:v1.0.0:
+  license: MIT
+  name: valyala_bytebufferpool
+  other-distribution: /osl_sources/astrolabe/valyala-bytebufferpool-v1.0.0.tar.gz
+  other-url: https://github.com/valyala/bytebufferpool
+  repository: Other
+  url: https://codeload.github.com/valyala/bytebufferpool/tar.gz/v1.0.0
+  version: v1.0.0
+other:valyala_fasttemplate:v1.0.1:
+  license: MIT
+  name: valyala_fasttemplate
+  other-distribution: /osl_sources/astrolabe/valyala-fasttemplate-v1.0.1.tar.gz
+  other-url: https://github.com/valyala/fasttemplate
+  repository: Other
+  url: https://codeload.github.com/valyala/fasttemplate/tar.gz/v1.0.1
+  version: v1.0.1
+other:go-openapi_loads:v0.19.5:
+  license: Apache-2.0
+  name: go-openapi_loads
+  other-distribution: /osl_sources/astrolabe/go-openapi-loads-v0.19.5.tar.gz
+  other-url: https://github.com/go-openapi/loads
+  repository: Other
+  url: https://codeload.github.com/go-openapi/loads/tar.gz/v0.19.5
+  version: v0.19.5
+other:jessevdk_go-flags:v1.4.0:
+  license: BSD-3-Clause
+  name: jessevdk_go-flags
+  other-distribution: /osl_sources/astrolabe/jessevdk-go-flags-v1.4.0.tar.gz
+  other-url: https://github.com/jessevdk/go-flags
+  repository: Other
+  url: https://codeload.github.com/jessevdk/go-flags/tar.gz/v1.4.0
+  version: v1.4.0
+other:mattn_go-colorable:v0.1.2:
+  license: MIT
+  name: mattn_go-colorable
+  other-distribution: /osl_sources/astrolabe/mattn-go-colorable-v0.1.2.tar.gz
+  other-url: https://github.com/mattn/go-colorable
+  repository: Other
+  url: https://codeload.github.com/mattn/go-colorable/tar.gz/v0.1.2
+  version: v0.1.2
+other:go-openapi_runtime_middleware_denco:v0.19.12:
+  license: MIT
+  name: go-openapi_runtime_middleware_denco
+  other-distribution: /osl_sources/astrolabe/go-openapi-runtime-v0.19.12.tar.gz
+  other-url: https://github.com/go-openapi/runtime/middleware/denco
+  repository: Other
+  url: https://codeload.github.com/go-openapi/runtime/tar.gz/v0.19.12
+  version: v0.19.12
+other:vmware_govmomi:f2eef8fc745f:
+  license: Apache-2.0
+  name: vmware_govmomi
+  other-distribution: /osl_sources/astrolabe/vmware-govmomi-f2eef8fc745f.tar.gz
+  other-url: https://github.com/vmware/govmomi
+  repository: Other
+  url: https://codeload.github.com/vmware/govmomi/tar.gz/f2eef8fc745f
+  version: f2eef8fc745f
+other:labstack_gommon:v0.3.0:
+  license: MIT
+  name: labstack_gommon
+  other-distribution: /osl_sources/astrolabe/labstack-gommon-v0.3.0.tar.gz
+  other-url: https://github.com/labstack/gommon
+  repository: Other
+  url: https://codeload.github.com/labstack/gommon/tar.gz/v0.3.0
+  version: v0.3.0
+other:go-openapi_spec:v0.19.7:
+  license: Apache-2.0
+  name: go-openapi_spec
+  other-distribution: /osl_sources/astrolabe/go-openapi-spec-v0.19.7.tar.gz
+  other-url: https://github.com/go-openapi/spec
+  repository: Other
+  url: https://codeload.github.com/go-openapi/spec/tar.gz/v0.19.7
+  version: v0.19.7
+other:go-openapi_runtime:v0.19.12:
+  license: Apache-2.0
+  name: go-openapi_runtime
+  other-distribution: /osl_sources/astrolabe/go-openapi-runtime-v0.19.12.tar.gz
+  other-url: https://github.com/go-openapi/runtime
+  repository: Other
+  url: https://codeload.github.com/go-openapi/runtime/tar.gz/v0.19.12
+  version: v0.19.12
+other:sirupsen_logrus:v1.4.2:
+  license: MIT
+  name: sirupsen_logrus
+  other-distribution: /osl_sources/astrolabe/sirupsen-logrus-v1.4.2.tar.gz
+  other-url: https://github.com/sirupsen/logrus
+  repository: Other
+  url: https://codeload.github.com/sirupsen/logrus/tar.gz/v1.4.2
+  version: v1.4.2
+other:mitchellh_mapstructure:v1.1.2:
+  license: MIT
+  name: mitchellh_mapstructure
+  other-distribution: /osl_sources/astrolabe/mitchellh-mapstructure-v1.1.2.tar.gz
+  other-url: https://github.com/mitchellh/mapstructure
+  repository: Other
+  url: https://codeload.github.com/mitchellh/mapstructure/tar.gz/v1.1.2
+  version: v1.1.2

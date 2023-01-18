@@ -1,0 +1,156 @@
+componentBuilds:
+- name: kubernetes
+  version: v1.20.5+vmware.2-fips.1-zshippable
+  channel: "365980136601851537"
+  url: https://buildweb.eng.vmware.com/ob/18404080/
+  artifactURL:
+    e2e-test_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/image-builder/kubernetes/v1.20.5+vmware.2-fips.1-zshippable/bin/linux/amd64/e2e-test.tar
+      sha256: e65aaf00098793fea86888c61a5a872c7b184e6bb0a542dea0766ca282ae2614
+    file-kubeadm-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/image-builder/kubernetes/v1.20.5+vmware.2-fips.1-zshippable/bin/linux/amd64/kubeadm
+      sha256: 3fd9a961da1782b27c9ab595018ab2d0522500889bb2ea5f12a20581ff478c51
+    file-kubectl-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/image-builder/kubernetes/v1.20.5+vmware.2-fips.1-zshippable/bin/linux/amd64/kubectl
+      sha256: 831464c6947396d0b65d198e38060752c80702322c437cbcdee7fbae696b09a6
+    file-kubelet-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/image-builder/kubernetes/v1.20.5+vmware.2-fips.1-zshippable/bin/linux/amd64/kubelet
+      sha256: 06c7d6b967f4cd6d3852a9903e8faee3d168fc9a2c257162226257e8e92fea2a
+    kube-apiserver_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/image-builder/kubernetes/v1.20.5+vmware.2-fips.1-zshippable/bin/linux/amd64/kube-apiserver.tar
+      sha256: 97f3c49c59a0b67d003a008485518cf8e3fb784bd27c077750362771adeb4663
+    kube-controller-manager_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/image-builder/kubernetes/v1.20.5+vmware.2-fips.1-zshippable/bin/linux/amd64/kube-controller-manager.tar
+      sha256: b812e797fa29d6210d7fa635ae768878aa097fcd884feddc5afbc87d987ac295
+    kube-proxy_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/image-builder/kubernetes/v1.20.5+vmware.2-fips.1-zshippable/bin/linux/amd64/kube-proxy.tar
+      sha256: 9e78bef443d02b1af8dcada1f78017d1d349b53820bc3fbf1c8277946f780d77
+    kube-scheduler_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/image-builder/kubernetes/v1.20.5+vmware.2-fips.1-zshippable/bin/linux/amd64/kube-scheduler.tar
+      sha256: 64c1dcb77a408e27712527c9cae275f93d1231fa34bb133ad00e2173a031984c
+    kubeAPIServer:
+      url: projects-stg.registry.vmware.com/tkg/kube-apiserver:v1.20.5_vmware.2-fips.1-zshippable
+      sha256: e9a2aa27402216f18119e18e462301476b3a0eb0a0def644c97bcec1023b1449
+    kubeControllerManager:
+      url: projects-stg.registry.vmware.com/tkg/kube-controller-manager:v1.20.5_vmware.2-fips.1-zshippable
+      sha256: b24e8587943cf252781c4bd665f27fc3d1fe7603796aafd48643cfe179e8f213
+    kubeE2e:
+      url: projects-stg.registry.vmware.com/tkg/e2e-test:v1.20.5_vmware.2-fips.1-zshippable
+      sha256: 4dc31867fc194bebae9f14ac7e87bd868cc80e64b4a9485b723b800679840da0
+    kubeProxy:
+      url: projects-stg.registry.vmware.com/tkg/kube-proxy:v1.20.5_vmware.2-fips.1-zshippable
+      sha256: e7f24571a0a40652ddef8711e39d3543db4410d7f1836c4c66ee7d6a84cd4167
+    kubeScheduler:
+      url: projects-stg.registry.vmware.com/tkg/kube-scheduler:v1.20.5_vmware.2-fips.1-zshippable
+      sha256: 9c92963b04126b063873f39f9ff3ab5b6eb3e971bf2a4c16476895ae011c3a4c
+    kubeadm-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/debs/kubeadm_1.20.5+vmware.2-fips.1-zshippable-1_amd64.deb
+    kubeadm-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/executables/kubeadm-linux-v1.20.5+vmware.2-fips.1-zshippable.gz
+    kubeadm-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/rpms/rpms/kubeadm-1.20.5-1.el7.vmware.2-fips.1-zshippable.x86_64.rpm
+    kubectl-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/debs/kubectl_1.20.5+vmware.2-fips.1-zshippable-1_amd64.deb
+    kubectl-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/executables/kubectl-linux-v1.20.5+vmware.2-fips.1-zshippable.gz
+    kubectl-mac:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/executables/kubectl-mac-v1.20.5+vmware.2-fips.1-zshippable.gz
+    kubectl-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/rpms/rpms/kubectl-1.20.5-1.el7.vmware.2-fips.1-zshippable.x86_64.rpm
+    kubectl-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/executables/kubectl-windows-v1.20.5+vmware.2-fips.1-zshippable.exe.gz
+    kubelet-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/debs/kubelet_1.20.5+vmware.2-fips.1-zshippable-1_amd64.deb
+    kubelet-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/executables/kubelet-linux-v1.20.5+vmware.2-fips.1-zshippable.gz
+    kubelet-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/rpms/rpms/kubelet-1.20.5-1.el7.vmware.2-fips.1-zshippable.x86_64.rpm
+    kubelet-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/lin64/kubernetes/rpms/srpms/kubelet-1.20.5-1.el7.vmware.2-fips.1-zshippable.src.rpm
+    kubernetes-tar:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18404080/publish/kubernetes.tgz
+    pause:
+      url: projects-stg.registry.vmware.com/tkg/pause:3.2
+      sha256: 43588f2c9cbdca99dcd8839adc2e112bcbdd4a1feddc38ae080ddcbb67999c1f
+    pause_file:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/image-builder/kubernetes/v1.20.5+vmware.2-fips.1-zshippable/bin/linux/amd64/pause.tar
+      sha256: b4fce5ffc452bcf14c8535643f82fc01b7c8b8d423a801e02658304ef501855b
+  cachehash: "13904032809047303762"
+  publishhash: "17255099082749189510"
+- name: cni_plugins
+  version: v0.8.7+vmware.6-fips.1-zshippable
+  channel: "364719850070775715"
+  url: https://buildweb.eng.vmware.com/ob/18359533/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18359533/publish/lin64/cni_plugins/executables/cni-plugins-v0.8.7+vmware.6-fips.1-zshippable.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18359533/publish/lin64/cni_plugins/debs/kubernetes-cni_v0.8.7+vmware.6-fips.1-zshippable-1_amd64.deb
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/364719850070775715/component/cni_plugins/v0.8.7+vmware.6-fips.1-zshippable/cni-plugins-linux-amd64-v0.8.7+vmware.6-fips.1-zshippable.tgz
+      sha256: 33fc5dcc5d3effa3b319666738635a84fa94ccad5255452891e0243f63ea7ef6
+  cachehash: "11715021108196226403"
+  publishhash: "1996599465128284170"
+- name: coredns
+  version: v1.7.0+vmware.8-fips.1-zshippable
+  channel: "365700725927349493"
+  url: https://buildweb.eng.vmware.com/ob/18393988/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.7.0_vmware.8-fips.1-zshippable
+      sha256: 4b57fa72e09f103b7286298a6c48b860a7f0aad9170781cdd71c054e94ce376c
+  cachehash: "5245779680709871208"
+  publishhash: "11928902777439069502"
+- name: cri_tools
+  version: v1.19.0+vmware.3-fips.1-zshippable
+  channel: "365428766534569969"
+  url: https://buildweb.eng.vmware.com/ob/18383814/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18383814/publish/lin64/cri_tools/executables/crictl-v1.19.0+vmware.3-fips.1-zshippable.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18383814/publish/lin64/cri_tools/debs/cri-tools_v1.19.0+vmware.3-fips.1-zshippable-1_amd64.deb
+  cachehash: "13367943351240959927"
+  publishhash: "13674994235894672485"
+- name: etcd
+  version: v3.4.13+vmware.7-fips.1-zshippable
+  channel: "365409902702659560"
+  url: https://buildweb.eng.vmware.com/ob/18383174/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.4.13_vmware.7-fips.1-zshippable
+      sha256: b1fd5b2ac6624b962f42efae9aab6f800addd108a6daf4d34a534a8d1fe7893f
+  cachehash: "9935587163706688835"
+  publishhash: "18435072924747397998"
+- name: containerd
+  version: v1.4.4+vmware.3-fips.1
+  channel: "365980136601851537"
+  url: https://buildweb.eng.vmware.com/ob/18404014/
+  artifactURL:
+    file-containerd-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/component/containerd/cri-containerd-v1.4.4+vmware.3-fips.1.linux-amd64.tar
+      sha256: 786596aae68c6bb1b1e29c5db3cacf92023034a032afaa8edc39e2e6904cc0dd
+    file-containerd-windows-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/365980136601851537/component/containerd/cri-containerd-v1.4.4+vmware.3-fips.1.windows-amd64.tar
+      sha256: 158b1550fb0269420cfe1d70f38a95560f95c9434f945281ca85b1353bba834d
+  cachehash: "7735708783354649734"
+  publishhash: "8035408288853737008"
+- name: kscom_release
+  version: v1.20.5+vmware.2-fips.1-zshippable
+  channel: "365980136601851537"
+  url: https://buildweb.eng.vmware.com/ob/18404325/
+  cachehash: "14751632169229907799"
+  publishhash: "8356473898776526809"
+- name: kubernetes_release
+  version: v0.8.0+vmware.1-fips.1-zshippable
+  channel: "361678804818643341"
+  url: https://buildweb.eng.vmware.com/ob/18252394/
+  artifactURL:
+    kube-cross:
+      url: projects-stg.registry.vmware.com/tkg/kube-cross:v0.8.0_vmware.1-fips.1-zshippable
+      sha256: def05068ea7af3aa5dabfc54044dc67654e6997d865310082d5f604003d966c2
+  cachehash: "3009146461125471973"
+  publishhash: "11097997618577307684"
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: d4f83ed4d6c440a655feb361d29f02327ae60a38
+testInfraVersion: 74c64d2ad850a09277c93ac29a51e88fb7994391

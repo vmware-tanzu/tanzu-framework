@@ -1,0 +1,19 @@
+componentBuilds:
+- name: ami-gov-amazon-2
+  version: v1.21.13+vmware.2-tkg.1-db22cc8eeeb0c76ae5fa4b26bbb29d61
+  channel: "416055575659451651"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/2388
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416055575659451651/component/ami-gov-amazon-2/bom-ami-gov-amazon-2-v1.21.13+vmware.2-tkg.1-db22cc8eeeb0c76ae5fa4b26bbb29d61.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416055575659451651/component/ami-gov-amazon-2/ami-gov-amazon-2-v1.21.13+vmware.2-tkg.1-db22cc8eeeb0c76ae5fa4b26bbb29d61-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416055575659451651/component/ami-gov-amazon-2/ami-gov-amazon-2-v1.21.13+vmware.2-tkg.1-db22cc8eeeb0c76ae5fa4b26bbb29d61-osstpmgt.yaml
+  cachehash: b6da85b9b397fed73759893e06d57966
+  publishhash: c1b1c8938003c82531242d0a8666b394
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AWS_CLOUD_TYPE: gov
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: e3a59d8bae46af718cf56068dcb9d6d49a7fb488

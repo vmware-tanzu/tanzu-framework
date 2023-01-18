@@ -1,0 +1,7 @@
+name: cluster-api-provider-azure
+goBuildComponentLocks:
+- version: v0.4.8-47-gfbb2d55b
+  gobuildBranch: 339501120126713863-v0.4.8-47-gfbb2d55b
+  gobuildHeadCommit: 85ac587ed2074f3b8d74c9f77069b6d48f1292cf
+  hash: "11944834393567991588"
+  componentLockReferences: []

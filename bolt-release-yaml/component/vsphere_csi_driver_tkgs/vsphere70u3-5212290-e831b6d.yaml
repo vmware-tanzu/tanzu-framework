@@ -1,0 +1,9 @@
+name: vsphere_csi_driver_tkgs
+unmanagedComponents:
+  - version: vsphere70u3-5212290-e831b6d
+    gobuildBranch: vmware-latest~e831b6ddc9a0e48a4194fe7ec5dcbfa3df76ce96
+    dependencies:
+      gobuild.golangVersion: "1.13.9"
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32
+      gobuild.containerBaseImage: photon:3.0

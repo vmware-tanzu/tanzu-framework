@@ -1,0 +1,4 @@
+submodules:
+  - name: azuredisk-csi-driver/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,4 @@
+submodules:
+  - name: tinykube/src
+    go_mod:
+      - "go.mod"

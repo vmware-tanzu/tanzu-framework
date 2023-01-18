@@ -1,0 +1,16 @@
+componentBuilds:
+- name: whereabouts
+  version: v0.5.1+vmware.1
+  channel: "409019481247980290"
+  url: https://buildweb.eng.vmware.com/ob/19846547/
+  artifactURL:
+    whereaboutsImage:
+      url: projects-stg.registry.vmware.com/tkg/whereabouts:v0.5.1_vmware.1
+      sha256: 41ae4cef873297de46aa83a3637a0962f5b7319b02f79a803252ebc47173a4cb
+  cachehash: 14f01ce7c2df52b92114773fcbd50c51
+  publishhash: 38803e099afb87120ff0c3e106b5ff82
+  configDependencies:
+    gobuild.golangVersion: 1.15.12
+    gobuild.imageName: whereabouts
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8

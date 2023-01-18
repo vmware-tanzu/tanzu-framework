@@ -1,0 +1,6 @@
+name: csi_provisioner
+unmanagedComponents:
+  - version: v2.2.0+vmware.1
+    gobuildBranch: vmware-v2.2.0+vmware.1~4bd1831ba1cf457c1d00e9d8e8f8e74be4987963
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32

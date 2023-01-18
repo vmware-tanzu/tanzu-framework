@@ -1,0 +1,11 @@
+componentBuilds:
+- name: cert-manager-package
+  version: v1.5.3+vmware.3-tkg.1-cert-manager-zshippable
+  channel: "396463264248139994"
+  url: https://buildweb.eng.vmware.com/ob/19411310/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.5.3_vmware.3-tkg.1-zshippable
+      sha256: 0ff9bec36c17369dff00169e02ea8b69e846d8e3ee1c8b6de031c2281c7579be
+  cachehash: f8c6c108a66be520082cbcc5c6aefff8
+  publishhash: 08b8d2296442618f07837aec7f5d1c39

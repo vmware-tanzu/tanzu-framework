@@ -1,0 +1,144 @@
+name: kubernetes
+publish:
+  - name: kubeAPIServer
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kube-apiserver-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kube-apiserver:$UNDERSCOREVERSION
+  - name: kube-apiserver_file
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kube-apiserver-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/linux/amd64/kube-apiserver.tar
+  - name: kubeControllerManager
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kube-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kube-controller-manager:$UNDERSCOREVERSION
+  - name: kube-controller-manager_file
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kube-controller-manager-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/linux/amd64/kube-controller-manager.tar
+  - name: kubeProxy
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kube-proxy-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kube-proxy:$UNDERSCOREVERSION
+  - name: kube-proxy_file
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kube-proxy-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/linux/amd64/kube-proxy.tar
+  - name: kubeScheduler
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kube-scheduler-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kube-scheduler:$UNDERSCOREVERSION
+  - name: kube-scheduler_file
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kube-scheduler-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/linux/amd64/kube-scheduler.tar
+  - name: pause
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/pause-$PAUSEVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: pause:$PAUSEVERSION
+  - name: pause_file
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/pause-$PAUSEVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/linux/amd64/pause.tar
+
+  - name: file-kubeadm-linux-amd64
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubeadm-linux-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/linux/amd64/kubeadm
+  - name: file-kubectl-linux-amd64
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubectl-linux-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/linux/amd64/kubectl
+  - name: file-kubelet-linux-amd64
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubelet-linux-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/linux/amd64/kubelet
+  - name: file-kubeadm-windows-amd64
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubeadm-windows-$VERSION.exe.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/windows/amd64/kubeadm.exe
+  - name: file-kubelet-windows-amd64
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubelet-windows-$VERSION.exe.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/windows/amd64/kubelet.exe
+  - name: file-kube-proxy-windows-amd64
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kube-proxy-windows-$VERSION.exe.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$VERSION/bin/windows/amd64/kube-proxy.exe
+  - name: pause_windows-1903
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/pause-windows-amd64-1903-$PAUSEVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: pause-windows-amd64-1903:$PAUSEVERSION
+  - name: pause_windows-1909
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/pause-windows-amd64-1903-$PAUSEVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: pause-windows-amd64-1909:$PAUSEVERSION
+  - name: pause_windows-2004
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/pause-windows-amd64-1903-$PAUSEVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/images/kubernetes-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: pause-windows-amd64-2004:$PAUSEVERSION
+
+nonpublish:
+  - name: kubeadm-linux
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubeadm-linux-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+  - name: kubectl-linux
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubectl-linux-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+  - name: kubectl-mac
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubectl-mac-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+  - name: kubectl-windows
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubectl-windows-$VERSION.exe.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+  - name: kubelet-linux
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubelet-linux-$VERSION.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/executables/kubernetes-$VERSION-executables-checksums.txt
+  - name: kubeadm-deb
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/debs/kubeadm_$VERSION-1_amd64.deb
+  - name: kubectl-deb
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/debs/kubectl_$VERSION-1_amd64.deb
+  - name: kubelet-deb
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/debs/kubelet_$VERSION-1_amd64.deb
+  - name: kubeadm-rpm
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/rpms/rpms/kubeadm-$VERSION-1.el7.vmware.1.x86_64.rpm
+  - name: kubectl-rpm
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/rpms/rpms/kubectl-$VERSION-1.el7.vmware.1.x86_64.rpm
+  - name: kubelet-rpm
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/rpms/rpms/kubelet-$VERSION-1.el7.vmware.1.x86_64.rpm
+  - name: kubelet-srpm
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes/rpms/srpms/kubelet-$VERSION-1.el7.vmware.1.src.rpm
+  - name: kubernetes-tar
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/kubernetes.tgz

@@ -1,0 +1,10 @@
+name: harbor-package
+goBuildComponentLocks:
+- version: v2.3.3+vmware.1-tkg.2-harbor-tf-v0.13.1
+  gobuildBranch: 386275948019894377-v2.3.3+vmware.1-tkg.2-harbor-tf-v0.13.1
+  gobuildHeadCommit: 41e83ae4e2348c9762fa552784fb330a512b0971
+  hash: cdb3d404df1a8d6c132a3c3d63db6398
+  componentLockReferences:
+  - name: harbor
+    version: v2.3.3+vmware.1
+    lockHash: d95e4b9fa979666e4e9fc8d664630192

@@ -1,0 +1,13 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'build tinykube v1.24.6+vmware.1-tinykube.2'
+componentReferences:
+  - name: tinykube
+    version:
+      - v1.24.6+vmware.1-tinykube.2
+  - name: ova-tinytkg-photon-3
+    version:
+      - v1.24.6+vmware.1-tiny.1-tkg.1-ac20b304658a6cf17f5e74dc0ab7766f
+  - name: ova-tinytkg-ubuntu-2004
+    version:
+      - v1.24.6+vmware.1-tiny.1-tkg.1-2319b304658a6cf17f5e74dc0ab7659a

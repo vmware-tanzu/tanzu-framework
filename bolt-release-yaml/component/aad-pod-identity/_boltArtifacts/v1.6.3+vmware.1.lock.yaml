@@ -1,0 +1,7 @@
+name: aad-pod-identity
+goBuildComponentLocks:
+- version: v1.6.3+vmware.1
+  gobuildBranch: 351078764077124997-v1.6.3+vmware.1
+  gobuildHeadCommit: 60b25b86f162070859a2ec2fa8cce852f6f96057
+  hash: eaab13409d4a0ba85fc49ce93c6bca5f
+  componentLockReferences: []

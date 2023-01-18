@@ -1,0 +1,7 @@
+name: load-balancer-and-ingress-service
+goBuildComponentCaches:
+- version: v1.4.3+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18261420/
+  buildNumber: bora-18261420
+  buildStatus: SUCCEEDED
+  hash: e469753b2af4264531e3627a2ffc2665

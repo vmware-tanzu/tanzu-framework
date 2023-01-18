@@ -1,0 +1,6 @@
+name: carvel-secretgen-controller
+unmanagedComponents:
+  - version: v0.11.1+vmware.1
+    gobuildBranch: vmware-0.11.1~f75191230d9a16a60b442f17e6c4f4bbbe47d7f0
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

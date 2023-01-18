@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'uTKG Ubuntu Release for k8s v1.22.11'
+componentReferences:
+  - name: utkg-ova-ubuntu-2004
+    version:
+      - v1.22.11+vmware.1-tkg.1

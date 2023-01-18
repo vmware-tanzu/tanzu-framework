@@ -1,0 +1,10 @@
+name: antrea-package
+goBuildComponentLocks:
+- version: v0.13.3+vmware.1-tkg.3-antrea-tf-v0.20.0
+  gobuildBranch: 401415693209223623-v0.13.3+vmware.1-tkg.3-antrea-tf-v0.20.0
+  gobuildHeadCommit: 8e8020e95edb6a6e4e79561415bcb091eb65e09f
+  hash: df445440966804779be457465db9ad9b
+  componentLockReferences:
+  - name: antrea
+    version: v0.13.3+vmware.1
+    lockHash: 2ea69b1e94208b26313e36fb6f8f60d9

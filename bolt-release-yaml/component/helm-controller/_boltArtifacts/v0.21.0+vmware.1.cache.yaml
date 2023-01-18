@@ -1,0 +1,7 @@
+name: helm-controller
+goBuildComponentCaches:
+- version: v0.21.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/19864262
+  buildNumber: bora-19864262
+  buildStatus: SUCCEEDED
+  hash: f12037d331e4d8188105ee272010bfb0

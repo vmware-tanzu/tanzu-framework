@@ -1,0 +1,61 @@
+name: tanzu-framework-management-packages
+goBuildComponentLocks:
+- version: v0.28.0-dev-115-gd7751adc
+  gobuildBranch: 434637084251154413-v0.28.0-dev-115-gd7751adc-tanzu-framework-management-packages
+  gobuildHeadCommit: e9855062c7048c5edf23b1336e11952fd542d96d
+  hash: dff2f86ef318fdee17401bec40db8435
+  componentLockReferences:
+  - name: addons-manager-v2-package
+    version: v0.28.0-dev-115-gd7751adc-addons-manager-v2
+    lockHash: a2083d471147aa3c4ada66ed72aaf960
+  - name: featuregates-package
+    version: v0.28.0-dev-115-gd7751adc-featuregates
+    lockHash: e7713cc20872c50f164d3bce627d206f
+  - name: core-management-plugins-package
+    version: v0.28.0-dev-115-gd7751adc-core-mgmt-plugins
+    lockHash: a7c234d1e4e4c4b360a9a34f909dbc9e
+  - name: tkg-package
+    version: v0.28.0-dev-115-gd7751adc-tkg
+    lockHash: d0cea1ed4d29a79ad32c461f87d843fb
+  - name: tkg-clusterclass-package
+    version: v0.28.0-dev-115-gd7751adc-tkg-clusterclass
+    lockHash: 73dc08bc8b4b3a6244f09ff2454e64c2
+  - name: tkg-clusterclass-aws-package
+    version: v0.28.0-dev-115-gd7751adc-tkg-clusterclass-aws
+    lockHash: c8d64bbb9966382c5b80e979303cae2e
+  - name: tkg-clusterclass-vsphere-package
+    version: v0.28.0-dev-115-gd7751adc-tkg-clusterclass-vsphere
+    lockHash: e81ba4cff418999658c5a792807e950d
+  - name: tkg-clusterclass-azure-package
+    version: v0.28.0-dev-115-gd7751adc-tkg-clusterclass-azure
+    lockHash: 4fce5df77c95324fa9bdae1c3e879ea8
+  - name: tkg-clusterclass-docker-package
+    version: v0.28.0-dev-115-gd7751adc-tkg-clusterclass-docker
+    lockHash: 13c133de09b04c85ae0b8fb9f185a6b5
+  - name: tkr-service-package
+    version: v0.28.0-dev-115-gd7751adc-tkr-service
+    lockHash: 0822945650207ecc1db6e3953172f5b4
+  - name: cliplugins-package
+    version: v0.28.0-dev-115-gd7751adc-cliplugins
+    lockHash: 7f4e78cacfd01181df7ce87b4fd2a8e4
+  - name: framework-package
+    version: v0.28.0-dev-115-gd7751adc-framework
+    lockHash: 7aae8a6a7ebd4dc943c28aceeb4cae00
+  - name: tanzu-auth-package
+    version: v0.28.0-dev-115-gd7751adc-tanzu-auth-pkg
+    lockHash: f26eac638c2c59dc8a7d7dc6e34eb3f4
+  - name: tkr-source-controller-package
+    version: v0.28.0-dev-115-gd7751adc-tkr-source-controller
+    lockHash: a57f7da6627105b78bc06cba0c450e48
+  - name: tkr-vsphere-resolver-package
+    version: v0.28.0-dev-115-gd7751adc-tkr-vsphere-resolver
+    lockHash: 1f03d655292ed21fd7edada1f44ac75f
+  - name: tkg-autoscaler-package
+    version: v1.21.0+vmware.1-zshippable
+    lockHash: 97422a98d37e5df7a348ed30e0610f66
+  - name: tkg-autoscaler-package
+    version: v1.22.0+vmware.1-zshippable
+    lockHash: c7a2b058625949a1f323f7024490d5df
+  - name: tkg-autoscaler-package
+    version: v1.23.0+vmware.1-zshippable
+    lockHash: cb2cf02448898d9db05546cc2bfe31a2

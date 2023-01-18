@@ -1,0 +1,12 @@
+name: ami-gov-ubuntu-2004
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ami-gov-ubuntu-2004/bom-ami-gov-ubuntu-2004-$VERSION.yaml
+  - name: file-image-osstp
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-$VERSION-osstpmgt.yaml
+  - name: file-image-goss
+    type: file
+    destinationPath: $SOURCECHANNEL/component/ami-gov-ubuntu-2004/ami-gov-ubuntu-2004-$VERSION-goss-spec.yaml
+    

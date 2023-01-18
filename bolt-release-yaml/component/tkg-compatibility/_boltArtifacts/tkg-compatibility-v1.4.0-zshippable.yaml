@@ -1,0 +1,10 @@
+version: v1
+managementClusterPluginVersions:
+- version: v1.4.0-rc.4
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.0-zshippable
+- version: v1.4.0-pre-alpha-2
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.0-zshippable

@@ -1,0 +1,10 @@
+name: csi_node_driver_registrar
+managedComponents:
+  - version: v2.5.0+vmware.1
+    upstreamTag: v2.5.0
+    mirrorCherryPicks: []
+    gobuildBaseBranch: vmware-2.5.0+vmware.1~599b436431db13cc61495455b65b4579fdcc19f9
+    dependencies:
+      gobuild.golangVersion: 1.17.0
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32

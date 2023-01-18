@@ -1,0 +1,40 @@
+name: tkg-standard-packages
+packageRepositories:
+- version: v1.5.0-tf-v0.11.0
+  upstreamCommit: 1fac77ee55022f312df3712f59f63d9b9a12733a
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repository-bundle~5d5b2964c7f7dae28351b9f5b42a9b6d630a3b8b
+  componentReferences:
+  - name: cert-manager-package
+    version:
+    - v1.5.3+vmware.2-tkg.1-cert-manager-tf-v0.11.0
+  - name: contour-package
+    version:
+    - v1.17.2+vmware.1-tkg.3-contour-tf-v0.11.0
+    - v1.18.2+vmware.1-tkg.1-contour-tf-v0.11.0
+  - name: external-dns-package
+    version:
+    - v0.10.0+vmware.1-tkg.1-external-dns-tf-v0.11.0
+  - name: fluent-bit-package
+    version:
+    - v1.7.5+vmware.1-tkg.2-fluent-bit-tf-v0.11.0
+  - name: grafana-package
+    version:
+    - v7.5.7+vmware.1-tkg.2-grafana-tf-v0.11.0
+  - name: prometheus-package
+    version:
+    - v2.27.0+vmware.1-tkg.2-prometheus-tf-v0.11.0
+  - name: harbor-package
+    version:
+    - v2.3.3+vmware.1-tkg.1-harbor-tf-v0.11.0
+  - name: multus-cni-package
+    version:
+    - v3.7.1+vmware.2-tkg.2-multus-cni-tf-v0.11.0
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_type: standard
+    gobuild.releaseVersion: v1.5.0-tf-v0.11.0

@@ -1,0 +1,4 @@
+submodules:
+  - name: velero-plugin-for-csi/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: tkg remediator
+componentReferences:
+- name: tkg-remediator
+  version:
+  - v1.0.2

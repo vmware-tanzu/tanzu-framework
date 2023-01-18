@@ -1,0 +1,6 @@
+name: tkg-vsphere-byoi-bundle
+publish:
+  - name: linuxResourceBundleImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-byoi-component-bundle.tar.gz
+    destinationPath: linux-resource-bundle:$UNDERSCOREVERSION

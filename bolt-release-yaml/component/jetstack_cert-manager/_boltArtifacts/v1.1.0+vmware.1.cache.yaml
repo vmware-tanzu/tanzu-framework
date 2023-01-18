@@ -1,0 +1,7 @@
+name: jetstack_cert-manager
+goBuildComponentCaches:
+- version: v1.1.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18138965/
+  buildNumber: bora-18138965
+  buildStatus: SUCCEEDED
+  hash: b9b336178b6136e9d08778222ed06f58

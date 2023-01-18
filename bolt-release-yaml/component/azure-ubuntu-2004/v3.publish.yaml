@@ -1,0 +1,15 @@
+# gets image type (vhd or sig) from bolt vars
+name: azure-ubuntu-2004
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-{{index .config "images" 0 "dependencies" "jenkins.AZURE_IMAGE_TYPE"}}-$VERSION.yaml
+  - name: file-image-osstp
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/azure-ubuntu-2004-$VERSION-osstpmgt.yaml
+  - name: file-image-goss
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/azure-ubuntu-2004-$VERSION-goss-spec.yaml
+  - name: file-vhd-link
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/azure-vhd-link-ubuntu-2004-$VERSION.json

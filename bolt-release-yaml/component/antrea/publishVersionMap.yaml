@@ -1,0 +1,21 @@
+versionMap:
+  v0.10.2+vmware.3: v2.publish.yaml
+  v0.11.1+vmware.5: publish.yaml
+  v0.11.3+vmware.1: publish.yaml
+  v0.11.3+vmware.2: v1.publish.yaml
+  v0.13.3+vmware.1: v3.publish.yaml
+  v0.13.5+vmware.3: v4.publish.yaml
+  v0.13.5+vmware.4: v4.publish.yaml
+  v1.2.3+vmware.2: v4.publish.yaml
+  v1.2.3+vmware.3: v4-update.publish.yaml
+  v1.2.3+vmware.4-advanced: v5.publish.yaml
+  v1.2.3+vmware.4-standard: v5.publish.yaml
+  v1.5.2+vmware.3-advanced: v5.publish.yaml
+  v1.5.2+vmware.3-standard: v5.publish.yaml
+  v1.5.3-advanced: v5.publish.yaml
+  v1.5.3-standard: v5.publish.yaml
+  v1.5.3+vmware.3-advanced: v5.publish.yaml
+  v1.5.3+vmware.3-standard: v5.publish.yaml
+  v1.7.1+vmware.1-advanced: v5.publish.yaml
+  v1.7.2+vmware.1-advanced: v5.publish.yaml
+  v1.5.3+vmware.2: tkgs-photon-publish.yaml

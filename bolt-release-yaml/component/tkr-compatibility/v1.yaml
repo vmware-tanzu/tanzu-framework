@@ -1,0 +1,130 @@
+name: tkr-compatibility
+boms:
+- version: v1
+  type: compatibility
+  dependencies:
+    rtmVersions:
+      - v1.3.0
+  compatibilityMetadata:
+    version: v1
+    managementClusterVersions:
+    - version: v1.3.0
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1
+      - v1.19.8+vmware.1-tkg.1
+      - v1.18.16+vmware.1-tkg.1
+      - v1.17.16+vmware.2-tkg.1
+    - version: v1.3.0+vmware.1
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2
+      - v1.19.6+vmware.2
+      - v1.18.14+vmware.2
+      - v1.17.16+vmware.2
+    - version: v1.3.0-rc.1
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2
+      - v1.19.6+vmware.2
+      - v1.18.14+vmware.2
+      - v1.17.16+vmware.2
+    - version: v1.3.0-rc.2
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2-tkg.1-rc.2
+      - v1.19.6+vmware.2-tkg.1-rc.2
+      - v1.18.14+vmware.2-tkg.1-rc.2
+      - v1.17.16+vmware.2-tkg.1-rc.2
+    - version: v1.3.0-rc.2-vmware.2
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1-rc.2-vmware.2
+      - v1.19.8+vmware.1-tkg.1-rc.2-vmware.2
+      - v1.18.16+vmware.1-tkg.1-rc.2-vmware.2
+      - v1.17.16+vmware.2-tkg.1-rc.2-vmware.2
+    - version: v1.3.0-rc.3
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1-rc.3
+      - v1.19.8+vmware.1-tkg.1-rc.3
+      - v1.18.16+vmware.1-tkg.1-rc.3
+      - v1.17.16+vmware.2-tkg.1-rc.3
+    - version: v1.3.0-zlatest
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2-tkg.1-zlatest
+      - v1.19.6+vmware.2-tkg.1-zlatest
+      - v1.18.14+vmware.2-tkg.1-zlatest
+      - v1.17.16+vmware.2-tkg.1-zlatest
+    - version: v1.3.0-zlatest.2
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1-zlatest.2
+      - v1.19.8+vmware.1-tkg.1-zlatest.2
+      - v1.18.16+vmware.1-tkg.1-zlatest.2
+      - v1.17.16+vmware.2-tkg.1-zlatest.2
+    - version: v1.3.0-zlatest.rhel
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1-zlatest.rhel
+      - v1.19.8+vmware.1-tkg.1-zlatest.rhel
+      - v1.18.16+vmware.1-tkg.1-zlatest.rhel
+      - v1.17.16+vmware.2-tkg.1-zlatest.rhel
+    - version: v1.3.0-rc.1-8-gc8d9222
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2-tkg.1-v1.3.0-rc.1-8-gc8d9222
+      - v1.19.6+vmware.2-tkg.1-v1.3.0-rc.1-8-gc8d9222
+      - v1.18.14+vmware.2-tkg.1-v1.3.0-rc.1-8-gc8d9222
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.1-8-gc8d9222
+    - version: v1.3.0-rc.1-11-gea9c704
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2-tkg.1-v1.3.0-rc.1-11-gea9c704
+      - v1.19.6+vmware.2-tkg.1-v1.3.0-rc.1-11-gea9c704
+      - v1.18.14+vmware.2-tkg.1-v1.3.0-rc.1-11-gea9c704
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.1-11-gea9c704
+    - version: v1.3.0-rc.1-19-g99e45fc
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2-tkg.1-v1.3.0-rc.1-19-g99e45fc
+      - v1.19.6+vmware.2-tkg.1-v1.3.0-rc.1-19-g99e45fc
+      - v1.18.14+vmware.2-tkg.1-v1.3.0-rc.1-19-g99e45fc
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.1-19-g99e45fc
+    - version: v1.3.0-rc.1-25-g6adba07
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2-tkg.1-v1.3.0-rc.1-25-g6adba07
+      - v1.19.6+vmware.2-tkg.1-v1.3.0-rc.1-25-g6adba07
+      - v1.18.14+vmware.2-tkg.1-v1.3.0-rc.1-25-g6adba07
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.1-25-g6adba07
+    - version: v1.3.0-rc.2-4-gc74a542
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2-tkg.1-zv1.3.0-rc.2-4-gc74a542
+      - v1.19.6+vmware.2-tkg.1-zv1.3.0-rc.2-4-gc74a542
+      - v1.18.14+vmware.2-tkg.1-zv1.3.0-rc.2-4-gc74a542
+      - v1.17.16+vmware.2-tkg.1-zv1.3.0-rc.2-4-gc74a542
+    - version: v1.3.0-rc.2-12-g361266e
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1-v1.3.0-rc.2-12-g361266e.2
+      - v1.19.8+vmware.1-tkg.1-v1.3.0-rc.2-12-g361266e.2
+      - v1.18.16+vmware.1-tkg.1-v1.3.0-rc.2-12-g361266e.2
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.2-12-g361266e.2
+    - version: v1.3.0-rc.2-22-geadb04f
+      supportedKubernetesVersions:
+      - v1.20.1+vmware.2-tkg.1-v1.3.0-rc.2-22-geadb04f
+      - v1.19.6+vmware.2-tkg.1-v1.3.0-rc.2-22-geadb04f
+      - v1.18.14+vmware.2-tkg.1-v1.3.0-rc.2-22-geadb04f
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.2-22-geadb04f
+    - version: v1.3.0-rc.2-33-gc93147c
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1-v1.3.0-rc.2-33-gc93147c.2
+      - v1.19.8+vmware.1-tkg.1-v1.3.0-rc.2-33-gc93147c.2
+      - v1.18.16+vmware.1-tkg.1-v1.3.0-rc.2-33-gc93147c.2
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.2-33-gc93147c.2
+    - version: v1.3.0-rc.2-46-g3939f55
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1-v1.3.0-rc.2-46-g3939f55.2
+      - v1.19.8+vmware.1-tkg.1-v1.3.0-rc.2-46-g3939f55.2
+      - v1.18.16+vmware.1-tkg.1-v1.3.0-rc.2-46-g3939f55.2
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.2-46-g3939f55.2
+    - version: v1.3.0-rc.3-2-g947a3dd
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1-v1.3.0-rc.3-2-g947a3dd.2
+      - v1.19.8+vmware.1-tkg.1-v1.3.0-rc.3-2-g947a3dd.2
+      - v1.18.16+vmware.1-tkg.1-v1.3.0-rc.3-2-g947a3dd.2
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.3-2-g947a3dd.2
+    - version: v1.3.0-rc.3-9-g5f56679
+      supportedKubernetesVersions:
+      - v1.20.4+vmware.1-tkg.1-v1.3.0-rc.3-9-g5f56679.2
+      - v1.19.8+vmware.1-tkg.1-v1.3.0-rc.3-9-g5f56679.2
+      - v1.18.16+vmware.1-tkg.1-v1.3.0-rc.3-9-g5f56679.2
+      - v1.17.16+vmware.2-tkg.1-v1.3.0-rc.3-9-g5f56679.2

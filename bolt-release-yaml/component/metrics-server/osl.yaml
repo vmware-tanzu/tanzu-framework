@@ -1,0 +1,4 @@
+submodules:
+  - name: metrics-server/src
+    go_mod:
+      - "go.mod"

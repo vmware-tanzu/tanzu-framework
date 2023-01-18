@@ -1,0 +1,40 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.21.6+vmware.1-tkg.1-zshippable
+  gobuildBranch: 390472497432148772-v1.21.6+vmware.1-tkg.1-zshippable
+  gobuildHeadCommit: 2b6cbe53f23ee3409ac3cb181d665be5ce53f504
+  hash: e250223200e95618c200e649de005707
+  componentLockReferences:
+  - name: addons-manager-package
+    version: v1.5.0+vmware.1-tkg.1-addons-manager-zshippable
+    lockHash: e44a2b2e208ddfd9b3582974a458a39a
+  - name: ako-operator-package
+    version: v1.5.0+vmware.3-tkg.1-ako-operator-zshippable
+    lockHash: 699222a743ac881c5e01d5bfab92dd76
+  - name: load-balancer-and-ingress-service-package
+    version: v1.6.1+vmware.2-tkg.1-ako-zshippable
+    lockHash: 69ca32605b16eb051d20a24f676a8bba
+  - name: antrea-package
+    version: v0.13.3+vmware.1-tkg.2-antrea-zshippable
+    lockHash: 8be86e91179172928727f46a6bba7a5a
+  - name: calico-package
+    version: v3.19.1+vmware.1-tkg.3-calico-zshippable
+    lockHash: 48a7b90a052c156950928d9205cad604
+  - name: vsphere-csi-package
+    version: v2.3.0+vmware.1-tkg.4-vsphere-csi-zshippable
+    lockHash: 2d8720287b61f04a3a8a32e4b98e34dd
+  - name: vsphere-cpi-package
+    version: v1.21.0+vmware.1-tkg.2-vsphere-cpi-zshippable
+    lockHash: 8d683200b414fe12bdeb2df314186c5a
+  - name: metrics-server-package
+    version: v0.5.1+vmware.1-tkg.1-metrics-server-zshippable
+    lockHash: 4918fc4684d95b8e9825125ca4d8719d
+  - name: kapp-controller-package
+    version: v0.30.0+vmware.1-tkg.1-kapp-controller-zshippable
+    lockHash: 6079affa14a862645c32c6857a19df55
+  - name: secretgen-controller-package
+    version: v0.7.1+vmware.1-tkg.1-secgen-ctl-zshippable
+    lockHash: ec4d6aebe8015587fb7a0b06fcc4f5ba
+  - name: pinniped-package
+    version: v0.4.4+vmware.1-tkg.3-pinniped-zshippable
+    lockHash: c2adb905c5c01d5315423bc1a447f1f7

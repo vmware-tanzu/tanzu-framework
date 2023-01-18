@@ -1,0 +1,16 @@
+name: grafana
+publish: 
+  - name: grafanaImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/grafana/images/grafana-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/grafana/images/grafana-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: grafana/grafana:$UNDERSCOREVERSION
+nonpublish:
+  - name: grafana-cli
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/grafana/executables/grafana-cli-$VERSION-binary-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/grafana/executables/grafana-cli-$VERSION.gz
+  - name: grafana-server
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/grafana/images/grafana-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/grafana/executables/grafana-server-$VERSION.gz

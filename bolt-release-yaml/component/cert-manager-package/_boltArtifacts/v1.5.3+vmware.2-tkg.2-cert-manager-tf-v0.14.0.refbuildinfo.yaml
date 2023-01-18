@@ -1,0 +1,17 @@
+componentBuilds:
+- name: jetstack_cert-manager
+  version: v1.5.3+vmware.2
+  channel: "380205883038131689"
+  url: https://buildweb.eng.vmware.com/ob/18880422/
+  artifactURL:
+    certMgrControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cert-manager-controller:v1.5.3_vmware.2
+      sha256: fdf4eca1d730c92a6b81700eb0156ac67dc700ed09d7dcb4dd909a75f0914c0b
+    certMgrInjectorImage:
+      url: projects-stg.registry.vmware.com/tkg/cert-manager-cainjector:v1.5.3_vmware.2
+      sha256: d82f5e3296e8b21d594ef2e9524468666aa6d151e57184d8f0e6e743a3d18520
+    certMgrWebhookImage:
+      url: projects-stg.registry.vmware.com/tkg/cert-manager-webhook:v1.5.3_vmware.2
+      sha256: 26e140c592d7a4e557937ad102ebb1e78f08b700671ffca492dcab75a64327d1
+  cachehash: cd674039c8cec763ec014b028c1717e0
+  publishhash: 489194fbbad37689fd4c4b0020fa0d06

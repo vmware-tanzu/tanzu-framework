@@ -1,0 +1,21 @@
+componentBuilds:
+- name: tanzu-framework-addons
+  version: v0.26.0-dev-61-gdb127cf8
+  channel: "422298858937161501"
+  url: https://buildweb.eng.vmware.com/ob/20330620/
+  artifactURL:
+    tanzuAddonsManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tanzu-addons-manager:v0.26.0-dev-61-gdb127cf8
+      sha256: 6daa193796eb7d4d2df48ab5c901398d3b2f8df0774eda1b7233471195039d31
+    tkgPinnipedPostDeployImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/addons/tkg-pinniped-post-deploy:v0.26.0-dev-61-gdb127cf8
+      sha256: f0f5902d53aef1b2bdd85cba63bc9f3422d236eaaa126e7408f97b768284125d
+  cachehash: 52aaaa649a133c59ffce1eb54f5d0ad5
+  publishhash: 9bcb224f7eaf2750adf282948c6a9f80
+  configDependencies:
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17
+    gobuild.golangVersion: "1.17"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v0.26.0-dev-61-gdb127cf8
+    gobuild.tkgBuildContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17

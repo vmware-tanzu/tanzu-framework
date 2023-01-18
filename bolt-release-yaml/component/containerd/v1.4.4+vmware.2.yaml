@@ -1,0 +1,7 @@
+name: containerd
+unmanagedComponents:
+  - version: v1.4.4+vmware.2
+    gobuildBranch: vmware-1.4.4+vmware.2~1178996479f5bf9574c295180f61bac6cd492122
+    dependencies:
+      gobuild.golangVersion: 1.15.8 
+      gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,14 @@
+name: tkr-compatibility
+publish:
+  - name: tkrCompatibilityImage
+    type: image
+    sourcePath: $SOURCECHANNEL/component/tkr-compatibility/_boltArtifacts/tkr-compatibility-$VERSION.tar.gz
+    destinationPath: tkr-compatibility:$UNDERSCOREVERSION
+nonpublish:
+  - name: tkrCompatibilityYaml
+    type: file
+    destinationPath: $CHANNEL/component/tkr-compatibility/_boltArtifacts/tkr-compatibility-$VERSION.yaml
+  - name: globalTkrCompatibilityImage
+    type: image
+    sourcePath: $SOURCECHANNEL/component/tkr-compatibility/_boltArtifacts/tkr-compatibility.tar.gz
+    destinationPath: tkr-compatibility:$UNDERSCOREVERSION

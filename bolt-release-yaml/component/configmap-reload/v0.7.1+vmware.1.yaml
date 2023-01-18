@@ -1,0 +1,7 @@
+name: configmap-reload
+unmanagedComponents:
+  - version: v0.7.1+vmware.1
+    gobuildBranch: vmware-0.7.1~e4e9dd9729c614ba7e985fb25f8251293a4372d4
+    dependencies:
+      gobuild.golangVersion: 1.17
+      gobuild.linux_hosttype: linux-centos72-gc32

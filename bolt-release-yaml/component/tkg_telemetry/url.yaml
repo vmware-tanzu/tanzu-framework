@@ -1,0 +1,5 @@
+name: tkg_telemetry
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/tkg-telemetry.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/tkg-telemetry.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/tkg-telemetry.git
+gobuildTarget: tkg_telemetry

@@ -1,0 +1,18 @@
+componentBuilds:
+- name: grafana
+  version: v7.5.16+vmware.1
+  channel: "414093435050423693"
+  url: https://buildweb.eng.vmware.com/ob/19968938
+  artifactURL:
+    grafana-cli:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19968938/publish/lin64/grafana/executables/grafana-cli-v7.5.16+vmware.1.gz
+    grafana-server:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19968938/publish/lin64/grafana/executables/grafana-server-v7.5.16+vmware.1.gz
+    grafanaImage:
+      url: projects-stg.registry.vmware.com/tkg/grafana/grafana:v7.5.16_vmware.1
+      sha256: c9afe9350346e163a65525069e09eaa4bca720d4ecee4f40e15f49191c18b195
+  cachehash: 8ba74a6a965f3ee9f3588d036be07ecd
+  publishhash: ffd7e1a38294bc5fb2676dc3214b984e
+  configDependencies:
+    gobuild.golangVersion: 1.15.1
+    gobuild.linux_hosttype: linux-centos72-gc32

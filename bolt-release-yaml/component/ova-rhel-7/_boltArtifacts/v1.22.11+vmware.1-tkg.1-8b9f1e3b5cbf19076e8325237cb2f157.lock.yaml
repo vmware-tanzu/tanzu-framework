@@ -1,0 +1,23 @@
+name: ova-rhel-7
+imageLocks:
+- version: v1.22.11+vmware.1-tkg.1-8b9f1e3b5cbf19076e8325237cb2f157
+  hash: baba1c43b72d94c226c9d27f38a76249
+  componentLockReferences:
+  - name: cni_plugins
+    version: v1.1.1+vmware.2
+    lockHash: 6d46aaf822c63d16ed1c4b0f19bbe2ab
+  - name: coredns
+    version: v1.8.6+vmware.6
+    lockHash: 60818e124e9a7b5e88b2b4b21b02f328
+  - name: cri_tools
+    version: v1.21.0+vmware.9
+    lockHash: e1bc0118132690b850dfa2199d0067c9
+  - name: etcd
+    version: v3.5.4+vmware.2
+    lockHash: e624c97266c12742a272f1047404874e
+  - name: containerd
+    version: v1.5.13+vmware.1
+    lockHash: cb597e991a7b71b009e66fcb7ee80be9
+  - name: kubernetes
+    version: v1.22.11+vmware.1
+    lockHash: 6c4a641d68c1112ca0574d93e8af715e

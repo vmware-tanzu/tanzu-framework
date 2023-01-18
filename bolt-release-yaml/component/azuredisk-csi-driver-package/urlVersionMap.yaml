@@ -1,0 +1,20 @@
+versionMap:
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi: url.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-rc.1: url.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-rc.2: url.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-rc.3: url.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-tf-v0.25.0: url.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-tf-v0.25.1: url.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-zshippable: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-20230103: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-20230112: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-20230114: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-fc.1: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-fc.2: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-rc.1: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-rc.2: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-rc.3: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-tf-v0.26.0: url.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-zshippable: url.yaml
+  v1.19.0+vmware.1-tkg.3-azuredisk-csi-zshippable: url.yaml

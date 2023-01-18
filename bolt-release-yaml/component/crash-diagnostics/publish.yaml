@@ -1,0 +1,10 @@
+name: crash-diagnostics
+nonpublish:
+  - name: crashd-linux
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/crashd/executables/crashd-$VERSION-executables-checksum.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/crashd/executables/crashd-linux-amd64-$VERSION.tar.gz
+  - name: crashd-darwin
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/crashd/executables/crashd-$VERSION-executables-checksum.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/crashd/executables/crashd-darwin-amd64-$VERSION.tar.gz

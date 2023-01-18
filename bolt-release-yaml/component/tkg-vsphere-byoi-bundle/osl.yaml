@@ -1,0 +1,4 @@
+submodules:
+  - name: tkg-vsphere-byoi-bundle/src
+    go_mod:
+      - "go.mod"

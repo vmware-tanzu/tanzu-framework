@@ -1,0 +1,8 @@
+name: tkr-azure-machine-webhook-package
+upstreamURL: "git@gitlab.eng.vmware.com:core-build/mirrors_github_tanzu-framework.git"
+mirrorSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_tanzu-framework.git"
+mirrorOfficialURL: "git@gitlab.eng.vmware.com:core-build/mirrors_github_tanzu-framework.git"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:core-build/cayman_tanzu-framework.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/cayman_tanzu-framework.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:core-build/cayman_tanzu-framework.git"
+gobuildTarget: "cayman_tanzu-framework-package-bundles"

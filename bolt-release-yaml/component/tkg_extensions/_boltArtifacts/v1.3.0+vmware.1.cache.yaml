@@ -1,0 +1,7 @@
+name: tkg_extensions
+goBuildComponentCaches:
+- version: v1.3.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/17734873/
+  buildNumber: bora-17734873
+  buildStatus: SUCCEEDED
+  hash: "18236986368196490347"

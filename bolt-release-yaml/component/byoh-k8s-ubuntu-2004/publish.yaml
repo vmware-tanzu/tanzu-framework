@@ -1,0 +1,6 @@
+name: byoh-k8s-ubuntu-2004
+publish:
+  - name: byohImgpkgBundle
+    type: imgpkg-image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/byoh-k8s-ubuntu-2004/repo-bundles/byoh-bundle-ubuntu_20.04.1_x86-64_k8s_$UNDERSCOREVERSION.tar.gz
+    destinationPath: cluster-api/byoh-bundle-ubuntu_20.04.1_x86-64_k8s:$UNDERSCOREVERSION  

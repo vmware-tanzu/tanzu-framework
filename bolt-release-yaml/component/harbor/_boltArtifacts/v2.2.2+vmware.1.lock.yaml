@@ -1,0 +1,7 @@
+name: harbor
+goBuildComponentLocks:
+- version: v2.2.2+vmware.1
+  gobuildBranch: vmware-2.2.2
+  gobuildHeadCommit: b5b88a776901f1f5b67b36d410fb08061d392cce
+  hash: "1715014272014700462"
+  componentLockReferences: []

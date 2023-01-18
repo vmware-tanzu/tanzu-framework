@@ -1,0 +1,46 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.22.8+vmware.1-tkg.2-tf-v0.23.0
+  gobuildBranch: 413394467207258956-v1.22.8+vmware.1-tkg.2-tf-v0.23.0-tkg-core-packages
+  gobuildHeadCommit: 2e72c9d70fe0ed812c6f8f299cc0894a07056c58
+  hash: d65647ea75d8fe8a5235cafcf3772a1e
+  componentLockReferences:
+  - name: addons-manager-package
+    version: v1.5.0+vmware.1-tkg.2-addons-manager-tf-v0.23.0
+    lockHash: 1d76c8183e548af967d958f916d8e0b7
+  - name: ako-operator-package
+    version: v1.6.0+vmware.11-tkg.1-ako-operator-tf-v0.23.0
+    lockHash: 253eca8dc5f84eaed120577ae4327d02
+  - name: load-balancer-and-ingress-service-package
+    version: v1.6.1+vmware.5-tkg.1-ako-tf-v0.23.0
+    lockHash: b90080e24e7b7a9574acf55db95cd251
+  - name: antrea-package
+    version: v1.5.2+vmware.3-tkg.1-antrea-standard-tf-v0.23.0
+    lockHash: 479d233f3d098163c5406e2b9a34ae7e
+  - name: calico-package
+    version: v3.22.1+vmware.1-tkg.1-calico-tf-v0.23.0
+    lockHash: c08c62488570faf132c296daad8fe9dd
+  - name: vsphere-csi-package
+    version: v2.4.1+vmware.1-tkg.2-vsphere-csi-tf-v0.23.0
+    lockHash: 4193cf5d0bdf057bdcabd19d1a733944
+  - name: vsphere-pv-csi-package
+    version: v2.4.0+vmware.1-tkg.1-vsphere-pv-csi-tf-v0.23.0
+    lockHash: 8d744943a3f67ef97ac45a106c094ff9
+  - name: vsphere-cpi-package
+    version: v1.22.6+vmware.1-tkg.1-vsphere-cpi-tf-v0.23.0
+    lockHash: 21870da3ec726f79c959f811e00b1c59
+  - name: metrics-server-package
+    version: v0.5.1+vmware.1-tkg.2-metrics-server-tf-v0.23.0
+    lockHash: f2a385d37d63f743136996ea1b43271f
+  - name: kapp-controller-package
+    version: v0.34.0+vmware.1-tkg.1-kapp-controller-tf-v0.23.0
+    lockHash: c798f61521c801988ce09e260d3e630c
+  - name: secretgen-controller-package
+    version: v0.8.0+vmware.1-tkg.1-secgen-ctl-tf-v0.23.0
+    lockHash: 7fe89e2509c658a621eabd92d0f3110f
+  - name: pinniped-package
+    version: v0.12.1+vmware.1-tkg.1-pinniped-tf-v0.23.0
+    lockHash: abcaec08b31d7936115072902fa96329
+  - name: guest-cluster-auth-service-package
+    version: v1.0.0-tkg.1-gc-auth-service-tf-v0.23.0
+    lockHash: 9bc0a1868452689fde9dd83b6eb88e08

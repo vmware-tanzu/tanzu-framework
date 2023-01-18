@@ -1,0 +1,20 @@
+componentBuilds:
+- name: tkg-clusterclass-docker-package
+  version: v0.28.0-dev-175-gc2d5ccca-tkg-clusterclass-docker
+  channel: "436498364314425218"
+  url: https://buildweb.eng.vmware.com/ob/20870360/
+  artifactURL:
+    tkg-clusterclass-docker.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkg-clusterclass-docker:v0.28.0-dev-175-gc2d5ccca_vmware.1
+      sha256: 180f09944653a7e6c4753165d74fd9c1a2800f16ef58e91d45b737da75280782
+  cachehash: 7205bd77d4f749e2a7bec80ec99e0e82
+  publishhash: 672105a863576f4d03b7ef2900c3cc69
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-docker
+    gobuild.upstream_version: v0.28.0-dev-175-gc2d5ccca

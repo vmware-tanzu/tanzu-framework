@@ -1,0 +1,7 @@
+name: imgpkg
+goBuildComponentCaches:
+- version: v0.8.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18119272/
+  buildNumber: bora-18119272
+  buildStatus: SUCCEEDED
+  hash: "12032598108728281012"

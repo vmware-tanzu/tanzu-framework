@@ -1,0 +1,7 @@
+name: external-dns
+goBuildComponentLocks:
+- version: v0.10.0+vmware.1
+  gobuildBranch: vmware-0.10.0
+  gobuildHeadCommit: 888beff46653d16f6b26b825dd5dc72b1bebc253
+  hash: 6b4366c46169eb1d0eb50a716b53cb60
+  componentLockReferences: []

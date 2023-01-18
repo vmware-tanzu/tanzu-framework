@@ -1,0 +1,32 @@
+name: pinniped-package
+packages:
+- version: v0.12.0+vmware.1-tkg.2-pinniped-tf-v0.15.0
+  upstreamCommit: 65e328bd776d5d47a580a43985a88502551b67a3
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: pinniped
+    version:
+    - v0.12.0+vmware.1
+  - name: dex
+    version:
+    - v2.30.2+vmware.1
+  - name: pinniped-post-deploy
+    version:
+    - v0.14.0
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "pinniped-post-deploy" ).artifactURL.tkgPinnipedPostDeployImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "pinniped").artifactURL.pinnipedImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "dex").artifactURL.dexImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.2-tf-v0.15.0
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: pinniped
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects.registry.vmware.com/tce/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.1
+    gobuild.upstream_image_1: docker.io/getpinniped/pinniped-server:v0.12.0
+    gobuild.upstream_image_2: projects.registry.vmware.com/tce/dex:v2.30.2_vmware.1
+    gobuild.upstream_version: 0.12.0

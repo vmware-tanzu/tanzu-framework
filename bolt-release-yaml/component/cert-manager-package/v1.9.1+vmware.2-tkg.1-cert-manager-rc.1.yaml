@@ -1,0 +1,28 @@
+name: cert-manager-package
+packages:
+- version: v1.9.1+vmware.2-tkg.1-cert-manager-rc.1
+  upstreamCommit: c45a74fb042683b237f673c98f209a8cb8247f81
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: jetstack_cert-manager
+    version:
+    - v1.9.1+vmware.2
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "jetstack_cert-manager").artifactURL.certMgrInjectorImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "jetstack_cert-manager").artifactURL.certMgrControllerImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "jetstack_cert-manager" ).artifactURL.certMgrWebhookImage.url}}'
+    gobuild.downstream_version: vmware.2-tkg.1-rc.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: cert-manager
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: quay.io/jetstack/cert-manager-cainjector:v1.9.1
+    gobuild.upstream_image_1: quay.io/jetstack/cert-manager-controller:v1.9.1
+    gobuild.upstream_image_2: quay.io/jetstack/cert-manager-webhook:v1.9.1
+    gobuild.upstream_version: 1.9.1

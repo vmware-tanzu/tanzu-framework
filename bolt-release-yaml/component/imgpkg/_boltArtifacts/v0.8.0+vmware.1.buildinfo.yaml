@@ -1,0 +1,14 @@
+componentBuilds:
+- name: imgpkg
+  version: v0.8.0+vmware.1
+  channel: "358867598550502286"
+  url: https://buildweb.eng.vmware.com/ob/18119272/
+  artifactURL:
+    imgpkg-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18119272/publish/lin64/imgpkg/executables/imgpkg-darwin-amd64-v0.8.0+vmware.1.gz
+    imgpkg-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18119272/publish/lin64/imgpkg/executables/imgpkg-linux-amd64-v0.8.0+vmware.1.gz
+    imgpkg-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18119272/publish/lin64/imgpkg/executables/imgpkg-windows-amd64-v0.8.0+vmware.1.gz
+  cachehash: "1884676519839215536"
+  publishhash: "3450588311127045820"

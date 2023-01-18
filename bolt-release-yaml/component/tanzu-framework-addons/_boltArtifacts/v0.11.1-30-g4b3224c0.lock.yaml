@@ -1,0 +1,7 @@
+name: tanzu-framework-addons
+goBuildComponentLocks:
+- version: v0.11.1-30-g4b3224c0
+  gobuildBranch: 385127868918707830-v0.11.1-30-g4b3224c0-addons
+  gobuildHeadCommit: d6131a4fc61a203e20a05a1f9e90d422f05c0b07
+  hash: 30e85f690d8ef12107ae130efd3df20f
+  componentLockReferences: []

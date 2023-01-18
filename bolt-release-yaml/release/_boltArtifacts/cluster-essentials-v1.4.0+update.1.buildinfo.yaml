@@ -1,0 +1,151 @@
+componentBuilds:
+- name: kapp-controller
+  version: v0.44.1+vmware.1
+  channel: "442097865934770670"
+  url: https://buildweb.eng.vmware.com/ob/20962503
+  artifactURL:
+    kapp-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20962503/publish/lin64/kapp-controller/executables/kapp-controller-linux-amd64-v0.44.1+vmware.1.gz
+    kappControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.44.1_vmware.1
+      sha256: 9681084673aa2db7e20a1447cd90e7bceadd987638895fc58c4ff36985cf85d3
+  cachehash: 0407700beb7352eea5d8fd5208d5892a
+  publishhash: 702fabdb2102e99ec9e6f600badee4cf
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8-fw
+- name: kapp-controller-package
+  version: v0.44.1+vmware.1-tkg.1-kapp-controller-zshippable
+  channel: "442097865934770670"
+  url: https://buildweb.eng.vmware.com/ob/21077716/
+  artifactURL:
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.44.1_vmware.1-tkg.1-zshippable
+      sha256: 7c874a49bc9fc3582c8d3d578598d01c26d6ffc9c48cce8c9aa88f5bf746d06c
+  cachehash: d172f8f997a6947f744f1011c5fb84cb
+  publishhash: 386598a473d4ed792227a88e5777e074
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.44.1_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: kapp-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:2c5d238a508e0978490a89ca13c5a4ccb9210558dbcb51d3bb4c37fc59964744
+    gobuild.upstream_version: 0.44.1
+- name: carvel-secretgen-controller
+  version: v0.13.0+vmware.1
+  channel: "442009258091878216"
+  url: https://buildweb.eng.vmware.com/ob/21074301/
+  artifactURL:
+    secretgen-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21074301/publish/lin64/carvel-secretgen-controller/executables/secretgen-controller-linux-amd64-v0.13.0+vmware.1.gz
+    secretgenControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/secretgen-controller:v0.13.0_vmware.1
+      sha256: bd1e16eed2da426495f797f9419c0520869652290c6ab465b0a3e63613172f74
+  cachehash: 2da56790b5983940765d970b2a6e7193
+  publishhash: d6523f4f29b20adf04999b1b7dfb9e53
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: secretgen-controller-package
+  version: v0.13.0+vmware.1-tkg.1-secgen-ctl-zshippable
+  channel: "442009258091878216"
+  url: https://buildweb.eng.vmware.com/ob/21074353/
+  artifactURL:
+    secretgen-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/secretgen-controller:v0.13.0_vmware.1-tkg.1-zshippable
+      sha256: 857330052890bf4c1a0b7d8bfbee73764cb72069d8769a5bb35010d3ec699843
+  cachehash: 25450cb9a900ada814abbefa4fc65bdf
+  publishhash: 5e2cf1e775d67dbdb526c3013035dd63
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/secretgen-controller:v0.13.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: secretgen-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: secretgen-controller
+    gobuild.upstream_version: 0.13.0
+- name: k14s_kapp
+  version: v0.54.1+vmware.1
+  channel: "442097865934770670"
+  url: https://buildweb.eng.vmware.com/ob/20929433
+  artifactURL:
+    kapp-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929433/publish/lin64/kapp/executables/kapp-darwin-amd64-v0.54.1+vmware.1.gz
+    kapp-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929433/publish/lin64/kapp/executables/kapp-linux-amd64-v0.54.1+vmware.1.gz
+    kapp-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929433/publish/lin64/kapp/executables/kapp-windows-amd64-v0.54.1+vmware.1.gz
+  cachehash: 1a511576f4701c9e3ee1aa9a340b2b86
+  publishhash: 523ac0c11118186643419ae0fba04260
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: k14s_ytt
+  version: v0.44.1+vmware.1
+  channel: "442097865934770670"
+  url: https://buildweb.eng.vmware.com/ob/20929431
+  artifactURL:
+    ytt-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929431/publish/lin64/ytt/executables/ytt-darwin-amd64-v0.44.1+vmware.1.gz
+    ytt-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929431/publish/lin64/ytt/executables/ytt-linux-amd64-v0.44.1+vmware.1.gz
+    ytt-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929431/publish/lin64/ytt/executables/ytt-windows-amd64-v0.44.1+vmware.1.gz
+  cachehash: bbcac4b3e1267a739a27f70e05ace6bb
+  publishhash: 8cdad8265c956418832220d623638e42
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: imgpkg
+  version: v0.31.1+vmware.1
+  channel: "439399172072810071"
+  url: https://buildweb.eng.vmware.com/ob/20917758
+  artifactURL:
+    imgpkg-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20917758/publish/lin64/imgpkg/executables/imgpkg-darwin-amd64-v0.31.1+vmware.1.gz
+    imgpkg-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20917758/publish/lin64/imgpkg/executables/imgpkg-linux-amd64-v0.31.1+vmware.1.gz
+    imgpkg-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20917758/publish/lin64/imgpkg/executables/imgpkg-windows-amd64-v0.31.1+vmware.1.gz
+  cachehash: 3cc7ed54e3395e5498d419e288488d8e
+  publishhash: 54762405b14807285006d7eab4ec79a4
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: kbld
+  version: v0.36.1+vmware.1
+  channel: "442097865934770670"
+  url: https://buildweb.eng.vmware.com/ob/20929434
+  artifactURL:
+    kbld-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929434/publish/lin64/kbld/executables/kbld-darwin-amd64-v0.36.1+vmware.1.gz
+    kbld-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929434/publish/lin64/kbld/executables/kbld-linux-amd64-v0.36.1+vmware.1.gz
+    kbld-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929434/publish/lin64/kbld/executables/kbld-windows-amd64-v0.36.1+vmware.1.gz
+  cachehash: 2fa139142a7a27436f061802c514aff2
+  publishhash: 833d5a2fec1bf7de7070cc9cbbbd750f
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: vendir
+  version: v0.32.2+vmware.1
+  channel: "442097865934770670"
+  url: https://buildweb.eng.vmware.com/ob/20929432
+  artifactURL:
+    vendir-darwin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929432/publish/lin64/vendir/executables/vendir-darwin-amd64-v0.32.2+vmware.1.gz
+    vendir-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929432/publish/lin64/vendir/executables/vendir-linux-amd64-v0.32.2+vmware.1.gz
+    vendir-windows:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20929432/publish/lin64/vendir/executables/vendir-windows-amd64-v0.32.2+vmware.1.gz
+  cachehash: 11c7d4315681d0a37b19ae9eed90f109
+  publishhash: c8763a3774dadf65e08a58bc4dac5df5
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 65e0acada5d185e0055fae0cf41d65713d3d5bd2
+testInfraVersion: f9eb439a6b794c17945aa53e08ad1821768cbada

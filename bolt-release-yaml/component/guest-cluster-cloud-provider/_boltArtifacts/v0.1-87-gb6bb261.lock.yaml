@@ -1,0 +1,7 @@
+name: guest-cluster-cloud-provider
+goBuildComponentLocks:
+- version: v0.1-87-gb6bb261
+  gobuildBranch: master
+  gobuildHeadCommit: b26e6539ca43914363095b487792bb20a1157c4d
+  hash: 13d094f29961cdc8b98f07483730cf36
+  componentLockReferences: []

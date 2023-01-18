@@ -1,0 +1,2201 @@
+other:kubernetes:v1.19.12-4-g14ad88ea:
+  license: Apache-2.0
+  name: kubernetes
+  other-distribution: /osl_sources/core-build-mirrors_github_kubernetes.git-v1.19.12-4-g14ad88ea.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_kubernetes.git
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_kubernetes.git/-/archive/v1.19.12-4-g14ad88ea/mirrors_github_kubernetes.git-v1.19.12-4-g14ad88ea.tar.gz
+  version: v1.19.12-4-g14ad88ea
+other:golang_groupcache:215e87163ea7:
+  license: Apache-2.0
+  name: golang_groupcache
+  other-distribution: /osl_sources/golang-groupcache-215e87163ea7.tar.gz
+  other-url: https://github.com/golang/groupcache
+  repository: Other
+  url: https://codeload.github.com/golang/groupcache/tar.gz/215e87163ea7
+  version: 215e87163ea7
+other:go-openapi_jsonpointer:v0.19.3:
+  license: Apache-2.0
+  name: go-openapi_jsonpointer
+  other-distribution: /osl_sources/go-openapi-jsonpointer-v0.19.3.tar.gz
+  other-url: https://github.com/go-openapi/jsonpointer
+  repository: Other
+  url: https://codeload.github.com/go-openapi/jsonpointer/tar.gz/v0.19.3
+  version: v0.19.3
+other:ghodss_yaml:v1.0.0:
+  license: UNKNOWN
+  name: ghodss_yaml
+  other-distribution: /osl_sources/ghodss-yaml-v1.0.0.tar.gz
+  other-url: https://github.com/ghodss/yaml
+  repository: Other
+  url: https://codeload.github.com/ghodss/yaml/tar.gz/v1.0.0
+  version: v1.0.0
+other:utils_inotify:d5654de09c73:
+  license: BSD-3-Clause
+  name: utils_inotify
+  other-distribution: /osl_sources/kubernetes-utils-d5654de09c73.tar.gz
+  other-url: https://k8s.io/utils/inotify
+  repository: Other
+  url: https://codeload.github.com/kubernetes/utils/tar.gz/d5654de09c73
+  version: d5654de09c73
+other:vishvananda_netlink:v1.1.0:
+  license: Apache-2.0
+  name: vishvananda_netlink
+  other-distribution: /osl_sources/vishvananda-netlink-v1.1.0.tar.gz
+  other-url: https://github.com/vishvananda/netlink
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netlink/tar.gz/v1.1.0
+  version: v1.1.0
+other:vmware_govmomi_vim25_xml:v0.20.3:
+  license: BSD-3-Clause
+  name: vmware_govmomi_vim25_xml
+  other-distribution: /osl_sources/vmware-govmomi-v0.20.3.tar.gz
+  other-url: https://github.com/vmware/govmomi/vim25/xml
+  repository: Other
+  url: https://codeload.github.com/vmware/govmomi/tar.gz/v0.20.3
+  version: v0.20.3
+other:kube-openapi:6aeccd4b50c6:
+  license: Apache-2.0
+  name: kube-openapi
+  other-distribution: /osl_sources/kubernetes-kube-openapi-6aeccd4b50c6.tar.gz
+  other-url: https://k8s.io/kube-openapi
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kube-openapi/tar.gz/6aeccd4b50c6
+  version: 6aeccd4b50c6
+other:docker_distribution:v2.7.1:
+  license: Apache-2.0
+  name: docker_distribution
+  other-distribution: /osl_sources/docker-distribution-v2.7.1.tar.gz
+  other-url: https://github.com/docker/distribution
+  repository: Other
+  url: https://codeload.github.com/docker/distribution/tar.gz/v2.7.1
+  version: v2.7.1
+other:imdario_mergo:v0.3.5:
+  license: BSD-3-Clause
+  name: imdario_mergo
+  other-distribution: /osl_sources/imdario-mergo-v0.3.5.tar.gz
+  other-url: https://github.com/imdario/mergo
+  repository: Other
+  url: https://codeload.github.com/imdario/mergo/tar.gz/v0.3.5
+  version: v0.3.5
+other:appengine:v1.6.5:
+  license: Apache-2.0
+  name: appengine
+  other-distribution: /osl_sources/golang-appengine-v1.6.5.tar.gz
+  other-url: https://google.golang.org/appengine
+  repository: Other
+  url: https://codeload.github.com/golang/appengine/tar.gz/v1.6.5
+  version: v1.6.5
+other:microsoft_hcsshim:5eafd1556990:
+  license: MIT
+  name: microsoft_hcsshim
+  other-distribution: /osl_sources/Microsoft-hcsshim-5eafd1556990.tar.gz
+  other-url: https://github.com/Microsoft/hcsshim
+  repository: Other
+  url: https://codeload.github.com/Microsoft/hcsshim/tar.gz/5eafd1556990
+  version: 5eafd1556990
+other:google_uuid:v1.1.1:
+  license: BSD-3-Clause
+  name: google_uuid
+  other-distribution: /osl_sources/google-uuid-v1.1.1.tar.gz
+  other-url: https://github.com/google/uuid
+  repository: Other
+  url: https://codeload.github.com/google/uuid/tar.gz/v1.1.1
+  version: v1.1.1
+other:storageos_go-api_types:343b3eff91fc:
+  license: UNKNOWN
+  name: storageos_go-api_types
+  other-distribution: /osl_sources/storageos-go-api-343b3eff91fc.tar.gz
+  other-url: https://github.com/storageos/go-api/types
+  repository: Other
+  url: https://codeload.github.com/storageos/go-api/tar.gz/343b3eff91fc
+  version: 343b3eff91fc
+other:csi-translation-lib:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: csi-translation-lib
+  other-distribution: /osl_sources/kubernetes-csi-translation-lib-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/csi-translation-lib
+  repository: Other
+  url: https://codeload.github.com/kubernetes/csi-translation-lib/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:gogo_protobuf_plugin_compare:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_compare
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/compare
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:go-logr_logr:v0.2.0:
+  license: Apache-2.0
+  name: go-logr_logr
+  other-distribution: /osl_sources/go-logr-logr-v0.2.0.tar.gz
+  other-url: https://github.com/go-logr/logr
+  repository: Other
+  url: https://codeload.github.com/go-logr/logr/tar.gz/v0.2.0
+  version: v0.2.0
+other:google_cadvisor:v0.37.5:
+  license: Apache-2.0
+  name: google_cadvisor
+  other-distribution: /osl_sources/google-cadvisor-v0.37.5.tar.gz
+  other-url: https://github.com/google/cadvisor
+  repository: Other
+  url: https://codeload.github.com/google/cadvisor/tar.gz/v0.37.5
+  version: v0.37.5
+other:prometheus_client_golang:v1.7.1:
+  license: Apache-2.0
+  name: prometheus_client_golang
+  other-distribution: /osl_sources/prometheus-client_golang-v1.7.1.tar.gz
+  other-url: https://github.com/prometheus/client_golang
+  repository: Other
+  url: https://codeload.github.com/prometheus/client_golang/tar.gz/v1.7.1
+  version: v1.7.1
+other:azure_go-autorest_autorest_validation:v0.1.0:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_validation
+  other-distribution: /osl_sources/Azure-go-autorest-v0.1.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/validation
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.1.0
+  version: v0.1.0
+other:x_sys:5cba982894dd:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/golang-sys-5cba982894dd.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/5cba982894dd
+  version: 5cba982894dd
+other:inconshreveable_mousetrap:v1.0.0:
+  license: Apache-2.0
+  name: inconshreveable_mousetrap
+  other-distribution: /osl_sources/inconshreveable-mousetrap-v1.0.0.tar.gz
+  other-url: https://github.com/inconshreveable/mousetrap
+  repository: Other
+  url: https://codeload.github.com/inconshreveable/mousetrap/tar.gz/v1.0.0
+  version: v1.0.0
+other:coreos_go-systemd_v22:v22.1.0:
+  license: Apache-2.0
+  name: coreos_go-systemd_v22
+  other-distribution: /osl_sources/coreos-go-systemd-v22.1.0.tar.gz
+  other-url: https://github.com/coreos/go-systemd/v22
+  repository: Other
+  url: https://codeload.github.com/coreos/go-systemd/tar.gz/v22.1.0
+  version: v22.1.0
+other:x_oauth2:858c2ad4c8b6:
+  license: BSD-3-Clause
+  name: x_oauth2
+  other-distribution: /osl_sources/golang-oauth2-858c2ad4c8b6.tar.gz
+  other-url: https://golang.org/x/oauth2
+  repository: Other
+  url: https://codeload.github.com/golang/oauth2/tar.gz/858c2ad4c8b6
+  version: 858c2ad4c8b6
+other:storageos_go-api_serror:343b3eff91fc:
+  license: UNKNOWN
+  name: storageos_go-api_serror
+  other-distribution: /osl_sources/storageos-go-api-343b3eff91fc.tar.gz
+  other-url: https://github.com/storageos/go-api/serror
+  repository: Other
+  url: https://codeload.github.com/storageos/go-api/tar.gz/343b3eff91fc
+  version: 343b3eff91fc
+other:pmezard_go-difflib:v1.0.0:
+  license: BSD-3-Clause
+  name: pmezard_go-difflib
+  other-distribution: /osl_sources/pmezard-go-difflib-v1.0.0.tar.gz
+  other-url: https://github.com/pmezard/go-difflib
+  repository: Other
+  url: https://codeload.github.com/pmezard/go-difflib/tar.gz/v1.0.0
+  version: v1.0.0
+other:structured-merge-diff_v4:v4.0.3:
+  license: Apache-2.0
+  name: structured-merge-diff_v4
+  other-distribution: /osl_sources/kubernetes_sigs-structured-merge-diff-v4.0.3.tar.gz
+  other-url: https://sigs.k8s.io/structured-merge-diff/v4
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/structured-merge-diff/tar.gz/v4.0.3
+  version: v4.0.3
+other:opencontainers_runc_libcontainer:v1.0.0:
+  license: Apache-2.0
+  name: opencontainers_runc_libcontainer
+  other-distribution: /osl_sources/opencontainers-runc-v1.0.0.tar.gz
+  other-url: https://github.com/opencontainers/runc/libcontainer
+  repository: Other
+  url: https://codeload.github.com/opencontainers/runc/tar.gz/v1.0.0
+  version: v1.0.0
+other:go-openapi_validate:v0.19.5:
+  license: Apache-2.0
+  name: go-openapi_validate
+  other-distribution: /osl_sources/go-openapi-validate-v0.19.5.tar.gz
+  other-url: https://github.com/go-openapi/validate
+  repository: Other
+  url: https://codeload.github.com/go-openapi/validate/tar.gz/v0.19.5
+  version: v0.19.5
+other:godbus_dbus_v5:v5.0.3:
+  license: BSD-2-Clause
+  name: godbus_dbus_v5
+  other-distribution: /osl_sources/godbus-dbus-v5.0.3.tar.gz
+  other-url: https://github.com/godbus/dbus/v5
+  repository: Other
+  url: https://codeload.github.com/godbus/dbus/tar.gz/v5.0.3
+  version: v5.0.3
+other:mitchellh_mapstructure:v1.1.2:
+  license: MIT
+  name: mitchellh_mapstructure
+  other-distribution: /osl_sources/mitchellh-mapstructure-v1.1.2.tar.gz
+  other-url: https://github.com/mitchellh/mapstructure
+  repository: Other
+  url: https://codeload.github.com/mitchellh/mapstructure/tar.gz/v1.1.2
+  version: v1.1.2
+other:gcfg_v1:v1.2.0:
+  license: BSD-3-Clause
+  name: gcfg_v1
+  other-distribution: /osl_sources/go_gcfg-gcfg-v1.2.0.tar.gz
+  other-url: https://gopkg.in/gcfg.v1
+  repository: Other
+  url: https://codeload.github.com/go-gcfg/gcfg/tar.gz/v1.2.0
+  version: v1.2.0
+other:cri-api:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: cri-api
+  other-distribution: /osl_sources/kubernetes-cri-api-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/cri-api
+  repository: Other
+  url: https://codeload.github.com/kubernetes/cri-api/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:konsorten_go-windows-terminal-sequences:v1.0.3:
+  license: MIT
+  name: konsorten_go-windows-terminal-sequences
+  other-distribution: /osl_sources/konsorten-go-windows-terminal-sequences-v1.0.3.tar.gz
+  other-url: https://github.com/konsorten/go-windows-terminal-sequences
+  repository: Other
+  url: https://codeload.github.com/konsorten/go-windows-terminal-sequences/tar.gz/v1.0.3
+  version: v1.0.3
+other:stretchr_objx:v0.2.0:
+  license: MIT
+  name: stretchr_objx
+  other-distribution: /osl_sources/stretchr-objx-v0.2.0.tar.gz
+  other-url: https://github.com/stretchr/objx
+  repository: Other
+  url: https://codeload.github.com/stretchr/objx/tar.gz/v0.2.0
+  version: v0.2.0
+other:blang_semver:v3.5.0:
+  license: MIT
+  name: blang_semver
+  other-distribution: /osl_sources/blang-semver-v3.5.0.tar.gz
+  other-url: https://github.com/blang/semver
+  repository: Other
+  url: https://codeload.github.com/blang/semver/tar.gz/v3.5.0
+  version: v3.5.0
+other:x_xerrors:5ec99f83aff1:
+  license: BSD-3-Clause
+  name: x_xerrors
+  other-distribution: /osl_sources/golang-xerrors-5ec99f83aff1.tar.gz
+  other-url: https://golang.org/x/xerrors
+  repository: Other
+  url: https://codeload.github.com/golang/xerrors/tar.gz/5ec99f83aff1
+  version: 5ec99f83aff1
+other:emicklei_go-restful:v2.9.5:
+  license: MIT
+  name: emicklei_go-restful
+  other-distribution: /osl_sources/emicklei-go-restful-v2.9.5.tar.gz
+  other-url: https://github.com/emicklei/go-restful
+  repository: Other
+  url: https://codeload.github.com/emicklei/go-restful/tar.gz/v2.9.5
+  version: v2.9.5
+other:containerd_console:v1.0.0:
+  license: Apache-2.0
+  name: containerd_console
+  other-distribution: /osl_sources/containerd-console-v1.0.0.tar.gz
+  other-url: https://github.com/containerd/console
+  repository: Other
+  url: https://codeload.github.com/containerd/console/tar.gz/v1.0.0
+  version: v1.0.0
+other:libopenstorage_openstorage:v1.0.0:
+  license: Apache-2.0
+  name: libopenstorage_openstorage
+  other-distribution: /osl_sources/libopenstorage-openstorage-v1.0.0.tar.gz
+  other-url: https://github.com/libopenstorage/openstorage
+  repository: Other
+  url: https://codeload.github.com/libopenstorage/openstorage/tar.gz/v1.0.0
+  version: v1.0.0
+other:google_go-cmp:v0.4.0:
+  license: BSD-3-Clause
+  name: google_go-cmp
+  other-distribution: /osl_sources/google-go-cmp-v0.4.0.tar.gz
+  other-url: https://github.com/google/go-cmp
+  repository: Other
+  url: https://codeload.github.com/google/go-cmp/tar.gz/v0.4.0
+  version: v0.4.0
+other:thecodeteam_goscaleio:v0.1.0:
+  license: Apache-2.0
+  name: thecodeteam_goscaleio
+  other-distribution: /osl_sources/thecodeteam-goscaleio-v0.1.0.tar.gz
+  other-url: https://github.com/thecodeteam/goscaleio
+  repository: Other
+  url: https://codeload.github.com/thecodeteam/goscaleio/tar.gz/v0.1.0
+  version: v0.1.0
+other:prometheus_common_internal_bitbucket_org_ww_goautoneg:v0.10.0:
+  license: Unlicense
+  name: prometheus_common_internal_bitbucket_org_ww_goautoneg
+  other-distribution: /osl_sources/prometheus-common-v0.10.0.tar.gz
+  other-url: https://github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
+  repository: Other
+  url: https://codeload.github.com/prometheus/common/tar.gz/v0.10.0
+  version: v0.10.0
+other:go-openapi_strfmt:v0.19.3:
+  license: Apache-2.0
+  name: go-openapi_strfmt
+  other-distribution: /osl_sources/go-openapi-strfmt-v0.19.3.tar.gz
+  other-url: https://github.com/go-openapi/strfmt
+  repository: Other
+  url: https://codeload.github.com/go-openapi/strfmt/tar.gz/v0.19.3
+  version: v0.19.3
+other:azure_azure-sdk-for-go:v43.0.0:
+  license: Apache-2.0
+  name: azure_azure-sdk-for-go
+  other-distribution: /osl_sources/Azure-azure-sdk-for-go-v43.0.0.tar.gz
+  other-url: https://github.com/Azure/azure-sdk-for-go
+  repository: Other
+  url: https://codeload.github.com/Azure/azure-sdk-for-go/tar.gz/v43.0.0
+  version: v43.0.0
+other:hpcloud_tail_ratelimiter:v1.0.0:
+  license: MIT
+  name: hpcloud_tail_ratelimiter
+  other-distribution: /osl_sources/hpcloud-tail-v1.0.0.tar.gz
+  other-url: https://github.com/hpcloud/tail/ratelimiter
+  repository: Other
+  url: https://codeload.github.com/hpcloud/tail/tar.gz/v1.0.0
+  version: v1.0.0
+other:cpuguy83_go-md2man_v2:v2.0.0:
+  license: MIT
+  name: cpuguy83_go-md2man_v2
+  other-distribution: /osl_sources/cpuguy83-go-md2man-v2.0.0.tar.gz
+  other-url: https://github.com/cpuguy83/go-md2man/v2
+  repository: Other
+  url: https://codeload.github.com/cpuguy83/go-md2man/tar.gz/v2.0.0
+  version: v2.0.0
+other:modern-go_concurrent:bacd9c7ef1dd:
+  license: Apache-2.0
+  name: modern-go_concurrent
+  other-distribution: /osl_sources/modern-go-concurrent-bacd9c7ef1dd.tar.gz
+  other-url: https://github.com/modern-go/concurrent
+  repository: Other
+  url: https://codeload.github.com/modern-go/concurrent/tar.gz/bacd9c7ef1dd
+  version: bacd9c7ef1dd
+other:asaskevich_govalidator:f61b66f89f4a:
+  license: MIT
+  name: asaskevich_govalidator
+  other-distribution: /osl_sources/asaskevich-govalidator-f61b66f89f4a.tar.gz
+  other-url: https://github.com/asaskevich/govalidator
+  repository: Other
+  url: https://codeload.github.com/asaskevich/govalidator/tar.gz/f61b66f89f4a
+  version: f61b66f89f4a
+other:go:v0.51.0:
+  license: Apache-2.0
+  name: go
+  other-distribution: /osl_sources/google_cloud_go-v0.51.0.tar.gz
+  other-url: https://cloud.google.com/go
+  repository: Other
+  url: https://codeload.github.com/GoogleCloudPlatform/google-cloud-go/tar.gz/v0.51.0
+  version: v0.51.0
+other:daviddengcn_go-colortext:511bcaf42ccd:
+  license: MIT
+  name: daviddengcn_go-colortext
+  other-distribution: /osl_sources/daviddengcn-go-colortext-511bcaf42ccd.tar.gz
+  other-url: https://github.com/daviddengcn/go-colortext
+  repository: Other
+  url: https://codeload.github.com/daviddengcn/go-colortext/tar.gz/511bcaf42ccd
+  version: 511bcaf42ccd
+other:jmespath_go-jmespath:c2b33e8439af:
+  license: Apache-2.0
+  name: jmespath_go-jmespath
+  other-distribution: /osl_sources/jmespath-go-jmespath-c2b33e8439af.tar.gz
+  other-url: https://github.com/jmespath/go-jmespath
+  repository: Other
+  url: https://codeload.github.com/jmespath/go-jmespath/tar.gz/c2b33e8439af
+  version: c2b33e8439af
+other:pkg_errors:v0.9.1:
+  license: BSD-2-Clause
+  name: pkg_errors
+  other-distribution: /osl_sources/pkg-errors-v0.9.1.tar.gz
+  other-url: https://github.com/pkg/errors
+  repository: Other
+  url: https://codeload.github.com/pkg/errors/tar.gz/v0.9.1
+  version: v0.9.1
+other:gogo_protobuf_plugin_defaultcheck:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_defaultcheck
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/defaultcheck
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:legacy-cloud-providers:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: legacy-cloud-providers
+  other-distribution: /osl_sources/kubernetes-legacy-cloud-providers-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/legacy-cloud-providers
+  repository: Other
+  url: https://codeload.github.com/kubernetes/legacy-cloud-providers/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:docker_spdystream:449fdfce4d96:
+  license: CC-BY-SA-4.0
+  name: docker_spdystream
+  other-distribution: /osl_sources/docker-spdystream-449fdfce4d96.tar.gz
+  other-url: https://github.com/docker/spdystream
+  repository: Other
+  url: https://codeload.github.com/docker/spdystream/tar.gz/449fdfce4d96
+  version: 449fdfce4d96
+other:gogo_protobuf_protoc-gen-gogo_grpc:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_protoc-gen-gogo_grpc
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/protoc-gen-gogo/grpc
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:gogo_protobuf_vanity:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_vanity
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/vanity
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:gogo_protobuf_protoc-gen-gogo_plugin:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_protoc-gen-gogo_plugin
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/protoc-gen-gogo/plugin
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:go-stack_stack:v1.8.0:
+  license: MIT
+  name: go-stack_stack
+  other-distribution: /osl_sources/go-stack-stack-v1.8.0.tar.gz
+  other-url: https://github.com/go-stack/stack
+  repository: Other
+  url: https://codeload.github.com/go-stack/stack/tar.gz/v1.8.0
+  version: v1.8.0
+other:x_text:v0.3.3:
+  license: BSD-3-Clause
+  name: x_text
+  other-distribution: /osl_sources/golang-text-v0.3.3.tar.gz
+  other-url: https://golang.org/x/text
+  repository: Other
+  url: https://codeload.github.com/golang/text/tar.gz/v0.3.3
+  version: v0.3.3
+other:moby_ipvs:v1.0.1:
+  license: Apache-2.0
+  name: moby_ipvs
+  other-distribution: /osl_sources/moby-ipvs-v1.0.1.tar.gz
+  other-url: https://github.com/moby/ipvs
+  repository: Other
+  url: https://codeload.github.com/moby/ipvs/tar.gz/v1.0.1
+  version: v1.0.1
+other:robfig_cron:v1.1.0:
+  license: MIT
+  name: robfig_cron
+  other-distribution: /osl_sources/robfig-cron-v1.1.0.tar.gz
+  other-url: https://github.com/robfig/cron
+  repository: Other
+  url: https://codeload.github.com/robfig/cron/tar.gz/v1.1.0
+  version: v1.1.0
+other:coredns_corefile-migration:v1.0.10:
+  license: Apache-2.0
+  name: coredns_corefile-migration
+  other-distribution: /osl_sources/coredns-corefile-migration-v1.0.10.tar.gz
+  other-url: https://github.com/coredns/corefile-migration
+  repository: Other
+  url: https://codeload.github.com/coredns/corefile-migration/tar.gz/v1.0.10
+  version: v1.0.10
+other:grpc-ecosystem_go-grpc-prometheus:v1.2.0:
+  license: Apache-2.0
+  name: grpc-ecosystem_go-grpc-prometheus
+  other-distribution: /osl_sources/grpc-ecosystem-go-grpc-prometheus-v1.2.0.tar.gz
+  other-url: https://github.com/grpc-ecosystem/go-grpc-prometheus
+  repository: Other
+  url: https://codeload.github.com/grpc-ecosystem/go-grpc-prometheus/tar.gz/v1.2.0
+  version: v1.2.0
+other:x_tools:113979e3529a:
+  license: BSD-3-Clause
+  name: x_tools
+  other-distribution: /osl_sources/golang-tools-113979e3529a.tar.gz
+  other-url: https://golang.org/x/tools
+  repository: Other
+  url: https://codeload.github.com/golang/tools/tar.gz/113979e3529a
+  version: 113979e3529a
+other:onsi_gomega:v1.7.0:
+  license: MIT
+  name: onsi_gomega
+  other-distribution: /osl_sources/onsi-gomega-v1.7.0.tar.gz
+  other-url: https://github.com/onsi/gomega
+  repository: Other
+  url: https://codeload.github.com/onsi/gomega/tar.gz/v1.7.0
+  version: v1.7.0
+other:onsi_ginkgo_reporters_stenographer_support_go-isatty:v1.11.0:
+  license: MIT
+  name: onsi_ginkgo_reporters_stenographer_support_go-isatty
+  other-distribution: /osl_sources/onsi-ginkgo-v1.11.0.tar.gz
+  other-url: https://github.com/onsi/ginkgo/reporters/stenographer/support/go-isatty
+  repository: Other
+  url: https://codeload.github.com/onsi/ginkgo/tar.gz/v1.11.0
+  version: v1.11.0
+other:go_opencensus_io:v0.22.2:
+  license: Apache-2.0
+  name: go_opencensus_io
+  other-distribution: /osl_sources/opencensus_go-v0.22.2.tar.gz
+  other-url: https://go.opencensus.io
+  repository: Other
+  url: https://codeload.github.com/census-instrumentation/opencensus-go/tar.gz/v0.22.2
+  version: v0.22.2
+other:gogo_protobuf_plugin_description:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_description
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/description
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:gogo_protobuf_protoc-gen-gogo_generator_internal_remap:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_protoc-gen-gogo_generator_internal_remap
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/protoc-gen-gogo/generator/internal/remap
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:go-bindata_go-bindata:v3.1.1:
+  license: CC0-1.0
+  name: go-bindata_go-bindata
+  other-distribution: /osl_sources/go-bindata-go-bindata-v3.1.1.tar.gz
+  other-url: https://github.com/go-bindata/go-bindata
+  repository: Other
+  url: https://codeload.github.com/go-bindata/go-bindata/tar.gz/v3.1.1
+  version: v3.1.1
+other:kube-scheduler:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: kube-scheduler
+  other-distribution: /osl_sources/kubernetes-kube-scheduler-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/kube-scheduler
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kube-scheduler/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:azure_go-autorest_tracing:v0.5.0:
+  license: Apache-2.0
+  name: azure_go-autorest_tracing
+  other-distribution: /osl_sources/Azure-go-autorest-v0.5.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/tracing
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.5.0
+  version: v0.5.0
+other:storageos_go-api_netutil:343b3eff91fc:
+  license: UNKNOWN
+  name: storageos_go-api_netutil
+  other-distribution: /osl_sources/storageos-go-api-343b3eff91fc.tar.gz
+  other-url: https://github.com/storageos/go-api/netutil
+  repository: Other
+  url: https://codeload.github.com/storageos/go-api/tar.gz/343b3eff91fc
+  version: 343b3eff91fc
+other:ishidawataru_sctp:7c296d48a2b5:
+  license: Apache-2.0
+  name: ishidawataru_sctp
+  other-distribution: /osl_sources/ishidawataru-sctp-7c296d48a2b5.tar.gz
+  other-url: https://github.com/ishidawataru/sctp
+  repository: Other
+  url: https://codeload.github.com/ishidawataru/sctp/tar.gz/7c296d48a2b5
+  version: 7c296d48a2b5
+other:prometheus_common:v0.10.0:
+  license: Apache-2.0
+  name: prometheus_common
+  other-distribution: /osl_sources/prometheus-common-v0.10.0.tar.gz
+  other-url: https://github.com/prometheus/common
+  repository: Other
+  url: https://codeload.github.com/prometheus/common/tar.gz/v0.10.0
+  version: v0.10.0
+other:genproto:cb27e3aa2013:
+  license: Apache-2.0
+  name: genproto
+  other-distribution: /osl_sources/google-go_genproto-cb27e3aa2013.tar.gz
+  other-url: https://google.golang.org/genproto
+  repository: Other
+  url: https://codeload.github.com/google/go-genproto/tar.gz/cb27e3aa2013
+  version: cb27e3aa2013
+other:containerd_ttrpc:v1.0.0:
+  license: Apache-2.0
+  name: containerd_ttrpc
+  other-distribution: /osl_sources/containerd-ttrpc-v1.0.0.tar.gz
+  other-url: https://github.com/containerd/ttrpc
+  repository: Other
+  url: https://codeload.github.com/containerd/ttrpc/tar.gz/v1.0.0
+  version: v1.0.0
+other:jeffashton_win_pdh:76bb4ee9f0ab:
+  license: BSD-3-Clause
+  name: jeffashton_win_pdh
+  other-distribution: /osl_sources/JeffAshton-win_pdh-76bb4ee9f0ab.tar.gz
+  other-url: https://github.com/JeffAshton/win_pdh
+  repository: Other
+  url: https://codeload.github.com/JeffAshton/win_pdh/tar.gz/76bb4ee9f0ab
+  version: 76bb4ee9f0ab
+other:onsi_ginkgo:v1.11.0:
+  license: MIT
+  name: onsi_ginkgo
+  other-distribution: /osl_sources/onsi-ginkgo-v1.11.0.tar.gz
+  other-url: https://github.com/onsi/ginkgo
+  repository: Other
+  url: https://codeload.github.com/onsi/ginkgo/tar.gz/v1.11.0
+  version: v1.11.0
+other:vmware_govmomi_simulator:v0.20.3:
+  license: Apache-2.0
+  name: vmware_govmomi_simulator
+  other-distribution: /osl_sources/vmware-govmomi-v0.20.3.tar.gz
+  other-url: https://github.com/vmware/govmomi/simulator
+  repository: Other
+  url: https://codeload.github.com/vmware/govmomi/tar.gz/v0.20.3
+  version: v0.20.3
+other:kube-proxy:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: kube-proxy
+  other-distribution: /osl_sources/kubernetes-kube-proxy-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/kube-proxy
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kube-proxy/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:beorn7_perks:v1.0.1:
+  license: MIT
+  name: beorn7_perks
+  other-distribution: /osl_sources/beorn7-perks-v1.0.1.tar.gz
+  other-url: https://github.com/beorn7/perks
+  repository: Other
+  url: https://codeload.github.com/beorn7/perks/tar.gz/v1.0.1
+  version: v1.0.1
+other:fsnotify_fsnotify:v1.4.9:
+  license: BSD-3-Clause
+  name: fsnotify_fsnotify
+  other-distribution: /osl_sources/fsnotify-fsnotify-v1.4.9.tar.gz
+  other-url: https://github.com/fsnotify/fsnotify
+  repository: Other
+  url: https://codeload.github.com/fsnotify/fsnotify/tar.gz/v1.4.9
+  version: v1.4.9
+other:hashicorp_golang-lru:v0.5.1:
+  license: MPL-2.0
+  name: hashicorp_golang-lru
+  other-distribution: /osl_sources/hashicorp-golang-lru-v0.5.1.tar.gz
+  other-url: https://github.com/hashicorp/golang-lru
+  repository: Other
+  url: https://codeload.github.com/hashicorp/golang-lru/tar.gz/v0.5.1
+  version: v0.5.1
+other:tmc_grpc-websocket-proxy:0ad062ec5ee5:
+  license: MIT
+  name: tmc_grpc-websocket-proxy
+  other-distribution: /osl_sources/tmc-grpc-websocket-proxy-0ad062ec5ee5.tar.gz
+  other-url: https://github.com/tmc/grpc-websocket-proxy
+  repository: Other
+  url: https://codeload.github.com/tmc/grpc-websocket-proxy/tar.gz/0ad062ec5ee5
+  version: 0ad062ec5ee5
+other:inf_v0:v0.9.1:
+  license: BSD-3-Clause
+  name: inf_v0
+  other-distribution: /osl_sources/go_inf-inf-v0.9.1.tar.gz
+  other-url: https://gopkg.in/inf.v0
+  repository: Other
+  url: https://codeload.github.com/go-inf/inf/tar.gz/v0.9.1
+  version: v0.9.1
+other:jonboulle_clockwork:v0.1.0:
+  license: Apache-2.0
+  name: jonboulle_clockwork
+  other-distribution: /osl_sources/jonboulle-clockwork-v0.1.0.tar.gz
+  other-url: https://github.com/jonboulle/clockwork
+  repository: Other
+  url: https://codeload.github.com/jonboulle/clockwork/tar.gz/v0.1.0
+  version: v0.1.0
+other:puerkitobio_urlesc:de5bf2ad4578:
+  license: BSD-3-Clause
+  name: puerkitobio_urlesc
+  other-distribution: /osl_sources/PuerkitoBio-urlesc-de5bf2ad4578.tar.gz
+  other-url: https://github.com/PuerkitoBio/urlesc
+  repository: Other
+  url: https://codeload.github.com/PuerkitoBio/urlesc/tar.gz/de5bf2ad4578
+  version: de5bf2ad4578
+other:chai2010_gettext-go:c6fed771bfd5:
+  license: BSD-3-Clause
+  name: chai2010_gettext-go
+  other-distribution: /osl_sources/chai2010-gettext-go-c6fed771bfd5.tar.gz
+  other-url: https://github.com/chai2010/gettext-go
+  repository: Other
+  url: https://codeload.github.com/chai2010/gettext-go/tar.gz/c6fed771bfd5
+  version: c6fed771bfd5
+other:yaml_v2:v2.2.8:
+  license: Apache-2.0
+  name: yaml_v2
+  other-distribution: /osl_sources/go_yaml-yaml-v2.2.8.tar.gz
+  other-url: https://gopkg.in/yaml.v2
+  repository: Other
+  url: https://codeload.github.com/go-yaml/yaml/tar.gz/v2.2.8
+  version: v2.2.8
+other:spf13_pflag:v1.0.5:
+  license: BSD-3-Clause
+  name: spf13_pflag
+  other-distribution: /osl_sources/spf13-pflag-v1.0.5.tar.gz
+  other-url: https://github.com/spf13/pflag
+  repository: Other
+  url: https://codeload.github.com/spf13/pflag/tar.gz/v1.0.5
+  version: v1.0.5
+other:gregjones_httpcache:9cad4c3443a7:
+  license: MIT
+  name: gregjones_httpcache
+  other-distribution: /osl_sources/gregjones-httpcache-9cad4c3443a7.tar.gz
+  other-url: https://github.com/gregjones/httpcache
+  repository: Other
+  url: https://codeload.github.com/gregjones/httpcache/tar.gz/9cad4c3443a7
+  version: 9cad4c3443a7
+other:util:db5cfe13f5cc:
+  license: MIT
+  name: util
+  other-distribution: /osl_sources/fvbommel-util-db5cfe13f5cc.tar.gz
+  other-url: https://vbom.ml/util
+  repository: Other
+  url: https://codeload.github.com/fvbommel/util/tar.gz/db5cfe13f5cc
+  version: db5cfe13f5cc
+other:seccomp_libseccomp-golang:v0.9.1:
+  license: BSD-2-Clause
+  name: seccomp_libseccomp-golang
+  other-distribution: /osl_sources/seccomp-libseccomp-golang-v0.9.1.tar.gz
+  other-url: https://github.com/seccomp/libseccomp-golang
+  repository: Other
+  url: https://codeload.github.com/seccomp/libseccomp-golang/tar.gz/v0.9.1
+  version: v0.9.1
+other:cyphar_filepath-securejoin:v0.2.2:
+  license: BSD-3-Clause
+  name: cyphar_filepath-securejoin
+  other-distribution: /osl_sources/cyphar-filepath-securejoin-v0.2.2.tar.gz
+  other-url: https://github.com/cyphar/filepath-securejoin
+  repository: Other
+  url: https://codeload.github.com/cyphar/filepath-securejoin/tar.gz/v0.2.2
+  version: v0.2.2
+other:client-go:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: client-go
+  other-distribution: /osl_sources/kubernetes-client-go-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/client-go
+  repository: Other
+  url: https://codeload.github.com/kubernetes/client-go/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:rubiojr_go-vhd:02e210299021:
+  license: MIT
+  name: rubiojr_go-vhd
+  other-distribution: /osl_sources/rubiojr-go-vhd-02e210299021.tar.gz
+  other-url: https://github.com/rubiojr/go-vhd
+  repository: Other
+  url: https://codeload.github.com/rubiojr/go-vhd/tar.gz/02e210299021
+  version: 02e210299021
+other:caddyserver_caddy:v1.0.3:
+  license: Apache-2.0
+  name: caddyserver_caddy
+  other-distribution: /osl_sources/caddyserver-caddy-v1.0.3.tar.gz
+  other-url: https://github.com/caddyserver/caddy
+  repository: Other
+  url: https://codeload.github.com/caddyserver/caddy/tar.gz/v1.0.3
+  version: v1.0.3
+other:docker_go-units:v0.4.0:
+  license: Apache-2.0
+  name: docker_go-units
+  other-distribution: /osl_sources/docker-go-units-v0.4.0.tar.gz
+  other-url: https://github.com/docker/go-units
+  repository: Other
+  url: https://codeload.github.com/docker/go-units/tar.gz/v0.4.0
+  version: v0.4.0
+other:googleapis_gnostic:v0.4.1:
+  license: Apache-2.0
+  name: googleapis_gnostic
+  other-distribution: /osl_sources/googleapis-gnostic-v0.4.1.tar.gz
+  other-url: https://github.com/googleapis/gnostic
+  repository: Other
+  url: https://codeload.github.com/googleapis/gnostic/tar.gz/v0.4.1
+  version: v0.4.1
+other:google_btree:v1.0.0:
+  license: Apache-2.0
+  name: google_btree
+  other-distribution: /osl_sources/google-btree-v1.0.0.tar.gz
+  other-url: https://github.com/google/btree
+  repository: Other
+  url: https://codeload.github.com/google/btree/tar.gz/v1.0.0
+  version: v1.0.0
+other:opencontainers_runc:v1.0.0:
+  license: Apache-2.0
+  name: opencontainers_runc
+  other-distribution: /osl_sources/opencontainers-runc-v1.0.0.tar.gz
+  other-url: https://github.com/opencontainers/runc
+  repository: Other
+  url: https://codeload.github.com/opencontainers/runc/tar.gz/v1.0.0
+  version: v1.0.0
+other:quobyte_api:v0.1.2:
+  license: BSD-3-Clause
+  name: quobyte_api
+  other-distribution: /osl_sources/quobyte-api-v0.1.2.tar.gz
+  other-url: https://github.com/quobyte/api
+  repository: Other
+  url: https://codeload.github.com/quobyte/api/tar.gz/v0.1.2
+  version: v0.1.2
+other:opencontainers_image-spec:v1.0.1:
+  license: Apache-2.0
+  name: opencontainers_image-spec
+  other-distribution: /osl_sources/opencontainers-image-spec-v1.0.1.tar.gz
+  other-url: https://github.com/opencontainers/image-spec
+  repository: Other
+  url: https://codeload.github.com/opencontainers/image-spec/tar.gz/v1.0.1
+  version: v1.0.1
+other:azure_go-autorest_logger:v0.1.0:
+  license: Apache-2.0
+  name: azure_go-autorest_logger
+  other-distribution: /osl_sources/Azure-go-autorest-v0.1.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/logger
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.1.0
+  version: v0.1.0
+other:armon_circbuf:bbbad097214e:
+  license: MIT
+  name: armon_circbuf
+  other-distribution: /osl_sources/armon-circbuf-bbbad097214e.tar.gz
+  other-url: https://github.com/armon/circbuf
+  repository: Other
+  url: https://codeload.github.com/armon/circbuf/tar.gz/bbbad097214e
+  version: bbbad097214e
+other:etcd:v0.5.0-alpha.5:
+  license: Apache-2.0
+  name: etcd
+  other-distribution: /osl_sources/etcd-v0.5.0-alpha.5.tar.gz
+  other-url: https://go.etcd.io/etcd
+  repository: Other
+  url: ""
+  version: v0.5.0-alpha.5
+other:v1_gonum:v0.6.2:
+  license: BSD-3-Clause
+  name: v1_gonum
+  other-distribution: /osl_sources/gonum_v1-gonum-v0.6.2.tar.gz
+  other-url: https://gonum.org/v1/gonum
+  repository: Other
+  url: https://codeload.github.com/gonum/gonum/tar.gz/v0.6.2
+  version: v0.6.2
+other:gogo_protobuf_plugin_embedcheck:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_embedcheck
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/embedcheck
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:checkpoint-restore_go-criu_v4:v4.0.2:
+  license: Apache-2.0
+  name: checkpoint-restore_go-criu_v4
+  other-distribution: /osl_sources/checkpoint-restore-go-criu-v4.0.2.tar.gz
+  other-url: https://github.com/checkpoint-restore/go-criu/v4
+  repository: Other
+  url: https://codeload.github.com/checkpoint-restore/go-criu/tar.gz/v4.0.2
+  version: v4.0.2
+other:bertimus9_systemstat:0eeff89b0690:
+  license: MIT
+  name: bertimus9_systemstat
+  other-distribution: /osl_sources/bertimus9-systemstat-0eeff89b0690.tar.gz
+  other-url: https://bitbucket.org/bertimus9/systemstat
+  repository: Other
+  url: https://bitbucket.org/bertimus9/systemstat/get/0eeff89b0690.tar.gz
+  version: 0eeff89b0690
+other:containerd_cgroups:0dbf7f05ba59:
+  license: Apache-2.0
+  name: containerd_cgroups
+  other-distribution: /osl_sources/containerd-cgroups-0dbf7f05ba59.tar.gz
+  other-url: https://github.com/containerd/cgroups
+  repository: Other
+  url: https://codeload.github.com/containerd/cgroups/tar.gz/0dbf7f05ba59
+  version: 0dbf7f05ba59
+other:spf13_jwalterweatherman:v1.1.0:
+  license: MIT
+  name: spf13_jwalterweatherman
+  other-distribution: /osl_sources/spf13-jwalterweatherman-v1.1.0.tar.gz
+  other-url: https://github.com/spf13/jwalterweatherman
+  repository: Other
+  url: https://codeload.github.com/spf13/jwalterweatherman/tar.gz/v1.1.0
+  version: v1.1.0
+other:mindprince_gonvml:9ebdce4bb989:
+  license: Apache-2.0
+  name: mindprince_gonvml
+  other-distribution: /osl_sources/mindprince-gonvml-9ebdce4bb989.tar.gz
+  other-url: https://github.com/mindprince/gonvml
+  repository: Other
+  url: https://codeload.github.com/mindprince/gonvml/tar.gz/9ebdce4bb989
+  version: 9ebdce4bb989
+other:exponent-io_jsonpath:d6023ce2651d:
+  license: MIT
+  name: exponent-io_jsonpath
+  other-distribution: /osl_sources/exponent-io-jsonpath-d6023ce2651d.tar.gz
+  other-url: https://github.com/exponent-io/jsonpath
+  repository: Other
+  url: https://codeload.github.com/exponent-io/jsonpath/tar.gz/d6023ce2651d
+  version: d6023ce2651d
+other:russross_blackfriday:v1.5.2:
+  license: BSD-2-Clause
+  name: russross_blackfriday
+  other-distribution: /osl_sources/russross-blackfriday-v1.5.2.tar.gz
+  other-url: https://github.com/russross/blackfriday
+  repository: Other
+  url: https://codeload.github.com/russross/blackfriday/tar.gz/v1.5.2
+  version: v1.5.2
+other:kustomize:v2.0.3:
+  license: Apache-2.0
+  name: kustomize
+  other-distribution: /osl_sources/kubernetes_sigs-kustomize-v2.0.3.tar.gz
+  other-url: https://sigs.k8s.io/kustomize
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/kustomize/tar.gz/v2.0.3
+  version: v2.0.3
+other:vmware_govmomi:v0.20.3:
+  license: Apache-2.0
+  name: vmware_govmomi
+  other-distribution: /osl_sources/vmware-govmomi-v0.20.3.tar.gz
+  other-url: https://github.com/vmware/govmomi
+  repository: Other
+  url: https://codeload.github.com/vmware/govmomi/tar.gz/v0.20.3
+  version: v0.20.3
+other:azure_go-autorest_autorest_mocks:v0.3.0:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_mocks
+  other-distribution: /osl_sources/Azure-go-autorest-v0.3.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/mocks
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.3.0
+  version: v0.3.0
+other:gogo_protobuf_plugin_size:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_size
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/size
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:soheilhy_cmux:v0.1.4:
+  license: Apache-2.0
+  name: soheilhy_cmux
+  other-distribution: /osl_sources/soheilhy-cmux-v0.1.4.tar.gz
+  other-url: https://github.com/soheilhy/cmux
+  repository: Other
+  url: https://codeload.github.com/soheilhy/cmux/tar.gz/v0.1.4
+  version: v0.1.4
+other:api:v0.15.1:
+  license: BSD-3-Clause
+  name: api
+  other-distribution: /osl_sources/google_api_go_client-v0.15.1.tar.gz
+  other-url: https://google.golang.org/api
+  repository: Other
+  url: https://codeload.github.com/google/google-api-go-client/tar.gz/v0.15.1
+  version: v0.15.1
+other:zap:v1.10.0:
+  license: MIT
+  name: zap
+  other-distribution: /osl_sources/uber_go-zap-v1.10.0.tar.gz
+  other-url: https://go.uber.org/zap
+  repository: Other
+  url: https://codeload.github.com/uber-go/zap/tar.gz/v1.10.0
+  version: v1.10.0
+other:evanphx_json-patch:v4.9.0:
+  license: BSD-3-Clause
+  name: evanphx_json-patch
+  other-distribution: /osl_sources/evanphx-json-patch-v4.9.0.tar.gz
+  other-url: https://github.com/evanphx/json-patch
+  repository: Other
+  url: https://codeload.github.com/evanphx/json-patch/tar.gz/v4.9.0
+  version: v4.9.0
+other:golang_protobuf:v1.4.2:
+  license: BSD-3-Clause
+  name: golang_protobuf
+  other-distribution: /osl_sources/golang-protobuf-v1.4.2.tar.gz
+  other-url: https://github.com/golang/protobuf
+  repository: Other
+  url: https://codeload.github.com/golang/protobuf/tar.gz/v1.4.2
+  version: v1.4.2
+other:gogo_protobuf_plugin_stringer:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_stringer
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/stringer
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:x_crypto:75b288015ac9:
+  license: BSD-3-Clause
+  name: x_crypto
+  other-distribution: /osl_sources/golang-crypto-75b288015ac9.tar.gz
+  other-url: https://golang.org/x/crypto
+  repository: Other
+  url: https://codeload.github.com/golang/crypto/tar.gz/75b288015ac9
+  version: 75b288015ac9
+other:russross_blackfriday_v2:v2.0.1:
+  license: BSD-2-Clause
+  name: russross_blackfriday_v2
+  other-distribution: /osl_sources/russross-blackfriday-v2.0.1.tar.gz
+  other-url: https://github.com/russross/blackfriday/v2
+  repository: Other
+  url: https://codeload.github.com/russross/blackfriday/tar.gz/v2.0.1
+  version: v2.0.1
+other:syndtr_gocapability:d98352740cb2:
+  license: BSD-2-Clause
+  name: syndtr_gocapability
+  other-distribution: /osl_sources/syndtr-gocapability-d98352740cb2.tar.gz
+  other-url: https://github.com/syndtr/gocapability
+  repository: Other
+  url: https://codeload.github.com/syndtr/gocapability/tar.gz/d98352740cb2
+  version: d98352740cb2
+other:api:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: api
+  other-distribution: /osl_sources/kubernetes-api-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/api
+  repository: Other
+  url: https://codeload.github.com/kubernetes/api/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:gogo_protobuf_plugin_testgen:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_testgen
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/testgen
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:system-validators:v1.1.2:
+  license: Apache-2.0
+  name: system-validators
+  other-distribution: /osl_sources/kubernetes-system-validators-v1.1.2.tar.gz
+  other-url: https://k8s.io/system-validators
+  repository: Other
+  url: https://codeload.github.com/kubernetes/system-validators/tar.gz/v1.1.2
+  version: v1.1.2
+other:satori_go_uuid:v1.2.0:
+  license: MIT
+  name: satori_go_uuid
+  other-distribution: /osl_sources/satori-go.uuid-v1.2.0.tar.gz
+  other-url: https://github.com/satori/go.uuid
+  repository: Other
+  url: https://codeload.github.com/satori/go.uuid/tar.gz/v1.2.0
+  version: v1.2.0
+other:containerd_containerd:v1.3.3:
+  license: Apache-2.0
+  name: containerd_containerd
+  other-distribution: /osl_sources/containerd-containerd-v1.3.3.tar.gz
+  other-url: https://github.com/containerd/containerd
+  repository: Other
+  url: https://codeload.github.com/containerd/containerd/tar.gz/v1.3.3
+  version: v1.3.3
+other:gogo_protobuf_plugin_union:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_union
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/union
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:mistifyio_go-zfs:f784269be439:
+  license: Apache-2.0
+  name: mistifyio_go-zfs
+  other-distribution: /osl_sources/mistifyio-go-zfs-f784269be439.tar.gz
+  other-url: https://github.com/mistifyio/go-zfs
+  repository: Other
+  url: https://codeload.github.com/mistifyio/go-zfs/tar.gz/f784269be439
+  version: f784269be439
+other:heketi_heketi:c2e2a4ab7ab9:
+  license: deprecated_LGPL-3.0
+  name: heketi_heketi
+  other-distribution: /osl_sources/heketi-heketi-c2e2a4ab7ab9.tar.gz
+  other-url: https://github.com/heketi/heketi
+  repository: Other
+  url: https://codeload.github.com/heketi/heketi/tar.gz/c2e2a4ab7ab9
+  version: c2e2a4ab7ab9
+other:yaml:v1.2.0:
+  license: UNKNOWN
+  name: yaml
+  other-distribution: /osl_sources/kubernetes_sigs-yaml-v1.2.0.tar.gz
+  other-url: https://sigs.k8s.io/yaml
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/yaml/tar.gz/v1.2.0
+  version: v1.2.0
+other:vishvananda_netns:52d707b772fe:
+  license: Apache-2.0
+  name: vishvananda_netns
+  other-distribution: /osl_sources/vishvananda-netns-52d707b772fe.tar.gz
+  other-url: https://github.com/vishvananda/netns
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netns/tar.gz/52d707b772fe
+  version: 52d707b772fe
+other:go-openapi_errors:v0.19.2:
+  license: Apache-2.0
+  name: go-openapi_errors
+  other-distribution: /osl_sources/go-openapi-errors-v0.19.2.tar.gz
+  other-url: https://github.com/go-openapi/errors
+  repository: Other
+  url: https://codeload.github.com/go-openapi/errors/tar.gz/v0.19.2
+  version: v0.19.2
+other:makenowjust_heredoc:bb23615498cd:
+  license: MIT
+  name: makenowjust_heredoc
+  other-distribution: /osl_sources/MakeNowJust-heredoc-bb23615498cd.tar.gz
+  other-url: https://github.com/MakeNowJust/heredoc
+  repository: Other
+  url: https://codeload.github.com/MakeNowJust/heredoc/tar.gz/bb23615498cd
+  version: bb23615498cd
+other:docker_docker:aa6a9891b09c:
+  license: Apache-2.0
+  name: docker_docker
+  other-distribution: /osl_sources/docker-docker-aa6a9891b09c.tar.gz
+  other-url: https://github.com/docker/docker
+  repository: Other
+  url: https://codeload.github.com/docker/docker/tar.gz/aa6a9891b09c
+  version: aa6a9891b09c
+other:v1_gonum_graph_formats_dot:v0.6.2:
+  license: CC0-1.0
+  name: v1_gonum_graph_formats_dot
+  other-distribution: /osl_sources/gonum_v1-gonum-v0.6.2.tar.gz
+  other-url: https://gonum.org/v1/gonum/graph/formats/dot
+  repository: Other
+  url: https://codeload.github.com/gonum/gonum/tar.gz/v0.6.2
+  version: v0.6.2
+other:coreos_pkg:399ea9e2e55f:
+  license: Apache-2.0
+  name: coreos_pkg
+  other-distribution: /osl_sources/coreos-pkg-399ea9e2e55f.tar.gz
+  other-url: https://github.com/coreos/pkg
+  repository: Other
+  url: https://codeload.github.com/coreos/pkg/tar.gz/399ea9e2e55f
+  version: 399ea9e2e55f
+other:coreos_go-oidc:v2.1.0:
+  license: Apache-2.0
+  name: coreos_go-oidc
+  other-distribution: /osl_sources/coreos-go-oidc-v2.1.0.tar.gz
+  other-url: https://github.com/coreos/go-oidc
+  repository: Other
+  url: https://codeload.github.com/coreos/go-oidc/tar.gz/v2.1.0
+  version: v2.1.0
+other:modern-go_reflect2:v1.0.1:
+  license: Apache-2.0
+  name: modern-go_reflect2
+  other-distribution: /osl_sources/modern-go-reflect2-v1.0.1.tar.gz
+  other-url: https://github.com/modern-go/reflect2
+  repository: Other
+  url: https://codeload.github.com/modern-go/reflect2/tar.gz/v1.0.1
+  version: v1.0.1
+other:azure_go-autorest_autorest_date:v0.2.0:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_date
+  other-distribution: /osl_sources/Azure-go-autorest-v0.2.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/date
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.2.0
+  version: v0.2.0
+other:mrunalp_fileutils:abd8a0e76976:
+  license: Apache-2.0
+  name: mrunalp_fileutils
+  other-distribution: /osl_sources/mrunalp-fileutils-abd8a0e76976.tar.gz
+  other-url: https://github.com/mrunalp/fileutils
+  repository: Other
+  url: https://codeload.github.com/mrunalp/fileutils/tar.gz/abd8a0e76976
+  version: abd8a0e76976
+other:gogo_protobuf_plugin_unmarshal:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_unmarshal
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/unmarshal
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:peterbourgon_diskv:v2.0.1:
+  license: MIT
+  name: peterbourgon_diskv
+  other-distribution: /osl_sources/peterbourgon-diskv-v2.0.1.tar.gz
+  other-url: https://github.com/peterbourgon/diskv
+  repository: Other
+  url: https://codeload.github.com/peterbourgon/diskv/tar.gz/v2.0.1
+  version: v2.0.1
+other:opencontainers_go-digest:v1.0.0:
+  license: CC-BY-SA-4.0
+  name: opencontainers_go-digest
+  other-distribution: /osl_sources/opencontainers-go-digest-v1.0.0.tar.gz
+  other-url: https://github.com/opencontainers/go-digest
+  repository: Other
+  url: https://codeload.github.com/opencontainers/go-digest/tar.gz/v1.0.0
+  version: v1.0.0
+other:apiserver:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: apiserver
+  other-distribution: /osl_sources/kubernetes-apiserver-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/apiserver
+  repository: Other
+  url: https://codeload.github.com/kubernetes/apiserver/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:kube-aggregator:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: kube-aggregator
+  other-distribution: /osl_sources/kubernetes-kube-aggregator-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/kube-aggregator
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kube-aggregator/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:bbolt:v1.3.5:
+  license: MIT
+  name: bbolt
+  other-distribution: /osl_sources/bbolt-v1.3.5.tar.gz
+  other-url: https://go.etcd.io/bbolt
+  repository: Other
+  url: ""
+  version: v1.3.5
+other:coreos_go-semver:v0.3.0:
+  license: Apache-2.0
+  name: coreos_go-semver
+  other-distribution: /osl_sources/coreos-go-semver-v0.3.0.tar.gz
+  other-url: https://github.com/coreos/go-semver
+  repository: Other
+  url: https://codeload.github.com/coreos/go-semver/tar.gz/v0.3.0
+  version: v0.3.0
+other:moby_sys_mountinfo:v0.1.3:
+  license: Apache-2.0
+  name: moby_sys_mountinfo
+  other-distribution: /osl_sources/moby-sys-v0.1.3.tar.gz
+  other-url: https://github.com/moby/sys/mountinfo
+  repository: Other
+  url: https://codeload.github.com/moby/sys/tar.gz/v0.1.3
+  version: v0.1.3
+other:magiconair_properties:v1.8.1:
+  license: BSD-2-Clause
+  name: magiconair_properties
+  other-distribution: /osl_sources/magiconair-properties-v1.8.1.tar.gz
+  other-url: https://github.com/magiconair/properties
+  repository: Other
+  url: https://codeload.github.com/magiconair/properties/tar.gz/v1.8.1
+  version: v1.8.1
+other:gogo_protobuf_plugin_enumstringer:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_enumstringer
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/enumstringer
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:go-openapi_loads:v0.19.4:
+  license: Apache-2.0
+  name: go-openapi_loads
+  other-distribution: /osl_sources/go-openapi-loads-v0.19.4.tar.gz
+  other-url: https://github.com/go-openapi/loads
+  repository: Other
+  url: https://codeload.github.com/go-openapi/loads/tar.gz/v0.19.4
+  version: v0.19.4
+other:munnerz_goautoneg:a7dc8b61c822:
+  license: BSD-3-Clause
+  name: munnerz_goautoneg
+  other-distribution: /osl_sources/munnerz-goautoneg-a7dc8b61c822.tar.gz
+  other-url: https://github.com/munnerz/goautoneg
+  repository: Other
+  url: https://codeload.github.com/munnerz/goautoneg/tar.gz/a7dc8b61c822
+  version: a7dc8b61c822
+other:gophercloud_gophercloud:v0.1.0:
+  license: Apache-2.0
+  name: gophercloud_gophercloud
+  other-distribution: /osl_sources/gophercloud-gophercloud-v0.1.0.tar.gz
+  other-url: https://github.com/gophercloud/gophercloud
+  repository: Other
+  url: https://codeload.github.com/gophercloud/gophercloud/tar.gz/v0.1.0
+  version: v0.1.0
+other:coreos_go-systemd:95778dfbb74e:
+  license: Apache-2.0
+  name: coreos_go-systemd
+  other-distribution: /osl_sources/coreos-go-systemd-95778dfbb74e.tar.gz
+  other-url: https://github.com/coreos/go-systemd
+  repository: Other
+  url: https://codeload.github.com/coreos/go-systemd/tar.gz/95778dfbb74e
+  version: 95778dfbb74e
+other:nytimes_gziphandler:56545f4a5d46:
+  license: Apache-2.0
+  name: nytimes_gziphandler
+  other-distribution: /osl_sources/NYTimes-gziphandler-56545f4a5d46.tar.gz
+  other-url: https://github.com/NYTimes/gziphandler
+  repository: Other
+  url: https://codeload.github.com/NYTimes/gziphandler/tar.gz/56545f4a5d46
+  version: 56545f4a5d46
+other:gogo_protobuf_gogoproto:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_gogoproto
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/gogoproto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:utils:d5654de09c73:
+  license: Apache-2.0
+  name: utils
+  other-distribution: /osl_sources/kubernetes-utils-d5654de09c73.tar.gz
+  other-url: https://k8s.io/utils
+  repository: Other
+  url: https://codeload.github.com/kubernetes/utils/tar.gz/d5654de09c73
+  version: d5654de09c73
+other:apiextensions-apiserver:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: apiextensions-apiserver
+  other-distribution: /osl_sources/kubernetes-apiextensions-apiserver-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/apiextensions-apiserver
+  repository: Other
+  url: https://codeload.github.com/kubernetes/apiextensions-apiserver/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:gogo_protobuf_plugin_face:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_face
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/face
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:microsoft_go-winio:fc70bd9a86b5:
+  license: MIT
+  name: microsoft_go-winio
+  other-distribution: /osl_sources/Microsoft-go-winio-fc70bd9a86b5.tar.gz
+  other-url: https://github.com/Microsoft/go-winio
+  repository: Other
+  url: https://codeload.github.com/Microsoft/go-winio/tar.gz/fc70bd9a86b5
+  version: fc70bd9a86b5
+other:opencontainers_selinux:v1.5.2:
+  license: Apache-2.0
+  name: opencontainers_selinux
+  other-distribution: /osl_sources/opencontainers-selinux-v1.5.2.tar.gz
+  other-url: https://github.com/opencontainers/selinux
+  repository: Other
+  url: https://codeload.github.com/opencontainers/selinux/tar.gz/v1.5.2
+  version: v1.5.2
+other:cespare_xxhash_v2:v2.1.1:
+  license: MIT
+  name: cespare_xxhash_v2
+  other-distribution: /osl_sources/cespare-xxhash-v2.1.1.tar.gz
+  other-url: https://github.com/cespare/xxhash/v2
+  repository: Other
+  url: https://codeload.github.com/cespare/xxhash/tar.gz/v2.1.1
+  version: v2.1.1
+other:shurcool_sanitized_anchor_name:v1.0.0:
+  license: MIT
+  name: shurcool_sanitized_anchor_name
+  other-distribution: /osl_sources/shurcooL-sanitized_anchor_name-v1.0.0.tar.gz
+  other-url: https://github.com/shurcooL/sanitized_anchor_name
+  repository: Other
+  url: https://codeload.github.com/shurcooL/sanitized_anchor_name/tar.gz/v1.0.0
+  version: v1.0.0
+other:sample-apiserver:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: sample-apiserver
+  other-distribution: /osl_sources/kubernetes-sample-apiserver-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/sample-apiserver
+  repository: Other
+  url: https://codeload.github.com/kubernetes/sample-apiserver/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:fatih_camelcase:v1.0.0:
+  license: MIT
+  name: fatih_camelcase
+  other-distribution: /osl_sources/fatih-camelcase-v1.0.0.tar.gz
+  other-url: https://github.com/fatih/camelcase
+  repository: Other
+  url: https://codeload.github.com/fatih/camelcase/tar.gz/v1.0.0
+  version: v1.0.0
+other:googleapis_gax-go_v2:v2.0.5:
+  license: BSD-3-Clause
+  name: googleapis_gax-go_v2
+  other-distribution: /osl_sources/googleapis-gax-go-v2.0.5.tar.gz
+  other-url: https://github.com/googleapis/gax-go/v2
+  repository: Other
+  url: https://codeload.github.com/googleapis/gax-go/tar.gz/v2.0.5
+  version: v2.0.5
+other:azure_go-autorest_autorest_adal:v0.8.2:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_adal
+  other-distribution: /osl_sources/Azure-go-autorest-v0.8.2.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/adal
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.8.2
+  version: v0.8.2
+other:api_internal_third_party_uritemplates:v0.15.1:
+  license: BSD-3-Clause
+  name: api_internal_third_party_uritemplates
+  other-distribution: /osl_sources/google_api_go_client-v0.15.1.tar.gz
+  other-url: https://google.golang.org/api/internal/third_party/uritemplates
+  repository: Other
+  url: https://codeload.github.com/google/google-api-go-client/tar.gz/v0.15.1
+  version: v0.15.1
+other:kubelet:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: kubelet
+  other-distribution: /osl_sources/kubernetes-kubelet-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/kubelet
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kubelet/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:go-openapi_swag:v0.19.5:
+  license: Apache-2.0
+  name: go-openapi_swag
+  other-distribution: /osl_sources/go-openapi-swag-v0.19.5.tar.gz
+  other-url: https://github.com/go-openapi/swag
+  repository: Other
+  url: https://codeload.github.com/go-openapi/swag/tar.gz/v0.19.5
+  version: v0.19.5
+other:karrick_godirwalk:v1.7.5:
+  license: BSD-2-Clause
+  name: karrick_godirwalk
+  other-distribution: /osl_sources/karrick-godirwalk-v1.7.5.tar.gz
+  other-url: https://github.com/karrick/godirwalk
+  repository: Other
+  url: https://codeload.github.com/karrick/godirwalk/tar.gz/v1.7.5
+  version: v1.7.5
+other:elazarl_goproxy:947c36da3153:
+  license: BSD-3-Clause
+  name: elazarl_goproxy
+  other-distribution: /osl_sources/elazarl-goproxy-947c36da3153.tar.gz
+  other-url: https://github.com/elazarl/goproxy
+  repository: Other
+  url: https://codeload.github.com/elazarl/goproxy/tar.gz/947c36da3153
+  version: 947c36da3153
+other:onsi_ginkgo_reporters_stenographer_support_go-colorable:v1.11.0:
+  license: MIT
+  name: onsi_ginkgo_reporters_stenographer_support_go-colorable
+  other-distribution: /osl_sources/onsi-ginkgo-v1.11.0.tar.gz
+  other-url: https://github.com/onsi/ginkgo/reporters/stenographer/support/go-colorable
+  repository: Other
+  url: https://codeload.github.com/onsi/ginkgo/tar.gz/v1.11.0
+  version: v1.11.0
+other:gogo_protobuf_plugin_equal:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_equal
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/equal
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:apiserver-network-proxy_konnectivity-client:v0.0.15:
+  license: Apache-2.0
+  name: apiserver-network-proxy_konnectivity-client
+  other-distribution: /osl_sources/kubernetes_sigs-apiserver-network-proxy-v0.0.15.tar.gz
+  other-url: https://sigs.k8s.io/apiserver-network-proxy/konnectivity-client
+  repository: Other
+  url: https://codeload.github.com/kubernetes-sigs/apiserver-network-proxy/tar.gz/v0.0.15
+  version: v0.0.15
+other:lithammer_dedent:v1.1.0:
+  license: MIT
+  name: lithammer_dedent
+  other-distribution: /osl_sources/lithammer-dedent-v1.1.0.tar.gz
+  other-url: https://github.com/lithammer/dedent
+  repository: Other
+  url: https://codeload.github.com/lithammer/dedent/tar.gz/v1.1.0
+  version: v1.1.0
+other:natefinch_lumberjack_v2:v2.0.0:
+  license: MIT
+  name: natefinch_lumberjack_v2
+  other-distribution: /osl_sources/natefinch-lumberjack-v2.0.0.tar.gz
+  other-url: https://gopkg.in/natefinch/lumberjack.v2
+  repository: Other
+  url: https://codeload.github.com/natefinch/lumberjack/tar.gz/v2.0.0
+  version: v2.0.0
+other:pelletier_go-toml:v1.2.0:
+  license: MIT
+  name: pelletier_go-toml
+  other-distribution: /osl_sources/pelletier-go-toml-v1.2.0.tar.gz
+  other-url: https://github.com/pelletier/go-toml
+  repository: Other
+  url: https://codeload.github.com/pelletier/go-toml/tar.gz/v1.2.0
+  version: v1.2.0
+other:golang_mock:v1.3.1:
+  license: Apache-2.0
+  name: golang_mock
+  other-distribution: /osl_sources/golang-mock-v1.3.1.tar.gz
+  other-url: https://github.com/golang/mock
+  repository: Other
+  url: https://codeload.github.com/golang/mock/tar.gz/v1.3.1
+  version: v1.3.1
+other:gogo_protobuf_protoc-gen-gogo_generator:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_protoc-gen-gogo_generator
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/protoc-gen-gogo/generator
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:gogo_protobuf_vanity_command:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_vanity_command
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/vanity/command
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:kubectl:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: kubectl
+  other-distribution: /osl_sources/kubernetes-kubectl-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/kubectl
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kubectl/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:hpcloud_tail:v1.0.0:
+  license: MIT
+  name: hpcloud_tail
+  other-distribution: /osl_sources/hpcloud-tail-v1.0.0.tar.gz
+  other-url: https://github.com/hpcloud/tail
+  repository: Other
+  url: https://codeload.github.com/hpcloud/tail/tar.gz/v1.0.0
+  version: v1.0.0
+other:grpc-ecosystem_grpc-gateway:v1.9.5:
+  license: BSD-3-Clause
+  name: grpc-ecosystem_grpc-gateway
+  other-distribution: /osl_sources/grpc-ecosystem-grpc-gateway-v1.9.5.tar.gz
+  other-url: https://github.com/grpc-ecosystem/grpc-gateway
+  repository: Other
+  url: https://codeload.github.com/grpc-ecosystem/grpc-gateway/tar.gz/v1.9.5
+  version: v1.9.5
+other:prometheus_client_model:v0.2.0:
+  license: Apache-2.0
+  name: prometheus_client_model
+  other-distribution: /osl_sources/prometheus-client_model-v0.2.0.tar.gz
+  other-url: https://github.com/prometheus/client_model
+  repository: Other
+  url: https://codeload.github.com/prometheus/client_model/tar.gz/v0.2.0
+  version: v0.2.0
+other:container-storage-interface_spec:v1.2.0:
+  license: Apache-2.0
+  name: container-storage-interface_spec
+  other-distribution: /osl_sources/container-storage-interface-spec-v1.2.0.tar.gz
+  other-url: https://github.com/container-storage-interface/spec
+  repository: Other
+  url: https://codeload.github.com/container-storage-interface/spec/tar.gz/v1.2.0
+  version: v1.2.0
+other:gogo_protobuf_proto:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_proto
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/proto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:dgrijalva_jwt-go:v3.2.0:
+  license: MIT
+  name: dgrijalva_jwt-go
+  other-distribution: /osl_sources/dgrijalva-jwt-go-v3.2.0.tar.gz
+  other-url: https://github.com/dgrijalva/jwt-go
+  repository: Other
+  url: https://codeload.github.com/dgrijalva/jwt-go/tar.gz/v3.2.0
+  version: v3.2.0
+other:fsnotify_v1:v1.4.7:
+  license: BSD-3-Clause
+  name: fsnotify_v1
+  other-distribution: /osl_sources/go_fsnotify-fsnotify-v1.4.7.tar.gz
+  other-url: https://gopkg.in/fsnotify.v1
+  repository: Other
+  url: https://codeload.github.com/go-fsnotify/fsnotify/tar.gz/v1.4.7
+  version: v1.4.7
+other:component-base:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: component-base
+  other-distribution: /osl_sources/kubernetes-component-base-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/component-base
+  repository: Other
+  url: https://codeload.github.com/kubernetes/component-base/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:etcd_client:v0.5.0-alpha.5:
+  license: JSON
+  name: etcd_client
+  other-distribution: /osl_sources/etcd_client-v0.5.0-alpha.5.tar.gz
+  other-url: https://go.etcd.io/etcd/client
+  repository: Other
+  url: ""
+  version: v0.5.0-alpha.5
+other:klog_v2:v2.2.0:
+  license: Apache-2.0
+  name: klog_v2
+  other-distribution: /osl_sources/kubernetes-klog-v2.2.0.tar.gz
+  other-url: https://k8s.io/klog/v2
+  repository: Other
+  url: https://codeload.github.com/kubernetes/klog/tar.gz/v2.2.0
+  version: v2.2.0
+other:go-ozzo_ozzo-validation:v3.5.0:
+  license: MIT
+  name: go-ozzo_ozzo-validation
+  other-distribution: /osl_sources/go-ozzo-ozzo-validation-v3.5.0.tar.gz
+  other-url: https://github.com/go-ozzo/ozzo-validation
+  repository: Other
+  url: https://codeload.github.com/go-ozzo/ozzo-validation/tar.gz/v3.5.0
+  version: v3.5.0
+other:kube-controller-manager:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: kube-controller-manager
+  other-distribution: /osl_sources/kubernetes-kube-controller-manager-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/kube-controller-manager
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kube-controller-manager/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:googlecloudplatform_k8s-cloud-provider:7901bc822317:
+  license: Apache-2.0
+  name: googlecloudplatform_k8s-cloud-provider
+  other-distribution: /osl_sources/GoogleCloudPlatform-k8s-cloud-provider-7901bc822317.tar.gz
+  other-url: https://github.com/GoogleCloudPlatform/k8s-cloud-provider
+  repository: Other
+  url: https://codeload.github.com/GoogleCloudPlatform/k8s-cloud-provider/tar.gz/7901bc822317
+  version: 7901bc822317
+other:liggitt_tabwriter:89fcab3d43de:
+  license: BSD-3-Clause
+  name: liggitt_tabwriter
+  other-distribution: /osl_sources/liggitt-tabwriter-89fcab3d43de.tar.gz
+  other-url: https://github.com/liggitt/tabwriter
+  repository: Other
+  url: https://codeload.github.com/liggitt/tabwriter/tar.gz/89fcab3d43de
+  version: 89fcab3d43de
+other:cluster-bootstrap:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: cluster-bootstrap
+  other-distribution: /osl_sources/kubernetes-cluster-bootstrap-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/cluster-bootstrap
+  repository: Other
+  url: https://codeload.github.com/kubernetes/cluster-bootstrap/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:go-openapi_jsonreference:v0.19.3:
+  license: Apache-2.0
+  name: go-openapi_jsonreference
+  other-distribution: /osl_sources/go-openapi-jsonreference-v0.19.3.tar.gz
+  other-url: https://github.com/go-openapi/jsonreference
+  repository: Other
+  url: https://codeload.github.com/go-openapi/jsonreference/tar.gz/v0.19.3
+  version: v0.19.3
+other:moby_term:672ec06f55cd:
+  license: Apache-2.0
+  name: moby_term
+  other-distribution: /osl_sources/moby-term-672ec06f55cd.tar.gz
+  other-url: https://github.com/moby/term
+  repository: Other
+  url: https://codeload.github.com/moby/term/tar.gz/672ec06f55cd
+  version: 672ec06f55cd
+other:go-openapi_analysis:v0.19.5:
+  license: Apache-2.0
+  name: go-openapi_analysis
+  other-distribution: /osl_sources/go-openapi-analysis-v0.19.5.tar.gz
+  other-url: https://github.com/go-openapi/analysis
+  repository: Other
+  url: https://codeload.github.com/go-openapi/analysis/tar.gz/v0.19.5
+  version: v0.19.5
+other:gogo_protobuf_plugin_populate:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_populate
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/populate
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:square_go-jose_v2_json:v2.2.2:
+  license: BSD-3-Clause
+  name: square_go-jose_v2_json
+  other-distribution: /osl_sources/square-go-jose-v2.2.2.tar.gz
+  other-url: https://gopkg.in/square/go-jose.v2/json
+  repository: Other
+  url: https://codeload.github.com/square/go-jose/tar.gz/v2.2.2
+  version: v2.2.2
+other:xiang90_probing:43a291ad63a2:
+  license: MIT
+  name: xiang90_probing
+  other-distribution: /osl_sources/xiang90-probing-43a291ad63a2.tar.gz
+  other-url: https://github.com/xiang90/probing
+  repository: Other
+  url: https://codeload.github.com/xiang90/probing/tar.gz/43a291ad63a2
+  version: 43a291ad63a2
+other:opencontainers_runtime-spec:237cc4f519e2:
+  license: Apache-2.0
+  name: opencontainers_runtime-spec
+  other-distribution: /osl_sources/opencontainers-runtime-spec-237cc4f519e2.tar.gz
+  other-url: https://github.com/opencontainers/runtime-spec
+  repository: Other
+  url: https://codeload.github.com/opencontainers/runtime-spec/tar.gz/237cc4f519e2
+  version: 237cc4f519e2
+other:json-iterator_go:v1.1.10:
+  license: MIT
+  name: json-iterator_go
+  other-distribution: /osl_sources/json-iterator-go-v1.1.10.tar.gz
+  other-url: https://github.com/json-iterator/go
+  repository: Other
+  url: https://codeload.github.com/json-iterator/go/tar.gz/v1.1.10
+  version: v1.1.10
+other:apimachinery:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: apimachinery
+  other-distribution: /osl_sources/kubernetes-apimachinery-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/apimachinery
+  repository: Other
+  url: https://codeload.github.com/kubernetes/apimachinery/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:davecgh_go-spew:v1.1.1:
+  license: 0BSD
+  name: davecgh_go-spew
+  other-distribution: /osl_sources/davecgh-go-spew-v1.1.1.tar.gz
+  other-url: https://github.com/davecgh/go-spew
+  repository: Other
+  url: https://codeload.github.com/davecgh/go-spew/tar.gz/v1.1.1
+  version: v1.1.1
+other:go-openapi_spec:v0.19.3:
+  license: Apache-2.0
+  name: go-openapi_spec
+  other-distribution: /osl_sources/go-openapi-spec-v0.19.3.tar.gz
+  other-url: https://github.com/go-openapi/spec
+  repository: Other
+  url: https://codeload.github.com/go-openapi/spec/tar.gz/v0.19.3
+  version: v0.19.3
+other:clusterhq_flocker-go:2b8b7259d313:
+  license: Apache-2.0
+  name: clusterhq_flocker-go
+  other-distribution: /osl_sources/clusterhq-flocker-go-2b8b7259d313.tar.gz
+  other-url: https://github.com/clusterhq/flocker-go
+  repository: Other
+  url: https://codeload.github.com/clusterhq/flocker-go/tar.gz/2b8b7259d313
+  version: 2b8b7259d313
+other:gogo_protobuf_sortkeys:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_sortkeys
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/sortkeys
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:aws_aws-sdk-go:v1.28.2:
+  license: Apache-2.0
+  name: aws_aws-sdk-go
+  other-distribution: /osl_sources/aws-aws-sdk-go-v1.28.2.tar.gz
+  other-url: https://github.com/aws/aws-sdk-go
+  repository: Other
+  url: https://codeload.github.com/aws/aws-sdk-go/tar.gz/v1.28.2
+  version: v1.28.2
+other:x_time:555d28b269f0:
+  license: BSD-3-Clause
+  name: x_time
+  other-distribution: /osl_sources/golang-time-555d28b269f0.tar.gz
+  other-url: https://golang.org/x/time
+  repository: Other
+  url: https://codeload.github.com/golang/time/tar.gz/555d28b269f0
+  version: 555d28b269f0
+other:azure_go-autorest_autorest_to:v0.2.0:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest_to
+  other-distribution: /osl_sources/Azure-go-autorest-v0.2.0.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest/to
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.2.0
+  version: v0.2.0
+other:azure_go-autorest_autorest:v0.9.6:
+  license: Apache-2.0
+  name: azure_go-autorest_autorest
+  other-distribution: /osl_sources/Azure-go-autorest-v0.9.6.tar.gz
+  other-url: https://github.com/Azure/go-autorest/autorest
+  repository: Other
+  url: https://codeload.github.com/Azure/go-autorest/tar.gz/v0.9.6
+  version: v0.9.6
+other:spf13_viper:v1.4.0:
+  license: MIT
+  name: spf13_viper
+  other-distribution: /osl_sources/spf13-viper-v1.4.0.tar.gz
+  other-url: https://github.com/spf13/viper
+  repository: Other
+  url: https://codeload.github.com/spf13/viper/tar.gz/v1.4.0
+  version: v1.4.0
+other:cloud-provider:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: cloud-provider
+  other-distribution: /osl_sources/kubernetes-cloud-provider-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/cloud-provider
+  repository: Other
+  url: https://codeload.github.com/kubernetes/cloud-provider/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:pquerna_cachecontrol:0dec1b30a021:
+  license: Apache-2.0
+  name: pquerna_cachecontrol
+  other-distribution: /osl_sources/pquerna-cachecontrol-0dec1b30a021.tar.gz
+  other-url: https://github.com/pquerna/cachecontrol
+  repository: Other
+  url: https://codeload.github.com/pquerna/cachecontrol/tar.gz/0dec1b30a021
+  version: 0dec1b30a021
+other:miekg_dns:v1.1.4:
+  license: BSD-3-Clause
+  name: miekg_dns
+  other-distribution: /osl_sources/miekg-dns-v1.1.4.tar.gz
+  other-url: https://github.com/miekg/dns
+  repository: Other
+  url: https://codeload.github.com/miekg/dns/tar.gz/v1.1.4
+  version: v1.1.4
+other:euank_go-kmsg-parser:v2.0.0:
+  license: Apache-2.0
+  name: euank_go-kmsg-parser
+  other-distribution: /osl_sources/euank-go-kmsg-parser-v2.0.0.tar.gz
+  other-url: https://github.com/euank/go-kmsg-parser
+  repository: Other
+  url: https://codeload.github.com/euank/go-kmsg-parser/tar.gz/v2.0.0
+  version: v2.0.0
+other:mxk_go-flowrate:cca7078d478f:
+  license: BSD-3-Clause
+  name: mxk_go-flowrate
+  other-distribution: /osl_sources/mxk-go-flowrate-cca7078d478f.tar.gz
+  other-url: https://github.com/mxk/go-flowrate
+  repository: Other
+  url: https://codeload.github.com/mxk/go-flowrate/tar.gz/cca7078d478f
+  version: cca7078d478f
+other:azure_go-ansiterm:d6e3b3328b78:
+  license: MIT
+  name: azure_go-ansiterm
+  other-distribution: /osl_sources/Azure-go-ansiterm-d6e3b3328b78.tar.gz
+  other-url: https://github.com/Azure/go-ansiterm
+  repository: Other
+  url: https://codeload.github.com/Azure/go-ansiterm/tar.gz/d6e3b3328b78
+  version: d6e3b3328b78
+other:gogo_protobuf_plugin_marshalto:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_marshalto
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/marshalto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:containernetworking_cni:v0.8.0:
+  license: Apache-2.0
+  name: containernetworking_cni
+  other-distribution: /osl_sources/containernetworking-cni-v0.8.0.tar.gz
+  other-url: https://github.com/containernetworking/cni
+  repository: Other
+  url: https://codeload.github.com/containernetworking/cni/tar.gz/v0.8.0
+  version: v0.8.0
+other:mongo-driver:v1.1.2:
+  license: Apache-2.0
+  name: mongo-driver
+  other-distribution: /osl_sources/mongo-driver-v1.1.2.tar.gz
+  other-url: https://go.mongodb.org/mongo-driver
+  repository: Other
+  url: ""
+  version: v1.1.2
+other:dustin_go-humanize:v1.0.0:
+  license: MIT
+  name: dustin_go-humanize
+  other-distribution: /osl_sources/dustin-go-humanize-v1.0.0.tar.gz
+  other-url: https://github.com/dustin/go-humanize
+  repository: Other
+  url: https://codeload.github.com/dustin/go-humanize/tar.gz/v1.0.0
+  version: v1.0.0
+other:morikuni_aec:v1.0.0:
+  license: MIT
+  name: morikuni_aec
+  other-distribution: /osl_sources/morikuni-aec-v1.0.0.tar.gz
+  other-url: https://github.com/morikuni/aec
+  repository: Other
+  url: https://codeload.github.com/morikuni/aec/tar.gz/v1.0.0
+  version: v1.0.0
+other:code-generator:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: code-generator
+  other-distribution: /osl_sources/kubernetes-code-generator-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/code-generator
+  repository: Other
+  url: https://codeload.github.com/kubernetes/code-generator/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:spf13_cobra:v1.0.0:
+  license: Apache-2.0
+  name: spf13_cobra
+  other-distribution: /osl_sources/spf13-cobra-v1.0.0.tar.gz
+  other-url: https://github.com/spf13/cobra
+  repository: Other
+  url: https://codeload.github.com/spf13/cobra/tar.gz/v1.0.0
+  version: v1.0.0
+other:docker_go-connections:v0.4.0:
+  license: Apache-2.0
+  name: docker_go-connections
+  other-distribution: /osl_sources/docker-go-connections-v0.4.0.tar.gz
+  other-url: https://github.com/docker/go-connections
+  repository: Other
+  url: https://codeload.github.com/docker/go-connections/tar.gz/v0.4.0
+  version: v0.4.0
+other:mvdan_xurls:v1.1.0:
+  license: BSD-3-Clause
+  name: mvdan_xurls
+  other-distribution: /osl_sources/mvdan-xurls-v1.1.0.tar.gz
+  other-url: https://github.com/mvdan/xurls
+  repository: Other
+  url: https://codeload.github.com/mvdan/xurls/tar.gz/v1.1.0
+  version: v1.1.0
+other:tomb_v1:dd632973f1e7:
+  license: BSD-3-Clause
+  name: tomb_v1
+  other-distribution: /osl_sources/go_tomb-tomb-dd632973f1e7.tar.gz
+  other-url: https://gopkg.in/tomb.v1
+  repository: Other
+  url: https://codeload.github.com/go-tomb/tomb/tar.gz/dd632973f1e7
+  version: dd632973f1e7
+other:x_sync:67f06af15bc9:
+  license: BSD-3-Clause
+  name: x_sync
+  other-distribution: /osl_sources/golang-sync-67f06af15bc9.tar.gz
+  other-url: https://golang.org/x/sync
+  repository: Other
+  url: https://codeload.github.com/golang/sync/tar.gz/67f06af15bc9
+  version: 67f06af15bc9
+other:warnings_v0:v0.1.1:
+  license: BSD-2-Clause
+  name: warnings_v0
+  other-distribution: /osl_sources/go_warnings-warnings-v0.1.1.tar.gz
+  other-url: https://gopkg.in/warnings.v0
+  repository: Other
+  url: https://codeload.github.com/go-warnings/warnings/tar.gz/v0.1.1
+  version: v0.1.1
+other:gogo_protobuf_plugin_gostring:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_gostring
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/gostring
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:go-openapi_runtime:v0.19.4:
+  license: Apache-2.0
+  name: go-openapi_runtime
+  other-distribution: /osl_sources/go-openapi-runtime-v0.19.4.tar.gz
+  other-url: https://github.com/go-openapi/runtime
+  repository: Other
+  url: https://codeload.github.com/go-openapi/runtime/tar.gz/v0.19.4
+  version: v0.19.4
+other:cli-runtime:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: cli-runtime
+  other-distribution: /osl_sources/kubernetes-cli-runtime-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/cli-runtime
+  repository: Other
+  url: https://codeload.github.com/kubernetes/cli-runtime/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:grpc:v1.27.0:
+  license: Apache-2.0
+  name: grpc
+  other-distribution: /osl_sources/grpc_go-v1.27.0.tar.gz
+  other-url: https://google.golang.org/grpc
+  repository: Other
+  url: https://codeload.github.com/grpc/grpc-go/tar.gz/v1.27.0
+  version: v1.27.0
+other:protobuf:v1.24.0:
+  license: BSD-3-Clause
+  name: protobuf
+  other-distribution: /osl_sources/protobuf-v1.24.0.tar.gz
+  other-url: https://google.golang.org/protobuf
+  repository: Other
+  url: ""
+  version: v1.24.0
+other:cilium_ebpf:1c8d4c9ef775:
+  license: MIT
+  name: cilium_ebpf
+  other-distribution: /osl_sources/cilium-ebpf-1c8d4c9ef775.tar.gz
+  other-url: https://github.com/cilium/ebpf
+  repository: Other
+  url: https://codeload.github.com/cilium/ebpf/tar.gz/1c8d4c9ef775
+  version: 1c8d4c9ef775
+other:spf13_afero:v1.2.2:
+  license: Apache-2.0
+  name: spf13_afero
+  other-distribution: /osl_sources/spf13-afero-v1.2.2.tar.gz
+  other-url: https://github.com/spf13/afero
+  repository: Other
+  url: https://codeload.github.com/spf13/afero/tar.gz/v1.2.2
+  version: v1.2.2
+other:spf13_cast:v1.3.0:
+  license: MIT
+  name: spf13_cast
+  other-distribution: /osl_sources/spf13-cast-v1.3.0.tar.gz
+  other-url: https://github.com/spf13/cast
+  repository: Other
+  url: https://codeload.github.com/spf13/cast/tar.gz/v1.3.0
+  version: v1.3.0
+other:hashicorp_hcl:v1.0.0:
+  license: MPL-2.0
+  name: hashicorp_hcl
+  other-distribution: /osl_sources/hashicorp-hcl-v1.0.0.tar.gz
+  other-url: https://github.com/hashicorp/hcl
+  repository: Other
+  url: https://codeload.github.com/hashicorp/hcl/tar.gz/v1.0.0
+  version: v1.0.0
+other:prometheus_procfs:v0.1.3:
+  license: Apache-2.0
+  name: prometheus_procfs
+  other-distribution: /osl_sources/prometheus-procfs-v0.1.3.tar.gz
+  other-url: https://github.com/prometheus/procfs
+  repository: Other
+  url: https://codeload.github.com/prometheus/procfs/tar.gz/v0.1.3
+  version: v0.1.3
+other:gorilla_websocket:v1.4.0:
+  license: BSD-2-Clause
+  name: gorilla_websocket
+  other-distribution: /osl_sources/gorilla-websocket-v1.4.0.tar.gz
+  other-url: https://github.com/gorilla/websocket
+  repository: Other
+  url: https://codeload.github.com/gorilla/websocket/tar.gz/v1.4.0
+  version: v1.4.0
+other:metrics:14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1:
+  license: Apache-2.0
+  name: metrics
+  other-distribution: /osl_sources/kubernetes-metrics-14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1.tar.gz
+  other-url: https://k8s.io/metrics
+  repository: Other
+  url: https://codeload.github.com/kubernetes/metrics/tar.gz/14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+  version: 14ad88ea189ac197d68c5f5ef8b6b2ec2d435ca1
+other:x_mod:v0.3.0:
+  license: BSD-3-Clause
+  name: x_mod
+  other-distribution: /osl_sources/golang-mod-v0.3.0.tar.gz
+  other-url: https://golang.org/x/mod
+  repository: Other
+  url: https://codeload.github.com/golang/mod/tar.gz/v0.3.0
+  version: v0.3.0
+other:gogo_protobuf_plugin_oneofcheck:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_plugin_oneofcheck
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/plugin/oneofcheck
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:sirupsen_logrus:v1.6.0:
+  license: MIT
+  name: sirupsen_logrus
+  other-distribution: /osl_sources/sirupsen-logrus-v1.6.0.tar.gz
+  other-url: https://github.com/sirupsen/logrus
+  repository: Other
+  url: https://codeload.github.com/sirupsen/logrus/tar.gz/v1.6.0
+  version: v1.6.0
+other:gogo_protobuf_protoc-gen-gogo_descriptor:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_protoc-gen-gogo_descriptor
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/protoc-gen-gogo/descriptor
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:puerkitobio_purell:v1.1.1:
+  license: BSD-3-Clause
+  name: puerkitobio_purell
+  other-distribution: /osl_sources/PuerkitoBio-purell-v1.1.1.tar.gz
+  other-url: https://github.com/PuerkitoBio/purell
+  repository: Other
+  url: https://codeload.github.com/PuerkitoBio/purell/tar.gz/v1.1.1
+  version: v1.1.1
+other:heapster:v1.2.0-beta.1:
+  license: Apache-2.0
+  name: heapster
+  other-distribution: /osl_sources/kubernetes-heapster-v1.2.0-beta.1.tar.gz
+  other-url: https://k8s.io/heapster
+  repository: Other
+  url: https://codeload.github.com/kubernetes/heapster/tar.gz/v1.2.0-beta.1
+  version: v1.2.0-beta.1
+other:multierr:v1.1.0:
+  license: MIT
+  name: multierr
+  other-distribution: /osl_sources/uber_go-multierr-v1.1.0.tar.gz
+  other-url: https://go.uber.org/multierr
+  repository: Other
+  url: https://codeload.github.com/uber-go/multierr/tar.gz/v1.1.0
+  version: v1.1.0
+other:mailru_easyjson:v0.7.0:
+  license: MIT
+  name: mailru_easyjson
+  other-distribution: /osl_sources/mailru-easyjson-v0.7.0.tar.gz
+  other-url: https://github.com/mailru/easyjson
+  repository: Other
+  url: https://codeload.github.com/mailru/easyjson/tar.gz/v0.7.0
+  version: v0.7.0
+other:grpc-ecosystem_go-grpc-middleware:f849b5445de4:
+  license: Apache-2.0
+  name: grpc-ecosystem_go-grpc-middleware
+  other-distribution: /osl_sources/grpc-ecosystem-go-grpc-middleware-f849b5445de4.tar.gz
+  other-url: https://github.com/grpc-ecosystem/go-grpc-middleware
+  repository: Other
+  url: https://codeload.github.com/grpc-ecosystem/go-grpc-middleware/tar.gz/f849b5445de4
+  version: f849b5445de4
+other:gogo_protobuf_types:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_types
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/types
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:storageos_go-api:343b3eff91fc:
+  license: UNKNOWN
+  name: storageos_go-api
+  other-distribution: /osl_sources/storageos-go-api-343b3eff91fc.tar.gz
+  other-url: https://github.com/storageos/go-api
+  repository: Other
+  url: https://codeload.github.com/storageos/go-api/tar.gz/343b3eff91fc
+  version: 343b3eff91fc
+other:square_go-jose_v2:v2.2.2:
+  license: Apache-2.0
+  name: square_go-jose_v2
+  other-distribution: /osl_sources/square-go-jose-v2.2.2.tar.gz
+  other-url: https://gopkg.in/square/go-jose.v2
+  repository: Other
+  url: https://codeload.github.com/square/go-jose/tar.gz/v2.2.2
+  version: v2.2.2
+other:mohae_deepcopy:491d3605edfb:
+  license: MIT
+  name: mohae_deepcopy
+  other-distribution: /osl_sources/mohae-deepcopy-491d3605edfb.tar.gz
+  other-url: https://github.com/mohae/deepcopy
+  repository: Other
+  url: https://codeload.github.com/mohae/deepcopy/tar.gz/491d3605edfb
+  version: 491d3605edfb
+other:atomic:v1.4.0:
+  license: MIT
+  name: atomic
+  other-distribution: /osl_sources/uber_go-atomic-v1.4.0.tar.gz
+  other-url: https://go.uber.org/atomic
+  repository: Other
+  url: https://codeload.github.com/uber-go/atomic/tar.gz/v1.4.0
+  version: v1.4.0
+other:matttproud_golang_protobuf_extensions:c182affec369:
+  license: Apache-2.0
+  name: matttproud_golang_protobuf_extensions
+  other-distribution: /osl_sources/matttproud-golang_protobuf_extensions-c182affec369.tar.gz
+  other-url: https://github.com/matttproud/golang_protobuf_extensions
+  repository: Other
+  url: https://codeload.github.com/matttproud/golang_protobuf_extensions/tar.gz/c182affec369
+  version: c182affec369
+other:x_net:69a78807bb2b:
+  license: BSD-3-Clause
+  name: x_net
+  other-distribution: /osl_sources/golang-net-69a78807bb2b.tar.gz
+  other-url: https://golang.org/x/net
+  repository: Other
+  url: https://codeload.github.com/golang/net/tar.gz/69a78807bb2b
+  version: 69a78807bb2b
+other:mitchellh_go-wordwrap:v1.0.0:
+  license: MIT
+  name: mitchellh_go-wordwrap
+  other-distribution: /osl_sources/mitchellh-go-wordwrap-v1.0.0.tar.gz
+  other-url: https://github.com/mitchellh/go-wordwrap
+  repository: Other
+  url: https://codeload.github.com/mitchellh/go-wordwrap/tar.gz/v1.0.0
+  version: v1.0.0
+other:gengo:8167cfdcfc14:
+  license: Apache-2.0
+  name: gengo
+  other-distribution: /osl_sources/kubernetes-gengo-8167cfdcfc14.tar.gz
+  other-url: https://k8s.io/gengo
+  repository: Other
+  url: https://codeload.github.com/kubernetes/gengo/tar.gz/8167cfdcfc14
+  version: 8167cfdcfc14
+other:google_gofuzz:v1.1.0:
+  license: Apache-2.0
+  name: google_gofuzz
+  other-distribution: /osl_sources/google-gofuzz-v1.1.0.tar.gz
+  other-url: https://github.com/google/gofuzz
+  repository: Other
+  url: https://codeload.github.com/google/gofuzz/tar.gz/v1.1.0
+  version: v1.1.0
+other:stretchr_testify:v1.4.0:
+  license: MIT
+  name: stretchr_testify
+  other-distribution: /osl_sources/stretchr-testify-v1.4.0.tar.gz
+  other-url: https://github.com/stretchr/testify
+  repository: Other
+  url: https://codeload.github.com/stretchr/testify/tar.gz/v1.4.0
+  version: v1.4.0

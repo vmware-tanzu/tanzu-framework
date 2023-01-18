@@ -1,0 +1,152 @@
+name: tkg-standard-packages
+managedComponents:
+- version: v1.5.0-framework-v0.8.0
+  upstreamCommit: 73fc103e122570fae79642c6776f7692391e518e
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-standard~8022146ccd7ab5c3e304665851b9b773ef26a6d0
+  componentReferences:
+  - name: jetstack_cert-manager
+    version:
+    - v1.1.0+vmware.1
+  - name: contour
+    version:
+    - v1.17.1+vmware.1
+  - name: envoy
+    version:
+    - v1.18.3+vmware.1
+  - name: external-dns
+    version:
+    - v0.8.0+vmware.1
+  - name: fluent-bit
+    version:
+    - v1.7.5+vmware.1
+  - name: grafana
+    version:
+    - v7.5.7+vmware.1
+  - name: k8s-sidecar
+    version:
+    - v1.12.1+vmware.1
+  - name: cadvisor
+    version:
+    - v0.39.1+vmware.1
+  - name: configmap-reload
+    version:
+    - v0.5.0+vmware.1
+  - name: alertmanager
+    version:
+    - v0.22.2+vmware.1
+  - name: prometheus
+    version:
+    - v2.27.0+vmware.1
+  - name: pushgateway
+    version:
+    - v1.4.0+vmware.1
+  - name: kube-state-metrics
+    version:
+    - v1.9.8+vmware.1
+  - name: prometheus_node_exporter
+    version:
+    - v1.1.2+vmware.1
+  - name: harbor
+    version:
+    - v2.2.3+vmware.1
+  - name: multus-cni
+    version:
+    - v3.7.1+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_alertmanager: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "alertmanager" "version" "v0.22.2+vmware.1").artifactURL.alertmanagerImage.url}}'
+    gobuild.downstream_cadvisor: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "cadvisor" "version" "v0.39.1+vmware.1").artifactURL.cadvisorImage.url}}'
+    gobuild.downstream_cert_manager_cainjector: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "jetstack_cert-manager" "version"
+      "v1.1.0+vmware.1").artifactURL.certMgrInjectorImage.url}}'
+    gobuild.downstream_cert_manager_controller: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "jetstack_cert-manager" "version"
+      "v1.1.0+vmware.1").artifactURL.certMgrControllerImage.url}}'
+    gobuild.downstream_cert_manager_webhook: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "jetstack_cert-manager" "version"
+      "v1.1.0+vmware.1").artifactURL.certMgrWebhookImage.url}}'
+    gobuild.downstream_configmap_reload: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "configmap-reload" "version"
+      "v0.5.0+vmware.1").artifactURL.configmapReloadImage.url}}'
+    gobuild.downstream_contour: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "contour" "version" "v1.17.1+vmware.1").artifactURL.contourImage.url}}'
+    gobuild.downstream_envoy: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "envoy" "version" "v1.18.3+vmware.1").artifactURL.envoyImage.url}}'
+    gobuild.downstream_external_dns: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "external-dns" "version" "v0.8.0+vmware.1").artifactURL.externalDNSImage.url}}'
+    gobuild.downstream_fluent_bit: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "fluent-bit" "version" "v1.7.5+vmware.1").artifactURL.fluentBitImage.url}}'
+    gobuild.downstream_grafana: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "grafana" "version" "v7.5.7+vmware.1").artifactURL.grafanaImage.url}}'
+    gobuild.downstream_harbor_core: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborCoreImage.url}}'
+    gobuild.downstream_harbor_database: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborDatabaseImage.url}}'
+    gobuild.downstream_harbor_exporter: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborExporterImage.url}}'
+    gobuild.downstream_harbor_job_service: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborJobServiceImage.url}}'
+    gobuild.downstream_harbor_notary_server: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborNotaryServerImage.url}}'
+    gobuild.downstream_harbor_notary_signer: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborNotaryServerImage.url}}'
+    gobuild.downstream_harbor_portal: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborPortalImage.url}}'
+    gobuild.downstream_harbor_redis: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborRedisImage.url}}'
+    gobuild.downstream_harbor_registry: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborRegistryImage.url}}'
+    gobuild.downstream_harbor_registry_ctl: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborRegistryCtlImage.url}}'
+    gobuild.downstream_harbor_trivy_adaptor: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "harbor" "version" "v2.2.3+vmware.1").artifactURL.harborTrivyAdapterImage.url}}'
+    gobuild.downstream_k8s_sidecar: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "k8s-sidecar" "version" "v1.12.1+vmware.1").artifactURL.k8sSidecarImage.url}}'
+    gobuild.downstream_kube_state_metrics: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kube-state-metrics" "version"
+      "v1.9.8+vmware.1").artifactURL.kubeStateMetricsImage.url}}'
+    gobuild.downstream_multus_cni: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "multus-cni" "version" "v3.7.1+vmware.1").artifactURL.multusCniImage.url}}'
+    gobuild.downstream_prometheus: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "prometheus" "version" "v2.27.0+vmware.1").artifactURL.prometheusImage.url}}'
+    gobuild.downstream_prometheus_node_exporter: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "prometheus_node_exporter" "version"
+      "v1.1.2+vmware.1").artifactURL.prometheusNodeExporterImage.url}}'
+    gobuild.downstream_pushgateway: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "pushgateway" "version" "v1.4.0+vmware.1").artifactURL.pushgatewayImage.url}}'
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_versions: cert-manager:1.1.0:vmware.1-tkg.3-framework-v0.8.0;contour:1.17.1:vmware.1-tkg.2-framework-v0.8.0;external-dns:0.8.0:vmware.1-tkg.2-framework-v0.8.0;fluent-bit:1.7.5:vmware.1-tkg.2-framework-v0.8.0;grafana:7.5.7:vmware.1-tkg.2-framework-v0.8.0;prometheus:2.27.0:vmware.1-tkg.2-framework-v0.8.0;harbor:2.2.3:vmware.1-tkg.2-framework-v0.8.0;multus-cni:3.7.1:vmware.1-tkg.2-framework-v0.8.0;
+    gobuild.releaseVersion: v1.5.0-framework-v0.8.0
+    gobuild.upstream_alertmanager: prom/alertmanager:v0.22.2
+    gobuild.upstream_cadvisor: gcr.io/cadvisor/cadvisor:v0.39.1
+    gobuild.upstream_cert_manager_cainjector: quay.io/jetstack/cert-manager-cainjector:v1.1.0
+    gobuild.upstream_cert_manager_controller: quay.io/jetstack/cert-manager-controller:v1.1.0
+    gobuild.upstream_cert_manager_webhook: quay.io/jetstack/cert-manager-webhook:v1.1.0
+    gobuild.upstream_configmap_reload: jimmidyson/configmap-reload:v0.5.0
+    gobuild.upstream_contour: docker.io/projectcontour/contour:v1.17.1
+    gobuild.upstream_envoy: docker.io/envoyproxy/envoy:v1.18.3
+    gobuild.upstream_external_dns: k8s.gcr.io/external-dns/external-dns
+    gobuild.upstream_fluent_bit: fluent/fluent-bit:1.7.5
+    gobuild.upstream_grafana: grafana/grafana:7.5.7
+    gobuild.upstream_harbor_core: goharbor/harbor-core:v2.2.3
+    gobuild.upstream_harbor_database: goharbor/harbor-db:v2.2.3
+    gobuild.upstream_harbor_exporter: goharbor/harbor-exporter:v2.2.3
+    gobuild.upstream_harbor_job_service: goharbor/harbor-jobservice:v2.2.3
+    gobuild.upstream_harbor_notary_server: goharbor/notary-server-photon:v2.2.3
+    gobuild.upstream_harbor_notary_signer: goharbor/notary-signer-photon:v2.2.3
+    gobuild.upstream_harbor_portal: goharbor/harbor-portal:v2.2.3
+    gobuild.upstream_harbor_redis: goharbor/redis-photon:v2.2.3
+    gobuild.upstream_harbor_registry: goharbor/registry-photon:v2.2.3
+    gobuild.upstream_harbor_registry_ctl: goharbor/harbor-registryctl:v2.2.3
+    gobuild.upstream_harbor_trivy_adaptor: goharbor/trivy-adapter-photon:v2.2.3
+    gobuild.upstream_k8s_sidecar: kiwigrid/k8s-sidecar:1.12.1
+    gobuild.upstream_kube_state_metrics: quay.io/coreos/kube-state-metrics:v1.9.8
+    gobuild.upstream_multus_cni: projects-stg.registry.vmware.com/tkg/sandbox/multus-cni:v3.7.1_vmware.1
+    gobuild.upstream_prometheus: prom/prometheus:v2.27.0
+    gobuild.upstream_prometheus_node_exporter: quay.io/prometheus/node-exporter:v1.1.2
+    gobuild.upstream_pushgateway: prom/pushgateway:v1.4.0

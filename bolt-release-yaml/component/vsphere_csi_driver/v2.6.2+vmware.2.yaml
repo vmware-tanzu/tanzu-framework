@@ -1,0 +1,10 @@
+name: vsphere_csi_driver
+managedComponents:
+  - version: v2.6.2+vmware.2
+    upstreamTag: v2.6.2
+    gobuildBaseBranch: release-2.6~21d3a0aef226d0fc377d06ad1cdc44ade842f168
+    dependencies:
+      gobuild.golangVersion: "1.17"
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32
+      gobuild.containerBaseImage: photon:4.0

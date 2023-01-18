@@ -1,0 +1,10 @@
+name: aad-pod-identity
+managedComponents:
+  - version: v1.6.3+vmware.1
+    upstreamTag: v1.6.3
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~cdbd4ee766322a44b93736eea6946efe5cd17a1b
+    dependencies:
+      gobuild.golangVersion: 1.15
+      gobuild.releaseVersion: v1.6.3+vmware.1
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos72-gc32

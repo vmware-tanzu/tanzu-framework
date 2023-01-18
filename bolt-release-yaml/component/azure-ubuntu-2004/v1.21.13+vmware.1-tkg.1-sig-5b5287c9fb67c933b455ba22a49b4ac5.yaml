@@ -1,0 +1,33 @@
+name: azure-ubuntu-2004
+images:
+- version: v1.21.13+vmware.1-tkg.1-sig-5b5287c9fb67c933b455ba22a49b4ac5
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: azure
+  imageBuilderVersion: 63e3e95c84003f2beef148f297ac9f7159a8a7d4
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2
+  - name: coredns
+    version:
+    - v1.8.6+vmware.6
+  - name: cri_tools
+    version:
+    - v1.20.0+vmware.11
+  - name: etcd
+    version:
+    - v3.4.18+vmware.1
+  - name: containerd
+    version:
+    - v1.5.11+vmware.1
+  - name: kubernetes
+    version:
+    - v1.21.13+vmware.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d403fea9be19b03a4bc1cf84faf6aa4cb5681200
+    jenkins.AZURE_IMAGE_TYPE: sig

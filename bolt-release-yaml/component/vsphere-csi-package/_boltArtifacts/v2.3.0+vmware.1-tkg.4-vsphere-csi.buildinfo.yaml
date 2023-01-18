@@ -1,0 +1,11 @@
+componentBuilds:
+- name: vsphere-csi-package
+  version: v2.3.0+vmware.1-tkg.4-vsphere-csi
+  channel: "393152633562490087"
+  url: https://buildweb.eng.vmware.com/ob/19306186/
+  artifactURL:
+    vsphere-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-csi:v2.3.0_vmware.1-tkg.4
+      sha256: 788c6afaffeaee47433456ae1f35d68a87fecb8d92c8266c4e82837b7f16fd63
+  cachehash: a9b0c4e44b5212d75081017871d7fb9b
+  publishhash: cedd8fe6c0ac7f5ec42b3dc29f93ec89

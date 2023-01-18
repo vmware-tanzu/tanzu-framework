@@ -1,0 +1,34 @@
+name: pinniped-package
+packages:
+- version: v0.4.4+vmware.1-tkg.3-pinniped-tf-v0.11.0
+  upstreamCommit: 44dd013c20b999480c3ef82420a22f8144b2be04
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: pinniped
+    version:
+    - v0.4.4+vmware.1
+  - name: dex
+    version:
+    - v2.27.0+vmware.1
+  - name: tanzu-framework-addons
+    version:
+    - v0.11.0-tf
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework-addons" ).artifactURL.tkgPinnipedPostDeployImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "pinniped").artifactURL.pinnipedImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "dex").artifactURL.dexImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.3-tf-v0.11.0
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: pinniped
+    gobuild.package_type: core
+    gobuild.upstream_image_0: projects.registry.vmware.com/tce/tanzu_core/addons/tkg-pinniped-post-deploy:v1.3.1
+    gobuild.upstream_image_1: docker.io/getpinniped/pinniped-server:v0.4.4
+    gobuild.upstream_image_2: projects.registry.vmware.com/tce/dex:v2.27.0_vmware.1
+    gobuild.upstream_version: 0.4.4

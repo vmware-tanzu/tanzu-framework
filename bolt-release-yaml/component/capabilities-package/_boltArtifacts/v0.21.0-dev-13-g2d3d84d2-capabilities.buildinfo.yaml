@@ -1,0 +1,11 @@
+componentBuilds:
+- name: capabilities-package
+  version: v0.21.0-dev-13-g2d3d84d2-capabilities
+  channel: "401356794678482201"
+  url: https://buildweb.eng.vmware.com/ob/19583764/
+  artifactURL:
+    capabilities.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/capabilities:v0.21.0-dev-13-g2d3d84d2_vmware.1
+      sha256: 8ee91bbffe89edc8c2cb8cf378acbf600bb34b54f80b3c5ab390dc568631516c
+  cachehash: 3c1133493bc6d8beaeba44faffdc6917
+  publishhash: 332137e8e677e9b0dbb379437f07fc2d

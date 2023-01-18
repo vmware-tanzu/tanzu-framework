@@ -1,0 +1,7 @@
+name: tkg-clusterclass-oci-package
+goBuildComponentCaches:
+- version: v0.28.0-dev-307-g850cbf02-tkg-clusterclass-oci
+  url: https://buildweb.eng.vmware.com/ob/21081446/
+  buildNumber: bora-21081446
+  buildStatus: SUCCEEDED
+  hash: b24add5f4881f5fbf4e7e3e733658796

@@ -1,0 +1,13 @@
+name: coredns
+publish:
+  - name: coredns
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/coredns/images/coredns-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/coredns/images/coredns-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: coredns:$UNDERSCOREVERSION
+delayedpublish:
+  - name: coredns-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/coredns/images/coredns-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/coredns/images/coredns-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: $CHANNEL/image-builder/kubernetes/$K8SVERSION/bin/linux/amd64/coredns.tar

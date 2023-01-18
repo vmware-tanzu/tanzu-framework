@@ -1,0 +1,35 @@
+componentBuilds:
+- name: tkg-standard-packages
+  version: v1.4.0-zshippable
+  channel: "370633565811018550"
+  url: https://buildweb.eng.vmware.com/ob/18560277/
+  artifactURL:
+    cert-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/cert-manager:v1.1.0_vmware.1-tkg.2-zshippable
+      sha256: 90008da7e2e860abb62f68650881296e6e2b80679ae18772ccb4603d02926088
+    contour.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/contour:v1.17.1_vmware.1-tkg.1-zshippable
+      sha256: fc59062a17cc353ef557b51eabe6dc120127722b380e99ec3430500a674a11ed
+    external-dns.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/external-dns:v0.8.0_vmware.1-tkg.1-zshippable
+      sha256: 44bd79a15d3e3c32cc8a69268d7c88c40466a5842b4085d83d009aef248396d1
+    fluent-bit.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.1-zshippable
+      sha256: 639da26461301493435a15ba272afd5eac2b2387125a9185750ae21474c062b6
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.1-tkg.1-zshippable
+      sha256: e01819f248acb4e5f30a6145a76cba3355b1d1ff5092052fbf139665b445825a
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.1-zshippable
+      sha256: 7d7e1810a504282ced67f698dbb1b17ae27f51433f68863ffa71257f82e358b1
+    multus-cni.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/multus-cni:v3.7.1_vmware.1-tkg.1-zshippable
+      sha256: 6201d995c2bd5909093f0a7754a709ea7bdbdebae1cb8e75b5f45701f2f54921
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.1-tkg.1-zshippable
+      sha256: 32f4f82fccfff1a91fbbe67a6a16761c218709999f1ab606bb4607ab55f25457
+    tanzuStandardPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.4.0-zshippable
+      sha256: ec6df432e352bf7e6f7e8e45517aedd73136c882661c139c256320cf7a9c724b
+  cachehash: 854257799e21c1a331a3cf20a2572eea
+  publishhash: 79b9703653908489912de9cc0a074fd9

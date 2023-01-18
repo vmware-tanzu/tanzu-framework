@@ -1,0 +1,23 @@
+versionMap:
+  v1.0.0-tkg.1-gc-auth-service: url.yaml
+  v1.0.0-tkg.1-gc-auth-service-rc.1: url.yaml
+  v1.0.0-tkg.1-gc-auth-service-rc.2: url.yaml
+  v1.0.0-tkg.1-gc-auth-service-rc.3: url.yaml
+  v1.0.0-tkg.1-gc-auth-service-tf-v0.22.0: url.yaml
+  v1.0.0-tkg.1-gc-auth-service-tf-v0.23.0: url.yaml
+  v1.0.0-tkg.1-gc-auth-service-tf-v0.25.0: url.yaml
+  v1.0.0-tkg.1-gc-auth-service-tf-v0.25.1: url.yaml
+  v1.0.0-tkg.1-gc-auth-service-zshippable: url.yaml
+  v1.0.0-tkg.2-gc-auth-service: url.yaml
+  v1.0.0-tkg.2-gc-auth-service-tf-v0.26.0: url.yaml
+  v1.0.0-tkg.2-gc-auth-service-zshippable: url.yaml
+  v1.0.0-tkg.3-gc-auth-service-zshippable: url.yaml
+  v1.1.0-tkg.1-gc-auth-service-20230103: url.yaml
+  v1.1.0-tkg.1-gc-auth-service-20230112: url.yaml
+  v1.1.0-tkg.1-gc-auth-service-20230114: url.yaml
+  v1.1.0-tkg.1-gc-auth-service-fc.1: url.yaml
+  v1.1.0-tkg.1-gc-auth-service-fc.2: url.yaml
+  v1.1.0-tkg.1-gc-auth-service-rc.1: url.yaml
+  v1.1.0-tkg.1-gc-auth-service-rc.2: url.yaml
+  v1.1.0-tkg.1-gc-auth-service-rc.3: url.yaml
+  v1.1.0-tkg.1-gc-auth-service-zshippable: url.yaml

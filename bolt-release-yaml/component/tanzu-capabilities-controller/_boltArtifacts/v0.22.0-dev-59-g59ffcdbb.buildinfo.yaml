@@ -1,0 +1,18 @@
+componentBuilds:
+- name: tanzu-capabilities-controller
+  version: v0.22.0-dev-59-g59ffcdbb
+  channel: "409197315526501690"
+  url: https://buildweb.eng.vmware.com/ob/19852402/
+  artifactURL:
+    capabilitiesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/capabilities/capabilities-controller-manager:v0.22.0-dev-59-g59ffcdbb
+      sha256: e74c2f6ec2c65abaa447860edc6883be77dc458103f12fb4115fe8b7ce36c3e2
+  cachehash: 9cd6e5df6e921a822eaf31ad0a01e945
+  publishhash: bd42def4bcbbe20fc7f7cc7960f7a5f2
+  configDependencies:
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17
+    gobuild.golangVersion: "1.17"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.releaseVersion: v0.22.0-dev-59-g59ffcdbb
+    upstreamPullRequestID: "1940"

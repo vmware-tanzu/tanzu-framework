@@ -1,0 +1,16 @@
+componentBuilds:
+- name: ova-ubuntu-2004
+  version: v1.23.5+vmware.1-tkg.2-906416f5e58a6422500f0febbdeb80b3
+  channel: "405551052306260747"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/1458
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/405551052306260747/component/ova-ubuntu-2004/bom-ova-ubuntu-2004-v1.23.5+vmware.1-tkg.2-906416f5e58a6422500f0febbdeb80b3.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/405551052306260747/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.23.5+vmware.1-tkg.2-906416f5e58a6422500f0febbdeb80b3-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/405551052306260747/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.23.5+vmware.1-tkg.2-906416f5e58a6422500f0febbdeb80b3-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/405551052306260747/component/ova-ubuntu-2004/ubuntu-2004-kube-v1.23.5+vmware.1-tkg.2-906416f5e58a6422500f0febbdeb80b3.ova
+  cachehash: 9d5be09992a35e2fd4b4c094dbdf4e62
+  publishhash: dddd99c7c1721a2be15e80032869a07b

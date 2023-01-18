@@ -1,0 +1,7 @@
+name: tkg_extensions
+unmanagedComponents:
+  - version: v1.3.0+vmware.1
+    gobuildBranch: vmware-1.3.0
+    dependencies:
+      gobuild.golangVersion: 1.13.6
+      gobuild.linux_hosttype: linux-centos8

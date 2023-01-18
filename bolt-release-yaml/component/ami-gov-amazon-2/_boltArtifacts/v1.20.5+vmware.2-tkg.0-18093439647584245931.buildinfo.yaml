@@ -1,0 +1,14 @@
+componentBuilds:
+- name: ami-gov-amazon-2
+  version: v1.20.5+vmware.2-tkg.0-18093439647584245931
+  channel: "355221546857419633"
+  url: https://kscom.svc.eng.vmware.com/job/build-ami-gov-v1alpha2/204
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/355221546857419633/component/ami-gov-amazon-2/bom-ami-gov-amazon-2-v1.20.5+vmware.2-tkg.0-18093439647584245931.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/355221546857419633/component/ami-gov-amazon-2/ami-gov-amazon-2-v1.20.5+vmware.2-tkg.0-18093439647584245931-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/355221546857419633/component/ami-gov-amazon-2/ami-gov-amazon-2-v1.20.5+vmware.2-tkg.0-18093439647584245931-osstpmgt.yaml
+  cachehash: "5169865473115514666"
+  publishhash: "4300949594468927544"

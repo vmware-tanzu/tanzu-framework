@@ -1,0 +1,10 @@
+name: core-management-plugins-package
+goBuildComponentLocks:
+- version: v0.11.2-11-g9f16f375-core-mgmt-plugins
+  gobuildBranch: 399339572254738885-v0.11.2-11-g9f16f375-core-mgmt-plugins
+  gobuildHeadCommit: a3cc61457c32835afd038d564367c82f899cf1fb
+  hash: 41d3db22e88b9f5857ace3ae6e55fdad
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.11.2-11-g9f16f375
+    lockHash: 3042d620369cadd8df48b65e7011d29a

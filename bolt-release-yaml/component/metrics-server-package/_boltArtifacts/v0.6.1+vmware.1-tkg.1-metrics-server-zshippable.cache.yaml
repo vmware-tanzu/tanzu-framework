@@ -1,0 +1,7 @@
+name: metrics-server-package
+goBuildComponentCaches:
+- version: v0.6.1+vmware.1-tkg.1-metrics-server-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20159426/
+  buildNumber: bora-20159426
+  buildStatus: SUCCEEDED
+  hash: 3e7bf5aaf0623ae039d4045b27aa0432

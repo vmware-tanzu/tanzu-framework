@@ -1,0 +1,8 @@
+name: carvel-secretgen-controller
+upstreamURL: https://github.com/vmware-tanzu/carvel-secretgen-controller.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_carvel-secretgen-controller.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_carvel-secretgen-controller.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_carvel-secretgen-controller.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_carvel-secretgen-controller.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_carvel-secretgen-controller.git
+gobuildTarget: cayman_carvel-secretgen-controller

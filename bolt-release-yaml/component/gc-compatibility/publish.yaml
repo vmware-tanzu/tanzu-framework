@@ -1,0 +1,6 @@
+name: gc-compatibility
+publish:
+  - name: gcCompatibility
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/vmware-system.compatibilityoffering.json
+    destinationPath: $CHANNEL/component/gc-compatibility/vmware-system.compatibilityoffering.json

@@ -1,0 +1,28 @@
+name: contour-package
+packages:
+- version: v1.17.2+vmware.1-tkg.3-contour-rc.3
+  upstreamCommit: 44dd013c20b999480c3ef82420a22f8144b2be04
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: contour
+    version:
+    - v1.17.2+vmware.1
+  - name: envoy
+    version:
+    - v1.18.4+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "contour").artifactURL.contourImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "envoy").artifactURL.envoyImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.3-rc.3
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: contour
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: docker.io/projectcontour/contour:v1.17.2
+    gobuild.upstream_image_1: docker.io/envoyproxy/envoy:v1.18.4
+    gobuild.upstream_version: 1.17.2

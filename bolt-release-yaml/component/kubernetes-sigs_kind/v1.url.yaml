@@ -1,0 +1,8 @@
+name: kubernetes-sigs_kind
+upstreamURL: https://github.com/kubernetes-sigs/kind.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kubernetes-sigs_kind.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_kubernetes-sigs_kind.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-sigs_kind.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_kubernetes-sigs_kind.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-sigs_kind.git
+gobuildTarget: cayman_kubernetes-sigs_kind

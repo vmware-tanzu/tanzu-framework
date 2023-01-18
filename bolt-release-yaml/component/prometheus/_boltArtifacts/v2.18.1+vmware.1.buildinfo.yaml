@@ -1,0 +1,13 @@
+componentBuilds:
+- name: prometheus
+  version: v2.18.1+vmware.1
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/16863517
+  artifactURL:
+    prometheus:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-16863517/publish/lin64/prometheus/executables/prometheus-v2.18.1+vmware.1.gz
+    prometheusImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/prometheus:v2.18.1_vmware.1
+      sha256: 6eb35874327bfbf8e87ee5180d5c0fbe53c69c36cb99d24d59cdc2432642edbd
+  cachehash: 181a6f3cec3d19d4025e591b8e95d60f
+  publishhash: 74b1f4624bc2e90e7a6d2abf7cd0d34a

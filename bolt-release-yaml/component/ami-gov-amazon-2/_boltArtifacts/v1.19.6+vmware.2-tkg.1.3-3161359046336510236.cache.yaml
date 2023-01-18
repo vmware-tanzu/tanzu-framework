@@ -1,0 +1,22 @@
+name: ami-gov-amazon-2
+imageCaches:
+- version: v1.19.6+vmware.2-tkg.1.3-3161359046336510236
+  channel: "340089077292335369"
+  bomAMI:
+    ami:
+      us-gov-east-1:
+      - id: ami-0447a2599ffac35f8
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      us-gov-west-1:
+      - id: ami-06d0e0bd3563a0460
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+  hash: "17527701577093968006"
+  url: https://kscom.svc.eng.vmware.com/build-ami-gov-v1alpha2/14
+  buildNumber: "14"
+  buildStatus: SUCCEEDED

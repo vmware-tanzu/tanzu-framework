@@ -1,0 +1,22 @@
+componentBuilds:
+- name: ami-general-amazon-2
+  version: v1.24.6+vmware.1-tkg.1-8a07df87b72d220cb5d77d7be9d8aeb3
+  channel: "432632354729661563"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ami/3345
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ami-general-amazon-2/bom-ami-general-amazon-2-v1.24.6+vmware.1-tkg.1-8a07df87b72d220cb5d77d7be9d8aeb3.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ami-general-amazon-2/ami-general-amazon-2-v1.24.6+vmware.1-tkg.1-8a07df87b72d220cb5d77d7be9d8aeb3-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ami-general-amazon-2/ami-general-amazon-2-v1.24.6+vmware.1-tkg.1-8a07df87b72d220cb5d77d7be9d8aeb3-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ami-general-amazon-2/ami-general-amazon-2-v1.24.6+vmware.1-tkg.1-8a07df87b72d220cb5d77d7be9d8aeb3-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/ami-general-amazon-2/ami-general-amazon-2-v1.24.6+vmware.1-tkg.1-8a07df87b72d220cb5d77d7be9d8aeb3-provenance_result.txt
+  cachehash: ea0e16901928314cd7ba8ae6af923b33
+  publishhash: 2312d354f067558f19018a8d477243db
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 3a1d4e12b2a0ea8488826c19ae51ff1de411da3a

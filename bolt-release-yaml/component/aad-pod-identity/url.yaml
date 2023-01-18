@@ -1,0 +1,8 @@
+name: aad-pod-identity
+upstreamURL: https://github.com/Azure/aad-pod-identity.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_aad-pod-identity.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_aad-pod-identity.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_aad-pod-identity.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_aad-pod-identity.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_aad-pod-identity.git
+gobuildTarget: cayman_aad-pod-identity

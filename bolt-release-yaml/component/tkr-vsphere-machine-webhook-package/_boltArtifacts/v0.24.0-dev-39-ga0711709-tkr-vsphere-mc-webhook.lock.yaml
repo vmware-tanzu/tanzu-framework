@@ -1,0 +1,10 @@
+name: tkr-vsphere-machine-webhook-package
+goBuildComponentLocks:
+- version: v0.24.0-dev-39-ga0711709-tkr-vsphere-mc-webhook
+  gobuildBranch: 412801562574886906-v0.24.0-dev-39-ga0711709-tkr-vsphere-mc-webhook-tkr-vsphere-machine-webhook-package
+  gobuildHeadCommit: d9a3d2e69cb6c85d6cad6f9683e7b2e4a076f54b
+  hash: 08683f1b28af97b52c5b4431060f2873
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.24.0-dev-39-ga0711709
+    lockHash: ee779f1a9e9de04aa4b9e96c4aec5180

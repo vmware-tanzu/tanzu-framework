@@ -1,0 +1,9 @@
+name: cri_tools
+nonpublish:
+  - name: cri_tools
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cri_tools/executables/crictl-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cri_tools/executables/crictl-$VERSION.gz
+  - name: cri_tools-deb
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cri_tools/debs/cri-tools_$VERSION-1_amd64.deb

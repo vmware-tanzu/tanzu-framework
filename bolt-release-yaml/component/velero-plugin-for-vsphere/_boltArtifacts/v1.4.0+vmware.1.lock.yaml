@@ -1,0 +1,7 @@
+name: velero-plugin-for-vsphere
+goBuildComponentLocks:
+- version: v1.4.0+vmware.1
+  gobuildBranch: vmware-1.4.0
+  gobuildHeadCommit: d33b28d26933e8333f304ed9f2b201ff2aeba545
+  hash: 352ce7fb2ece563adeb886f090d80486
+  componentLockReferences: []

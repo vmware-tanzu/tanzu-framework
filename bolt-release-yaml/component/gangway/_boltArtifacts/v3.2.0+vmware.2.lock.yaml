@@ -1,0 +1,7 @@
+name: gangway
+goBuildComponentLocks:
+- version: v3.2.0+vmware.2
+  gobuildBranch: vmware-3.2.0+vmware.2
+  gobuildHeadCommit: f13c620c1cbf83b93bf081d401cae1abb3963110
+  hash: 05589bf02afcf478f8502d13a59dcd70
+  componentLockReferences: []

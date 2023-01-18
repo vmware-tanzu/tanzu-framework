@@ -1,0 +1,11 @@
+componentBuilds:
+- name: harbor-package
+  version: v2.2.3+vmware.1-tkg.2-harbor-tf-v0.10.0
+  channel: "379893103974182524"
+  url: https://buildweb.eng.vmware.com/ob/18870100/
+  artifactURL:
+    harbor.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/harbor:v2.2.3_vmware.1-tkg.2-tf-v0.10.0
+      sha256: 88daecd275d20fa185e8a33451e7c9336242041db4d6740e466b798dea9f6d30
+  cachehash: 08d3e4df41c78bcefa2bb5a2da81ad8e
+  publishhash: a5d762b015a1a159eaab004b8d93ec17

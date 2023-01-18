@@ -1,0 +1,16 @@
+componentBuilds:
+- name: prometheus_node_exporter
+  version: v1.3.1+vmware.1
+  channel: "416296974749278981"
+  url: https://buildweb.eng.vmware.com/ob/20098372/
+  artifactURL:
+    prometheus_node_exporter:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20098372/publish/lin64/prometheus_node_exporter/executables/prometheus_node_exporter-v1.3.1_vmware.1-binary-checksums.txt
+    prometheusNodeExporterImage:
+      url: projects-stg.registry.vmware.com/tkg/prometheus/prometheus_node_exporter:v1.3.1_vmware.1
+      sha256: c3737f26748c271e3a2363dab17e98dd7a784da8e1cbabc66dfe3c311a524e65
+  cachehash: 79a9708f2466dc21b4aafd0243ffdee6
+  publishhash: ed41a13c6c6fbd1a27ca81dfdb29c2f5
+  configDependencies:
+    gobuild.golangVersion: "1.14"
+    gobuild.linux_hosttype: linux-centos72-gc32

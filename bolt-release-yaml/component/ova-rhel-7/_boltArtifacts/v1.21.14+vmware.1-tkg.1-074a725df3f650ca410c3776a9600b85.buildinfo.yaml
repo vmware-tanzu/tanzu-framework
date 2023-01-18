@@ -1,0 +1,18 @@
+componentBuilds:
+- name: ova-rhel-7
+  version: v1.21.14+vmware.1-tkg.1-074a725df3f650ca410c3776a9600b85
+  channel: "416406122602168793"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/1880
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416406122602168793/component/ova-rhel-7/bom-ova-rhel-7-v1.21.14+vmware.1-tkg.1-074a725df3f650ca410c3776a9600b85.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416406122602168793/component/ova-rhel-7/ova-rhel-7-v1.21.14+vmware.1-tkg.1-074a725df3f650ca410c3776a9600b85-goss-spec.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/416406122602168793/component/ova-rhel-7/rhel-7-kube-v1.21.14+vmware.1-tkg.1-074a725df3f650ca410c3776a9600b85.ova
+  cachehash: 788aa61267f62ff27cd365508f59c773
+  publishhash: 1d3d970af66cb319abe60ffc2a0328e0
+  configDependencies:
+    base_iso_sha: 88b42e934c24af65e78e09f0993e4dded128d74ec0af30b89b3cdc02ec48f028
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/rhel-server-7.7-x86_64-dvd.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 9704dae0cb5703afc9f775a959d5fe88a1d6170c

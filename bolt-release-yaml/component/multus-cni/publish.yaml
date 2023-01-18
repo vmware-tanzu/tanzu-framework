@@ -1,0 +1,7 @@
+name: multus-cni
+publish:
+  - name: multusCniImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/multus-cni/images/multus-cni-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/multus-cni/images/multus-cni-$UNDERSCOREVERSION-images-checksums.txt
+    destinationPath: multus-cni:$UNDERSCOREVERSION

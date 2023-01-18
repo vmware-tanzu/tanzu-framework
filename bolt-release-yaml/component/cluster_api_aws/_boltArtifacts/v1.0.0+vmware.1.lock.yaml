@@ -1,0 +1,7 @@
+name: cluster_api_aws
+goBuildComponentLocks:
+- version: v1.0.0+vmware.1
+  gobuildBranch: 380205883038131689-v1.0.0+vmware.1
+  gobuildHeadCommit: c831c842661df47ad2361187462ae7ff525138ba
+  hash: f49a4bc67c5c931e065c63dee20c159e
+  componentLockReferences: []

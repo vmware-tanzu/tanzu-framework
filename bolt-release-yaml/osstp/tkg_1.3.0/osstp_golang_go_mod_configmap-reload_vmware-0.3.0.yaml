@@ -1,0 +1,89 @@
+other:configmap-reload:v0.3.0:
+  license: Apache-2.0
+  name: configmap-reload
+  other-distribution: /osl_sources/core-build-mirrors_github_configmap-reload-v0.3.0.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_configmap-reload
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_configmap-reload/-/archive/v0.3.0/mirrors_github_configmap-reload-v0.3.0.tar.gz
+  version: v0.3.0
+other:fsnotify_fsnotify:v1.4.7:
+  license: BSD-3-Clause
+  name: fsnotify_fsnotify
+  other-distribution: /osl_sources/fsnotify-fsnotify-v1.4.7.tar.gz
+  other-url: https://github.com/fsnotify/fsnotify
+  repository: Other
+  url: https://codeload.github.com/fsnotify/fsnotify/tar.gz/v1.4.7
+  version: v1.4.7
+other:prometheus_client_golang:v0.9.2:
+  license: Apache-2.0
+  name: prometheus_client_golang
+  other-distribution: /osl_sources/prometheus-client_golang-v0.9.2.tar.gz
+  other-url: https://github.com/prometheus/client_golang
+  repository: Other
+  url: https://codeload.github.com/prometheus/client_golang/tar.gz/v0.9.2
+  version: v0.9.2
+other:prometheus_procfs:b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1:
+  license: Apache-2.0
+  name: prometheus_procfs
+  other-distribution: /osl_sources/prometheus-procfs-b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1.tar.gz
+  other-url: https://github.com/prometheus/procfs
+  repository: Other
+  url: https://codeload.github.com/prometheus/procfs/tar.gz/b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1
+  version: b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1
+other:prometheus_client_model:f287a105a20ec685d797f65cd0ce8fbeaef42da1:
+  license: Apache-2.0
+  name: prometheus_client_model
+  other-distribution: /osl_sources/prometheus-client_model-f287a105a20ec685d797f65cd0ce8fbeaef42da1.tar.gz
+  other-url: https://github.com/prometheus/client_model
+  repository: Other
+  url: https://codeload.github.com/prometheus/client_model/tar.gz/f287a105a20ec685d797f65cd0ce8fbeaef42da1
+  version: f287a105a20ec685d797f65cd0ce8fbeaef42da1
+other:x_sys:9c60d1c508f5134d1ca726b4641db998f2523357:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/golang-sys-9c60d1c508f5134d1ca726b4641db998f2523357.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/9c60d1c508f5134d1ca726b4641db998f2523357
+  version: 9c60d1c508f5134d1ca726b4641db998f2523357
+other:golang_protobuf:v1.2.0:
+  license: BSD-3-Clause
+  name: golang_protobuf
+  other-distribution: /osl_sources/golang-protobuf-v1.2.0.tar.gz
+  other-url: https://github.com/golang/protobuf
+  repository: Other
+  url: https://codeload.github.com/golang/protobuf/tar.gz/v1.2.0
+  version: v1.2.0
+other:prometheus_common:2998b132700a7d019ff618c06a234b47c1f3f681:
+  license: Apache-2.0
+  name: prometheus_common
+  other-distribution: /osl_sources/prometheus-common-2998b132700a7d019ff618c06a234b47c1f3f681.tar.gz
+  other-url: https://github.com/prometheus/common
+  repository: Other
+  url: https://codeload.github.com/prometheus/common/tar.gz/2998b132700a7d019ff618c06a234b47c1f3f681
+  version: 2998b132700a7d019ff618c06a234b47c1f3f681
+other:matttproud_golang_protobuf_extensions:v1.0.1:
+  license: Apache-2.0
+  name: matttproud_golang_protobuf_extensions
+  other-distribution: /osl_sources/matttproud-golang_protobuf_extensions-v1.0.1.tar.gz
+  other-url: https://github.com/matttproud/golang_protobuf_extensions
+  repository: Other
+  url: https://codeload.github.com/matttproud/golang_protobuf_extensions/tar.gz/v1.0.1
+  version: v1.0.1
+other:beorn7_perks:3a771d992973f24aa725d07868b467d1ddfceafb:
+  license: MIT
+  name: beorn7_perks
+  other-distribution: /osl_sources/beorn7-perks-3a771d992973f24aa725d07868b467d1ddfceafb.tar.gz
+  other-url: https://github.com/beorn7/perks
+  repository: Other
+  url: https://codeload.github.com/beorn7/perks/tar.gz/3a771d992973f24aa725d07868b467d1ddfceafb
+  version: 3a771d992973f24aa725d07868b467d1ddfceafb
+other:prometheus_common_internal_bitbucket_org_ww_goautoneg:2998b132700a7d019ff618c06a234b47c1f3f681:
+  license: Unlicense
+  name: prometheus_common_internal_bitbucket_org_ww_goautoneg
+  other-distribution: /osl_sources/prometheus-common-2998b132700a7d019ff618c06a234b47c1f3f681.tar.gz
+  other-url: https://github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
+  repository: Other
+  url: https://codeload.github.com/prometheus/common/tar.gz/2998b132700a7d019ff618c06a234b47c1f3f681
+  version: 2998b132700a7d019ff618c06a234b47c1f3f681

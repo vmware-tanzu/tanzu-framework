@@ -1,0 +1,201 @@
+other:containernetworking_plugins:v1.1.1+vmware.2:
+  license: Apache-2.0
+  name: containernetworking_plugins
+  other-distribution: /osl_sources/core-build-mirrors_github_containernetworking_plugins.git-v1.1.1+vmware.2.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_containernetworking_plugins.git
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_containernetworking_plugins.git/-/archive/v1.1.1+vmware.2/mirrors_github_containernetworking_plugins.git-v1.1.1+vmware.2.tar.gz
+  version: v1.1.1+vmware.2
+other:microsoft_go-winio:v0.4.17:
+  license: MIT
+  name: microsoft_go-winio
+  other-distribution: /osl_sources/Microsoft-go-winio-v0.4.17.tar.gz
+  other-url: https://github.com/Microsoft/go-winio
+  repository: Other
+  url: https://codeload.github.com/Microsoft/go-winio/tar.gz/v0.4.17
+  version: v0.4.17
+other:go_opencensus_io:v0.22.3:
+  license: Apache-2.0
+  name: go_opencensus_io
+  other-distribution: /osl_sources/opencensus_go-v0.22.3.tar.gz
+  other-url: https://go.opencensus.io
+  repository: Other
+  url: https://codeload.github.com/census-instrumentation/opencensus-go/tar.gz/v0.22.3
+  version: v0.22.3
+other:pkg_errors:v0.9.1:
+  license: BSD-2-Clause
+  name: pkg_errors
+  other-distribution: /osl_sources/pkg-errors-v0.9.1.tar.gz
+  other-url: https://github.com/pkg/errors
+  repository: Other
+  url: https://codeload.github.com/pkg/errors/tar.gz/v0.9.1
+  version: v0.9.1
+other:gogo_protobuf_gogoproto:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_gogoproto
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/gogoproto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:x_sys:d867a43fc93e:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/golang-sys-d867a43fc93e.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/d867a43fc93e
+  version: d867a43fc93e
+other:vishvananda_netlink:f5de75959ad5:
+  license: Apache-2.0
+  name: vishvananda_netlink
+  other-distribution: /osl_sources/vishvananda-netlink-f5de75959ad5.tar.gz
+  other-url: https://github.com/vishvananda/netlink
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netlink/tar.gz/f5de75959ad5
+  version: f5de75959ad5
+other:networkplumbing_go-nft:v0.2.0:
+  license: Apache-2.0
+  name: networkplumbing_go-nft
+  other-distribution: /osl_sources/networkplumbing-go-nft-v0.2.0.tar.gz
+  other-url: https://github.com/networkplumbing/go-nft
+  repository: Other
+  url: https://codeload.github.com/networkplumbing/go-nft/tar.gz/v0.2.0
+  version: v0.2.0
+other:golang_groupcache:8c9f03a8e57e:
+  license: Apache-2.0
+  name: golang_groupcache
+  other-distribution: /osl_sources/golang-groupcache-8c9f03a8e57e.tar.gz
+  other-url: https://github.com/golang/groupcache
+  repository: Other
+  url: https://codeload.github.com/golang/groupcache/tar.gz/8c9f03a8e57e
+  version: 8c9f03a8e57e
+other:gogo_protobuf_proto:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_proto
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/proto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:gogo_protobuf_protoc-gen-gogo_descriptor:v1.3.2:
+  license: UNKNOWN
+  name: gogo_protobuf_protoc-gen-gogo_descriptor
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.2.tar.gz
+  other-url: https://github.com/gogo/protobuf/protoc-gen-gogo/descriptor
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.2
+  version: v1.3.2
+other:coreos_go-iptables:v0.6.0:
+  license: Apache-2.0
+  name: coreos_go-iptables
+  other-distribution: /osl_sources/coreos-go-iptables-v0.6.0.tar.gz
+  other-url: https://github.com/coreos/go-iptables
+  repository: Other
+  url: https://codeload.github.com/coreos/go-iptables/tar.gz/v0.6.0
+  version: v0.6.0
+other:containernetworking_cni:v1.0.1:
+  license: Apache-2.0
+  name: containernetworking_cni
+  other-distribution: /osl_sources/containernetworking-cni-v1.0.1.tar.gz
+  other-url: https://github.com/containernetworking/cni
+  repository: Other
+  url: https://codeload.github.com/containernetworking/cni/tar.gz/v1.0.1
+  version: v1.0.1
+other:d2g_dhcp4client:v1.0.0:
+  license: MPL-2.0
+  name: d2g_dhcp4client
+  other-distribution: /osl_sources/d2g-dhcp4client-v1.0.0.tar.gz
+  other-url: https://github.com/d2g/dhcp4client
+  repository: Other
+  url: https://codeload.github.com/d2g/dhcp4client/tar.gz/v1.0.0
+  version: v1.0.0
+other:buger_jsonparser:v1.1.1:
+  license: MIT
+  name: buger_jsonparser
+  other-distribution: /osl_sources/buger-jsonparser-v1.1.1.tar.gz
+  other-url: https://github.com/buger/jsonparser
+  repository: Other
+  url: https://codeload.github.com/buger/jsonparser/tar.gz/v1.1.1
+  version: v1.1.1
+other:safchain_ethtool:9aa261dae9b1:
+  license: Apache-2.0
+  name: safchain_ethtool
+  other-distribution: /osl_sources/safchain-ethtool-9aa261dae9b1.tar.gz
+  other-url: https://github.com/safchain/ethtool
+  repository: Other
+  url: https://codeload.github.com/safchain/ethtool/tar.gz/9aa261dae9b1
+  version: 9aa261dae9b1
+other:vishvananda_netns:2eb08e3e575f:
+  license: Apache-2.0
+  name: vishvananda_netns
+  other-distribution: /osl_sources/vishvananda-netns-2eb08e3e575f.tar.gz
+  other-url: https://github.com/vishvananda/netns
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netns/tar.gz/2eb08e3e575f
+  version: 2eb08e3e575f
+other:microsoft_hcsshim:v0.8.20:
+  license: MIT
+  name: microsoft_hcsshim
+  other-distribution: /osl_sources/Microsoft-hcsshim-v0.8.20.tar.gz
+  other-url: https://github.com/Microsoft/hcsshim
+  repository: Other
+  url: https://codeload.github.com/Microsoft/hcsshim/tar.gz/v0.8.20
+  version: v0.8.20
+other:containerd_cgroups:v1.0.1:
+  license: Apache-2.0
+  name: containerd_cgroups
+  other-distribution: /osl_sources/containerd-cgroups-v1.0.1.tar.gz
+  other-url: https://github.com/containerd/cgroups
+  repository: Other
+  url: https://codeload.github.com/containerd/cgroups/tar.gz/v1.0.1
+  version: v1.0.1
+other:alexflint_go-filemutex:v1.1.0:
+  license: MIT
+  name: alexflint_go-filemutex
+  other-distribution: /osl_sources/alexflint-go-filemutex-v1.1.0.tar.gz
+  other-url: https://github.com/alexflint/go-filemutex
+  repository: Other
+  url: https://codeload.github.com/alexflint/go-filemutex/tar.gz/v1.1.0
+  version: v1.1.0
+other:mattn_go-shellwords:v1.0.12:
+  license: MIT
+  name: mattn_go-shellwords
+  other-distribution: /osl_sources/mattn-go-shellwords-v1.0.12.tar.gz
+  other-url: https://github.com/mattn/go-shellwords
+  repository: Other
+  url: https://codeload.github.com/mattn/go-shellwords/tar.gz/v1.0.12
+  version: v1.0.12
+other:coreos_go-systemd_v22:v22.3.2:
+  license: Apache-2.0
+  name: coreos_go-systemd_v22
+  other-distribution: /osl_sources/coreos-go-systemd-v22.3.2.tar.gz
+  other-url: https://github.com/coreos/go-systemd/v22
+  repository: Other
+  url: https://codeload.github.com/coreos/go-systemd/tar.gz/v22.3.2
+  version: v22.3.2
+other:godbus_dbus_v5:v5.0.4:
+  license: BSD-2-Clause
+  name: godbus_dbus_v5
+  other-distribution: /osl_sources/godbus-dbus-v5.0.4.tar.gz
+  other-url: https://github.com/godbus/dbus/v5
+  repository: Other
+  url: https://codeload.github.com/godbus/dbus/tar.gz/v5.0.4
+  version: v5.0.4
+other:sirupsen_logrus:v1.8.1:
+  license: MIT
+  name: sirupsen_logrus
+  other-distribution: /osl_sources/sirupsen-logrus-v1.8.1.tar.gz
+  other-url: https://github.com/sirupsen/logrus
+  repository: Other
+  url: https://codeload.github.com/sirupsen/logrus/tar.gz/v1.8.1
+  version: v1.8.1
+other:d2g_dhcp4:a1d1b6c41b1c:
+  license: BSD-3-Clause
+  name: d2g_dhcp4
+  other-distribution: /osl_sources/d2g-dhcp4-a1d1b6c41b1c.tar.gz
+  other-url: https://github.com/d2g/dhcp4
+  repository: Other
+  url: https://codeload.github.com/d2g/dhcp4/tar.gz/a1d1b6c41b1c
+  version: a1d1b6c41b1c

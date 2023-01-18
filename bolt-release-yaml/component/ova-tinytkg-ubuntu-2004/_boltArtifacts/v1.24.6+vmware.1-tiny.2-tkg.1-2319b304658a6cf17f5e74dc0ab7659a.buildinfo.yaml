@@ -1,0 +1,27 @@
+componentBuilds:
+- name: ova-tinytkg-ubuntu-2004
+  version: v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a
+  channel: "435826519139424108"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2969
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-ubuntu-2004/bom-ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-ubuntu-2004/ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-ubuntu-2004/ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-ubuntu-2004/ubuntu-2004-kube-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-ubuntu-2004/ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-ubuntu-2004/ova-tinytkg-ubuntu-2004-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a-provenance_result.txt
+  cachehash: 21ea1f772431d4a1b51878b07a62f501
+  publishhash: 14dab56acd6ef2606740fcdd68a17cc9
+  configDependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: baf534da10fea37e31c60543b5aecf10cc7f75d1
+    jenkins.TINY_TKG: "true"
+    jenkins.UBUNTU_2004_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-stig-hardening.git
+    jenkins.UBUNTU_2004_STIG_VERSION: 04d8e41453a83bb62e1eb145ca7537ac54652b29

@@ -1,0 +1,10 @@
+name: calico-package
+goBuildComponentLocks:
+- version: v3.19.1+vmware.1-tkg.5-calico-tf-v0.17.0
+  gobuildBranch: 395110461068036753-v3.19.1+vmware.1-tkg.5-calico-tf-v0.17.0
+  gobuildHeadCommit: 89d115a3720488d4e725ed65a3fa1021b5ac56ae
+  hash: c6ba2fdaf5f711d6107320b20960dbe4
+  componentLockReferences:
+  - name: calico_all
+    version: v3.19.1+vmware.1
+    lockHash: 60866f3032a9b4fec5640c691d19d24d

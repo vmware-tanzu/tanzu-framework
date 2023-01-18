@@ -1,0 +1,28 @@
+componentBuilds:
+- name: ako-operator
+  version: v1.5.0+vmware.1
+  channel: "380943437907677008"
+  url: https://buildweb.eng.vmware.com/ob/18904404/
+  artifactURL:
+    ako-operator-manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18904404/publish/lin64/ako-operator/manifests/ako-operator-manifests-v1.5.0+vmware.1.tar.gz
+    akoOperatorImage:
+      url: projects-stg.registry.vmware.com/tkg/ako-operator:v1.5.0_vmware.1
+      sha256: 9931ec390389f2f2209fcb75d13cd3267c769264b5853d60cc4f1c0bb8ebeb97
+  cachehash: 0150769ea6a1cf1e4ef7c6bc4b8b4451
+  publishhash: 55118b52ea31a46857b9e642b571299b
+- name: kube_rbac_proxy
+  version: v0.4.1+vmware.2
+  channel: "345424111821932808"
+  url: https://buildweb.eng.vmware.com/ob/15096129
+  artifactURL:
+    kube_rbac_proxy-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-15096129/publish/lin64/kube_rbac_proxy/executables/kube-rbac-proxy-v0.4.1+vmware.2.gz
+    kubeRbacProxyControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kube-rbac-proxy:v0.4.1_vmware.2
+      sha256: 12cb40775a539867ff9cf0707c788557e906cdd9085a6f93acacfb604d9b15ab
+    kubeRbacProxyControllerImageCapi:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/kube-rbac-proxy:v0.4.1_vmware.2
+      sha256: 12cb40775a539867ff9cf0707c788557e906cdd9085a6f93acacfb604d9b15ab
+  cachehash: 681703a63b1a5ae1821935f531b02f2e
+  publishhash: e30ce3d7f61de29a48394a7e9925ec51

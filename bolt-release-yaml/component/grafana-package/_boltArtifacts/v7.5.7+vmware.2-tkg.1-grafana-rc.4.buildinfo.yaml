@@ -1,0 +1,11 @@
+componentBuilds:
+- name: grafana-package
+  version: v7.5.7+vmware.2-tkg.1-grafana-rc.4
+  channel: "386277231476894659"
+  url: https://buildweb.eng.vmware.com/ob/19082149/
+  artifactURL:
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.7_vmware.2-tkg.1-rc.4
+      sha256: 9b71275854587049599798dc74be2434c6660ed8350a2a67e2d2a5258774902f
+  cachehash: ff52b44bf6721e380317a9598f00925f
+  publishhash: 93d993a45ebfd2da411903df093c9a7f

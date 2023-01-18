@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'this release yaml is only to generate the tkg/tkr boms before we tag the upstream tanuz-core repo'
+componentReferences:
+- name: tkg-bom
+  version:
+  - v1.3.0-rc.3

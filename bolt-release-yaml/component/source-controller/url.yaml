@@ -1,0 +1,5 @@
+name: source-controller
+upstreamURL: https://github.com/fluxcd/source-controller.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_source-controller.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_source-controller.git
+gobuildTarget: cayman_source-controller

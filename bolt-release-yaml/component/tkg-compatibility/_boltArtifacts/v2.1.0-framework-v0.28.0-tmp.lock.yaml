@@ -1,0 +1,8 @@
+name: tkg-compatibility
+bomLocks:
+- version: v2.1.0-framework-v0.28.0-tmp
+  hash: 072e0dc3f86749833486948f10807a4d
+  componentLockReferences:
+  - name: tkg-bom
+    version: v2.1.0-zshippable
+    lockHash: 788e9c01dde31d9bbfef6279ddbbbc83

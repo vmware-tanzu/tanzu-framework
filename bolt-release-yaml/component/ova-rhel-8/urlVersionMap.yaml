@@ -1,0 +1,9 @@
+versionMap:
+  v1.21.14+vmware.2-fips.1-tkg.5-661a7a84930e5368c38aa867f998cd66: url.yaml
+  v1.21.14+vmware.2-tkg.1-661a7a84930e5368c38aa867f998cd66: url.yaml
+  v1.22.13+vmware.1-fips.1-tkg.1-338d7a84930e5368c38aa867f998ea44: url.yaml
+  v1.22.13+vmware.1-tkg.1-338d7a84930e5368c38aa867f998ea44: url.yaml
+  v1.22.17+vmware.1-tkg.1-e08e80f12aa4733f78830524ce972344: url.yaml
+  v1.23.10+vmware.1-tkg.1-116b7a84930e5368c38aa867f998ce22: url.yaml
+  v1.23.15+vmware.1-tkg.1-3c2ecd6a71204eaadf8cabf9e5c13599: url.yaml
+  v1.24.9+vmware.1-tkg.1-226b7a84930e5368c38aa867f998ce33: url.yaml

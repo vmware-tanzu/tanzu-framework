@@ -1,0 +1,19 @@
+componentBuilds:
+- name: oci-ubuntu-2004
+  version: v1.22.17+vmware.1-tkg.1-73fbe44d3c7791623c90e81255c5eafd
+  channel: "441623013696211078"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-oci/273
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441623013696211078/component/oci-ubuntu-2004/bom-oci-ubuntu-2004-v1.22.17+vmware.1-tkg.1-73fbe44d3c7791623c90e81255c5eafd.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441623013696211078/component/oci-ubuntu-2004/oci-ubuntu-2004-v1.22.17+vmware.1-tkg.1-73fbe44d3c7791623c90e81255c5eafd-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441623013696211078/component/oci-ubuntu-2004/oci-ubuntu-2004-v1.22.17+vmware.1-tkg.1-73fbe44d3c7791623c90e81255c5eafd-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/441623013696211078/component/oci-ubuntu-2004/oci-ubuntu-2004-v1.22.17+vmware.1-tkg.1-73fbe44d3c7791623c90e81255c5eafd-provenance_result.txt
+  cachehash: 2578634b3a7d8f0e0909489f501d5905
+  publishhash: abdef85371f48fba325beb69488b4ddd
+  configDependencies:
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: d5ece219186e3d449f124c90fdff427644fdaed6
+    jenkins.OCI_BUILD_TYPE: dev

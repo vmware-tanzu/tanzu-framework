@@ -1,0 +1,13 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off effort to build the tkrs to remove sig images"
+componentReferences:
+- name: tkr-bom
+  version:
+  - v1.21.14+vmware.2-tkg.5
+- name: tkr-bom
+  version:
+  - v1.22.13+vmware.1-tkg.1
+- name: tkr-bom
+  version:
+  - v1.23.10+vmware.1-tkg.1

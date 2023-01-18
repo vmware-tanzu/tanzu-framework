@@ -1,0 +1,22 @@
+name: kapp-controller-package
+packages:
+- version: v0.28.0+vmware.1-tkg.1-kapp-controller-20211114
+  upstreamCommit: c1b0b0be931a8c80e1f45b8c89d89c070a612811
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~081d6f0178a380ca61c277aca6a680b9abe88d37
+  componentReferences:
+  - name: kapp-controller
+    version:
+    - v0.28.0+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kapp-controller").artifactURL.kappControllerImage.url}}'
+    gobuild.downstream_version: vmware.1-tkg.1-20211114
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: kapp-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: index.docker.io/k14s/kapp-controller@sha256:083f0f526c4f9b5cb6e6506ad0a9c54a9b73209ab06906a6b6ae5872351048a0
+    gobuild.upstream_version: 0.28.0

@@ -1,0 +1,46 @@
+componentBuilds:
+- name: kapp-controller
+  version: v0.41.5+vmware.1
+  channel: "438519597080024094"
+  url: https://buildweb.eng.vmware.com/ob/20944491
+  artifactURL:
+    kapp-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20944491/publish/lin64/kapp-controller/executables/kapp-controller-linux-amd64-v0.41.5+vmware.1.gz
+    kappControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.41.5_vmware.1
+      sha256: f98272c6e5bc7339fbe193c1d968c839718899517e90c900d22a64d9384f9a30
+  cachehash: d4200b165fcd4b9b920c0bf6dacfd944
+  publishhash: 702fabdb2102e99ec9e6f600badee4cf
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8-fw
+- name: kapp-controller
+  version: v0.38.8+vmware.1
+  channel: "438519597080024094"
+  url: https://buildweb.eng.vmware.com/ob/20944565
+  artifactURL:
+    kapp-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20944565/publish/lin64/kapp-controller/executables/kapp-controller-linux-amd64-v0.38.8+vmware.1.gz
+    kappControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.38.8_vmware.1
+      sha256: 50b39e0cf8853980e31781d1153d975f5094e2639aa7beb9457d6d5c26163740
+  cachehash: a8b9dcceedd9cf20b4839fafce2ccdfc
+  publishhash: 702fabdb2102e99ec9e6f600badee4cf
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8-fw
+- name: kapp-controller
+  version: v0.30.5+vmware.1
+  channel: "438519597080024094"
+  url: https://buildweb.eng.vmware.com/ob/20944486
+  artifactURL:
+    kapp-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20944486/publish/lin64/kapp-controller/executables/kapp-controller-linux-amd64-v0.30.5+vmware.1.gz
+    kappControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.30.5_vmware.1
+      sha256: ab0902aa95b349773a912eada3e91a70acd89aec8edd1a07a73bfe95de6adb5a
+  cachehash: 6c703b4e61ec4798a64699f82faf4f47
+  publishhash: 702fabdb2102e99ec9e6f600badee4cf
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 4b45701860b63478f9d6abc4d3daf2db6cfd8827
+testInfraVersion: 143393495891ecea551596cc5050105dc7cc1372

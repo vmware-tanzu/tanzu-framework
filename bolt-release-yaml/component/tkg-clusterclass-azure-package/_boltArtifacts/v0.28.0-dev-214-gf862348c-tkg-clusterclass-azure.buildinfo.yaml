@@ -1,0 +1,20 @@
+componentBuilds:
+- name: tkg-clusterclass-azure-package
+  version: v0.28.0-dev-214-gf862348c-tkg-clusterclass-azure
+  channel: "437023538386343153"
+  url: https://buildweb.eng.vmware.com/ob/20891644/
+  artifactURL:
+    tkg-clusterclass-azure.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/tkg-clusterclass-azure:v0.28.0-dev-214-gf862348c_vmware.1
+      sha256: 653bba3f0bd97a2b4b20a0494294ca8d9393a1aafde5a76c61f6df384260cfa1
+  cachehash: db393ba88e1b6e9d28bc06b1c8e37a01
+  publishhash: a7cce08123625f09cb393c70a7f15336
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkg-clusterclass-azure
+    gobuild.upstream_version: v0.28.0-dev-214-gf862348c

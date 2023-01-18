@@ -1,0 +1,46 @@
+name: kubernetes
+managedComponents:
+- version: v1.26.0+vmware.1-fips.1
+  upstreamTag: v1.26.0
+  mirrorCherryPicks:
+  - sha: 024275a23fa6b677b921d9659e02c1394db1846d
+    description: fixes to 'docker save' to work in cayman env
+  - sha: 55a28a57b281f8aca6da5c287fe85bd5422eff8a
+    description: kube-cross image + tag can be set for build-image
+  - sha: b07223be22f6875357f46ee935a0d319e934c20e
+    description: ENV vars can override pause's kube-cross version
+  - sha: 26ec3a4f447ef926f286e8046867948133f98692
+    description: Enable runnable non-static image builds
+  gobuildBaseBranch: vmware-1.26.0+vmware.0~cf3b96bacdbb325c814cabbfc3da3a11c7206d33
+  dependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.KUBE_BASE_IMAGE_REGISTRY: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.cgoEnabled: "1"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.debian_base_image: debian-base-amd64:bullseye-v1.3.0
+    gobuild.debian_iptable_image: distroless-iptables-amd64:v0.1.2
+    gobuild.golangVersion: 1.19.4
+    gobuild.kubeCgoOverrides: kube-apiserver kube-controller-manager kube-scheduler
+      kube-proxy kubeadm
+    gobuild.kubeCrossImageRef: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes_release") "artifactURL"
+      "kube-cross" "url"}}'
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: "3.9"
+    kubeadmAPIVersion: kubeadm.k8s.io/v1beta2
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.17-fips.1
+  - name: coredns
+    version:
+    - v1.9.3+vmware.5-fips.1
+  - name: cri_tools
+    version:
+    - v1.25.0+vmware.1-fips.1
+  - name: etcd
+    version:
+    - v3.5.6+vmware.4-fips.1
+  - name: kubernetes_release
+    version:
+    - v0.14.0+vmware.5-fips.1

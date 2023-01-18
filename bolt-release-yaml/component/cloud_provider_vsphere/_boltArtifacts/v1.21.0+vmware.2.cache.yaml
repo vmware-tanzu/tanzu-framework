@@ -1,0 +1,7 @@
+name: cloud_provider_vsphere
+goBuildComponentCaches:
+- version: v1.21.0+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/19460407/
+  buildNumber: bora-19460407
+  buildStatus: SUCCEEDED
+  hash: 215907b6a1942555faa29f8811887bee

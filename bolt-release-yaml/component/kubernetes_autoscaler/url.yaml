@@ -1,0 +1,8 @@
+name: kubernetes_autoscaler
+upstreamURL: https://github.com/kubernetes/autoscaler.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kubernetes_autoscaler.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_kubernetes_autoscaler.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes_autoscaler.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_kubernetes_autoscaler.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes_autoscaler.git
+gobuildTarget: cayman_kubernetes_autoscaler

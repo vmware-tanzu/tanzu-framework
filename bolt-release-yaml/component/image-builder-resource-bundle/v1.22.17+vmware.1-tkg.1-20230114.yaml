@@ -1,0 +1,28 @@
+name: image-builder-resource-bundle
+managedComponents:
+- version: v1.22.17+vmware.1-tkg.1-20230114
+  upstreamCommit: 1f8e98ea124dd23a0cf08aed671fc64607f389d1
+  gobuildBaseBranch: burrito-0.1.4~3bf221319cd15ab744ae0ceb06c6f7c928fe2fda
+  componentReferences:
+  - name: antrea
+    version:
+    - v1.7.2+vmware.1-advanced
+  - name: containerd
+    version:
+    - v1.5.13+vmware.1
+  - name: kubernetes
+    version:
+    - v1.22.17+vmware.1
+  - name: coredns
+    version:
+    - v1.8.4+vmware.10
+  - name: etcd
+    version:
+    - v3.5.6+vmware.1
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2
+  dependencies:
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos8

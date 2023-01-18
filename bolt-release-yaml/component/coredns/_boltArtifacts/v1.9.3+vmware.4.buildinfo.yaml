@@ -1,0 +1,19 @@
+componentBuilds:
+- name: coredns
+  version: v1.9.3+vmware.4
+  channel: "436805580892440097"
+  url: https://buildweb.eng.vmware.com/ob/20882660/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.9.3_vmware.4
+      sha256: 6bf6061416f2075efe27060213b815fcf262fc5ef352303f4ee4c42c424f260a
+  cachehash: d9e333ec65bb6681666c39c46feba248
+  publishhash: 5b23bb15efee643a4e09b711428a8a57
+  configDependencies:
+    gobuild.base_image: debian-base-amd64:bullseye-v1.3.0
+    gobuild.cgoEnabled: "0"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.19.3
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,15 @@
+componentBuilds:
+- name: cluster-api-ipam-provider-in-cluster
+  version: v0.1.0+vmware.1
+  channel: "436797182100673548"
+  url: https://buildweb.eng.vmware.com/ob/20882259/
+  artifactURL:
+    capiIPAMProviderInClusterControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-ipam-provider-in-cluster:v0.1.0_vmware.1
+      sha256: 8b2c69f12d78a98d1bacddf5d7911cf0b9b067b8367f704bf839149d1f5d69d5
+  cachehash: 24c9d30983b957fefeaf2cd5043caa59
+  publishhash: 2fc22a25415a0d158b38bbb19a6fe734
+  configDependencies:
+    gobuild.golangVersion: "1.18"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8

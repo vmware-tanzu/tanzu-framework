@@ -1,0 +1,11 @@
+name: cluster_api_aws
+managedComponents:
+- version: v2.0.1+vmware.1
+  upstreamTag: v2.0.1
+  mirrorCherryPicks: []
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~d63cd52f489d61be28530f9cfb6beb6429d1d383
+  dependencies:
+    gobuild.golangVersion: 1.18.3
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18.3
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.linux_hosttype: linux-centos8

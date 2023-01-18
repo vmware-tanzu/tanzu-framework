@@ -1,0 +1,16 @@
+componentBuilds:
+- name: cri_tools
+  version: v1.21.0+vmware.3
+  channel: "372958366294657525"
+  url: https://buildweb.eng.vmware.com/ob/18640565/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18640565/publish/lin64/cri_tools/executables/crictl-v1.21.0+vmware.3.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18640565/publish/lin64/cri_tools/debs/cri-tools_1.21.0+vmware.3-1_amd64.deb
+    cri_tools-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18640565/publish/lin64/cri_tools/rpms/rpms/cri-tools-1.21.0-1.el7.vmware.3.x86_64.rpm
+    cri_tools-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18640565/publish/lin64/cri_tools/rpms/srpms/cri-tools-1.21.0-1.el7.vmware.3.src.rpm
+  cachehash: a5776f64d06f113b4e5370f7678a0626
+  publishhash: 19dda37dbdb589ac6c1c2652c431f21f

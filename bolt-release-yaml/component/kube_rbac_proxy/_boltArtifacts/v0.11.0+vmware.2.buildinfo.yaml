@@ -1,0 +1,20 @@
+componentBuilds:
+- name: kube_rbac_proxy
+  version: v0.11.0+vmware.2
+  channel: "406423273274872596"
+  url: https://buildweb.eng.vmware.com/ob/19754410/
+  artifactURL:
+    kube_rbac_proxy-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19754410/publish/lin64/kube_rbac_proxy/executables/kube-rbac-proxy-v0.11.0+vmware.2.gz
+    kubeRbacProxyControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kube-rbac-proxy:v0.11.0_vmware.2
+      sha256: 540b13bd6c0131213151aa1bb2b5a3de26dcb3dd0bdcd46e652faf6087c17a3a
+    kubeRbacProxyControllerImageCapi:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/kube-rbac-proxy:v0.11.0_vmware.2
+      sha256: 540b13bd6c0131213151aa1bb2b5a3de26dcb3dd0bdcd46e652faf6087c17a3a
+  cachehash: 972dcac96c801475d63f24343cbac87e
+  publishhash: e30ce3d7f61de29a48394a7e9925ec51
+  configDependencies:
+    gobuild.golangImage: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.9
+    gobuild.linux_hosttype: linux-centos72-gc32
+    golang.containerNamePrefix: vmware.io

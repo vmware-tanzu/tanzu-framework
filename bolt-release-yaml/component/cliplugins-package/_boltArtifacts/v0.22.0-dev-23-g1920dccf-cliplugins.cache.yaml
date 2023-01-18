@@ -1,0 +1,7 @@
+name: cliplugins-package
+goBuildComponentCaches:
+- version: v0.22.0-dev-23-g1920dccf-cliplugins
+  url: https://buildweb.eng.vmware.com/ob/19785961/
+  buildNumber: bora-19785961
+  buildStatus: SUCCEEDED
+  hash: dc52d83cabf8bde8fea21696ae1b3f0b

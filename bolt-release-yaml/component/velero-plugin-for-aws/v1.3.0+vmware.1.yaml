@@ -1,0 +1,6 @@
+name: velero-plugin-for-aws
+unmanagedComponents:
+  - version: v1.3.0+vmware.1
+    gobuildBranch: vmware-1.3.0~3fe4e53daf90cea1022364662e7bdd5c9497a7d2
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: build tkr-bom v1.24.6+vmware.1-tiny.2-tkg.1-zshippable
+componentReferences:
+- name: tkr-bom
+  version:
+  - v1.24.6+vmware.1-tiny.2-tkg.1-zshippable

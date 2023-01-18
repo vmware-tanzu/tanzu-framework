@@ -1,0 +1,15 @@
+name: tkr-compatibility
+boms:
+- version: v8-v1.4.1-rc.3
+  type: compatibility
+  compatibilityMetadata:
+    version: v8
+    managementClusterVersions:
+    - version: v1.4.1-rc.3
+      supportedKubernetesVersions:
+      - v1.21.2+vmware.1-tkg.2-rc.3
+      - v1.20.8+vmware.1-tkg.3-rc.3
+      - v1.19.12+vmware.1-tkg.2-rc.3
+  dependencies:
+    rtmVersions:
+    - v1.4.1

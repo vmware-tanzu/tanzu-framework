@@ -1,0 +1,11 @@
+componentBuilds:
+- name: addons-manager-package
+  version: v1.5.0+vmware.1-tkg.1-addons-manager-rc.8
+  channel: "392357564416821484"
+  url: https://buildweb.eng.vmware.com/ob/19279826/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/addons-manager:v1.5.0_vmware.1-tkg.1-rc.8
+      sha256: 3157775455b54cc6730419e2b4f25473c777b0b7264dc880497b405895ba7a84
+  cachehash: e3da709a2b77fe063442bc98285e72a0
+  publishhash: 58a059db5fc330daefe5cd936034d00c

@@ -1,0 +1,13 @@
+componentBuilds:
+- name: tkg-bom
+  version: v1.6.0-tf-v0.16.0
+  channel: "392718560142592236"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/392718560142592236/component/tkg-bom/_boltArtifacts/tkg-bom-v1.6.0-tf-v0.16.0.yaml
+  artifactURL:
+    tkgBomImage:
+      url: projects-stg.registry.vmware.com/tkg/tkg-bom:v1.6.0-tf-v0.16.0
+      sha256: ce3b46f8f34f95b088f2d3ac1f47781c69e601313ddedac4f43fa82e34f1ff89
+    tkgBomYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/392718560142592236/component/tkg-bom/_boltArtifacts/tkg-bom-v1.6.0-tf-v0.16.0.yaml
+  cachehash: cee30da8641a9f7e4ca1bc3105fe5356
+  publishhash: cf1a513802b84bc3dbf2413af53348c5

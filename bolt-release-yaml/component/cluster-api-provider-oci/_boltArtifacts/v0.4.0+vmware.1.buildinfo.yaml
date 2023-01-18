@@ -1,0 +1,15 @@
+componentBuilds:
+- name: cluster-api-provider-oci
+  version: v0.4.0+vmware.1
+  channel: "418752428456836237"
+  url: https://buildweb.eng.vmware.com/ob/20201447/
+  artifactURL:
+    capociControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-oci-controller:v0.4.0_vmware.1
+      sha256: c6cfc3686a0f6f62a77935701b89a909197890dfe346e7dc8b604273b35b7749
+  cachehash: 6ca18a688bfe6cd97a3055a152033f15
+  publishhash: 059713c853d1ac9b85437ac0d9abc42b
+  configDependencies:
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.golangVersion: "1.17"
+    gobuild.linux_hosttype: linux-centos72-gc32

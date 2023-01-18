@@ -1,0 +1,7 @@
+name: kubernetes_release
+publish:
+  - name: kube-cross
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes_release/kube-cross-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes_release/kubernetes_release-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kube-cross:$UNDERSCOREVERSION

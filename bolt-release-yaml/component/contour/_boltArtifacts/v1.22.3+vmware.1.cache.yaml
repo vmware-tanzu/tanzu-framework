@@ -1,0 +1,7 @@
+name: contour
+goBuildComponentCaches:
+- version: v1.22.3+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20950671
+  buildNumber: bora-20950671
+  buildStatus: SUCCEEDED
+  hash: ebb63595e26f787b0512cffb3e2e9ec3

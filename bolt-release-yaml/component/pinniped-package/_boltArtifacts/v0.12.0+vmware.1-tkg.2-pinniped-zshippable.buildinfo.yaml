@@ -1,0 +1,11 @@
+componentBuilds:
+- name: pinniped-package
+  version: v0.12.0+vmware.1-tkg.2-pinniped-zshippable
+  channel: "391354665058461462"
+  url: https://buildweb.eng.vmware.com/ob/19244866/
+  artifactURL:
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.12.0_vmware.1-tkg.2-zshippable
+      sha256: a79343ae615fef337c949e4c0821ca6558b6c075912dcbd382b79aa7d254c16c
+  cachehash: ed9aedd8bafe8dba95c6e0155e820bf8
+  publishhash: deeac3b3022bf44de880663cd7ec52c5

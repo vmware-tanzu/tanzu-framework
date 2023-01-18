@@ -1,0 +1,7 @@
+name: prometheus
+goBuildComponentCaches:
+- version: v2.18.1+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/16863517
+  buildNumber: bora-16863517
+  buildStatus: SUCCEEDED
+  hash: 26a868fb2f36c4196044f5bddbb0945b

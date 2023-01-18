@@ -1,0 +1,23 @@
+name: ami-general-ubuntu-2004
+imageLocks:
+- version: v1.20.14+vmware.1-tkg.3-fips.1-c47223e9e609bb181ca47e6065449270
+  hash: 4c105460c15a0c6db6369f5f9e315272
+  componentLockReferences:
+  - name: cni_plugins
+    version: v0.8.7+vmware.18-fips.1
+    lockHash: 93e4fca4670d6c42665988f991894c0c
+  - name: coredns
+    version: v1.7.0+vmware.15-fips.1
+    lockHash: 8ecf32901af03a7b4dd5c5ec9b8b8770
+  - name: cri_tools
+    version: v1.19.0+vmware.8-fips.1
+    lockHash: 2939f6d8178487e7740e01726b5a25d5
+  - name: etcd
+    version: v3.4.13+vmware.23-fips.1
+    lockHash: 48e04f6841744ceb68625332bac79889
+  - name: containerd
+    version: v1.5.9+vmware.1-fips.1
+    lockHash: 39f3bc3eb0c930184e00030237a4f957
+  - name: kubernetes
+    version: v1.20.14+vmware.1-fips.1
+    lockHash: c10e8eaf662c6622661ec7c3d774dc12

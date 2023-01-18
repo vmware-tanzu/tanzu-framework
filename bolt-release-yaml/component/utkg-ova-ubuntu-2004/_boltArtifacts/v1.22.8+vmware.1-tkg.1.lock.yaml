@@ -1,0 +1,35 @@
+name: utkg-ova-ubuntu-2004
+imageLocks:
+- version: v1.22.8+vmware.1-tkg.1
+  hash: bc2c716f8a408e0223f2f84cd7ef9627
+  componentLockReferences:
+  - name: kubernetes
+    version: v1.22.8+vmware.1
+    lockHash: 18e31e904b9183559995fcec22697207
+  - name: coredns
+    version: v1.8.4+vmware.9
+    lockHash: 708b6d962f1611b55f4b2ef728b5ef93
+  - name: etcd
+    version: v3.5.2+vmware.3
+    lockHash: 6cca9d7c4c17bf3ab85631cb0ea736bf
+  - name: containerd
+    version: v1.5.9+vmware.2
+    lockHash: 93e5fc60ec2c91d8f2d53e42e912e569
+  - name: cni_plugins
+    version: v1.1.0+vmware.1
+    lockHash: c2ce24fcad4169053f3e8448bfad4d1c
+  - name: docker_distribution
+    version: 2.7.1
+    lockHash: b6a7a1fd120db62a3452eb70cf22b51d
+  - name: vsphere_csi_driver_tkgs
+    version: v2.4.0
+    lockHash: 341fa629b8094c5947abd34acb924ac6
+  - name: tkr-bom
+    version: v1.22.8+vmware.1-tkg.2-zshippable
+    lockHash: e95b73b0705eb71fd621d72c40e3a92b
+  - name: tkg-core-packages
+    version: v1.22.8+vmware.1-tkg.2-zshippable
+    lockHash: 54c2ce5d54039452af33b12e48491259
+  - name: gc-compatibility
+    version: v1.23.5+vmware.1
+    lockHash: 2c47ca9241d2701f1ba56efe379a279f

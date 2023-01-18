@@ -1,0 +1,25 @@
+componentBuilds:
+- name: grafana-package
+  version: v7.5.16+vmware.1-tkg.1-grafana-rc.3
+  channel: "421525023170267442"
+  url: https://buildweb.eng.vmware.com/ob/20301056/
+  artifactURL:
+    grafana.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/grafana:v7.5.16_vmware.1-tkg.1-rc.3
+      sha256: 655ba360e74510175197a757525223faafd4a875b018cff3a4ece053c2aa5de6
+  cachehash: 63e9a6b8ce8f5290b90e3760a3f23a9a
+  publishhash: 93d993a45ebfd2da411903df093c9a7f
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/grafana/grafana:v7.5.16_vmware.1
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/grafana/k8s-sidecar:v1.15.6_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-rc.3
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: grafana
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: grafana/grafana:7.5.16
+    gobuild.upstream_image_1: kiwigrid/k8s-sidecar:1.15.6
+    gobuild.upstream_version: 7.5.16

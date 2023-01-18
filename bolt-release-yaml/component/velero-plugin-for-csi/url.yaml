@@ -1,0 +1,8 @@
+name: velero-plugin-for-csi
+upstreamURL: https://github.com/vmware-tanzu/velero-plugin-for-csi.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_velero-plugin-for-csi.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_velero-plugin-for-csi
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_velero-plugin-for-csi.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_velero-plugin-for-csi.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_velero-plugin-for-csi.git
+gobuildTarget: cayman_velero-plugin-for-csi

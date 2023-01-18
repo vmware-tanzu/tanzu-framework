@@ -1,0 +1,21 @@
+componentBuilds:
+- name: framework-package
+  version: v0.22.0-dev-43-g2dd1adc9-framework
+  channel: "408172105406878544"
+  url: https://buildweb.eng.vmware.com/ob/19817912/
+  artifactURL:
+    framework.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/framework:v0.22.0-dev-43-g2dd1adc9_vmware.1
+      sha256: ccb89eaf9defdcc15f1a7571e66c7fb3bc322572569dd100950b92f2aa9cabe3
+  cachehash: 052f083beb0b986158943abe996db635
+  publishhash: 6f3466373266b15bba12702d120e7bc0
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: framework
+    gobuild.package_type: management
+    gobuild.upstream_version: v0.22.0-dev-43-g2dd1adc9

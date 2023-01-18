@@ -1,0 +1,8 @@
+name: csi_provisioner
+upstreamURL: https://github.com/kubernetes-csi/external-provisioner.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kubernetes-csi_external-provisioner.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_kubernetes-csi_external-provisioner.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_external-provisioner.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_external-provisioner.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kubernetes-csi_external-provisioner.git
+gobuildTarget: cayman_csi_provisioner

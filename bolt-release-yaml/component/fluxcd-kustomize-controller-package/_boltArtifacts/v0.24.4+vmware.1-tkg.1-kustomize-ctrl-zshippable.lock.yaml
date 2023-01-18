@@ -1,0 +1,10 @@
+name: fluxcd-kustomize-controller-package
+goBuildComponentLocks:
+- version: v0.24.4+vmware.1-tkg.1-kustomize-ctrl-zshippable
+  gobuildBranch: 410191984452443484-v0.24.4+vmware.1-tkg.1-kustomize-ctrl-zshippable-fluxcd-kustomize-controller-package
+  gobuildHeadCommit: 531c19daefb8d337129d5b030834861994df4813
+  hash: 9d47bf615be2359df81e65cbbfc9e0b7
+  componentLockReferences:
+  - name: kustomize-controller
+    version: v0.24.4+vmware.1
+    lockHash: df9b4a110eccb79f53d35f5d8984c867

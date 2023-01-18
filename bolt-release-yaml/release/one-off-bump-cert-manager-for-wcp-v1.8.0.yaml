@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "one off for WCP to bump cert-manager to v1.8.0"
+componentReferences:
+- name: jetstack_cert-manager
+  version:
+  - v1.8.0+vmware.1

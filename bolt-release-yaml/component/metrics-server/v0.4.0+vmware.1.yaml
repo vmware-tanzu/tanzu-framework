@@ -1,0 +1,11 @@
+name: metrics-server
+managedComponents:
+  - version: v0.4.0+vmware.1
+    upstreamTag: v0.4.0
+    mirrorCherryPicks: []
+    gobuildBaseBranch: vmware-0.4.0+vmware.0
+    dependencies:
+      gobuild.golangVersion: 1.13.6
+      gobuild.imageRepository: vmware.io
+      gobuild.imageName: metrics-server
+      gobuild.linux_hosttype: linux-centos8

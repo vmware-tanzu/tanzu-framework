@@ -1,0 +1,11 @@
+componentBuilds:
+- name: prometheus-package
+  version: v2.27.0+vmware.1-tkg.2-prometheus-tf-v0.9.0
+  channel: "379154940125296236"
+  url: https://buildweb.eng.vmware.com/ob/18847486/
+  artifactURL:
+    prometheus.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/prometheus:v2.27.0_vmware.1-tkg.2-tf-v0.9.0
+      sha256: a92b484d00055942badd151fa436a715bc3aec66b30edf6477cf00d9935b0ccb
+  cachehash: 0ea73cae4e15ea53867c5ce8a7e05b82
+  publishhash: 46897cc6c21c88aff6d73e888ed0a148

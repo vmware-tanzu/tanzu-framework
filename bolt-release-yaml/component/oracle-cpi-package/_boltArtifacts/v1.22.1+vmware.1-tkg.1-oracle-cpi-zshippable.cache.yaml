@@ -1,0 +1,7 @@
+name: oracle-cpi-package
+goBuildComponentCaches:
+- version: v1.22.1+vmware.1-tkg.1-oracle-cpi-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20768482/
+  buildNumber: bora-20768482
+  buildStatus: SUCCEEDED
+  hash: 486ca946e59743b05f6b6a0463793c13

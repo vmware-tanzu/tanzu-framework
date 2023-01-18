@@ -1,0 +1,4 @@
+submodules:
+  - name: pinniped-post-deploy/src
+    go_mod:
+      - "addons/pinniped/post-deploy/go.mod"

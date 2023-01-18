@@ -1,0 +1,38 @@
+name: tkg-standard-packages
+publish:
+  - name: cert-manager.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-standard-packages/package-bundles/standard/cert-manager-v1.1.0_vmware.2-tkg.1-zshippable.tar.gz
+    destinationPath: packages/standard/cert-manager:v1.1.0_vmware.2-tkg.1-zshippable
+  - name: contour.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-standard-packages/package-bundles/standard/contour-v1.17.2_vmware.1-tkg.2-zshippable.tar.gz
+    destinationPath: packages/standard/contour:v1.17.2_vmware.1-tkg.2-zshippable
+  - name: external-dns.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-standard-packages/package-bundles/standard/external-dns-v0.8.0_vmware.1-tkg.1-zshippable.tar.gz
+    destinationPath: packages/standard/external-dns:v0.8.0_vmware.1-tkg.1-zshippable
+  - name: fluent-bit.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-standard-packages/package-bundles/standard/fluent-bit-v1.7.5_vmware.1-tkg.1-zshippable.tar.gz
+    destinationPath: packages/standard/fluent-bit:v1.7.5_vmware.1-tkg.1-zshippable
+  - name: grafana.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-standard-packages/package-bundles/standard/grafana-v7.5.7_vmware.1-tkg.1-zshippable.tar.gz
+    destinationPath: packages/standard/grafana:v7.5.7_vmware.1-tkg.1-zshippable
+  - name: harbor.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-standard-packages/package-bundles/standard/harbor-v2.2.3_vmware.1-tkg.2-zshippable.tar.gz
+    destinationPath: packages/standard/harbor:v2.2.3_vmware.1-tkg.2-zshippable
+  - name: multus-cni.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-standard-packages/package-bundles/standard/multus-cni-v3.7.1_vmware.2-tkg.1-zshippable.tar.gz
+    destinationPath: packages/standard/multus-cni:v3.7.1_vmware.2-tkg.1-zshippable
+  - name: prometheus.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-standard-packages/package-bundles/standard/prometheus-v2.27.0_vmware.1-tkg.1-zshippable.tar.gz
+    destinationPath: packages/standard/prometheus:v2.27.0_vmware.1-tkg.1-zshippable
+  - name: tanzuStandardPackageRepositoryImage
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg-standard-packages/package-repo-bundles/standard/tkg-standard-repo-{{underscoredplus (index .config "managedComponents" 0 "dependencies" "gobuild.releaseVersion")}}.tar.gz
+    destinationPath: packages/standard/repo:{{underscoredplus (index .config "managedComponents" 0 "dependencies" "gobuild.releaseVersion")}}

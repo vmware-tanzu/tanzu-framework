@@ -1,0 +1,4 @@
+submodules:
+  - name: cluster-api-ipam-provider-in-cluster/src
+    go_mod:
+      - "go.mod"

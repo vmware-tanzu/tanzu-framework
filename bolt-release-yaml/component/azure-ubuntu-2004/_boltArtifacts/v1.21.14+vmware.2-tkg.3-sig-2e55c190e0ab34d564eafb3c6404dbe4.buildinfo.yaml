@@ -1,0 +1,25 @@
+componentBuilds:
+- name: azure-ubuntu-2004
+  version: v1.21.14+vmware.2-tkg.3-sig-2e55c190e0ab34d564eafb3c6404dbe4
+  channel: "419488252504843256"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/2618
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-sig-v1.21.14+vmware.2-tkg.3-sig-2e55c190e0ab34d564eafb3c6404dbe4.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.3-sig-2e55c190e0ab34d564eafb3c6404dbe4-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.3-sig-2e55c190e0ab34d564eafb3c6404dbe4-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.3-sig-2e55c190e0ab34d564eafb3c6404dbe4-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.21.14+vmware.2-tkg.3-sig-2e55c190e0ab34d564eafb3c6404dbe4-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/419488252504843256/component/azure-ubuntu-2004/azure-vhd-link-ubuntu-2004-v1.21.14+vmware.2-tkg.3-sig-2e55c190e0ab34d564eafb3c6404dbe4.json
+  cachehash: ed78f2e749a323dce5ce336d28f14ec0
+  publishhash: 8767b511de6ea0a35615b8bcac003cf8
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: sig
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 1af6af05f3b14a5987cc2e4540d82c1bd47884b8

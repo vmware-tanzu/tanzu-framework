@@ -1,0 +1,16 @@
+name: etcd
+managedComponents:
+- version: v3.4.13+vmware.16
+  upstreamTag: v3.4.13
+  mirrorCherryPicks:
+  - sha: 1c646d67d2404e79473263043a2b7fa3984318c6
+    description: set base image as variable
+  gobuildBaseBranch: vmware-0.0.0+vmware.0
+  dependencies:
+    gobuild.golangImageName: "library/golang" # `_/` prefix require `library/` prefix in harbor cache
+    gobuild.golangImageVersion: "1.15.14"
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.base_image: debian-base-amd64:buster-v1.8.0
+    gobuild.linux_hosttype: linux-centos8

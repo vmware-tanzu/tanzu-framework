@@ -1,0 +1,7 @@
+name: prometheus-package
+goBuildComponentCaches:
+- version: v2.27.0+vmware.2-tkg.2-prometheus-tf-v0.13.1
+  url: https://buildweb.eng.vmware.com/ob/19082153/
+  buildNumber: bora-19082153
+  buildStatus: SUCCEEDED
+  hash: 54e8142b88b78ddd8ee003e1e767aa77

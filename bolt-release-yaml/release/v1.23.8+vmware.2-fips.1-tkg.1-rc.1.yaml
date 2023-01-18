@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: build tkr-bom v1.23.8+vmware.2-fips.1-tkg.1-rc.1
+componentReferences:
+- name: tkr-bom
+  version:
+  - v1.23.8+vmware.2-fips.1-tkg.1-rc.1

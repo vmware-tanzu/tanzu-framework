@@ -1,0 +1,23 @@
+componentBuilds:
+- name: secretgen-controller-package
+  version: v0.11.2+vmware.1-tkg.1-secgen-ctl-20230112
+  channel: "442873817811937554"
+  url: https://buildweb.eng.vmware.com/ob/21106839/
+  artifactURL:
+    secretgen-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/secretgen-controller:v0.11.2_vmware.1-tkg.1-20230112
+      sha256: b69166603e4ae4cb82897dd66cb72939019edbaa1772694a29af2dc8d7d7ae16
+  cachehash: 760df179ef16976ead5481207265e84c
+  publishhash: 5e2cf1e775d67dbdb526c3013035dd63
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/secretgen-controller:v0.11.2_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-20230112
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: secretgen-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: secretgen-controller
+    gobuild.upstream_version: 0.11.2

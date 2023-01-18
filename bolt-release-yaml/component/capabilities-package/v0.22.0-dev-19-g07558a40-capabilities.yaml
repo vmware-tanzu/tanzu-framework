@@ -1,0 +1,22 @@
+name: capabilities-package
+packages:
+- version: v0.22.0-dev-19-g07558a40-capabilities
+  upstreamCommit: 07558a40106d1edbb6bba842a363aa8bcead103f
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~113bbb9178724f055116d1ade9a4e02be02e2b87
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.22.0-dev-19-g07558a40
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.capabilitiesImage.url}}'
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: capabilities
+    gobuild.package_type: standalone
+    gobuild.upstream_image_0: capabilities-controller-manager:latest
+    gobuild.upstream_version: v0.22.0-dev-19-g07558a40

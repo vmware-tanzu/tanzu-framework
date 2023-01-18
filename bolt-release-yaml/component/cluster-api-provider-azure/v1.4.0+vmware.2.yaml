@@ -1,0 +1,10 @@
+name: cluster-api-provider-azure
+managedComponents:
+  - version: v1.4.0+vmware.2
+    upstreamTag: v1.4.0+vmware.2
+    mirrorCherryPicks: [ ]
+    gobuildBaseBranch: vmware-0.0.0+vmware.0~367b18c32680a6d0912ea35a2aa3f5c3d649d5be
+    dependencies:
+      gobuild.golangVersion: 1.17
+      gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+      gobuild.linux_hosttype: linux-centos72-gc32

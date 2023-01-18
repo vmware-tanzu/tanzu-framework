@@ -1,0 +1,10 @@
+name: fluxcd-source-controller-package
+goBuildComponentLocks:
+- version: v0.24.4+vmware.1-tkg.3-source-ctrl-rc.2
+  gobuildBranch: 442519250544895703-v0.24.4+vmware.1-tkg.3-source-ctrl-rc.2-fluxcd-source-controller-package
+  gobuildHeadCommit: 642275535aab4d3340d121c52157d10042ec29f8
+  hash: 2a7076754aa096227e6f0dce45a32743
+  componentLockReferences:
+  - name: source-controller
+    version: v0.24.4+vmware.1
+    lockHash: cacf0ee8b1b7c0b9be15635ad3ac4110

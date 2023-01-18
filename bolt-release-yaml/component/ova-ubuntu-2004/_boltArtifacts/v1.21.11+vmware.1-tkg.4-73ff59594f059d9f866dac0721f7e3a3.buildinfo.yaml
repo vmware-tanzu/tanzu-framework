@@ -1,0 +1,22 @@
+componentBuilds:
+- name: ova-ubuntu-2004
+  version: v1.21.11+vmware.1-tkg.4-73ff59594f059d9f866dac0721f7e3a3
+  channel: "412362548298418745"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/1670
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/412362548298418745/component/ova-ubuntu-2004/bom-ova-ubuntu-2004-v1.21.11+vmware.1-tkg.4-73ff59594f059d9f866dac0721f7e3a3.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/412362548298418745/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.21.11+vmware.1-tkg.4-73ff59594f059d9f866dac0721f7e3a3-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/412362548298418745/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.21.11+vmware.1-tkg.4-73ff59594f059d9f866dac0721f7e3a3-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/412362548298418745/component/ova-ubuntu-2004/ubuntu-2004-kube-v1.21.11+vmware.1-tkg.4-73ff59594f059d9f866dac0721f7e3a3.ova
+  cachehash: 419e5004975b0f8af4717a40f96278e5
+  publishhash: dddd99c7c1721a2be15e80032869a07b
+  configDependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 8d921bf9f860327695bd1657821166908c977e13
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 03e66808b526af58c4c58a8220bc6038513f769d

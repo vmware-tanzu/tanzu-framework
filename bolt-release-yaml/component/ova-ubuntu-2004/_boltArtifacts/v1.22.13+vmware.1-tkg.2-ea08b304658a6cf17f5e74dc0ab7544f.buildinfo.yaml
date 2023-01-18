@@ -1,0 +1,22 @@
+componentBuilds:
+- name: ova-ubuntu-2004
+  version: v1.22.13+vmware.1-tkg.2-ea08b304658a6cf17f5e74dc0ab7544f
+  channel: "438895988736789927"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/3331
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438895988736789927/component/ova-ubuntu-2004/bom-ova-ubuntu-2004-v1.22.13+vmware.1-tkg.2-ea08b304658a6cf17f5e74dc0ab7544f.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438895988736789927/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.22.13+vmware.1-tkg.2-ea08b304658a6cf17f5e74dc0ab7544f-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438895988736789927/component/ova-ubuntu-2004/ubuntu-2004-kube-v1.22.13+vmware.1-tkg.2-ea08b304658a6cf17f5e74dc0ab7544f.ova
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438895988736789927/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.22.13+vmware.1-tkg.2-ea08b304658a6cf17f5e74dc0ab7544f-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/438895988736789927/component/ova-ubuntu-2004/ova-ubuntu-2004-v1.22.13+vmware.1-tkg.2-ea08b304658a6cf17f5e74dc0ab7544f-provenance_result.txt
+  cachehash: 8f00fcae0e86ebe8e0e912c0a2fde929
+  publishhash: 1ce4bc7d04e877591fab044845226b85
+  configDependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: b0038bda06cd682901ff75bfa096065cfbf884bb

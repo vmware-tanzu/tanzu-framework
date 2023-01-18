@@ -1,0 +1,7 @@
+name: pinniped
+publish:
+  - name: pinnipedImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/pinniped/images/pinniped-$VERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/pinniped/images/pinniped-$VERSION-image-checksums.txt
+    destinationPath: pinniped:$UNDERSCOREVERSION

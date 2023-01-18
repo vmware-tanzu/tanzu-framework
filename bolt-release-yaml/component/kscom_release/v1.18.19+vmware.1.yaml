@@ -1,0 +1,10 @@
+name: kscom_release
+aggregators:
+- version: v1.18.19+vmware.1
+  gobuildBaseBranch: vmware-1.18.0+vmware.0~a2ba7c5baf03bd12142e918eaffa7eb64eb797d0
+  dependencies:
+    gobuild.linux_hosttype: linux-centos8
+  componentReferences:
+  - name: kubernetes
+    version:
+    - v1.18.19+vmware.1

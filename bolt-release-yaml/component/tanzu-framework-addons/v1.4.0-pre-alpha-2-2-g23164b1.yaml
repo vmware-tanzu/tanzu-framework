@@ -1,0 +1,169 @@
+name: tanzu-framework-addons
+managedComponents:
+- version: v1.4.0-pre-alpha-2-2-g23164b1
+  upstreamCommit: 23164b12f8ebd342137cb60bd51a25551927fcd4
+  upstreamTag: v1.4.0-pre-alpha-2-2-g23164b1
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-addons~fa173ed630495a01c53db964510cb3f28b4afe6d
+  dependencies:
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+    gobuild.golangVersion: "1.16"
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v1.4.0-pre-alpha-2-2-g23164b1
+    gobuild.tkgBuildContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.16
+  bomMetadata:
+    addons:
+      ako-operator:
+        addonContainerImages:
+        - componentRef: ako-operator
+          imageRefs:
+          - akoOperatorImage
+        - componentRef: load-balancer-and-ingress-service
+          imageRefs:
+          - loadBalancerAndIngressServiceImage
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - akoOperatorTemplatesImage
+        category: networking
+        clusterTypes:
+        - management
+      antrea:
+        addonContainerImages:
+        - componentRef: antrea
+          imageRefs:
+          - antreaImage
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - antreaTemplatesImage
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+      calico:
+        addonContainerImages:
+        - componentRef: calico_all
+          imageRefs:
+          - calicoCniImage
+          - calicoKubecontrollerImage
+          - calicoNodeImage
+          - calicoPodDaemonImage
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - calicoTemplatesImage
+        category: cni
+        clusterTypes:
+        - management
+        - workload
+      kapp-controller:
+        addonContainerImages:
+        - componentRef: kapp-controller
+          imageRefs:
+          - kappControllerImage
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - kappControllerTemplatesImage
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+      load-balancer-and-ingress-service:
+        addonContainerImages:
+        - componentRef: load-balancer-and-ingress-service
+          imageRefs:
+          - loadBalancerAndIngressServiceImage
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - loadBalancerAndIngressServiceTemplatesImage
+        category: networking
+        clusterTypes:
+        - management
+        - workload
+      metrics-server:
+        addonContainerImages:
+        - componentRef: metrics-server
+          imageRefs:
+          - metricsServerImage
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - metricsServerTemplatesImage
+        category: metrics
+        clusterTypes:
+        - management
+        - workload
+      pinniped:
+        addonContainerImages:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - tkgPinnipedPostDeployImage
+        - componentRef: pinniped
+          imageRefs:
+          - pinnipedImage
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - pinnipedTemplatesImage
+        category: authentication
+        clusterTypes:
+        - management
+        - workload
+      tanzu-addons-manager:
+        addonContainerImages:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - tanzuAddonsManagerImage
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - tanzuAddonsManagerTemplatesImage
+        category: addons-management
+        clusterTypes:
+        - management
+        - workload
+      vsphere-cpi:
+        addonContainerImages:
+        - componentRef: cloud_provider_vsphere
+          imageRefs:
+          - ccmControllerImage
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - vsphereCpiTemplatesImage
+        category: cpi
+        clusterTypes:
+        - management
+        - workload
+      vsphere-csi:
+        addonContainerImages:
+        - componentRef: vsphere_csi_driver
+          imageRefs:
+          - csiControllerImage
+          - csiMetaDataSyncerImage
+        - componentRef: csi_attacher
+          imageRefs:
+          - csiAttacherImage
+        - componentRef: csi_livenessprobe
+          imageRefs:
+          - csiLivenessProbeImage
+        - componentRef: csi_node_driver_registrar
+          imageRefs:
+          - csiNodeDriverRegistrarImage
+        - componentRef: csi_provisioner
+          imageRefs:
+          - csiProvisonerImage
+        - componentRef: kubernetes-csi_external-resizer
+          imageRefs:
+          - csiExternalResizer
+        addonTemplatesImage:
+        - componentRef: tanzu-framework-addons
+          imageRefs:
+          - vsphereCsiTemplatesImage
+        category: csi
+        clusterTypes:
+        - management
+        - workload

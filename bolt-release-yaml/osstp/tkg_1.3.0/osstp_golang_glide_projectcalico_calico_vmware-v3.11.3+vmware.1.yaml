@@ -1,0 +1,9 @@
+other:projectcalico_calico:v3.11.1-122-gf17406d4:
+  license: Apache-2.0
+  name: projectcalico_calico
+  other-distribution: /osl_sources/core-build-mirrors_github_projectcalico_calico-v3.11.1-122-gf17406d4.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_projectcalico_calico
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_projectcalico_calico/-/archive/v3.11.1-122-gf17406d4/mirrors_github_projectcalico_calico-v3.11.1-122-gf17406d4.tar.gz
+  version: v3.11.1-122-gf17406d4

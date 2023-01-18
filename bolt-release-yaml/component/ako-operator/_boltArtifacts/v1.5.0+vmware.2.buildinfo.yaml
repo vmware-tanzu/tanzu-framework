@@ -1,0 +1,13 @@
+componentBuilds:
+- name: ako-operator
+  version: v1.5.0+vmware.2
+  channel: "384849179060503343"
+  url: https://buildweb.eng.vmware.com/ob/19031089/
+  artifactURL:
+    ako-operator-manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-19031089/publish/lin64/ako-operator/manifests/ako-operator-manifests-v1.5.0+vmware.2.tar.gz
+    akoOperatorImage:
+      url: projects-stg.registry.vmware.com/tkg/ako-operator:v1.5.0_vmware.2
+      sha256: 392505b12ef2d5ce87091796366decdfd1e36420154f4abec5aad3ed0966c61f
+  cachehash: 4c8c93c32576be01d5ae1003b8bb5044
+  publishhash: 55118b52ea31a46857b9e642b571299b

@@ -1,0 +1,17 @@
+name: aad-pod-identity
+managedComponents:
+- version: v1.8.13+vmware.2
+  upstreamTag: v1.8.13
+  mirrorCherryPicks:
+  - sha: 8adf443f69a881774d6a16ddc65a64834db60366
+    description: 'removed the docsy git submodule'
+  - sha: 29195026dadd398485d7e85c9ddb5545c0e3b281
+    description: 'bump golang.org/x/text package to fix CVE '
+  - sha: 5404447cc08e0c2fe64a1f91f5be88e3dc8c24aa
+    description: 'bump golang.org/x/text package to fix CVE-2022-41717 '
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~0efec264457b5ea7b73ed56eeb43e89448b7cd3c
+  dependencies:
+    gobuild.golangVersion: 1.19
+    gobuild.releaseVersion: v1.8.13+vmware.2
+    gobuild.containerNamePrefix: vmware.io
+    gobuild.linux_hosttype: linux-centos72-gc32

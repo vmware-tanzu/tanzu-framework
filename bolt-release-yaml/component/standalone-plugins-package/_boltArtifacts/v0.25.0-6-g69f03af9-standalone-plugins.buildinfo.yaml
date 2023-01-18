@@ -1,0 +1,56 @@
+componentBuilds:
+- name: standalone-plugins-package
+  version: v0.25.0-6-g69f03af9-standalone-plugins
+  channel: "419354160018756439"
+  url: https://buildweb.eng.vmware.com/ob/20222654/
+  artifactURL:
+    standalone-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standalone-plugins:v0.25.0-6-g69f03af9_vmware.1
+      sha256: 2841a49194d0e2cac141dbb9af2680854dcd02109fd4c3935a9d087fb23413a4
+  cachehash: 33edf3fb4d4ccc52f02a885f26f5cf3a
+  publishhash: 3dc1b7faa50d17d97789ceb82ad5fa92
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/login-linux-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_1: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/login-darwin-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_2: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/login-windows-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_3: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/management-cluster-linux-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_4: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/management-cluster-darwin-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_5: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/management-cluster-windows-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_6: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/package-linux-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_7: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/package-darwin-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_8: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/package-windows-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_9: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/pinniped-auth-linux-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_10: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/pinniped-auth-darwin-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_11: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/pinniped-auth-windows-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_12: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/secret-linux-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_13: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/secret-darwin-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_14: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/secret-windows-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_15: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/telemetry-linux-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_16: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/telemetry-darwin-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_image_17: projects-stg.registry.vmware.com/tkg/tanzu_core/tanzu-cli-plugins/telemetry-windows-amd64:v0.25.0-6-g69f03af9
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: standalone-plugins
+    gobuild.upstream_image_0: tanzu-cli-plugins/login-linux-amd64:latest
+    gobuild.upstream_image_1: tanzu-cli-plugins/login-darwin-amd64:latest
+    gobuild.upstream_image_2: tanzu-cli-plugins/login-windows-amd64:latest
+    gobuild.upstream_image_3: tanzu-cli-plugins/management-cluster-linux-amd64:latest
+    gobuild.upstream_image_4: tanzu-cli-plugins/management-cluster-darwin-amd64:latest
+    gobuild.upstream_image_5: tanzu-cli-plugins/management-cluster-windows-amd64:latest
+    gobuild.upstream_image_6: tanzu-cli-plugins/package-linux-amd64:latest
+    gobuild.upstream_image_7: tanzu-cli-plugins/package-darwin-amd64:latest
+    gobuild.upstream_image_8: tanzu-cli-plugins/package-windows-amd64:latest
+    gobuild.upstream_image_9: tanzu-cli-plugins/pinniped-auth-linux-amd64:latest
+    gobuild.upstream_image_10: tanzu-cli-plugins/pinniped-auth-darwin-amd64:latest
+    gobuild.upstream_image_11: tanzu-cli-plugins/pinniped-auth-windows-amd64:latest
+    gobuild.upstream_image_12: tanzu-cli-plugins/secret-linux-amd64:latest
+    gobuild.upstream_image_13: tanzu-cli-plugins/secret-darwin-amd64:latest
+    gobuild.upstream_image_14: tanzu-cli-plugins/secret-windows-amd64:latest
+    gobuild.upstream_image_15: tanzu-cli-plugins/telemetry-linux-amd64:latest
+    gobuild.upstream_image_16: tanzu-cli-plugins/telemetry-darwin-amd64:latest
+    gobuild.upstream_image_17: tanzu-cli-plugins/telemetry-windows-amd64:latest
+    gobuild.upstream_version: v0.25.0-6-g69f03af9

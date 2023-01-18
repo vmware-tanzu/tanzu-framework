@@ -1,0 +1,7 @@
+name: kube-vip-cloud-provider-package
+goBuildComponentCaches:
+- version: v0.0.4+vmware.1-tkg.1-kube-vip-cp-fc.2
+  url: https://buildweb.eng.vmware.com/ob/20914187/
+  buildNumber: bora-20914187
+  buildStatus: SUCCEEDED
+  hash: 4194cded287a46ac8760a04c18b41d9e

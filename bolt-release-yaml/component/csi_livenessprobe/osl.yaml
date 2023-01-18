@@ -1,0 +1,4 @@
+submodules:
+  - name: csi_livenessprobe/src
+    go_mod:
+      - "go.mod"

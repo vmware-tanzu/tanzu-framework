@@ -1,0 +1,15 @@
+componentBuilds:
+- name: tkr-compatibility
+  version: v13-v1.6.0-tf-v0.17.0
+  channel: "395110461068036753"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395110461068036753/component/tkr-compatibility/_boltArtifacts/tkr-compatibility-v13-v1.6.0-tf-v0.17.0.yaml
+  artifactURL:
+    globalTkrCompatibilityImage:
+      url: framework-zshippable/tkr-compatibility:v13
+    tkrCompatibilityImage:
+      url: projects-stg.registry.vmware.com/tkg/framework-zshippable/tkr-compatibility:v13
+      sha256: f0ca4e2f6d153513c14199fd958ca7312e40ae7ae14313c1da844d5495538f74
+    tkrCompatibilityYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/395110461068036753/component/tkr-compatibility/_boltArtifacts/tkr-compatibility-v13-v1.6.0-tf-v0.17.0.yaml
+  cachehash: baca71b18daac9153a4be3e3dae047b2
+  publishhash: 88c1a0063157a289dc7a709091c3a2d7

@@ -1,0 +1,64 @@
+name: standalone-plugins-package
+packages:
+- version: v0.21.0-dev-13-g2d3d84d2-standalone-plugins
+  upstreamCommit: 2d3d84d24a272b8527763a9a2813dc7804ed9013
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~ab726d3afc0fc8720fa8afc822b6292c7ea0a370
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.21.0-dev-13-g2d3d84d2
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsLoginLinuxAmd64Image.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsLoginDarwinAmd64Image.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsLoginWindowsAmd64Image.url}}'
+    gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsManagementClusterLinuxAmd64Image.url}}'
+    gobuild.downstream_image_4: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsManagementClusterDarwinAmd64Image.url}}'
+    gobuild.downstream_image_5: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsManagementClusterWindowsAmd64Image.url}}'
+    gobuild.downstream_image_6: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsPackageLinuxAmd64Image.url}}'
+    gobuild.downstream_image_7: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsPackageDarwinAmd64Image.url}}'
+    gobuild.downstream_image_8: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsPackageWindowsAmd64Image.url}}'
+    gobuild.downstream_image_9: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsPinnipedAuthLinuxAmd64Image.url}}'
+    gobuild.downstream_image_10: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsPinnipedAuthDarwinAmd64Image.url}}'
+    gobuild.downstream_image_11: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsPinnipedAuthWindowsAmd64Image.url}}'
+    gobuild.downstream_image_12: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsSecretLinuxAmd64Image.url}}'
+    gobuild.downstream_image_13: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsSecretDarwinAmd64Image.url}}'
+    gobuild.downstream_image_14: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.clipluginsSecretWindowsAmd64Image.url}}'
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: standalone-plugins
+    gobuild.package_type: standalone
+    gobuild.upstream_image_0: tanzu-cli-plugins/login-linux-amd64:latest
+    gobuild.upstream_image_1: tanzu-cli-plugins/login-darwin-amd64:latest
+    gobuild.upstream_image_2: tanzu-cli-plugins/login-windows-amd64:latest
+    gobuild.upstream_image_3: tanzu-cli-plugins/management-cluster-linux-amd64:latest
+    gobuild.upstream_image_4: tanzu-cli-plugins/management-cluster-darwin-amd64:latest
+    gobuild.upstream_image_5: tanzu-cli-plugins/management-cluster-windows-amd64:latest
+    gobuild.upstream_image_6: tanzu-cli-plugins/package-linux-amd64:latest
+    gobuild.upstream_image_7: tanzu-cli-plugins/package-darwin-amd64:latest
+    gobuild.upstream_image_8: tanzu-cli-plugins/package-windows-amd64:latest
+    gobuild.upstream_image_9: tanzu-cli-plugins/pinniped-auth-linux-amd64:latest
+    gobuild.upstream_image_10: tanzu-cli-plugins/pinniped-auth-darwin-amd64:latest
+    gobuild.upstream_image_11: tanzu-cli-plugins/pinniped-auth-windows-amd64:latest
+    gobuild.upstream_image_12: tanzu-cli-plugins/secret-linux-amd64:latest
+    gobuild.upstream_image_13: tanzu-cli-plugins/secret-darwin-amd64:latest
+    gobuild.upstream_image_14: tanzu-cli-plugins/secret-windows-amd64:latest
+    gobuild.upstream_version: v0.21.0-dev-13-g2d3d84d2

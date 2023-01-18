@@ -1,0 +1,7 @@
+name: kube_rbac_proxy
+goBuildComponentCaches:
+- version: v0.8.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/18182202/
+  buildNumber: bora-18182202
+  buildStatus: SUCCEEDED
+  hash: 57d618ae864de367a7419ea0994fcb83

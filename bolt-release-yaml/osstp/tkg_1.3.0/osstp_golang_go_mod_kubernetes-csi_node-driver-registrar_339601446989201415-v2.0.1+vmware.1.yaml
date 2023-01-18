@@ -1,0 +1,121 @@
+other:kubernetes-csi_node-driver-registrar:v2.0.1+vmware.1:
+  license: Apache-2.0
+  name: kubernetes-csi_node-driver-registrar
+  other-distribution: /osl_sources/core-build-mirrors_github_kubernetes-csi_node-driver-registrar.git-v2.0.1+vmware.1.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_kubernetes-csi_node-driver-registrar.git
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_kubernetes-csi_node-driver-registrar.git/-/archive/v2.0.1+vmware.1/mirrors_github_kubernetes-csi_node-driver-registrar.git-v2.0.1+vmware.1.tar.gz
+  version: v2.0.1+vmware.1
+other:kubernetes-csi_csi-lib-utils:v0.4.0:
+  license: Apache-2.0
+  name: kubernetes-csi_csi-lib-utils
+  other-distribution: /osl_sources/kubernetes-csi-csi-lib-utils-v0.4.0.tar.gz
+  other-url: https://github.com/kubernetes-csi/csi-lib-utils
+  repository: Other
+  url: https://codeload.github.com/kubernetes-csi/csi-lib-utils/tar.gz/v0.4.0
+  version: v0.4.0
+other:genproto:cb27e3aa2013:
+  license: Apache-2.0
+  name: genproto
+  other-distribution: /osl_sources/google-go_genproto-cb27e3aa2013.tar.gz
+  other-url: https://google.golang.org/genproto
+  repository: Other
+  url: https://codeload.github.com/google/go-genproto/tar.gz/cb27e3aa2013
+  version: cb27e3aa2013
+other:x_sys:ed371f2e16b4:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/golang-sys-ed371f2e16b4.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/ed371f2e16b4
+  version: ed371f2e16b4
+other:kubelet:v0.19.0:
+  license: Apache-2.0
+  name: kubelet
+  other-distribution: /osl_sources/kubernetes-kubelet-v0.19.0.tar.gz
+  other-url: https://k8s.io/kubelet
+  repository: Other
+  url: https://codeload.github.com/kubernetes/kubelet/tar.gz/v0.19.0
+  version: v0.19.0
+other:golang_protobuf:v1.4.2:
+  license: BSD-3-Clause
+  name: golang_protobuf
+  other-distribution: /osl_sources/golang-protobuf-v1.4.2.tar.gz
+  other-url: https://github.com/golang/protobuf
+  repository: Other
+  url: https://codeload.github.com/golang/protobuf/tar.gz/v1.4.2
+  version: v1.4.2
+other:klog:v1.0.0:
+  license: Apache-2.0
+  name: klog
+  other-distribution: /osl_sources/kubernetes-klog-v1.0.0.tar.gz
+  other-url: https://k8s.io/klog
+  repository: Other
+  url: https://codeload.github.com/kubernetes/klog/tar.gz/v1.0.0
+  version: v1.0.0
+other:x_text:v0.3.3:
+  license: BSD-3-Clause
+  name: x_text
+  other-distribution: /osl_sources/golang-text-v0.3.3.tar.gz
+  other-url: https://golang.org/x/text
+  repository: Other
+  url: https://codeload.github.com/golang/text/tar.gz/v0.3.3
+  version: v0.3.3
+other:protobuf:v1.24.0:
+  license: BSD-3-Clause
+  name: protobuf
+  other-distribution: /osl_sources/protobuf-v1.24.0.tar.gz
+  other-url: https://google.golang.org/protobuf
+  repository: Other
+  url: ""
+  version: v1.24.0
+other:container-storage-interface_spec:v1.3.0:
+  license: Apache-2.0
+  name: container-storage-interface_spec
+  other-distribution: /osl_sources/container-storage-interface-spec-v1.3.0.tar.gz
+  other-url: https://github.com/container-storage-interface/spec
+  repository: Other
+  url: https://codeload.github.com/container-storage-interface/spec/tar.gz/v1.3.0
+  version: v1.3.0
+other:gogo_protobuf_proto:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_proto
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/proto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1
+other:gogo_protobuf_protoc-gen-gogo_descriptor:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_protoc-gen-gogo_descriptor
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/protoc-gen-gogo/descriptor
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1
+other:x_net:ab3426394381:
+  license: BSD-3-Clause
+  name: x_net
+  other-distribution: /osl_sources/golang-net-ab3426394381.tar.gz
+  other-url: https://golang.org/x/net
+  repository: Other
+  url: https://codeload.github.com/golang/net/tar.gz/ab3426394381
+  version: ab3426394381
+other:grpc:v1.27.0:
+  license: Apache-2.0
+  name: grpc
+  other-distribution: /osl_sources/grpc_go-v1.27.0.tar.gz
+  other-url: https://google.golang.org/grpc
+  repository: Other
+  url: https://codeload.github.com/grpc/grpc-go/tar.gz/v1.27.0
+  version: v1.27.0
+other:gogo_protobuf_gogoproto:v1.3.1:
+  license: UNKNOWN
+  name: gogo_protobuf_gogoproto
+  other-distribution: /osl_sources/gogo-protobuf-v1.3.1.tar.gz
+  other-url: https://github.com/gogo/protobuf/gogoproto
+  repository: Other
+  url: https://codeload.github.com/gogo/protobuf/tar.gz/v1.3.1
+  version: v1.3.1

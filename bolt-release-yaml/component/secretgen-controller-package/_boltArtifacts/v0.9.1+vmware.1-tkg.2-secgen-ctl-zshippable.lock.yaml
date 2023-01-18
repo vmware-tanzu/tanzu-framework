@@ -1,0 +1,10 @@
+name: secretgen-controller-package
+goBuildComponentLocks:
+- version: v0.9.1+vmware.1-tkg.2-secgen-ctl-zshippable
+  gobuildBranch: 418525331893262686-v0.9.1+vmware.1-tkg.2-secgen-ctl-zshippable-secretgen-controller-package
+  gobuildHeadCommit: 8529fdc8c3707991eb0d4393bfbab86bef1e9c10
+  hash: 599b8bda3ba59821deecce3a6ea559ab
+  componentLockReferences:
+  - name: carvel-secretgen-controller
+    version: v0.9.1+vmware.1
+    lockHash: 7fa71f341bcda31f116f87b1de86f141

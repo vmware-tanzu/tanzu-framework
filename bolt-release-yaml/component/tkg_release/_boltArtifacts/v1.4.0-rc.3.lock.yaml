@@ -1,0 +1,10 @@
+name: tkg_release
+goBuildComponentLocks:
+- version: v1.4.0-rc.3
+  gobuildBranch: 369083008059244387-v1.4.0-rc.3
+  gobuildHeadCommit: e3526735b340af29951ce2527af84add56ca133b
+  hash: fe8c9f0329464dffa5484272fc83fb5a
+  componentLockReferences:
+  - name: tkg-compatibility
+    version: v1.4.0-rc.3
+    lockHash: 7ce616d254e5ccb5a93ddad51997b2d5

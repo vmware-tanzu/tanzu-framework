@@ -1,0 +1,36 @@
+componentBuilds:
+- name: tkg_release
+  version: v1.3.0-zlatest
+  channel: "344505520456993123"
+  url: https://buildweb.eng.vmware.com/ob/17704079/
+  artifactURL:
+    dir-node-ova:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/node/
+    ova-photon-3-v1.17.16+vmware.2-tkg.0-2766760546902094721_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/node/ova-photon-3-v1.17.16+vmware.2-tkg.0-2766760546902094721/photon-3-kube-v1.17.16+vmware.2-tkg.0-2766760546902094721.ova
+    ova-photon-3-v1.18.14+vmware.2-tkg.0-17185773078909555160_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/node/ova-photon-3-v1.18.14+vmware.2-tkg.0-17185773078909555160/photon-3-kube-v1.18.14+vmware.2-tkg.0-17185773078909555160.ova
+    ova-photon-3-v1.19.6+vmware.2-tkg.0-11883117015189103726_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/node/ova-photon-3-v1.19.6+vmware.2-tkg.0-11883117015189103726/photon-3-kube-v1.19.6+vmware.2-tkg.0-11883117015189103726.ova
+    ova-photon-3-v1.20.1+vmware.2-tkg.0-12902160816343315692_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/node/ova-photon-3-v1.20.1+vmware.2-tkg.0-12902160816343315692/photon-3-kube-v1.20.1+vmware.2-tkg.0-12902160816343315692.ova
+    ova-ubuntu-2004-v1.17.16+vmware.2-tkg.0-13075399354022698785_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.17.16+vmware.2-tkg.0-13075399354022698785/ubuntu-2004-kube-v1.17.16+vmware.2-tkg.0-13075399354022698785.ova
+    ova-ubuntu-2004-v1.18.14+vmware.2-tkg.0-4281766167434743792_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.18.14+vmware.2-tkg.0-4281766167434743792/ubuntu-2004-kube-v1.18.14+vmware.2-tkg.0-4281766167434743792.ova
+    ova-ubuntu-2004-v1.19.6+vmware.2-tkg.0-16317005781430032955_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.19.6+vmware.2-tkg.0-16317005781430032955/ubuntu-2004-kube-v1.19.6+vmware.2-tkg.0-16317005781430032955.ova
+    ova-ubuntu-2004-v1.20.1+vmware.2-tkg.0-15935558247135313201_signed:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/node/ova-ubuntu-2004-v1.20.1+vmware.2-tkg.0-15935558247135313201/ubuntu-2004-kube-v1.20.1+vmware.2-tkg.0-15935558247135313201.ova
+    tanzu-cli-bundle-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-zlatest/tanzu-cli-bundle-darwin-amd64.tar
+    tanzu-cli-bundle-linux-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-zlatest/tanzu-cli-bundle-linux-386.tar
+    tanzu-cli-bundle-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-zlatest/tanzu-cli-bundle-linux-amd64.tar
+    tanzu-cli-bundle-windows-386:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-zlatest/tanzu-cli-bundle-windows-386.tar
+    tanzu-cli-bundle-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17704079/publish/lin64/tkg_release/tanzu_cli_bundle-v1.3.0-zlatest/tanzu-cli-bundle-windows-amd64.tar
+  cachehash: "15426604051955299855"
+  publishhash: "3456073887855034260"

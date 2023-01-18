@@ -1,0 +1,7 @@
+name: prometheus
+unmanagedComponents:
+  - version: v2.37.0+vmware.1
+    gobuildBranch: vmware-2.37.0~c3f60041656b40e25788ca49837467f52da284ee
+    dependencies:
+      gobuild.golangVersion: 1.17
+      gobuild.linux_hosttype: linux-centos72-gc32

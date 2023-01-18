@@ -1,0 +1,11 @@
+componentBuilds:
+- name: tkg-package
+  version: v0.18.0-dev-21-g117361dc-tkg
+  channel: "396831990831148856"
+  url: https://buildweb.eng.vmware.com/ob/19423103/
+  artifactURL:
+    tkg.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg:v0.18.0-dev-21-g117361dc_vmware.1
+      sha256: 0db3c27b46a2509d4f66de6412ef00d0837091bc1ea270230340ccae52474614
+  cachehash: 8f292b4e57bcf088ce2064028cb06cfa
+  publishhash: b50bfb418ec98d4f672d28d855f6e5b2

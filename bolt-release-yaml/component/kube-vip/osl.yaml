@@ -1,0 +1,4 @@
+submodules:
+  - name: kube-vip/src
+    go_mod:
+      - "go.mod"

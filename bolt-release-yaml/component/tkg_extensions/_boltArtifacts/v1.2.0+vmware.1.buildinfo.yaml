@@ -1,0 +1,18 @@
+componentBuilds:
+- name: tkg_extensions
+  version: v1.2.0+vmware.1
+  channel: "339501120126713863"
+  url: https://buildweb.eng.vmware.com/ob/17008913
+  artifactURL:
+    tkg_extensions-bom:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17008913/publish/lin64/tkg_extensions/bom/tkg-extensions-bom-v1.2.0+vmware.1.yaml
+    tkg_extensions-manifests:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17008913/publish/lin64/tkg_extensions/manifests/tkg-extensions-manifests-v1.2.0+vmware.1.tar.gz
+    tkgExtensionsTemplatesImage:
+      url: projects-stg.registry.vmware.com/tkg/tkg-extensions-templates:v1.2.0_vmware.1
+      sha256: 1a20e3a4b063904b700391407313e1b5ca9cefce6bc3a38acdf7c1e1b06e42eb
+    tmcExtensionManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/tmc-extension-manager:v1.2.0_vmware.1
+      sha256: 0da79bc2a56720959c573937520fd87d4481be64994c4eef8f4ece57537ce532
+  cachehash: "10426223609241654372"
+  publishhash: "18210685825161171721"

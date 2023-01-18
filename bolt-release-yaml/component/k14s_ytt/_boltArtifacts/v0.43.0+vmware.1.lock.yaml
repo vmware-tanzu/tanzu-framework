@@ -1,0 +1,7 @@
+name: k14s_ytt
+goBuildComponentLocks:
+- version: v0.43.0+vmware.1
+  gobuildBranch: vmware-0.43.0
+  gobuildHeadCommit: dab2867a056035609cb525cda34ff0a145ec0308
+  hash: 4671a056e900597aa04bc9f5f1379bce
+  componentLockReferences: []

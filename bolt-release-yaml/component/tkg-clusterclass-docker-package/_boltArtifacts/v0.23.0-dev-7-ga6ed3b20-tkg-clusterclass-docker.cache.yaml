@@ -1,0 +1,7 @@
+name: tkg-clusterclass-docker-package
+goBuildComponentCaches:
+- version: v0.23.0-dev-7-ga6ed3b20-tkg-clusterclass-docker
+  url: https://buildweb.eng.vmware.com/ob/19892784/
+  buildNumber: bora-19892784
+  buildStatus: SUCCEEDED
+  hash: 16130225c29e0d14f41634ac66bb71e5

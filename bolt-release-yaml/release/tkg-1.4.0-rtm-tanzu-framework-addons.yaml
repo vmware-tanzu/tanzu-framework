@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'release yaml file to build tkg 1.4.0 rtm tanzu-framework-addons'
+componentReferences:
+  - name: tanzu-framework-addons
+    version:
+      - v1.4.0

@@ -1,0 +1,148 @@
+name: tkg-bom
+boms:
+- version: v1.5.0-rc.2
+  type: tkg
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  k8sVersion: v1.22.3+vmware.1-tkg.1-rc.2
+  dependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha2
+    componentTanzuCoreVersion: v0.11.1-4-gf01b1e90
+  componentReferences:
+  - name: alertmanager
+    version:
+    - v0.22.2+vmware.1
+  - name: cadvisor
+    version:
+    - v0.39.1+vmware.1
+  - name: cloud-provider-azure
+    version:
+    - v0.7.4+vmware.1
+  - name: aad-pod-identity
+    version:
+    - v1.8.0+vmware.1
+  - name: cluster_api
+    version:
+    - v1.0.0+vmware.1
+  - name: cluster_api_aws
+    version:
+    - v1.0.0+vmware.1
+  - name: cluster_api_vsphere
+    version:
+    - v1.0.1+vmware.1
+  - name: cluster-api-provider-azure
+    version:
+    - v1.0.0+vmware.2
+  - name: cluster-api-provider-bringyourownhost
+    version:
+    - v0.1.0+vmware.1
+  - name: configmap-reload
+    version:
+    - v0.5.0+vmware.1
+  - name: contour
+    version:
+    - v1.17.2+vmware.1
+    - v1.18.2+vmware.1
+  - name: crash-diagnostics
+    version:
+    - v0.3.7+vmware.2
+  - name: envoy
+    version:
+    - v1.18.4+vmware.1
+    - v1.19.1+vmware.1
+  - name: external-dns
+    version:
+    - v0.8.0+vmware.1
+  - name: fluent-bit
+    version:
+    - v1.7.5+vmware.1
+  - name: gangway
+    version:
+    - v3.2.0+vmware.2
+  - name: grafana
+    version:
+    - v7.5.7+vmware.1
+  - name: harbor
+    version:
+    - v2.3.3+vmware.1
+  - name: imgpkg
+    version:
+    - v0.18.0+vmware.1
+  - name: jetstack_cert-manager
+    version:
+    - v1.5.3+vmware.2
+  - name: k8s-sidecar
+    version:
+    - v1.12.1+vmware.1
+  - name: k14s_kapp
+    version:
+    - v0.42.0+vmware.1
+  - name: k14s_ytt
+    version:
+    - v0.35.1+vmware.1
+  - name: vendir
+    version:
+    - v0.23.0+vmware.1
+  - name: kbld
+    version:
+    - v0.31.0+vmware.1
+  - name: kube_rbac_proxy
+    version:
+    - v0.8.0+vmware.1
+  - name: kube-state-metrics
+    version:
+    - v1.9.8+vmware.1
+  - name: kube-vip
+    version:
+    - v0.3.3+vmware.1
+  - name: kubernetes_autoscaler
+    version:
+    - v1.22.0+vmware.1
+    - v1.21.0+vmware.1
+    - v1.20.0+vmware.1
+  - name: kubernetes-sigs_kind
+    version:
+    - v1.22.3+vmware.1_v0.11.1
+  - name: prometheus
+    version:
+    - v2.27.0+vmware.1
+  - name: prometheus_node_exporter
+    version:
+    - v1.1.2+vmware.1
+  - name: pushgateway
+    version:
+    - v1.4.0+vmware.1
+  - name: sonobuoy
+    version:
+    - v0.54.0+vmware.1
+  - name: tkg-standard-packages
+    version:
+    - v1.5.0-rc.2
+  - name: tkg_telemetry
+    version:
+    - v1.5.0+vmware.1
+  - name: tkr-bom
+    version:
+    - v1.20.12+vmware.1-tkg.1-rc.2
+    - v1.22.3+vmware.1-tkg.1-rc.2
+    - v1.21.6+vmware.1-tkg.1-rc.2
+  - name: tkr-compatibility
+    version:
+    - v8-v1.5.0-rc.2
+  - name: velero
+    version:
+    - v1.7.0+vmware.1
+  - name: velero-plugin-for-aws
+    version:
+    - v1.3.0+vmware.1
+  - name: velero-plugin-for-microsoft-azure
+    version:
+    - v1.3.0+vmware.1
+  - name: velero-plugin-for-vsphere
+    version:
+    - v1.1.1+vmware.1
+  - name: multus-cni
+    version:
+    - v3.7.1+vmware.2
+  - name: image-builder
+    version:
+    - v0.1.10+vmware.1

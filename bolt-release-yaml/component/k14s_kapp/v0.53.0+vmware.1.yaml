@@ -1,0 +1,6 @@
+name: k14s_kapp
+unmanagedComponents:
+  - version: v0.53.0+vmware.1
+    gobuildBranch: vmware-0.53.0~67ef5f5290ee0b269d5bd71f4f72d1e5c32f7f86
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

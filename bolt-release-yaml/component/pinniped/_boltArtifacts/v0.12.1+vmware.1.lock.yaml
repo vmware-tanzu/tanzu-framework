@@ -1,0 +1,7 @@
+name: pinniped
+goBuildComponentLocks:
+- version: v0.12.1+vmware.1
+  gobuildBranch: 395577390333482930-v0.12.1+vmware.1
+  gobuildHeadCommit: ed4fbcc1825026fe60ee4aa4d6caf3f3042ccd01
+  hash: e2c156b6b3ce325ad9a0d3dea6c0fe47
+  componentLockReferences: []

@@ -1,0 +1,49 @@
+name: tkg-standard-packages
+goBuildComponentLocks:
+- version: v1.6.1+update.1
+  gobuildBranch: 442736136327008213-v1.6.1+update.1-tkg-standard-packages
+  gobuildHeadCommit: b2516de3f9b8dbd668c5aa6b044d299008e9810d
+  hash: 26ef6a2e5356bb6e4840665bb0f5cce0
+  componentLockReferences:
+  - name: fluxcd-source-controller-package
+    version: v0.24.4+vmware.1-tkg.5-source-ctrl
+    lockHash: 9392b174e674f5954b6f32e27448a2aa
+  - name: fluxcd-kustomize-controller-package
+    version: v0.24.4+vmware.1-tkg.2-kustomize-ctrl
+    lockHash: 6c5b6ecd311c4544466c398f2b4a810f
+  - name: fluxcd-helm-controller-package
+    version: v0.21.0+vmware.1-tkg.2-helm-ctrl
+    lockHash: a561e6033d3fb73052dca9050f461a60
+  - name: cert-manager-package
+    version: v1.5.3+vmware.6-tkg.1-cert-manager
+    lockHash: e08adfeac839be284ab0c8cec947071d
+  - name: cert-manager-package
+    version: v1.7.2+vmware.1-tkg.1-cert-manager
+    lockHash: 9973761d8f0a2780dfe41243532612d8
+  - name: contour-package
+    version: v1.20.2+vmware.2-tkg.1-contour
+    lockHash: 9e05020383fc13681a7f0506e3a62acd
+  - name: external-dns-package
+    version: v0.10.0+vmware.1-tkg.2-external-dns
+    lockHash: 78d73b3a745840411f66dc82d12b2a76
+  - name: external-dns-package
+    version: v0.11.0+vmware.1-tkg.2-external-dns
+    lockHash: 4b901de1d3f0f86b25215a8c576ffcc0
+  - name: fluent-bit-package
+    version: v1.8.15+vmware.1-tkg.1-fluent-bit
+    lockHash: 5528f3a2c703cbd8cea48b84383b744b
+  - name: grafana-package
+    version: v7.5.16+vmware.1-tkg.1-grafana
+    lockHash: 3d02f60d50e33d22fb202071d7341805
+  - name: prometheus-package
+    version: v2.36.2+vmware.1-tkg.1-prometheus
+    lockHash: 0f3e393790ecb66916897df9d29d7a0d
+  - name: harbor-package
+    version: v2.6.1+vmware.1-tkg.1-harbor
+    lockHash: 721c22bdb505eddc8a9c3385a39038a8
+  - name: multus-cni-package
+    version: v3.8.0+vmware.1-tkg.1-multus-cni
+    lockHash: 8ab17d84f6c0a19296f5bdd7cba65242
+  - name: whereabouts-package
+    version: v0.5.1+vmware.2-tkg.1-whereabouts
+    lockHash: 2ced49ccb1a4745bd0eaa8f8d6ee6963

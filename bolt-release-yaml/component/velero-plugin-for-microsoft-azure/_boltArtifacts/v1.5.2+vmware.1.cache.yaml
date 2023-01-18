@@ -1,0 +1,7 @@
+name: velero-plugin-for-microsoft-azure
+goBuildComponentCaches:
+- version: v1.5.2+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20790371
+  buildNumber: bora-20790371
+  buildStatus: SUCCEEDED
+  hash: 3621ae79ddcb86ed64aad634c3ab076e

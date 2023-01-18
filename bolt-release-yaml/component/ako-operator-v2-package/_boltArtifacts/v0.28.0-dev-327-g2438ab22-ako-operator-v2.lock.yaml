@@ -1,0 +1,10 @@
+name: ako-operator-v2-package
+goBuildComponentLocks:
+- version: v0.28.0-dev-327-g2438ab22-ako-operator-v2
+  gobuildBranch: 443226375822808206-v0.28.0-dev-327-g2438ab22-ako-operator-v2-ako-operator-v2-package
+  gobuildHeadCommit: e2f11fd40e6d51019845a82898521529b72dcefd
+  hash: f6ad2cc6476c9b6759e3024e32a0ead7
+  componentLockReferences:
+  - name: ako-operator
+    version: v1.7.0+vmware.3
+    lockHash: 7f19493f1d4c9f5e152336fcc25d8e51

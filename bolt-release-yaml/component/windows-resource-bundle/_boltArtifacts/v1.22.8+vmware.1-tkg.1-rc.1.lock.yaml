@@ -1,0 +1,16 @@
+name: windows-resource-bundle
+goBuildComponentLocks:
+- version: v1.22.8+vmware.1-tkg.1-rc.1
+  gobuildBranch: 402253637536991937-v1.22.8+vmware.1-tkg.1-rc.1
+  gobuildHeadCommit: 8575556010bff0ead0985d138e87a2b9c1396a03
+  hash: 45141dc2af57281e2763d691a3f9fb03
+  componentLockReferences:
+  - name: antrea
+    version: v1.2.3+vmware.4-advanced
+    lockHash: 536d3ca10944d3902bf2d4cfd9b9a9b9
+  - name: containerd
+    version: v1.5.9+vmware.2
+    lockHash: 93e5fc60ec2c91d8f2d53e42e912e569
+  - name: kubernetes
+    version: v1.22.8+vmware.1
+    lockHash: 18e31e904b9183559995fcec22697207

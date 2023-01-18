@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: "tkg-bom 1.5.0 weekly release"
+componentReferences:
+- name: tkg_release
+  version:
+  - v1.5.0-20210930-5b764f3e

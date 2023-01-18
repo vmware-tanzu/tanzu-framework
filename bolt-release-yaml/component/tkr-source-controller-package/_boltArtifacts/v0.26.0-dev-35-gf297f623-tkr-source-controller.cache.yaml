@@ -1,0 +1,7 @@
+name: tkr-source-controller-package
+goBuildComponentCaches:
+- version: v0.26.0-dev-35-gf297f623-tkr-source-controller
+  url: https://buildweb.eng.vmware.com/ob/20261492/
+  buildNumber: bora-20261492
+  buildStatus: SUCCEEDED
+  hash: 0470dd8b045b5545b79f97be00218fcc

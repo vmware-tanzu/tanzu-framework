@@ -1,0 +1,7 @@
+name: cluster-autoscaler-package
+goBuildComponentCaches:
+- version: v1.24.0+vmware.1-tkg.1-cluster-autoscaler
+  url: https://buildweb.eng.vmware.com/ob/20998653/
+  buildNumber: bora-20998653
+  buildStatus: SUCCEEDED
+  hash: 093c205813340661a1d1e899d891ba7d

@@ -1,0 +1,7 @@
+name: csi_livenessprobe
+goBuildComponentCaches:
+- version: v2.7.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20762230/
+  buildNumber: bora-20762230
+  buildStatus: SUCCEEDED
+  hash: b3dee1bb05fa20ddee1e5ba92810b562

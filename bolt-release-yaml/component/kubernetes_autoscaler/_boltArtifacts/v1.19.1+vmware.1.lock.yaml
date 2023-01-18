@@ -1,0 +1,7 @@
+name: kubernetes_autoscaler
+goBuildComponentLocks:
+- version: v1.19.1+vmware.1
+  gobuildBranch: 348316067031984106-v1.19.1+vmware.1
+  gobuildHeadCommit: 0de86b5487113e65fb3ebb99baa08e2fb737ccfc
+  hash: 44642fa796e3bb0f1d311030f49b48e0
+  componentLockReferences: []

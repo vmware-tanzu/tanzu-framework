@@ -1,0 +1,5 @@
+name: azure-ubuntu-2004
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-vhd-$VERSION.yaml

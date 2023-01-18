@@ -1,0 +1,5 @@
+name: "tkg_release"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:core-build/tkg-release.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:k8s-common-core/tkg-release.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:core-build/tkg-release.git"
+gobuildTarget: "tkg_release"

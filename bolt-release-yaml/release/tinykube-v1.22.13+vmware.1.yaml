@@ -1,0 +1,8 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'build tinykube v1.22.13+vmware.1'
+componentReferences:
+  - name: tinykube
+    version:
+      - v1.22.13+vmware.1
+      

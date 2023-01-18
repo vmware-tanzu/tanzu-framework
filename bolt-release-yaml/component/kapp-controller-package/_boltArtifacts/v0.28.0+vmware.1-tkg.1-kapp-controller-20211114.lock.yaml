@@ -1,0 +1,10 @@
+name: kapp-controller-package
+goBuildComponentLocks:
+- version: v0.28.0+vmware.1-tkg.1-kapp-controller-20211114
+  gobuildBranch: 381565706073840214-v0.28.0+vmware.1-tkg.1-kapp-controller-20211114
+  gobuildHeadCommit: b14e90adf79503ced25913c9035834a11085d28f
+  hash: dbc3224082a4a8256bbba65863e24fb8
+  componentLockReferences:
+  - name: kapp-controller
+    version: v0.28.0+vmware.1
+    lockHash: 19c499fee79e8148821ed55c7da1d91a

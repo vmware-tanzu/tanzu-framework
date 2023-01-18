@@ -1,0 +1,101 @@
+componentBuilds:
+- name: cni_plugins
+  version: v1.1.1+vmware.7
+  channel: "423297643716810702"
+  url: https://buildweb.eng.vmware.com/ob/20368746/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20368746/publish/lin64/cni_plugins/executables/cni-plugins-v1.1.1+vmware.7.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20368746/publish/lin64/cni_plugins/debs/kubernetes-cni_1.1.1+vmware.7-1_amd64.deb
+    cni_plugins-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20368746/publish/lin64/cni_plugins/rpms/rpms/kubernetes-cni-1.1.1-1.el7.vmware.7.x86_64.rpm
+    cni_plugins-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20368746/publish/lin64/cni_plugins/rpms/srpms/kubernetes-cni-1.1.1-1.el7.vmware.7.src.rpm
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/423297643716810702/component/cni_plugins/v1.1.1+vmware.7/cni-plugins-linux-amd64-v1.1.1+vmware.7.tgz
+      sha256: 0f3045b0e8a283e10487f1a77e2de0f0a10fdcef8036c6df6e6b2b3d05beaf0b
+  cachehash: 704e38d8fc828ec8ca87236213739db3
+  publishhash: 3222edb8e472969768744aa214a6af69
+  configDependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "0"
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.17.13
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8
+- name: coredns
+  version: v1.8.6+vmware.11
+  channel: "423297643716810702"
+  url: https://buildweb.eng.vmware.com/ob/20368761/
+  artifactURL:
+    coredns:
+      url: projects-stg.registry.vmware.com/tkg/coredns:v1.8.6_vmware.11
+      sha256: 3b02a69d4ca9d6a0fd593073bdedc697f409c56b7880cdacd5f03933175b17ba
+  cachehash: 7fb296955bdfc09ed37ce63d904c8056
+  publishhash: 5b23bb15efee643a4e09b711428a8a57
+  configDependencies:
+    gobuild.base_image: debian-base-amd64:bullseye-v1.0.0
+    gobuild.cgoEnabled: "0"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.17.13
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8
+- name: cri_tools
+  version: v1.22.0+vmware.9
+  channel: "423297643716810702"
+  url: https://buildweb.eng.vmware.com/ob/20368758/
+  artifactURL:
+    cri_tools:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20368758/publish/lin64/cri_tools/executables/crictl-v1.22.0+vmware.9.gz
+    cri_tools-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20368758/publish/lin64/cri_tools/debs/cri-tools_1.22.0+vmware.9-1_amd64.deb
+    cri_tools-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20368758/publish/lin64/cri_tools/rpms/rpms/cri-tools-1.22.0-1.el7.vmware.9.x86_64.rpm
+    cri_tools-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20368758/publish/lin64/cri_tools/rpms/srpms/cri-tools-1.22.0-1.el7.vmware.9.src.rpm
+  cachehash: f5eda0c4a30f55c9b1bb3c2b52e00c71
+  publishhash: 19dda37dbdb589ac6c1c2652c431f21f
+  configDependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "0"
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.17.13
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8
+- name: etcd
+  version: v3.5.4+vmware.7
+  channel: "423297643716810702"
+  url: https://buildweb.eng.vmware.com/ob/20368760/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.5.4_vmware.7
+      sha256: 2e0c57ca6632936aa3cf33ed344ccb705fb3150b0cde54bf9b7a0f4662cce36b
+  cachehash: 36639d2beb2daee3c06dcbabd82bce31
+  publishhash: 8d295061a104d02aaac3cda5e7d85ab7
+  configDependencies:
+    gobuild.base_image: debian-base-amd64:buster-v1.9.0
+    gobuild.cgoEnabled: "0"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.17.13
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8
+- name: kubernetes_release
+  version: v0.12.0+vmware.10
+  channel: "427260825661645456"
+  url: https://buildweb.eng.vmware.com/ob/20528224/
+  artifactURL:
+    kube-cross:
+      url: projects-stg.registry.vmware.com/tkg/kube-cross:v0.12.0_vmware.10
+      sha256: b2a45d23d2bb32f1a1550167e7c03b0ff06d8cb65063ba8997903b5c26f40a0d
+  cachehash: 7246cdfb079a9095c4928175909f5796
+  publishhash: 7021b2705a89024d325dd8f94088cd62
+  configDependencies:
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.17.13
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8

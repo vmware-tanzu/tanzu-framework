@@ -1,0 +1,11 @@
+name: azure-ubuntu-2004
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-vhd-$VERSION.yaml
+  - name: file-image-osstp
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/azure-ubuntu-2004-$VERSION-osstpmgt.yaml
+  - name: file-image-goss
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-2004/azure-ubuntu-2004-$VERSION-goss-spec.yaml

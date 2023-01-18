@@ -1,0 +1,4 @@
+submodules:
+  - name: cluster-api-provider-azure/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,4 @@
+name: imgpkg
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_imgpkg.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_imgpkg.git
+gobuildTarget: cayman_imgpkg

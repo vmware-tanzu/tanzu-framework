@@ -1,0 +1,5 @@
+versionMap:
+  v1.22.13+vmware.1: url.yaml
+  v1.24.6+vmware.1-tiny.2: url.yaml
+  v1.24.6+vmware.1-tinykube.2: url.yaml
+  v1.24.9+vmware.1-tiny.1: url.yaml

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: 'tkgs tkr v1.21.6+vmware.1'
+componentReferences:
+  - name: tkgs-ova-ubuntu-2004
+    version:
+      - v1.21.6+vmware.1-tkg.2

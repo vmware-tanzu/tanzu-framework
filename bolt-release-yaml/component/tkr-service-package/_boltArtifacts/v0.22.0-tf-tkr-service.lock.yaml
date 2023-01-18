@@ -1,0 +1,10 @@
+name: tkr-service-package
+goBuildComponentLocks:
+- version: v0.22.0-tf-tkr-service
+  gobuildBranch: 410623916613054680-v0.22.0-tf-tkr-service-tkr-service-package
+  gobuildHeadCommit: 4c6361d378dec987822d24ff00fc2124acc8f54f
+  hash: 8ce8762718ab219b400fa313668364a5
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.22.0-tf
+    lockHash: effea7dfc184f8f563a1436c07d2cee8

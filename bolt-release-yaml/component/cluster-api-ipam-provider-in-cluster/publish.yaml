@@ -1,0 +1,7 @@
+name: cluster-api-ipam-provider-in-cluster
+publish:
+  - name: capiIPAMProviderInClusterControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster-api-ipam-provider-in-cluster/images/cluster-api-ipam-provider-in-cluster-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cluster-api-ipam-provider-in-cluster/images/cluster-api-ipam-provider-in-cluster-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: cluster-api/cluster-api-ipam-provider-in-cluster:$UNDERSCOREVERSION

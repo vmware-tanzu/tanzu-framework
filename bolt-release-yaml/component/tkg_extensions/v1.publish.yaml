@@ -1,0 +1,16 @@
+name: tkg_extensions
+publish:
+  - name: tkgExtensionsTemplatesImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_extensions/images/tkg-extensions-templates-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_extensions/images/tkg-extensions-templates-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tkg-extensions-templates:$UNDERSCOREVERSION
+nonpublish:
+  - name: tkg_extensions-manifests
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_extensions/manifests/tkg-extensions-manifests-$VERSION-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_extensions/manifests/tkg-extensions-manifests-$VERSION.tar.gz
+  - name: tkg_extensions-bom
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_extensions/bom/tkg-extensions-bom-$VERSION-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tkg_extensions/bom/tkg-extensions-bom-$VERSION.yaml

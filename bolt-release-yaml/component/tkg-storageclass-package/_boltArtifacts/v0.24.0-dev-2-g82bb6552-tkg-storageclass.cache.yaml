@@ -1,0 +1,7 @@
+name: tkg-storageclass-package
+goBuildComponentCaches:
+- version: v0.24.0-dev-2-g82bb6552-tkg-storageclass
+  url: https://buildweb.eng.vmware.com/ob/19965968/
+  buildNumber: bora-19965968
+  buildStatus: SUCCEEDED
+  hash: 451556277812781bebd18e9d4a010873

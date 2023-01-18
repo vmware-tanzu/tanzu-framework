@@ -1,0 +1,15 @@
+name: cri_tools
+nonpublish:
+  - name: cri_tools
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cri_tools/executables/crictl-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cri_tools/executables/crictl-$VERSION.gz
+  - name: cri_tools-deb
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cri_tools/debs/cri-tools_{{trimPrefix (index .config "managedComponents" 0 "version") "v"}}-1_amd64.deb
+  - name: cri_tools-rpm
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cri_tools/rpms/rpms/cri-tools-{{trimPrefix (trimVmwareVersion (index .config "managedComponents" 0 "version")) "v"}}-1.el7.vmware.{{getVmwareVersion (index .config "managedComponents" 0 "version")}}.x86_64.rpm
+  - name: cri_tools-srpm
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cri_tools/rpms/srpms/cri-tools-{{trimPrefix (trimVmwareVersion (index .config "managedComponents" 0 "version")) "v"}}-1.el7.vmware.{{getVmwareVersion (index .config "managedComponents" 0 "version")}}.src.rpm

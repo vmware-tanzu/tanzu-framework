@@ -1,0 +1,14 @@
+name: tkr-compatibility
+boms:
+- version: v20-v1.7.0-zshippable
+  type: compatibility
+  compatibilityMetadata:
+    version: v20
+    managementClusterVersions:
+    - version: v1.7.0-zshippable
+      supportedKubernetesVersions:
+      - v1.24.6+vmware.1-tkg.1-zshippable
+      - v1.23.13+vmware.1-tkg.1-zshippable
+      - v1.22.11+vmware.2-tkg.2-zshippable
+  dependencies:
+    rtmVersions: v1.7.0

@@ -1,0 +1,7 @@
+name: kubernetes-csi_external-resizer
+unmanagedComponents:
+  - version: v1.4.0+vmware.1
+    gobuildBranch: vmware-1.4.0+vmware.1~3f34336371d26e1b876be1068778f2d49a07b784
+    dependencies:
+      gobuild.golangVersion: 1.17.0
+      gobuild.linux_hosttype: linux-centos72-gc32

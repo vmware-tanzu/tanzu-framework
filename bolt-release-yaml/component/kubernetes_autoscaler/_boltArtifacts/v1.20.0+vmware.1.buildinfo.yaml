@@ -1,0 +1,11 @@
+componentBuilds:
+- name: kubernetes_autoscaler
+  version: v1.20.0+vmware.1
+  channel: "348316067031984106"
+  url: https://buildweb.eng.vmware.com/ob/17825657/
+  artifactURL:
+    kubernetesAutoscalerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-autoscaler:v1.20.0_vmware.1
+      sha256: 2e2e9d9b84a960f208f7218494c46854dc09a0b9dbe5666eeb72bbb6e7c2c13c
+  cachehash: b2d27453cdaf56f266448ca5278615af
+  publishhash: 8a0c6d09778ce295307c65f8fc340a30

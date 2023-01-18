@@ -1,0 +1,24 @@
+componentBuilds:
+- name: fluxcd-kustomize-controller-package
+  version: v0.24.4+vmware.1-tkg.2-kustomize-ctrl
+  channel: "439555018618600930"
+  url: https://buildweb.eng.vmware.com/ob/20987728/
+  artifactURL:
+    fluxcd-kustomize-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluxcd-kustomize-controller:v0.24.4_vmware.1-tkg.2
+      sha256: e78f8c1ebe51a78434bf6a413fdeaab98684a15e2359cb0ebec6dd050b6d5f51
+  cachehash: 39e29bd738fef0e7454b17e9fa50abc9
+  publishhash: a81d031f95203c82405bdc471c5fedf0
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.directory_override: 0.24.4+update.1
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluxcd/kustomize-controller:v0.24.4_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluxcd-kustomize-controller
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluxcd/kustomize-controller:v0.24.4
+    gobuild.upstream_version: 0.24.4

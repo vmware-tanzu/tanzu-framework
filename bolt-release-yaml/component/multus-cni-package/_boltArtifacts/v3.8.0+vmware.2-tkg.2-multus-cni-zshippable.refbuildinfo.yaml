@@ -1,0 +1,14 @@
+componentBuilds:
+- name: multus-cni
+  version: v3.8.0+vmware.2
+  channel: "439559957814219901"
+  url: https://buildweb.eng.vmware.com/ob/20988045/
+  artifactURL:
+    multusCniImage:
+      url: projects-stg.registry.vmware.com/tkg/multus-cni:v3.8.0_vmware.2
+      sha256: 44696923e45b0cd81f6b6e8d59b50bc4e006e52f08384ccbf0b928bf75cc1d32
+  cachehash: 6c4683cd440ac19f891ec65e20d91458
+  publishhash: b5647358c2c84dcc15f3551eb9721292
+  configDependencies:
+    gobuild.golangVersion: 1.15.12
+    gobuild.linux_hosttype: linux-centos8

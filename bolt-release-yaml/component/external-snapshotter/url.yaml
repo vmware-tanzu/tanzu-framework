@@ -1,0 +1,8 @@
+name: external-snapshotter
+upstreamURL: https://github.com/kubernetes-csi/external-snapshotter
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_external-snapshotter.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_external-snapshotter.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_external-snapshotter.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_external-snapshotter.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_external-snapshotter.git
+gobuildTarget: cayman_external-snapshotter

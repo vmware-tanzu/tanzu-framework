@@ -1,0 +1,43 @@
+# managed component
+name: kubernetes-sigs_kind
+managedComponents:
+- version: v1.20.11+vmware.1_v0.8.1
+  upstreamTag: v0.8.1
+  mirrorCherryPicks:
+    - sha: f970ca3c182cdba4d22b30c382fdf472a401ecbb
+      description: 'cherry pick commit that adding local build option'
+  gobuildBaseBranch: v0.8.1+vmware.0~ef68e41b5c0bd1210717c6a5188f3f26af5135f4
+  dependencies:
+    gobuild.linux_hosttype: linux-centos8
+    kindKubeadmAPIVersion: kind.x-k8s.io/v1alpha4
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.debianBaseRepo: us.gcr.io/k8s-artifacts-prod/build-image/debian-base
+    gobuild.debianBaseVersion: v2.1.0
+    gobuild.rancherRepo: rancher/local-path-provisioner
+    gobuild.rancherVersion: v0.0.12
+    gobuild.kindCNIRepo: kindest/kindnetd
+    gobuild.kindCNIVersion: 0.5.4
+    gobuild.harborBase: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.harborGolangBase: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang
+    gobuild.defaultBuildBase: kindest/base:v20200430-2c0eee40
+    gobuild.golangVersion: 1.13.14
+    gobuild.k8sVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes") "version"}}'
+    gobuild.kindVersion: 0.8.1
+    gobuild.coreDNSVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "coreDns") "version"}}'
+    gobuild.etcdVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "etcd") "version"}}'
+    gobuild.buildChannel: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes") "channel"}}'
+    gobuild.pause: pause
+  componentReferences:
+  - name: coredns
+    version:
+    - v1.7.0+vmware.15
+  - name: etcd
+    version:
+    - v3.4.13+vmware.19
+  - name: kubernetes
+    version:
+    - v1.20.11+vmware.1

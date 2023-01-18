@@ -1,0 +1,5 @@
+description: 'Testing OSL automation'
+componentReferences:
+  - name: kscom_release
+    version:
+      - v1.20.1+vmware.2

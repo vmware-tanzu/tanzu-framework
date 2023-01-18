@@ -1,0 +1,27 @@
+componentBuilds:
+- name: cni_plugins
+  version: v1.1.1+vmware.8-fips.1
+  channel: "437534878704080810"
+  url: https://buildweb.eng.vmware.com/ob/20909591/
+  artifactURL:
+    cni_plugins:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20909591/publish/lin64/cni_plugins/executables/cni-plugins-v1.1.1+vmware.8-fips.1.tgz
+    cni_plugins-deb:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20909591/publish/lin64/cni_plugins/debs/kubernetes-cni_1.1.1+vmware.8-fips.1-1_amd64.deb
+    cni_plugins-rpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20909591/publish/lin64/cni_plugins/rpms/rpms/kubernetes-cni-1.1.1-1.el7.vmware.8-fips.1.x86_64.rpm
+    cni_plugins-srpm:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20909591/publish/lin64/cni_plugins/rpms/srpms/kubernetes-cni-1.1.1-1.el7.vmware.8-fips.1.src.rpm
+    file-cniplugins-linux-amd64:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/437534878704080810/component/cni_plugins/v1.1.1+vmware.8-fips.1/cni-plugins-linux-amd64-v1.1.1+vmware.8-fips.1.tgz
+      sha256: ac86b928f9e980cfcbbd676825efa96017b4d3fdd3e6ec3ad7bf3ccb420a4d4d
+  cachehash: 650a7db8f34dbedd6f435350ab96635b
+  publishhash: 3222edb8e472969768744aa214a6af69
+  configDependencies:
+    generateDebRpmChangelog: "true"
+    gobuild.cgoEnabled: "1"
+    gobuild.golangImageName: go
+    gobuild.golangImageRegistry: fips-runtime-containers-docker-local.artifactory.eng.vmware.com
+    gobuild.golangImageVersion: 1.18.6b7
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,50 @@
+name: tkr-bom
+boms:
+- version: v1.20.4+vmware.1-tkg.1-v1.3.0-rc.3-2-g947a3dd.2
+  type: tkr
+  imageRepository: projects-stg.registry.vmware.com/tkg
+  dependencies:
+    componentTanzuCoreVersion: v1.3.0-rc.3-2-g947a3dd
+  componentReferences:
+  - name: kubernetes
+    version:
+    - v1.20.4+vmware.1
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.5
+  - name: coredns
+    version:
+    - v1.7.0+vmware.8
+  - name: cri_tools
+    version:
+    - v1.19.0+vmware.2
+  - name: etcd
+    version:
+    - v3.4.13+vmware.7
+  - name: containerd
+    version:
+    - v1.4.3+vmware.1
+  - name: ova-photon-3
+    version:
+    - v1.20.4+vmware.1-tkg.0-2326554155028348692
+  - name: ova-ubuntu-2004
+    version:
+    - v1.20.4+vmware.1-tkg.0-16153464878630780629
+  - name: ami-general-amazon-2
+    version:
+    - v1.20.4+vmware.1-tkg.0-13256984930841426446
+  - name: ami-general-ubuntu-2004
+    version:
+    - v1.20.4+vmware.1-tkg.0-11728746712657375124
+  - name: ami-gov-amazon-2
+    version:
+    - v1.20.4+vmware.1-tkg.0-15238474031826804139
+  - name: ami-gov-ubuntu-2004
+    version:
+    - v1.20.4+vmware.1-tkg.0-16572173413267509878
+  - name: azure-ubuntu-1804
+    version:
+    - v1.20.4+vmware.1-tkg.0-7748671212887166280
+  - name: azure-ubuntu-2004
+    version:
+    - v1.20.4+vmware.1-tkg.0-12478622926553543613

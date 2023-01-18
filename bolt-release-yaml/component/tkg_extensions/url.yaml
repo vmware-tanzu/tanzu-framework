@@ -1,0 +1,5 @@
+name: tkg_extensions
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/tkg-extensions.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/tkg-extensions.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/tkg-extensions.git
+gobuildTarget: tkg_extensions

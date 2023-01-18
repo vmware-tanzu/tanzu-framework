@@ -1,0 +1,7 @@
+name: cni_plugins
+goBuildComponentCaches:
+- version: v1.1.1+vmware.8-fips.1
+  url: https://buildweb.eng.vmware.com/ob/20909591/
+  buildNumber: bora-20909591
+  buildStatus: SUCCEEDED
+  hash: 002c9478552246ac5f82f4d7f8d5f34d

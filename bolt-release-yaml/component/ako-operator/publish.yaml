@@ -1,0 +1,12 @@
+name: ako-operator
+publish:
+  - name: akoOperatorImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ako-operator/images/ako-operator-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ako-operator/images/ako-operator-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: ako-operator:$UNDERSCOREVERSION
+nonpublish:
+  - name: ako-operator-manifests
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ako-operator/manifests/ako-operator-manifests-$VERSION.tar.gz-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/ako-operator/manifests/ako-operator-manifests-$VERSION.tar.gz

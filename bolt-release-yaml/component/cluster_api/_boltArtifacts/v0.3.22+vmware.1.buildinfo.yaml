@@ -1,0 +1,30 @@
+componentBuilds:
+- name: cluster_api
+  version: v0.3.22+vmware.1
+  channel: "365412056830050659"
+  url: https://buildweb.eng.vmware.com/ob/18383195/
+  artifactURL:
+    cabpkControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/kubeadm-bootstrap-controller:v0.3.22_vmware.1
+      sha256: a3fc62b0d9624abf084879bb9f646c1a8400e5f1765acbddf30c6e8697eed030
+    capdManagerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/capd-manager:v0.3.22_vmware.1
+      sha256: 8038667f0862271a74016a66ab32436e04dc882ed883ad121aa875b01195517d
+    capiControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/cluster-api-controller:v0.3.22_vmware.1
+      sha256: adec28e81f385acd2d812f87c98763d6e67afe61d6ad8e9e12207116d52ba082
+    clusterctl-linux:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18383195/publish/lin64/cluster_api/executables/clusterctl-linux-v0.3.22+vmware.1.gz
+    clusterctl-mac:
+      url: http://build-squid.eng.vmware.com/build/mts/release/BUILDID/publish/lin64/cluster_api/executables/clusterctl-mac-v0.3.22+vmware.1.gz
+    kcpControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/cluster-api/kubeadm-control-plane-controller:v0.3.22_vmware.1
+      sha256: 6ab616bad244bf466bcc590fe28d05df04b22bc77dac7588124b0c086fc5b475
+    kubeadm-bootstrap-manager:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18383195/publish/lin64/cluster_api/executables/kubeadm-bootstrap-manager-v0.3.22+vmware.1.gz
+    kubeadm-control-plane-manager:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18383195/publish/lin64/cluster_api/executables/kubeadm-control-plane-manager-v0.3.22+vmware.1.gz
+    manager:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18383195/publish/lin64/cluster_api/executables/manager-v0.3.22+vmware.1.gz
+  cachehash: 5d91ff991c12afe0cc5eae4f75f0cf4b
+  publishhash: bb0d5164c96484373cde4e4464b56122

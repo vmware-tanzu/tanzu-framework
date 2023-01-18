@@ -1,0 +1,7 @@
+name: pinniped-post-deploy
+publish:
+  - name: tkgPinnipedPostDeployImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/pinniped-post-deploy/images/tkg-pinniped-post-deploy/tkg-pinniped-post-deploy-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/pinniped-post-deploy/images/tkg-pinniped-post-deploy/tkg-pinniped-post-deploy-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: tanzu_core/addons/tkg-pinniped-post-deploy:$UNDERSCOREVERSION

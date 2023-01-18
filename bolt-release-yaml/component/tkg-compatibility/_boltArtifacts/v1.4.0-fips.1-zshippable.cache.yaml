@@ -1,0 +1,6 @@
+name: tkg-compatibility
+bomCaches:
+- version: v1.4.0-fips.1-zshippable
+  channel: "377894385779511057"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377894385779511057/component/tkg-compatibility/_boltArtifacts/tkg-compatibility-v1.4.0-fips.1-zshippable.yaml
+  hash: 2fcb25dc7355f780e28e50c8f2181661

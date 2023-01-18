@@ -1,0 +1,4 @@
+submodules:
+  - name: velero-plugin-for-aws/src
+    go_mod:
+      - "go.mod"

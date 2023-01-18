@@ -1,0 +1,49 @@
+name: tkg-standard-packages
+goBuildComponentLocks:
+- version: v2.1.0-rc.2
+  gobuildBranch: 442519250544895703-v2.1.0-rc.2-tkg-standard-packages
+  gobuildHeadCommit: e5b7a2d628ae926708cb0d38f1c9e08016f35005
+  hash: e27e4bfb5a66fd0494c9d261d20c26d1
+  componentLockReferences:
+  - name: cert-manager-package
+    version: v1.5.3+vmware.7-tkg.1-cert-manager-rc.2
+    lockHash: 7ce7426ac6722faf0bc2398081bf1341
+  - name: cert-manager-package
+    version: v1.7.2+vmware.3-tkg.1-cert-manager-rc.2
+    lockHash: a431d73f8d3c9921c9dfa44bc7e957c4
+  - name: cert-manager-package
+    version: v1.10.1+vmware.1-tkg.1-cert-manager-rc.2
+    lockHash: 8bfb54160b02d8617929bc9b468f8977
+  - name: contour-package
+    version: v1.22.3+vmware.1-tkg.1-contour-rc.2
+    lockHash: 4a2aec35906f29f1d65fbf2e701c28bd
+  - name: external-dns-package
+    version: v0.10.0+vmware.1-tkg.3-external-dns-rc.2
+    lockHash: 6b55bb39b17f665a7b55c2ae34b50d1a
+  - name: external-dns-package
+    version: v0.11.0+vmware.1-tkg.3-external-dns-rc.2
+    lockHash: 877691ee68a4c43d645539bd58d8dd7d
+  - name: external-dns-package
+    version: v0.12.2+vmware.4-tkg.1-external-dns-rc.2
+    lockHash: 39584f96966bdbf80615b1bc5ad69f5d
+  - name: fluent-bit-package
+    version: v1.9.5+vmware.1-tkg.1-fluent-bit-rc.2
+    lockHash: 91fa087dde0d686c36c97c6059c5fbf8
+  - name: grafana-package
+    version: v7.5.16+vmware.1-tkg.2-grafana-rc.2
+    lockHash: 2da6035373ae46afe64540c862891d29
+  - name: prometheus-package
+    version: v2.37.0+vmware.1-tkg.1-prometheus-rc.2
+    lockHash: ecba0cca02c77ba090bb248e278d2c2e
+  - name: harbor-package
+    version: v2.6.2+vmware.1-tkg.1-harbor-rc.2
+    lockHash: b7e021a2f471f7023a7145faf1fe2f00
+  - name: multus-cni-package
+    version: v3.8.0+vmware.2-tkg.2-multus-cni-rc.2
+    lockHash: 27989de754aa99fa73ece279a6340d32
+  - name: whereabouts-package
+    version: v0.5.4+vmware.1-tkg.1-whereabouts-rc.2
+    lockHash: 9874237de2bb6f89791558e4c511ecb4
+  - name: fluxcd-source-controller-package
+    version: v0.24.4+vmware.1-tkg.3-source-ctrl-rc.2
+    lockHash: 61dc6884ddf9cc565899fae227ec3103

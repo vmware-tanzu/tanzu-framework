@@ -1,0 +1,12 @@
+versionMap:
+  v1.3.0: publish.yaml
+  v1.3.0+vmware.1: publish.yaml
+  v1.3.0-latest: publish.yaml
+  v1.3.0-pre-rc.1: publish.yaml
+  v1.3.0-rc.1: publish.yaml
+  v1.3.0-rc.2: publish.yaml
+  v1.3.0-rc.2-vmware.2: publish.yaml
+  v1.3.0-rc.3: publish.yaml
+  v1.3.0-zlatest: publish.yaml
+  v1.3.0-zlatest.2: publish.yaml
+  v1.3.0-zlatest.rhel: publish.yaml

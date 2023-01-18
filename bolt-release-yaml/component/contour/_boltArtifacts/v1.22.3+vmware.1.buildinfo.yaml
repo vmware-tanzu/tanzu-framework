@@ -1,0 +1,16 @@
+componentBuilds:
+- name: contour
+  version: v1.22.3+vmware.1
+  channel: "439418468505261122"
+  url: https://buildweb.eng.vmware.com/ob/20950671
+  artifactURL:
+    contour-file:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20950671/publish/lin64/contour/executables/contour-v1.22.3+vmware.1
+    contourImage:
+      url: projects-stg.registry.vmware.com/tkg/contour:v1.22.3_vmware.1
+      sha256: fd8e0de13d32c74946ba99f62466b57a9d125c3abadfdfbe49ff3eb731bd764d
+  cachehash: 8dceb1eadf19655cc4aeb079188c444b
+  publishhash: f11286aaa402efd28a5cd0db970d543b
+  configDependencies:
+    gobuild.golangVersion: 1.19.4
+    gobuild.linux_hosttype: linux-centos72-gc32

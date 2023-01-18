@@ -1,0 +1,7 @@
+name: kube-vip-cloud-provider
+publish:
+  - name: kubevipcloudproviderControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube-vip-cloud-provider/images/kube-vip-cloud-provider-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kube-vip-cloud-provider/images/kube-vip-cloud-provider-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kube-vip/kube-vip-cloud-provider:$UNDERSCOREVERSION

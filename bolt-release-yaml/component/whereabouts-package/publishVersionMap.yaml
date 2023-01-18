@@ -1,0 +1,22 @@
+versionMap:
+  v0.5.1+vmware.1-tkg.1-whereabouts-tf-v0.22.0: publish.yaml
+  v0.5.1+vmware.1-tkg.1-whereabouts-zshippable: publish.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts: publish.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-rc.1: publish.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-rc.2: publish.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-rc.3: publish.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-tf-v0.23.0: publish.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-tf-v0.25.0: publish.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-tf-v0.25.1: publish.yaml
+  v0.5.1+vmware.2-tkg.1-whereabouts-zshippable: publish.yaml
+  v0.5.1+vmware.2-tkg.2-whereabouts-tf-v0.26.0: publish.yaml
+  v0.5.1+vmware.2-tkg.2-whereabouts-zshippable: publish.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-20230103: publish.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-20230112: publish.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-20230114: publish.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-fc.1: publish.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-fc.2: publish.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-rc.1: publish.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-rc.2: publish.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-rc.3: publish.yaml
+  v0.5.4+vmware.1-tkg.1-whereabouts-zshippable: publish.yaml

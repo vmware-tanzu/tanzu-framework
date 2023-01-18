@@ -1,0 +1,4 @@
+submodules:
+  - name: velero-plugin-for-microsoft-azure/src
+    go_mod:
+      - "go.mod"

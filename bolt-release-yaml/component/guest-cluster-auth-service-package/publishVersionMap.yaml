@@ -1,0 +1,23 @@
+versionMap:
+  v1.0.0-tkg.1-gc-auth-service: publish.yaml
+  v1.0.0-tkg.1-gc-auth-service-rc.1: publish.yaml
+  v1.0.0-tkg.1-gc-auth-service-rc.2: publish.yaml
+  v1.0.0-tkg.1-gc-auth-service-rc.3: publish.yaml
+  v1.0.0-tkg.1-gc-auth-service-tf-v0.22.0: publish.yaml
+  v1.0.0-tkg.1-gc-auth-service-tf-v0.23.0: publish.yaml
+  v1.0.0-tkg.1-gc-auth-service-tf-v0.25.0: publish.yaml
+  v1.0.0-tkg.1-gc-auth-service-tf-v0.25.1: publish.yaml
+  v1.0.0-tkg.1-gc-auth-service-zshippable: publish.yaml
+  v1.0.0-tkg.2-gc-auth-service: publish.yaml
+  v1.0.0-tkg.2-gc-auth-service-tf-v0.26.0: publish.yaml
+  v1.0.0-tkg.2-gc-auth-service-zshippable: publish.yaml
+  v1.0.0-tkg.3-gc-auth-service-zshippable: publish.yaml
+  v1.1.0-tkg.1-gc-auth-service-20230103: publish.yaml
+  v1.1.0-tkg.1-gc-auth-service-20230112: publish.yaml
+  v1.1.0-tkg.1-gc-auth-service-20230114: publish.yaml
+  v1.1.0-tkg.1-gc-auth-service-fc.1: publish.yaml
+  v1.1.0-tkg.1-gc-auth-service-fc.2: publish.yaml
+  v1.1.0-tkg.1-gc-auth-service-rc.1: publish.yaml
+  v1.1.0-tkg.1-gc-auth-service-rc.2: publish.yaml
+  v1.1.0-tkg.1-gc-auth-service-rc.3: publish.yaml
+  v1.1.0-tkg.1-gc-auth-service-zshippable: publish.yaml

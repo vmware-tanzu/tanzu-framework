@@ -1,0 +1,22 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: release yaml for special CSI version bump/release, please update the csi component version accordingly through MR
+componentReferences:
+- name: csi_attacher
+  version:
+  - v3.1.0+vmware.1
+- name: csi_livenessprobe
+  version:
+  - v2.2.0+vmware.1
+- name: csi_node_driver_registrar
+  version:
+  - v2.1.0+vmware.1
+- name: kubernetes-csi_external-resizer
+  version:
+  - v1.1.0+vmware.1
+- name: csi_provisioner
+  version:
+  - v2.1.0+vmware.4
+- name: vsphere_csi_driver
+  version:
+  - v2.2.0+vmware.1

@@ -1,0 +1,7 @@
+name: harbor-package
+goBuildComponentCaches:
+- version: v2.4.2+vmware.1-tkg.1-harbor-zshippable
+  url: https://buildweb.eng.vmware.com/ob/19797741/
+  buildNumber: bora-19797741
+  buildStatus: SUCCEEDED
+  hash: 71f68456471ca318ac5a05c3751bc927

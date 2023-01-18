@@ -1,0 +1,27 @@
+componentBuilds:
+- name: azure-ubuntu-2004
+  version: v1.24.6+vmware.1-tkg.1-8a39d505aae795deaab3f78fccc558ce
+  channel: "432632354729661563"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-azure/3555
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-2004/bom-azure-ubuntu-2004-vhd-v1.24.6+vmware.1-tkg.1-8a39d505aae795deaab3f78fccc558ce.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.24.6+vmware.1-tkg.1-8a39d505aae795deaab3f78fccc558ce-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.24.6+vmware.1-tkg.1-8a39d505aae795deaab3f78fccc558ce-osstpmgt.yaml
+    file-image-srp-provenance:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.24.6+vmware.1-tkg.1-8a39d505aae795deaab3f78fccc558ce-provenance.json
+    file-image-srp-provenance-result:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-2004/azure-ubuntu-2004-v1.24.6+vmware.1-tkg.1-8a39d505aae795deaab3f78fccc558ce-provenance_result.txt
+    file-vhd-link:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/432632354729661563/component/azure-ubuntu-2004/azure-vhd-link-ubuntu-2004-v1.24.6+vmware.1-tkg.1-8a39d505aae795deaab3f78fccc558ce.json
+  cachehash: 7ac067471d79c4d9b36a49145c49e761
+  publishhash: 8767b511de6ea0a35615b8bcac003cf8
+  configDependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.CIS_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-cis-hardening.git
+    jenkins.CIS_VERSION: 88edce31a8cfc66cd906fa364d7ffa7ee9b70cf4
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 3a1d4e12b2a0ea8488826c19ae51ff1de411da3a

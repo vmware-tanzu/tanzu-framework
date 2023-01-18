@@ -1,0 +1,76 @@
+componentBuilds:
+- name: kapp-controller
+  version: v0.44.1+vmware.1
+  channel: "442009258091878216"
+  url: https://buildweb.eng.vmware.com/ob/20962503
+  artifactURL:
+    kapp-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-20962503/publish/lin64/kapp-controller/executables/kapp-controller-linux-amd64-v0.44.1+vmware.1.gz
+    kappControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.44.1_vmware.1
+      sha256: 9681084673aa2db7e20a1447cd90e7bceadd987638895fc58c4ff36985cf85d3
+  cachehash: 921b9d0f5a261c4f8998f749bb200478
+  publishhash: 702fabdb2102e99ec9e6f600badee4cf
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8-fw
+- name: kapp-controller-package
+  version: v0.44.1+vmware.1-tkg.1-kapp-controller-zshippable
+  channel: "442009258091878216"
+  url: https://buildweb.eng.vmware.com/ob/21074270/
+  artifactURL:
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.44.1_vmware.1-tkg.1-zshippable
+      sha256: 7c874a49bc9fc3582c8d3d578598d01c26d6ffc9c48cce8c9aa88f5bf746d06c
+  cachehash: 918069e1891f4590e1293e224e4a8413
+  publishhash: 386598a473d4ed792227a88e5777e074
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/kapp-controller:v0.44.1_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: kapp-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:2c5d238a508e0978490a89ca13c5a4ccb9210558dbcb51d3bb4c37fc59964744
+    gobuild.upstream_version: 0.44.1
+- name: carvel-secretgen-controller
+  version: v0.13.0+vmware.1
+  channel: "442009258091878216"
+  url: https://buildweb.eng.vmware.com/ob/21074301/
+  artifactURL:
+    secretgen-controller-executable:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-21074301/publish/lin64/carvel-secretgen-controller/executables/secretgen-controller-linux-amd64-v0.13.0+vmware.1.gz
+    secretgenControllerImage:
+      url: projects-stg.registry.vmware.com/tkg/secretgen-controller:v0.13.0_vmware.1
+      sha256: bd1e16eed2da426495f797f9419c0520869652290c6ab465b0a3e63613172f74
+  cachehash: 2da56790b5983940765d970b2a6e7193
+  publishhash: d6523f4f29b20adf04999b1b7dfb9e53
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos8
+- name: secretgen-controller-package
+  version: v0.13.0+vmware.1-tkg.1-secgen-ctl-zshippable
+  channel: "442009258091878216"
+  url: https://buildweb.eng.vmware.com/ob/21074353/
+  artifactURL:
+    secretgen-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/secretgen-controller:v0.13.0_vmware.1-tkg.1-zshippable
+      sha256: 857330052890bf4c1a0b7d8bfbee73764cb72069d8769a5bb35010d3ec699843
+  cachehash: 25450cb9a900ada814abbefa4fc65bdf
+  publishhash: 5e2cf1e775d67dbdb526c3013035dd63
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/secretgen-controller:v0.13.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.1-zshippable
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: secretgen-controller
+    gobuild.package_type: core
+    gobuild.upstream_image_0: secretgen-controller
+    gobuild.upstream_version: 0.13.0
+imageRepository: projects-stg.registry.vmware.com/tkg
+boltCliVersion: 07ee0bd303d2c3463f4d8b997f753e5b34611f40
+testInfraVersion: b33ce521a2dc2688c09c8de9e4d26a17714d6e2a

@@ -1,0 +1,7 @@
+name: secretgen-controller-package
+goBuildComponentCaches:
+- version: v0.11.2+vmware.1-tkg.1-secgen-ctl-rc.2
+  url: https://buildweb.eng.vmware.com/ob/21092945/
+  buildNumber: bora-21092945
+  buildStatus: SUCCEEDED
+  hash: d8bacc23589d8f87401a7d81050ed5db

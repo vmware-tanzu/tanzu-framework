@@ -1,0 +1,9 @@
+name: pinniped-post-deploy
+managedComponents:
+- version: v0.10.0+vmware.2-tkg.1
+  upstreamCommit: 678edc3cea3eb28cc3d9df48402aaee4d6c2fc14
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-pinniped-post-deploy~e0e28e7661295e455541b6974efb51fae5d00eb5
+  dependencies:
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v0.10.0+vmware.2-tkg.1

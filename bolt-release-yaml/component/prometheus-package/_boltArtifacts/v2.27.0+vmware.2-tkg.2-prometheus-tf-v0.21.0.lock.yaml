@@ -1,0 +1,28 @@
+name: prometheus-package
+goBuildComponentLocks:
+- version: v2.27.0+vmware.2-tkg.2-prometheus-tf-v0.21.0
+  gobuildBranch: 406498763599797778-v2.27.0+vmware.2-tkg.2-prometheus-tf-v0.21.0-prometheus-package
+  gobuildHeadCommit: a6d03eb957ccd4f071020983193adf0c60649940
+  hash: 7438274db9a9bd97345ce391b7a2cf04
+  componentLockReferences:
+  - name: cadvisor
+    version: v0.39.1+vmware.1
+    lockHash: 85ff9ae901cd89423bb23160e7c35e07
+  - name: configmap-reload
+    version: v0.5.0+vmware.2
+    lockHash: 6790ebe3ba56401871b8b40cb8b1a969
+  - name: alertmanager
+    version: v0.22.2+vmware.1
+    lockHash: cfd111da22f7bcb6b75725e5ac74ba65
+  - name: prometheus
+    version: v2.27.0+vmware.1
+    lockHash: 9d1b5234aa58c4add68a9abba62467a8
+  - name: pushgateway
+    version: v1.4.0+vmware.1
+    lockHash: 4b20228b46f0e03cf38dfc2b5abbfe82
+  - name: kube-state-metrics
+    version: v1.9.8+vmware.1
+    lockHash: 9f1035ce8519bc45ea06b3fd49b240e8
+  - name: prometheus_node_exporter
+    version: v1.1.2+vmware.1
+    lockHash: a8c414c6495d14d66238540be4eea9aa

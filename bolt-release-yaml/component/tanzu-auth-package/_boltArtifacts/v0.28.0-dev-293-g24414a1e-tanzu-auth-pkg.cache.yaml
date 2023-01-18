@@ -1,0 +1,7 @@
+name: tanzu-auth-package
+goBuildComponentCaches:
+- version: v0.28.0-dev-293-g24414a1e-tanzu-auth-pkg
+  url: https://buildweb.eng.vmware.com/ob/21066682/
+  buildNumber: bora-21066682
+  buildStatus: SUCCEEDED
+  hash: d0479bf76294598ab2d2d0d64d1bb56d

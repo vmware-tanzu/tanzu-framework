@@ -1,0 +1,11 @@
+componentBuilds:
+- name: kubernetes-sigs_kind
+  version: v1.22.5+vmware.1
+  channel: "394308868018045930"
+  url: https://buildweb.eng.vmware.com/ob/19343356/
+  artifactURL:
+    kindNodeImage:
+      url: projects-stg.registry.vmware.com/tkg/kind/node:v1.22.5_vmware.1
+      sha256: a9098f60da0556e1c3ded1258f665c53b95b0d4674b1bb72d2b33fe7f103f380
+  cachehash: 5730204b637f44125858a79bf1624452
+  publishhash: 8126cfbf770fa66f98329c62fa637a37

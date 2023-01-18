@@ -1,0 +1,20 @@
+componentBuilds:
+- name: etcd
+  version: v3.5.5+vmware.2
+  channel: "436521437331752676"
+  url: https://buildweb.eng.vmware.com/ob/20870875/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.5.5_vmware.2
+      sha256: 9114b33a1f49aa486c5cf5afb45909ea9b8345eeb172e817ebb14f046877f726
+  cachehash: 59f23977680af0a5b2594c87e2296f5d
+  publishhash: 8d295061a104d02aaac3cda5e7d85ab7
+  configDependencies:
+    gobuild.base_image: debian-base-amd64:bullseye-v1.2.0
+    gobuild.cgoEnabled: "0"
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.golangImageName: library/golang
+    gobuild.golangImageVersion: 1.18.8
+    gobuild.harborRepoDockerhubProxyCache: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.kscomDockerLocalArtifactoryRegistry: kscom-docker-local.artifactory.eng.vmware.com
+    gobuild.linux_hosttype: linux-centos8

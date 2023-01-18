@@ -1,0 +1,21 @@
+versionMap:
+  v0.24.4+vmware.1-tkg.1-source-ctrl: publish.yaml
+  v0.24.4+vmware.1-tkg.1-source-ctrl-zshippable: publish.yaml
+  v0.24.4+vmware.1-tkg.2-source-ctrl: publish.yaml
+  v0.24.4+vmware.1-tkg.2-source-ctrl-zshippable: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-20230103: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-20230112: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-20230114: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-fc.1: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-fc.2: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-rc.1: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-rc.2: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-rc.3: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-tf-v0.26.0: publish.yaml
+  v0.24.4+vmware.1-tkg.3-source-ctrl-zshippable: publish.yaml
+  v0.24.4+vmware.1-tkg.4-source-ctrl: publish.yaml
+  v0.24.4+vmware.1-tkg.4-source-ctrl-rc.3: publish.yaml
+  v0.24.4+vmware.1-tkg.4-source-ctrl-tf-v0.25.1: publish.yaml
+  v0.24.4+vmware.1-tkg.4-source-ctrl-zshippable: publish.yaml
+  v0.24.4+vmware.1-tkg.5-source-ctrl: publish.yaml
+  v0.24.4+vmware.1-tkg.5-source-ctrl-zshippable: publish.yaml

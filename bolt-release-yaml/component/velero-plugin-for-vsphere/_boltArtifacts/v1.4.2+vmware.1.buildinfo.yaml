@@ -1,0 +1,19 @@
+componentBuilds:
+- name: velero-plugin-for-vsphere
+  version: v1.4.2+vmware.1
+  channel: "437671985535780767"
+  url: https://buildweb.eng.vmware.com/ob/20914934/
+  artifactURL:
+    veleroBackupDriverImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/backup-driver:v1.4.2_vmware.1
+      sha256: c80e2e6d263c738515fa7ed986b39a867c32291bf626ebd1aa3514f854e0076c
+    veleroDataManagerForPluginImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/data-manager-for-plugin:v1.4.2_vmware.1
+      sha256: 63c13e8d9137af32f58ac1b44d532e8a143dc9b87a6a4ea03c4b578cd362d53e
+    veleroPluginForVsphereImage:
+      url: projects-stg.registry.vmware.com/tkg/velero/velero-plugin-for-vsphere:v1.4.2_vmware.1
+      sha256: b019cafb83a13a6dcaa534e7debf5978053882e544b4cff0e8a0e1f577090462
+  cachehash: fddf4e3411db8418fc401c6cb2ba0140
+  publishhash: 0ffc6f00e9b2ca613fa6e21f1ea52316
+  configDependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32

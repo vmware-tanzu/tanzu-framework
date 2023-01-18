@@ -1,0 +1,7 @@
+name: velero-plugin-for-microsoft-azure
+publish:
+  - name: veleroPluginForMicrosoftAzureImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-microsoft-azure/images/velero-plugin-for-microsoft-azure-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-plugin-for-microsoft-azure/images/velero-plugin-for-microsoft-azure-$UNDERSCOREVERSION-checksums.txt
+    destinationPath: velero/velero-plugin-for-microsoft-azure:$UNDERSCOREVERSION

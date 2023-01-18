@@ -1,0 +1,20 @@
+componentBuilds:
+- name: tkg-standard-packages
+  version: v1.5.4-update.2-zshippable
+  channel: "416148483636989214"
+  url: https://buildweb.eng.vmware.com/ob/20092949/
+  artifactURL:
+    tanzuStandardPackageRepositoryImage:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/repo:v1.5.4-update.2-zshippable
+      sha256: c02dc4528ea31b26a8e7c47f1a06d67152945f20cd0fe7e731aee1399df40375
+  cachehash: 5bbe0a459fe9505f7639cb9d46feafc8
+  publishhash: 921227668c0e32e4d6fe8038487b734c
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_type: standard
+    gobuild.releaseVersion: v1.5.4-update.2-zshippable

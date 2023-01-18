@@ -1,0 +1,20 @@
+componentBuilds:
+- name: metrics-server
+  version: v0.4.0+vmware.2
+  channel: "377871877214835016"
+  url: https://buildweb.eng.vmware.com/ob/18804398/
+  artifactURL:
+    metrics-server-1.19-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/metrics-server/v0.4.0+vmware.2/publish/add-on/1.19/metrics-server.yaml
+      sha256: c8b1bdb443be1abd0656ab7efd010830f1ecae6965ea06cbe8b7fb6358ee76f5
+    metrics-server-1.20-addon-yaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/metrics-server/v0.4.0+vmware.2/publish/add-on/1.20/metrics-server.yaml
+      sha256: c8b1bdb443be1abd0656ab7efd010830f1ecae6965ea06cbe8b7fb6358ee76f5
+    metrics-server-image:
+      url: projects-stg.registry.vmware.com/tkg/metrics-server:v0.4.0_vmware.2
+      sha256: 09c5b40fe96e776aa0ca6ad49018ce4078fc868e5f34626f1a0fa91da51ff85a
+    metrics-server-image-tar:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/377871877214835016/image-builder/metrics-server/v0.4.0+vmware.2/publish/lin64/metrics-server/images/metrics-server-v0.4.0_vmware.2.tar
+      sha256: c7424cf2e6761933b8fafc0d81cdf1fcfdafd7f0d57014f486aefea41c6d50b2
+  cachehash: f1d1e46f59d73c55ad3042bcc30282c0
+  publishhash: 55d46907aa08ab6696d1d35d5dc468f2

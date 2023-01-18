@@ -1,0 +1,9 @@
+# This version was previously a managed component.
+# Changing it to unmanaged to to support new build service
+# Consider using a managed component for the next version
+name: kube_rbac_proxy
+unmanagedComponents:
+  - version: v0.4.1+vmware.2
+    gobuildBranch: vmware-0.4.1+vmware.2
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32

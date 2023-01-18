@@ -1,0 +1,7 @@
+name: prometheus-package
+goBuildComponentCaches:
+- version: v2.36.2+vmware.1-tkg.1-prometheus-zshippable
+  url: https://buildweb.eng.vmware.com/ob/20270328/
+  buildNumber: bora-20270328
+  buildStatus: SUCCEEDED
+  hash: f0f573ffbf779cf38e826b31bff49632

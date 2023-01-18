@@ -1,0 +1,3 @@
+submodules:
+  - name: k8s-sidecar/src
+# python dependencies not supported yet

@@ -1,0 +1,9 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: oracle image for 1.24
+componentReferences:
+- name: oci-ubuntu-2004
+  version:
+  - v1.24.6+vmware.1-tkg.1-8afff09aaeb15e4bf7b52b9d093e6134
+
+

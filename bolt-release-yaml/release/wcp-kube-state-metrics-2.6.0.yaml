@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: "projects-stg.registry.vmware.com/tkg"
+description: "one off build to build kube-state-metrics v2.6.0 for WCP"
+componentReferences:
+  - name: kube-state-metrics
+    version:
+      - v2.6.0+vmware.1

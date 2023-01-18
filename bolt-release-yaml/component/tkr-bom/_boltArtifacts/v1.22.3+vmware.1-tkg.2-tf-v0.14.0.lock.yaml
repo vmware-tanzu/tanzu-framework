@@ -1,0 +1,107 @@
+name: tkr-bom
+bomLocks:
+- version: v1.22.3+vmware.1-tkg.2-tf-v0.14.0
+  hash: 00f44636f9a9f811bfa68592ca4b823b
+  componentLockReferences:
+  - name: ako-operator
+    version: v1.5.0+vmware.2
+    lockHash: 466f7094f3338bacffe710d12a6bbce6
+  - name: load-balancer-and-ingress-service
+    version: v1.6.1+vmware.1
+    lockHash: 113e34c48f25b5ba1c3dcd51a20afea5
+  - name: antrea
+    version: v1.2.3+vmware.3
+    lockHash: b1cc45c6241c28db23a8c0f2b2774dad
+  - name: tkg-core-packages
+    version: v1.22.3+vmware.1-tkg.2-tf-v0.14.0
+    lockHash: cf15e0cd0b64ebf126cfc4579858ec48
+  - name: calico_all
+    version: v3.19.1+vmware.1
+    lockHash: 60866f3032a9b4fec5640c691d19d24d
+  - name: cloud_provider_vsphere
+    version: v1.22.4+vmware.1
+    lockHash: 853316d076e3bab50c3be955d76f46da
+  - name: csi_attacher
+    version: v3.3.0+vmware.1
+    lockHash: 4268c871695a4a701c32e3fa84675f7d
+  - name: csi_livenessprobe
+    version: v2.4.0+vmware.1
+    lockHash: 6baf91786192d71ec55ce177ce6eeb54
+  - name: csi_node_driver_registrar
+    version: v2.3.0+vmware.1
+    lockHash: 07e6fb09cc7f1f4436743ad9fb5e334d
+  - name: kubernetes-csi_external-resizer
+    version: v1.3.0+vmware.1
+    lockHash: 20bb6e462c2f735a6598c637df7ca565
+  - name: csi_provisioner
+    version: v3.0.0+vmware.1
+    lockHash: ffd34c2ed6539c86f6699063816106d9
+  - name: vsphere_csi_driver
+    version: v2.4.0+vmware.1
+    lockHash: cdca7f8b59a429b2fcbee38e7296a9bd
+  - name: dex
+    version: v2.30.2+vmware.1
+    lockHash: d7e347ab976936f7a16df5820dd58d11
+  - name: kapp-controller
+    version: v0.30.0+vmware.1
+    lockHash: d34ae657f60ad234fd04e6d46a40bf78
+  - name: carvel-secretgen-controller
+    version: v0.7.1+vmware.1
+    lockHash: d97cd8edb9438eafe55ae6e3e51e969b
+  - name: metrics-server
+    version: v0.5.1+vmware.1
+    lockHash: 85f4ae8895491d3c6cb1b7873c542929
+  - name: pinniped
+    version: v0.12.0+vmware.1
+    lockHash: 94af29364bd7f9a026d93e919e84aa7a
+  - name: tanzu-framework-addons
+    version: v0.14.0-tf
+    lockHash: 53c8ecfd84b219ff5fe89a51c451cbea
+  - name: kubernetes
+    version: v1.22.3+vmware.1
+    lockHash: a564ed0d6f599563e0bea91b1a83df01
+  - name: cni_plugins
+    version: v0.9.1+vmware.5
+    lockHash: 69fec54335042ddc8f52349ec810ac88
+  - name: coredns
+    version: v1.8.4+vmware.5
+    lockHash: 12be04a68c7a95f3e7ea8c994d2588d2
+  - name: cri_tools
+    version: v1.21.0+vmware.5
+    lockHash: 2ab02c994e31d4cab8e1025c14c01cc1
+  - name: etcd
+    version: v3.5.0+vmware.5
+    lockHash: ea793c2d16ccf8abd3a8a6bc3584353b
+  - name: containerd
+    version: v1.5.7+vmware.1
+    lockHash: ea42959de937043838686cf579afc47f
+  - name: kubernetes-sigs_kind
+    version: v1.22.3+vmware.1_v0.11.1_0825
+    lockHash: 9d775b9c479f469db116be0916705223
+  - name: ami-general-amazon-2
+    version: v1.22.3+vmware.1-tkg.1-6caa63c3ce20012550d5f23b4456e7ed
+    lockHash: 14583943af78c23ed9d58ee038bdb17d
+  - name: ami-general-ubuntu-2004
+    version: v1.22.3+vmware.1-tkg.1-555131ef572a091ac9d96fb187262fbb
+    lockHash: e8106d8b9f4f75f017c307e0677494ad
+  - name: ami-gov-amazon-2
+    version: v1.22.3+vmware.1-tkg.1-ffbe2141a55dcb30fdc6254764d9f67c
+    lockHash: 64a9154a4921d95e0cd6e85d9ab8d8cd
+  - name: ami-gov-ubuntu-2004
+    version: v1.22.3+vmware.1-tkg.1-95caaf2221858d6c8e8cf84c25bf9887
+    lockHash: b00377fa7f8bcff9b9ad085b41458b8b
+  - name: azure-ubuntu-1804
+    version: v1.22.3+vmware.1-tkg.1-b9c07ef1af975067ba143dea58013b94
+    lockHash: e203d0786fd6726c398547816d98bcfd
+  - name: azure-ubuntu-2004
+    version: v1.22.3+vmware.1-tkg.1-035fad5d401018bb5b8445675e8362d9
+    lockHash: 393d54647d9629b5ab2c34449c5734f4
+  - name: ova-photon-3
+    version: v1.22.3+vmware.1-tkg.3-555056a32db4cac4885edd25d5402a48
+    lockHash: 698225d618a7e3d14f71d69c0c308465
+  - name: ova-ubuntu-2004
+    version: v1.22.3+vmware.1-tkg.1-9d53fd978df287f6ac8f12e45fafa57d
+    lockHash: b56662f01d34ca1de144a3a272bed501
+  - name: windows-resource-bundle
+    version: v1.22.3+vmware.1-tkg.2-tf-v0.14.0
+    lockHash: bd9d6fc8d81bb3fa6ca97192ed0bdf44

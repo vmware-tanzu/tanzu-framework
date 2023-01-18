@@ -1,0 +1,14 @@
+name: azure-ubuntu-1804
+nonpublish:
+  - name: file-image-bom
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-1804/bom-azure-ubuntu-1804-vhd-$VERSION.yaml
+  - name: file-image-osstp
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-1804/azure-ubuntu-1804-$VERSION-osstpmgt.yaml
+  - name: file-image-goss
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-1804/azure-ubuntu-1804-$VERSION-goss-spec.yaml
+  - name: file-vhd-link
+    type: file
+    destinationPath: $SOURCECHANNEL/component/azure-ubuntu-1804/azure-vhd-link-ubuntu-1804-$VERSION.json

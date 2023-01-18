@@ -1,0 +1,10 @@
+versionMap:
+  v1.21.14+vmware.2-tkg.1-0c51d505aae795deaab3f78fddd670ea: publish.yaml
+  v1.22.11+vmware.2-tkg.1-1d40d505aae795deaab3f78fddd669fb: publish.yaml
+  v1.22.17+vmware.1-tkg.1-73fbe44d3c7791623c90e81255c5eafd: v1.publish.yaml
+  v1.23.8+vmware.2-tkg.1-9b40d505aae795deaab3f78fddd669df: publish.yaml
+  v1.23.13+vmware.1-tkg.1-9b40d505aae795deaab3f78fddd669df: publish.yaml
+  v1.23.15+vmware.1-tkg.1-edd5676cb84f2ab1219acd388af8f6ff: v1.publish.yaml
+  v1.24.6+vmware.1-tkg.1-8afff09aaeb15e4bf7b52b9d093e6134: publish.yaml
+  v1.24.6+vmware.1-tkg.2-oci-ubuntu-2004: publish.yaml
+  v1.24.9+vmware.1-tkg.1-e9f37e623324002b45d599a08016002a: v1.publish.yaml

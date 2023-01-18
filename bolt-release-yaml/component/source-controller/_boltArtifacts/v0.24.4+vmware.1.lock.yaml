@@ -1,0 +1,7 @@
+name: source-controller
+goBuildComponentLocks:
+- version: v0.24.4+vmware.1
+  gobuildBranch: vmware-0.24.4
+  gobuildHeadCommit: 35d3d54d4a5f95892fff785f0b3d2136a77eeff8
+  hash: 1655f2086e992528383900652a8f53d8
+  componentLockReferences: []

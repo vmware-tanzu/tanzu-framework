@@ -1,0 +1,74 @@
+name: tanzu-framework-management-packages
+packageRepositories:
+- version: v0.28.0-dev-328-gf1b65bbe
+  upstreamCommit: f1b65bbe53b2ebdcf64d2dc2951973d968e26cdc
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-repos~1cbb03d9939e3a1d5815f0b7cd62acc5700f7e14
+  componentReferences:
+  - name: addons-manager-v2-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-addons-manager-v2
+  - name: ako-operator-v2-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-ako-operator-v2
+  - name: featuregates-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-featuregates
+  - name: core-management-plugins-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-core-mgmt-plugins
+  - name: tkg-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkg
+  - name: tkg-clusterclass-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkg-clusterclass
+  - name: tkg-clusterclass-aws-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkg-clusterclass-aws
+  - name: tkg-clusterclass-vsphere-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkg-clusterclass-vsphere
+  - name: tkg-clusterclass-oci-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkg-clusterclass-oci
+  - name: tkg-clusterclass-azure-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkg-clusterclass-azure
+  - name: tkg-clusterclass-docker-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkg-clusterclass-docker
+  - name: tkr-service-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkr-service
+  - name: cliplugins-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-cliplugins
+  - name: framework-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-framework
+  - name: tanzu-auth-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tanzu-auth-pkg
+  - name: tkr-source-controller-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkr-source-controller
+  - name: tkr-vsphere-resolver-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkr-vsphere-resolver
+  - name: tkg-autoscaler-package
+    version:
+    - v1.21.0+vmware.1-rc.1
+    - v1.22.0+vmware.1-rc.1
+    - v1.23.0+vmware.1-rc.1
+  - name: tkg-windows-package
+    version:
+    - v0.28.0-dev-328-gf1b65bbe-tkg-windows
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.18
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_type: management
+    gobuild.releaseVersion: v0.28.0-dev-328-gf1b65bbe

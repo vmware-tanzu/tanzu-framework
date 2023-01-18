@@ -1,0 +1,23 @@
+name: ami-gov-amazon-2
+imageLocks:
+- version: v1.20.5+vmware.2-fips.1-tkg.0-4684221311333811950
+  hash: "3011990340751957662"
+  componentLockReferences:
+  - name: coredns
+    version: v1.7.0+vmware.8-fips.1
+    lockHash: "6405907258117049528"
+  - name: kubernetes
+    version: v1.20.5+vmware.2-fips.1
+    lockHash: "13619795188739947187"
+  - name: etcd
+    version: v3.4.13+vmware.7-fips.1
+    lockHash: "9615084115317204109"
+  - name: cri_tools
+    version: v1.19.0+vmware.3-fips.1
+    lockHash: "12974417196946658592"
+  - name: cni_plugins
+    version: v0.8.7+vmware.6-fips.1
+    lockHash: "1598940353152505203"
+  - name: containerd
+    version: v1.4.4+vmware.3-fips.1
+    lockHash: "6388735152136191939"

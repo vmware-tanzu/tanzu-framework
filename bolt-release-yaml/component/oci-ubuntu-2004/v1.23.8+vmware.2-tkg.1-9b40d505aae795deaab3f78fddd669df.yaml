@@ -1,0 +1,33 @@
+name: oci-ubuntu-2004
+images:
+- version: v1.23.8+vmware.2-tkg.1-9b40d505aae795deaab3f78fddd669df
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: oci
+  imageBuilderVersion: b0ba37018e42acf5131696d6665f56d8e6e86799
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.6
+  - name: coredns
+    version:
+    - v1.8.6+vmware.7
+  - name: cri_tools
+    version:
+    - v1.22.0+vmware.8
+  - name: etcd
+    version:
+    - v3.5.4+vmware.6
+  - name: containerd
+    version:
+    - v1.6.6+vmware.2
+  - name: kubernetes
+    version:
+    - v1.23.8+vmware.2
+  dependencies:
+    jenkins.OCI_BUILD_TYPE: dev
+    jenkins.UBUNTU_2004_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-stig-hardening.git
+    jenkins.UBUNTU_2004_STIG_VERSION: 04d8e41453a83bb62e1eb145ca7537ac54652b29
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: b9573b59edd3867ed21d1c0284718f256e3a4b6e

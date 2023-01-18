@@ -1,0 +1,6 @@
+name: vendir
+unmanagedComponents:
+  - version: v0.27.0+vmware.1
+    gobuildBranch: vmware-0.27.0~c17a974b2ec012fbb21b447325a9569ff202af0c
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

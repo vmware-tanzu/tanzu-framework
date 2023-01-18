@@ -1,0 +1,7 @@
+name: capabilities-package
+goBuildComponentCaches:
+- version: v0.22.0-dev-23-g1920dccf-capabilities
+  url: https://buildweb.eng.vmware.com/ob/19785863/
+  buildNumber: bora-19785863
+  buildStatus: SUCCEEDED
+  hash: 77bb2654f095b983d9f7a91721bdcf64

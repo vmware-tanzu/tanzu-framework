@@ -1,0 +1,11 @@
+name: ova-tinytkg-ubuntu-2004
+imageCaches:
+- version: v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a
+  channel: "435826519139424108"
+  imageCacheOVA:
+    url: http://10.163.0.131/kscom-generic-local/TKG/channels/435826519139424108/component/ova-tinytkg-ubuntu-2004/ubuntu-2004-kube-v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a.ova
+    imageSHA: 47bb1cb75ef776cf22d81710292dc3787214f90370cbe03691a70e377ae75ab6
+  hash: f410ce3194dea4e1b4da3245a063eef1
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/tkgm-build-ova/2969
+  buildNumber: "2969"
+  buildStatus: SUCCEEDED

@@ -1,0 +1,14 @@
+componentBuilds:
+- name: dex
+  version: v2.35.3+vmware.2
+  channel: "439924931535333334"
+  url: https://buildweb.eng.vmware.com/ob/21002432/
+  artifactURL:
+    dexImage:
+      url: projects-stg.registry.vmware.com/tkg/dex:v2.35.3_vmware.2
+      sha256: bb00416c14d8185da2f7d421eec3233a1fe3db94ec246cf6f4001ba739557f41
+  cachehash: 4b9c3411ff449b724f64c7defdca68f4
+  publishhash: e1ed18c7449d986cb50d6de0148eea24
+  configDependencies:
+    gobuild.golangVersion: 1.19.4
+    gobuild.linux_hosttype: linux-centos72-gc32

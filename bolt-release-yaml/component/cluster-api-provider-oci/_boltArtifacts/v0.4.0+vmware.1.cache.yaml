@@ -1,0 +1,7 @@
+name: cluster-api-provider-oci
+goBuildComponentCaches:
+- version: v0.4.0+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20201447/
+  buildNumber: bora-20201447
+  buildStatus: SUCCEEDED
+  hash: 3c96eb292a394cd8a221421c3c753bfe

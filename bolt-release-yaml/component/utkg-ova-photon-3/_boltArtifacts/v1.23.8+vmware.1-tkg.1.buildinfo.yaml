@@ -1,0 +1,21 @@
+componentBuilds:
+- name: utkg-ova-photon-3
+  version: v1.23.8+vmware.1-tkg.1
+  channel: "429417437121767393"
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/utkg-build-ova/717
+  artifactURL:
+    file-image-bom:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429417437121767393/component/utkg-ova-photon-3/bom-ova-photon-3-v1.23.8+vmware.1-tkg.1.yaml
+    file-image-goss:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429417437121767393/component/utkg-ova-photon-3/ova-photon-3-v1.23.8+vmware.1-tkg.1-goss-spec.yaml
+    file-image-osstp:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429417437121767393/component/utkg-ova-photon-3/ova-photon-3-v1.23.8+vmware.1-tkg.1-osstpmgt.yaml
+    file-image-ova:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/429417437121767393/component/utkg-ova-photon-3/photon-3.ova
+  cachehash: 403f266b6dfc338ebc41456905858b60
+  publishhash: 142c80ac582d530ba2b37ba67cf36995
+  configDependencies:
+    base_iso_sha: c2883a42e402a2330d9c39b4d1e071cf9b3b5898
+    base_iso_url: https://packages.vmware.com/photon/3.0/Rev3/iso/photon-minimal-3.0-a383732.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 25847552676ac4776916b0e33c37aa2582a8791d
+    jenkins.TKGS_BUILDINFO_URL: $REFBUILDINFO_URL

@@ -1,0 +1,55 @@
+name: azurefile-csi-driver-package
+packages:
+- version: v1.21.0+vmware.1-tkg.1-azurefile-csi
+  upstreamCommit: d3013b5be7148d657a8dd372379b75d4d3556206
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundle~1a24e3870ccbf2b6cb6a8e19003ae676d83b5570
+  componentReferences:
+  - name: csi_attacher
+    version:
+    - v3.5.0+vmware.1
+  - name: csi_livenessprobe
+    version:
+    - v2.7.0+vmware.1
+  - name: csi_node_driver_registrar
+    version:
+    - v2.5.1+vmware.1
+  - name: kubernetes-csi_external-resizer
+    version:
+    - v1.5.0+vmware.1
+  - name: csi_provisioner
+    version:
+    - v3.2.0+vmware.1
+  - name: external-snapshotter
+    version:
+    - v5.0.1+vmware.1
+  - name: azurefile-csi-driver
+    version:
+    - v1.21.0+vmware.1
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "csi_attacher" "version" "v3.5.0+vmware.1").artifactURL.csiAttacherImage.url}}'
+    gobuild.downstream_image_1: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "azurefile-csi-driver").artifactURL.azurefileCsiDriverImage.url}}'
+    gobuild.downstream_image_2: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "csi_livenessprobe").artifactURL.csiLivenessProbeImage.url}}'
+    gobuild.downstream_image_3: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "csi_node_driver_registrar").artifactURL.csiNodeDriverRegistrarImage.url}}'
+    gobuild.downstream_image_4: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "csi_provisioner").artifactURL.csiProvisonerImage.url}}'
+    gobuild.downstream_image_5: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes-csi_external-resizer").artifactURL.csiExternalResizer.url}}'
+    gobuild.downstream_version: vmware.1-tkg.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: azurefile-csi-driver
+    gobuild.package_type: core
+    gobuild.upstream_image_0: mcr.microsoft.com/oss/kubernetes-csi/csi-attacher:v3.5.0
+    gobuild.upstream_image_1: mcr.microsoft.com/oss/kubernetes-csi/azurefile-csi:v1.21.0
+    gobuild.upstream_image_2: mcr.microsoft.com/oss/kubernetes-csi/livenessprobe:v2.7.0
+    gobuild.upstream_image_3: mcr.microsoft.com/oss/kubernetes-csi/csi-node-driver-registrar:v2.5.1
+    gobuild.upstream_image_4: mcr.microsoft.com/oss/kubernetes-csi/csi-provisioner:v3.2.0
+    gobuild.upstream_image_5: mcr.microsoft.com/oss/kubernetes-csi/csi-resizer:v1.5.0
+    gobuild.upstream_version: 1.21.0

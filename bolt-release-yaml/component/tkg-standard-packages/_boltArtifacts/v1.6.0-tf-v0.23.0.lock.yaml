@@ -1,0 +1,49 @@
+name: tkg-standard-packages
+goBuildComponentLocks:
+- version: v1.6.0-tf-v0.23.0
+  gobuildBranch: 413394467207258956-v1.6.0-tf-v0.23.0-tkg-standard-packages
+  gobuildHeadCommit: 0089ef511019aa7bb68c632b4c7aacc2a667c3ca
+  hash: cd4b086145a4d9c1ed93410fd211ae4f
+  componentLockReferences:
+  - name: cert-manager-package
+    version: v1.5.3+vmware.4-tkg.1-cert-manager-tf-v0.23.0
+    lockHash: e160a01368f1610a4ee4f510eb134ea7
+  - name: contour-package
+    version: v1.17.2+vmware.1-tkg.4-contour-tf-v0.23.0
+    lockHash: c1cdb1c3cacd50875d50a722f7130906
+  - name: contour-package
+    version: v1.18.2+vmware.1-tkg.2-contour-tf-v0.23.0
+    lockHash: 79b7a91df7bfd0f26ae4f417064e2bdd
+  - name: external-dns-package
+    version: v0.10.0+vmware.1-tkg.2-external-dns-tf-v0.23.0
+    lockHash: 491378287f80014a421c5ed6035a487f
+  - name: external-dns-package
+    version: v0.11.0+vmware.1-tkg.2-external-dns-tf-v0.23.0
+    lockHash: a24dca6cba4fcd8d1b7f8bf1848ba9bd
+  - name: fluent-bit-package
+    version: v1.7.5+vmware.2-tkg.2-fluent-bit-tf-v0.23.0
+    lockHash: 98ad677df12a989f66fdc981938ea5b5
+  - name: grafana-package
+    version: v7.5.7+vmware.2-tkg.2-grafana-tf-v0.23.0
+    lockHash: a0bf533da4128610438157df1a5fbdf1
+  - name: prometheus-package
+    version: v2.27.0+vmware.2-tkg.2-prometheus-tf-v0.23.0
+    lockHash: 09b7ad13a6e7487fe5be1c158312d2d4
+  - name: harbor-package
+    version: v2.4.2+vmware.1-tkg.1-harbor-tf-v0.23.0
+    lockHash: 4586164783ea07d0749c41ee45a424c2
+  - name: multus-cni-package
+    version: v3.8.0+vmware.1-tkg.1-multus-cni-tf-v0.23.0
+    lockHash: 02786b903054571cd4ad66ca063f561d
+  - name: whereabouts-package
+    version: v0.5.1+vmware.2-tkg.1-whereabouts-tf-v0.23.0
+    lockHash: ac0de9f5cd5abd7ec4acfd79e11f5585
+  - name: fluxcd-helm-controller-package
+    version: v0.21.0+vmware.1-tkg.1-helm-ctrl
+    lockHash: 73ecf282ba30562423aaa099bf54e544
+  - name: fluxcd-source-controller-package
+    version: v0.24.4+vmware.1-tkg.1-source-ctrl
+    lockHash: 1bc11b24c38ae927b2ae03072d3d8e5f
+  - name: fluxcd-kustomize-controller-package
+    version: v0.24.4+vmware.1-tkg.1-kustomize-ctrl
+    lockHash: e7ed1532c15dcc339d22116e7600e9ac

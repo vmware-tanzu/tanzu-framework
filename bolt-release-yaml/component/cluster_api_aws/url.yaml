@@ -1,0 +1,8 @@
+name: cluster_api_aws
+upstreamURL: https://github.com/kubernetes-sigs/cluster-api-provider-aws.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_cluster-api-provider-aws.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_cluster-api-provider-aws.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_cluster_api_aws.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_cluster_api_aws.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_cluster_api_aws.git
+gobuildTarget: cayman_cluster_api_aws

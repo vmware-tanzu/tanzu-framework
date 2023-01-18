@@ -1,0 +1,7 @@
+name: kustomize-controller
+goBuildComponentLocks:
+- version: v0.24.4+vmware.1
+  gobuildBranch: vmware-0.24.4
+  gobuildHeadCommit: 42408b99d8b0674f9ddb93d8897d299aafb2fd77
+  hash: c68eb5f0a346f98c4bd9ebb181b71bfc
+  componentLockReferences: []

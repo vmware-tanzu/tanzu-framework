@@ -1,0 +1,6 @@
+name: velero-mgmt-cluster-plugin
+publish:
+  - name: velero-mgmt-cluster-plugin
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/velero-mgmt-cluster-plugin/images/velero-mgmt-cluster-plugin-$UNDERSCOREVERSION.tar.gz
+    destinationPath: velero/velero-mgmt-cluster-plugin:$UNDERSCOREVERSION

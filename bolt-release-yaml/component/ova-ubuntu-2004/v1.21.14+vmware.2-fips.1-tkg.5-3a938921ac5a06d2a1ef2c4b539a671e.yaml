@@ -1,0 +1,34 @@
+name: ova-ubuntu-2004
+images:
+- version: v1.21.14+vmware.2-fips.1-tkg.5-3a938921ac5a06d2a1ef2c4b539a671e
+  osinfo:
+    name: ubuntu
+    version: "2004"
+    arch: amd64
+  type: ova
+  imageBuilderVersion: 8afff09aaeb15e4bf7b52b9d093e613484ab6563
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v1.1.1+vmware.2-fips.1
+  - name: coredns
+    version:
+    - v1.8.0+vmware.14-fips.1
+  - name: cri_tools
+    version:
+    - v1.20.0+vmware.11-fips.1
+  - name: etcd
+    version:
+    - v3.4.18+vmware.1-fips.1
+  - name: containerd
+    version:
+    - v1.5.13+vmware.1-fips.2
+  - name: kubernetes
+    version:
+    - v1.21.14+vmware.2-fips.1
+  dependencies:
+    base_iso_sha: 36f15879bd9dfd061cd588620a164a82972663fdd148cce1f70d57d314c21b73
+    base_iso_url: https://build-artifactory.eng.vmware.com/kscom-generic-local/isos/ubuntu-20.04-server-amd64.iso
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: baf534da10fea37e31c60543b5aecf10cc7f75d1
+    jenkins.UBUNTU_2004_STIG_REPO_URL: git@gitlab.eng.vmware.com:tanzu-compliance/canonical-ubuntu-20.04-lts-stig-hardening.git
+    jenkins.UBUNTU_2004_STIG_VERSION: 04d8e41453a83bb62e1eb145ca7537ac54652b29

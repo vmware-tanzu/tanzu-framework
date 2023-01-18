@@ -1,0 +1,5 @@
+name: ova-harbor
+imageLocks:
+- version: v2.6.3+vmware.1-9c5c48c408fac6cef43c4752780c4b048e42d562
+  hash: eccc2ff550f163500a55dff69d57b634
+  componentLockReferences: []

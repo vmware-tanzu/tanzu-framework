@@ -1,0 +1,8 @@
+name: pinniped
+upstreamURL: https://github.com/vmware-tanzu/pinniped.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_pinniped.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_pinniped.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_pinniped.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_pinniped.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_pinniped.git
+gobuildTarget: cayman_pinniped

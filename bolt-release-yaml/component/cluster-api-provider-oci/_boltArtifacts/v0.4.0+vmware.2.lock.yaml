@@ -1,0 +1,7 @@
+name: cluster-api-provider-oci
+goBuildComponentLocks:
+- version: v0.4.0+vmware.2
+  gobuildBranch: 422746439794321383-v0.4.0+vmware.2-cluster-api-provider-oci
+  gobuildHeadCommit: 5ee5f241a0498ede4e6ae8bdd39cf3b96cfde9fa
+  hash: c867e93289de38149bf49b01dc610d7c
+  componentLockReferences: []

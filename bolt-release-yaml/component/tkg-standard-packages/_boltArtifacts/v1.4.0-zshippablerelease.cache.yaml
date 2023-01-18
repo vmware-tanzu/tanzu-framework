@@ -1,0 +1,7 @@
+name: tkg-standard-packages
+goBuildComponentCaches:
+- version: v1.4.0-zshippablerelease
+  url: https://buildweb.eng.vmware.com/ob/18368911/
+  buildNumber: bora-18368911
+  buildStatus: SUCCEEDED
+  hash: 25bb584ea440b4fc37c974a265966236

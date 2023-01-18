@@ -1,0 +1,153 @@
+other:containernetworking_plugins:v0.8.7+vmware.14:
+  license: Apache-2.0
+  name: containernetworking_plugins
+  other-distribution: /osl_sources/core-build-mirrors_github_containernetworking_plugins.git-v0.8.7+vmware.14.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_containernetworking_plugins.git
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_containernetworking_plugins.git/-/archive/v0.8.7+vmware.14/mirrors_github_containernetworking_plugins.git-v0.8.7+vmware.14.tar.gz
+  version: v0.8.7+vmware.14
+other:j-keck_arping:2cf9dc699c56:
+  license: MIT
+  name: j-keck_arping
+  other-distribution: /osl_sources/j-keck-arping-2cf9dc699c56.tar.gz
+  other-url: https://github.com/j-keck/arping
+  repository: Other
+  url: https://codeload.github.com/j-keck/arping/tar.gz/2cf9dc699c56
+  version: 2cf9dc699c56
+other:mattn_go-shellwords:v1.0.3:
+  license: MIT
+  name: mattn_go-shellwords
+  other-distribution: /osl_sources/mattn-go-shellwords-v1.0.3.tar.gz
+  other-url: https://github.com/mattn/go-shellwords
+  repository: Other
+  url: https://codeload.github.com/mattn/go-shellwords/tar.gz/v1.0.3
+  version: v1.0.3
+other:microsoft_go-winio:v0.4.11:
+  license: MIT
+  name: microsoft_go-winio
+  other-distribution: /osl_sources/Microsoft-go-winio-v0.4.11.tar.gz
+  other-url: https://github.com/Microsoft/go-winio
+  repository: Other
+  url: https://codeload.github.com/Microsoft/go-winio/tar.gz/v0.4.11
+  version: v0.4.11
+other:vishvananda_netns:13995c7128cc:
+  license: Apache-2.0
+  name: vishvananda_netns
+  other-distribution: /osl_sources/vishvananda-netns-13995c7128cc.tar.gz
+  other-url: https://github.com/vishvananda/netns
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netns/tar.gz/13995c7128cc
+  version: 13995c7128cc
+other:alexflint_go-filemutex:72bdc8eae2ae:
+  license: MIT
+  name: alexflint_go-filemutex
+  other-distribution: /osl_sources/alexflint-go-filemutex-72bdc8eae2ae.tar.gz
+  other-url: https://github.com/alexflint/go-filemutex
+  repository: Other
+  url: https://codeload.github.com/alexflint/go-filemutex/tar.gz/72bdc8eae2ae
+  version: 72bdc8eae2ae
+other:containernetworking_cni:v0.8.0:
+  license: Apache-2.0
+  name: containernetworking_cni
+  other-distribution: /osl_sources/containernetworking-cni-v0.8.0.tar.gz
+  other-url: https://github.com/containernetworking/cni
+  repository: Other
+  url: https://codeload.github.com/containernetworking/cni/tar.gz/v0.8.0
+  version: v0.8.0
+other:godbus_dbus:885f9cc04c9c:
+  license: BSD-2-Clause
+  name: godbus_dbus
+  other-distribution: /osl_sources/godbus-dbus-885f9cc04c9c.tar.gz
+  other-url: https://github.com/godbus/dbus
+  repository: Other
+  url: https://codeload.github.com/godbus/dbus/tar.gz/885f9cc04c9c
+  version: 885f9cc04c9c
+other:coreos_go-systemd:39ca1b05acc7:
+  license: Apache-2.0
+  name: coreos_go-systemd
+  other-distribution: /osl_sources/coreos-go-systemd-39ca1b05acc7.tar.gz
+  other-url: https://github.com/coreos/go-systemd
+  repository: Other
+  url: https://codeload.github.com/coreos/go-systemd/tar.gz/39ca1b05acc7
+  version: 39ca1b05acc7
+other:buger_jsonparser:f4dd9f5a6b44:
+  license: MIT
+  name: buger_jsonparser
+  other-distribution: /osl_sources/buger-jsonparser-f4dd9f5a6b44.tar.gz
+  other-url: https://github.com/buger/jsonparser
+  repository: Other
+  url: https://codeload.github.com/buger/jsonparser/tar.gz/f4dd9f5a6b44
+  version: f4dd9f5a6b44
+other:vishvananda_netlink:023a6dafdcdf:
+  license: Apache-2.0
+  name: vishvananda_netlink
+  other-distribution: /osl_sources/vishvananda-netlink-023a6dafdcdf.tar.gz
+  other-url: https://github.com/vishvananda/netlink
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netlink/tar.gz/023a6dafdcdf
+  version: 023a6dafdcdf
+other:safchain_ethtool:42ed695e3de8:
+  license: Apache-2.0
+  name: safchain_ethtool
+  other-distribution: /osl_sources/safchain-ethtool-42ed695e3de8.tar.gz
+  other-url: https://github.com/safchain/ethtool
+  repository: Other
+  url: https://codeload.github.com/safchain/ethtool/tar.gz/42ed695e3de8
+  version: 42ed695e3de8
+other:microsoft_hcsshim:v0.8.6:
+  license: MIT
+  name: microsoft_hcsshim
+  other-distribution: /osl_sources/Microsoft-hcsshim-v0.8.6.tar.gz
+  other-url: https://github.com/Microsoft/hcsshim
+  repository: Other
+  url: https://codeload.github.com/Microsoft/hcsshim/tar.gz/v0.8.6
+  version: v0.8.6
+other:d2g_dhcp4client:v1.0.0:
+  license: MPL-2.0-no-copyleft-exception
+  name: d2g_dhcp4client
+  other-distribution: /osl_sources/d2g-dhcp4client-v1.0.0.tar.gz
+  other-url: https://github.com/d2g/dhcp4client
+  repository: Other
+  url: https://codeload.github.com/d2g/dhcp4client/tar.gz/v1.0.0
+  version: v1.0.0
+other:coreos_go-iptables:v0.4.5:
+  license: Apache-2.0
+  name: coreos_go-iptables
+  other-distribution: /osl_sources/coreos-go-iptables-v0.4.5.tar.gz
+  other-url: https://github.com/coreos/go-iptables
+  repository: Other
+  url: https://codeload.github.com/coreos/go-iptables/tar.gz/v0.4.5
+  version: v0.4.5
+other:x_sys:15dcb6c0061f:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/golang-sys-15dcb6c0061f.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/15dcb6c0061f
+  version: 15dcb6c0061f
+other:d2g_dhcp4:a1d1b6c41b1c:
+  license: BSD-3-Clause
+  name: d2g_dhcp4
+  other-distribution: /osl_sources/d2g-dhcp4-a1d1b6c41b1c.tar.gz
+  other-url: https://github.com/d2g/dhcp4
+  repository: Other
+  url: https://codeload.github.com/d2g/dhcp4/tar.gz/a1d1b6c41b1c
+  version: a1d1b6c41b1c
+other:sirupsen_logrus:v1.0.6:
+  license: MIT
+  name: sirupsen_logrus
+  other-distribution: /osl_sources/sirupsen-logrus-v1.0.6.tar.gz
+  other-url: https://github.com/sirupsen/logrus
+  repository: Other
+  url: https://codeload.github.com/sirupsen/logrus/tar.gz/v1.0.6
+  version: v1.0.6
+other:x_crypto:7c1a557ab941:
+  license: BSD-3-Clause
+  name: x_crypto
+  other-distribution: /osl_sources/golang-crypto-7c1a557ab941.tar.gz
+  other-url: https://golang.org/x/crypto
+  repository: Other
+  url: https://codeload.github.com/golang/crypto/tar.gz/7c1a557ab941
+  version: 7c1a557ab941

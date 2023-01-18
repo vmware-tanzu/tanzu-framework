@@ -1,0 +1,81 @@
+other:k14s_ytt:v0.41.1:
+  license: Apache-2.0
+  name: k14s_ytt
+  other-distribution: /osl_sources/core-build-mirrors_github_k14s_ytt-v0.41.1.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_k14s_ytt
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_k14s_ytt/-/archive/v0.41.1/mirrors_github_k14s_ytt-v0.41.1.tar.gz
+  version: v0.41.1
+other:spf13_cobra:v1.4.0:
+  license: Apache-2.0
+  name: spf13_cobra
+  other-distribution: /osl_sources/spf13-cobra-v1.4.0.tar.gz
+  other-url: https://github.com/spf13/cobra
+  repository: Other
+  url: https://codeload.github.com/spf13/cobra/tar.gz/v1.4.0
+  version: v1.4.0
+other:cppforlife_go-cli-ui:512793797f05:
+  license: MIT
+  name: cppforlife_go-cli-ui
+  other-distribution: /osl_sources/cppforlife-go-cli-ui-512793797f05.tar.gz
+  other-url: https://github.com/cppforlife/go-cli-ui
+  repository: Other
+  url: https://codeload.github.com/cppforlife/go-cli-ui/tar.gz/512793797f05
+  version: 512793797f05
+other:hashicorp_go-version:v1.4.0:
+  license: MPL-2.0
+  name: hashicorp_go-version
+  other-distribution: /osl_sources/hashicorp-go-version-v1.4.0.tar.gz
+  other-url: https://github.com/hashicorp/go-version
+  repository: Other
+  url: https://codeload.github.com/hashicorp/go-version/tar.gz/v1.4.0
+  version: v1.4.0
+other:aws_aws-lambda-go:v1.32.0:
+  license: Apache-2.0
+  name: aws_aws-lambda-go
+  other-distribution: /osl_sources/aws-aws-lambda-go-v1.32.0.tar.gz
+  other-url: https://github.com/aws/aws-lambda-go
+  repository: Other
+  url: https://codeload.github.com/aws/aws-lambda-go/tar.gz/v1.32.0
+  version: v1.32.0
+other:spf13_pflag:v1.0.5:
+  license: BSD-3-Clause
+  name: spf13_pflag
+  other-distribution: /osl_sources/spf13-pflag-v1.0.5.tar.gz
+  other-url: https://github.com/spf13/pflag
+  repository: Other
+  url: https://codeload.github.com/spf13/pflag/tar.gz/v1.0.5
+  version: v1.0.5
+other:inconshreveable_mousetrap:v1.0.0:
+  license: Apache-2.0
+  name: inconshreveable_mousetrap
+  other-distribution: /osl_sources/inconshreveable-mousetrap-v1.0.0.tar.gz
+  other-url: https://github.com/inconshreveable/mousetrap
+  repository: Other
+  url: https://codeload.github.com/inconshreveable/mousetrap/tar.gz/v1.0.0
+  version: v1.0.0
+other:cppforlife_cobrautil:bb86e6965d72:
+  license: MIT
+  name: cppforlife_cobrautil
+  other-distribution: /osl_sources/cppforlife-cobrautil-bb86e6965d72.tar.gz
+  other-url: https://github.com/cppforlife/cobrautil
+  repository: Other
+  url: https://codeload.github.com/cppforlife/cobrautil/tar.gz/bb86e6965d72
+  version: bb86e6965d72
+other:k14s_starlark-go:3a5c849cc368:
+  license: BSD-3-Clause
+  name: k14s_starlark-go
+  other-distribution: /osl_sources/k14s-starlark-go-3a5c849cc368.tar.gz
+  other-url: https://github.com/k14s/starlark-go
+  repository: Other
+  url: https://codeload.github.com/k14s/starlark-go/tar.gz/3a5c849cc368
+  version: 3a5c849cc368
+other:burntsushi_toml:v1.1.0:
+  license: MIT
+  name: burntsushi_toml
+  other-distribution: /osl_sources/BurntSushi-toml-v1.1.0.tar.gz
+  other-url: https://github.com/BurntSushi/toml
+  repository: Other
+  url: https://codeload.github.com/BurntSushi/toml/tar.gz/v1.1.0
+  version: v1.1.0

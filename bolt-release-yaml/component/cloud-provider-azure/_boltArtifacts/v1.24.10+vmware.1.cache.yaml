@@ -1,0 +1,7 @@
+name: cloud-provider-azure
+goBuildComponentCaches:
+- version: v1.24.10+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/21064746/
+  buildNumber: bora-21064746
+  buildStatus: SUCCEEDED
+  hash: 8e78155f7abd8682d59bd5a35f16a954

@@ -1,0 +1,18 @@
+componentBuilds:
+- name: image-builder-resource-bundle
+  version: v1.23.10+vmware.1-tkg.1-rc.2
+  channel: "433826575738246285"
+  url: https://buildweb.eng.vmware.com/ob/20774104/
+  artifactURL:
+    linuxResourceBundleImage:
+      url: projects-stg.registry.vmware.com/tkg/linux-resource-bundle:v1.23.10_vmware.1-tkg.1-rc.2
+      sha256: 54e0bab3347ab534f7a8c1eff048495a029e46d4e71dad4ffa1f44ac4d50da9b
+    windowsResourceBundleImage:
+      url: projects-stg.registry.vmware.com/tkg/windows-resource-bundle:v1.23.10_vmware.1-tkg.1-rc.2
+      sha256: c970b0cdcc46f674ca22a62decd3dcd739665fe933297a7af766fc9fa6cba64a
+  cachehash: 05e5c0cce5cc2db81f8f91d968352a52
+  publishhash: 50e177e877687c43cafe37b8e44513ba
+  configDependencies:
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.golangVersion: "1.16"
+    gobuild.linux_hosttype: linux-centos8

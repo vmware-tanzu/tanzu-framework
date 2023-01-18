@@ -1,0 +1,8 @@
+name: crash-diagnostics
+upstreamURL: https://github.com/vmware-tanzu/crash-diagnostics.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_crash-diagnostics.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_crash-diagnostics.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_crash-diagnostics.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_crash-diagnostics.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_crash-diagnostics.git
+gobuildTarget: cayman_crash-diagnostics

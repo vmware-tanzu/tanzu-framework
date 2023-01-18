@@ -1,0 +1,230 @@
+version: v61
+managementClusterPluginVersions:
+- version: v0.1.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.0-zshippable
+- version: v0.10.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-tf-v0.10.0
+- version: v0.10.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-zshippable
+- version: v0.10.1
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-tf-v0.10.1
+- version: v0.11.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-tf-v0.11.0
+- version: v0.11.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-zshippable
+- version: v0.11.1
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-tf-v0.11.1
+- version: v0.11.2
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.1-tf-v0.11.2
+- version: v0.11.3
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.2-tf-v0.11.3
+- version: v0.11.4
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.3-tf-v0.11.4
+- version: v0.11.5
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.4-tf-v0.11.5
+- version: v0.11.6
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.4-tf-v0.11.6
+- version: v0.12.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.12.0
+- version: v0.12.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.13.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.13.0
+- version: v0.13.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.13.1
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.13.1
+- version: v0.14.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.14.0
+- version: v0.14.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.15.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.15.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.16.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.16.0
+- version: v0.16.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.17.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.17.0
+- version: v0.17.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.18.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.18.0
+- version: v0.18.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.19.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.19.0
+- version: v0.19.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.2.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.0-zshippable
+- version: v0.2.1
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.0-zshippable
+- version: v0.20.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.20.0
+- version: v0.20.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.21.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.21.0
+- version: v0.21.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.22.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.22.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.23.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-tf-v0.23.0
+- version: v0.23.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.24.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.24.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.25.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.25.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.26.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.6.0-zshippable
+- version: v0.3.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-framework-v0.3.0
+- version: v0.4.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-framework-v0.4.0
+- version: v0.4.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-zshippable
+- version: v0.5.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-framework-v0.5.0
+- version: v0.5.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-zshippable
+- version: v0.6.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-framework-v0.6.0
+- version: v0.6.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-zshippable
+- version: v0.7.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-framework-v0.7.0
+- version: v0.7.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-zshippable
+- version: v0.8.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-framework-v0.8.0
+- version: v0.8.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-zshippable
+- version: v0.9.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-tf-v0.9.0
+- version: v0.9.0-dev
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-zshippable

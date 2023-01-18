@@ -1,0 +1,141 @@
+componentBuilds:
+- name: addons-manager-v2-package
+  version: v0.21.0-dev-9-gad4c4850-addons-manager-v2
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598194/
+  artifactURL:
+    addons-manager-v2.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/addons-manager-v2:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: a58dcaaeea5b3ad6a2186d8eb798088620f4183e89d6b3b1eb96e4da61d19f19
+  cachehash: d187d6cb95da57976c847dd6015679bc
+  publishhash: 7bc88391b8635015ee137e709f572233
+- name: featuregates-package
+  version: v0.21.0-dev-9-gad4c4850-featuregates
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598562/
+  artifactURL:
+    featuregates.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/featuregates:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: bec4192320d43360d2766b1a462bc060132bb9169930af6aa2a0cc4480a2da30
+  cachehash: f4dc0d62e5f953ab320c184fb0e58adc
+  publishhash: b18039830ec752877daef8e6ef1178e5
+- name: core-management-plugins-package
+  version: v0.21.0-dev-9-gad4c4850-core-mgmt-plugins
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598561/
+  artifactURL:
+    core-management-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/core-management-plugins:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 738e61054cee87f33e8143a2ecd227603d89facabc137673a776490d49ac3ae8
+  cachehash: 73df3d4b371b5fde8dbe6f71b5a5c7de
+  publishhash: 0ecf4d581065b27bd73a811ba24a7c7e
+- name: tkg-package
+  version: v0.21.0-dev-9-gad4c4850-tkg
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598648/
+  artifactURL:
+    tkg.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 0db3c27b46a2509d4f66de6412ef00d0837091bc1ea270230340ccae52474614
+  cachehash: 2a2081c5fc4a4beecdf859af38fed682
+  publishhash: b50bfb418ec98d4f672d28d855f6e5b2
+- name: tkg-clusterclass-package
+  version: v0.21.0-dev-9-gad4c4850-tkg-clusterclass
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598646/
+  artifactURL:
+    tkg-clusterclass.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 6d34d63da41eca99b811c7e20b968357bbc00c5a4abae19154b5fe44f9855a73
+  cachehash: de08d9b9f9a7983089d011bc86c657e6
+  publishhash: 81b79b50fa2579627d2a9dc4a8ce3b7a
+- name: tkg-clusterclass-aws-package
+  version: v0.21.0-dev-9-gad4c4850-tkg-clusterclass-aws
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598649/
+  artifactURL:
+    tkg-clusterclass-aws.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-aws:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: b76a455156722b99de517449e7c9f7a0574348defb3d088194edb913b159680c
+  cachehash: 907e4568a16384e7cf36353226b30321
+  publishhash: 125ec7a1bc39baef747260e4f78167fa
+- name: tkg-clusterclass-vsphere-package
+  version: v0.21.0-dev-9-gad4c4850-tkg-clusterclass-vsphere
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598565/
+  artifactURL:
+    tkg-clusterclass-vsphere.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-vsphere:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 0fd4a9f3699de9e00d46bc9638d1bff3527f3d82a123d2b3c2a780cae271cd17
+  cachehash: b05d565d9a3420703bb1baaca80e26b5
+  publishhash: d03e78e5fad5fe181b44a702c65769ab
+- name: tkg-clusterclass-azure-package
+  version: v0.21.0-dev-9-gad4c4850-tkg-clusterclass-azure
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598712/
+  artifactURL:
+    tkg-clusterclass-azure.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-azure:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: b09d00c3a62dbb849de9ae43fbfbf0505a83fb81e828fcf424bc4661ecebe1ea
+  cachehash: 2794b70813c07a5f33a1f4989fa9deee
+  publishhash: c2418f93c73e5c7d0921d16401e3c74e
+- name: tkg-clusterclass-docker-package
+  version: v0.21.0-dev-9-gad4c4850-tkg-clusterclass-docker
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598716/
+  artifactURL:
+    tkg-clusterclass-docker.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-docker:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: c35b9b2c810fa5e46f5108dcb217848e226610d1977e6f51708faa175693c41d
+  cachehash: 4174af12bd1c2d3cf6365adb58cde19f
+  publishhash: 7bd05f927afe0e6ab7d7d37ee4f30d36
+- name: tkr-aws-machine-webhook-package
+  version: v0.21.0-dev-9-gad4c4850-tkr-aws-mc-webhook
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598717/
+  artifactURL:
+    tkr-aws-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-aws-machine-webhook:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 786c04e309d780f19b43e6bc66b2fc7d0d9c5f52c5e6500ec61ca236ca2641bb
+  cachehash: 353380e47c2eb743c80104183e016edb
+  publishhash: 7e24bdf0b1f18b22cbd421c328459a23
+- name: tkr-azure-machine-webhook-package
+  version: v0.21.0-dev-9-gad4c4850-tkr-azure-mc-webhook
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598563/
+  artifactURL:
+    tkr-azure-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-azure-machine-webhook:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 28b1b1d8bad76801d43eaa141eb9341d578cc85e9e43f12a30f208423fad1774
+  cachehash: d6d32baf84ba1f296bddc15f515756f8
+  publishhash: c9cb2d5c797f64d3b0eb7d32aea8041b
+- name: tkr-docker-machine-webhook-package
+  version: v0.21.0-dev-9-gad4c4850-tkr-docker-mc-webhook
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598645/
+  artifactURL:
+    tkr-docker-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-docker-machine-webhook:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: d98bd229f1103f5d019b947b88b2ffbdb142b34b4830a880bda2dde71b5e1733
+  cachehash: fe5fbb9145764080a190fd6db873ca77
+  publishhash: 6cdfe8cb58a326f7a23f5f3cdb1fd92f
+- name: tkr-vsphere-machine-webhook-package
+  version: v0.21.0-dev-9-gad4c4850-tkr-vsphere-mc-webhook
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598647/
+  artifactURL:
+    tkr-vsphere-machine-webhook.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-vsphere-machine-webhook:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 55226951892764527caa3a8674e6619b5531eaf1b1a22497626785d7bfbff48e
+  cachehash: 1d5b4634fbedcd9ceceb8c1da8af0426
+  publishhash: 69f620efe14baf84f0899b4e9dcaf3fb
+- name: tkr-service-package
+  version: v0.21.0-dev-9-gad4c4850-tkr-service
+  channel: "401848238694485607"
+  url: https://buildweb.eng.vmware.com/ob/19598718/
+  artifactURL:
+    tkr-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkr-service:v0.21.0-dev-9-gad4c4850_vmware.1
+      sha256: 7c0241f95ab3d3696c3d19303ccd2b4d61221a3d012afd712550c3739680758a
+  cachehash: 84f8dc0b012a724c816306b7289e4a1b
+  publishhash: 01dd05a82383689c2f95054a143c30a5

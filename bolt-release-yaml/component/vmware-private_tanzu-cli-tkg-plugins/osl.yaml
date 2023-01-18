@@ -1,0 +1,4 @@
+submodules:
+  - name: vmware-private_tanzu-cli-tkg-plugins/src
+    go_mod:
+      - "go.mod"

@@ -1,0 +1,33 @@
+name: azure-ubuntu-1804
+images:
+- version: v1.23.4+vmware.1-tkg.1-dece4578bd1df8053eb74298c7d2482e
+  osinfo:
+    name: ubuntu
+    version: "1804"
+    arch: amd64
+  type: azure
+  imageBuilderVersion: 63e3e95c84003f2beef148f297ac9f7159a8a7d4
+  componentReferences:
+  - name: cni_plugins
+    version:
+    - v0.9.1+vmware.11
+  - name: coredns
+    version:
+    - v1.8.6+vmware.4
+  - name: cri_tools
+    version:
+    - v1.22.0+vmware.4
+  - name: etcd
+    version:
+    - v3.5.2+vmware.1
+  - name: containerd
+    version:
+    - v1.6.0+vmware.1
+  - name: kubernetes
+    version:
+    - v1.23.4+vmware.1
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""
+    jenkins.AZURE_IMAGE_TYPE: vhd
+    jenkins.IMAGE_BUILDER_PIPELINE_COMMIT_SHA: 55461adbb53fee9a3f8c1d0c25a37fd2eaecf9d8

@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: kubernetes-sigs_kind images for fips variant of 1.5.1
+componentReferences:
+- name: cluster-api-provider-bringyourownhost
+  version:
+  - v0.1.0+vmware.3-fips.1

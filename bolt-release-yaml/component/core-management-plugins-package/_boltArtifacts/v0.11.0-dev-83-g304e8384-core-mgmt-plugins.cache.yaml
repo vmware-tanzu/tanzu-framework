@@ -1,0 +1,7 @@
+name: core-management-plugins-package
+goBuildComponentCaches:
+- version: v0.11.0-dev-83-g304e8384-core-mgmt-plugins
+  url: https://buildweb.eng.vmware.com/ob/18946780/
+  buildNumber: bora-18946780
+  buildStatus: SUCCEEDED
+  hash: 5921da44e1c7a81add9e5901c7659e0e

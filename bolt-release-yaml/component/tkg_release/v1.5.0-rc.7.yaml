@@ -1,0 +1,16 @@
+name: tkg_release
+aggregators:
+- version: v1.5.0-rc.7
+  gobuildBaseBranch: vmware-0.0.0+vmware.0~ded23834554a5dfd9b4c572e851b3b530dde6631
+  dependencies:
+    gobuild.linux_hosttype: linux-centos72-gc32
+  componentReferences:
+  - name: tkg-compatibility
+    version:
+    - v1.5.0-rc.7
+  - name: tanzu-framework-management-packages
+    version:
+    - v0.11.1-88-g376fba65
+  - name: standalone-plugins-package
+    version:
+    - v0.11.1-88-g376fba65-standalone-plugins

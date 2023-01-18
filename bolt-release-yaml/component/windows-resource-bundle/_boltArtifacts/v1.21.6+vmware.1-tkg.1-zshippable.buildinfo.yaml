@@ -1,0 +1,11 @@
+componentBuilds:
+- name: windows-resource-bundle
+  version: v1.21.6+vmware.1-tkg.1-zshippable
+  channel: "383973864020941170"
+  url: https://buildweb.eng.vmware.com/ob/19002969/
+  artifactURL:
+    windowsResourceBundleImage:
+      url: projects-stg.registry.vmware.com/tkg/windows-resource-bundle:v1.21.6_vmware.1-tkg.1-zshippable
+      sha256: c9c84a102c8900f478e131566bafad0e66df87cc44d5e343e562ffaac6fb7b79
+  cachehash: 54d3225a757681214015d4c17c708d19
+  publishhash: 2803688be300ca5b8619663fa14027c9

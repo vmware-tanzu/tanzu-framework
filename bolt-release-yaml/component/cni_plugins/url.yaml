@@ -1,0 +1,8 @@
+name: cni_plugins
+upstreamURL: https://github.com/containernetworking/plugins.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_containernetworking_plugins.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_containernetworking_plugins.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_cni_plugins.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/cayman_cni_plugins.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_cni_plugins.git
+gobuildTarget: cayman_cni_plugins

@@ -1,0 +1,12 @@
+name: image-builder-resource-bundle
+publish:
+  - name: windowsResourceBundleImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/windows-resource-bundle.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/windows-resource-bundle-checksums.txt
+    destinationPath: windows-resource-bundle:$UNDERSCOREVERSION
+  - name: linuxResourceBundleImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/linux-resource-bundle.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/linux-resource-bundle-checksums.txt
+    destinationPath: linux-resource-bundle:$UNDERSCOREVERSION

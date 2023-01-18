@@ -1,0 +1,30 @@
+name: guest-cluster-auth-service
+publish:
+  - name: guestClusterAuthServiceImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/guest-cluster-auth-service.tar
+    destinationPath: guest-cluster-auth-service/guest-cluster-auth-service:$UNDERSCOREVERSION
+  - name: guest-cluster-auth-service-image-binary
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/guest-cluster-auth-service
+    destinationPath: $CHANNEL/image-builder/guest-cluster-auth-service/$VERSION/bin/guest-cluster-auth-service
+  - name: guest-cluster-auth-service-keys-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/artifacts/guest-cluster-auth-svc-keys.yaml
+    destinationPath: $CHANNEL/image-builder/guest-cluster-auth-service/$VERSION/publish/artifacts/guest-cluster-auth-svc-keys.yaml
+  - name: generate-key-and-csr-sh
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/artifacts/generate_key_and_csr.sh
+    destinationPath: $CHANNEL/image-builder/guest-cluster-auth-service/$VERSION/publish/artifacts/generate_key_and_csr.sh
+  - name: guest-cluster-auth-service-addon-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/artifacts/guest-cluster-auth-svc.yaml
+    destinationPath: $CHANNEL/image-builder/guest-cluster-auth-service/$VERSION/publish/artifacts/guest-cluster-auth-svc.yaml
+  - name: guest-cluster-auth-service-webhook-config-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/artifacts/webhook-config.yaml
+    destinationPath: $CHANNEL/image-builder/guest-cluster-auth-service/$VERSION/publish/artifacts/webhook-config.yaml
+  - name: osstp-golang-yaml
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/osstp_golang.yml
+    destinationPath: $CHANNEL/image-builder/guest-cluster-auth-service/$VERSION/publish/osstp_golang.yml

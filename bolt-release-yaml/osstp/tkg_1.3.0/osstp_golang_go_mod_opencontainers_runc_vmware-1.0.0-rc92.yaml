@@ -1,0 +1,217 @@
+other:opencontainers_runc:v1.0.0-rc92:
+  license: Apache-2.0
+  name: opencontainers_runc
+  other-distribution: /osl_sources/core-build-mirrors_github_opencontainers_runc.git-v1.0.0-rc92.tar.gz
+  other-url: https://gitlab.eng.vmware.com/core-build/mirrors_github_opencontainers_runc.git
+  repository: Other
+  tlp: "true"
+  url: https://gitlab.eng.vmware.com/core-build/mirrors_github_opencontainers_runc.git/-/archive/v1.0.0-rc92/mirrors_github_opencontainers_runc.git-v1.0.0-rc92.tar.gz
+  version: v1.0.0-rc92
+other:protobuf:v1.23.0:
+  license: BSD-3-Clause
+  name: protobuf
+  other-distribution: /osl_sources/protobuf-v1.23.0.tar.gz
+  other-url: https://google.golang.org/protobuf
+  repository: Other
+  url: ""
+  version: v1.23.0
+other:konsorten_go-windows-terminal-sequences:v1.0.3:
+  license: MIT
+  name: konsorten_go-windows-terminal-sequences
+  other-distribution: /osl_sources/konsorten-go-windows-terminal-sequences-v1.0.3.tar.gz
+  other-url: https://github.com/konsorten/go-windows-terminal-sequences
+  repository: Other
+  url: https://codeload.github.com/konsorten/go-windows-terminal-sequences/tar.gz/v1.0.3
+  version: v1.0.3
+other:sirupsen_logrus:v1.6.0:
+  license: MIT
+  name: sirupsen_logrus
+  other-distribution: /osl_sources/sirupsen-logrus-v1.6.0.tar.gz
+  other-url: https://github.com/sirupsen/logrus
+  repository: Other
+  url: https://codeload.github.com/sirupsen/logrus/tar.gz/v1.6.0
+  version: v1.6.0
+other:seccomp_libseccomp-golang:v0.9.1:
+  license: BSD-2-Clause
+  name: seccomp_libseccomp-golang
+  other-distribution: /osl_sources/seccomp-libseccomp-golang-v0.9.1.tar.gz
+  other-url: https://github.com/seccomp/libseccomp-golang
+  repository: Other
+  url: https://codeload.github.com/seccomp/libseccomp-golang/tar.gz/v0.9.1
+  version: v0.9.1
+other:russross_blackfriday_v2:v2.0.1:
+  license: BSD-2-Clause
+  name: russross_blackfriday_v2
+  other-distribution: /osl_sources/russross-blackfriday-v2.0.1.tar.gz
+  other-url: https://github.com/russross/blackfriday/v2
+  repository: Other
+  url: https://codeload.github.com/russross/blackfriday/tar.gz/v2.0.1
+  version: v2.0.1
+other:shurcool_sanitized_anchor_name:v1.0.0:
+  license: MIT
+  name: shurcool_sanitized_anchor_name
+  other-distribution: /osl_sources/shurcooL-sanitized_anchor_name-v1.0.0.tar.gz
+  other-url: https://github.com/shurcooL/sanitized_anchor_name
+  repository: Other
+  url: https://codeload.github.com/shurcooL/sanitized_anchor_name/tar.gz/v1.0.0
+  version: v1.0.0
+other:cyphar_filepath-securejoin:v0.2.2:
+  license: BSD-3-Clause
+  name: cyphar_filepath-securejoin
+  other-distribution: /osl_sources/cyphar-filepath-securejoin-v0.2.2.tar.gz
+  other-url: https://github.com/cyphar/filepath-securejoin
+  repository: Other
+  url: https://codeload.github.com/cyphar/filepath-securejoin/tar.gz/v0.2.2
+  version: v0.2.2
+other:vishvananda_netlink:v1.1.0:
+  license: Apache-2.0
+  name: vishvananda_netlink
+  other-distribution: /osl_sources/vishvananda-netlink-v1.1.0.tar.gz
+  other-url: https://github.com/vishvananda/netlink
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netlink/tar.gz/v1.1.0
+  version: v1.1.0
+other:godbus_dbus_v5:v5.0.3:
+  license: BSD-2-Clause
+  name: godbus_dbus_v5
+  other-distribution: /osl_sources/godbus-dbus-v5.0.3.tar.gz
+  other-url: https://github.com/godbus/dbus/v5
+  repository: Other
+  url: https://codeload.github.com/godbus/dbus/tar.gz/v5.0.3
+  version: v5.0.3
+other:cpuguy83_go-md2man_v2:f79a8a8ca69d:
+  license: MIT
+  name: cpuguy83_go-md2man_v2
+  other-distribution: /osl_sources/cpuguy83-go-md2man-f79a8a8ca69d.tar.gz
+  other-url: https://github.com/cpuguy83/go-md2man/v2
+  repository: Other
+  url: https://codeload.github.com/cpuguy83/go-md2man/tar.gz/f79a8a8ca69d
+  version: f79a8a8ca69d
+other:opencontainers_selinux:v1.6.0:
+  license: Apache-2.0
+  name: opencontainers_selinux
+  other-distribution: /osl_sources/opencontainers-selinux-v1.6.0.tar.gz
+  other-url: https://github.com/opencontainers/selinux
+  repository: Other
+  url: https://codeload.github.com/opencontainers/selinux/tar.gz/v1.6.0
+  version: v1.6.0
+other:cilium_ebpf:1c8d4c9ef775:
+  license: MIT
+  name: cilium_ebpf
+  other-distribution: /osl_sources/cilium-ebpf-1c8d4c9ef775.tar.gz
+  other-url: https://github.com/cilium/ebpf
+  repository: Other
+  url: https://codeload.github.com/cilium/ebpf/tar.gz/1c8d4c9ef775
+  version: 1c8d4c9ef775
+other:urfave_cli:v1.22.1:
+  license: MIT
+  name: urfave_cli
+  other-distribution: /osl_sources/urfave-cli-v1.22.1.tar.gz
+  other-url: https://github.com/urfave/cli
+  repository: Other
+  url: https://codeload.github.com/urfave/cli/tar.gz/v1.22.1
+  version: v1.22.1
+other:docker_go-units:v0.4.0:
+  license: Apache-2.0
+  name: docker_go-units
+  other-distribution: /osl_sources/docker-go-units-v0.4.0.tar.gz
+  other-url: https://github.com/docker/go-units
+  repository: Other
+  url: https://codeload.github.com/docker/go-units/tar.gz/v0.4.0
+  version: v0.4.0
+other:opencontainers_runtime-spec:4d89ac9fbff6:
+  license: Apache-2.0
+  name: opencontainers_runtime-spec
+  other-distribution: /osl_sources/opencontainers-runtime-spec-4d89ac9fbff6.tar.gz
+  other-url: https://github.com/opencontainers/runtime-spec
+  repository: Other
+  url: https://codeload.github.com/opencontainers/runtime-spec/tar.gz/4d89ac9fbff6
+  version: 4d89ac9fbff6
+other:moby_sys_mountinfo:v0.1.3:
+  license: Apache-2.0
+  name: moby_sys_mountinfo
+  other-distribution: /osl_sources/moby-sys-v0.1.3.tar.gz
+  other-url: https://github.com/moby/sys/mountinfo
+  repository: Other
+  url: https://codeload.github.com/moby/sys/tar.gz/v0.1.3
+  version: v0.1.3
+other:vishvananda_netns:0a2b9b5464df:
+  license: Apache-2.0
+  name: vishvananda_netns
+  other-distribution: /osl_sources/vishvananda-netns-0a2b9b5464df.tar.gz
+  other-url: https://github.com/vishvananda/netns
+  repository: Other
+  url: https://codeload.github.com/vishvananda/netns/tar.gz/0a2b9b5464df
+  version: 0a2b9b5464df
+other:x_sys:3e129f6d46b1:
+  license: BSD-3-Clause
+  name: x_sys
+  other-distribution: /osl_sources/golang-sys-3e129f6d46b1.tar.gz
+  other-url: https://golang.org/x/sys
+  repository: Other
+  url: https://codeload.github.com/golang/sys/tar.gz/3e129f6d46b1
+  version: 3e129f6d46b1
+other:willf_bitset:d5bec3311243:
+  license: BSD-3-Clause
+  name: willf_bitset
+  other-distribution: /osl_sources/willf-bitset-d5bec3311243.tar.gz
+  other-url: https://github.com/willf/bitset
+  repository: Other
+  url: https://codeload.github.com/willf/bitset/tar.gz/d5bec3311243
+  version: d5bec3311243
+other:golang_protobuf:v1.4.2:
+  license: BSD-3-Clause
+  name: golang_protobuf
+  other-distribution: /osl_sources/golang-protobuf-v1.4.2.tar.gz
+  other-url: https://github.com/golang/protobuf
+  repository: Other
+  url: https://codeload.github.com/golang/protobuf/tar.gz/v1.4.2
+  version: v1.4.2
+other:checkpoint-restore_go-criu_v4:v4.1.0:
+  license: Apache-2.0
+  name: checkpoint-restore_go-criu_v4
+  other-distribution: /osl_sources/checkpoint-restore-go-criu-v4.1.0.tar.gz
+  other-url: https://github.com/checkpoint-restore/go-criu/v4
+  repository: Other
+  url: https://codeload.github.com/checkpoint-restore/go-criu/tar.gz/v4.1.0
+  version: v4.1.0
+other:syndtr_gocapability:d98352740cb2:
+  license: BSD-2-Clause
+  name: syndtr_gocapability
+  other-distribution: /osl_sources/syndtr-gocapability-d98352740cb2.tar.gz
+  other-url: https://github.com/syndtr/gocapability
+  repository: Other
+  url: https://codeload.github.com/syndtr/gocapability/tar.gz/d98352740cb2
+  version: d98352740cb2
+other:containerd_console:v1.0.0:
+  license: Apache-2.0
+  name: containerd_console
+  other-distribution: /osl_sources/containerd-console-v1.0.0.tar.gz
+  other-url: https://github.com/containerd/console
+  repository: Other
+  url: https://codeload.github.com/containerd/console/tar.gz/v1.0.0
+  version: v1.0.0
+other:coreos_go-systemd_v22:v22.1.0:
+  license: Apache-2.0
+  name: coreos_go-systemd_v22
+  other-distribution: /osl_sources/coreos-go-systemd-v22.1.0.tar.gz
+  other-url: https://github.com/coreos/go-systemd/v22
+  repository: Other
+  url: https://codeload.github.com/coreos/go-systemd/tar.gz/v22.1.0
+  version: v22.1.0
+other:pkg_errors:v0.9.1:
+  license: BSD-2-Clause
+  name: pkg_errors
+  other-distribution: /osl_sources/pkg-errors-v0.9.1.tar.gz
+  other-url: https://github.com/pkg/errors
+  repository: Other
+  url: https://codeload.github.com/pkg/errors/tar.gz/v0.9.1
+  version: v0.9.1
+other:mrunalp_fileutils:abd8a0e76976:
+  license: Apache-2.0
+  name: mrunalp_fileutils
+  other-distribution: /osl_sources/mrunalp-fileutils-abd8a0e76976.tar.gz
+  other-url: https://github.com/mrunalp/fileutils
+  repository: Other
+  url: https://codeload.github.com/mrunalp/fileutils/tar.gz/abd8a0e76976
+  version: abd8a0e76976

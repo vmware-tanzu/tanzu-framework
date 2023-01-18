@@ -1,0 +1,8 @@
+name: kube_rbac_proxy
+upstreamURL: https://github.com/brancz/kube-rbac-proxy.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_kube-rbac-proxy.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_kube-rbac-proxy.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_kube-rbac-proxy.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_kube-rbac-proxy.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_kube-rbac-proxy.git
+gobuildTarget: cayman_kube-rbac-proxy

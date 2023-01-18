@@ -1,0 +1,15 @@
+componentBuilds:
+- name: tanzu-auth-controller-manager
+  version: v0.25.0-dev-88-g9813bd42
+  channel: "418332461554997446"
+  url: https://buildweb.eng.vmware.com/ob/20184605/
+  artifactURL:
+    tanzuAuthControllerManager:
+      url: projects-stg.registry.vmware.com/tkg/iam/tanzu-auth-controller-manager:v0.25.0-dev-88-g9813bd42
+      sha256: 70125727a0e94314ebe3464d386fb07cab1ea34a3fbd58ed3770400e3741f7c7
+  cachehash: ee78eff654553c690189e0bc34ddc5ac
+  publishhash: 0d638ea23f918770fc25817ad282ae85
+  configDependencies:
+    gobuild.imageRepository: vmware.io
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.releaseVersion: v0.25.0-dev-88-g9813bd42

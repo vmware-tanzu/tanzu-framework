@@ -1,0 +1,7 @@
+name: tkg-core-packages
+goBuildComponentCaches:
+- version: v1.22.9+vmware.1-tkg.1-rc.2
+  url: https://buildweb.eng.vmware.com/ob/19781385/
+  buildNumber: bora-19781385
+  buildStatus: SUCCEEDED
+  hash: b81061cf0ef2254436cbb5968211c7e0

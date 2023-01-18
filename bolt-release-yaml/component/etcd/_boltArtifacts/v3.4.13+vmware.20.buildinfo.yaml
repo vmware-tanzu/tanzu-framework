@@ -1,0 +1,11 @@
+componentBuilds:
+- name: etcd
+  version: v3.4.13+vmware.20
+  channel: "368670365955715117"
+  url: https://buildweb.eng.vmware.com/ob/18493700/
+  artifactURL:
+    etcd:
+      url: projects-stg.registry.vmware.com/tkg/etcd:v3.4.13_vmware.20
+      sha256: 51343f94e6e350dfdd276f00f407b840fb57cc57a8babfee2e023a8c06710ea2
+  cachehash: 3c13688f9947dd31ff946fe7e715293f
+  publishhash: 8d295061a104d02aaac3cda5e7d85ab7

@@ -1,0 +1,7 @@
+name: antrea-package
+goBuildComponentCaches:
+- version: v1.2.3+vmware.3-tkg.2-antrea-tf-v0.15.0
+  url: https://buildweb.eng.vmware.com/ob/19243032/
+  buildNumber: bora-19243032
+  buildStatus: SUCCEEDED
+  hash: 2d8391763932f4dc63a166af83768d6b

@@ -1,0 +1,13 @@
+name: tanzu-framework-management-packages
+goBuildComponentLocks:
+- version: v0.11.1-63-gabb05cbf
+  gobuildBranch: 388906360189768481-v0.11.1-63-gabb05cbf-tf-mgmt-packages
+  gobuildHeadCommit: 78b90af0145627868966b3dfc0ed9e5fc112b838
+  hash: cb422b796294a9683223e58da44a812a
+  componentLockReferences:
+  - name: featuregates-package
+    version: v0.11.1-63-gabb05cbf-featuregates
+    lockHash: a031cd490e2a9fa901ba3fd01d814632
+  - name: core-management-plugins-package
+    version: v0.11.1-63-gabb05cbf-core-mgmt-plugins
+    lockHash: be4f4718b24c01ec87d7f33113439a51

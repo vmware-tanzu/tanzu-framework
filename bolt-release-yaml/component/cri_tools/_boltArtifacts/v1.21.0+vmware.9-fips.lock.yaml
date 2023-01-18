@@ -1,0 +1,7 @@
+name: cri_tools
+goBuildComponentLocks:
+- version: v1.21.0+vmware.9-fips
+  gobuildBranch: 409803791316030326-v1.21.0+vmware.9-fips-cri_tools
+  gobuildHeadCommit: 1b3ce79b743924c920c7ece9ddbc247cb029c951
+  hash: 7ecbe1e28825c107e728925da39c2698
+  componentLockReferences: []

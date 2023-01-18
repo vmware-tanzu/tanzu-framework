@@ -1,0 +1,20 @@
+versionMap:
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi: publish.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-rc.1: publish.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-rc.2: publish.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-rc.3: publish.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-tf-v0.25.0: publish.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-tf-v0.25.1: publish.yaml
+  v1.19.0+vmware.1-tkg.1-azuredisk-csi-zshippable: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-20230103: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-20230112: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-20230114: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-fc.1: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-fc.2: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-rc.1: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-rc.2: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-rc.3: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-tf-v0.26.0: publish.yaml
+  v1.19.0+vmware.1-tkg.2-azuredisk-csi-zshippable: publish.yaml
+  v1.19.0+vmware.1-tkg.3-azuredisk-csi-zshippable: publish.yaml

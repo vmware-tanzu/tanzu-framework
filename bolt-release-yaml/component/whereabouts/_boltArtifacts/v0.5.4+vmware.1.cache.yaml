@@ -1,0 +1,7 @@
+name: whereabouts
+goBuildComponentCaches:
+- version: v0.5.4+vmware.1
+  url: https://buildweb.eng.vmware.com/ob/20667664
+  buildNumber: bora-20667664
+  buildStatus: SUCCEEDED
+  hash: 61c34181f2b88fbec6c3bfe9458eca3d

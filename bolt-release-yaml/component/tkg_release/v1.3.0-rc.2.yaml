@@ -1,0 +1,10 @@
+name: tkg_release
+aggregators:
+  - version: v1.3.0-rc.2
+    gobuildBaseBranch: vmware-0.0.0+vmware.0
+    dependencies:
+      gobuild.linux_hosttype: linux-centos72-gc32
+    componentReferences:
+      - name: vmware-private_tanzu-cli-tkg-plugins
+        version:
+          - v1.3.0-rc.2

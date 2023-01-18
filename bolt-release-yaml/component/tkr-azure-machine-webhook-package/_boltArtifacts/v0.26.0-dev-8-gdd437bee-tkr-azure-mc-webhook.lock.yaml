@@ -1,0 +1,10 @@
+name: tkr-azure-machine-webhook-package
+goBuildComponentLocks:
+- version: v0.26.0-dev-8-gdd437bee-tkr-azure-mc-webhook
+  gobuildBranch: 418724085397222745-v0.26.0-dev-8-gdd437bee-tkr-azure-mc-webhook-tkr-azure-machine-webhook-package
+  gobuildHeadCommit: 6ef813ee52bab35ed92455918d1d1f867512625b
+  hash: d839492d7b78108fa7d6165689c08560
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.26.0-dev-8-gdd437bee
+    lockHash: ae3839347f1efbab21dcbb5a03e6fc16

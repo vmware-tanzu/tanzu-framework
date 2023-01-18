@@ -1,0 +1,7 @@
+name: sonobuoy
+goBuildComponentLocks:
+- version: v0.54.0+vmware.1
+  gobuildBranch: 380053230773635736-v0.54.0+vmware.1
+  gobuildHeadCommit: cc897a78b71c0dd07aaf0f327548939279a8bb1d
+  hash: 9ad0861f1209ecc269c1115f6dde552f
+  componentLockReferences: []

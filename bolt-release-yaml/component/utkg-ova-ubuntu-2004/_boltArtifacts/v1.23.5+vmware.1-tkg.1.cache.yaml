@@ -1,0 +1,11 @@
+name: utkg-ova-ubuntu-2004
+imageCaches:
+- version: v1.23.5+vmware.1-tkg.1
+  channel: "416442109109743318"
+  imageCacheOVA:
+    url: http://10.163.0.131/kscom-generic-local/TKG/channels/416442109109743318/component/utkg-ova-ubuntu-2004/ubuntu-2004-amd64-vmi-k8s-v1.23.5---vmware.1-tkg.1-zshippable.ova
+    imageSHA: 69771ab929d47099b46c45b5bc8342020db30f8d7838d05ba771049c82e73795
+  hash: 39dd61dfaff9e4737346a602fe1a4ada
+  url: https://kscom.svc.eng.vmware.com/job/image-pipelines/job/utkg-build-ova/409
+  buildNumber: "409"
+  buildStatus: SUCCEEDED

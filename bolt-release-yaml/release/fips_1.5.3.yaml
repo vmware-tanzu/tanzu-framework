@@ -1,0 +1,40 @@
+stagingImageRepo:
+  imageRepository: projects-stg.registry.vmware.com/tkg
+description: new TKG core components for FIPS variant of 1.5.3
+componentReferences:
+- name: cni_plugins
+  version:
+  - v1.1.0+vmware.1-fips.1
+- name: etcd
+  version:
+  - v3.5.2+vmware.3-fips.1
+- name: kubernetes_release
+  version:
+  - v0.8.0+vmware.3-fips.1
+- name: kubernetes
+  version:
+  - v1.20.15+vmware.1-fips.1
+- name: kubernetes
+  version:
+  - v1.21.11+vmware.1-fips.1
+- name: kubernetes
+  version:
+  - v1.22.8+vmware.1-fips.1
+- name: cluster-api-provider-bringyourownhost
+  version:
+  - v0.1.0+vmware.5-fips.1
+- name: kubernetes-sigs_kind
+  version:
+  - v1.20.15+vmware.1-tkg.1-fips.1
+- name: kubernetes-sigs_kind
+  version:
+  - v1.21.11+vmware.1-tkg.1-fips.1
+- name: kubernetes-sigs_kind
+  version:
+  - v1.22.8+vmware.1-tkg.1-fips.1
+- name: windows-resource-bundle
+  version:
+  - v1.21.11+vmware.1-tkg.1-fips.1
+- name: windows-resource-bundle
+  version:
+  - v1.22.8+vmware.1-tkg.1-fips.1

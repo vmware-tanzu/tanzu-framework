@@ -1,0 +1,88 @@
+name: ami-general-amazon-2
+imageCaches:
+- version: v1.17.16+vmware.2-tkg.1.3-3161359046336510236
+  channel: "340177647285829897"
+  bomAMI:
+    ami:
+      ap-northeast-1:
+      - id: ami-00855cedf90baad49
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      ap-northeast-2:
+      - id: ami-01092074fafbc5e78
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      ap-south-1:
+      - id: ami-0fd4c5e0f0d86c957
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      ap-southeast-1:
+      - id: ami-0209e193f5d954e88
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      ap-southeast-2:
+      - id: ami-097a8bac499ee8e14
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      eu-central-1:
+      - id: ami-0dcdd0a0d71aa6ef3
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      eu-west-1:
+      - id: ami-017c2cf2c784e51a9
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      eu-west-2:
+      - id: ami-093ae34be94ef3c6e
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      eu-west-3:
+      - id: ami-095de39b7674303bd
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      sa-east-1:
+      - id: ami-02861af2dae36c3db
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      us-east-1:
+      - id: ami-002608294d18aa0c7
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      us-east-2:
+      - id: ami-0f7fc20f03d2b8803
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+      us-west-2:
+      - id: ami-02d1ab7da8a644a8f
+        osinfo:
+          name: amazon
+          version: "2"
+          arch: amd64
+  hash: "3089083276920664849"
+  url: https://kscom.svc.eng.vmware.com/build-ami-general-v1alpha2/21
+  buildNumber: "21"
+  buildStatus: SUCCEEDED

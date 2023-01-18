@@ -1,0 +1,7 @@
+name: vsphere-pv-csi-package
+goBuildComponentCaches:
+- version: v2.4.1+vmware.1-tkg.1-vsphere-pv-csi-zshippable
+  url: https://buildweb.eng.vmware.com/ob/19634334/
+  buildNumber: bora-19634334
+  buildStatus: SUCCEEDED
+  hash: 34efc13be64f718e47c0dd926763c463

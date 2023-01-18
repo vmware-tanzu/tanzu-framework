@@ -1,0 +1,93 @@
+name: harbor
+publish:
+  - name: harborChartMuseumImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/chartmuseum-photon-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/chartmuseum-photon:$UNDERSCOREVERSION
+  - name: harborClairAdapterImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/clair-adapter-photon-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/clair-adapter-photon:$UNDERSCOREVERSION
+  - name: harborClairImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/clair-photon-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/clair-photon:$UNDERSCOREVERSION
+  - name: harborCoreImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-core-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/harbor-core:$UNDERSCOREVERSION
+  - name: harborDatabaseImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-db-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/harbor-db:$UNDERSCOREVERSION
+  - name: harborJobServiceImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-jobservice-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/harbor-jobservice:$UNDERSCOREVERSION
+  - name: harborLogImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-log-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/harbor-log:$UNDERSCOREVERSION
+  - name: harborNginxImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/nginx-photon-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/nginx-photon:$UNDERSCOREVERSION
+  - name: harborNotaryServerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/notary-server-photon-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/notary-server-photon:$UNDERSCOREVERSION
+  - name: harborNotarySignerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/notary-signer-photon-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/notary-signer-photon:$UNDERSCOREVERSION
+  - name: harborPortalImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-portal-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/harbor-portal:$UNDERSCOREVERSION
+  - name: harborPrepareImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/prepare-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/prepare:$UNDERSCOREVERSION
+  - name: harborRedisImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/redis-photon-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/redis-photon:$UNDERSCOREVERSION
+  - name: harborRegistryCtlImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-registryctl-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/harbor-registryctl:$UNDERSCOREVERSION
+  - name: harborRegistryImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/registry-photon-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/registry-photon:$UNDERSCOREVERSION
+  # TODO: harbor toolbox image is missing from buildweb
+  # - name: harborToolboxImage
+  #   type: image
+  #   sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-toolbox-$UNDERSCOREVERSION.tgz
+  #   checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+  #   destinationPath: harbor/harbor-toolbox:$UNDERSCOREVERSION
+  - name: harborTrivyAdapterImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/trivy-adapter-photon-$UNDERSCOREVERSION.tgz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/images/harbor-images-$VERSION-checksums.txt
+    destinationPath: harbor/trivy-adapter-photon:$UNDERSCOREVERSION
+nonpublish:
+  - name: harbor-installer-file
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/harbor-installer-$VERSION-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/harbor/harbor-offline-installer-$VERSION.tgz

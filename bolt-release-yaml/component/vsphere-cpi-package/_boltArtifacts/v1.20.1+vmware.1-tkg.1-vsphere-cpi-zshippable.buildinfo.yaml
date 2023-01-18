@@ -1,0 +1,11 @@
+componentBuilds:
+- name: vsphere-cpi-package
+  version: v1.20.1+vmware.1-tkg.1-vsphere-cpi-zshippable
+  channel: "402445944328578669"
+  url: https://buildweb.eng.vmware.com/ob/19619097/
+  artifactURL:
+    vsphere-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-cpi:v1.20.1_vmware.1-tkg.1-zshippable
+      sha256: a609157ccd712ee0db68aeb30ca0f2ffe3a4fb180777d99c88028dc22e858005
+  cachehash: d69a9c8310cbd1e2a55c8c87216dcc31
+  publishhash: 27994056e7962761b8fc3dc639a6b2f2

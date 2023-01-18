@@ -1,0 +1,22 @@
+name: vmware-private_tanzu-cli-tkg-plugins
+nonpublish:
+  - name: mgmt-cluster-plugin-linux-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-linux-amd64.tar
+    checksumPath: ""
+  - name: mgmt-cluster-plugin-linux-386
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-linux-386.tar
+    checksumPath: ""
+  - name: mgmt-cluster-plugin-windows-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-windows-amd64.tar
+    checksumPath: ""
+  - name: mgmt-cluster-plugin-windows-386
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-windows-386.tar
+    checksumPath: ""
+  - name: mgmt-cluster-plugin-darwin-amd64
+    type: file
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/tanzu-cli-tkg-plugins-darwin-amd64.tar
+    checksumPath: ""

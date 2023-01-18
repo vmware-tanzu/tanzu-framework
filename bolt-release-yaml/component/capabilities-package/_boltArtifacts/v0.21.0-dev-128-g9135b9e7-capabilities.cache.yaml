@@ -1,0 +1,7 @@
+name: capabilities-package
+goBuildComponentCaches:
+- version: v0.21.0-dev-128-g9135b9e7-capabilities
+  url: https://buildweb.eng.vmware.com/ob/19719438/
+  buildNumber: bora-19719438
+  buildStatus: SUCCEEDED
+  hash: f6ccb2693bd50c2b7e854b314c3e3bd9

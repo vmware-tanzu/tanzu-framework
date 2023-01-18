@@ -1,0 +1,6 @@
+name: tkr-azure-machine-webhook-package
+publish:
+  - name: tkr-azure-machine-webhook.tanzu.vmware.com
+    type: imgpkg-bundle
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/tanzu-framework-package-bundles/package-bundles/tkr-azure-machine-webhook-{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}.tar.gz
+    destinationPath: packages/tkr-azure-machine-webhook:{{index .config "packages" 0 "dependencies" "gobuild.upstream_version"}}_{{index .config "packages" 0 "dependencies" "gobuild.downstream_version"}}

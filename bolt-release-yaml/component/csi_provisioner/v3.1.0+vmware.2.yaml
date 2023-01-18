@@ -1,0 +1,7 @@
+name: csi_provisioner
+unmanagedComponents:
+  - version: v3.1.0+vmware.2
+    gobuildBranch: vmware-3.1.0~a14e3c46756076841c19af44aa6a9a4f6af5500c
+    dependencies:
+      gobuild.golangVersion: 1.17.0
+      gobuild.linux_hosttype: linux-centos72-gc32

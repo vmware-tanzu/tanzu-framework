@@ -1,0 +1,10 @@
+name: tkr-source-controller-package
+goBuildComponentLocks:
+- version: v0.23.0-dev-27-g8187d8ac-tkr-source-controller
+  gobuildBranch: 411348523397703242-v0.23.0-dev-27-g8187d8ac-tkr-source-controller-tkr-source-controller-package
+  gobuildHeadCommit: 6837d9611d65f88e6a493940bc3442ad3a3da9a4
+  hash: d0852524f3e14effb6991eb82418d1a2
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.23.0-dev-27-g8187d8ac
+    lockHash: 841a3621b18b3ccd62fff7e282b4cea8

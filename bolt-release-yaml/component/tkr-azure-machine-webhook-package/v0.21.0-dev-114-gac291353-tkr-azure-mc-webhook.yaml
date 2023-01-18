@@ -1,0 +1,22 @@
+name: tkr-azure-machine-webhook-package
+packages:
+- version: v0.21.0-dev-114-gac291353-tkr-azure-mc-webhook
+  upstreamCommit: ac2913534a15adb6c30cfc042043e00fa9c46795
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~790ae920223eceb8af546a05d91441dedcef03f5
+  componentReferences:
+  - name: tanzu-framework
+    version:
+    - v0.21.0-dev-114-gac291353
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework").artifactURL.tkrInfraMachineImage.url}}'
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: tkr-azure-machine-webhook
+    gobuild.package_type: management
+    gobuild.upstream_image_0: tkr-infra-machine-webhook:latest
+    gobuild.upstream_version: v0.21.0-dev-114-gac291353

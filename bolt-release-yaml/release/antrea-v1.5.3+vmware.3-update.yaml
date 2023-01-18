@@ -1,0 +1,7 @@
+stagingImageRepo:
+  imageRepository: 'projects-stg.registry.vmware.com/tkg'
+description: 'rebuild existing antrea and fix tag'
+componentReferences:
+  - name: antrea-package
+    version:
+      - v1.5.3-tkg.2-antrea-advanced

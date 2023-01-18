@@ -1,0 +1,58 @@
+componentBuilds:
+- name: harbor
+  version: v2.1.3+vmware.1
+  channel: "347489876469401535"
+  url: https://buildweb.eng.vmware.com/ob/17799753
+  artifactURL:
+    harbor-installer-file:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17799753/publish/lin64/harbor/harbor-offline-installer-v2.1.3+vmware.1.tgz
+    harborChartMuseumImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/chartmuseum-photon:v2.1.3_vmware.1
+      sha256: e90fc52ee8d3a1f78e8e00b0683092d1d69cd17567fc703ac46afb37e82b49a2
+    harborClairAdapterImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/clair-adapter-photon:v2.1.3_vmware.1
+      sha256: 928de70cb6b30973b0bdc03de691d53b607d2555819ddccff9adadce2abc335a
+    harborClairImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/clair-photon:v2.1.3_vmware.1
+      sha256: dd74307b5557ff97c1a522ae163c8928a7c196f9663d257e0a7921ee62594a1a
+    harborCoreImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/harbor-core:v2.1.3_vmware.1
+      sha256: 78a85518f601ec9b353e6d69f9892eb46e09903b975f0e9640e9e10122e669db
+    harborDatabaseImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/harbor-db:v2.1.3_vmware.1
+      sha256: d8d5493566437d0dc4d5f361ce551dee87837dd91f202bdf86de57a5ba423904
+    harborJobServiceImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/harbor-jobservice:v2.1.3_vmware.1
+      sha256: 7f574639efe2d645b31c9f2076ec35a482ddf04abfbf907e22ec8bf3b4f85117
+    harborLogImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/harbor-log:v2.1.3_vmware.1
+      sha256: da772a7b38292c7931f954efd5423e93fd73731ea7bf044cf07fd0d00b1db96b
+    harborNginxImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/nginx-photon:v2.1.3_vmware.1
+      sha256: d035ab66369aa3d4ac245d7425f8420de14f0f1939adfe026b0e2d1ad010864f
+    harborNotaryServerImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/notary-server-photon:v2.1.3_vmware.1
+      sha256: 416ac3d557f8bbfcba0205b594577f5121b0f126045c931ac96a3c16984e6d41
+    harborNotarySignerImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/notary-signer-photon:v2.1.3_vmware.1
+      sha256: bcd3bcd86d3dab343f8b6535cc1d2e53923edf7c8cbf48b2aeb40bb20f80ada5
+    harborPortalImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/harbor-portal:v2.1.3_vmware.1
+      sha256: 1a05d1b8f0e8a40be1e051fa3e8c5e0f194cc68c625eb615ebbea13e50c23ff3
+    harborPrepareImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/prepare:v2.1.3_vmware.1
+      sha256: baab8c8777f1ac09038f984df942d15e9e17fde9103cc562796ebf4536c35266
+    harborRedisImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/redis-photon:v2.1.3_vmware.1
+      sha256: fe30a7fae767a1eefbaadf9574007e7d9f80e2cbe84e9153f3a63c44459ff5b6
+    harborRegistryCtlImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/harbor-registryctl:v2.1.3_vmware.1
+      sha256: 58ad317ed0ee4dc3bf42a101c18dea67add6db09c1f865f53e22b00e19f9557e
+    harborRegistryImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/registry-photon:v2.1.3_vmware.1
+      sha256: 45b24ff0c4a208ac0773679cae05381b4eb861aad4b6852ae356b21ace424a1c
+    harborTrivyAdapterImage:
+      url: projects-stg.registry.vmware.com/tkg/harbor/trivy-adapter-photon:v2.1.3_vmware.1
+      sha256: 44ccca473aa67c3631d616207fcce7f8abd2127c2265b872aef5d72a04e68e30
+  cachehash: "11035000363219022488"
+  publishhash: "615329171958022078"

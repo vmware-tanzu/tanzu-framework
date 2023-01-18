@@ -1,0 +1,7 @@
+name: antrea
+goBuildComponentCaches:
+- version: v1.2.3+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/18841399/
+  buildNumber: bora-18841399
+  buildStatus: SUCCEEDED
+  hash: 2c196ddb61d82fe05d243850d58b68e6

@@ -1,0 +1,5 @@
+name: velero-mgmt-cluster-plugin
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/velero-mgmt-cluster-plugin.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/velero-mgmt-cluster-plugin.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/velero-mgmt-cluster-plugin.git
+gobuildTarget: velero-mgmt-cluster-plugin

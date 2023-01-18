@@ -1,0 +1,7 @@
+name: framework-package
+goBuildComponentCaches:
+- version: v0.25.1-12-gdce5ad7e-framework
+  url: https://buildweb.eng.vmware.com/ob/20736459/
+  buildNumber: bora-20736459
+  buildStatus: SUCCEEDED
+  hash: 73900e1cd25751903bffa9e9f87172ba

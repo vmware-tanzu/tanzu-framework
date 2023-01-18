@@ -1,0 +1,81 @@
+componentBuilds:
+- name: featuregates-package
+  version: v0.17.0-dev-24-gbc750f62-featuregates
+  channel: "393954119456445618"
+  url: https://buildweb.eng.vmware.com/ob/19331712/
+  artifactURL:
+    featuregates.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/featuregates:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: 35f280df42f3b201deac847b9e1c3eeeb1ec4d9bbf289d14db363c73b5a45893
+  cachehash: 2e73af160374c16935bf0be5e61d2180
+  publishhash: b18039830ec752877daef8e6ef1178e5
+- name: core-management-plugins-package
+  version: v0.17.0-dev-24-gbc750f62-core-mgmt-plugins
+  channel: "393954119456445618"
+  url: https://buildweb.eng.vmware.com/ob/19331714/
+  artifactURL:
+    core-management-plugins.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/core-management-plugins:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: f802186105b0c5d9d00fdf64a258a530b454812c83755d3255063274605d48e4
+  cachehash: 393b06e1a4f25f3f9141543221543a2e
+  publishhash: 0ecf4d581065b27bd73a811ba24a7c7e
+- name: tkg-package
+  version: v0.17.0-dev-24-gbc750f62-tkg
+  channel: "394274516953488593"
+  url: https://buildweb.eng.vmware.com/ob/19342058/
+  artifactURL:
+    tkg.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: 0db3c27b46a2509d4f66de6412ef00d0837091bc1ea270230340ccae52474614
+  cachehash: f4f65773ced20f5b8a6a80e7ab89a0b0
+  publishhash: b50bfb418ec98d4f672d28d855f6e5b2
+- name: tkg-clusterclass-package
+  version: v0.17.0-dev-24-gbc750f62-tkg-clusterclass
+  channel: "394274516953488593"
+  url: https://buildweb.eng.vmware.com/ob/19342072/
+  artifactURL:
+    tkg-clusterclass.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: 6d34d63da41eca99b811c7e20b968357bbc00c5a4abae19154b5fe44f9855a73
+  cachehash: f0f8ca9174a615779cc8bfb591f7adeb
+  publishhash: 81b79b50fa2579627d2a9dc4a8ce3b7a
+- name: tkg-clusterclass-aws-package
+  version: v0.17.0-dev-24-gbc750f62-tkg-clusterclass-aws
+  channel: "394274516953488593"
+  url: https://buildweb.eng.vmware.com/ob/19342059/
+  artifactURL:
+    tkg-clusterclass-aws.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-aws:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: 52ec4cc47783edb16a1db07787ec59df43c0ab04f1369846523686fd388a2fa2
+  cachehash: ec9e036c4b10b27d656f264c048e9177
+  publishhash: 125ec7a1bc39baef747260e4f78167fa
+- name: tkg-clusterclass-vsphere-package
+  version: v0.17.0-dev-24-gbc750f62-tkg-clusterclass-vsphere
+  channel: "394274516953488593"
+  url: https://buildweb.eng.vmware.com/ob/19342060/
+  artifactURL:
+    tkg-clusterclass-vsphere.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-vsphere:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: 623cb39454a68116d6ad5a7a498677bfb2b6930b7a9614018c962136739e86d9
+  cachehash: 174449c83529ad2083a65774ea012db3
+  publishhash: d03e78e5fad5fe181b44a702c65769ab
+- name: tkg-clusterclass-azure-package
+  version: v0.17.0-dev-24-gbc750f62-tkg-clusterclass-azure
+  channel: "394274516953488593"
+  url: https://buildweb.eng.vmware.com/ob/19342061/
+  artifactURL:
+    tkg-clusterclass-azure.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-azure:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: c4e2ef729d9c6f6706a6afe3351f48cdb4a6a84cfc50f44be6a30b69350f5c42
+  cachehash: fb0d052fcca499454771c6e0a4fd1d1e
+  publishhash: c2418f93c73e5c7d0921d16401e3c74e
+- name: tkg-clusterclass-docker-package
+  version: v0.17.0-dev-24-gbc750f62-tkg-clusterclass-docker
+  channel: "394274516953488593"
+  url: https://buildweb.eng.vmware.com/ob/19342057/
+  artifactURL:
+    tkg-clusterclass-docker.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/management/tkg-clusterclass-docker:v0.17.0-dev-24-gbc750f62_vmware.1
+      sha256: 404813ad2fa27b825df0b5342b5ffb5f5730f2917b0d45f463576ccd679be4be
+  cachehash: 9862d63b733cd8a94048bd35934ae737
+  publishhash: 7bd05f927afe0e6ab7d7d37ee4f30d36

@@ -1,0 +1,7 @@
+name: antrea
+unmanagedComponents:
+  - version: v0.11.1+vmware.5
+    gobuildBranch: vmware-0.11.1+vmware.5
+    dependencies:
+      gobuild.golangVersion: 1.13.9
+      gobuild.linux_hosttype: linux-centos72-gc32

@@ -1,0 +1,15 @@
+name: tkr-compatibility
+boms:
+- version: v21-v2.1.0-20230114
+  type: compatibility
+  compatibilityMetadata:
+    version: v21
+    managementClusterVersions:
+    - version: v2.1.0-20230114
+      supportedKubernetesVersions:
+      - v1.22.17+vmware.1-tkg.1-20230114
+      - v1.24.9+vmware.1-tkg.1-20230114
+      - v1.23.15+vmware.1-tkg.1-20230114
+  dependencies:
+    rtmVersions:
+    - v2.1.0

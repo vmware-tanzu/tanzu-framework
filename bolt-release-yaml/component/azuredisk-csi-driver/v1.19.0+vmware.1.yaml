@@ -1,0 +1,10 @@
+name: azuredisk-csi-driver
+managedComponents:
+  - version: v1.19.0+vmware.1
+    upstreamTag: v1.19.0
+    gobuildBaseBranch: v1.19.0+vmware.1~b5c1c46197b2d73ba11cc886f25942a2387d7409
+    dependencies:
+      gobuild.golangVersion: 1.17
+      gobuild.releaseVersion: v1.19.0+vmware.1
+      gobuild.containerNamePrefix: vmware.io
+      gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,14 @@
+componentBuilds:
+- name: kscom_release
+  version: v1.20.12+vmware.2
+  channel: "382219236484861207"
+  url: https://buildweb.eng.vmware.com/ob/18946976/
+  artifactURL:
+    tarball:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18946976/publish/lin64/kscom_release/vmware-kubernetes-v1.20.12+vmware.2.tar.gz
+    tarball-sha256:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18946976/publish/lin64/kscom_release/vmware-kubernetes-v1.20.12+vmware.2.tar.gz.sha256
+    tarball-sha256-asc:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18946976/publish/lin64/kscom_release/vmware-kubernetes-v1.20.12+vmware.2.tar.gz.sha256.asc
+  cachehash: 6248fb64d7d75f398a5c163c9020bc1e
+  publishhash: c7cc3a735923ade483984826a0b51b94

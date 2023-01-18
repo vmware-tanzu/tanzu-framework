@@ -1,0 +1,7 @@
+name: azuredisk-csi-driver-package
+goBuildComponentCaches:
+- version: v1.19.0+vmware.1-tkg.3-azuredisk-csi-zshippable
+  url: https://buildweb.eng.vmware.com/ob/21132821/
+  buildNumber: bora-21132821
+  buildStatus: SUCCEEDED
+  hash: f079e1fff1c9b8ab5100c9171a6607e0

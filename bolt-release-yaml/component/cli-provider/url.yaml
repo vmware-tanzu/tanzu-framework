@@ -1,0 +1,8 @@
+name: cli-provider
+upstreamURL: "git@gitlab.eng.vmware.com:TKG/tkg-cli-providers.git"
+mirrorSandboxURL: "git@gitlab.eng.vmware.com:TKG/tkg-cli-providers.git"
+mirrorOfficialURL: "git@gitlab.eng.vmware.com:TKG/tkg-cli-providers.git"
+gobuildBaseURL: "git@gitlab.eng.vmware.com:TKG/tkg-cli-providers.git"
+gobuildSandboxURL: "git@gitlab.eng.vmware.com:TKG/tkg-cli-providers.git"
+gobuildOfficialURL: "git@gitlab.eng.vmware.com:TKG/tkg-cli-providers.git"
+gobuildTarget: "cli-provider"

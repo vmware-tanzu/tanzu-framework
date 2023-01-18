@@ -1,0 +1,24 @@
+componentBuilds:
+- name: fluxcd-helm-controller-package
+  version: v0.21.0+vmware.1-tkg.2-helm-ctrl
+  channel: "439555018618600930"
+  url: https://buildweb.eng.vmware.com/ob/20987730/
+  artifactURL:
+    fluxcd-helm-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/standard/fluxcd-helm-controller:v0.21.0_vmware.1-tkg.2
+      sha256: 54036d18fde7cec69a576daaf520ef854078925cca1abf64abf213daa36600c1
+  cachehash: 1a47a327582557e74a35d2e102cd31a1
+  publishhash: 3c5ee72907ec3f9ee25978efc1875524
+  configDependencies:
+    gobuild.IS_RTM_BUILD: "True"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.directory_override: 0.21.0+update.1
+    gobuild.downstream_image_0: projects-stg.registry.vmware.com/tkg/fluxcd/helm-controller:v0.21.0_vmware.1
+    gobuild.downstream_version: vmware.1-tkg.2
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.noMirror: "true"
+    gobuild.package_name: fluxcd-helm-controller
+    gobuild.package_type: standard
+    gobuild.upstream_image_0: fluxcd/helm-controller:v0.21.0
+    gobuild.upstream_version: 0.21.0

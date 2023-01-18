@@ -1,0 +1,5 @@
+name: kokoni
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/kokoni.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/kokoni.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/kokoni.git
+gobuildTarget: kokoni

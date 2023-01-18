@@ -1,0 +1,22 @@
+name: addons-manager-v2-package
+packages:
+- version: v0.21.0-dev-9-gad4c4850-addons-manager-v2
+  upstreamCommit: ad4c4850f112200972a669543e778534195d41c5
+  gobuildBaseBranch: vmware-0.0.0+vmware.0-package-bundles~ab726d3afc0fc8720fa8afc822b6292c7ea0a370
+  componentReferences:
+  - name: tanzu-framework-addons
+    version:
+    - v0.21.0-dev-9-gad4c4850
+  dependencies:
+    gobuild.IS_RTM_BUILD: "False"
+    gobuild.TKG_PROD_REPO: projects.registry.vmware.com/tkg
+    gobuild.TKG_STG_REPO: projects-stg.registry.vmware.com/tkg
+    gobuild.downstream_image_0: '{{(getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "tanzu-framework-addons").artifactURL.tanzuAddonsManagerImage.url}}'
+    gobuild.downstream_version: vmware.1
+    gobuild.golangContainer: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:1.17.7
+    gobuild.linux_hosttype: linux-centos72-gc32
+    gobuild.package_name: addons-manager-v2
+    gobuild.package_type: management
+    gobuild.upstream_image_0: addons-controller:latest
+    gobuild.upstream_version: v0.21.0-dev-9-gad4c4850

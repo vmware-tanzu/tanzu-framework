@@ -1,0 +1,111 @@
+componentBuilds:
+- name: addons-manager-package
+  version: v1.4.0+vmware.1-tkg.3-addons-manager-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18848059/
+  artifactURL:
+    addons-manager.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/addons-manager:v1.4.0_vmware.1-tkg.3-20211029
+      sha256: 4fb45f33d01c20ca1c37aa95132b9e299328c5a46b9aa87dfa414508742f6e81
+  cachehash: efb9f2d1368e68b001e58c09c593eba1
+  publishhash: 58a059db5fc330daefe5cd936034d00c
+- name: ako-operator-package
+  version: v1.5.0+vmware.1-tkg.1-ako-operator-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18847965/
+  artifactURL:
+    ako-operator.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/ako-operator:v1.5.0_vmware.1-tkg.1-20211029
+      sha256: 53a9ebd890ac97d4ef75be02153a983e6e89f8bc8353f40268b81c2989b0b3ae
+  cachehash: b91117686af7b963fb858a1115ebe8b0
+  publishhash: e53f922ccc96191938bdc7d730ac4f37
+- name: load-balancer-and-ingress-service-package
+  version: v1.6.1+vmware.1-tkg.1-ako-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18847993/
+  artifactURL:
+    load-balancer-and-ingress-service.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/load-balancer-and-ingress-service:v1.6.1_vmware.1-tkg.1-20211029
+      sha256: 14da905c24ca74b897b59b53762ca16488855a634f9841b43f19eee6a1c2925b
+  cachehash: b80f12b58b69c8ec08dadfd394c29978
+  publishhash: e76b568ebe8a5803434d226a6e35101b
+- name: antrea-package
+  version: v0.13.3+vmware.1-tkg.2-antrea-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18848008/
+  artifactURL:
+    antrea.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/antrea:v0.13.3_vmware.1-tkg.2-20211029
+      sha256: 5a8c52888ad7823ab93e6dcf76eb83411f9348b49120b7972da10347867d54b2
+  cachehash: 07ae74e7ed9420565f1de0692f78561d
+  publishhash: 3c38157278462aa91841f3ab1a6c790a
+- name: calico-package
+  version: v3.19.1+vmware.1-tkg.2-calico-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18847991/
+  artifactURL:
+    calico.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/calico:v3.19.1_vmware.1-tkg.2-20211029
+      sha256: cd938f5ae837ab704f5a8c7f9ab8ccf13fe59d95fab088b8ef05faeedcdb531b
+  cachehash: 0330e87e6094aaa05c6f640341dbb6e2
+  publishhash: a041cb368fda942297756d58173a348a
+- name: vsphere-csi-package
+  version: v2.3.0+vmware.1-tkg.3-vsphere-csi-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18848035/
+  artifactURL:
+    vsphere-csi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-csi:v2.3.0_vmware.1-tkg.3-20211029
+      sha256: a757edcd0aaa0a51e422403dc521e858f64854be50b810432b526cfc368e87d3
+  cachehash: c2a242a1ab194ab4489bcba261409d65
+  publishhash: cedd8fe6c0ac7f5ec42b3dc29f93ec89
+- name: vsphere-cpi-package
+  version: v1.21.0+vmware.1-tkg.2-vsphere-cpi-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18847994/
+  artifactURL:
+    vsphere-cpi.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/vsphere-cpi:v1.21.0_vmware.1-tkg.2-20211029
+      sha256: 445e03caa74a4439742da0b4c7e0ef31097863aa3e8581eecaa6a1221c52643b
+  cachehash: 202e537df4a49ab1fa408f91718c4e23
+  publishhash: 27994056e7962761b8fc3dc639a6b2f2
+- name: metrics-server-package
+  version: v0.4.0+vmware.1-tkg.2-metrics-server-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18847967/
+  artifactURL:
+    metrics-server.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/metrics-server:v0.4.0_vmware.1-tkg.2-20211029
+      sha256: feeceea6994d4fdf21bfc9f73152edf51d5c9071f461c9f5f81c87c15496fc88
+  cachehash: 8b96f01e9803f8f3f33cdb2ee0514b9b
+  publishhash: a857a5d53464d803d2e0261e21c846ae
+- name: kapp-controller-package
+  version: v0.25.0+vmware.1-tkg.1-kapp-controller-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18848013/
+  artifactURL:
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.25.0_vmware.1-tkg.1-20211029
+      sha256: d70b48dbfb814d25e2af5d8f76b09b6afab7b09db912d278ffc3121881441510
+  cachehash: 21266e19855b099e6411154413b72c0d
+  publishhash: 386598a473d4ed792227a88e5777e074
+- name: secretgen-controller-package
+  version: v0.5.0+vmware.1-tkg.1-secgen-ctl-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18847992/
+  artifactURL:
+    secretgen-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/secretgen-controller:v0.5.0_vmware.1-tkg.1-20211029
+      sha256: 7a848267ff5a88b2aa77500ab8e0f33d921c9052c2307de0ff8a6b9235f68af8
+  cachehash: 6273d6f325ffbfc41294052866a65c47
+  publishhash: 5e2cf1e775d67dbdb526c3013035dd63
+- name: pinniped-package
+  version: v0.4.4+vmware.1-tkg.3-pinniped-20211029
+  channel: "379177361297423652"
+  url: https://buildweb.eng.vmware.com/ob/18848057/
+  artifactURL:
+    pinniped.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/pinniped:v0.4.4_vmware.1-tkg.3-20211029
+      sha256: 2dd4f50440c44053b8e6eed18e028135737a0dcdaa012a68b1fe87442a27d9b9
+  cachehash: cfb434c031ef999d82bf1ee50c015747
+  publishhash: deeac3b3022bf44de880663cd7ec52c5

@@ -1,0 +1,64 @@
+componentBuilds:
+- name: tkr-bom
+  version: v1.24.9+vmware.1-tiny.1-tkg.1-zshippable
+  channel: "442621442362745265"
+  url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/442621442362745265/component/tkr-bom/_boltArtifacts/tkr-bom-v1.24.9+vmware.1-tiny.1-tkg.1-zshippable.yaml
+  artifactURL:
+    tkr-repository-vsphere-edge.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-repository-vsphere-edge:v1.24.9_vmware.1-tiny.1-tkg.1-zshippable
+      sha256: e21ae854b28c6c8ab8bcba1a1dfb23036d01dbbbd1e665252702c356fc862f04
+    tkr-vsphere-edge.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/tkr-vsphere-edge:v1.24.9_vmware.1-tiny.1-tkg.1-zshippable
+      sha256: 5bf845ef65314438e924e98f1486a8f5de5e613ae503565610d15fa630065ca9
+    tkrBomImage:
+      url: projects-stg.registry.vmware.com/tkg/tkr-bom:v1.24.9_vmware.1-tiny.1-tkg.1-zshippable
+      sha256: 589713cf06e4443ec583c16b6a5f67d7f1ac0610699b506e878d29d0481b7344
+    tkrBomYaml:
+      url: https://build-artifactory.eng.vmware.com/kscom-generic-local/TKG/channels/442621442362745265/component/tkr-bom/_boltArtifacts/tkr-bom-v1.24.9+vmware.1-tiny.1-tkg.1-zshippable.yaml
+  cachehash: 7d0496d34e6765bdccc7fc36a959cbb4
+  publishhash: 060602d6b0298d4f650dc34bd5917460
+  configDependencies:
+    apiVersion: run.tanzu.vmware.com/v1alpha3
+    componentTanzuCoreVersion: main
+    vsphere-edge:
+      spec:
+        additionalNotInCBTPackages:
+        - refName: calico.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: CalicoConfig
+              version: v1alpha1
+        additionalPackages:
+        - refName: secretgen-controller.tanzu.vmware.com
+        - refName: cert-manager.tanzu.vmware.com
+        - refName: tkg-storageclass.tanzu.vmware.com
+        cni:
+          refName: antrea.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cni.tanzu.vmware.com
+              kind: AntreaConfig
+              version: v1alpha1
+        cpi:
+          refName: vsphere-cpi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: cpi.tanzu.vmware.com
+              kind: VSphereCPIConfig
+              version: v1alpha1
+        csi:
+          refName: vsphere-csi.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: csi.tanzu.vmware.com
+              kind: VSphereCSIConfig
+              version: v1alpha1
+        kapp:
+          refName: kapp-controller.tanzu.vmware.com
+          valuesFrom:
+            providerRef:
+              apiGroup: run.tanzu.vmware.com
+              kind: KappControllerConfig
+              version: v1alpha3
+    vsphere-edgePackageDeployNamespace: tkg-system

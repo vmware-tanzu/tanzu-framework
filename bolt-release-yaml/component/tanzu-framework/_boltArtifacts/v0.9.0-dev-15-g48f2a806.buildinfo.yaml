@@ -1,0 +1,23 @@
+componentBuilds:
+- name: tanzu-framework
+  version: v0.9.0-dev-15-g48f2a806
+  channel: "378592890806341960"
+  url: https://buildweb.eng.vmware.com/ob/18827627/
+  artifactURL:
+    capabilitiesImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/capabilities/capabilities-controller-manager:v0.9.0-dev-15-g48f2a806
+      sha256: 084ef48a9a9e22d943d040a401170c3df81b9ff07e14c5e878c57520df79fc3a
+    providerTemplateImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/provider/provider-templates:v0.9.0-dev-15-g48f2a806
+      sha256: 2c2ebfd23a72027b4ca59a91341c6a93e904538fd35717fb5483772738f82fa3
+    tanzu-core-darwin-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18827627/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-darwin-amd64.tar.gz
+    tanzu-core-linux-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18827627/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-linux-amd64.tar.gz
+    tanzu-core-windows-amd64:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-18827627/publish/lin64/tanzu-framework/tanzu_cli/tanzu-framework-windows-amd64.zip
+    tkrImage:
+      url: projects-stg.registry.vmware.com/tkg/tanzu_core/tkr/tkr-controller-manager:v0.9.0-dev-15-g48f2a806
+      sha256: 91aaf39c7d4045c0ecd51b9bc82d78cf978caf914fb710b15fe6df0536a0af93
+  cachehash: 5d2aebf92f1950bfd0b04bf3a5228fc7
+  publishhash: 11ea040bbf0a5619b636efb9aa1b9338

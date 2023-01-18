@@ -1,0 +1,6 @@
+name: image-builder
+unmanagedComponents:
+  - version: v0.1.12+vmware.1
+    gobuildBranch: vmware-v0.1.12+vmware.1~4ab69e313a5cb9b1a683b7e03ae273dc309cde82
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

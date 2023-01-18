@@ -1,0 +1,6 @@
+name: velero
+unmanagedComponents:
+  - version: v1.9.4+vmware.1
+    gobuildBranch: vmware-1.9.4~3170d59dcb0a8c96a863b169696fffd551b577cd
+    dependencies:
+      gobuild.linux_hosttype: linux-centos8

@@ -1,0 +1,7 @@
+name: dex
+goBuildComponentCaches:
+- version: v2.35.3+vmware.2
+  url: https://buildweb.eng.vmware.com/ob/21002432/
+  buildNumber: bora-21002432
+  buildStatus: SUCCEEDED
+  hash: 4d9111862da18c2c32d3dc930bfa89c9

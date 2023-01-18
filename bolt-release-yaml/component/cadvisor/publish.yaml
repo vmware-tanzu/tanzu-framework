@@ -1,0 +1,12 @@
+name: cadvisor
+publish:
+  - name: cadvisorImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cadvisor/images/cadvisor-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cadvisor/images/cadvisor-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: prometheus/cadvisor:$UNDERSCOREVERSION
+nonpublish:
+  - name: cadvisor-file
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cadvisor/executables/cadvisor-$VERSION-binary-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/cadvisor/executables/cadvisor-$VERSION.gz

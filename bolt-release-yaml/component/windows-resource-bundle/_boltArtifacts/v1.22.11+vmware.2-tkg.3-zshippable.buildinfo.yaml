@@ -1,0 +1,15 @@
+componentBuilds:
+- name: windows-resource-bundle
+  version: v1.22.11+vmware.2-tkg.3-zshippable
+  channel: "419607432428266631"
+  url: https://buildweb.eng.vmware.com/ob/20232528/
+  artifactURL:
+    windowsResourceBundleImage:
+      url: projects-stg.registry.vmware.com/tkg/windows-resource-bundle:v1.22.11_vmware.2-tkg.3-zshippable
+      sha256: d0d5daa34cb8f4b2415a4bb8cb57ad0bc66cc1e6909cc0624568a3873a1d4190
+  cachehash: c9aab73f01e206434ab62b9722773d17
+  publishhash: 2803688be300ca5b8619663fa14027c9
+  configDependencies:
+    gobuild.REFBUILDINFO_URL: $REFBUILDINFO_URL
+    gobuild.golangVersion: "1.16"
+    gobuild.linux_hosttype: linux-centos8

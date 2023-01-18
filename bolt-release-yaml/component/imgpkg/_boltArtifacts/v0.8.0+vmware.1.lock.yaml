@@ -1,0 +1,7 @@
+name: imgpkg
+goBuildComponentLocks:
+- version: v0.8.0+vmware.1
+  gobuildBranch: vmware-0.8.0
+  gobuildHeadCommit: 471d1e3f9845bbe8237732d5060ecd4bbe6207d8
+  hash: "13772143364768513140"
+  componentLockReferences: []

@@ -1,0 +1,7 @@
+name: tkr-vsphere-machine-webhook-package
+goBuildComponentCaches:
+- version: v0.26.0-dev-11-g5c69b9e7-tkr-vsphere-mc-webhook
+  url: https://buildweb.eng.vmware.com/ob/20211033/
+  buildNumber: bora-20211033
+  buildStatus: SUCCEEDED
+  hash: 037a913d2fc54342f0e7fd912ebd4e4f

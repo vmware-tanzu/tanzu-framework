@@ -1,0 +1,25 @@
+name: image-builder-resource-bundle
+goBuildComponentLocks:
+- version: v1.23.8+vmware.2-fips.1-tkg.1
+  gobuildBranch: 429439817693044192-v1.23.8+vmware.2-fips.1-tkg.1-image-builder-resource-bundle
+  gobuildHeadCommit: 5658222f70ba8b2e924386c785907acdc918e93f
+  hash: 53c6554b8e84d79f8f34f981bb992b24
+  componentLockReferences:
+  - name: antrea
+    version: v1.5.3-advanced
+    lockHash: 69e8f9f002a01f4741c3b543641df02f
+  - name: containerd
+    version: v1.6.6+vmware.2-fips.1
+    lockHash: b0b1d6f67fc699f1760547326e78b30a
+  - name: kubernetes
+    version: v1.23.8+vmware.2-fips.1
+    lockHash: 0c51ad04ba7b9614277228e5c76b47e5
+  - name: coredns
+    version: v1.8.6+vmware.7-fips.1
+    lockHash: e0afb10f3cde3a15dd9aee89201bd514
+  - name: etcd
+    version: v3.5.4+vmware.6-fips.1
+    lockHash: da5afb409bb153106a9ccbad05d8e9d5
+  - name: cni_plugins
+    version: v1.1.1+vmware.6-fips.1
+    lockHash: cabf4898aa93567dfab21ef4a578ac02

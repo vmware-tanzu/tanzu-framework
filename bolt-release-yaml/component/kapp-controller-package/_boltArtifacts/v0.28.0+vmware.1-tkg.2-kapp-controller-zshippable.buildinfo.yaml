@@ -1,0 +1,11 @@
+componentBuilds:
+- name: kapp-controller-package
+  version: v0.28.0+vmware.1-tkg.2-kapp-controller-zshippable
+  channel: "382134211097690182"
+  url: https://buildweb.eng.vmware.com/ob/18943955/
+  artifactURL:
+    kapp-controller.tanzu.vmware.com:
+      url: projects-stg.registry.vmware.com/tkg/packages/core/kapp-controller:v0.28.0_vmware.1-tkg.2-zshippable
+      sha256: d9494be271ee15bfa724b17692c1682d0de930dedd2217fa5ac00e4323fb9497
+  cachehash: 24c6fc3ebc0e2eebe78a3e2ae32927f3
+  publishhash: 386598a473d4ed792227a88e5777e074

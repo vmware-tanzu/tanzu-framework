@@ -1,0 +1,5 @@
+versionMap:
+  v1.24.6+vmware.1-tiny.1-tkg.1-2319b304658a6cf17f5e74dc0ab7659a: publish.yaml
+  v1.24.6+vmware.1-tiny.2-tkg.1-2319b304658a6cf17f5e74dc0ab7659a: publish.yaml
+  v1.24.6+vmware.1-tiny.2-tkg.1-2319b3: publish.yaml
+  v1.24.9+vmware.1-tiny.1-tkg.1-2319b3: publish.yaml

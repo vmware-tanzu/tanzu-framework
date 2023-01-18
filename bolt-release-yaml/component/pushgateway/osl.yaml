@@ -1,0 +1,4 @@
+submodules:
+  - name: pushgateway/src
+    go_mod:
+      - "go.mod"

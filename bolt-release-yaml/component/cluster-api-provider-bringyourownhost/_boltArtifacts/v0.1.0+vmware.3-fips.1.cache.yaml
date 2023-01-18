@@ -1,0 +1,7 @@
+name: cluster-api-provider-bringyourownhost
+goBuildComponentCaches:
+- version: v0.1.0+vmware.3-fips.1
+  url: https://buildweb.eng.vmware.com/ob/19410648/
+  buildNumber: bora-19410648
+  buildStatus: SUCCEEDED
+  hash: eaf993ce46848234411d0b766a1e1023

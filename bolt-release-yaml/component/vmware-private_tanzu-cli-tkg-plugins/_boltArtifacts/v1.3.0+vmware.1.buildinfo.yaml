@@ -1,0 +1,10 @@
+componentBuilds:
+- name: vmware-private_tanzu-cli-tkg-plugins
+  version: v1.3.0+vmware.1
+  channel: "340690861937418930"
+  url: https://buildweb.eng.vmware.com/ob/17576227/
+  artifactURL:
+    mgmt-cluster-plugin:
+      url: http://build-squid.eng.vmware.com/build/mts/release/bora-17576227/publish/lin64/tanzu-cli-tkg-plugins/tanzu_cli/artifacts.tar
+  cachehash: "3296538270045933614"
+  publishhash: "17251954888604221634"

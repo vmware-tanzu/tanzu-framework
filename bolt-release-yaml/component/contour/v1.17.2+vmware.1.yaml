@@ -1,0 +1,7 @@
+name: contour
+unmanagedComponents:
+  - version: v1.17.2+vmware.1
+    gobuildBranch: vmware-1.17.2~f39d4dfd0a27f63e92c5e53e4866aec745c70b50
+    dependencies:
+      gobuild.golangVersion: 1.16.5
+      gobuild.linux_hosttype: linux-centos72-gc32

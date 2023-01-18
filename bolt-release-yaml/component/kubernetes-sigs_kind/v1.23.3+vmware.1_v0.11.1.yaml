@@ -1,0 +1,51 @@
+name: kubernetes-sigs_kind
+managedComponents:
+- version: v1.23.3+vmware.1_v0.11.1
+  upstreamTag: v0.11.1
+  mirrorCherryPicks:
+  - sha: e99f695947767b104c7cac143af5672882a39178
+    description: add local build option for kind 0.11.1
+  - sha: e5d04ed7a36ed256d966dc4f4fb1d036856da927
+    description: Overriding to pull the pause image from the prod registry in toml file
+  - sha: f0f1f7d396f0e7d1982a2055a7cb2a9e161b1826
+    description: Passing the pause version as an argument to the build node image command
+  - sha: 7523cebfce85602b87b98c9bde2d8996525295da
+    description: Extended the code to pass the base images, cni instead of cherrypicks
+  - sha: 20ff750f11c556830fb3308dc3f9324c4fe77281
+    description: Overwriting the default cni version with the provided cni version
+  gobuildBaseBranch: v0.11.1+vmware.0~66b0004f288af92ea3f30b87f426d486ef59455e
+  componentReferences:
+  - name: coredns
+    version:
+    - v1.8.6+vmware.3
+  - name: etcd
+    version:
+    - v3.5.1+vmware.3
+  - name: kubernetes
+    version:
+    - v1.23.3+vmware.1
+  dependencies:
+    gobuild.buildChannel: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes") "channel"}}'
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.coreDNSVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "coreDns") "version"}}'
+    gobuild.debianBaseRepo: us.gcr.io/k8s-artifacts-prod/build-image/debian-base
+    gobuild.debianBaseVersion: v2.1.0
+    gobuild.defaultBuildBase: kindest/base:v20220106-a11d619c
+    gobuild.etcdVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "etcd") "version"}}'
+    gobuild.golangVersion: 1.16.7
+    gobuild.harborBase: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.harborGolangBase: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang
+    gobuild.k8sVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes") "version"}}'
+    gobuild.kindCNIRepo: kindest/kindnetd
+    gobuild.kindCNIVersion: v20211122-a2c10462
+    gobuild.kindVersion: 0.11.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: pause
+    gobuild.pauseVersion: 3.6
+    gobuild.rancherRepo: rancher/local-path-provisioner
+    gobuild.rancherVersion: v0.0.14
+    kindKubeadmAPIVersion: kind.x-k8s.io/v1alpha4

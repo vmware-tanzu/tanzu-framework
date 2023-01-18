@@ -1,0 +1,58 @@
+name: tkg-core-packages
+goBuildComponentLocks:
+- version: v1.23.15+vmware.1-tkg.1-zshippable
+  gobuildBranch: 443599197808126342-v1.23.15+vmware.1-tkg.1-zshippable-tkg-core-packages
+  gobuildHeadCommit: 3b4c737f0336afb5d41433fedf6094e28fe9fb6e
+  hash: 76954ff8432f83fd42853820c330e02a
+  componentLockReferences:
+  - name: addons-manager-package
+    version: v1.6.0+vmware.1-tkg.2-addons-manager-zshippable
+    lockHash: 412fde754e0c67e1dc61b19c223e5029
+  - name: ako-operator-package
+    version: v1.7.0+vmware.3-tkg.1-ako-operator-zshippable
+    lockHash: 2a5ac5b2eb5f57ee3b672987eaa58e3e
+  - name: load-balancer-and-ingress-service-package
+    version: v1.8.2+vmware.1-tkg.1-ako-zshippable
+    lockHash: b6497842327a470409cc1f14f9c83152
+  - name: antrea-package
+    version: v1.7.2+vmware.1-tkg.1-antrea-advanced-zshippable
+    lockHash: cbcabb8a835e0446e7ddfe5105a6dbf0
+  - name: calico-package
+    version: v3.24.1+vmware.1-tkg.1-calico-zshippable
+    lockHash: ba73888f1448c78e187cf82abfc4fe7d
+  - name: vsphere-csi-package
+    version: v2.6.2+vmware.2-tkg.1-vsphere-csi-zshippable
+    lockHash: 2cc5b4131b4881638c7aee0bddf6285e
+  - name: vsphere-pv-csi-package
+    version: v2.6.0+vmware.1-tkg.1-vsphere-pv-csi-zshippable
+    lockHash: 1c9df8628813272c3123f3965ca5e553
+  - name: vsphere-cpi-package
+    version: v1.23.3+vmware.1-tkg.1-vsphere-cpi-zshippable
+    lockHash: be7bfdbc5728267b98007ab2a4addac8
+  - name: metrics-server-package
+    version: v0.6.2+vmware.1-tkg.1-metrics-server-zshippable
+    lockHash: 1f63d0621de1cf8b8104dd4b37fb3e14
+  - name: kapp-controller-package
+    version: v0.41.5+vmware.1-tkg.1-kapp-controller-zshippable
+    lockHash: 3fb36558475e11cbbcbbc0e327963b65
+  - name: kube-vip-cloud-provider-package
+    version: v0.0.4+vmware.2-tkg.1-kube-vip-cp-zshippable
+    lockHash: ebc9fd6316f5fffcb4bd60b2a2d76e0d
+  - name: secretgen-controller-package
+    version: v0.11.2+vmware.1-tkg.1-secgen-ctl-zshippable
+    lockHash: 96a98db27c7ce5dc1ec0b8c5baefaf9a
+  - name: pinniped-package
+    version: v0.12.1+vmware.2-tkg.3-pinniped-zshippable
+    lockHash: 2721e16a3c8691118737942fdcb30189
+  - name: guest-cluster-auth-service-package
+    version: v1.1.0-tkg.1-gc-auth-service-zshippable
+    lockHash: 6c788cbc3c43c62ad5eaf4d290e9fb53
+  - name: aws-ebs-csi-driver-package
+    version: v1.8.0+vmware.2-tkg.2-aws-ebs-csi-zshippable
+    lockHash: de1534459aced0e5a1344d72a09a4833
+  - name: azuredisk-csi-driver-package
+    version: v1.19.0+vmware.1-tkg.2-azuredisk-csi-zshippable
+    lockHash: 8f200ed4f4b7d161da1a01dea9143129
+  - name: azurefile-csi-driver-package
+    version: v1.21.0+vmware.1-tkg.2-azurefile-csi-zshippable
+    lockHash: 5c55409c3d4e7b85d2625ae0ca464f16

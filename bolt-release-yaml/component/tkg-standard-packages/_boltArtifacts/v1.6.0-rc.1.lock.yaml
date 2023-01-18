@@ -1,0 +1,49 @@
+name: tkg-standard-packages
+goBuildComponentLocks:
+- version: v1.6.0-rc.1
+  gobuildBranch: 418621578654257502-v1.6.0-rc.1-tkg-standard-packages
+  gobuildHeadCommit: aaef0328d7ab9e555d5b9c99e287e559be557edc
+  hash: f10682471e82c09082d36b396f4f3901
+  componentLockReferences:
+  - name: cert-manager-package
+    version: v1.5.3+vmware.4-tkg.1-cert-manager-rc.1
+    lockHash: a4862b857ac15da2085b787010cf45b1
+  - name: cert-manager-package
+    version: v1.7.2+vmware.1-tkg.1-cert-manager-rc.1
+    lockHash: a9a4a3541f98b8131271e58c738b8294
+  - name: contour-package
+    version: v1.20.2+vmware.1-tkg.1-contour-rc.1
+    lockHash: 31e6760942de9f00d4d782a8f93eccea
+  - name: external-dns-package
+    version: v0.10.0+vmware.1-tkg.2-external-dns-rc.1
+    lockHash: 23aed4c6bbb7a872e847eafe85acf8ed
+  - name: external-dns-package
+    version: v0.11.0+vmware.1-tkg.2-external-dns-rc.1
+    lockHash: dce4dee7c08b85304d95dd47d76bd573
+  - name: fluent-bit-package
+    version: v1.8.15+vmware.1-tkg.1-fluent-bit-rc.1
+    lockHash: d5e1ebc3866356af533fe1350b623cbf
+  - name: grafana-package
+    version: v7.5.16+vmware.1-tkg.1-grafana-rc.1
+    lockHash: ee5bcdbe70470442f3536b267e1309fa
+  - name: prometheus-package
+    version: v2.36.2+vmware.1-tkg.1-prometheus-rc.1
+    lockHash: 640e2052158122945b208c0e72433ba0
+  - name: harbor-package
+    version: v2.5.3+vmware.1-tkg.1-harbor-rc.1
+    lockHash: 890e53b718dda40198c50ba801746df4
+  - name: multus-cni-package
+    version: v3.8.0+vmware.1-tkg.1-multus-cni-rc.1
+    lockHash: 043e2719ce49d77f7305f8423919caa0
+  - name: whereabouts-package
+    version: v0.5.1+vmware.2-tkg.1-whereabouts-rc.1
+    lockHash: d3940271e229a17c4f761f9f889918dd
+  - name: fluxcd-helm-controller-package
+    version: v0.21.0+vmware.1-tkg.1-helm-ctrl
+    lockHash: 73ecf282ba30562423aaa099bf54e544
+  - name: fluxcd-source-controller-package
+    version: v0.24.4+vmware.1-tkg.1-source-ctrl
+    lockHash: 1bc11b24c38ae927b2ae03072d3d8e5f
+  - name: fluxcd-kustomize-controller-package
+    version: v0.24.4+vmware.1-tkg.1-kustomize-ctrl
+    lockHash: e7ed1532c15dcc339d22116e7600e9ac

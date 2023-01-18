@@ -1,0 +1,4 @@
+submodules:
+  - name: tanzu-auth-controller-manager/src
+    go_mod:
+      - "addons/pinniped/tanzu-auth-controller-manager/go.mod"

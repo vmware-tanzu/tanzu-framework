@@ -1,0 +1,7 @@
+name: cluster_api
+goBuildComponentCaches:
+- version: v0.3.23+vmware.3
+  url: https://buildweb.eng.vmware.com/ob/19961819/
+  buildNumber: bora-19961819
+  buildStatus: SUCCEEDED
+  hash: 6f6a1edf1d6c6b7c87b2e1e554c494c9

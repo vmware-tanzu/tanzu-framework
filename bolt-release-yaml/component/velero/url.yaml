@@ -1,0 +1,8 @@
+name: velero
+upstreamURL: https://github.com/vmware-tanzu/velero.git
+mirrorSandboxURL: git@gitlab.eng.vmware.com:k8s-common-core/mirrors_github_velero.git
+mirrorOfficialURL: git@gitlab.eng.vmware.com:core-build/mirrors_github_velero.git
+gobuildBaseURL: git@gitlab.eng.vmware.com:core-build/cayman_velero.git
+gobuildSandboxURL: git@gitlab.eng.vmware.com:core-build/cayman_velero.git
+gobuildOfficialURL: git@gitlab.eng.vmware.com:core-build/cayman_velero.git
+gobuildTarget: cayman_velero

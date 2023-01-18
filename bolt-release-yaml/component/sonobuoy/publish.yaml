@@ -1,0 +1,12 @@
+name: sonobuoy
+publish:
+  - name: sonobuoyImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/sonobuoy/images/sonobuoy-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/sonobuoy/images/sonobuoy-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: sonobuoy:$UNDERSCOREVERSION
+nonpublish: 
+  - name: sonobuoy-executable
+    type: file
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/sonobuoy/executables/sonobuoy-$VERSION-executables-checksums.txt
+    destinationPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/sonobuoy/executables/sonobuoy-$VERSION.gz

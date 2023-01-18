@@ -1,0 +1,7 @@
+name: kubernetes-csi_external-resizer
+publish:
+  - name: csiExternalResizer
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes-csi_external-resizer/images/kubernetes-csi_external-resizer-$UNDERSCOREVERSION.tar.gz
+    checksumPath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/kubernetes-csi_external-resizer/images/kubernetes-csi_external-resizer-$UNDERSCOREVERSION-image-checksums.txt
+    destinationPath: kubernetes-csi_external-resizer:$UNDERSCOREVERSION

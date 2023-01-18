@@ -1,0 +1,7 @@
+name: tkg-remediator
+goBuildComponentLocks:
+- version: v1.0.2
+  gobuildBranch: main
+  gobuildHeadCommit: 769457c16c7bb358f0b6bb7ec8be11096310cbde
+  hash: a499579bb878a293021d13e7c5ae840d
+  componentLockReferences: []

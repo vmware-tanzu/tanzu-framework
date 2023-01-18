@@ -1,0 +1,74 @@
+name: vsphere_csi_driver_tkgs
+publish:
+  - name: csiControllerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/vsphere-csi.tar.gz
+    destinationPath: pvcsi/vsphere-block-csi-driver:$UNDERSCOREVERSION
+  - name: csiMetaDataSyncerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/syncer.tar.gz
+    destinationPath: pvcsi/volume-metadata-syncer:$UNDERSCOREVERSION
+  - name: csiAttacherImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/csi_attacher.tar.gz
+    destinationPath: pvcsi/csi-attacher:$UNDERSCOREVERSION
+  - name: csiNodeDriverRegistrarImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/csi_node_driver_registrar.tar.gz
+    destinationPath: pvcsi/csi-node-driver-registrar:$UNDERSCOREVERSION
+  - name: csiProvisonerImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/csi_provisioner.tar.gz
+    destinationPath: pvcsi/csi-provisioner:$UNDERSCOREVERSION
+  - name: csiExternalResizer
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/kubernetes-csi_external-resizer.tar.gz
+    destinationPath: pvcsi/kubernetes-csi_external-resizer:$UNDERSCOREVERSION
+  - name: csiLivenessProbeImage
+    type: image
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/csi_livenessprobe.tar.gz
+    destinationPath: pvcsi/csi-livenessprobe:$UNDERSCOREVERSION
+  - name: csi-node-driver-registrar-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/csi_node_driver_registrar.tar.gz
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/lin64/vsphere_csi_driver/images/csi_node_driver_registrar.tar
+  - name: csi_attacher-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/csi_attacher.tar.gz
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/lin64/vsphere_csi_driver/images/csi_attacher.tar
+  - name: csi_livenessprobe-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/csi_livenessprobe.tar.gz
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/lin64/vsphere_csi_driver/images/csi_livenessprobe.tar
+  - name: csi_provisioner-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/csi_provisioner.tar.gz
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/lin64/vsphere_csi_driver/images/csi_provisioner.tar
+  - name: kubernetes-csi_external-resizer-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/kubernetes-csi_external-resizer.tar.gz
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/lin64/vsphere_csi_driver/images/kubernetes-csi_external-resizer.tar
+  - name: syncer-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/syncer.tar.gz
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/lin64/vsphere_csi_driver/images/syncer.tar
+  - name: vsphere-csi-vsphere-image-tar
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/lin64/vsphere_csi_driver/images/vsphere-csi.tar.gz
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/lin64/vsphere_csi_driver/images/vsphere-csi.tar
+  - name: vsphere-csi-driver-1.19-add-on
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.19/pvcsi.yaml
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/add-on/1.19/pvcsi.yaml
+  - name: vsphere-csi-driver-1.20-add-on
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.20/pvcsi.yaml
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/add-on/1.20/pvcsi.yaml
+  - name: vsphere-csi-driver-1.21-add-on
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.21/pvcsi.yaml
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/add-on/1.21/pvcsi.yaml
+  - name: vsphere-csi-driver-1.22-add-on
+    type: file
+    sourcePath: http://build-squid.eng.vmware.com/build/mts/release/$BUILDID/publish/add-on/1.22/pvcsi.yaml
+    destinationPath: $CHANNEL/image-builder/vsphere-csi-driver/$VERSION/publish/add-on/1.22/pvcsi.yaml

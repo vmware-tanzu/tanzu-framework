@@ -1,0 +1,31 @@
+name: ami-gov-amazon-2
+images:
+- version: v1.18.17+vmware.2-tkg.0-13236610850205649471
+  osinfo:
+    name: amazon
+    version: "2"
+    arch: amd64
+  type: ami
+  imageBuilderVersion: 064ade4491659be11b731d3a8039225b21b1c2e4
+  componentReferences:
+  - name: kubernetes
+    version:
+    - v1.18.17+vmware.2
+  - name: cni_plugins
+    version:
+    - v0.8.7+vmware.7
+  - name: coredns
+    version:
+    - v1.6.7+vmware.8
+  - name: cri_tools
+    version:
+    - v1.17.0+vmware.6
+  - name: etcd
+    version:
+    - v3.4.3+vmware.13
+  - name: containerd
+    version:
+    - v1.4.4+vmware.3
+  dependencies:
+    base_iso_sha: ""
+    base_iso_url: ""

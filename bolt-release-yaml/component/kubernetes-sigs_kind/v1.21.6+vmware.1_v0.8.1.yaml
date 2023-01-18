@@ -1,0 +1,42 @@
+name: kubernetes-sigs_kind
+managedComponents:
+- version: v1.21.6+vmware.1_v0.8.1
+  upstreamTag: v0.8.1
+  mirrorCherryPicks:
+  - sha: f970ca3c182cdba4d22b30c382fdf472a401ecbb
+    description: cherry pick commit that adding local build option
+  gobuildBaseBranch: v0.8.1+vmware.0~ef68e41b5c0bd1210717c6a5188f3f26af5135f4
+  componentReferences:
+  - name: coredns
+    version:
+    - v1.8.0+vmware.9
+  - name: etcd
+    version:
+    - v3.4.13+vmware.22
+  - name: kubernetes
+    version:
+    - v1.21.6+vmware.1
+  dependencies:
+    gobuild.buildChannel: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes") "channel"}}'
+    gobuild.containerNamePrefix: projects.registry.vmware.com/tkg
+    gobuild.coreDNSVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "coreDns") "version"}}'
+    gobuild.debianBaseRepo: us.gcr.io/k8s-artifacts-prod/build-image/debian-base
+    gobuild.debianBaseVersion: v2.1.0
+    gobuild.defaultBuildBase: kindest/base:v20200430-2c0eee40
+    gobuild.etcdVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "etcd") "version"}}'
+    gobuild.golangVersion: 1.13.14
+    gobuild.harborBase: harbor-repo.vmware.com/dockerhub-proxy-cache
+    gobuild.harborGolangBase: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang
+    gobuild.k8sVersion: '{{index (getElementFromSlice (convertSliceOfInterfaceToSliceOfMapStringInterface
+      (index .refbuildinfo "componentBuilds")) "name" "kubernetes") "version"}}'
+    gobuild.kindCNIRepo: kindest/kindnetd
+    gobuild.kindCNIVersion: 0.5.4
+    gobuild.kindVersion: 0.8.1
+    gobuild.linux_hosttype: linux-centos8
+    gobuild.pause: pause
+    gobuild.rancherRepo: rancher/local-path-provisioner
+    gobuild.rancherVersion: v0.0.12
+    kindKubeadmAPIVersion: kind.x-k8s.io/v1alpha4

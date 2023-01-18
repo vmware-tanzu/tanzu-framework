@@ -1,0 +1,10 @@
+name: cliplugins-package
+goBuildComponentLocks:
+- version: v0.26.0-dev-31-gac3165c8-cliplugins
+  gobuildBranch: 420069506417718656-v0.26.0-dev-31-gac3165c8-cliplugins-cliplugins-package
+  gobuildHeadCommit: 4619d18e01a1a49b69ce0e69051c870d6bd5f8b0
+  hash: b4b693d74eb6de0d0505445b42eb2aab
+  componentLockReferences:
+  - name: tanzu-framework
+    version: v0.26.0-dev-31-gac3165c8
+    lockHash: 2c0c90560f3b340591ee45a9b51ce86d

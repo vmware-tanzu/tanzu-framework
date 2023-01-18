@@ -1,0 +1,10 @@
+version: v2
+managementClusterPluginVersions:
+- version: v0.9.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.5.0-20211029
+- version: v1.4.0
+  supportedTKGBomVersions:
+  - imagePath: tkg-bom
+    tag: v1.4.0
