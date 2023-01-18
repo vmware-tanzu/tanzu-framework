@@ -790,7 +790,7 @@ spec:
         path: /spec/template/spec/dataDisks
         valueFrom:
           template: |
-            {{ range .controlPlane.dataDisks }}
+            {{- with index .controlPlane.dataDisks 0 }}
             - diskSizeGB: {{ .sizeGiB }}
               lun: 0
               nameSuffix: etcddisk
@@ -991,7 +991,7 @@ spec:
         path: "/spec/template/spec/dataDisks"
         valueFrom:
           template: |
-            {{ range .worker.dataDisks -}}
+            {{- with index .worker.dataDisks 0 }}
             - diskSizeGB: {{ .sizeGiB }}
               lun: 0
               nameSuffix: nodedisk
