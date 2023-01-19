@@ -99,7 +99,7 @@ boms:
               kind: KappControllerConfig
               version: v1alpha3
     azurePackageDeployNamespace: tkg-system
-    componentTanzuCoreVersion: 22033bdc7d5d3cb6fe1c7c8810fcb67bcd008cfa
+    componentTanzuCoreVersion: main
     vsphere:
       spec:
         additionalNotInCBTPackages:
