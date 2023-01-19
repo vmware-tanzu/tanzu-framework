@@ -11,5 +11,5 @@ package version
 // All the variables are set during build time
 // Note: Please !!DO NOT!!! change the name or remove this variable
 var (
-	Version string = "v0.28.0-dev"
+	Version string = "v0.29.0-dev"
 )
