@@ -15,7 +15,7 @@ import (
 func TestTkgClient_configurePodSecurityStandard(t *testing.T) {
 	c := &TkgClient{}
 
-	kcp := &controlplanev1.KubeadmControlPlane{
+	kcpFlagOnly := &controlplanev1.KubeadmControlPlane{
 		Spec: controlplanev1.KubeadmControlPlaneSpec{
 			KubeadmConfigSpec: capibootstrapv1.KubeadmConfigSpec{
 				ClusterConfiguration: &capibootstrapv1.ClusterConfiguration{
@@ -24,25 +24,26 @@ func TestTkgClient_configurePodSecurityStandard(t *testing.T) {
 							ExtraArgs: map[string]string{
 								admissionPodSecurityConfigFlagName: admissionPodSecurityConfigFilePath,
 							},
-							ExtraVolumes: []capibootstrapv1.HostPathMount{
-								{
-									Name:      "admission-pss",
-									HostPath:  admissionPodSecurityConfigFilePath,
-									MountPath: admissionPodSecurityConfigFilePath,
-									ReadOnly:  true,
-									PathType:  corev1.HostPathFile,
-								},
-							},
 						},
 					},
 				},
-				Files: []capibootstrapv1.File{
-					{
-						Path:    admissionPodSecurityConfigFilePath,
-						Content: admissionPodSecurityConfigFileData,
-					},
-				},
 			},
+		},
+	}
+	kcp := kcpFlagOnly.DeepCopy()
+	kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.APIServer.ExtraVolumes = []capibootstrapv1.HostPathMount{
+		{
+			Name:      "admission-pss",
+			HostPath:  admissionPodSecurityConfigFilePath,
+			MountPath: admissionPodSecurityConfigFilePath,
+			ReadOnly:  true,
+			PathType:  corev1.HostPathFile,
+		},
+	}
+	kcp.Spec.KubeadmConfigSpec.Files = []capibootstrapv1.File{
+		{
+			Path:    admissionPodSecurityConfigFilePath,
+			Content: admissionPodSecurityConfigFileData,
 		},
 	}
 
@@ -52,14 +53,19 @@ func TestTkgClient_configurePodSecurityStandard(t *testing.T) {
 		want *controlplanev1.KubeadmControlPlane
 	}{
 		{
-			"nil pointer check",
+			"nil pointer check + apply patch",
 			&controlplanev1.KubeadmControlPlane{},
 			kcp.DeepCopy(),
 		},
 		{
 			"no-op",
 			kcp.DeepCopy(),
-			kcp.DeepCopy(),
+			nil,
+		},
+		{
+			"no-op if flag already set",
+			kcpFlagOnly.DeepCopy(),
+			nil,
 		},
 	}
 	for _, tt := range tests {
