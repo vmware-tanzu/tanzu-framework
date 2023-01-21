@@ -1890,8 +1890,18 @@ spec:
           content: |
             Set-Service -Name "wuauserv" -StartupType Disabled -Status Stopped
       - op: add
+        path: /spec/template/spec/files/-
+        value:
+          content: |
+            # Disable firewall for SSH and OVS access
+            Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+          path: C:\k\disable_firewall.ps1
+      - op: add
         path: /spec/template/spec/postKubeadmCommands/-
         value: powershell c:/k/prevent_windows_updates.ps1 -ExecutionPolicy Bypass
+      - op: add
+        path: /spec/template/spec/postKubeadmCommands/-
+        value: powershell c:/k/disable_firewall.ps1
       - op: replace
         path: /spec/template/spec/users
         valueFrom:
@@ -1932,9 +1942,6 @@ spec:
                 } while ($SaToken -eq $null)
                 return $SaToken
             }
-
-            # Disable firewall temporarily for SSH and other internal ports access
-            Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
             $TempFolder = 'C:\programdata\temp'
             $AntreaInTempFolder = "$TempFolder\antrea-windows-advanced.zip"
