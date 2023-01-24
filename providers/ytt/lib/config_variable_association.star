@@ -291,6 +291,11 @@ return {
 "ANTREA_FLOWEXPORTER": ["vsphere", "aws", "azure", "docker"],
 "ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD": ["vsphere", "aws", "azure", "docker"],
 
+"POD_SECURITY_STANDARD_DEACTIVATED": ["vsphere", "aws", "azure", "docker"],
+"POD_SECURITY_STANDARD_AUDIT": ["vsphere", "aws", "azure", "docker"],
+"POD_SECURITY_STANDARD_WARN": ["vsphere", "aws", "azure", "docker"],
+"POD_SECURITY_STANDARD_ENFORCE": ["vsphere", "aws", "azure", "docker"],
+
 "PROVIDER_TYPE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 "TKG_CLUSTER_ROLE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 "TKG_VERSION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],

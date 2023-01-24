@@ -367,10 +367,105 @@ tkr-package:
 					"AVI_CONTROLLER":                "10.191.186.55",
 					"AVI_DATA_NETWORK":              "VM Network",
 					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_INGRESS_NODE_NETWORK_LIST": `- networkName: node-network-name
+  cidrs:
+    - 10.191.176.0/20
+`,
+					"AVI_PASSWORD":             "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP": "Default-Group",
+					"AVI_USERNAME":             "admin",
+					"PROVIDER_TYPE":            "vsphere",
+				}
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+				f1, err := os.ReadFile(valuesFile)
+				Expect(err).NotTo(HaveOccurred())
+				f2, err := os.ReadFile(outputFile)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(f1)).To(Equal(string(f2)))
+			})
+		})
+
+		Context("when AVI_ENABLE is set to true, AVI_INGRESS_NODE_NETWORK_LIST is not set", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				outputFile = "test/output_vsphere_with_avi_enabled_no_node_network_list.yaml"
+				// Configure user provider configuration
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
 					"AVI_PASSWORD":                  "Admin!23",
 					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
 					"AVI_USERNAME":                  "admin",
 					"PROVIDER_TYPE":                 "vsphere",
+					"VSPHERE_NETWORK":               "VM Network",
+				}
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+				f1, err := os.ReadFile(valuesFile)
+				Expect(err).NotTo(HaveOccurred())
+				f2, err := os.ReadFile(outputFile)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(f1)).To(Equal(string(f2)))
+			})
+		})
+
+		Context("when AVI_ENABLE is set to true, AVI_INGRESS_NODE_NETWORK_LIST is invalid", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				// Configure user provider configuration
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_INGRESS_NODE_NETWORK_LIST": "VM Network",
+					"AVI_PASSWORD":                  "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
+					"AVI_USERNAME":                  "admin",
+					"PROVIDER_TYPE":                 "vsphere",
+				}
+			})
+			It("should return error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Error convert node network list"))
+			})
+		})
+
+		Context("when AVI_ENABLE is set to true, VIP network is fully customized", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				outputFile = "test/output_vsphere_with_avi_enabled_custom_vip_network.yaml"
+				// Configure user provider configuration
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_INGRESS_NODE_NETWORK_LIST": `- networkName: node-network-name
+  cidrs:
+    - 10.191.176.0/20
+`,
+					"AVI_PASSWORD":                                          "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP":                              "Default-Group",
+					"AVI_USERNAME":                                          "admin",
+					"PROVIDER_TYPE":                                         "vsphere",
+					"AVI_CONTROL_PLANE_NETWORK":                             "avi-control-plane-network",
+					"AVI_CONTROL_PLANE_NETWORK_CIDR":                        "10.10.93.25/20",
+					"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME":               "avi-management-cluster-vip-network",
+					"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR":               "10.94.13.45/20",
+					"AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME": "avi-management-cluster-control-plane-vip-network",
+					"AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR": "10.48.99.33/20",
 				}
 			})
 			It("should not return error", func() {
@@ -426,13 +521,104 @@ tkr-package:
 					"AVI_CONTROLLER":                "10.191.186.55",
 					"AVI_DATA_NETWORK":              "VM Network",
 					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
-					"AVI_PASSWORD":                  "Admin!23",
-					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
-					"AVI_USERNAME":                  "admin",
-					"PROVIDER_TYPE":                 "vsphere",
+					"AVI_INGRESS_NODE_NETWORK_LIST": `- networkName: node-network-name
+  cidrs:
+    - 10.191.176.0/20
+`,
+					"AVI_PASSWORD":             "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP": "Default-Group",
+					"AVI_USERNAME":             "admin",
+					"PROVIDER_TYPE":            "vsphere",
 				}
 			})
 			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+				f1, err := os.ReadFile(valuesFile)
+				Expect(err).NotTo(HaveOccurred())
+				f2, err := os.ReadFile(outputFile)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(f1)).To(Equal(string(f2)))
+			})
+		})
+
+		Context("when AVI_ENABLE is set to true", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				outputFile = "test/output_vsphere_with_avi_enabled_with_nsxt_cloud_management_cluster.yaml"
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_PASSWORD":                  "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
+					"AVI_USERNAME":                  "admin",
+					"AVI_NSXT_T1LR":                 "/infra/test_t1",
+					"PROVIDER_TYPE":                 "vsphere",
+					"VSPHERE_NETWORK":               "VM Network",
+				}
+			})
+			It("when set NSX-T T1 router, it should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+				f1, err := os.ReadFile(valuesFile)
+				Expect(err).NotTo(HaveOccurred())
+				f2, err := os.ReadFile(outputFile)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(f1)).To(Equal(string(f2)))
+			})
+		})
+
+		Context("when AVI_ENABLE is set to true", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				outputFile = "test/output_vsphere_with_avi_enabled_with_avi_labels_0_management_cluster.yaml"
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_PASSWORD":                  "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
+					"AVI_USERNAME":                  "admin",
+					"AVI_LABELS":                    `{"foo":"bar"}`,
+					"PROVIDER_TYPE":                 "vsphere",
+					"VSPHERE_NETWORK":               "VM Network",
+				}
+			})
+			It("set AVI_LABELS, it should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+				f1, err := os.ReadFile(valuesFile)
+				Expect(err).NotTo(HaveOccurred())
+				f2, err := os.ReadFile(outputFile)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(f1)).To(Equal(string(f2)))
+			})
+		})
+
+		Context("when AVI_ENABLE is set to true", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				outputFile = "test/output_vsphere_with_avi_enabled_with_avi_labels_1_management_cluster.yaml"
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_PASSWORD":                  "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
+					"AVI_USERNAME":                  "admin",
+					"AVI_LABELS":                    map[string]string{"foo": "bar"},
+					"PROVIDER_TYPE":                 "vsphere",
+					"VSPHERE_NETWORK":               "VM Network",
+				}
+			})
+			It("set AVI_LABELS, it should not return error", func() {
 				Expect(err).NotTo(HaveOccurred())
 				f1, err := os.ReadFile(valuesFile)
 				Expect(err).NotTo(HaveOccurred())

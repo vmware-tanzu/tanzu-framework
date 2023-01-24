@@ -4,6 +4,7 @@ package client_test
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -147,7 +148,7 @@ var _ = Describe("ensureAllowLegacyClusterConfiguration", func() {
 
 })
 
-var _ = Describe("shouldDeployClusterCLass", func() {
+var _ = Describe("shouldDeployClusterClass", func() {
 	var (
 		err                    error
 		tkgClient              *client.TkgClient
@@ -248,6 +249,15 @@ var _ = Describe("shouldDeployClusterCLass", func() {
 			result, err := tkgClient.ShouldDeployClusterClassBasedCluster(isManagementCluster)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(false))
+		})
+
+		It("Should return true when AllowLeagcyCluster is false and SUPPRESS_PROVIDERS_UPDATE is set", func() {
+			os.Setenv("SUPPRESS_PROVIDERS_UPDATE", "1")
+			featureFlagClient.FeatureFlags[constants.FeatureFlagAllowLegacyCluster] = false
+			result, err := tkgClient.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(true))
+			os.Unsetenv("SUPPRESS_PROVIDERS_UPDATE")
 		})
 	})
 })

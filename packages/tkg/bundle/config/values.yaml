@@ -30,6 +30,9 @@ frameworkPackage:
       #! If hostNetwork is set to true the below two ports should be different
       tkrConversionWebhookServerPort: 9443
       tkrResolverWebhookServerPort: 9443
+      httpProxy:
+      httpsProxy:
+      noProxy:
   addonsManagerPackageValues:
     versionConstraints:
     tanzuAddonsManager:
@@ -58,6 +61,7 @@ frameworkPackage:
   clipluginsPackageValues:
     namespace: tkg-system
     versionConstraints:
+    deployCLIPluginCRD: false
   tanzuAuthPackageValues:
     namespace: tanzu-auth
     versionConstraints:
@@ -98,8 +102,6 @@ tkrSourceControllerPackage:
 coreManagementPluginsPackage:
   namespaceForPackageInstallation: tkg-system
   versionConstraints:
-  coreManagementPluginsPackageValues:
-    deployCLIPluginCRD: false
 
 akoOperatorPackage:
   akoOperator:

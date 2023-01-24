@@ -10,18 +10,18 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Fix antrea 1.7.1 kapp label (#5568)...
-      sha: 639dfcff20d0edfd3a008e8a64018d5725c09ad8
+      commitTitle: Add antrea 1.7.2 package (#5627)...
+      sha: 71dd9381be1a4f075a64f404ca262f860e769a68
       tags:
-      - v0.13.0-dev.2-493-g639dfcff
+      - v0.13.0-dev.2-544-g71dd9381
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: Adjust default ciphers used for kapp-controller 0.41.2 (#5388)
-      sha: fbf9b9b607aaa1725a6e92f40ab8db32d0731d7d
+      commitTitle: Bump kapp-controller to 0.41.5 (#5604)...
+      sha: c2d078d4c64a30e0b2110ed8e6929e478e37af10
       tags:
-      - v0.13.0-dev.2-359-gfbf9b9b6
+      - v0.13.0-dev.2-524-gc2d078d4
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig

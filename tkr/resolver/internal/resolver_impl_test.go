@@ -4,6 +4,7 @@
 package internal
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -346,7 +347,6 @@ var _ = Describe("Resolve()", func() {
 
 		k8sVersion = testdata.ChooseK8sVersionFromTKRs(tkrs)
 		k8sVersionPrefix = testdata.ChooseK8sVersionPrefix(k8sVersion)
-		queryK8sVersionPrefix = testdata.GenQueryAllForK8sVersion(k8sVersionPrefix)
 	})
 
 	BeforeEach(func() {
@@ -358,6 +358,10 @@ var _ = Describe("Resolve()", func() {
 		}
 	})
 
+	JustBeforeEach(func() {
+		queryK8sVersionPrefix = testdata.GenQueryAllForK8sVersion(k8sVersionPrefix)
+	})
+
 	It("should resolve TKRs and OSImages for a version prefix", func() {
 		result := r.Resolve(queryK8sVersionPrefix)
 
@@ -366,6 +370,43 @@ var _ = Describe("Resolve()", func() {
 		for i, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
 			assertOSImageResultExpectations(result.MachineDeployments[i], osImageQuery, k8sVersionPrefix)
 		}
+	})
+
+	When("the version prefix is an exact TKR version", func() {
+		var (
+			tkr, tkrSuffixed *runv1.TanzuKubernetesRelease
+		)
+
+		BeforeEach(func() {
+			tkr = testdata.ChooseTKR(tkrs)
+			tkrSuffixed = suffixedTKR(tkr, "zshippable")
+			tkrs[tkrSuffixed.Name] = tkrSuffixed
+
+			k8sVersionPrefix = tkr.Spec.Version
+		})
+
+		repeat(10, func() {
+			It("should only consider the TKR with that exact version", func() {
+				result := r.Resolve(queryK8sVersionPrefix)
+
+				lenResults := len(result.ControlPlane.TKRsByK8sVersion)
+				Expect(lenResults).To(BeNumerically("<=", 1))
+
+				if lenResults == 0 {
+					Expect(result.MachineDeployments).To(HaveLen(len(queryK8sVersionPrefix.MachineDeployments)))
+					for i := range queryK8sVersionPrefix.MachineDeployments {
+						Expect(len(result.MachineDeployments[i].TKRsByK8sVersion)).To(BeZero())
+					}
+					return
+				}
+
+				assertOSImageResultExpectations(result.ControlPlane, queryK8sVersionPrefix.ControlPlane, k8sVersionPrefix)
+				Expect(result.MachineDeployments).To(HaveLen(len(queryK8sVersionPrefix.MachineDeployments)))
+				for i, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
+					assertOSImageResultExpectations(result.MachineDeployments[i], osImageQuery, k8sVersionPrefix)
+				}
+			})
+		})
 	})
 
 	When("the controlPlane part doesn't need to be resolved", func() {
@@ -449,23 +490,28 @@ func assertOSImageResultExpectations(osImageResult *data.OSImageResult, osImageQ
 		return
 	}
 	Expect(osImageResult).ToNot(BeNil())
-	Expect(version.Prefixes(osImageResult.K8sVersion)).To(HaveKey(k8sVersionPrefix))
 	Expect(version.Prefixes(version.Label(osImageResult.TKRName))).To(HaveKey(version.Label(k8sVersionPrefix)))
 
 	for k8sVersion, tkrs := range osImageResult.TKRsByK8sVersion {
-		Expect(version.Prefixes(k8sVersion)).To(HaveKey(k8sVersionPrefix))
 		Expect(tkrs).ToNot(BeEmpty())
 		for tkrName, tkr := range tkrs {
 			Expect(tkrName).To(Equal(tkr.Name))
 			Expect(version.Prefixes(tkr.Spec.Version)).To(HaveKey(k8sVersionPrefix))
-			Expect(version.Prefixes(tkr.Spec.Kubernetes.Version)).To(HaveKey(k8sVersionPrefix))
+			Expect(tkr.Spec.Kubernetes.Version).To(Equal(k8sVersion))
 			Expect(osImageQuery.TKRSelector.Matches(labels.Set(tkr.Labels)))
 
 			for osImageName, osImage := range osImageResult.OSImagesByTKR[tkrName] {
 				Expect(osImageName).To(Equal(osImage.Name))
-				Expect(version.Prefixes(osImage.Spec.KubernetesVersion)).To(HaveKey(k8sVersionPrefix))
+				Expect(osImage.Spec.KubernetesVersion).To(Equal(k8sVersion))
 				Expect(osImageQuery.OSImageSelector.Matches(labels.Set(osImage.Labels)))
 			}
 		}
 	}
+}
+
+func suffixedTKR(tkr *runv1.TanzuKubernetesRelease, suffix string) *runv1.TanzuKubernetesRelease {
+	result := tkr.DeepCopy()
+	result.Name = fmt.Sprintf("%s-%s", tkr.Name, suffix)
+	result.Spec.Version = fmt.Sprintf("%s-%s", tkr.Spec.Version, suffix)
+	return result
 }

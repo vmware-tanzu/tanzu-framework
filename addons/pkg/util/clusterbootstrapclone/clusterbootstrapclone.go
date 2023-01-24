@@ -667,14 +667,14 @@ func (h *Helper) CreateOrPatchInlineSecret(
 
 	inlineSecret.Type = corev1.SecretTypeOpaque
 	opResult, createOrPatchErr := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, inlineSecret, func() error {
-		inlineSecret.OwnerReferences = []metav1.OwnerReference{
-			{
-				APIVersion: clusterapiv1beta1.GroupVersion.String(),
-				Kind:       cluster.Kind,
-				Name:       cluster.Name,
-				UID:        cluster.UID,
-			},
+		clusterOwnerRef := metav1.OwnerReference{
+			APIVersion: clusterapiv1beta1.GroupVersion.String(),
+			Kind:       cluster.Kind,
+			Name:       cluster.Name,
+			UID:        cluster.UID,
 		}
+		inlineSecret.OwnerReferences = clusterapiutil.EnsureOwnerRef(inlineSecret.OwnerReferences, clusterOwnerRef)
+
 		if inlineSecret.StringData == nil {
 			inlineSecret.StringData = make(map[string]string)
 		}

@@ -9,6 +9,6 @@ spec:
   shortDescription: "Defines the storageclass resources for the cluster"
   providerName: VMware
   maintainers:
-    - name: "Sudarshan Aji"
+    - name: "Xiaoshuang Guo"
   categories:
     - "storageclass"

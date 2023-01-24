@@ -18,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/retry"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -275,7 +276,12 @@ func InstallManagementComponents(clusterClient clusterclient.Client, pkgClient p
 		}
 	}
 
-	if err = InstallManagementPackages(pkgClient, mcip.ManagementPackageRepositoryOptions); err != nil {
+	if err = InstallManagementPackagesRepo(pkgClient, mcip.ManagementPackageRepositoryOptions, DefaultRetry); err != nil {
+		// management package repository must installed successfully, otherwise the process should stop before installing packages
+		return errors.Wrap(err, "failed to install management package repository")
+	}
+
+	if err = InstallManagementPackages(pkgClient, mcip.ManagementPackageRepositoryOptions, DefaultRetry); err != nil {
 		// instead of throwing error here, wait for some additional time for packages to get reconciled successfully
 		log.Warning(err.Error())
 	}
@@ -345,21 +351,37 @@ func InstallKappController(clusterClient clusterclient.Client, kappControllerOpt
 	return nil
 }
 
-// InstallManagementPackages installs TKG management packages to the cluster
-func InstallManagementPackages(pkgClient packageclient.PackageClient, mpro ManagementPackageRepositoryOptions) error {
+// InstallManagementPackagesRepo installs TKG management packages repository to the cluster
+func InstallManagementPackagesRepo(pkgClient packageclient.PackageClient, mpro ManagementPackageRepositoryOptions, backoff wait.Backoff) error {
 	// install management package repository
-	err := installManagementPackageRepository(pkgClient, mpro)
-	if err != nil {
-		return errors.Wrap(err, "unable to install management package repository")
-	}
+	return retry.OnError(backoff,
+		func(err error) bool {
+			if err != nil {
+				log.Warning(err.Error() + ", retrying")
+				return true
+			}
+			return false
+		},
+		func() error {
+			return installManagementPackageRepository(pkgClient, mpro)
+		})
+}
 
+// InstallManagementPackages installs TKG management packages to the cluster
+func InstallManagementPackages(pkgClient packageclient.PackageClient, mpro ManagementPackageRepositoryOptions, backoff wait.Backoff) error {
 	// install tkg composite management package
-	err = installTKGManagementPackage(pkgClient, mpro)
-	if err != nil {
-		return errors.Wrap(err, "failure while installing TKG management package")
-	}
-
-	return nil
+	return retry.OnError(backoff,
+		func(err error) bool {
+			// the error is tolerable, so continue with retry until a reconciliation error is returned
+			if err != nil && !IsReconciliationError(err) {
+				log.Warning(err.Error() + ", retrying")
+				return true
+			}
+			return false
+		},
+		func() error {
+			return installTKGManagementPackage(pkgClient, mpro)
+		})
 }
 
 func installManagementPackageRepository(pkgClient packageclient.PackageClient, mpro ManagementPackageRepositoryOptions) error {

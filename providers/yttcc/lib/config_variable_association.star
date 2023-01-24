@@ -315,11 +315,18 @@ return {
 "KUBEVIP_LOADBALANCER_CIDRS": ["vsphere"],
 "KUBEVIP_LOADBALANCER_IP_RANGES": ["vsphere"],
 
+"POD_SECURITY_STANDARD_DEACTIVATED": ["vsphere", "aws", "azure", "docker", "oci"],
+"POD_SECURITY_STANDARD_AUDIT": ["vsphere", "aws", "azure", "docker", "oci"],
+"POD_SECURITY_STANDARD_WARN": ["vsphere", "aws", "azure", "docker", "oci"],
+"POD_SECURITY_STANDARD_ENFORCE": ["vsphere", "aws", "azure", "docker", "oci"],
+
 "PROVIDER_TYPE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "TKG_CLUSTER_ROLE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "TKG_VERSION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "CNI": ["vsphere", "aws", "azure", "docker", "oci"],
 "VSPHERE_VERSION": ["vsphere"],
+
+"APISERVER_EVENT_RATE_LIMIT_CONF_BASE64": ["vsphere", "aws", "azure", "docker", "oci"]
 }
 
 end
@@ -427,6 +434,26 @@ def get_cluster_variables():
         vars["TKR_DATA"] = data.values["TKR_DATA"]
     end
 
+    podSecurityStandard = {}
+    if data.values["POD_SECURITY_STANDARD_DEACTIVATED"] != "":
+        podSecurityStandard["deactivated"] = data.values["POD_SECURITY_STANDARD_DEACTIVATED"]
+    end
+    if data.values["POD_SECURITY_STANDARD_AUDIT"] != "":
+        podSecurityStandard["audit"] = data.values["POD_SECURITY_STANDARD_AUDIT"]
+    end
+    if data.values["POD_SECURITY_STANDARD_WARN"] != "":
+        podSecurityStandard["warn"] = data.values["POD_SECURITY_STANDARD_WARN"]
+    end
+    if data.values["POD_SECURITY_STANDARD_ENFORCE"] != "":
+        podSecurityStandard["enforce"] = data.values["POD_SECURITY_STANDARD_ENFORCE"]
+    end
+    if podSecurityStandard != {}:
+      vars["podSecurityStandard"] = podSecurityStandard
+    end
+    if data.values["APISERVER_EVENT_RATE_LIMIT_CONF_BASE64"] != "":
+        vars["eventRateLimitConf"] = data.values["APISERVER_EVENT_RATE_LIMIT_CONF_BASE64"]
+    end
+
     return vars
 end
 
@@ -435,6 +462,7 @@ def get_aws_vars():
     simpleMapping["AWS_REGION"] = "region"
     simpleMapping["AWS_SSH_KEY_NAME"] = "sshKeyName"
     simpleMapping["AWS_LOAD_BALANCER_SCHEME_INTERNAL"] = "loadBalancerSchemeInternal"
+
     vars = get_cluster_variables()
 
     for key in simpleMapping:
@@ -1030,4 +1058,4 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "controlPlanePvTransitEncryption",
         "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
         "controlPlaneCertificateRotation", "podSecurityStandard", "workerKubeletExtraArgs", "controlPlaneKubeletExtraArgs",
-        "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs"]
+        "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs", "eventRateLimitConf"]

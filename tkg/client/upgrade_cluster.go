@@ -1110,6 +1110,25 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 		}
 	}
 
+	// audit.k8s.io/v1alpha1 and audit.k8s.io/v1beta1 are removed from 1.24.x, cluster created by 1.6.x
+	// will have removed api version then upgrade will fail, replace it with v1 here
+	// 1.22.x and 1.23.x clusters create by tanzu 2.1 will have right api version but still keep this
+	// logic to avoid introduce tanzu cli version check
+	// refresh yaml only when cluster is upgrading from 1.23.x to 1.24.x
+	if semver.Compare(clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion, "v1.24.0") >= 0 &&
+		semver.Compare(clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion, "v1.25.0") < 0 &&
+		semver.Compare(clusterUpgradeConfig.ActualComponentInfo.KubernetesVersion, "v1.23.0") >= 0 &&
+		semver.Compare(clusterUpgradeConfig.ActualComponentInfo.KubernetesVersion, "v1.24.0") < 0 {
+		newKCP, err := c.configureAuditVersion(currentKCP)
+		if err != nil {
+			errors.Wrap(err, "unable to configure audit version")
+		}
+		if newKCP != nil {
+			log.Infof("Updating Audit APIVerison for KCP")
+			currentKCP = newKCP
+		}
+	}
+
 	if semver.Compare(clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion, "v1.24.0") >= 0 {
 		newKCP := c.configurePodSecurityStandard(currentKCP)
 		if newKCP != nil {

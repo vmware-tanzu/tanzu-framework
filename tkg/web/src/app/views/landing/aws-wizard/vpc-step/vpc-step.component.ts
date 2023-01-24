@@ -69,8 +69,6 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     private clearNewVpcControls() {
-        this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
-        this.clearControlValue(AwsField.VPC_NEW_CIDR);
         this.clearFieldSavedData(AwsField.VPC_NEW_CIDR);
     }
 
@@ -98,7 +96,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
 
         this.registerOnValueChange(AwsField.VPC_TYPE, this.onVpcTypeChange.bind(this));
 
-        const cidrFields = [AwsField.VPC_NEW_CIDR, AwsField.VPC_EXISTING_CIDR];
+        const cidrFields = [AwsField.VPC_EXISTING_CIDR];
         cidrFields.forEach(cidrField => {
             this.registerOnValueChange(cidrField, (cidr) => {
                 AppServices.messenger.publish({
@@ -141,7 +139,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     chooseInitialVpcType() {
-        const vpcType = this.getStoredValue(AwsField.VPC_NEW_CIDR, AwsVpcStepMapping) ? VpcType.NEW : VpcType.EXISTING;
+        const vpcType = VpcType.EXISTING;
         this.formGroup.get(AwsField.VPC_TYPE).setValue(vpcType);
     }
 
@@ -152,13 +150,6 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
      */
     setNewVpcValidators() {
         this.defaultVpcHasChanged = false;
-
-        this.setFieldWithStoredValue(AwsField.VPC_NEW_CIDR, AwsVpcStepMapping, this.defaultVpcAddress);
-        this.formGroup.get(AwsField.VPC_NEW_CIDR).setValidators([
-            Validators.required,
-            this.validationService.noWhitespaceOnEnds(),
-            this.validationService.isValidIpNetworkSegment()
-        ]);
     }
 
     setExistingVpcValidators() {
@@ -199,13 +190,12 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         const vpcType = this.getFieldValue(AwsField.VPC_TYPE);
         const vpcExistingCidr = this.getFieldValue(AwsField.VPC_EXISTING_CIDR, true);
         const vpcExistingId = this.getFieldValue(AwsField.VPC_EXISTING_ID, true);
-        const vpcNewCidr = this.getFieldValue(AwsField.VPC_NEW_CIDR, true);
 
         if (vpcType === VpcType.EXISTING && vpcExistingId && vpcExistingCidr) {
             return 'VPC: ' + vpcExistingId + ' CIDR: ' + vpcExistingCidr;
         }
-        if (vpcType === VpcType.NEW && vpcNewCidr) {
-            return 'VPC: (new) CIDR: ' + vpcNewCidr;
+        if (vpcType === VpcType.NEW) {
+            return 'VPC: New';
         }
         return 'Specify VPC settings for AWS';
     }

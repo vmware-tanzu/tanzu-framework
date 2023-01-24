@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package main
@@ -25,13 +25,13 @@ var FeatureDeactivateCmd = &cobra.Command{
 
 		fgClient, err := featuregateclient.NewFeatureGateClient()
 		if err != nil {
-			return fmt.Errorf("could not get FeatureGate client: %w", err)
+			return fmt.Errorf("could not get FeatureGateClient: %w", err)
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 		defer cancel()
 
-		gateName, err := fgClient.DeactivateFeature(ctx, featureName)
+		gateName, err := deactivateFeature(ctx, fgClient, featureName)
 		if err != nil {
 			return fmt.Errorf("could not deactivate Feature %s gated by FeatureGate %s: %w", featureName, gateName, err)
 		}
@@ -39,4 +39,8 @@ var FeatureDeactivateCmd = &cobra.Command{
 		cmd.Printf("Feature %s gated by FeatureGate %s is deactivated.\n", featureName, gateName)
 		return nil
 	},
+}
+
+func deactivateFeature(ctx context.Context, fgClient *featuregateclient.FeatureGateClient, featureName string) (string, error) {
+	return fgClient.DeactivateFeature(ctx, featureName)
 }

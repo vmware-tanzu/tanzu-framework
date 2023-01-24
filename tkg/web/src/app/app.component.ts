@@ -1,7 +1,8 @@
 // Angular imports
 import { Component } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
-
+import '@clr/icons';
+import '@clr/icons/shapes/all-shapes';
 // App imports
 import { BasicSubscriber } from './shared/abstracts/basic-subscriber';
 import { APIClient } from './swagger/api-client.service';
