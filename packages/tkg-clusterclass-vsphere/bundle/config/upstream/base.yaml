@@ -1087,8 +1087,20 @@ spec:
               - {{ . }}
                 {{- end }}
               {{- end }}
-              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}} dhcp4: true {{- end }}
-              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}} dhcp6: true {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}}
+              dhcp4: true
+              {{ if .controlPlane.network.nameservers -}}
+              dhcp4Overrides:
+                useDNS: false
+              {{- end }}
+              {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}}
+              dhcp6: true
+              {{ if .controlPlane.network.nameservers -}}
+              dhcp6Overrides:
+                useDNS: false
+              {{- end }}
+              {{- end }}
               {{ if .network.addressesFromPools  -}}
               addressesFromPools:
                 {{- range .network.addressesFromPools }}
@@ -1124,8 +1136,20 @@ spec:
               - {{ . }}
                 {{- end }}
               {{- end }}
-              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}} dhcp4: true {{- end }}
-              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}} dhcp6: true {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}}
+              dhcp4: true
+              {{ if .worker.network.nameservers -}}
+              dhcp4Overrides:
+                useDNS: false
+              {{- end }}
+              {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily | and (empty .network.addressesFromPools) -}}
+              dhcp6: true
+              {{ if .worker.network.nameservers -}}
+              dhcp6Overrides:
+                useDNS: false
+              {{- end }}
+              {{- end }}
               {{ if .network.addressesFromPools  -}}
               addressesFromPools:
                 {{- range .network.addressesFromPools }}
