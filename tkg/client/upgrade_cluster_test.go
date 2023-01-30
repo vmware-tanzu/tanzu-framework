@@ -781,13 +781,34 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		})
 
 		var _ = Describe("Test helper functions", func() {
+			var (
+				clusterUpgradeConfig *ClusterUpgradeInfo
+				kubeVipImage         = "gcr.io/kube-vip"
+				KubeVipTag           = "3.1"
+			)
+			BeforeEach(func() {
+				clusterUpgradeConfig = &ClusterUpgradeInfo{
+					ClusterName:        "cluster-1",
+					ClusterNamespace:   constants.DefaultNamespace,
+					KCPObjectName:      "fake-name",
+					KCPObjectNamespace: "fake-namespace",
+					UpgradeComponentInfo: ComponentInfo{
+						KubernetesVersion:      "v1.18.0+vmware.2",
+						KubeVipImageRepository: kubeVipImage,
+						KubeVipTag:             KubeVipTag,
+					},
+					ActualComponentInfo: ComponentInfo{
+						KubernetesVersion: "v1.18.0+vmware.1",
+					},
+				}
+			})
 			Context("Testing the kube-vip modifier helper function", func() {
 				It("modifies the kube-vip parameters", func() {
 					pod := corev1.Pod{}
 					err := yaml.Unmarshal([]byte(kubeVipPodString), &pod)
 					Expect(err).To(BeNil())
 
-					newPodString, err := ModifyKubeVipAndSerialize(&pod, "30", "20", "4")
+					newPodString, err := ModifyKubeVipAndSerialize(&pod, "30", "20", "4", kubeVipImage, KubeVipTag)
 					Expect(err).To(BeNil())
 
 					Expect(newPodString).ToNot(BeNil())
@@ -796,13 +817,14 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 			Context("Testing the KCP modifier helper function", func() {
 				It("Updates the KCP object with increased timeouts", func() {
 					currentKCP := getDummyKCP(constants.KindVSphereMachineTemplate)
-					newKCP, err := tkgClient.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
+					newKCP, err := tkgClient.UpdateKubeVipConfigInKCP(currentKCP, clusterUpgradeConfig.UpgradeComponentInfo)
 
 					Expect(err).To(BeNil())
 					Expect(len(newKCP.Spec.KubeadmConfigSpec.Files)).To(Equal(1))
 					Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("value: \"30\""))
 					Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("name: cp_enable"))
 					Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("NET_RAW"))
+					Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring(fmt.Sprintf("%s:%s", kubeVipImage, KubeVipTag)))
 				})
 			})
 		})

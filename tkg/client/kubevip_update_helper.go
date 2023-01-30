@@ -6,6 +6,8 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -37,9 +39,10 @@ const (
 	kubeVipCapabilityNetRaw  = "NET_RAW"
 	kubeVipLocalHost         = "127.0.0.1"
 	kubeVipHostAlias         = "kubernetes"
+	kubeVipConfigPath        = "/etc/kubernetes/manifests/kube-vip.yaml"
 )
 
-func upgradeKubeVipPodSpec(envVars []corev1.EnvVar, currentKubeVipPod *corev1.Pod) *corev1.Pod {
+func upgradeKubeVipPodSpec(envVars []corev1.EnvVar, currentKubeVipPod *corev1.Pod, imageRepository, imageTag string) *corev1.Pod {
 	envVar := corev1.EnvVar{Name: kubeVipCpEnableFlag, Value: "true"}
 	envVars = append(envVars, envVar)
 	currentKubeVipPod.Spec.Containers[0].Env = envVars
@@ -62,6 +65,9 @@ func upgradeKubeVipPodSpec(envVars []corev1.EnvVar, currentKubeVipPod *corev1.Po
 			Hostnames: []string{kubeVipHostAlias},
 		},
 	}
+
+	currentKubeVipPod.Spec.Containers[0].Image = fmt.Sprintf("%s:%s", imageRepository, imageTag)
+
 	return currentKubeVipPod
 }
 
@@ -86,9 +92,9 @@ func modifyKubeVipTimeout(currentKubeVipPod *corev1.Pod, newLeaseDuration, newRe
 }
 
 // ModifyKubeVipAndSerialize modifies the time-out and lease duration parameters and serializes it to a string that can be patched
-func ModifyKubeVipAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDuration, newRenewDeadline, newRetryPeriod string) (string, error) {
+func ModifyKubeVipAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDuration, newRenewDeadline, newRetryPeriod, imageRepository, imageTag string) (string, error) {
 	envVars, currentKubeVipPod := modifyKubeVipTimeout(currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod)
-	currentKubeVipPod = upgradeKubeVipPodSpec(envVars, currentKubeVipPod)
+	currentKubeVipPod = upgradeKubeVipPodSpec(envVars, currentKubeVipPod, imageRepository, imageTag)
 
 	log.V(6).Infof("Marshaling kube-vip pod into a byte array")
 
@@ -131,39 +137,80 @@ func (c *TkgClient) getNewKubeVipParameters() (string, string, string) {
 	return newLeaseDuration, newRenewDeadline, newRetryPeriod
 }
 
-// UpdateKCPObjectWithIncreasedKubeVip updates the kube-vip parameters within the contents of the file inside the KCP
-func (c *TkgClient) UpdateKCPObjectWithIncreasedKubeVip(currentKCP *capikubeadmv1beta1.KubeadmControlPlane) (*capikubeadmv1beta1.KubeadmControlPlane, error) {
+// UpdateKubeVipConfigInKCP updates the kube-vip parameters and image tag within the contents of the file inside the KCP
+func (c *TkgClient) UpdateKubeVipConfigInKCP(currentKCP *capikubeadmv1beta1.KubeadmControlPlane, upgradeComponentInfo ComponentInfo) (*capikubeadmv1beta1.KubeadmControlPlane, error) {
 	newKCP := currentKCP.DeepCopy()
-	var currentKubeVipPod corev1.Pod
 
-	for i := range currentKCP.Spec.KubeadmConfigSpec.Files {
-		log.V(6).Infof("Current KCP Pod: %s", currentKCP.Spec.KubeadmConfigSpec.Files[i].Content)
-		sc := runtime.NewScheme()
-		_ = corev1.AddToScheme(sc)
+	currentKubeVipPod, err := c.DecodeKubevipPodManifestFromKCP(currentKCP)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to decode kube-vip manifest from KCP")
+	}
 
-		s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, sc, sc,
-			apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
-		_, _, err := s.Decode([]byte(currentKCP.Spec.KubeadmConfigSpec.Files[i].Content), nil, &currentKubeVipPod)
+	log.V(6).Infof("KubeVipPod Name: %s", currentKubeVipPod.Name)
+	newLeaseDuration, newRenewDeadline, newRetryPeriod := c.getNewKubeVipParameters()
+	log.V(6).Infof("New Lease Duration %s, New Renew Deadline %s, New Retry Period %s, New Image Tag %s", newLeaseDuration, newRenewDeadline, newRetryPeriod)
+	newKCPPod, err := ModifyKubeVipAndSerialize(currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod, upgradeComponentInfo.KubeVipImageRepository, upgradeComponentInfo.KubeVipTag)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to update kube-vip timeouts")
+	}
 
-		if err == nil && currentKubeVipPod.Name == kubeVipName {
-			log.V(6).Infof("KubeVipPod Name: %s", currentKubeVipPod.Name)
-			newLeaseDuration, newRenewDeadline, newRetryPeriod := c.getNewKubeVipParameters()
-			log.V(6).Infof("New Lease Duration %s, New Renew Deadline %s, New Retry Period %s", newLeaseDuration, newRenewDeadline, newRetryPeriod)
-			newKCPPod, err := ModifyKubeVipAndSerialize(&currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod)
-			if err != nil {
-				return nil, errors.Wrap(err, "unable to update kube-vip timeouts")
-			}
-
+	for i, newFile := range newKCP.Spec.KubeadmConfigSpec.Files {
+		if newFile.Path == kubeVipConfigPath {
 			newKCP.Spec.KubeadmConfigSpec.Files[i].Content = newKCPPod
-
-			newKCPByte, err := json.Marshal(&newKCP)
-			if err != nil {
-				return nil, errors.Wrap(err, "unable to marshal new KCP to byte array")
-			}
-			log.V(6).Infof(string(newKCPByte))
-			return newKCP, nil
+			break
 		}
 	}
 
-	return nil, errors.New("unable to update the kube-vip parameters")
+	newKCPByte, err := json.Marshal(&newKCP)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to marshal new KCP to byte array")
+	}
+	log.V(6).Info("KCP content after modifying kube-vip config")
+	log.V(6).Infof(string(newKCPByte))
+
+	return newKCP, nil
+}
+
+func (c *TkgClient) DecodeKubevipPodManifestFromKCP(kcp *capikubeadmv1beta1.KubeadmControlPlane) (*corev1.Pod, error) {
+	var currentKubeVipPod *corev1.Pod
+	for _, curFile := range kcp.Spec.KubeadmConfigSpec.Files {
+		log.V(6).Infof("Current KCP Pod: %s", curFile.Content)
+		sc := runtime.NewScheme()
+		_ = corev1.AddToScheme(sc)
+
+		// kube-vip pod spec has a specific config path
+		if curFile.Path == kubeVipConfigPath {
+			// it should be one kube-vip pod manifest in each kubeadmControlPlane
+			s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, sc, sc,
+				apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
+			_, _, err := s.Decode([]byte(curFile.Content), nil, currentKubeVipPod)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to unmarshal content to kube-vip pod spec")
+			}
+			if currentKubeVipPod.Name != kubeVipName {
+				return nil, errors.New("pod name is not kube-vip")
+			}
+			return currentKubeVipPod, nil
+		}
+	}
+
+	return nil, errors.New("unable to find the kube-vip pod manifest from kcp")
+}
+
+func (c *TkgClient) GetKubevipImageAndTag(kcp *capikubeadmv1beta1.KubeadmControlPlane) (string, string, error) {
+	kubeVipManifest, err := c.DecodeKubevipPodManifestFromKCP(kcp)
+	if err != nil {
+		return "", "", errors.Wrap(err, "failed to get kube-vip manifest")
+	}
+	if len(kubeVipManifest.Spec.Containers) != 1 {
+		return "", "", errors.New("kube-vip pod container should be exact 1")
+	}
+
+	image := kubeVipManifest.Spec.Containers[0].Image
+	imagePath := strings.Split(image, ":")
+	if len(imagePath) != 2 {
+		return "", "", errors.New("kube-vip image path is incorrect: " + image)
+	}
+	return imagePath[0], imagePath[1], nil
+
 }
