@@ -54,7 +54,7 @@ var _ = Describe("TKR utils", func() {
 			BeforeEach(func() {
 				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = ""
-				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
+				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, nil, tkrName)
 			})
 
 			It("should return nil TKR", func() {
@@ -82,7 +82,7 @@ var _ = Describe("TKR utils", func() {
 				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
 				crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "TanzuKubernetesRelease"}, testTKR))
-				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
+				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, nil, tkrName)
 			})
 
 			It("should return nil TKR", func() {
@@ -111,7 +111,7 @@ var _ = Describe("TKR utils", func() {
 				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
 				crtCtl.GetReturns(errors.New("some error"))
-				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
+				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, nil, tkrName)
 			})
 
 			It("should return nil TKR", func() {
@@ -138,7 +138,7 @@ var _ = Describe("TKR utils", func() {
 			BeforeEach(func() {
 				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
-				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
+				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, nil, tkrName)
 			})
 
 			It("should return nil TKR", func() {

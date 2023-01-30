@@ -4,12 +4,8 @@
 package controllers
 
 import (
-	"bytes"
-	"compress/gzip"
 	"context"
-	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -154,7 +150,7 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, nil
 	}
 
-	tkr, err := util.GetTKRByNameV1Alpha3(r.context, r.Client, tkrName)
+	tkr, err := util.GetTKRByNameV1Alpha3(r.context, r.Client, cluster, tkrName)
 	if err != nil {
 		log.Error(err, "unable to fetch TKR object", "name", tkrName)
 		return ctrl.Result{}, err
@@ -162,11 +158,8 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// if tkr is not found, should not requeue for the reconciliation
 	if tkr == nil {
-		tkr, err = FetchTKRSpecFromAnnotations(cluster.Annotations)
-		if err != nil {
-			log.Info("TKR object not found", "name", tkrName)
-			return ctrl.Result{}, nil
-		}
+		log.Info("TKR object not found", "name", tkrName)
+		return ctrl.Result{}, nil
 	}
 
 	if _, labelFound := tkr.Labels[constants.TKRLabelLegacyClusters]; labelFound {

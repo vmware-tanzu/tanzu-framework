@@ -4,11 +4,16 @@
 package util
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -38,7 +43,7 @@ func GetTKRByNameV1Alpha1(ctx context.Context, c client.Client, tkrName string) 
 }
 
 // GetTKRByNameV1Alpha3 gets v1Alpha3 TKR object given a TKR name
-func GetTKRByNameV1Alpha3(ctx context.Context, c client.Client, tkrName string) (*runtanzuv1alpha3.TanzuKubernetesRelease, error) {
+func GetTKRByNameV1Alpha3(ctx context.Context, c client.Client, cluster *clusterapiv1beta1.Cluster, tkrName string) (*runtanzuv1alpha3.TanzuKubernetesRelease, error) {
 	tkrV1Alpha3 := &runtanzuv1alpha3.TanzuKubernetesRelease{}
 
 	if tkrName == "" {
@@ -49,10 +54,15 @@ func GetTKRByNameV1Alpha3(ctx context.Context, c client.Client, tkrName string) 
 
 	if err := c.Get(ctx, tkrNamespaceName, tkrV1Alpha3); err != nil {
 		if apierrors.IsNotFound(err) {
+			if cluster == nil {
+				return nil, nil
+			}
+
 			tkrV1Alpha3, err = FetchTKRSpecFromAnnotations(cluster.Annotations)
 			if tkrV1Alpha3 != nil {
 				return tkrV1Alpha3, nil
 			}
+
 			return nil, nil
 		}
 		return nil, err
@@ -76,7 +86,7 @@ func GetBootstrapPackageNameFromTKR(ctx context.Context, clt client.Client, pkgR
 	}
 
 	// get TKR object associated with the cluster
-	tkr, err := GetTKRByNameV1Alpha3(ctx, clt, tkrName)
+	tkr, err := GetTKRByNameV1Alpha3(ctx, clt, cluster, tkrName)
 	if err != nil || tkr == nil {
 		return "", pkgNamePrefix, fmt.Errorf("unable to fetch TKR object '%s'", tkrName)
 	}
