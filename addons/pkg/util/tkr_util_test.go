@@ -4,8 +4,12 @@
 package util
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
+	"encoding/base64"
 	"fmt"
+	"sigs.k8s.io/yaml"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -142,6 +146,36 @@ var _ = Describe("TKR utils", func() {
 			})
 
 			It("should return nil TKR", func() {
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(tkrV1Alpha3).ShouldNot(BeNil())
+			})
+		})
+
+		When("tkr spec is available as annotations on cluster resource", func() {
+			BeforeEach(func() {
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
+				tkrName = testTKR
+				var buf bytes.Buffer
+				out, _ := yaml.Marshal(tkrV1Alpha3)
+				w, _ := gzip.NewWriterLevel(&buf, gzip.BestCompression)
+				_, err = w.Write(out)
+				w.Close()
+				tkrString := base64.StdEncoding.EncodeToString(buf.Bytes())
+				annotation := make(map[string]string)
+				annotation["run.tanzu.vmware.com/tkr-spec"] = tkrString
+				cluster := &clusterapiv1beta1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "v1beta1",
+					},
+					ObjectMeta: metav1.ObjectMeta{Name: testClusterName, Namespace: testNamespace, Labels: map[string]string{}, Annotations: annotation},
+				}
+				tkrV1Alpha3, err = FetchTKRSpecFromAnnotations(cluster.Annotations)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(tkrV1Alpha3).NotTo(BeNil())
+			})
+
+			It("should return non nil TKR", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(tkrV1Alpha3).ShouldNot(BeNil())
 			})
