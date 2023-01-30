@@ -10,6 +10,7 @@ metadata:
   name: default
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
+    kapp.k14s.io/update-strategy: always-replace
 provisioner: ebs.csi.aws.com
 allowVolumeExpansion: true
 #@ end
@@ -22,6 +23,7 @@ metadata:
   name: default
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
+    kapp.k14s.io/update-strategy: always-replace
   labels:
     kubernetes.io/cluster-service: "true"
 provisioner: disk.csi.azure.com
@@ -36,6 +38,8 @@ kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
   name: azure-file
+  annotations:
+    kapp.k14s.io/update-strategy: always-replace
   labels:
     kubernetes.io/cluster-service: "true"
 provisioner: file.csi.azure.com
@@ -60,6 +64,7 @@ metadata:
   name: default
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
+    kapp.k14s.io/update-strategy: always-replace
 provisioner: csi.vsphere.vmware.com
 allowVolumeExpansion: true
 #@ if data.values.VSPHERE_STORAGE_POLICY_ID != "":
