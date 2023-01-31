@@ -4,6 +4,7 @@
 package carvelhelpers
 
 import (
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -34,6 +35,12 @@ func DownloadImageBundleAndSaveFilesToDir(imageWithTag, dir string) error {
 	if err != nil {
 		return errors.Wrapf(err, "unable to initialize registry")
 	}
+	fmt.Println("Get env http_proxy")
+	fmt.Println(os.Getenv(constants.HTTPProxy))
+	fmt.Println("Get env https_proxy")
+	fmt.Println(os.Getenv(constants.HTTPSProxy))
+	fmt.Println("Get env no_proxy")
+	fmt.Println(os.Getenv(constants.NoProxy))
 	err = reg.DownloadBundle(imageWithTag, dir)
 	if err != nil {
 		return errors.Wrap(err, "error downloading bundle")

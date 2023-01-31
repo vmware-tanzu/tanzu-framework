@@ -319,8 +319,6 @@ func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterCl
 		// infrastructure-components.yaml for docker does not require any variable
 	}
 
-	c.SetProxyEnvironmentVariable()
-
 	return nil
 }
 

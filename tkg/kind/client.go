@@ -466,13 +466,16 @@ func (k *KindClusterProxy) setupProxyConfigurationForKindCluster() {
 	}
 
 	if httpProxy != "" {
+		log.V(6).Infof("set the %s environment variable with value: %s", constants.HTTPProxy, httpProxy)
 		os.Setenv(constants.HTTPProxy, httpProxy)
 	}
 	if httpsProxy != "" {
+		log.V(6).Infof("set the %s environment variable with value: %s", constants.HTTPSProxy, httpsProxy)
 		os.Setenv(constants.HTTPSProxy, httpsProxy)
 	}
 	if noProxy != "" {
 		noProxyList := strings.Split(noProxy, ",")
+		log.V(6).Infof("set the %s environment variable with value: %s", constants.NoProxy, strings.Join(append(noProxyList, fmt.Sprintf("%s-control-plane", k.options.ClusterName)), ","))
 		os.Setenv(constants.NoProxy, strings.Join(append(noProxyList, fmt.Sprintf("%s-control-plane", k.options.ClusterName)), ","))
 	}
 }
