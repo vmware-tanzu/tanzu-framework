@@ -6,6 +6,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -317,6 +318,9 @@ func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterCl
 		// no variable configuration is needed to deploy Docker provider as
 		// infrastructure-components.yaml for docker does not require any variable
 	}
+
+	c.SetProxyEnvironmentVariable()
+
 	return nil
 }
 
@@ -737,4 +741,31 @@ func (c *TkgClient) ConfigureAMIID(options *UpgradeClusterOptions, regionalClust
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSVersion, amiInfo.OSInfo.Version)
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSArch, amiInfo.OSInfo.Arch)
 	return nil
+}
+
+func (c *TkgClient) SetProxyEnvironmentVariable() {
+	log.V(6).Info("Trying to set proxy related environment variable if necessary...")
+	httpProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
+	if err != nil || httpProxy == "" {
+		log.V(6).Infof("no %s set, skip", constants.TKGHTTPProxy)
+	} else {
+		log.V(6).Infof("set %s to %s", constants.HTTPProxy, httpProxy)
+		os.Setenv(constants.HTTPProxy, httpProxy)
+	}
+
+	httpsProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
+	if err != nil || httpsProxy == "" {
+		log.V(6).Infof("no %s set", constants.TKGHTTPSProxy)
+	} else {
+		log.V(6).Infof("set %s to %s", constants.HTTPSProxy, httpsProxy)
+		os.Setenv(constants.HTTPSProxy, httpsProxy)
+	}
+
+	noProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGNoProxy)
+	if err != nil || noProxy == "" {
+		log.V(6).Infof("no %s set", constants.TKGNoProxy)
+	} else {
+		log.V(6).Infof("set %s to %s", constants.NoProxy, noProxy)
+		os.Setenv(constants.NoProxy, noProxy)
+	}
 }
