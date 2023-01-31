@@ -553,6 +553,22 @@ spec:
         additionalProperties:
           type: string
         default: {}
+  - name: controlPlanePreKubeadmCommands
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: array
+        items:
+          type: string
+        default: []
+  - name: workerPreKubeadmCommands
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: array
+        items:
+          type: string
+        default: []
   - name: tlsCipherSuites
     required: false
     schema:
@@ -590,6 +606,71 @@ spec:
           activate: true
           daysBefore: 90
   patches:
+  - name: controlPlanePreKubeadmCommands
+    enabledIf: '{{ not (empty .controlPlanePreKubeadmCommands ) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands
+        valueFrom:
+          template: |
+            {{- range .controlPlanePreKubeadmCommands }}
+            - {{ . }}
+            {{- end }}
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/0
+        value: echo "{{ ds.meta_data.hostname }}" >/etc/hostname
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/0
+        value: echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/0
+        value: echo "127.0.0.1   localhost" >>/etc/hosts
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/0
+        value: echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/0
+        value: hostname "{{ ds.meta_data.hostname }}"
+  - name: workerPreKubeadmCommands
+    enabledIf: '{{ not (empty .workerPreKubeadmCommands ) }}'
+    definitions:
+      - selector:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          matchResources:
+            machineDeploymentClass:
+              names:
+                - tkg-worker
+                - tkg-worker-windows
+        jsonPatches:
+          - op: replace
+            path: /spec/template/spec/preKubeadmCommands
+            valueFrom:
+              template: |
+                {{- range .workerPreKubeadmCommands }}
+                - {{ . }}
+                {{- end }}
+          - op: add
+            path: /spec/template/spec/preKubeadmCommands/0
+            value: echo "{{ ds.meta_data.hostname }}" >/etc/hostname
+          - op: add
+            path: /spec/template/spec/preKubeadmCommands/0
+            value: echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
+          - op: add
+            path: /spec/template/spec/preKubeadmCommands/0
+            value: echo "127.0.0.1   localhost" >>/etc/hosts
+          - op: add
+            path: /spec/template/spec/preKubeadmCommands/0
+            value: echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
+          - op: add
+            path: /spec/template/spec/preKubeadmCommands/0
+            value: hostname "{{ ds.meta_data.hostname }}"
   - name: etcdExtraArgs
     definitions:
     - selector:

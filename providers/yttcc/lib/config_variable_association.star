@@ -1,3 +1,4 @@
+load("@ytt:base64", "base64")
 load("@ytt:data", "data")
 load("@ytt:overlay", "overlay")
 load("@ytt:yaml", "yaml")
@@ -131,6 +132,8 @@ return {
 "KUBE_CONTROLLER_MANAGER_EXTRA_ARGS": ["vsphere", "aws", "azure", "oci"],
 "CONTROLPLANE_KUBELET_EXTRA_ARGS": ["vsphere", "aws", "azure", "oci"],
 "WORKER_KUBELET_EXTRA_ARGS": ["vsphere", "aws", "azure", "oci"],
+"CONTROLPLANE_PREKUBEADMCOMMANDS_BASE64": ["vsphere", "aws", "azure", "oci"],
+"WORKER_PREKUBEADMCOMMANDS_BASE64": ["vsphere", "aws", "azure", "oci"],
 
 "AZURE_ENVIRONMENT": ["azure"],
 "AZURE_TENANT_ID": ["azure"],
@@ -432,6 +435,14 @@ def get_cluster_variables():
 
     if data.values["TKR_DATA"] != "":
         vars["TKR_DATA"] = data.values["TKR_DATA"]
+    end
+
+    if data.values["CONTROLPLANE_PREKUBEADMCOMMANDS_BASE64"] != None and data.values["CONTROLPLANE_PREKUBEADMCOMMANDS_BASE64"] != "" :
+        vars["controlPlanePreKubeadmCommands"] = yaml.decode(base64.decode(data.values["CONTROLPLANE_PREKUBEADMCOMMANDS_BASE64"]))
+    end
+
+    if data.values["WORKER_PREKUBEADMCOMMANDS_BASE64"] != None and data.values["WORKER_PREKUBEADMCOMMANDS_BASE64"] != "":
+        vars["workerPreKubeadmCommands"] = yaml.decode(base64.decode(data.values["WORKER_PREKUBEADMCOMMANDS_BASE64"]))
     end
 
     podSecurityStandard = {}

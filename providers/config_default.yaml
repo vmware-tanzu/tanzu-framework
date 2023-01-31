@@ -100,6 +100,18 @@ CONTROLPLANE_KUBELET_EXTRA_ARGS:
 #! E.g. "read-only-port=0;event-qps=0"
 WORKER_KUBELET_EXTRA_ARGS:
 
+#! CONTROLPLANE_PREKUBEADMCOMMANDS_BASE64 run custom preKubeadmCommands in control plane nodes.
+#! It should be a base64-encoded string. The encoded data is a list of string in a yaml document, E.g.
+#! - echo "net.netfilter.nf_conntrack_max=1048576" >> /etc/sysctl.conf
+#! - sysctl -p
+CONTROLPLANE_PREKUBEADMCOMMANDS_BASE64:
+
+#! WORKER_PREKUBEADMCOMMANDS_BASE64 run custom preKubeadmCommands in worker nodes.
+#! It should be a base64-encoded string. The encoded data is a list of string in a yaml document, E.g.
+#! - echo "net.netfilter.nf_conntrack_max=1048576" >> /etc/sysctl.conf
+#! - sysctl -p
+WORKER_PREKUBEADMCOMMANDS_BASE64:
+
 #! ---------------------------------------------------------------------
 #! Settings for vSphere infrastructure provider
 #! ---------------------------------------------------------------------
