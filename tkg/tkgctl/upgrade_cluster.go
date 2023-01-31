@@ -69,7 +69,7 @@ func (t *tkgctl) UpgradeCluster(options UpgradeClusterOptions) error {
 
 	// if --yes is set, kick off the upgrade process without waiting for confirmation
 	if !options.SkipPrompt {
-		if err := askForConfirmation(fmt.Sprintf("Upgrading workload cluster '%s' to kubernetes version '%s'. Are you sure?", options.ClusterName, k8sVersion)); err != nil {
+		if err := askForConfirmation(fmt.Sprintf("Upgrading workload cluster '%s' to kubernetes version '%s', tkr version '%s'. Are you sure?", options.ClusterName, k8sVersion, options.TkrVersion)); err != nil {
 			return err
 		}
 	}
