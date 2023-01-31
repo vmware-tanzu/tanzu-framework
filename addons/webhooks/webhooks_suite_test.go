@@ -19,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -27,6 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	addonwebhooks "github.com/vmware-tanzu/tanzu-framework/addons/webhooks"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 
@@ -61,10 +63,18 @@ var _ = BeforeSuite(func(done Done) {
 	By("bootstrapping test environment")
 	tmpDir, err := os.MkdirTemp("/tmp", "webhooktest")
 	Expect(err).ToNot(HaveOccurred())
+	externalDeps := map[string][]string{
+		"sigs.k8s.io/cluster-api/api/v1beta1": {"config/crd/bases",
+			"controlplane/kubeadm/config/crd/bases"},
+	}
+	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(externalCRDPaths).ToNot(BeEmpty())
+
 	testEnv = &envtest.Environment{
 		CRDInstallOptions:     envtest.CRDInstallOptions{CleanUpAfterUse: true},
 		ErrorIfCRDPathMissing: true,
-		CRDDirectoryPaths:     constructCRDPaths(),
+		CRDDirectoryPaths:     append(externalCRDPaths, constructCRDPaths()...),
 		WebhookInstallOptions: envtest.WebhookInstallOptions{
 			LocalServingHost:    "127.0.0.1",
 			LocalServingPort:    9447, // 9443 has been used by clusterbootstrap_test, using 9447 to avoid conflicts
@@ -96,6 +106,9 @@ var _ = BeforeSuite(func(done Done) {
 	dynamicClient, err = dynamic.NewForConfig(cfg)
 	Expect(err).ToNot(HaveOccurred())
 	Expect(dynamicClient).ToNot(BeNil())
+
+	err = clusterapiv1beta1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
 
 	webhookInstallOptions := &testEnv.WebhookInstallOptions
 	options := manager.Options{
