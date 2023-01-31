@@ -30,14 +30,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	nsxoperatorapi "github.com/vmware-tanzu/nsx-operator/pkg/apis/v1alpha1"
-	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 )
 
 const (
@@ -46,6 +47,7 @@ const (
 	nsxServiceAccountAPIGroup = "nsx.vmware.com"
 	nsxServiceAccountKind     = "nsxserviceaccounts"
 	clusterNameLabel          = "tkg.tanzu.vmware.com/cluster-name"
+	antreaNsxFSSEnabled       = "vmware-system-tkg-antreansx"
 )
 
 // vsphereAntreaConfigProviderServiceAccountAggregatedClusterRole is the cluster role to assign permissions to capv provider
@@ -139,6 +141,23 @@ func (r *AntreaConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.
 		).
 		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.AntreaConfigKind, r.Config.SystemNamespace, r.Log)).
 		Complete(r)
+}
+
+func (r *AntreaConfigReconciler) antreaNSXFSSEnabled(ctx context.Context, featureName string) bool {
+	featureGateList := &corev1alpha2.FeatureGateList{}
+	if err := r.Client.List(ctx, featureGateList); err != nil {
+		return false
+	}
+
+	for i := range featureGateList.Items {
+		for _, f := range featureGateList.Items[i].Spec.Features {
+			if f.Name == featureName {
+				return f.Activate
+			}
+		}
+	}
+
+	return false
 }
 
 // ReconcileAntreaConfig reconciles AntreaConfig CR
@@ -329,6 +348,10 @@ func (r *AntreaConfigReconciler) ensureProviderServiceAccount(ctx context.Contex
 }
 
 func (r *AntreaConfigReconciler) registerAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
+	if r.antreaNSXFSSEnabled(ctx, antreaNsxFSSEnabled) == false {
+		r.Log.Info("FSS WCP_GUESTCLUSTER_ANTREA_NSX_INTERWORKING_FEATURE is not enable")
+		return nil
+	}
 	if !antreaConfig.Spec.AntreaNsx.Enable || antreaConfig.Spec.AntreaNsx.BootstrapFrom.Inline != nil {
 		r.Log.Info("antreaNsx is not enabled or inline is set, there is no ProviderServiceAccount or NsxServiceAccount to be created")
 		r.deregisterAntreaNSX(ctx, antreaConfig, cluster)
@@ -354,6 +377,10 @@ func (r *AntreaConfigReconciler) registerAntreaNSX(ctx context.Context, antreaCo
 }
 
 func (r *AntreaConfigReconciler) deregisterAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
+	if r.antreaNSXFSSEnabled(ctx, antreaNsxFSSEnabled) == false {
+		r.Log.Info("FSS WCP_GUESTCLUSTER_ANTREA_NSX_INTERWORKING_FEATURE is not enable")
+		return nil
+	}
 	if !antreaConfig.Spec.AntreaNsx.Enable {
 		r.Log.Info("antreaNsx is not enabled, there is no ProviderServiceAccount or NsxServiceAccount to be deleted")
 		return nil

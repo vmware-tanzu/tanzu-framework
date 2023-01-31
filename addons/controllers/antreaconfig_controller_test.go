@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
+	extensionv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
@@ -234,6 +235,15 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 			configKey := client.ObjectKey{
 				Namespace: clusterNamespace,
 				Name:      configCRName,
+			}
+
+			crdList := &extensionv1.CustomResourceDefinitionList{}
+			err = k8sClient.List(ctx, crdList)
+			for _, crd := range crdList.Items {
+				It(fmt.Sprintf("%s %s ", crd.Name, crd.APIVersion), func() {}, 10)
+				for _, version := range crd.Spec.Versions {
+					It(fmt.Sprintf("%s %v\n", version.Name, version.Deprecated), func() {}, 10)
+				}
 			}
 
 			cluster := &clusterapiv1beta1.Cluster{}
