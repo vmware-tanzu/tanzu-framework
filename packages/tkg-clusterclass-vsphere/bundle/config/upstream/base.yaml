@@ -1281,7 +1281,7 @@ spec:
           permissions: "0640"
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: echo "KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)" >> /etc/sysconfig/kubelet
+        value: "echo \"$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local) $(hostname)\" >> /etc/hosts"
   - name: nodeLabels
     definitions:
     - selector:
