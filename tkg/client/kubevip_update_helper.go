@@ -179,8 +179,10 @@ func (c *TkgClient) DecodeKubevipPodManifestFromKCP(kcp *capikubeadmv1beta1.Kube
 		log.V(6).Infof("Current KCP Pod Path: %s", curFile.Path)
 		sc := runtime.NewScheme()
 		_ = corev1.AddToScheme(sc)
+
 		// kube-vip pod spec has a specific config path
 		if curFile.Path == kubeVipConfigPath {
+			log.V(6).Infof("fond kube-vipi pod manifest")
 			// it should be one kube-vip pod manifest in each kubeadmControlPlane
 			s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, sc, sc,
 				apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
@@ -191,6 +193,7 @@ func (c *TkgClient) DecodeKubevipPodManifestFromKCP(kcp *capikubeadmv1beta1.Kube
 			if currentKubeVipPod.Name != kubeVipName {
 				return nil, errors.New("pod name is not kube-vip")
 			}
+			log.V(6).Infof("return the pod manifest")
 			return currentKubeVipPod, nil
 		}
 	}
