@@ -139,6 +139,7 @@ func (c *TkgClient) getNewKubeVipParameters() (string, string, string) {
 
 // UpdateKubeVipConfigInKCP updates the kube-vip parameters and image tag within the contents of the file inside the KCP
 func (c *TkgClient) UpdateKubeVipConfigInKCP(currentKCP *capikubeadmv1beta1.KubeadmControlPlane, upgradeComponentInfo ComponentInfo) (*capikubeadmv1beta1.KubeadmControlPlane, error) {
+	log.V(6).Info("Updating Kube-vip manifest")
 	newKCP := currentKCP.DeepCopy()
 
 	currentKubeVipPod, err := c.DecodeKubevipPodManifestFromKCP(currentKCP)
@@ -175,9 +176,9 @@ func (c *TkgClient) DecodeKubevipPodManifestFromKCP(kcp *capikubeadmv1beta1.Kube
 	var currentKubeVipPod *corev1.Pod
 	for _, curFile := range kcp.Spec.KubeadmConfigSpec.Files {
 		log.V(6).Infof("Current KCP Pod: %s", curFile.Content)
+		log.V(6).Infof("Current KCP Pod Path: %s", curFile.Path)
 		sc := runtime.NewScheme()
 		_ = corev1.AddToScheme(sc)
-
 		// kube-vip pod spec has a specific config path
 		if curFile.Path == kubeVipConfigPath {
 			// it should be one kube-vip pod manifest in each kubeadmControlPlane
