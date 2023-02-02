@@ -447,7 +447,7 @@ func (c *TkgClient) waitForCNI(options waitForAddonsOptions) error {
 		log.Info("Warning: unable to get CNI, skipping CNI installation verification")
 	}
 
-	log.Infof("Waiting for CNI: %f", cni)
+	log.Infof("Waiting for CNI: %v", cni)
 
 	if cni == "antrea" {
 		if err := options.workloadClusterClient.WaitForDeployment(
