@@ -734,6 +734,7 @@ func (c *client) WaitForResourceDeletion(resourceReference interface{}, resource
 	return err
 }
 
+// WaitForDeployment waits for a deployment to have a replica running.
 func (c *client) WaitForDeployment(deploymentName, namespace string) error {
 	return c.GetResource(&appsv1.Deployment{}, deploymentName, namespace, VerifyDeploymentAvailable, &PollOptions{Interval: CheckResourceInterval, Timeout: c.operationTimeout})
 }

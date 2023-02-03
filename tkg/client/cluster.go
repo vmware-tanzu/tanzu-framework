@@ -198,6 +198,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	if !waitForCluster {
 		return false, nil
 	}
+	log.Infof("... Done requesting creation of workload cluster '%s'.  Will now wait for it's completion...")
 	return true, c.waitForClusterCreation(regionalClusterClient, options)
 }
 
@@ -240,7 +241,8 @@ func getContentFromInputFile(fileName string) ([]byte, error) {
 }
 
 func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.Client, options *CreateClusterOptions) error {
-	log.Info("waiting for cluster to be initialized...")
+	log.Infof("waiting for cluster '%s' to be initialized...", options.ClusterName)
+
 	kubeConfigBytes, err := c.WaitForClusterInitializedAndGetKubeConfig(regionalClusterClient, options.ClusterName, options.TargetNamespace)
 	if err != nil {
 		return errors.Wrap(err, "unable to wait for cluster and get the cluster kubeconfig")
@@ -280,7 +282,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return err
 	}
 	if isClusterClassBased {
-		log.Info("waiting for addons core packages installation...")
+		log.Infof("(legacy) waiting for addons installation on cluster %v, will also wait for CNI %v to come up", options.ClusterName, options.CniType)
 		if err := c.WaitForAddonsCorePackagesInstallation(waitForAddonsOptions{
 			regionalClusterClient: regionalClusterClient,
 			workloadClusterClient: workloadClusterClient,
@@ -292,7 +294,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 			return errors.Wrap(err, "error waiting for addons to get installed")
 		}
 	} else {
-		log.Info("waiting for addons installation...")
+		log.Info("(legacy cluster) waiting for addons installation...")
 		if err := c.WaitForAddons(waitForAddonsOptions{
 			regionalClusterClient: regionalClusterClient,
 			workloadClusterClient: workloadClusterClient,
@@ -302,7 +304,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		}); err != nil {
 			return errors.Wrap(err, "error waiting for addons to get installed")
 		}
-		log.Info("waiting for packages to be up and running...")
+		log.Info("(legacy) waiting for all addons packages to be up and running...")
 		if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace, false); err != nil {
 			log.Warningf("warning: Cluster is created successfully, but some packages are failing. %v", err)
 		}
@@ -335,7 +337,7 @@ func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clustercli
 	if isClusterClassBased {
 		autoscalerDeployment, err := regionalClusterClient.GetDeployment(autoscalerDeploymentName, targetNamespace)
 		if autoscalerDeployment.Name == "" || err != nil {
-			log.Warning("unable to get the autoscaler deployment, maybe it is not exist")
+			log.Warning("unable to get the autoscaler deployment, it may not be installed")
 			return
 		}
 		isEnabled = true
@@ -350,7 +352,7 @@ func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clustercli
 	}
 }
 
-// DoCreateCluster performs steps to create cluster
+// DoCreateCluster performs steps to apply the cluster object on the APIServer.
 func (c *TkgClient) DoCreateCluster(clusterClient clusterclient.Client, name, namespace, manifest string) error {
 	var err error
 
@@ -421,6 +423,8 @@ func (c *TkgClient) WaitForClusterReadyAfterReverseMove(clusterClient clustercli
 
 // WaitForAddons wait for addons to be installed
 func (c *TkgClient) WaitForAddons(options waitForAddonsOptions) error {
+	log.Info("Waiting for Addons: CRS and CNI...")
+
 	if err := c.waitForCRS(options); err != nil {
 		return err
 	}
@@ -438,23 +442,33 @@ func (c *TkgClient) waitForCNI(options waitForAddonsOptions) error {
 		log.Info("Warning: unable to get CNI, skipping CNI installation verification")
 	}
 
+	// Note: Just because one CNI deployment pod is running doesnt mean the entire CNI
+	// is healthy across all nodes, but this is good enough of a heuristic for now.
+	log.Infof("Waiting for CNI: %v deployment have at least one pod running...", cni)
+
+	success := true
 	if cni == "antrea" {
 		if err := options.workloadClusterClient.WaitForDeployment(
 			constants.AntreaDeploymentName,
 			constants.AntreaDeploymentNamespace); err != nil {
-			return errors.Wrap(err, "timeout waiting for antrea cni to start")
+			success = false
 		}
 	} else if cni == "calico" {
 		if err := options.workloadClusterClient.WaitForDeployment(
 			constants.CalicoDeploymentName,
 			constants.CalicoDeploymentNamespace); err != nil {
-			return errors.Wrap(err, "timeout waiting for calico cni to start")
+			success = false
 		}
 	}
+	if !success {
+		return errors.Wrap(err, fmt.Sprintf("timeout waiting for antrea cni to start", cni))
+	}
+
 	return nil
 }
 
 func (c *TkgClient) waitForCRS(options waitForAddonsOptions) error {
+	log.Infof("Waiting for ClusterResourceSets in %v to be available", options.clusterName)
 	crsList := &addonsv1.ClusterResourceSetList{}
 	err := options.regionalClusterClient.GetResourceList(crsList,
 		options.clusterName,

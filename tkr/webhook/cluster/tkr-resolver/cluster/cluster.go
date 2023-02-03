@@ -30,6 +30,48 @@ import (
 
 const VarTKRData = "TKR_DATA"
 
+// This webhook sets the mo-id and template information inside of the TKR_DATA fields which live inside of clusters.
+// These data fields are later on used by VsphereMachineTemplates when making CAPV vms.
+// We dont have to do this in Azure and AWS because the way machines are referenced there isn't dependent on
+// highly variable storage paths.
+/**
+  - name: TKR_DATA
+    value:
+      v1.24.9+vmware.1:
+        kubernetesSpec:
+          coredns:
+            imageTag: v1.8.6_vmware.15
+          etcd:
+            imageTag: v3.5.6_vmware.3
+          imageRepository: projects.registry.vmware.com/tkg
+          kube-vip:
+            imageTag: v0.5.7_vmware.1
+          pause:
+            imageTag: "3.7"
+          version: v1.24.9+vmware.1
+      labels:
+          image-type: ova
+          os-arch: amd64
+          os-name: ubuntu
+          os-type: linux
+          os-version: "2004"
+          ova-version: v1.24.9---vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93
+          run.tanzu.vmware.com/os-image: v1.24.9---vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93
+          run.tanzu.vmware.com/tkr: v1.24.9---vmware.1-tkg.1
+        osImageRef:
+          # The NEXT TWO fields are the ones that are added by the Mutating Webhook after querying VCenter !!!
+          moid: vm-51  <-- 1
+          template: /dc0/vm/ubuntu-2004-kube-v1.24.9+vmware.1-tkg.1 <-- 2
+          version: v1.24.9+vmware.1-tkg.1-b030088fe71fea7ff1ecb87a4d425c93
+  version: v1.24.9+vmware.1
+  workers:
+    machineDeployments:
+    - class: tkg-worker
+      metadata:
+        annotations:
+          # HERE !!!
+          run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=ubuntu
+*/
 type Webhook struct {
 	TKRResolver resolver.CachingResolver
 	Log         logr.Logger
