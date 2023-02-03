@@ -249,7 +249,7 @@ require (
 	sigs.k8s.io/cluster-api v1.2.8 // indirect
 	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2 // indirect
 	sigs.k8s.io/cluster-api-provider-azure v1.6.1 // indirect
-	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 // indirect
+	sigs.k8s.io/cluster-api-provider-vsphere v1.5.2 // indirect
 	sigs.k8s.io/cluster-api/test v1.2.8 // indirect
 	sigs.k8s.io/controller-runtime v0.13.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
