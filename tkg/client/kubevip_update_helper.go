@@ -42,7 +42,7 @@ const (
 	kubeVipConfigPath        = "/etc/kubernetes/manifests/kube-vip.yaml"
 )
 
-func upgradeKubeVipPodSpec(envVars []corev1.EnvVar, currentKubeVipPod *corev1.Pod, imageRepository, imageTag string) *corev1.Pod {
+func upgradeKubeVipPodSpec(envVars []corev1.EnvVar, currentKubeVipPod *corev1.Pod, fullImagePath, imageTag string) *corev1.Pod {
 	envVar := corev1.EnvVar{Name: kubeVipCpEnableFlag, Value: "true"}
 	envVars = append(envVars, envVar)
 	currentKubeVipPod.Spec.Containers[0].Env = envVars
@@ -66,7 +66,7 @@ func upgradeKubeVipPodSpec(envVars []corev1.EnvVar, currentKubeVipPod *corev1.Po
 		},
 	}
 
-	currentKubeVipPod.Spec.Containers[0].Image = fmt.Sprintf("%s:%s", imageRepository, imageTag)
+	currentKubeVipPod.Spec.Containers[0].Image = fmt.Sprintf("%s:%s", fullImagePath, imageTag)
 
 	return currentKubeVipPod
 }
@@ -92,9 +92,9 @@ func modifyKubeVipTimeout(currentKubeVipPod *corev1.Pod, newLeaseDuration, newRe
 }
 
 // ModifyKubeVipAndSerialize modifies the time-out and lease duration parameters and serializes it to a string that can be patched
-func ModifyKubeVipAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDuration, newRenewDeadline, newRetryPeriod, imageRepository, imageTag string) (string, error) {
+func ModifyKubeVipAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDuration, newRenewDeadline, newRetryPeriod, fullImagePath, imageTag string) (string, error) {
 	envVars, currentKubeVipPod := modifyKubeVipTimeout(currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod)
-	currentKubeVipPod = upgradeKubeVipPodSpec(envVars, currentKubeVipPod, imageRepository, imageTag)
+	currentKubeVipPod = upgradeKubeVipPodSpec(envVars, currentKubeVipPod, fullImagePath, imageTag)
 
 	log.V(6).Infof("Marshaling kube-vip pod into a byte array")
 
@@ -150,7 +150,7 @@ func (c *TkgClient) UpdateKubeVipConfigInKCP(currentKCP *capikubeadmv1beta1.Kube
 	log.V(6).Infof("KubeVipPod Name: %s", currentKubeVipPod.Name)
 	newLeaseDuration, newRenewDeadline, newRetryPeriod := c.getNewKubeVipParameters()
 	log.V(6).Infof("New Lease Duration %s, New Renew Deadline %s, New Retry Period %s, New Image Tag %s", newLeaseDuration, newRenewDeadline, newRetryPeriod, upgradeComponentInfo.KubeVipTag)
-	newKCPPod, err := ModifyKubeVipAndSerialize(currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod, upgradeComponentInfo.KubeVipImageRepository, upgradeComponentInfo.KubeVipTag)
+	newKCPPod, err := ModifyKubeVipAndSerialize(currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod, upgradeComponentInfo.KubeVipFullImagePath, upgradeComponentInfo.KubeVipTag)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to update kube-vip timeouts")
 	}

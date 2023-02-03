@@ -85,7 +85,7 @@ type ComponentInfo struct {
 	AwsRegionToAMIMap                  map[string][]tkgconfigbom.AMIInfo
 	AzureImage                         tkgconfigbom.AzureInfo
 	OsInfo                             tkgconfigbom.OSInfo
-	KubeVipImageRepository             string
+	KubeVipFullImagePath               string
 	KubeVipTag                         string
 }
 
@@ -509,6 +509,7 @@ func (c *TkgClient) getUpgradeClusterConfig(options *UpgradeClusterOptions) (*Cl
 		if len(com) >= 1 {
 			if img, ok := com[0].Images["kubeVipImage"]; ok {
 				upgradeInfo.UpgradeComponentInfo.KubeVipTag = img.Tag
+				upgradeInfo.UpgradeComponentInfo.KubeVipFullImagePath = bomConfiguration.ImageConfig.ImageRepository + "/" + img.ImagePath
 			} else {
 				log.Warning("not able to find kube-vip image tag image from bom bom kubeVipImage")
 			}
@@ -516,7 +517,6 @@ func (c *TkgClient) getUpgradeClusterConfig(options *UpgradeClusterOptions) (*Cl
 			log.Warning("not able to find kube-vip from bom components list")
 		}
 	}
-	upgradeInfo.UpgradeComponentInfo.KubeVipImageRepository = bomConfiguration.ImageConfig.ImageRepository
 
 	// We are hard-coding the assumption that during upgrade imageConfig.ImageRepository should take precedence
 	// over whatever is spelled out in the KubeAdmConfigSpec section.
@@ -571,7 +571,7 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 		if err != nil {
 			errors.Wrapf(err, "unable to extract kube-vip image")
 		}
-		clusterUpgradeConfig.ActualComponentInfo.KubeVipImageRepository = image
+		clusterUpgradeConfig.ActualComponentInfo.KubeVipFullImagePath = image
 		clusterUpgradeConfig.ActualComponentInfo.KubeVipTag = tag
 	}
 
