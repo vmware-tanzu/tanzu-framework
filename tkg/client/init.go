@@ -220,6 +220,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
+	if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) && providerName == constants.InfrastructureProviderVSphere {
+		ipamProvider, err := c.tkgConfigUpdaterClient.CheckInfrastructureVersion("ipam-in-cluster")
+		if err != nil {
+			return err
+		}
+		options.IPAMProvider = ipamProvider
+	}
+
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnBootstrapCluster, InitRegionSteps)
 	log.Info("Installing providers on bootstrapper...")
 	// Initialize bootstrap cluster with providers
@@ -263,6 +271,20 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	targetClusterNamespace := defaultTkgNamespace
 	if options.Namespace != "" {
 		targetClusterNamespace = options.Namespace
+	}
+
+	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
+		// for cc based cluster, check if tkr/cbt is reconciled to avoid package not found error by addons-controller
+		tkrName, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableTkrName)
+		if err != nil {
+			return errors.Wrap(err, "unable to get tkr name for cluster")
+		}
+		log.Infof("Checking Tkr %s in bootstrap cluster...", tkrName)
+
+		pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: clusterclient.PackageInstallTimeout}
+		if err := bootStrapClusterClient.GetResource(&v1alpha3.TanzuKubernetesRelease{}, tkrName, "", nil, pollOptions); err != nil {
+			return errors.Wrap(err, "unable to check tkr in bootstrap cluster")
+		}
 	}
 
 	log.SendProgressUpdate(statusRunning, StepCreateManagementCluster, InitRegionSteps)
@@ -338,7 +360,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
-	if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) {
+	if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) && providerName == constants.InfrastructureProviderVSphere {
 		ipamProvider, err := c.tkgConfigUpdaterClient.CheckInfrastructureVersion("ipam-in-cluster")
 		if err != nil {
 			return err

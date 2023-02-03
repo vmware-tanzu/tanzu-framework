@@ -33,6 +33,10 @@ CLUSTER_API_SERVER_PORT:
 
 CLUSTER_CLASS:
 
+#! ALLOW_LEGACY_CLUSTER will allow legacy based workload cluster creation.
+#! Supported values are "false", "true". By default, it's "false".
+ALLOW_LEGACY_CLUSTER:
+
 #! Instance size configuration
 #! Instance size options available for vSphere are as follows:
 #!   vSphere: [extra-large,large,medium,small]
@@ -794,6 +798,9 @@ OCI_EXTERNAL_WORKER_NSG_ID:
 OCI_EXTERNAL_CONTROL_PLANE_EP_SUBNET_ID:
 OCI_EXTERNAL_CONTROL_PLANE_SUBNET_ID:
 OCI_EXTERNAL_WORKER_SUBNET_ID:
+
+#! Use base64 to encode the config.yaml content
+APISERVER_EVENT_RATE_LIMIT_CONF_BASE64:
 
 #! ---------------------------------------------------------------------
 #! BoM file processing, internal use only

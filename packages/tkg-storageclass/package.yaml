@@ -22,4 +22,6 @@ spec:
               - "-"
               - .imgpkg/images.yml
       deploy:
-        - kapp: {}
+        - kapp:
+            rawOptions:
+              - --dangerous-allow-empty-list-of-resources=true

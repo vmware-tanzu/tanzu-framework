@@ -1190,7 +1190,7 @@ spec:
           permissions: "0600"
           content: |
             ---
-            apiVersion: audit.k8s.io/v1beta1
+            apiVersion: audit.k8s.io/v1
             kind: Policy
             rules:
               #! The following requests were manually identified as high-volume and low-risk,
@@ -1385,7 +1385,7 @@ spec:
             default file
         preKubeadmCommands:
         #! Ensure a non-empty preKubeadmCommands array is present to facilitate patching
-        - echo "running preKubeadmCommands…"
+        - echo "running preKubeadmCommands..."
         useExperimentalRetryJoin: true
         clusterConfiguration:
           apiServer:
@@ -1471,4 +1471,4 @@ spec:
           default file
       preKubeadmCommands:
       #! Ensure a non-empty preKubeadmCommands array is present to facilitate patching
-      - echo "running preKubeadmCommands…"
+      - echo "running preKubeadmCommands..."

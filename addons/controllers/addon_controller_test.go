@@ -11,9 +11,12 @@ import (
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -391,5 +394,109 @@ var _ = Describe("Addon Reconciler", func() {
 
 		})
 
+	})
+
+})
+
+var _ = Describe("Addon cluster finalizer", func() {
+	var (
+		clusterName             string
+		clusterNamespace        string
+		clusterResourceFilePath string
+		finalizerPresent        bool
+	)
+
+	JustBeforeEach(func() {
+		// create namespace
+		ns := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: clusterNamespace}}
+		Expect(k8sClient.Create(ctx, ns)).To(Succeed())
+		clusterName = clusterNamespace + "-cluster"
+		clusterResourceFilePath = "testdata/test-" + clusterNamespace + ".yaml"
+		// create cluster resources
+		By("Creating cluster")
+		f, err := os.Open(clusterResourceFilePath)
+		Expect(err).ToNot(HaveOccurred())
+		defer f.Close()
+		Expect(testutil.CreateResources(f, cfg, dynamicClient)).To(Succeed())
+		By("Creating kubeconfig for cluster")
+		Expect(testutil.CreateKubeconfigSecret(cfg, clusterName, clusterNamespace, k8sClient)).To(Succeed())
+
+		By("Check if finalizer is set correctly")
+		key := client.ObjectKey{
+			Namespace: clusterNamespace,
+			Name:      clusterName,
+		}
+		cluster := &clusterapiv1beta1.Cluster{}
+		Eventually(func() bool {
+			if err := k8sClient.Get(ctx, key, cluster); err != nil {
+				return false
+			}
+			return controllerutil.ContainsFinalizer(cluster, addontypes.AddonFinalizer) == finalizerPresent
+		}, 20, pollingInterval).Should(BeTrue())
+
+		By("Check that finalizers is remove if necessary")
+		Expect(k8sClient.Delete(ctx, cluster)).To(Succeed())
+		Eventually(func() bool {
+			if err := k8sClient.Get(ctx, key, cluster); apierrors.IsNotFound(err) {
+				return false // if the cluster was deleted it means finalizer was removed.
+			}
+			Expect(err).To(BeNil()) // If error is not nil at this point lets fail test altogether
+			return controllerutil.ContainsFinalizer(cluster, addontypes.AddonFinalizer)
+
+		}, 20, pollingInterval).Should(BeFalse())
+	})
+
+	AfterEach(func() {
+		// some resources should have already been deleted by test, so  we don't error out if this deletion attempt fails.
+		// we attempt to delete them in case something failed, so other tests don't get blocked by orphaned resources
+		By("Deleting cluster, tkr, BOM config map and addon secret")
+		f, err := os.Open(clusterResourceFilePath)
+		Expect(err).ToNot(HaveOccurred())
+		defer f.Close()
+
+		testutil.DeleteResources(f, cfg, dynamicClient, true) // nolint:errcheck
+
+		By("Deleting Addon data-values secrets")
+		addonSecretKey := client.ObjectKey{
+			Namespace: addonNamespace,
+			Name:      "antrea-data-values",
+		}
+		dataValuesSecret := &v1.Secret{}
+		k8sClient.Get(ctx, addonSecretKey, dataValuesSecret) // nolint:errcheck
+		k8sClient.Delete(ctx, dataValuesSecret)              // nolint:errcheck
+
+		By("Deleting Addon app CR")
+		appKey := client.ObjectKey{
+			Namespace: addonNamespace,
+			Name:      "antrea",
+		}
+		antreaApp := &kappctrl.App{}
+		// some testcases don't create App CR
+		k8sClient.Get(ctx, appKey, antreaApp) // nolint:errcheck
+		k8sClient.Delete(ctx, antreaApp)      // nolint:errcheck
+
+		By("Deleting kubeconfig for cluster")
+		key := client.ObjectKey{
+			Namespace: clusterNamespace,
+			Name:      secret.Name(clusterName, secret.Kubeconfig),
+		}
+		s := &v1.Secret{}
+		k8sClient.Get(ctx, key, s) // nolint:errcheck
+		k8sClient.Delete(ctx, s)   // nolint:errcheck
+	})
+	Context("workload cluster finalizer", func() {
+		BeforeEach(func() {
+			clusterNamespace = "workload-finalizer"
+			finalizerPresent = true
+		})
+		It("Should add and remove  finalizer to/from workload cluster", func() {})
+	})
+
+	Context("management cluster finalizer", func() {
+		BeforeEach(func() {
+			clusterNamespace = "management-finalizer"
+			finalizerPresent = false
+		})
+		It("Should add and remove  finalizer to/from management cluster", func() {})
 	})
 })

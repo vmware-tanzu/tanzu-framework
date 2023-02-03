@@ -542,9 +542,10 @@ func (c *TkgClient) ValidateManagementClusterUpgradeVersionCompatibility(options
 	}
 	warningMsg := ""
 	minorGap := int(currentTKGSemVersion.Minor()) - int(mgmtClusterSemVersion.Minor())
-	if minorGap < 0 || (minorGap == 0 && currentTKGSemVersion.Patch() < mgmtClusterSemVersion.Patch()) {
+	majorGap := int(currentTKGSemVersion.Major()) - int(mgmtClusterSemVersion.Major())
+	if currentTKGSemVersion.LessThan(mgmtClusterSemVersion) {
 		return errors.Errorf("TKG version downgrade is not supported")
-	} else if minorGap > 1 {
+	} else if majorGap == 0 && minorGap > 1 {
 		warningMsg = "Upgrade skipping minor version is detected and is not recommended. It could leave cluster unmanageable"
 	}
 	if warningMsg != "" {

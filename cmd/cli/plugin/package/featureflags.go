@@ -6,7 +6,7 @@ package main
 const (
 	// Package Plugin Kctrl Command Tree determines whether to use the command tree from kctrl. Setting feature flag to
 	// true will allow to use the package command tree from kctrl for package plugin
-	FeatureFlagPackagePluginKctrlCommandTree = "features.package.kctrl-package-command-tree"
+	FeatureFlagPackagePluginKctrlCommandTree = "features.package.kctrl-command-tree"
 )
 
 // DefaultFeatureFlagsForPackagePlugin is used to populate default feature-flags for the package plugin

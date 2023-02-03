@@ -31,8 +31,8 @@ var ClusterAttributesToLegacyVariablesMapCommon = map[string]string{
 
 	"spec.topology.variables.auditLogging.enabled": EnableAuditLogging, // ENABLE_AUDIT_LOGGING
 
-	"spec.topology.variables.trust.proxy":           TKGProxyCACert,                                   // TKG_PROXY_CA_CERT
-	"spec.topology.variables.trust.imageRepository": ConfigVariableCustomImageRepositoryCaCertificate, // TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+	"spec.topology.variables.trust.additionalTrustedCAs.proxy":           TKGProxyCACert,                                   // TKG_PROXY_CA_CERT
+	"spec.topology.variables.trust.additionalTrustedCAs.imageRepository": ConfigVariableCustomImageRepositoryCaCertificate, // TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
 
 	"spec.topology.variables.apiServerPort": ConfigVariableClusterAPIServerPort, // CLUSTER_API_SERVER_PORT
 
@@ -217,6 +217,7 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	"spec.topology.variables.vcenter.datastore":     ConfigVariableVsphereDatastore,     // VSPHERE_DATASTORE
 	"spec.topology.variables.vcenter.folder":        ConfigVariableVsphereFolder,        // VSPHERE_FOLDER
 	"spec.topology.variables.vcenter.server":        ConfigVariableVsphereServer,        // VSPHERE_SERVER
+	"spec.topology.variables.vcenter.insecure":      ConfigVariableVsphereInsecure,      // VSPHERE_INSECURE this variable doesn't exist in clusterclass, will be infer from tlsThumbprint
 
 	"spec.topology.variables.user.sshAuthorizedKeys": ConfigVariableVsphereSSHAuthorizedKey, // VSPHERE_SSH_AUTHORIZED_KEY
 

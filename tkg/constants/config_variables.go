@@ -274,11 +274,14 @@ const (
 	ConfigVariableAviCloudName                           = "AVI_CLOUD_NAME"
 	ConfigVariableAviServiceEngineGroup                  = "AVI_SERVICE_ENGINE_GROUP"
 	ConfigVariableAviManagementClusterServiceEngineGroup = "AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP"
+	ConfigVariableAviLabels                              = "AVI_LABELS"
+	ConfigVariableAviNSXTT1Router                        = "AVI_NSXT_T1LR"
 
 	ConfigVariableAviDataPlaneNetworkName    = "AVI_DATA_NETWORK"
 	ConfigVariableAviDataPlaneNetworkCIDR    = "AVI_DATA_NETWORK_CIDR"
 	ConfigVariableAviControlPlaneNetworkName = "AVI_CONTROL_PLANE_NETWORK"
 	ConfigVariableAviControlPlaneNetworkCIDR = "AVI_CONTROL_PLANE_NETWORK_CIDR"
+	ConfigVariableAviIngressNodeNetworkList  = "AVI_INGRESS_NODE_NETWORK_LIST"
 
 	ConfigVariableAviManagementClusterDataPlaneNetworkName       = "AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME"
 	ConfigVariableAviManagementClusterDataPlaneNetworkCIDR       = "AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR"

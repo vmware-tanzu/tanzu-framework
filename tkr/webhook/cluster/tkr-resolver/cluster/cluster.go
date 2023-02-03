@@ -324,7 +324,7 @@ func tkrDataValue(customImageRepository string, tkr *runv1.TanzuKubernetesReleas
 	osimage.SetRefLabels(ls, osImage.Spec.Image.Type, osImage.Spec.Image.Ref)
 
 	return &TKRDataValue{
-		KubernetesSpec: *withCustomImageRepository(customImageRepository, &tkr.Spec.Kubernetes),
+		KubernetesSpec: *withCustomImageRepository(customImageRepository, defaultImageRepository(&tkr.Spec.Kubernetes)),
 		OSImageRef:     osImage.Spec.Image.Ref,
 		Labels:         ls,
 	}
@@ -342,6 +342,23 @@ func withCustomImageRepository(customImageRepository string, k8sSpec *runv1.Kube
 		} {
 			if imageInfo != nil {
 				imageInfo.ImageRepository = customImageRepository
+			}
+		}
+	}
+	return k8sSpec
+}
+
+func defaultImageRepository(k8sSpec *runv1.KubernetesSpec) *runv1.KubernetesSpec {
+	if k8sSpec.ImageRepository != "" {
+		k8sSpec = k8sSpec.DeepCopy()
+		for _, imageInfo := range []*runv1.ContainerImageInfo{
+			k8sSpec.CoreDNS,
+			k8sSpec.Etcd,
+			k8sSpec.Pause,
+			k8sSpec.KubeVIP,
+		} {
+			if imageInfo != nil && imageInfo.ImageRepository == "" {
+				imageInfo.ImageRepository = k8sSpec.ImageRepository
 			}
 		}
 	}

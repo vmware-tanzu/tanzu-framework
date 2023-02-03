@@ -150,7 +150,7 @@ describe('NodeSettingStepComponent', () => {
         });
     });
 
-    it('should fiter subnet', () => {
+    it('should filter subnet', () => {
         component.vpcType = 'existing';
         component.publicSubnets = [{
             availabilityZoneId: 'us-west-a',

@@ -266,6 +266,16 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
+			Context("When the management cluster version is 1.6.x during v2.1.0 upgrade", func() {
+				BeforeEach(func() {
+					tkgClient, err = CreateTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v2.1.0.yaml", 2*time.Millisecond)
+					Expect(err).NotTo(HaveOccurred())
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.6.1", nil)
+				})
+				It("should not return an error", func() {
+					Expect(err).ToNot(HaveOccurred())
+				})
+			})
 		})
 	})
 	Describe("When configuring AWS_AMI_ID for aws cluster upgrade", func() {

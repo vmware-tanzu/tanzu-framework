@@ -20,6 +20,7 @@ import (
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -136,6 +137,21 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 			return errors.Wrap(err, "cannot create cleanup cluster client")
 		}
 
+		if config.IsFeatureActivated(constants.FeatureFlagManagementClusterDeployInClusterIPAMProvider) {
+			providerName, _, err := ParseProviderName(initOptionsForCleanupCluster.InfrastructureProvider)
+			if err != nil {
+				return errors.Wrap(err, "unable to parse provider name")
+			}
+
+			if providerName == constants.InfrastructureProviderVSphere {
+				ipamProvider, err := c.tkgConfigUpdaterClient.CheckInfrastructureVersion("ipam-in-cluster")
+				if err != nil {
+					return err
+				}
+				initOptionsForCleanupCluster.IPAMProvider = ipamProvider
+			}
+		}
+
 		log.Info("Installing providers to cleanup cluster...")
 		// Initialize cleanup cluster using same provider name and version from management cluster
 		if err = c.InitializeProviders(&initOptionsForCleanupCluster, cleanupClusterClient, cleanupClusterKubeconfigPath); err != nil {
@@ -168,7 +184,7 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 			return errors.Wrap(err, "unable to wait for cluster getting ready for move")
 		}
 
-		if err = c.cleanUpAVIResourcesInManagementCluster(regionalClusterClient, options.ClusterName, regionalClusterNamespace); err != nil {
+		if err = c.cleanUpAVIResourcesInManagementCluster(regionalClusterClient, cleanupClusterClient, options.ClusterName, regionalClusterNamespace); err != nil {
 			return errors.Wrap(err, "unable to clean up avi resource")
 		}
 	} else { // remove a management cluster whose deploymentStatus is 'Failed'
@@ -430,9 +446,20 @@ func (c *TkgClient) verifyProviderConfigVariablesExists(providerName string) err
 	return errors.Errorf("value for variables [%s] is not set. Please set the value using os environment variables or the tkg config file", strings.Join(missingVariables, ","))
 }
 
-func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
+func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient, cleanupClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
 	akoAddonSecret := &corev1.Secret{}
-	if err := regionalClusterClient.GetResource(akoAddonSecret, constants.AkoAddonName+"-data-values", clusterNamespace, nil, nil); err != nil {
+
+	// Ako addon secret name is different between legacy cluster and classy cluster
+	akoAddonSecretName := constants.AkoAddonName + "-data-values"
+	isClusterClassBased, err := cleanupClusterClient.IsClusterClassBased(clusterName, clusterNamespace)
+	if err != nil {
+		return errors.Wrap(err, "error while checking management cluster type")
+	}
+	if isClusterClassBased {
+		akoAddonSecretName = clusterName + "-" + akoAddonSecretName
+	}
+
+	if err := regionalClusterClient.GetResource(akoAddonSecret, akoAddonSecretName, clusterNamespace, nil, nil); err != nil {
 		if apierrors.IsNotFound(err) {
 			return nil
 		}
@@ -441,7 +468,7 @@ func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient
 	log.Info("Cleaning up AVI Resources...")
 	akoAddonSecretData := akoAddonSecret.Data["values.yaml"]
 	var values map[string]interface{}
-	err := yaml.Unmarshal(akoAddonSecretData, &values)
+	err = yaml.Unmarshal(akoAddonSecretData, &values)
 	if err != nil {
 		return err
 	}
@@ -462,8 +489,13 @@ func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient
 	if err != nil {
 		return err
 	}
-	akoAddonSecret.Data["values.yaml"] = []byte(constants.TKGDataValueFormatString + string(akoAddonSecretData))
-	if err := regionalClusterClient.UpdateResource(akoAddonSecret, constants.AkoAddonName+"-data-values", clusterNamespace); err != nil {
+	// Add header to ako addon secret when the cluster is legacy
+	akoAddonSecretStr := string(akoAddonSecretData)
+	if !isClusterClassBased {
+		akoAddonSecretStr = constants.TKGDataValueFormatString + akoAddonSecretStr
+	}
+	akoAddonSecret.Data["values.yaml"] = []byte(akoAddonSecretStr)
+	if err := regionalClusterClient.UpdateResource(akoAddonSecret, akoAddonSecretName, clusterNamespace); err != nil {
 		return errors.Wrapf(err, "unable to update ako add-on secret")
 	}
 	return c.waitForAVIResourceCleanup(regionalClusterClient)

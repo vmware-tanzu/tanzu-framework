@@ -13,13 +13,20 @@ spec:
       tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
       disableUdpTunnelOffload: false
       featureGates:
-        AntreaProxy: true
-        EndpointSlice: true
+        AntreaIPAM: false
         AntreaPolicy: true
-        NodePortLocal: false
+        AntreaProxy: true
         AntreaTraceflow: true
-        Egress: false
+        Egress: true
+        EndpointSlice: true
         FlowExporter: false
+        Multicast: false
+        Multicluster: false
+        NetworkPolicyStats: false
+        NodePortLocal: true
+        SecondaryNetwork: false
+        ServiceExternalIP: false
+        TrafficControl: false
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
@@ -36,10 +43,17 @@ spec:
       tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
       disableUdpTunnelOffload: false
       featureGates:
-        AntreaProxy: true
-        EndpointSlice: true
+        AntreaIPAM: false
         AntreaPolicy: true
-        NodePortLocal: false
+        AntreaProxy: true
         AntreaTraceflow: true
-        Egress: false
+        Egress: true
+        EndpointSlice: true
         FlowExporter: false
+        Multicast: false
+        Multicluster: false
+        NetworkPolicyStats: false
+        NodePortLocal: true
+        SecondaryNetwork: false
+        ServiceExternalIP: false
+        TrafficControl: false
