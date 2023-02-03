@@ -149,7 +149,7 @@ func (c *TkgClient) UpdateKubeVipConfigInKCP(currentKCP *capikubeadmv1beta1.Kube
 
 	log.V(6).Infof("KubeVipPod Name: %s", currentKubeVipPod.Name)
 	newLeaseDuration, newRenewDeadline, newRetryPeriod := c.getNewKubeVipParameters()
-	log.V(6).Infof("New Lease Duration %s, New Renew Deadline %s, New Retry Period %s, New Image Tag %s", newLeaseDuration, newRenewDeadline, newRetryPeriod)
+	log.V(6).Infof("New Lease Duration %s, New Renew Deadline %s, New Retry Period %s, New Image Tag %s", newLeaseDuration, newRenewDeadline, newRetryPeriod, upgradeComponentInfo.KubeVipTag)
 	newKCPPod, err := ModifyKubeVipAndSerialize(currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod, upgradeComponentInfo.KubeVipImageRepository, upgradeComponentInfo.KubeVipTag)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to update kube-vip timeouts")
@@ -173,7 +173,7 @@ func (c *TkgClient) UpdateKubeVipConfigInKCP(currentKCP *capikubeadmv1beta1.Kube
 }
 
 func (c *TkgClient) DecodeKubevipPodManifestFromKCP(kcp *capikubeadmv1beta1.KubeadmControlPlane) (*corev1.Pod, error) {
-	var currentKubeVipPod *corev1.Pod
+	var currentKubeVipPod corev1.Pod
 	for _, curFile := range kcp.Spec.KubeadmConfigSpec.Files {
 		log.V(6).Infof("Current KCP Pod: %s", curFile.Content)
 		log.V(6).Infof("Current KCP Pod Path: %s", curFile.Path)
@@ -182,19 +182,19 @@ func (c *TkgClient) DecodeKubevipPodManifestFromKCP(kcp *capikubeadmv1beta1.Kube
 
 		// kube-vip pod spec has a specific config path
 		if curFile.Path == kubeVipConfigPath {
-			log.V(6).Infof("fond kube-vipi pod manifest")
+			log.V(6).Infof("found kube-vip pod manifest")
 			// it should be one kube-vip pod manifest in each kubeadmControlPlane
 			s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, sc, sc,
 				apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
-			_, _, err := s.Decode([]byte(curFile.Content), nil, currentKubeVipPod)
+			_, _, err := s.Decode([]byte(curFile.Content), nil, &currentKubeVipPod)
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to unmarshal content to kube-vip pod spec")
 			}
 			if currentKubeVipPod.Name != kubeVipName {
 				return nil, errors.New("pod name is not kube-vip")
 			}
-			log.V(6).Infof("return the pod manifest")
-			return currentKubeVipPod, nil
+
+			return &currentKubeVipPod, nil
 		}
 	}
 

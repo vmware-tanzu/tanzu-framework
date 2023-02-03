@@ -1102,7 +1102,10 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 	// If iaas == vsphere, attempt increasing kube-vip parameters
 	if currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind == constants.KindVSphereMachineTemplate {
 		log.V(6).Infof("Kind %s", currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind)
-		newKCP, _ = c.UpdateKubeVipConfigInKCP(currentKCP, clusterUpgradeConfig.UpgradeComponentInfo)
+		newKCP, err = c.UpdateKubeVipConfigInKCP(currentKCP, clusterUpgradeConfig.UpgradeComponentInfo)
+		if err != nil {
+			return errors.Wrapf(err, "unable to update kube-vip config")
+		}
 		if newKCP != nil {
 			currentKCP = newKCP
 		}
