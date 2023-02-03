@@ -152,7 +152,6 @@ github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbt
 github.com/PuerkitoBio/urlesc v0.0.0-20160726150825-5bd2802263f2/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=
-github.com/a8m/tree v0.0.0-20210115125333-10a5fd5b637d/go.mod h1:FSdwKX97koS5efgm8WevNf7XS3PqtyFkKDDXrz778cg=
 github.com/adrg/xdg v0.4.0 h1:RzRqFcjH4nE5C6oTAxhBtoE2IRyjBSa62SCbyPidvls=
 github.com/adrg/xdg v0.4.0/go.mod h1:N6ag73EX4wyxeaoeHctc1mas01KZgsj5tYiAIwqJE/E=
 github.com/agnivade/levenshtein v1.0.1/go.mod h1:CURSv5d9Uaml+FovSIICkLbAUZ9S4RqaHDIsdSBg7lM=
@@ -296,7 +295,6 @@ github.com/davecgh/go-spew v0.0.0-20161028175848-04cdfd42973b/go.mod h1:J7Y8YcW2
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/davecgh/go-xdr v0.0.0-20161123171359-e6a2ba005892/go.mod h1:CTDl0pzVzE5DEzZhPfvhY/9sPFMQIxaJ9VAMs9AagrE=
 github.com/daviddengcn/go-colortext v0.0.0-20160507010035-511bcaf42ccd/go.mod h1:dv4zxwHi5C/8AeI+4gX4dCWOIvNi7I6JCSX0HvlKPgE=
 github.com/denis-tingajkin/go-header v0.4.2/go.mod h1:eLRHAVXzE5atsKAnNRDB90WHCFFnBUn4RN0nRcs1LJA=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
@@ -656,7 +654,6 @@ github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c/go.mod h1:TIyPZe4Mgqvf
 github.com/google/uuid v1.0.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/google/uuid v1.2.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/googleapis/enterprise-certificate-proxy v0.2.0 h1:y8Yozv7SZtlU//QXbezB6QkpuE6jMD2/gfzk4AftXjs=
@@ -1268,9 +1265,8 @@ github.com/vmware-tanzu/carvel-ytt v0.40.0 h1:WUWTtwvfqV9CN9v207oDt2xfhmuWHGwc4M
 github.com/vmware-tanzu/carvel-ytt v0.40.0/go.mod h1:crDcKbS1GM4Q34puoVxdrajWOXrxjOxvUCwtsNV5Etc=
 github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20221114124829-a8c2eac58dbf h1:KL+cthxghTjH0qrj3AtN26qDWatqXrbp7a/StjcnmMU=
 github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20221114124829-a8c2eac58dbf/go.mod h1:WxG7I8d++BA0bcic2Ta3Rm5BHuWkGtH6rpSs0ry9uLA=
-github.com/vmware/govmomi v0.27.1 h1:Rf3o1btFrkJa9be5KtgJ4CyOO8mbFnBxmNtAVHNyFes=
-github.com/vmware/govmomi v0.27.1/go.mod h1:daTuJEcQosNMXYJOeku0qdBJP9SOLLWB3Mqz8THtv6o=
-github.com/vmware/vmw-guestinfo v0.0.0-20170707015358-25eff159a728/go.mod h1:x9oS4Wk2s2u4tS29nEaDLdzvuHdB19CvSGJjPgkZJNk=
+github.com/vmware/govmomi v0.30.2 h1:zPMmLTtAfBgOVsTgwKOzVVahQIOC4A2oyFQFSsn/0ag=
+github.com/vmware/govmomi v0.30.2/go.mod h1:F7adsVewLNHsW/IIm7ziFURaXDaHEwcc+ym4r3INMdY=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.0.2/go.mod h1:1WAq6h33pAW+iRreB34OORO2Nf7qel3VV3fjBj+hCSs=
 github.com/xdg-go/stringprep v1.0.2/go.mod h1:8F9zXuvzgwmyT5DUm4GUfZGDdT3W+LCvS6+da4O5kxM=
@@ -2116,8 +2112,8 @@ sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2 h1:WjTt0uyUG+FJBodnrSzb1L3mHfkIgt
 sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2/go.mod h1:ZKM3W39Pl7uPuuB6mT/dWakgy1O8OcivGRCAZqSP+Hs=
 sigs.k8s.io/cluster-api-provider-azure v1.6.1 h1:GpY9YLiUqovz4gwIEg2PRYOhJ5e/AG7sTHtoxzt6K4w=
 sigs.k8s.io/cluster-api-provider-azure v1.6.1/go.mod h1:wM/V5BBRq+m5KCE9h5YVtMQ3qcIOsGBb7UDD/tXufko=
-sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 h1:HAOP2TTjBw7yxtQXTyAQLIq9rX/KQoHLhoptK+wh9PU=
-sigs.k8s.io/cluster-api-provider-vsphere v1.4.1/go.mod h1:11l0pUZNYA76sOl1HXOACCB56Pez3dgNfjw9ACEUUqQ=
+sigs.k8s.io/cluster-api-provider-vsphere v1.5.3 h1:D0bDtSyRIcBmuGFyW65otEh+VIz8SGioaAjYok/cK5Y=
+sigs.k8s.io/cluster-api-provider-vsphere v1.5.3/go.mod h1:EIWdG6qGX1iW0U5qiMi+EDQ9gmW7pylJwKDtHOkBQ6g=
 sigs.k8s.io/cluster-api/test v1.2.8 h1:kYziHLSV+KqBoQXg7STGU4ZQpClayqIyw+BTYGx71uE=
 sigs.k8s.io/cluster-api/test v1.2.8/go.mod h1:55r564Dm7/eO7LH76SRE8whfg4yUnsLz5akqqej4Q+8=
 sigs.k8s.io/controller-runtime v0.7.0/go.mod h1:pJ3YBrJiAqMAZKi6UVGuE98ZrroV1p+pIhoHsMm9wdU=
