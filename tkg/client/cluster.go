@@ -198,7 +198,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	if !waitForCluster {
 		return false, nil
 	}
-	log.Infof("... Done requesting creation of workload cluster '%s'.  Will now wait for it's completion...")
+	log.Infof("... Done requesting creation of workload cluster '%s' (in namespace %v)  Will now wait for it's completion...", options.ClusterName, options.TargetNamespace)
 	return true, c.waitForClusterCreation(regionalClusterClient, options)
 }
 
