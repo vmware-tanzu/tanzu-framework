@@ -115,6 +115,7 @@ type addonFlags struct {
 	pprofBindAddress                string
 	tlsMinVersion                   string
 	tlsCipherSuites                 string
+	selfManageCertificates          bool
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -159,6 +160,8 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.pprofBindAddress, "pprof-bind-addr", ":18318", "Bind address of pprof web server if enabled")
 	flag.StringVar(&addonFlags.tlsMinVersion, "tls-min-version", "1.2", "minimum TLS version in use by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
 	flag.StringVar(&addonFlags.tlsCipherSuites, "tls-cipher-suites", "", "Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be used.\n"+fmt.Sprintf("Possible values are %s.", strings.Join(cliflag.TLSCipherPossibleValues(), ", ")))
+	flag.BoolVar(&addonFlags.selfManageCertificates, "self-managed-certificates", true, "If false, webhooks tls certificates are managed  by external certificate manager.")
+
 	flag.Parse()
 }
 
@@ -199,7 +202,7 @@ func main() {
 		setupLog.Error(err, "unable to wait for CRDs")
 		os.Exit(1)
 	}
-	if flags.featureGateClusterBootstrap {
+	if flags.featureGateClusterBootstrap && flags.selfManageCertificates {
 		if err := os.MkdirAll(constants.WebhookCertDir, 0755); err != nil {
 			setupLog.Error(err, "unable to create directory for webhook certificates", "directory", constants.WebhookCertDir)
 			os.Exit(1)
@@ -445,23 +448,25 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 		mgr.GetWebhookServer().TLSOpts = append(mgr.GetWebhookServer().TLSOpts, cipherSuitesSetFunc)
 	}
 
-	certPath := path.Join(constants.WebhookCertDir, "tls.crt")
-	keyPath := path.Join(constants.WebhookCertDir, "tls.key")
-	webhookTLS := webhooks.WebhookTLS{
-		Ctx:           ctx,
-		K8sConfig:     mgr.GetConfig(),
-		CertPath:      certPath,
-		KeyPath:       keyPath,
-		Name:          constants.WebhookScrtName,
-		ServiceName:   constants.WebhookServiceName,
-		LabelSelector: constants.AddonWebhookLabelKey + "=" + constants.AddonWebhookLabelValue,
-		Logger:        setupLog,
-		Namespace:     flags.addonNamespace,
-		RotationTime:  constants.WebhookCertLifeTime,
-	}
-	if err := webhookTLS.ManageCertificates(constants.WebhookCertManagementFrequency); err != nil {
-		setupLog.Error(err, "Unable to start webhook tls certificate management")
-		os.Exit(1)
+	if flags.selfManageCertificates {
+		certPath := path.Join(constants.WebhookCertDir, "tls.crt")
+		keyPath := path.Join(constants.WebhookCertDir, "tls.key")
+		webhookTLS := webhooks.WebhookTLS{
+			Ctx:           ctx,
+			K8sConfig:     mgr.GetConfig(),
+			CertPath:      certPath,
+			KeyPath:       keyPath,
+			Name:          constants.WebhookScrtName,
+			ServiceName:   constants.WebhookServiceName,
+			LabelSelector: constants.AddonWebhookLabelKey + "=" + constants.AddonWebhookLabelValue,
+			Logger:        setupLog,
+			Namespace:     flags.addonNamespace,
+			RotationTime:  constants.WebhookCertLifeTime,
+		}
+		if err := webhookTLS.ManageCertificates(constants.WebhookCertManagementFrequency); err != nil {
+			setupLog.Error(err, "Unable to start webhook tls certificate management")
+			os.Exit(1)
+		}
 	}
 	// Set up the webhooks in the manager
 	if err := (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr); err != nil {
