@@ -402,15 +402,16 @@ spec:
       - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
       sudo: ALL=(ALL) NOPASSWD:ALL
     #! When using kube-vip as the control plane endpoint provider with IPv6 as
-    #! the primary IP family, set --node-ip on kubelet so that host network pods
-    #! do not get the kube-vip address as their pod IP.
+    #! the primary IP family, set the node ip in /etc/hosts for kubelet to
+    #! discover so so that host network pods do not get the kube-vip address as
+    #! their pod IP.
     #! See: https://github.com/vmware-tanzu/tanzu-framework/issues/2098
     #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
     preKubeadmCommands:
     - echo "::1         localhost" >> /etc/hosts
     #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER and compare_semver_versions(tkrVersion, "v1.22.8") >= 0:
     #@overlay/append
-    - echo "KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)" >> /etc/sysconfig/kubelet
+    - "echo \"$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local) $(hostname)\" >> /etc/hosts"
     #@ end
     #@ end
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
