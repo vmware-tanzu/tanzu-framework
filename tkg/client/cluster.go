@@ -461,7 +461,7 @@ func (c *TkgClient) waitForCNI(options waitForAddonsOptions) error {
 		}
 	}
 	if !success {
-		return errors.Wrap(err, fmt.Sprintf("timeout waiting for antrea cni to start", cni))
+		return errors.Wrap(err, fmt.Sprintf("timeout waiting for %s cni to start", cni))
 	}
 
 	return nil
