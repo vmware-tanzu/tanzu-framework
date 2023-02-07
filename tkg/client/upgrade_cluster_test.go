@@ -793,9 +793,8 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 					KCPObjectName:      "fake-name",
 					KCPObjectNamespace: "fake-namespace",
 					UpgradeComponentInfo: ComponentInfo{
-						KubernetesVersion:      "v1.18.0+vmware.2",
-						KubeVipImageRepository: kubeVipImage,
-						KubeVipTag:             KubeVipTag,
+						KubernetesVersion: "v1.18.0+vmware.2",
+						KubeVipTag:        KubeVipTag,
 					},
 					ActualComponentInfo: ComponentInfo{
 						KubernetesVersion: "v1.18.0+vmware.1",
