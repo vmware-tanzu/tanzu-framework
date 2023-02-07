@@ -1,0 +1,26 @@
+on:
+  pull_request:
+    branches:
+      - main
+    types: ["closed"]
+
+jobs:
+  cherry_pick_release_v0_28:
+    runs-on: ubuntu-latest
+    name: Cherry pick into release-0.28 brach
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'cherry-pick/release-0.28') && github.event.pull_request.merged == true }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Cherry pick into release-0.28
+        uses: carloscastrojumo/github-cherry-pick-action@v1.0.6
+        with:
+          token: ${{ secrets.ALFRED_PAT }}
+          committer: Alfred the Narwhal <noreply@github.com>
+          author: Alfred the Narwhal <noreply@github.com>
+          branch: release-0.28
+          title: '[release-0.28] cherry-pick ${{github.event.number}} : {old_title}'
+          body: 'Cherry-pick of #{old_pull_request_id} into release-0.28 branch'
+          labels: "backports/release-0.28"
