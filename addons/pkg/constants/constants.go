@@ -369,6 +369,8 @@ const (
 	TKGDevPlan = "dev"
 	// TKGDevCCPan is the tkg plan name, mean that that cluster is in a dev env
 	TKGDevCCPan = "devcc"
+
+	TKRAnnotationKey = "run.tanzu.vmware.com/tkr-spec"
 )
 
 var (

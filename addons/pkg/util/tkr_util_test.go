@@ -4,8 +4,13 @@
 package util
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
+	"encoding/base64"
 	"fmt"
+
+	"gopkg.in/yaml.v3"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -54,7 +59,8 @@ var _ = Describe("TKR utils", func() {
 			BeforeEach(func() {
 				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = ""
-				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
+				cluster := &clusterapiv1beta1.Cluster{}
+				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, cluster, tkrName)
 			})
 
 			It("should return nil TKR", func() {
@@ -81,8 +87,9 @@ var _ = Describe("TKR utils", func() {
 			BeforeEach(func() {
 				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
+				cluster := &clusterapiv1beta1.Cluster{}
 				crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "TanzuKubernetesRelease"}, testTKR))
-				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
+				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, cluster, tkrName)
 			})
 
 			It("should return nil TKR", func() {
@@ -110,8 +117,9 @@ var _ = Describe("TKR utils", func() {
 			BeforeEach(func() {
 				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
+				cluster := &clusterapiv1beta1.Cluster{}
 				crtCtl.GetReturns(errors.New("some error"))
-				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
+				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, cluster, tkrName)
 			})
 
 			It("should return nil TKR", func() {
@@ -138,10 +146,71 @@ var _ = Describe("TKR utils", func() {
 			BeforeEach(func() {
 				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
-				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
+				cluster := &clusterapiv1beta1.Cluster{}
+				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, cluster, tkrName)
 			})
 
 			It("should return nil TKR", func() {
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(tkrV1Alpha3).ShouldNot(BeNil())
+			})
+		})
+
+		When("tkr is available as annotation on cluster resource", func() {
+			BeforeEach(func() {
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
+				tkrName = testTKR
+				var buf bytes.Buffer
+				out, _ := yaml.Marshal(tkrV1Alpha3)
+				w, _ := gzip.NewWriterLevel(&buf, gzip.BestCompression)
+				_, err = w.Write(out)
+				w.Close()
+				tkrString := base64.StdEncoding.EncodeToString(buf.Bytes())
+				annotation := make(map[string]string)
+				annotation["run.tanzu.vmware.com/tkr-spec"] = tkrString
+				cluster := &clusterapiv1beta1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "v1beta1",
+					},
+					ObjectMeta: metav1.ObjectMeta{Name: testClusterName, Namespace: testNamespace, Labels: map[string]string{}, Annotations: annotation},
+				}
+				tkrV1Alpha3, err = getTKRFromAnnotation(cluster.Annotations)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(tkrV1Alpha3).NotTo(BeNil())
+			})
+
+			It("should return non nil TKR", func() {
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(tkrV1Alpha3).ShouldNot(BeNil())
+			})
+		})
+
+		When("tkr is not available in cluster", func() {
+			BeforeEach(func() {
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
+				tkrName = testTKR
+				var buf bytes.Buffer
+				out, _ := yaml.Marshal(tkrV1Alpha3)
+				w, _ := gzip.NewWriterLevel(&buf, gzip.BestCompression)
+				_, err = w.Write(out)
+				w.Close()
+				tkrString := base64.StdEncoding.EncodeToString(buf.Bytes())
+				annotation := make(map[string]string)
+				annotation["run.tanzu.vmware.com/tkr-spec"] = tkrString
+				cluster := &clusterapiv1beta1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "v1beta1",
+					},
+					ObjectMeta: metav1.ObjectMeta{Name: testClusterName, Namespace: testNamespace, Labels: map[string]string{}, Annotations: annotation},
+				}
+				tkrName = testTKR
+				crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "TanzuKubernetesRelease"}, testTKR))
+				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, cluster, tkrName)
+			})
+
+			It("should return tkr from annotation on cluster", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(tkrV1Alpha3).ShouldNot(BeNil())
 			})

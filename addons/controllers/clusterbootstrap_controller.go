@@ -150,7 +150,7 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, nil
 	}
 
-	tkr, err := util.GetTKRByNameV1Alpha3(r.context, r.Client, tkrName)
+	tkr, err := util.GetTKRByNameV1Alpha3(r.context, r.Client, cluster, tkrName)
 	if err != nil {
 		log.Error(err, "unable to fetch TKR object", "name", tkrName)
 		return ctrl.Result{}, err
