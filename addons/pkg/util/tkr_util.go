@@ -4,9 +4,15 @@
 package util
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/pkg/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -38,7 +44,7 @@ func GetTKRByNameV1Alpha1(ctx context.Context, c client.Client, tkrName string) 
 }
 
 // GetTKRByNameV1Alpha3 gets v1Alpha3 TKR object given a TKR name
-func GetTKRByNameV1Alpha3(ctx context.Context, c client.Client, tkrName string) (*runtanzuv1alpha3.TanzuKubernetesRelease, error) {
+func GetTKRByNameV1Alpha3(ctx context.Context, c client.Client, cluster *clusterapiv1beta1.Cluster, tkrName string) (*runtanzuv1alpha3.TanzuKubernetesRelease, error) {
 	tkrV1Alpha3 := &runtanzuv1alpha3.TanzuKubernetesRelease{}
 
 	if tkrName == "" {
@@ -49,6 +55,11 @@ func GetTKRByNameV1Alpha3(ctx context.Context, c client.Client, tkrName string) 
 
 	if err := c.Get(ctx, tkrNamespaceName, tkrV1Alpha3); err != nil {
 		if apierrors.IsNotFound(err) {
+			tkrV1Alpha3, err = getTKRFromAnnotation(cluster.Annotations)
+			if tkrV1Alpha3 != nil {
+				return tkrV1Alpha3, nil
+			}
+
 			return nil, nil
 		}
 		return nil, err
@@ -72,7 +83,7 @@ func GetBootstrapPackageNameFromTKR(ctx context.Context, clt client.Client, pkgR
 	}
 
 	// get TKR object associated with the cluster
-	tkr, err := GetTKRByNameV1Alpha3(ctx, clt, tkrName)
+	tkr, err := GetTKRByNameV1Alpha3(ctx, clt, cluster, tkrName)
 	if err != nil || tkr == nil {
 		return "", pkgNamePrefix, fmt.Errorf("unable to fetch TKR object '%s'", tkrName)
 	}
@@ -89,4 +100,40 @@ func GetBootstrapPackageNameFromTKR(ctx context.Context, clt client.Client, pkgR
 	}
 
 	return "", pkgNamePrefix, fmt.Errorf("no bootstrap package prefixed with '%s' is found in the TKR object", pkgNamePrefix)
+}
+
+func getTKRFromAnnotation(tkc map[string]string) (*runtanzuv1alpha3.TanzuKubernetesRelease, error) {
+	controlPlaneTKR := &runtanzuv1alpha3.TanzuKubernetesRelease{}
+
+	tkrSpec, ok := tkc[constants.TKRAnnotationKey]
+	if !ok {
+		return nil, nil
+	}
+
+	unzipOut, err := gunzipAndBase64Decode(tkrSpec)
+	if err != nil {
+		return nil, err
+	}
+
+	err = yaml.Unmarshal(unzipOut, controlPlaneTKR)
+	if err != nil {
+		return nil, err
+	}
+
+	return controlPlaneTKR, nil
+}
+
+// GunzipAndBase64Decode extracts a gzip archive to a byte array
+func gunzipAndBase64Decode(input string) ([]byte, error) {
+	decodedData, err := base64.StdEncoding.DecodeString(input)
+	if err != nil {
+		return nil, err
+	}
+
+	r, err := gzip.NewReader(bytes.NewReader(decodedData))
+	if err != nil {
+		return nil, err
+	}
+
+	return io.ReadAll(r)
 }
