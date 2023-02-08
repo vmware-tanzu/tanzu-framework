@@ -8,3 +8,4 @@ Documentation for the release process.
 * [Release Notes](release-notes.md)
 * [Release Process](release-process.md)
 * [Release Notes Gathering Process](release-notes-gathering-process.md)
+* [Cherry Pick process](cherry-pick.md)
