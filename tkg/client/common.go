@@ -361,7 +361,7 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		// Return error if user has customized template overlays
 		// but the feature gate FeatureFlagAllowLegacyCluster or ALLOW_LEGACY_CLUSTER parameter is disabled for workload cluster
 		if isCustomOverlayPresent && !isSuppressProvidersUpdateSet {
-			return false, errors.Errorf("It seems like you have done some customizations to the template overlays. However, the feature gate %v is %v. Please enabe it and try again", constants.FeatureFlagAllowLegacyCluster, allowLegacyClusterCreated)
+			return false, errors.Errorf("It seems like you have done some customizations to the template overlays. However, the feature gate %v is %v. Please enable it and try again", constants.FeatureFlagAllowLegacyCluster, allowLegacyClusterCreated)
 		} else {
 			// Deploy clusterclass based workload cluster when template overlays don't be customized
 			// and feature gate FeatureFlagAllowLegacyCluster or ALLOW_LEGACY_CLUSTER parameter is disabled
