@@ -812,6 +812,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 
 		BeforeEach(func() {
 			upgradeClusterOptions.KubernetesVersion = "v1.18.2+vmware.1"
+			upgradeClusterOptions.TkrVersion = "v1.18.2+vmware.1-tkg.1"
 			currentK8sVersion = "v1.17.3+vmware.2"
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
 			os.Setenv("SKIP_VSPHERE_TEMPLATE_VERIFICATION", "1")
@@ -888,7 +889,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 				cluster := &capi.Cluster{}
 				err = regionalClusterClient.GetResource(cluster, upgradeClusterOptions.ClusterName, upgradeClusterOptions.Namespace, nil, nil)
 				Expect(err).To(BeNil())
-				Expect(cluster.Spec.Topology.Version).To(Equal(upgradeClusterOptions.KubernetesVersion))
+				Expect(cluster.Spec.Topology.Version).To(Equal(upgradeClusterOptions.TkrVersion))
 			})
 		})
 	})
