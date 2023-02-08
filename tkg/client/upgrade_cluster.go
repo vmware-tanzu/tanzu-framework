@@ -569,7 +569,7 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 	if kcp.Spec.MachineTemplate.InfrastructureRef.Kind == constants.KindVSphereMachineTemplate {
 		image, tag, err := c.GetKubevipImageAndTag(kcp)
 		if err != nil {
-			errors.Wrapf(err, "unable to extract kube-vip image")
+			return errors.Wrapf(err, "unable to extract kube-vip image")
 		}
 		clusterUpgradeConfig.ActualComponentInfo.KubeVipFullImagePath = image
 		clusterUpgradeConfig.ActualComponentInfo.KubeVipTag = tag

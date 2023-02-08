@@ -202,6 +202,7 @@ func (c *TkgClient) DecodeKubevipPodManifestFromKCP(kcp *capikubeadmv1beta1.Kube
 }
 
 func (c *TkgClient) GetKubevipImageAndTag(kcp *capikubeadmv1beta1.KubeadmControlPlane) (string, string, error) {
+	log.V(6).Infof("get kube-vip pod image and tag from kcp")
 	kubeVipManifest, err := c.DecodeKubevipPodManifestFromKCP(kcp)
 	if err != nil {
 		return "", "", errors.Wrap(err, "failed to get kube-vip manifest")

@@ -53,8 +53,6 @@ metadata:
   creationTimestamp: ~
   name: kube-vip
   namespace: kube-system
-owner: "root:root"
-path: /etc/kubernetes/manifests/kube-vip.yaml
 spec:
   containers:
     -
@@ -102,9 +100,7 @@ spec:
         path: /etc/kubernetes/admin.conf
         type: FileOrCreate
       name: kubeconfig
-status: {}
-owner: root:root
-path: /etc/kubernetes/manifests/kube-vip.yaml`
+status: {}`
 )
 
 var _ = Describe("Unit tests for upgrading legacy cluster", func() {
@@ -793,8 +789,9 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 					KCPObjectName:      "fake-name",
 					KCPObjectNamespace: "fake-namespace",
 					UpgradeComponentInfo: ComponentInfo{
-						KubernetesVersion: "v1.18.0+vmware.2",
-						KubeVipTag:        KubeVipTag,
+						KubernetesVersion:    "v1.18.0+vmware.2",
+						KubeVipFullImagePath: kubeVipImage,
+						KubeVipTag:           KubeVipTag,
 					},
 					ActualComponentInfo: ComponentInfo{
 						KubernetesVersion: "v1.18.0+vmware.1",
@@ -1150,7 +1147,7 @@ var _ = Describe("Unit test for handleKappControllerUpgrade", func() {
 })
 
 func getDummyKCP(machineTemplateKind string) *capikubeadmv1beta1.KubeadmControlPlane {
-	file := capibootstrapkubeadmv1beta1.File{Content: kubeVipPodString}
+	file := capibootstrapkubeadmv1beta1.File{Content: kubeVipPodString, Path: "/etc/kubernetes/manifests/kube-vip.yaml", Owner: "root:root"}
 	kcp := &capikubeadmv1beta1.KubeadmControlPlane{}
 	kcp.Name = "fake-kcp-name"
 	kcp.Namespace = "fake-kcp-namespace"
