@@ -466,9 +466,17 @@ func (k *KindClusterProxy) setupProxyConfigurationForKindCluster() {
 	}
 
 	if httpProxy != "" {
+		if strings.Contains(httpProxy, "%") {
+			log.V(7).Infof("proxy contains escaped special character, escape '%' again")
+			httpProxy = strings.ReplaceAll(httpProxy, "%", "%%")
+		}
 		os.Setenv(constants.HTTPProxy, httpProxy)
 	}
 	if httpsProxy != "" {
+		if strings.Contains(httpsProxy, "%") {
+			log.V(7).Infof("proxy contains escaped special character, escape '%' again")
+			httpsProxy = strings.ReplaceAll(httpsProxy, "%", "%%")
+		}
 		os.Setenv(constants.HTTPSProxy, httpsProxy)
 	}
 	if noProxy != "" {
