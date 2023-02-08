@@ -16,9 +16,10 @@ func (c *TkgClient) DoClassyClusterUpgrade(regionalClusterClient clusterclient.C
 	currentClusterClient clusterclient.Client, options *UpgradeClusterOptions) error {
 
 	kubernetesVersion := options.KubernetesVersion
+	tkrVersion := options.TkrVersion
 
-	log.Infof("Upgrading kubernetes cluster to `%v` version", kubernetesVersion)
-	patchJSONString := fmt.Sprintf(`{"spec": {"topology": {"version": "%v"}}}`, kubernetesVersion)
+	log.Infof("Upgrading kubernetes cluster to `%v` version, tkr version: `%s`", kubernetesVersion, tkrVersion)
+	patchJSONString := fmt.Sprintf(`{"spec": {"topology": {"version": "%v"}}}`, tkrVersion)
 
 	err := regionalClusterClient.PatchClusterObject(options.ClusterName, options.Namespace, patchJSONString)
 	if err != nil {

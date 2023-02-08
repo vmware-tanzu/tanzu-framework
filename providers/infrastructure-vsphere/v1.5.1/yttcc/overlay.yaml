@@ -1,7 +1,7 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint","get_tkr_version_from_tkr_name")
 
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
@@ -10,6 +10,7 @@
 
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 #@ bomData = get_default_tkg_bom_data()
+#@ tkrVersion = get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE)
 
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
 ---
@@ -39,7 +40,7 @@ spec:
       cidrBlocks: #@ data.values.SERVICE_CIDR.split(",")
   topology:
     class: #@ data.values.CLUSTER_CLASS
-    version: #@ data.values.KUBERNETES_VERSION
+    version: #@ tkrVersion
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
       #@overlay/match missing_ok=True
