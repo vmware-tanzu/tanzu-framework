@@ -7,6 +7,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	capibootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
+
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 const (
@@ -53,8 +55,11 @@ func (c *TkgClient) configurePodSecurityStandard(old *controlplanev1.KubeadmCont
 		}
 	}
 
-	if fileExists && volumeMountExists && old.Spec.KubeadmConfigSpec.ClusterConfiguration.APIServer.ExtraArgs[admissionPodSecurityConfigFlagName] == admissionPodSecurityConfigFilePath {
-		return old
+	if old.Spec.KubeadmConfigSpec.ClusterConfiguration != nil && old.Spec.KubeadmConfigSpec.ClusterConfiguration.APIServer.ExtraArgs != nil {
+		if _, flagExists := old.Spec.KubeadmConfigSpec.ClusterConfiguration.APIServer.ExtraArgs[admissionPodSecurityConfigFlagName]; flagExists {
+			log.Warningf("Skipping to enable Pod Security Standard for KCP: flag %q already exists", admissionPodSecurityConfigFlagName)
+			return nil
+		}
 	}
 
 	kcp := old.DeepCopy()
