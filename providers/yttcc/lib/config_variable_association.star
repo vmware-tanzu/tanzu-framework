@@ -406,7 +406,6 @@ def get_cluster_variables():
         }
     end
 
-
     additionalTrustedCAs = []
     #! TKG_PROXY_CA_CERT has higher priority than TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
     if data.values["TKG_PROXY_CA_CERT"] != "":
@@ -997,6 +996,20 @@ def get_vsphere_vars():
         vars["additionalFQDN"] = data.values["VSPHERE_ADDITIONAL_FQDN"].replace(" ", "").split(",")
     end
 
+    customTDNFRepository = {}
+    if data.values["CUSTOM_TDNF_REPOSITORY_FQDN"] != "":
+        customTDNFRepository["fqdn"] = data.values["CUSTOM_TDNF_REPOSITORY_FQDN"]
+    end
+    if data.values["CUSTOM_TDNF_REPOSITORY_IP"] != "":
+        customTDNFRepository["ip"] = data.values["CUSTOM_TDNF_REPOSITORY_IP"]
+    end
+    if data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"] != "":
+        customTDNFRepository["certificate"] = data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"]
+    end
+    if customTDNFRepository != {}:
+        vars["customTDNFRepository"] = customTDNFRepository
+    end
+
     return vars
 end
 
@@ -1056,6 +1069,6 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "externalControlPlaneEndpointSubnetId", "externalControlPlaneSubnetId", "externalWorkerSubnetId",
         "nodePvTransitEncryption", "controlPlaneMachineShape", "controlPlaneMachineOcpus",
         "controlPlanePvTransitEncryption",
-        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
+        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA",
         "controlPlaneCertificateRotation", "podSecurityStandard", "workerKubeletExtraArgs", "controlPlaneKubeletExtraArgs",
         "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs", "eventRateLimitConf"]
