@@ -298,3 +298,13 @@ func CompareMajorMinorPatchVersion(version1, version2 string) bool {
 	}
 	return false
 }
+
+// CompareVersions compares version v1 against version v2.
+func CompareVersions(v1, cmpSign, v2 string) bool {
+	if c, err := semver.NewConstraint(cmpSign + v2); err == nil {
+		if currentVersion, err := semver.NewVersion(v1); err == nil && c.Check(currentVersion) {
+			return true
+		}
+	}
+	return false
+}

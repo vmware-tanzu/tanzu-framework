@@ -16,6 +16,7 @@ import (
 	"github.com/avinetworks/sdk/go/session"
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 	avi_models "github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
@@ -23,6 +24,8 @@ import (
 const AviSessionTimeout = 60
 const pageSizeMax = "200"
 const aviDefaultTenant = "admin" // Per TKG-5862
+// TODO:(xudongl) avi min support version need to be review and update for each TKG release
+const aviMinSupportVersion = "21.1.3" // 2.1.0 min supported AVI controller version
 
 type client struct {
 	ControllerParams   *avi_models.AviControllerParams
@@ -81,6 +84,10 @@ func (c *client) VerifyAccount(params *avi_models.AviControllerParams) (bool, er
 	apiVersion, err := aviClient.AviSession.GetControllerVersion()
 	if err != nil {
 		return false, errors.Wrap(err, "unable to get API version")
+	}
+
+	if utils.CompareVersions(apiVersion, "<", aviMinSupportVersion) {
+		return false, errors.Errorf("current TKG version is not supported for the Avi version %s,  Avi must be %s or more", apiVersion, aviMinSupportVersion)
 	}
 
 	SetVersion := session.SetVersion(apiVersion)
