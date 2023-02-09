@@ -23,6 +23,7 @@ var ClusterAttributesToLegacyVariablesMapCommon = map[string]string{
 	"spec.topology.variables.proxy.httpProxy":     TKGHTTPProxy,        // TKG_HTTP_PROXY
 	"spec.topology.variables.proxy.httpsProxy":    TKGHTTPSProxy,       // TKG_HTTPS_PROXY
 	"spec.topology.variables.proxy.noProxy":       TKGNoProxy,          // TKG_NO_PROXY
+	"spec.topology.variables.proxy.systemWide":    TKGSystemWideProxy,  // TKG_SYSTEM_WIDE_PROXY
 
 	"spec.topology.variables.imageRepository.host":                     ConfigVariableCustomImageRepository,
 	"spec.topology.variables.imageRepository.tlsCertificateValidation": ConfigVariableCustomImageRepositorySkipTLSVerify,

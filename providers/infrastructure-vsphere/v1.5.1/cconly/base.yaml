@@ -315,6 +315,9 @@ spec:
             items:
               type: string
             default: []
+          systemWide:
+            type: boolean
+            default: false
         required:
         - httpProxy
         - httpsProxy
@@ -2157,3 +2160,30 @@ spec:
             encoding: base64
             permissions: "0444"
             {{- end }}
+  - name: systemWideProxy
+    enabledIf: '{{ .proxy.systemWide }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/profile
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/profile
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/profile
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/environment
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/environment
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/environment
