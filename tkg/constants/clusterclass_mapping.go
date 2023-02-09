@@ -246,8 +246,6 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	TopologyWorkersMachineDeploymentsReplicas2:      ConfigVariableWorkerMachineCount2,
 	TopologyWorkersMachineDeploymentsFailureDomain2: ConfigVariableVsphereAz2,
 
-	"spec.topology.variables.customTDNFRepository.ip":          ConfigVariableCustomTDNFRepositoryIP,
-	"spec.topology.variables.customTDNFRepository.fqdn":        ConfigVariableCustomTDNFRepositoryFQDN,
 	"spec.topology.variables.customTDNFRepository.certificate": ConfigVariableCustomTDNFRepositoryCertificate,
 }
 

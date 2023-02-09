@@ -997,12 +997,6 @@ def get_vsphere_vars():
     end
 
     customTDNFRepository = {}
-    if data.values["CUSTOM_TDNF_REPOSITORY_FQDN"] != "":
-        customTDNFRepository["fqdn"] = data.values["CUSTOM_TDNF_REPOSITORY_FQDN"]
-    end
-    if data.values["CUSTOM_TDNF_REPOSITORY_IP"] != "":
-        customTDNFRepository["ip"] = data.values["CUSTOM_TDNF_REPOSITORY_IP"]
-    end
     if data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"] != "":
         customTDNFRepository["certificate"] = data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"]
     end

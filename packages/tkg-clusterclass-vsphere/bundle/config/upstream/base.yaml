@@ -595,15 +595,8 @@ spec:
       openAPIV3Schema:
         type: object
         properties:
-          fqdn:
-            type: string
-          ip:
-            type: string
           certificate:
             type: string
-        required:
-        - fqdn
-        - ip
   patches:
   - name: etcdExtraArgs
     definitions:
@@ -2125,9 +2118,6 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: 'echo "{{.customTDNFRepository.fqdn}} {{.customTDNFRepository.ip}}" >> /etc/hosts'
-      - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         value: '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
       - op: add
@@ -2151,9 +2141,6 @@ spec:
             names:
             - tkg-worker
       jsonPatches:
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: 'echo "{{.customTDNFRepository.fqdn}} {{.customTDNFRepository.ip}}" >> /etc/hosts'
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         value: '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
