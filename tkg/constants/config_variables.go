@@ -192,7 +192,7 @@ const (
 	TKGHTTPProxyEnabled = "TKG_HTTP_PROXY_ENABLED"
 	TKGNoProxy          = "TKG_NO_PROXY"
 	TKGProxyCACert      = "TKG_PROXY_CA_CERT"
-	TKGSystemWideProxy  = "TKG_SYSTEM_WIDE_PROXY"
+	TKGSystemWideProxy  = "TKG_NODE_SYSTEM_WIDE_PROXY"
 	EnableAuditLogging  = "ENABLE_AUDIT_LOGGING"
 	TKGIPFamily         = "TKG_IP_FAMILY"
 
