@@ -85,6 +85,8 @@ type ComponentInfo struct {
 	AwsRegionToAMIMap                  map[string][]tkgconfigbom.AMIInfo
 	AzureImage                         tkgconfigbom.AzureInfo
 	OsInfo                             tkgconfigbom.OSInfo
+	KubeVipFullImagePath               string
+	KubeVipTag                         string
 }
 
 type upgradeStatus string
@@ -502,6 +504,20 @@ func (c *TkgClient) getUpgradeClusterConfig(options *UpgradeClusterOptions) (*Cl
 		upgradeInfo.UpgradeComponentInfo.OsInfo = azureVMImage.OSInfo
 	}
 
+	// get kube-vip image from bom
+	if com, ok := bomConfiguration.Components["kube-vip"]; ok {
+		if len(com) >= 1 {
+			if img, ok := com[0].Images["kubeVipImage"]; ok {
+				upgradeInfo.UpgradeComponentInfo.KubeVipTag = img.Tag
+				upgradeInfo.UpgradeComponentInfo.KubeVipFullImagePath = bomConfiguration.ImageConfig.ImageRepository + "/" + img.ImagePath
+			} else {
+				log.Warning("not able to find kube-vip image tag image from bom bom kubeVipImage")
+			}
+		} else {
+			log.Warning("not able to find kube-vip from bom components list")
+		}
+	}
+
 	// We are hard-coding the assumption that during upgrade imageConfig.ImageRepository should take precedence
 	// over whatever is spelled out in the KubeAdmConfigSpec section.
 	// This change also implies when imageConfig.ImageRepository differs from kubeadmConfigSpec's repository,
@@ -549,6 +565,15 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 	clusterUpgradeConfig.ActualComponentInfo.EtcdImageRepository = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ImageRepository
 	clusterUpgradeConfig.ActualComponentInfo.EtcdImageTag = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ImageTag
 	clusterUpgradeConfig.ActualComponentInfo.EtcdExtraArgs = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs
+
+	if kcp.Spec.MachineTemplate.InfrastructureRef.Kind == constants.KindVSphereMachineTemplate {
+		image, tag, err := c.GetKubevipImageAndTag(kcp)
+		if err != nil {
+			return errors.Wrapf(err, "unable to extract kube-vip image")
+		}
+		clusterUpgradeConfig.ActualComponentInfo.KubeVipFullImagePath = image
+		clusterUpgradeConfig.ActualComponentInfo.KubeVipTag = tag
+	}
 
 	clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateName = kcp.Spec.MachineTemplate.InfrastructureRef.Name
 	clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateNamespace = kcp.Spec.MachineTemplate.InfrastructureRef.Namespace
@@ -1077,7 +1102,10 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 	// If iaas == vsphere, attempt increasing kube-vip parameters
 	if currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind == constants.KindVSphereMachineTemplate {
 		log.V(6).Infof("Kind %s", currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind)
-		newKCP, _ = c.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
+		newKCP, err = c.UpdateKubeVipConfigInKCP(currentKCP, clusterUpgradeConfig.UpgradeComponentInfo)
+		if err != nil {
+			return errors.Wrapf(err, "unable to update kube-vip config")
+		}
 		if newKCP != nil {
 			currentKCP = newKCP
 		}
