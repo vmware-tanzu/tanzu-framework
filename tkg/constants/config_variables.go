@@ -293,6 +293,10 @@ const (
 	ConfigVariableKubevipLoadbalancerIPRanges = "KUBEVIP_LOADBALANCER_IP_RANGES"
 	ConfigVariableFeatureFlagPackageBasedCC   = "FEATURE_FLAG_PACKAGE_BASED_CC"
 
+	ConfigVariableCustomTDNFRepositoryIP          = "CUSTOM_TDNF_REPOSITORY_IP"
+	ConfigVariableCustomTDNFRepositoryFQDN        = "CUSTOM_TDNF_REPOSITORY_FQDN"
+	ConfigVariableCustomTDNFRepositoryCertificate = "CUSTOM_TDNF_REPOSITORY_CERTIFICATE"
+
 	// Config variable for enabling tkgs routable pod feature
 	ConfigVariableEnableTKGSRoutablePod = "ENABLE_TKGS_ROUTABLE_POD"
 )

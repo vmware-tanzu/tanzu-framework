@@ -245,6 +245,10 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	TopologyWorkersMachineDeploymentsName2:          "",
 	TopologyWorkersMachineDeploymentsReplicas2:      ConfigVariableWorkerMachineCount2,
 	TopologyWorkersMachineDeploymentsFailureDomain2: ConfigVariableVsphereAz2,
+
+	"spec.topology.variables.customTDNFRepository.ip":          ConfigVariableCustomTDNFRepositoryIP,
+	"spec.topology.variables.customTDNFRepository.fqdn":        ConfigVariableCustomTDNFRepositoryFQDN,
+	"spec.topology.variables.customTDNFRepository.certificate": ConfigVariableCustomTDNFRepositoryCertificate,
 }
 
 // ClusterAttributesToLegacyVariablesMapDocker has, Docker Cluster object attributes path mapped to legacy variable names.

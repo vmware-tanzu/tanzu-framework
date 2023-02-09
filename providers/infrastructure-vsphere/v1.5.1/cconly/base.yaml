@@ -2115,7 +2115,7 @@ spec:
             {{- range .additionalFQDN }}
             - {{ . }}
             {{- end }}
-  - name: trustTDNFRepositoryCertificate
+  - name: addCustomTDNFRepository
     enabledIf: '{{ not (empty .customTDNFRepository) }}'
     definitions:
     - selector:
