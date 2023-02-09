@@ -193,6 +193,8 @@ return {
 "ENABLE_MHC_CONTROL_PLANE": ["vsphere", "aws", "azure", "docker", "oci"],
 "MHC_UNKNOWN_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker", "oci"],
 "MHC_FALSE_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker", "oci"],
+"MHC_MAX_UNHEALTHY_CONTROL_PLANE": ["vsphere", "aws", "azure", "docker", "oci"],
+"MHC_MAX_UNHEALTHY_WORKER_NODE": ["vsphere", "aws", "azure", "docker", "oci"],
 
 "TKG_CUSTOM_IMAGE_REPOSITORY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker", "oci"],
