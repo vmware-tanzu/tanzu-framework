@@ -605,6 +605,10 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.ValidateExtraArgs(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	if err = c.ValidateKubeVipLBConfiguration(TkgLabelClusterRoleManagement); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
