@@ -2118,10 +2118,10 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         value: '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
       - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         value: 'rm -rf /etc/yum.repos.d/*'
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/files/-
@@ -2148,7 +2148,7 @@ spec:
         path: /spec/template/spec/preKubeadmCommands/-
         value: 'rm -rf /etc/yum.repos.d/*'
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        path: /spec/template/spec/files/-
         valueFrom:
           template: |
             {{ if .customTDNFRepository.certificate -}}
