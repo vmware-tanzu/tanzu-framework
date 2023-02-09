@@ -203,6 +203,8 @@ return {
 "TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker", "oci"],
 
+"CUSTOM_TDNF_REPOSITORY_CERTIFICATE": ["vsphere"],
+
 "TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker", "oci"],
 
 "ENABLE_AUDIT_LOGGING": ["vsphere", "aws", "azure", "docker", "oci"],
