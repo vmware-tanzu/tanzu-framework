@@ -1723,6 +1723,7 @@ var _ = Describe("ApplyClusterBootstrap()", func() {
 
 	JustBeforeEach(func() {
 		rw, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("", tkgConfigPath)
+		Expect(err).NotTo(HaveOccurred())
 		tkgClient, err = CreateTKGClientWithConfigReaderWriter(tkgConfigPath, testingDir, defaultTKGBoMFileForTesting, 2*time.Second, rw)
 		Expect(err).NotTo(HaveOccurred())
 
