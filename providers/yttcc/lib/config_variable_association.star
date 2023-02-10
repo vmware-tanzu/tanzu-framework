@@ -205,6 +205,8 @@ return {
 "TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker", "oci"],
 
+"CUSTOM_TDNF_REPOSITORY_CERTIFICATE": ["vsphere"],
+
 "TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker", "oci"],
 
 "ENABLE_AUDIT_LOGGING": ["vsphere", "aws", "azure", "docker", "oci"],
@@ -407,7 +409,6 @@ def get_cluster_variables():
             "enabled": data.values["ENABLE_AUDIT_LOGGING"]
         }
     end
-
 
     additionalTrustedCAs = []
     #! TKG_PROXY_CA_CERT has higher priority than TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
@@ -999,6 +1000,14 @@ def get_vsphere_vars():
         vars["additionalFQDN"] = data.values["VSPHERE_ADDITIONAL_FQDN"].replace(" ", "").split(",")
     end
 
+    customTDNFRepository = {}
+    if data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"] != "":
+        customTDNFRepository["certificate"] = data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"]
+    end
+    if customTDNFRepository != {}:
+        vars["customTDNFRepository"] = customTDNFRepository
+    end
+
     return vars
 end
 
@@ -1058,6 +1067,6 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "externalControlPlaneEndpointSubnetId", "externalControlPlaneSubnetId", "externalWorkerSubnetId",
         "nodePvTransitEncryption", "controlPlaneMachineShape", "controlPlaneMachineOcpus",
         "controlPlanePvTransitEncryption",
-        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
+        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA",
         "controlPlaneCertificateRotation", "podSecurityStandard", "workerKubeletExtraArgs", "controlPlaneKubeletExtraArgs",
         "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs", "eventRateLimitConf"]
