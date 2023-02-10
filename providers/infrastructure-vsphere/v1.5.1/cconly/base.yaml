@@ -112,6 +112,8 @@ spec:
         - echo "127.0.0.1   localhost" >>/etc/hosts
         - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
         - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
+        postKubeadmCommands:
+        - echo "running postKubeadmCommands..."
         users:
         - name: capv
           sshAuthorizedKeys:
@@ -315,6 +317,9 @@ spec:
             items:
               type: string
             default: []
+          systemWide:
+            type: boolean
+            default: false
         required:
         - httpProxy
         - httpsProxy
@@ -589,14 +594,6 @@ spec:
         default:
           activate: true
           daysBefore: 90
-  - name: customTDNFRepository
-    required: false
-    schema:
-      openAPIV3Schema:
-        type: object
-        properties:
-          certificate:
-            type: string
   patches:
   - name: etcdExtraArgs
     definitions:
@@ -2108,8 +2105,8 @@ spec:
             {{- range .additionalFQDN }}
             - {{ . }}
             {{- end }}
-  - name: addCustomTDNFRepository
-    enabledIf: '{{ not (empty .customTDNFRepository) }}'
+  - name: systemWideProxy
+    enabledIf: '{{ .proxy.systemWide }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -2118,21 +2115,23 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
+        path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
+        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/profile
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: 'rm -rf /etc/yum.repos.d/*'
+        path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
+        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/profile
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/files/-
-        valueFrom:
-          template: |
-            {{ if .customTDNFRepository.certificate -}}
-            path: /etc/ssl/certs/private-tdnf-repository-ca.pem
-            content: {{.customTDNFRepository.certificate}}
-            encoding: base64
-            permissions: "0444"
-            {{- end }}
+        path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
+        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/profile
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
+        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/environment
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
+        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/environment
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
+        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/environment
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -2142,18 +2141,20 @@ spec:
             - tkg-worker
       jsonPatches:
       - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        value: '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
+        path: /spec/template/spec/postKubeadmCommands/-
+        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/profile
       - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        value: 'rm -rf /etc/yum.repos.d/*'
+        path: /spec/template/spec/postKubeadmCommands/-
+        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/profile
       - op: add
-        path: /spec/template/spec/files/-
-        valueFrom:
-          template: |
-            {{ if .customTDNFRepository.certificate -}}
-            path: /etc/ssl/certs/private-tdnf-repository-ca.pem
-            content: {{.customTDNFRepository.certificate}}
-            encoding: base64
-            permissions: "0444"
-            {{- end }}
+        path: /spec/template/spec/postKubeadmCommands/-
+        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/profile
+      - op: add
+        path: /spec/template/spec/postKubeadmCommands/-
+        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/environment
+      - op: add
+        path: /spec/template/spec/postKubeadmCommands/-
+        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/environment
+      - op: add
+        path: /spec/template/spec/postKubeadmCommands/-
+        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/environment
