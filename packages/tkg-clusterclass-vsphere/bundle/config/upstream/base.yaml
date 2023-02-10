@@ -2170,6 +2170,32 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/profile
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/profile
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/profile
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/environment
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/environment
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/environment
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/profile
       - op: add
