@@ -594,6 +594,14 @@ spec:
         default:
           activate: true
           daysBefore: 90
+  - name: customTDNFRepository
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          certificate:
+            type: string
   patches:
   - name: etcdExtraArgs
     definitions:
@@ -2104,6 +2112,55 @@ spec:
           template: |
             {{- range .additionalFQDN }}
             - {{ . }}
+            {{- end }}
+  - name: addCustomTDNFRepository
+    enabledIf: '{{ not (empty .customTDNFRepository) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: 'rm -rf /etc/yum.repos.d/*'
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: |
+            {{ if .customTDNFRepository.certificate -}}
+            path: /etc/ssl/certs/private-tdnf-repository-ca.pem
+            content: {{.customTDNFRepository.certificate}}
+            encoding: base64
+            permissions: "0444"
+            {{- end }}
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: 'rm -rf /etc/yum.repos.d/*'
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            {{ if .customTDNFRepository.certificate -}}
+            path: /etc/ssl/certs/private-tdnf-repository-ca.pem
+            content: {{.customTDNFRepository.certificate}}
+            encoding: base64
+            permissions: "0444"
             {{- end }}
   - name: systemWideProxy
     enabledIf: '{{ .proxy.systemWide }}'
