@@ -2171,22 +2171,34 @@ spec:
       jsonPatches:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/profile
+        valueFrom:
+          template: |
+            echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/profile
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/profile
+        valueFrom:
+          template: |
+            echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/profile
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/profile
+        valueFrom:
+          template: |
+            echo 'export NO_PROXY={{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}' >> /etc/profile
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/environment
+        valueFrom:
+          template: |
+            echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/environment
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/environment
+        valueFrom:
+          template: |
+            echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/environment
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/environment
+        valueFrom:
+          template: |
+            echo 'export NO_PROXY={{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}' >> /etc/environment
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -2197,19 +2209,31 @@ spec:
       jsonPatches:
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/profile
+        valueFrom:
+          template: |
+            echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/profile
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/profile
+        valueFrom:
+          template: |
+            echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/profile
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/profile
+        valueFrom:
+          template: |
+            echo 'export NO_PROXY={{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}' >> /etc/profile
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/environment
+        valueFrom:
+          template: |
+            echo "export HTTP_PROXY={{- .proxy.httpProxy }}" >> /etc/environment
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/environment
+        valueFrom:
+          template: |
+            echo "export HTTPS_PROXY= {{- .proxy.httpsProxy }}" >> /etc/environment
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: echo "export NO_PROXY={{- .proxy.noProxy }}" >> /etc/environment
+        valueFrom:
+          template: |
+            echo 'export NO_PROXY={{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}' >> /etc/environment
