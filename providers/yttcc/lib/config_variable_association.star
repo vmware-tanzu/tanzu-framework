@@ -204,6 +204,7 @@ return {
 "TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker", "oci"],
+"TKG_NODE_SYSTEM_WIDE_PROXY": ["vsphere"],
 
 "CUSTOM_TDNF_REPOSITORY_CERTIFICATE": ["vsphere"],
 
@@ -352,6 +353,7 @@ def get_cluster_variables():
                         "httpProxy": data.values["TKG_HTTP_PROXY"],
                         "httpsProxy": data.values["TKG_HTTPS_PROXY"],
                         "noProxy": data.values["TKG_NO_PROXY"].split(","),
+                        "systemWide": data.values["TKG_NODE_SYSTEM_WIDE_PROXY"], 
                     }
                 end
             end
