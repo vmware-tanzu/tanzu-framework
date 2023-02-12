@@ -20,7 +20,7 @@ spec:
     - echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
     #@ end
     #@overlay/append
-    - systemctl restart containerd
+    - systemctl restart containerd && while [ ! -S /var/run/containerd/containerd.sock ]; do sleep 1; done
 
 #@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
@@ -41,6 +41,6 @@ spec:
       - echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
       #@ end
       #@overlay/append
-      - systemctl restart containerd
+      - systemctl restart containerd && while [ ! -S /var/run/containerd/containerd.sock ]; do sleep 1; done
 #@ end
 #@ end
