@@ -6,8 +6,11 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
+
+	"golang.org/x/mod/semver"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
@@ -15,6 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 )
@@ -94,20 +98,20 @@ type antreaConfigDataValue struct {
 }
 
 type antreaFeatureGates struct {
-	AntreaProxy        bool `yaml:"AntreaProxy"`
-	EndpointSlice      bool `yaml:"EndpointSlice"`
-	AntreaPolicy       bool `yaml:"AntreaPolicy"`
-	FlowExporter       bool `yaml:"FlowExporter"`
-	Egress             bool `yaml:"Egress"`
-	NodePortLocal      bool `yaml:"NodePortLocal"`
-	AntreaTraceflow    bool `yaml:"AntreaTraceflow"`
-	NetworkPolicyStats bool `yaml:"NetworkPolicyStats"`
-	AntreaIPAM         bool `yaml:"AntreaIPAM"`
-	ServiceExternalIP  bool `yaml:"ServiceExternalIP"`
-	Multicast          bool `yaml:"Multicast"`
-	MultiCluster       bool `yaml:"Multicluster"`
-	SecondaryNetwork   bool `yaml:"SecondaryNetwork"`
-	TrafficControl     bool `yaml:"TrafficControl"`
+	AntreaProxy        bool  `yaml:"AntreaProxy"`
+	EndpointSlice      bool  `yaml:"EndpointSlice"`
+	AntreaPolicy       bool  `yaml:"AntreaPolicy"`
+	FlowExporter       bool  `yaml:"FlowExporter"`
+	Egress             bool  `yaml:"Egress"`
+	NodePortLocal      bool  `yaml:"NodePortLocal"`
+	AntreaTraceflow    bool  `yaml:"AntreaTraceflow"`
+	NetworkPolicyStats bool  `yaml:"NetworkPolicyStats"`
+	AntreaIPAM         bool  `yaml:"AntreaIPAM"`
+	ServiceExternalIP  bool  `yaml:"ServiceExternalIP"`
+	Multicast          bool  `yaml:"Multicast"`
+	MultiCluster       *bool `yaml:"Multicluster,omitempty"`
+	SecondaryNetwork   *bool `yaml:"SecondaryNetwork,omitempty"`
+	TrafficControl     *bool `yaml:"TrafficControl,omitempty"`
 }
 
 // ClusterToAntreaConfig returns a list of Requests with AntreaConfig ObjectKey
@@ -162,6 +166,11 @@ func (r *AntreaConfigReconciler) ClusterToAntreaConfig(o client.Object) []ctrl.R
 }
 
 func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.AntreaConfig) (*antreaConfigSpec, error) {
+
+	packageName := config.GetLabels()[addontypes.PackageNameLabel]
+	version := strings.TrimPrefix(strings.Split(packageName, "---")[0], "antrea.tanzu.vmware.com.")
+	version = "v" + version
+
 	configSpec := &antreaConfigSpec{}
 
 	// Derive InfraProvider from the cluster
@@ -193,9 +202,7 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.An
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.PollInterval = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.PollInterval
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.ActiveFlowTimeout = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.ActiveFlowTimeout
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.IdleFlowTimeout = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.IdleFlowTimeout
-	configSpec.Antrea.AntreaConfigDataValue.Multicast.IGMPQueryInterval = config.Spec.Antrea.AntreaConfigDataValue.Multicast.IGMPQueryInterval
-	configSpec.Antrea.AntreaConfigDataValue.MultiCluster.Enable = config.Spec.Antrea.AntreaConfigDataValue.MultiCluster.Enable
-	configSpec.Antrea.AntreaConfigDataValue.MultiCluster.Namespace = config.Spec.Antrea.AntreaConfigDataValue.MultiCluster.Namespace
+
 	configSpec.Antrea.AntreaConfigDataValue.KubeAPIServerOverride = config.Spec.Antrea.AntreaConfigDataValue.KubeAPIServerOverride
 	configSpec.Antrea.AntreaConfigDataValue.transportInterface = config.Spec.Antrea.AntreaConfigDataValue.TransportInterface
 	configSpec.Antrea.AntreaConfigDataValue.transportInterfaceCIDRs = config.Spec.Antrea.AntreaConfigDataValue.TransportInterfaceCIDRs
@@ -208,9 +215,15 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.An
 	configSpec.Antrea.AntreaConfigDataValue.TLSCipherSuites = config.Spec.Antrea.AntreaConfigDataValue.TLSCipherSuites
 	configSpec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload = config.Spec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload
 	configSpec.Antrea.AntreaConfigDataValue.DefaultMTU = config.Spec.Antrea.AntreaConfigDataValue.DefaultMTU
-	configSpec.Antrea.AntreaConfigDataValue.DNSServerOverride = config.Spec.Antrea.AntreaConfigDataValue.DNSServerOverride
-	configSpec.Antrea.AntreaConfigDataValue.DisableTXChecksumOffload = config.Spec.Antrea.AntreaConfigDataValue.DisableTXChecksumOffload
-	configSpec.Antrea.AntreaConfigDataValue.EnableBridgingMode = config.Spec.Antrea.AntreaConfigDataValue.EnableBridgingMode
+
+	if semver.Compare(version, "v1.7.1") >= 0 {
+		configSpec.Antrea.AntreaConfigDataValue.MultiCluster.Enable = config.Spec.Antrea.AntreaConfigDataValue.MultiCluster.Enable
+		configSpec.Antrea.AntreaConfigDataValue.MultiCluster.Namespace = config.Spec.Antrea.AntreaConfigDataValue.MultiCluster.Namespace
+		configSpec.Antrea.AntreaConfigDataValue.EnableBridgingMode = config.Spec.Antrea.AntreaConfigDataValue.EnableBridgingMode
+		configSpec.Antrea.AntreaConfigDataValue.DisableTXChecksumOffload = config.Spec.Antrea.AntreaConfigDataValue.DisableTXChecksumOffload
+		configSpec.Antrea.AntreaConfigDataValue.DNSServerOverride = config.Spec.Antrea.AntreaConfigDataValue.DNSServerOverride
+		configSpec.Antrea.AntreaConfigDataValue.Multicast.IGMPQueryInterval = config.Spec.Antrea.AntreaConfigDataValue.Multicast.IGMPQueryInterval
+	}
 
 	// FeatureGates
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy
@@ -224,8 +237,12 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.An
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaIPAM = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaIPAM
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.ServiceExternalIP = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.ServiceExternalIP
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.Multicast = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.Multicast
-	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster
-	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork
-	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl
+
+	if semver.Compare(version, "v1.7.1") >= 0 {
+		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork
+		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl
+		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster
+	}
+
 	return configSpec, nil
 }
