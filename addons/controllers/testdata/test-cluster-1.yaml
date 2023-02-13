@@ -112,6 +112,7 @@ metadata:
   labels:
     tkg.tanzu.vmware.com/addon-name: antrea
     tkg.tanzu.vmware.com/cluster-name: test-cluster-1
+    tkg.tanzu.vmware.com/package-name: antrea.tanzu.vmware.com.1.7.2---tkg.1-advanced
 #  annotations:
 #    tkg.tanzu.vmware.com/remote-app: "true"
 type: tkg.tanzu.vmware.com/addon

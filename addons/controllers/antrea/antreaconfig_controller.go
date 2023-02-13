@@ -8,6 +8,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/go-logr/logr"
 	yaml "gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
@@ -23,6 +25,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
@@ -69,6 +73,12 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok {
 		log.Info(fmt.Sprintf("resource '%v' is a config template. Skipping reconciling", req.NamespacedName))
 		return ctrl.Result{}, nil
+	}
+
+	labels := antreaConfig.GetLabels()
+	if _, ok := labels[addontypes.PackageNameLabel]; !ok {
+		r.Log.Info(fmt.Sprintf("AntreaConfig resource '%v' does not contains package name label", req.NamespacedName))
+		return ctrl.Result{}, errors.New("AntreaConfig does not contains package name label")
 	}
 
 	// deep copy AntreaConfig to avoid issues if in the future other controllers where interacting with the same copy
