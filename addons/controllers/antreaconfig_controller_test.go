@@ -286,7 +286,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 			By("Create antrea config in the cluster's namespace with expected name pattern", func() {
 				datavalues := &cniv1alpha1.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
-				antreaConfig := genearateAntreaConfig(configName, clusterNamespace, datavalues)
+				antreaConfig := generateAntreaConfig(configName, clusterNamespace, datavalues)
 				err := k8sClient.Create(ctx, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
 				err = k8sClient.Get(ctx, client.ObjectKeyFromObject(antreaConfig), antreaConfig)
@@ -361,7 +361,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 			By("Create antrea config in the cluster's namespace with random name", func() {
 				datavalues := &cniv1alpha1.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
-				antreaConfig := genearateAntreaConfig(configName, clusterNamespace, datavalues)
+				antreaConfig := generateAntreaConfig(configName, clusterNamespace, datavalues)
 				err := k8sClient.Create(ctx, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
 				err = k8sClient.Get(ctx, client.ObjectKeyFromObject(antreaConfig), antreaConfig)
@@ -415,11 +415,14 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 	})
 })
 
-func genearateAntreaConfig(name, namespace string, datavalues *cniv1alpha1.AntreaConfigDataValue) *cniv1alpha1.AntreaConfig {
+func generateAntreaConfig(name, namespace string, datavalues *cniv1alpha1.AntreaConfigDataValue) *cniv1alpha1.AntreaConfig {
+	labels := map[string]string{}
+	labels["tkg.tanzu.vmware.com/package-name"] = "antrea.tanzu.vmware.com.1.7.2---tkg.1-advanced"
 	config := &cniv1alpha1.AntreaConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
+			Labels:    labels,
 		},
 		Spec: cniv1alpha1.AntreaConfigSpec{
 			Antrea: cniv1alpha1.Antrea{

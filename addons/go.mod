@@ -22,6 +22,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20220907220230-c1137d344dd3
 	github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd
 	github.com/vmware-tanzu/vm-operator/external/tanzu-topology v0.0.0-20211209213435-0f4ab286f64f
+	golang.org/x/mod v0.7.0
 	golang.org/x/text v0.5.0
 	golang.org/x/tools v0.1.12
 	gopkg.in/yaml.v2 v2.4.0
@@ -102,7 +103,6 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.22.0 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
-	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/oauth2 v0.3.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
