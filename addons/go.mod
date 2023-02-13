@@ -18,6 +18,7 @@ require (
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.26.0
+	github.com/vmware-tanzu/nsx-operator v0.0.0-20221102072746-f7b4cc7cce41
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs v0.0.0-20220907220230-c1137d344dd3
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20220907220230-c1137d344dd3
 	github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd

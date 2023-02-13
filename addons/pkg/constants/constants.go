@@ -285,6 +285,9 @@ const (
 	// UnmanagedCNI is the label for clusters that use unmanaged CNI
 	UnmanagedCNI = "tkg.tanzu.vmware.com/unmanaged-cni"
 
+	// VsphereAntreaConfigProviderServiceAccountAggregatedClusterRole is the name of ClusterRole created by controllers that use ProviderServiceAccount
+	VsphereAntreaConfigProviderServiceAccountAggregatedClusterRole = "addons-vsphere-antreaConfig-providerserviceaccount-aggregatedrole"
+
 	// VsphereCPIProviderServiceAccountAggregatedClusterRole is the name of ClusterRole created by controllers that use ProviderServiceAccount
 	VsphereCPIProviderServiceAccountAggregatedClusterRole = "addons-vsphere-cpi-providerserviceaccount-aggregatedrole"
 
