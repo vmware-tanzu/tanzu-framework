@@ -5,7 +5,6 @@ package client
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"strconv"
 	"strings"
@@ -30,7 +29,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/avi"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -38,7 +36,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 // ErrorBlockUpgradeTMCIncompatible defines the error message to display during upgrade when cluster is registred to TMC and TMC does not support latest version of TKG
@@ -265,19 +262,6 @@ func (c *TkgClient) validateAndconfigure(options *UpgradeClusterOptions, regiona
 		}
 	}
 
-	if providerType == VSphereProviderName {
-		if akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(regionalClusterClient, clusterName); err != nil {
-			return errors.Wrap(err, "unable to get akoo addon secret values")
-		} else if found {
-			configValues := make(map[string]interface{})
-			if err = RetrieveAKOOVariablesFromAddonSecretValues(clusterName, configValues, akooAddonSecretValues); err != nil {
-				return errors.Wrap(err, "unable to handle the akoo specific variables")
-			}
-			if err = c.validateCompatibilityWithAVIController(configValues); err != nil {
-				return err
-			}
-		}
-	}
 	return nil
 }
 
@@ -666,27 +650,6 @@ func (c *TkgClient) validateCompatibilityWithTMC(regionalClusterClient clustercl
 	}
 
 	return errors.Errorf(ErrorBlockUpgradeTMCIncompatible, tkgVersion)
-}
-
-// validateCompatibilityWithAVIController validates compatibility of new TKG version with current AVI controller
-func (c *TkgClient) validateCompatibilityWithAVIController(configValues map[string]interface{}) error {
-	aviCA, err := base64.StdEncoding.DecodeString(configValues[constants.ConfigVariableAviControllerCA].(string))
-	if err != nil {
-		return errors.Wrap(err, "unable to base64 decode avi certification")
-	}
-	aviControllerParams := &models.AviControllerParams{
-		Username: configValues[constants.ConfigVariableAviControllerUsername].(string),
-		Password: configValues[constants.ConfigVariableAviControllerPassword].(string),
-		Host:     configValues[constants.ConfigVariableAviControllerAddress].(string),
-		Tenant:   "admin",
-		CAData:   string(aviCA),
-	}
-	if authed, err := avi.New().VerifyAccount(aviControllerParams); err != nil {
-		return err
-	} else if !authed {
-		return errors.Errorf("unable to authenticate avi controller due to incorrect credentials")
-	}
-	return nil
 }
 
 // upgradeTelemetryImage will upgrade the telemetry image if the management-cluster is opted into telemetry
