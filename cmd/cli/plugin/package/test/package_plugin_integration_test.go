@@ -102,7 +102,7 @@ var (
 	result                         packagelib.PackagePluginResult
 	resultImgPullSecret            secretlib.SecretPluginResult
 	clusterCreationTimeout         = 30 * time.Minute
-	pollInterval                   = 20 * time.Second
+	pollInterval                   = 25 * time.Second
 	pollTimeout                    = 10 * time.Minute
 	testImgPullSecretName          = "test-secret"
 	testNamespace                  = "test-ns"
