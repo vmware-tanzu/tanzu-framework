@@ -336,7 +336,16 @@ spec:
     storage: false
     subresources:
       status: {}
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - description: Type of Azure Identity
+      jsonPath: .spec.type
+      name: Type
+      type: string
+    - description: Time duration since creation of this AzureClusterIdentity
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1beta1
     schema:
       openAPIV3Schema:
         description: AzureClusterIdentity is the Schema for the azureclustersidentities
@@ -933,7 +942,7 @@ spec:
                   maps to Availability Zone with an Azure Region (if the region support
                   them). An Availability Zone is a separate data center within a region
                   and they can be used to ensure the cluster is more resilient to
-                  failure. See: https://docs.microsoft.com/en-us/azure/availability-zones/az-overview
+                  failure. See: https://learn.microsoft.com/azure/reliability/availability-zones-overview
                   This list will be used by Cluster API to try and spread the machines
                   across the failure domains.'
                 type: object
@@ -1729,7 +1738,7 @@ spec:
                   maps to Availability Zone with an Azure Region (if the region support
                   them). An Availability Zone is a separate data center within a region
                   and they can be used to ensure the cluster is more resilient to
-                  failure. See: https://docs.microsoft.com/en-us/azure/availability-zones/az-overview
+                  failure. See: https://learn.microsoft.com/azure/reliability/availability-zones-overview
                   This list will be used by Cluster API to try and spread the machines
                   across the failure domains.'
                 type: object
@@ -1810,6 +1819,10 @@ spec:
       name: Endpoint
       priority: 1
       type: string
+    - description: Time duration since creation of this AzureCluster
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1beta1
     schema:
       openAPIV3Schema:
@@ -2242,6 +2255,16 @@ spec:
                     description: APIServerLB is the configuration for the control-plane
                       load balancer.
                     properties:
+                      backendPool:
+                        description: BackendPool describes the backend pool of the
+                          load balancer.
+                        properties:
+                          name:
+                            description: Name specifies the name of backend pool for
+                              the load balancer. If not specified, the default name
+                              will be set, depending on the load balancer role.
+                            type: string
+                        type: object
                       frontendIPs:
                         items:
                           description: FrontendIP defines a load balancer frontend
@@ -2315,6 +2338,16 @@ spec:
                       APIServerLB, and is used only in private clusters (optionally)
                       for enabling outbound traffic.
                     properties:
+                      backendPool:
+                        description: BackendPool describes the backend pool of the
+                          load balancer.
+                        properties:
+                          name:
+                            description: Name specifies the name of backend pool for
+                              the load balancer. If not specified, the default name
+                              will be set, depending on the load balancer role.
+                            type: string
+                        type: object
                       frontendIPs:
                         items:
                           description: FrontendIP defines a load balancer frontend
@@ -2386,6 +2419,16 @@ spec:
                     description: NodeOutboundLB is the configuration for the node
                       outbound load balancer.
                     properties:
+                      backendPool:
+                        description: BackendPool describes the backend pool of the
+                          load balancer.
+                        properties:
+                          name:
+                            description: Name specifies the name of backend pool for
+                              the load balancer. If not specified, the default name
+                              will be set, depending on the load balancer role.
+                            type: string
+                        type: object
                       frontendIPs:
                         items:
                           description: FrontendIP defines a load balancer frontend
@@ -2790,7 +2833,7 @@ spec:
                   maps to Availability Zone with an Azure Region (if the region support
                   them). An Availability Zone is a separate data center within a region
                   and they can be used to ensure the cluster is more resilient to
-                  failure. See: https://docs.microsoft.com/en-us/azure/availability-zones/az-overview
+                  failure. See: https://learn.microsoft.com/azure/reliability/availability-zones-overview
                   This list will be used by Cluster API to try and spread the machines
                   across the failure domains.'
                 type: object
@@ -3938,6 +3981,10 @@ spec:
       name: VMSS VM ID
       priority: 1
       type: string
+    - description: Time duration since creation of this AzureMachinePoolMachine
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1beta1
     schema:
       openAPIV3Schema:
@@ -3969,7 +4016,6 @@ spec:
                   Scale Set
                 type: string
             required:
-            - instanceID
             - providerID
             type: object
           status:
@@ -4131,8 +4177,6 @@ spec:
               version:
                 description: Version defines the Kubernetes version for the VM Instance
                 type: string
-            required:
-            - latestModelApplied
             type: object
         type: object
     served: true
@@ -5482,6 +5526,10 @@ spec:
       name: VM Size
       priority: 1
       type: string
+    - description: Time duration since creation of this AzureMachinePool
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1beta1
     schema:
       openAPIV3Schema:
@@ -5531,6 +5579,14 @@ spec:
                   controller will spend on draining a node. The default value is 0,
                   meaning that the node can be drained without any time limitations.
                   NOTE: NodeDrainTimeout is different from `kubectl drain --timeout`'
+                type: string
+              orchestrationMode:
+                default: Uniform
+                description: OrchestrationMode specifies the orchestration mode for
+                  the Virtual Machine Scale Set
+                enum:
+                - Flexible
+                - Uniform
                 type: string
               providerID:
                 description: ProviderID is the identification ID of the Virtual Machine
@@ -5624,11 +5680,8 @@ spec:
                   virtual machine within the Machine Pool
                 properties:
                   acceleratedNetworking:
-                    description: AcceleratedNetworking enables or disables Azure accelerated
-                      networking. If omitted, it will be set based on whether the
-                      requested VMSize supports accelerated networking. If AcceleratedNetworking
-                      is set to true with a VMSize that does not support it, Azure
-                      will return an error.
+                    description: 'Deprecated: AcceleratedNetworking should be set
+                      in the networkInterfaces field.'
                     type: boolean
                   dataDisks:
                     description: DataDisks specifies the list of data disks to be
@@ -5682,6 +5735,52 @@ spec:
                       - nameSuffix
                       type: object
                     type: array
+                  diagnostics:
+                    description: Diagnostics specifies the diagnostics settings for
+                      a virtual machine. If not specified then Boot diagnostics (Managed)
+                      will be enabled.
+                    properties:
+                      boot:
+                        description: Boot configures the boot diagnostics settings
+                          for the virtual machine. This allows to configure capturing
+                          serial output from the virtual machine on boot. This is
+                          useful for debugging software based launch issues. If not
+                          specified then Boot diagnostics (Managed) will be enabled.
+                        properties:
+                          storageAccountType:
+                            description: StorageAccountType determines if the storage
+                              account for storing the diagnostics data should be disabled
+                              (Disabled), provisioned by Azure (Managed) or by the
+                              user (UserManaged).
+                            enum:
+                            - Managed
+                            - UserManaged
+                            - Disabled
+                            type: string
+                          userManaged:
+                            description: UserManaged provides a reference to the user-managed
+                              storage account.
+                            properties:
+                              storageAccountURI:
+                                description: 'StorageAccountURI is the URI of the
+                                  user-managed storage account. The URI typically
+                                  will be `https://<mystorageaccountname>.blob.core.windows.net/`
+                                  but may differ if you are using Azure DNS zone endpoints.
+                                  You can find the correct endpoint by looking for
+                                  the Blob Primary Endpoint in the endpoints tab in
+                                  the Azure console or with the CLI by issuing `az
+                                  storage account list --query=''[].{name: name, "resource
+                                  group": resourceGroup, "blob endpoint": primaryEndpoints.blob}''`.'
+                                maxLength: 1024
+                                pattern: ^https://
+                                type: string
+                            required:
+                            - storageAccountURI
+                            type: object
+                        required:
+                        - storageAccountType
+                        type: object
+                    type: object
                   image:
                     description: Image is used to provide details of an image to use
                       during VM creation. If image details are omitted the image will
@@ -5861,6 +5960,33 @@ spec:
                         - version
                         type: object
                     type: object
+                  networkInterfaces:
+                    description: NetworkInterfaces specifies a list of network interface
+                      configurations. If left unspecified, the VM will get a single
+                      network interface with a single IPConfig in the subnet specified
+                      in the cluster's node subnet field. The primary interface will
+                      be the first networkInterface specified (index 0) in the list.
+                    items:
+                      description: NetworkInterface defines a network interface.
+                      properties:
+                        acceleratedNetworking:
+                          description: AcceleratedNetworking enables or disables Azure
+                            accelerated networking. If omitted, it will be set based
+                            on whether the requested VMSize supports accelerated networking.
+                            If AcceleratedNetworking is set to true with a VMSize
+                            that does not support it, Azure will return an error.
+                          type: boolean
+                        privateIPConfigs:
+                          description: PrivateIPConfigs specifies the number of private
+                            IP addresses to attach to the interface. Defaults to 1
+                            if not specified.
+                          type: integer
+                        subnetName:
+                          description: SubnetName specifies the subnet in which the
+                            new network interface will be placed.
+                          type: string
+                      type: object
+                    type: array
                   osDisk:
                     description: OSDisk contains the operating system disk information
                       for a Virtual Machine
@@ -5947,8 +6073,8 @@ spec:
                       encoded to add to a Virtual Machine
                     type: string
                   subnetName:
-                    description: SubnetName selects the Subnet where the VMSS will
-                      be placed
+                    description: 'Deprecated: SubnetName should be set in the networkInterfaces
+                      field.'
                     type: string
                   terminateNotificationTimeout:
                     description: TerminateNotificationTimeout enables or disables
@@ -7411,6 +7537,10 @@ spec:
       name: VM Size
       priority: 1
       type: string
+    - description: Time duration since creation of this AzureMachine
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
     name: v1beta1
     schema:
       openAPIV3Schema:
@@ -7432,11 +7562,8 @@ spec:
             description: AzureMachineSpec defines the desired state of AzureMachine.
             properties:
               acceleratedNetworking:
-                description: AcceleratedNetworking enables or disables Azure accelerated
-                  networking. If omitted, it will be set based on whether the requested
-                  VMSize supports accelerated networking. If AcceleratedNetworking
-                  is set to true with a VMSize that does not support it, Azure will
-                  return an error.
+                description: 'Deprecated: AcceleratedNetworking should be set in the
+                  networkInterfaces field.'
                 type: boolean
               additionalCapabilities:
                 description: AdditionalCapabilities specifies additional capabilities
@@ -7514,6 +7641,51 @@ spec:
                   - nameSuffix
                   type: object
                 type: array
+              diagnostics:
+                description: Diagnostics specifies the diagnostics settings for a
+                  virtual machine. If not specified then Boot diagnostics (Managed)
+                  will be enabled.
+                properties:
+                  boot:
+                    description: Boot configures the boot diagnostics settings for
+                      the virtual machine. This allows to configure capturing serial
+                      output from the virtual machine on boot. This is useful for
+                      debugging software based launch issues. If not specified then
+                      Boot diagnostics (Managed) will be enabled.
+                    properties:
+                      storageAccountType:
+                        description: StorageAccountType determines if the storage
+                          account for storing the diagnostics data should be disabled
+                          (Disabled), provisioned by Azure (Managed) or by the user
+                          (UserManaged).
+                        enum:
+                        - Managed
+                        - UserManaged
+                        - Disabled
+                        type: string
+                      userManaged:
+                        description: UserManaged provides a reference to the user-managed
+                          storage account.
+                        properties:
+                          storageAccountURI:
+                            description: 'StorageAccountURI is the URI of the user-managed
+                              storage account. The URI typically will be `https://<mystorageaccountname>.blob.core.windows.net/`
+                              but may differ if you are using Azure DNS zone endpoints.
+                              You can find the correct endpoint by looking for the
+                              Blob Primary Endpoint in the endpoints tab in the Azure
+                              console or with the CLI by issuing `az storage account
+                              list --query=''[].{name: name, "resource group": resourceGroup,
+                              "blob endpoint": primaryEndpoints.blob}''`.'
+                            maxLength: 1024
+                            pattern: ^https://
+                            type: string
+                        required:
+                        - storageAccountURI
+                        type: object
+                    required:
+                    - storageAccountType
+                    type: object
+                type: object
               dnsServers:
                 description: DNSServers adds a list of DNS Server IP addresses to
                   the VM NICs.
@@ -7717,6 +7889,33 @@ spec:
                     - version
                     type: object
                 type: object
+              networkInterfaces:
+                description: NetworkInterfaces specifies a list of network interface
+                  configurations. If left unspecified, the VM will get a single network
+                  interface with a single IPConfig in the subnet specified in the
+                  cluster's node subnet field. The primary interface will be the first
+                  networkInterface specified (index 0) in the list.
+                items:
+                  description: NetworkInterface defines a network interface.
+                  properties:
+                    acceleratedNetworking:
+                      description: AcceleratedNetworking enables or disables Azure
+                        accelerated networking. If omitted, it will be set based on
+                        whether the requested VMSize supports accelerated networking.
+                        If AcceleratedNetworking is set to true with a VMSize that
+                        does not support it, Azure will return an error.
+                      type: boolean
+                    privateIPConfigs:
+                      description: PrivateIPConfigs specifies the number of private
+                        IP addresses to attach to the interface. Defaults to 1 if
+                        not specified.
+                      type: integer
+                    subnetName:
+                      description: SubnetName specifies the subnet in which the new
+                        network interface will be placed.
+                      type: string
+                  type: object
+                type: array
               osDisk:
                 description: OSDisk specifies the parameters for the operating system
                   disk of the machine
@@ -7810,7 +8009,8 @@ spec:
               sshPublicKey:
                 type: string
               subnetName:
-                description: SubnetName selects the Subnet where the VM will be placed
+                description: 'Deprecated: SubnetName should be set in the networkInterfaces
+                  field.'
                 type: string
               userAssignedIdentities:
                 description: UserAssignedIdentities is a list of standalone Azure
@@ -8845,11 +9045,8 @@ spec:
                       of the machine.
                     properties:
                       acceleratedNetworking:
-                        description: AcceleratedNetworking enables or disables Azure
-                          accelerated networking. If omitted, it will be set based
-                          on whether the requested VMSize supports accelerated networking.
-                          If AcceleratedNetworking is set to true with a VMSize that
-                          does not support it, Azure will return an error.
+                        description: 'Deprecated: AcceleratedNetworking should be
+                          set in the networkInterfaces field.'
                         type: boolean
                       additionalCapabilities:
                         description: AdditionalCapabilities specifies additional capabilities
@@ -8928,6 +9125,54 @@ spec:
                           - nameSuffix
                           type: object
                         type: array
+                      diagnostics:
+                        description: Diagnostics specifies the diagnostics settings
+                          for a virtual machine. If not specified then Boot diagnostics
+                          (Managed) will be enabled.
+                        properties:
+                          boot:
+                            description: Boot configures the boot diagnostics settings
+                              for the virtual machine. This allows to configure capturing
+                              serial output from the virtual machine on boot. This
+                              is useful for debugging software based launch issues.
+                              If not specified then Boot diagnostics (Managed) will
+                              be enabled.
+                            properties:
+                              storageAccountType:
+                                description: StorageAccountType determines if the
+                                  storage account for storing the diagnostics data
+                                  should be disabled (Disabled), provisioned by Azure
+                                  (Managed) or by the user (UserManaged).
+                                enum:
+                                - Managed
+                                - UserManaged
+                                - Disabled
+                                type: string
+                              userManaged:
+                                description: UserManaged provides a reference to the
+                                  user-managed storage account.
+                                properties:
+                                  storageAccountURI:
+                                    description: 'StorageAccountURI is the URI of
+                                      the user-managed storage account. The URI typically
+                                      will be `https://<mystorageaccountname>.blob.core.windows.net/`
+                                      but may differ if you are using Azure DNS zone
+                                      endpoints. You can find the correct endpoint
+                                      by looking for the Blob Primary Endpoint in
+                                      the endpoints tab in the Azure console or with
+                                      the CLI by issuing `az storage account list
+                                      --query=''[].{name: name, "resource group":
+                                      resourceGroup, "blob endpoint": primaryEndpoints.blob}''`.'
+                                    maxLength: 1024
+                                    pattern: ^https://
+                                    type: string
+                                required:
+                                - storageAccountURI
+                                type: object
+                            required:
+                            - storageAccountType
+                            type: object
+                        type: object
                       dnsServers:
                         description: DNSServers adds a list of DNS Server IP addresses
                           to the VM NICs.
@@ -9144,6 +9389,35 @@ spec:
                             - version
                             type: object
                         type: object
+                      networkInterfaces:
+                        description: NetworkInterfaces specifies a list of network
+                          interface configurations. If left unspecified, the VM will
+                          get a single network interface with a single IPConfig in
+                          the subnet specified in the cluster's node subnet field.
+                          The primary interface will be the first networkInterface
+                          specified (index 0) in the list.
+                        items:
+                          description: NetworkInterface defines a network interface.
+                          properties:
+                            acceleratedNetworking:
+                              description: AcceleratedNetworking enables or disables
+                                Azure accelerated networking. If omitted, it will
+                                be set based on whether the requested VMSize supports
+                                accelerated networking. If AcceleratedNetworking is
+                                set to true with a VMSize that does not support it,
+                                Azure will return an error.
+                              type: boolean
+                            privateIPConfigs:
+                              description: PrivateIPConfigs specifies the number of
+                                private IP addresses to attach to the interface. Defaults
+                                to 1 if not specified.
+                              type: integer
+                            subnetName:
+                              description: SubnetName specifies the subnet in which
+                                the new network interface will be placed.
+                              type: string
+                          type: object
+                        type: array
                       osDisk:
                         description: OSDisk specifies the parameters for the operating
                           system disk of the machine
@@ -9238,8 +9512,8 @@ spec:
                       sshPublicKey:
                         type: string
                       subnetName:
-                        description: SubnetName selects the Subnet where the VM will
-                          be placed
+                        description: 'Deprecated: SubnetName should be set in the
+                          networkInterfaces field.'
                         type: string
                       userAssignedIdentities:
                         description: UserAssignedIdentities is a list of standalone
@@ -10065,6 +10339,111 @@ spec:
                     - None
                     type: string
                 type: object
+              autoscalerProfile:
+                description: AutoscalerProfile is the parameters to be applied to
+                  the cluster-autoscaler when enabled
+                properties:
+                  balanceSimilarNodeGroups:
+                    description: BalanceSimilarNodeGroups - Valid values are 'true'
+                      and 'false'. The default is false.
+                    enum:
+                    - "true"
+                    - "false"
+                    type: string
+                  expander:
+                    description: Expander - If not specified, the default is 'random'.
+                      See [expanders](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#what-are-expanders)
+                      for more information.
+                    enum:
+                    - least-waste
+                    - most-pods
+                    - priority
+                    - random
+                    type: string
+                  maxEmptyBulkDelete:
+                    description: MaxEmptyBulkDelete - The default is 10.
+                    type: string
+                  maxGracefulTerminationSec:
+                    description: MaxGracefulTerminationSec - The default is 600.
+                    pattern: ^(\d+)$
+                    type: string
+                  maxNodeProvisionTime:
+                    description: MaxNodeProvisionTime - The default is '15m'. Values
+                      must be an integer followed by an 'm'. No unit of time other
+                      than minutes (m) is supported.
+                    pattern: ^(\d+)m$
+                    type: string
+                  maxTotalUnreadyPercentage:
+                    description: MaxTotalUnreadyPercentage - The default is 45. The
+                      maximum is 100 and the minimum is 0.
+                    maxLength: 3
+                    minLength: 1
+                    pattern: ^(\d+)$
+                    type: string
+                  newPodScaleUpDelay:
+                    description: NewPodScaleUpDelay - For scenarios like burst/batch
+                      scale where you don't want CA to act before the kubernetes scheduler
+                      could schedule all the pods, you can tell CA to ignore unscheduled
+                      pods before they're a certain age. The default is '0s'. Values
+                      must be an integer followed by a unit ('s' for seconds, 'm'
+                      for minutes, 'h' for hours, etc).
+                    type: string
+                  okTotalUnreadyCount:
+                    description: OkTotalUnreadyCount - This must be an integer. The
+                      default is 3.
+                    pattern: ^(\d+)$
+                    type: string
+                  scaleDownDelayAfterAdd:
+                    description: ScaleDownDelayAfterAdd - The default is '10m'. Values
+                      must be an integer followed by an 'm'. No unit of time other
+                      than minutes (m) is supported.
+                    pattern: ^(\d+)m$
+                    type: string
+                  scaleDownDelayAfterDelete:
+                    description: ScaleDownDelayAfterDelete - The default is the scan-interval.
+                      Values must be an integer followed by an 's'. No unit of time
+                      other than seconds (s) is supported.
+                    pattern: ^(\d+)s$
+                    type: string
+                  scaleDownDelayAfterFailure:
+                    description: ScaleDownDelayAfterFailure - The default is '3m'.
+                      Values must be an integer followed by an 'm'. No unit of time
+                      other than minutes (m) is supported.
+                    pattern: ^(\d+)m$
+                    type: string
+                  scaleDownUnneededTime:
+                    description: ScaleDownUnneededTime - The default is '10m'. Values
+                      must be an integer followed by an 'm'. No unit of time other
+                      than minutes (m) is supported.
+                    pattern: ^(\d+)m$
+                    type: string
+                  scaleDownUnreadyTime:
+                    description: ScaleDownUnreadyTime - The default is '20m'. Values
+                      must be an integer followed by an 'm'. No unit of time other
+                      than minutes (m) is supported.
+                    pattern: ^(\d+)m$
+                    type: string
+                  scaleDownUtilizationThreshold:
+                    description: ScaleDownUtilizationThreshold - The default is '0.5'.
+                    type: string
+                  scanInterval:
+                    description: ScanInterval - How often cluster is reevaluated for
+                      scale up or down. The default is '10s'.
+                    pattern: ^(\d+)s$
+                    type: string
+                  skipNodesWithLocalStorage:
+                    description: SkipNodesWithLocalStorage - The default is false.
+                    enum:
+                    - "true"
+                    - "false"
+                    type: string
+                  skipNodesWithSystemPods:
+                    description: SkipNodesWithSystemPods - The default is true.
+                    enum:
+                    - "true"
+                    - "false"
+                    type: string
+                type: object
               controlPlaneEndpoint:
                 description: ControlPlaneEndpoint represents the endpoint used to
                   communicate with the control plane.
@@ -10573,6 +10952,13 @@ spec:
             description: AzureManagedMachinePoolSpec defines the desired state of
               AzureManagedMachinePool.
             properties:
+              additionalTags:
+                additionalProperties:
+                  type: string
+                description: AdditionalTags is an optional set of tags to add to Azure
+                  resources managed by the Azure provider, in addition to the ones
+                  added by default.
+                type: object
               availabilityZones:
                 description: AvailabilityZones - Availability zones for nodes. Must
                   use VirtualMachineScaleSets AgentPoolType.
@@ -10587,6 +10973,83 @@ spec:
                 description: EnableUltraSSD enables the storage type UltraSSD_LRS
                   for the agent pool.
                 type: boolean
+              kubeletConfig:
+                description: KubeletConfig specifies the kubelet configurations for
+                  nodes.
+                properties:
+                  allowedUnsafeSysctls:
+                    description: AllowedUnsafeSysctls - Allowlist of unsafe sysctls
+                      or unsafe sysctl patterns (ending in `*`).
+                    items:
+                      type: string
+                    type: array
+                  containerLogMaxFiles:
+                    description: ContainerLogMaxFiles - The maximum number of container
+                      log files that can be present for a container. The number must
+                      be ≥ 2.
+                    format: int32
+                    minimum: 2
+                    type: integer
+                  containerLogMaxSizeMB:
+                    description: ContainerLogMaxSizeMB - The maximum size (e.g. 10Mi)
+                      of container log file before it is rotated.
+                    format: int32
+                    type: integer
+                  cpuCfsQuota:
+                    description: CPUCfsQuota - Enable CPU CFS quota enforcement for
+                      containers that specify CPU limits.
+                    type: boolean
+                  cpuCfsQuotaPeriod:
+                    description: CPUCfsQuotaPeriod - Sets CPU CFS quota period value.
+                    type: string
+                  cpuManagerPolicy:
+                    description: CPUManagerPolicy - CPU Manager policy to use.
+                    enum:
+                    - none
+                    - static
+                    type: string
+                  failSwapOn:
+                    description: FailSwapOn - If set to true it will make the Kubelet
+                      fail to start if swap is enabled on the node.
+                    type: boolean
+                  imageGcHighThreshold:
+                    description: ImageGcHighThreshold - The percent of disk usage
+                      after which image garbage collection is always run.
+                    format: int32
+                    maximum: 100
+                    minimum: 0
+                    type: integer
+                  imageGcLowThreshold:
+                    description: ImageGcLowThreshold - The percent of disk usage before
+                      which image garbage collection is never run.
+                    format: int32
+                    maximum: 100
+                    minimum: 0
+                    type: integer
+                  podMaxPids:
+                    description: PodMaxPids - The maximum number of processes per
+                      pod.
+                    format: int32
+                    minimum: -1
+                    type: integer
+                  topologyManagerPolicy:
+                    description: TopologyManagerPolicy - Topology Manager policy to
+                      use.
+                    enum:
+                    - none
+                    - best-effort
+                    - restricted
+                    - single-numa-node
+                    type: string
+                type: object
+              kubeletDiskType:
+                description: 'KubeletDiskType specifies the kubelet disk type. Default
+                  to OS. Possible values include: ''OS'', ''Temporary''. Requires
+                  kubeletDisk preview feature to be set.'
+                enum:
+                - OS
+                - Temporary
+                type: string
               maxPods:
                 description: MaxPods specifies the kubelet --max-pods configuration
                   for the node pool.
@@ -11298,7 +11761,7 @@ spec:
       - args:
         - --leader-elect
         - --metrics-bind-addr=localhost:8080
-        - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},AKS=${EXP_AKS:=false}
+        - --feature-gates=MachinePool=${EXP_MACHINE_POOL:=false},AKS=${EXP_AKS:=false},AKSResourceHealth=${EXP_AKS_RESOURCE_HEALTH:=false}
         - --v=0
         env:
         - name: AZURE_SUBSCRIPTION_ID
@@ -11333,7 +11796,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: registry.k8s.io/cluster-api-azure/cluster-api-azure-controller:v1.6.1
+        image: registry.k8s.io/cluster-api-azure/cluster-api-azure-controller:v1.7.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -11692,6 +12155,28 @@ webhooks:
     - UPDATE
     resources:
     - azureclusters
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: capz-webhook-service
+      namespace: capz-system
+      path: /validate-infrastructure-cluster-x-k8s-io-v1beta1-azureclusteridentity
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: validation.azureclusteridentity.infrastructure.cluster.x-k8s.io
+  rules:
+  - apiGroups:
+    - infrastructure.cluster.x-k8s.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - azureclusteridentities
   sideEffects: None
 - admissionReviewVersions:
   - v1
