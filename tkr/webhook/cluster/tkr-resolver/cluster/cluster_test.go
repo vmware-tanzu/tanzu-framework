@@ -416,8 +416,8 @@ var _ = Describe("cluster.Webhook", func() {
 
 					labelValue := osImage.Labels[osImage.Spec.Image.Type+"-"+uniqueRefField]
 					Expect(labelValue).To(Equal(version.Label(someVersionString)))
-					overlengLabelValue := osImage.Labels[osImage.Spec.Image.Type+"-"+overlengthRefField]
-					Expect(overlengLabelValue).To(Equal(version.Label(someOverlengthVersionString)[:63]))
+					overlengthLabelValue := osImage.Labels[osImage.Spec.Image.Type+"-"+overlengthRefField]
+					Expect(overlengthLabelValue).To(Equal(version.Label(someOverlengthVersionString)[:63]))
 
 					osImageSelector = labels.Set(osImage.Labels).AsSelector()
 					osImageSelectorStr = osImageSelector.String()
