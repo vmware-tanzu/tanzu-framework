@@ -6,6 +6,7 @@ package webhooks
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -484,6 +485,10 @@ func (wh *ClusterBootstrap) validateAdditionalPackagesUpdate(ctx context.Context
 	return allErrs
 }
 
+// ValidateClusterBootstrapPackageUpdate for unit test validateClusterBoostrapPackageUpdate only. Not intended to be called directly from outside the package.
+func (wh *ClusterBootstrap) ValidateClusterBootstrapPackageUpdate(ctx context.Context, oldPkg, newPkg *runv1alpha3.ClusterBootstrapPackage, fldPath *field.Path) *field.Error {
+	return wh.validateClusterBootstrapPackageUpdate(ctx, oldPkg, newPkg, fldPath)
+}
 func (wh *ClusterBootstrap) validateClusterBootstrapPackageUpdate(ctx context.Context, oldPkg, newPkg *runv1alpha3.ClusterBootstrapPackage, fldPath *field.Path) *field.Error {
 	//	1. For cni, cpi, csi, kapp once created
 	//	a. we won’t allow packageRef’s to be downgraded or change the package from something like calico to antrea
@@ -520,12 +525,13 @@ func (wh *ClusterBootstrap) validateClusterBootstrapPackageUpdate(ctx context.Co
 	}
 
 	// The package can't be downgraded
-	newPkgSemver, err := versions.NewRelaxedSemver(newPackageVersion)
+	// trim zshippable from minor if present to help on development testing
+	newPkgSemver, err := versions.NewRelaxedSemver(strings.TrimRight(newPackageVersion, constants.Zshippable))
 	if err != nil {
 		retErr := errors.Wrap(err, "new package version is invalid")
 		return field.Invalid(fldPath.Child("refName"), newPkg.RefName, retErr.Error())
 	}
-	oldPkgSemver, err := versions.NewRelaxedSemver(oldPackageVersion)
+	oldPkgSemver, err := versions.NewRelaxedSemver(strings.TrimRight(oldPackageVersion, constants.Zshippable))
 	if err != nil {
 		retErr := errors.Wrap(err, "old package version is invalid")
 		return field.Invalid(fldPath.Child("refName"), oldPkg.RefName, retErr.Error())

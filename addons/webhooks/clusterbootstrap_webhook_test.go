@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 
+	"k8s.io/apimachinery/pkg/util/validation/field"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
@@ -306,6 +308,39 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 
 		})
 	})
+	Context("ValidateClusterBootstrapPackageUpdate", func() {
+		BeforeEach(func() {
+			err := createVersionedCarvelPackage(ctx, k8sClient, "oldpkg", "pkg", "0.12.1+vmware.2-tkg.2-zshippable")
+			if err != nil && !apierrors.IsAlreadyExists(err) {
+				Expect(err).NotTo(HaveOccurred())
+			}
+			err = createVersionedCarvelPackage(ctx, k8sClient, "newpkg", "pkg", "0.12.1+vmware.2-tkg.3")
+			if err != nil && !apierrors.IsAlreadyExists(err) {
+				Expect(err).NotTo(HaveOccurred())
+			}
+		})
+		Context("    oldPackage is 0.12.1+vmware.2-tkg.2-zshippable", func() {
+			Context("newPackage is 0.12.1+vmware.2-tkg.3", func() {
+				It("should return ok", func() {
+					wh := webhooks.ClusterBootstrap{Client: k8sClient}
+					wh.SetupWebhookWithManager(ctx, mgr)
+					wh.SystemNamespace = SystemNamespace
+					oldPackage := &runv1alpha3.ClusterBootstrapPackage{
+						RefName:    "oldpkg",
+						ValuesFrom: nil,
+					}
+					newPackage := &runv1alpha3.ClusterBootstrapPackage{
+						RefName:    "newpkg",
+						ValuesFrom: nil,
+					}
+					fldPath := &field.Path{}
+
+					Expect(wh.ValidateClusterBootstrapPackageUpdate(context.TODO(), oldPackage, newPackage, fldPath)).To(BeNil())
+				})
+			})
+
+		})
+	})
 })
 
 func assertTKRBootstrapPackageNamesContain(tkr *runv1alpha3.TanzuKubernetesRelease, name string) {
@@ -373,23 +408,32 @@ func createCarvelPackages(ctx context.Context, client client.Client) {
 	}
 
 	for _, refName := range packageRefNames {
-		err := client.Create(ctx, &packagev1alpha1.Package{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      fmt.Sprintf("%s.%s", refName, fakeCarvelPackageVersion),
-				Namespace: SystemNamespace,
-			},
-			Spec: packagev1alpha1.PackageSpec{
-				RefName: refName,
-				Version: fakeCarvelPackageVersion,
-				Template: packagev1alpha1.AppTemplateSpec{
-					Spec: &kappctrlv1alph1.AppSpec{},
-				},
-			},
-		})
+		pkgName := fmt.Sprintf("%s.%s", refName, fakeCarvelPackageVersion)
+		err := createVersionedCarvelPackage(ctx, client, pkgName, refName, fakeCarvelPackageVersion)
 		if err != nil && !apierrors.IsAlreadyExists(err) {
 			Expect(err).NotTo(HaveOccurred())
 		}
 	}
+}
+
+func createVersionedCarvelPackage(ctx context.Context, client client.Client, pkgName, refName, version string) error {
+
+	err := client.Create(ctx, &packagev1alpha1.Package{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      pkgName,
+			Namespace: SystemNamespace,
+		},
+		Spec: packagev1alpha1.PackageSpec{
+			RefName: refName,
+			Version: version,
+			Template: packagev1alpha1.AppTemplateSpec{
+				Spec: &kappctrlv1alph1.AppSpec{},
+			},
+		},
+	})
+
+	return err
+
 }
 
 func deleteCarvelPackages(ctx context.Context, client client.Client) {

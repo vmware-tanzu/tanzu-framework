@@ -371,6 +371,9 @@ const (
 	TKGDevCCPan = "devcc"
 
 	TKRAnnotationKey = "run.tanzu.vmware.com/tkr-spec"
+
+	// Zshippable postscrip added to mark a component as in development
+	Zshippable = "-zshippable"
 )
 
 var (
