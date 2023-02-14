@@ -40,6 +40,7 @@ tkrSourceControllerPackage:
         tkrRepoImagePath: fake.custom.repo/tkr-repository-vsphere-nonparavirt
         defaultCompatibleTKR: v1.23.5+vmware.1-tkg.1-fake
         caCerts: fake-ca-2
+        skipVerifyRegistryCert: true
         imageRepository: fake-repo-2
         deployment:
             httpProxy: http://192.168.116.1:3128
