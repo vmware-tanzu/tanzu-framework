@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"strings"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
@@ -39,7 +37,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
-	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
+	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
 )
 
 const (
@@ -86,13 +84,7 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	r.Log.Info("Start reconciliation")
 
 	// fetch AntreaConfig resource, ignore not-found errors
-	antreaConfig := &cniv1alpha1.AntreaConfig{}
-	u := &unstructured.Unstructured{}
-	switch u.GetAPIVersion() {
-	case "v1alpha1":
-	case "v1alpha2":
-
-	}
+	antreaConfig := &cniv1alpha2.AntreaConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, antreaConfig); err != nil {
 		if apierrors.IsNotFound(err) {
 			r.Log.Info(fmt.Sprintf("AntreaConfig resource '%v' not found", req.NamespacedName))
@@ -139,7 +131,7 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 // SetupWithManager sets up the controller with the Manager.
 func (r *AntreaConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&cniv1alpha1.AntreaConfig{}).
+		For(&cniv1alpha2.AntreaConfig{}).
 		WithOptions(options).
 		Watches(
 			&source.Kind{Type: &clusterapiv1beta1.Cluster{}},
@@ -152,7 +144,7 @@ func (r *AntreaConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.
 // ReconcileAntreaConfig reconciles AntreaConfig CR
 func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	ctx context.Context,
-	antreaConfig *cniv1alpha1.AntreaConfig,
+	antreaConfig *cniv1alpha2.AntreaConfig,
 	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (_ ctrl.Result, retErr error) {
 
@@ -188,7 +180,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 // ReconcileAntreaConfigNormal reconciles AntreaConfig by creating/patching data values secret
 func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	ctx context.Context,
-	antreaConfig *cniv1alpha1.AntreaConfig,
+	antreaConfig *cniv1alpha2.AntreaConfig,
 	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (retErr error) {
 
@@ -224,7 +216,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	return r.registerAntreaNSX(ctx, antreaConfig, cluster)
 }
 
-func getClusterName(antreaConfig *cniv1alpha1.AntreaConfig) (name string, exists bool) {
+func getClusterName(antreaConfig *cniv1alpha2.AntreaConfig) (name string, exists bool) {
 	name, exists = antreaConfig.Labels[clusterNameLabel]
 	if !exists {
 		index := strings.Index(antreaConfig.Name, "-antrea-package")
@@ -244,7 +236,7 @@ func (r *AntreaConfigReconciler) getNSXServiceAccountName(clusterName string) st
 	return fmt.Sprintf("%s-antrea", clusterName)
 }
 
-func (r *AntreaConfigReconciler) ensureNsxServiceAccount(ctx context.Context, antreaConfig *cniv1alpha1.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
+func (r *AntreaConfigReconciler) ensureNsxServiceAccount(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
 	account := &nsxoperatorapi.NSXServiceAccount{}
 
 	account.Name = r.getNSXServiceAccountName(cluster.Name)
@@ -280,7 +272,7 @@ func (r *AntreaConfigReconciler) ensureNsxServiceAccount(ctx context.Context, an
 	return err
 }
 
-func (r *AntreaConfigReconciler) ensureProviderServiceAccount(ctx context.Context, antreaConfig *cniv1alpha1.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
+func (r *AntreaConfigReconciler) ensureProviderServiceAccount(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
 	provider := &vsphere.ProviderServiceAccount{}
 	vsphereCluster, err := cutil.VSphereClusterParavirtualForCAPICluster(ctx, r.Client, cluster)
 	if err != nil {
@@ -336,7 +328,7 @@ func (r *AntreaConfigReconciler) ensureProviderServiceAccount(ctx context.Contex
 	return err
 }
 
-func (r *AntreaConfigReconciler) registerAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha1.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
+func (r *AntreaConfigReconciler) registerAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
 	if !antreaConfig.Spec.AntreaNsx.Enable || antreaConfig.Spec.AntreaNsx.BootstrapFrom.Inline != nil {
 		r.Log.Info("antreaNsx is not enabled or inline is set, there is no ProviderServiceAccount or NsxServiceAccount to be created")
 		r.deregisterAntreaNSX(ctx, antreaConfig, cluster)
@@ -361,7 +353,7 @@ func (r *AntreaConfigReconciler) registerAntreaNSX(ctx context.Context, antreaCo
 	return err
 }
 
-func (r *AntreaConfigReconciler) deregisterAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha1.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
+func (r *AntreaConfigReconciler) deregisterAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
 	if !antreaConfig.Spec.AntreaNsx.Enable {
 		r.Log.Info("antreaNsx is not enabled, there is no ProviderServiceAccount or NsxServiceAccount to be deleted")
 		return nil
@@ -401,7 +393,7 @@ func (r *AntreaConfigReconciler) deregisterAntreaNSX(ctx context.Context, antrea
 // ReconcileAntreaConfigDataValue reconciles AntreaConfig data values secret
 func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 	ctx context.Context,
-	antreaConfig *cniv1alpha1.AntreaConfig,
+	antreaConfig *cniv1alpha2.AntreaConfig,
 	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (retErr error) {
 

@@ -20,7 +20,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
+	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
 )
 
 // AntreaConfigSpec defines the desired state of AntreaConfig
@@ -166,7 +166,7 @@ func (r *AntreaConfigReconciler) ClusterToAntreaConfig(o client.Object) []ctrl.R
 
 	r.Log.V(4).Info("Mapping cluster to AntreaConfig")
 
-	configs := &cniv1alpha1.AntreaConfigList{}
+	configs := &cniv1alpha2.AntreaConfigList{}
 
 	if err := r.Client.List(context.Background(), configs); err != nil {
 		r.Log.Error(err, "Error listing AntreaConfig")
@@ -205,7 +205,7 @@ func (r *AntreaConfigReconciler) ClusterToAntreaConfig(o client.Object) []ctrl.R
 	return requests
 }
 
-func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.AntreaConfig, client client.Client) (*AntreaConfigSpec, error) {
+func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha2.AntreaConfig, client client.Client) (*AntreaConfigSpec, error) {
 
 	packageName := config.GetLabels()[addontypes.PackageNameLabel]
 	version := strings.TrimPrefix(strings.Split(packageName, "---")[0], "antrea.tanzu.vmware.com.")
