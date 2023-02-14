@@ -182,7 +182,7 @@ func Compile(compileArgs *PluginCompileArgs) error {
 		if f.IsDir() {
 			if g.Match(f.Name()) {
 				wg.Add(1)
-        log.Infof("\tstarting compile thread %v for %v", identifiers[i], f.Name())
+				log.Infof("\tstarting compile thread %v for %v", identifiers[i], f.Name())
 				guard <- struct{}{}
 				go func(fullPath, id string) {
 					defer wg.Done()
