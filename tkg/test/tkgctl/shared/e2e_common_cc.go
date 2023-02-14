@@ -69,6 +69,7 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		admissionRegistrationClient     admissionregistrationv1.AdmissionregistrationV1Interface
 		infrastructureName              string
 		wlcClient                       client.Client
+		isSuccess                       bool
 	)
 
 	BeforeEach(func() { //nolint:dupl
@@ -148,6 +149,13 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 	})
 
 	AfterEach(func() {
+		if !isSuccess {
+			framework.PrintPodsLogs(mngProxy, "capa-system")
+			framework.PrintPodsLogs(mngProxy, "capi-kubeadm-bootstrap-system")
+			framework.PrintPodsLogs(mngProxy, "capi-system")
+			framework.PrintPodsLogs(mngProxy, "capz-system")
+		}
+
 		By(fmt.Sprintf("Deleting workload cluster %q", clusterName))
 		err = tkgCtlClient.DeleteCluster(tkgctl.DeleteClustersOptions{
 			ClusterName: clusterName,
@@ -266,6 +274,7 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		if input.CheckAdmissionWebhook {
 			checkAdmissionWebhooks(ctx, mngClient, admissionRegistrationClient)
 		}
+		isSuccess = true
 	})
 }
 

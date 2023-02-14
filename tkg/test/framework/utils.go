@@ -4,21 +4,24 @@
 package framework
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	. "github.com/onsi/ginkgo" // nolint:stylecheck
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	. "github.com/onsi/ginkgo" // nolint:stylecheck
-	"github.com/pkg/errors"
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
@@ -80,6 +83,37 @@ func WaitForNodesDuringScaleUp(proxy *ClusterProxy, desiredCount int) {
 	}
 
 	Fail(fmt.Sprintf("Timed out waiting for nodes count to reach %q", desiredCount))
+}
+
+// GetPodsLogs prints the v1beta1 pods logs
+func PrintPodsLogs(proxy *ClusterProxy, namespace string) error {
+	c := proxy.GetClientSet()
+	podInterface := c.CoreV1().Pods(namespace)
+
+	podList, err := podInterface.List(context.Background(), v1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	podLogOpts := corev1.PodLogOptions{}
+	for i, _ := range podList.Items {
+		pod := podList.Items[i]
+		req := c.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &podLogOpts)
+		podLogs, err := req.Stream(context.Background())
+		if err != nil {
+			podLogs.Close()
+			return err
+		}
+		buf := new(bytes.Buffer)
+		_, err = io.Copy(buf, podLogs)
+		if err != nil {
+			podLogs.Close()
+			return err
+		}
+		str := buf.String()
+		fmt.Printf("podName : %s\n\n logs :%s\n\n", pod.Name, str)
+		podLogs.Close()
+	}
+	return nil
 }
 
 // GetClusterClass returns ClusterClass used by the Cluster
