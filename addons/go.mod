@@ -33,6 +33,7 @@ require (
 	k8s.io/client-go v0.24.6
 	k8s.io/component-base v0.24.6
 	k8s.io/klog/v2 v2.70.1
+	k8s.io/kube-aggregator v0.22.4
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
 	knative.dev/pkg v0.0.0-20220302134643-d2cdc682d974
 	sigs.k8s.io/cluster-api v1.2.8

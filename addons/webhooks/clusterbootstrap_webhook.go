@@ -292,7 +292,14 @@ func (wh *ClusterBootstrap) getGVR(gk schema.GroupKind) (*schema.GroupVersionRes
 	}
 	apiResourceList, err := wh.cachedDiscoveryClient.ServerPreferredResources()
 	if err != nil {
-		return nil, err
+		// When Metrics Server is down or any aggregated APIService is not available, ServerPreferredResources() returns
+		// both available APIResources and error ErrGroupDiscoveryFailed. For details,
+		// see https://jira.eng.vmware.com/browse/TKG-17405.
+		if _, ok := err.(*discovery.ErrGroupDiscoveryFailed); ok {
+			clusterbootstraplog.Error(err, "ignore the error on retrieve preferred APIResources")
+		} else {
+			return nil, err
+		}
 	}
 	for _, apiResource := range apiResourceList {
 		gv, err := schema.ParseGroupVersion(apiResource.GroupVersion)

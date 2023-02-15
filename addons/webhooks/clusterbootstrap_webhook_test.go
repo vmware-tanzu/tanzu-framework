@@ -7,6 +7,10 @@ import (
 	"context"
 	"fmt"
 
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
+
+	apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
@@ -68,6 +72,71 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 
+		It("should not deny create request when there are unavailable APIServices", func() {
+			// Create an external APIService which has no endpoints running
+			var port int32 = 443
+			customAPIService := &apiregistrationv1.APIService{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "v1beta1.custom.k8s.io",
+				},
+				Spec: apiregistrationv1.APIServiceSpec{
+					Group:                 "custom.k8s.io",
+					GroupPriorityMinimum:  100,
+					InsecureSkipTLSVerify: true,
+					Service: &apiregistrationv1.ServiceReference{
+						Name:      "custom-server",
+						Namespace: "kube-system",
+						Port:      &port,
+					},
+					Version:         "v1beta1",
+					VersionPriority: 100,
+				},
+			}
+			err := k8sClient.Create(ctx, customAPIService)
+			Expect(err).NotTo(HaveOccurred())
+			// Create a VSphereCSIConfig
+			vSphereCSIConfigName := "fake-csiconfig"
+			vSphereCSIConfig := &csiv1alpha1.VSphereCSIConfig{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      vSphereCSIConfigName,
+					Namespace: clusterBootstrapNamespace,
+				},
+				Spec: csiv1alpha1.VSphereCSIConfigSpec{
+					VSphereCSI: csiv1alpha1.VSphereCSI{
+						Mode: "vsphereParavirtualCSI",
+					},
+				},
+			}
+			err = k8sClient.Create(ctx, vSphereCSIConfig)
+			Expect(err).NotTo(HaveOccurred())
+			// Create a ClusterBootstrap with empty spec
+			clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      clusterBootstrapName,
+					Namespace: clusterBootstrapNamespace,
+					Annotations: map[string]string{
+						constants.AddCBMissingFieldsAnnotationKey: tkrName,
+					},
+				},
+				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+					CSI: &runv1alpha3.ClusterBootstrapPackage{
+						RefName: fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion),
+						ValuesFrom: &runv1alpha3.ValuesFrom{
+							ProviderRef: &corev1.TypedLocalObjectReference{
+								Name:     vSphereCSIConfigName,
+								APIGroup: &csiv1alpha1.GroupVersion.Group,
+								Kind:     "VSphereCSIConfig",
+							},
+						},
+					},
+				},
+			}
+			err = k8sClient.Create(ctx, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+
+			err = k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+		})
 		It("should add defaults to the missing fields when the ClusterBootstrap CR has the predefined annotation", func() {
 			// Create a ClusterBootstrap with empty spec
 			clusterBootstrap := &runv1alpha3.ClusterBootstrap{
@@ -331,6 +400,7 @@ func constructFakeTanzuKubernetesRelease() *runv1alpha3.TanzuKubernetesRelease {
 				{Name: fmt.Sprintf("%s.%s", fakeMetricsServerCarvelPackageRefName, fakeCarvelPackageVersion)},
 				{Name: fmt.Sprintf("%s.%s", fakePinnipedCarvelPackageRefName, fakeCarvelPackageVersion)},
 				{Name: fmt.Sprintf("%s.%s", fakeKubevipcloudproviderCarvelPackageRefName, fakeCarvelPackageVersion)},
+				{Name: fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion)},
 			},
 		},
 	}
