@@ -38,7 +38,7 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 				KubeVipTag = "v0.3.3_vmware.1"
 				kubevipPodManifest = getKubevipPodManifest(kubeVipImage, KubeVipTag)
 			})
-			It("suceeds", func() {
+			It("succeeds", func() {
 				imagePath, imageTag, err := tkgClient.GetKubevipImageAndTag(getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, kubevipPodManifest))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(kubeVipImage).To(Equal(imagePath))
