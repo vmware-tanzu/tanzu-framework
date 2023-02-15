@@ -1016,7 +1016,7 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 					reason,
 					message)
 			}
-			if !(strings.Contains(message, "context deadline exceeded") || strings.Contains(message, "context canceled")) {
+			if !(strings.Contains(message, "Failed to refresh the Token for request to") || strings.Contains(message, "context deadline exceeded") || strings.Contains(message, "context canceled")) {
 				errorRetry++
 			}
 			return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
