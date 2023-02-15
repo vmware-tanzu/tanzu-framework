@@ -15,9 +15,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	apitypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/discovery"
@@ -101,6 +99,9 @@ spec:
         type: FileOrCreate
       name: kubeconfig
 status: {}`
+
+	fakeAWSClusterName      = "fake-aws-cluster-name"
+	fakeAWSClusterNamespace = "fake-aws-cluster-namespace"
 )
 
 var _ = Describe("Unit tests for upgrading legacy cluster", func() {
@@ -1007,33 +1008,62 @@ var _ = Describe("Unit test for prepareAddonsManagerUpgrade", func() {
 	BeforeEach(func() {
 		regionalClusterClient = fakes.ClusterClient{}
 	})
-	When("capa-system namespace is not found", func() {
-		It("Should return no error", func() {
-			regionalClusterClient.GetResourceReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "fake-namespace"}, "fake-cluster"))
+	When("cannot get the Cluster", func() {
+		It("Should return error", func() {
+			regionalClusterClient.GetResourceReturns(errors.New("cluster cannot found"))
+			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("cluster cannot found"))
+			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
+		})
+	})
+	When("infrastructure is not aws", func() {
+		It("should no return error", func() {
+			regionalClusterClient.GetResourceReturns(nil)
 			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
 		})
 	})
-	When("cannot fetch capa-system namespace", func() {
+	When("cannot get the AWSCluster", func() {
 		It("should return error", func() {
-			regionalClusterClient.GetResourceReturns(fmt.Errorf("some-error"))
+			regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if cluster, ok := resourceReference.(*capi.Cluster); ok {
+					cluster.Spec.InfrastructureRef = &corev1.ObjectReference{
+						Name:      fakeAWSClusterName,
+						Namespace: fakeAWSClusterNamespace,
+						Kind:      constants.InfrastructureRefAWS,
+					}
+					return nil
+				}
+				if _, ok := resourceReference.(*capav1beta2.AWSCluster); ok {
+					return errors.New("awscluster cannot found")
+				}
+				return nil
+			})
 			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
 			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("awscluster cannot found"))
 			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
 		})
 	})
-	When("capa-system is present", func() {
-		It("should return no error", func() {})
-		regionalClusterClient.GetResourceReturns(nil)
-		err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(1))
-	})
-	When("capa-system is present but can't add ingress rules", func() {
+	When("ingress rules should be added successfully", func() {
 		It("should return no error", func() {
-			regionalClusterClient.GetResourceReturns(nil)
-			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
+			regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if cluster, ok := resourceReference.(*capi.Cluster); ok {
+					cluster.Spec.InfrastructureRef = &corev1.ObjectReference{
+						Name:      fakeAWSClusterName,
+						Namespace: fakeAWSClusterNamespace,
+						Kind:      constants.InfrastructureRefAWS,
+					}
+					return nil
+				}
+				if _, ok := resourceReference.(*capav1beta2.AWSCluster); ok {
+					return nil
+				}
+				return nil
+			})
+			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(nil)
 			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
 			Expect(err).ToNot(HaveOccurred())
 			callcount := regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()
@@ -1042,19 +1072,23 @@ var _ = Describe("Unit test for prepareAddonsManagerUpgrade", func() {
 	})
 	When("spec.network.seucrityGroupOverrides is not nil for aws cluster", func() {
 		It("should return no error and should not try to add aws ingress rule", func() {
-			regionalClusterClient.GetResourceReturns(nil)
-			callIndex := 0
-			regionalClusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
-				if callIndex < 1 { //in this test there is one call to GetResources before the call to check gert the awscluster
-					callIndex++
+			regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if cluster, ok := resourceReference.(*capi.Cluster); ok {
+					cluster.Spec.InfrastructureRef = &corev1.ObjectReference{
+						Name:      fakeAWSClusterName,
+						Namespace: fakeAWSClusterNamespace,
+						Kind:      constants.InfrastructureRefAWS,
+					}
 					return nil
 				}
-				awsCluster := obj.(*capav1beta2.AWSCluster)
-				securityGroupOverride := make(map[capav1beta2.SecurityGroupRole]string)
-				securityGroupOverride["secgroup1"] = "secrules"
-				awsCluster.Spec.NetworkSpec.SecurityGroupOverrides = securityGroupOverride
+				if awsCluster, ok := resourceReference.(*capav1beta2.AWSCluster); ok {
+					securityGroupOverride := make(map[capav1beta2.SecurityGroupRole]string)
+					securityGroupOverride["secgroup1"] = "secrules"
+					awsCluster.Spec.NetworkSpec.SecurityGroupOverrides = securityGroupOverride
+					return nil
+				}
 				return nil
-			}
+			})
 			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
 			err := tkgClient.PrepareAddonsManagerUpgrade(&regionalClusterClient, &upgradeClusterConfig)
 			Expect(err).ToNot(HaveOccurred())
@@ -1073,71 +1107,104 @@ var _ = Describe("Unit test for handleKappControllerUpgrade", func() {
 	)
 	BeforeEach(func() {
 		regionalClusterClient = fakes.ClusterClient{}
+		currentClusterClient = fakes.ClusterClient{}
 	})
 
 	When("existing kapp-controller cannot be deleted", func() {
 		It("should return error", func() {
-			regionalClusterClient := fakes.ClusterClient{}
-			regionalClusterClient.GetResourceReturns(nil)
 			currentClusterClient.DeleteExistingKappControllerReturns(fmt.Errorf("some-error"))
-			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
 			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
 			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("unable to delete existing kapp-controller"))
 			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
 		})
 	})
-	When("capa-system namespace is not found", func() {
-		It("Should return no error", func() {
-			regionalClusterClient := fakes.ClusterClient{}
-			regionalClusterClient.GetResourceReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "fake-namespace"}, "fake-cluster"))
+	When("cannot get the Cluster", func() {
+		It("Should return error", func() {
 			currentClusterClient.DeleteExistingKappControllerReturns(nil)
-			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
-		})
-	})
-	When("cannot fetch capa-system namespace", func() {
-		It("should return error", func() {
-			regionalClusterClient.GetResourceReturns(fmt.Errorf("some-error"))
-			currentClusterClient.DeleteExistingKappControllerReturns(nil)
+			regionalClusterClient.GetResourceReturns(errors.New("cluster cannot found"))
 			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
 			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("cluster cannot found"))
 			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
 		})
 	})
-	When("capa-system is present", func() {
-		It("should return no error", func() {
+	When("infrastructure is not aws", func() {
+		It("should no return error", func() {
+			currentClusterClient.DeleteExistingKappControllerReturns(nil)
 			regionalClusterClient.GetResourceReturns(nil)
-			currentClusterClient.DeleteExistingKappControllerReturns(nil)
 			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(1))
+			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
 		})
 	})
-	When("capa-system is present but can't add ingress rules", func() {
-		It("should return no error", func() {})
-		regionalClusterClient.GetResourceReturns(nil)
-		currentClusterClient.DeleteExistingKappControllerReturns(nil)
-		regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
-		err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(1))
+	When("cannot get the AWSCluster", func() {
+		It("should return error", func() {
+			currentClusterClient.DeleteExistingKappControllerReturns(nil)
+			regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if cluster, ok := resourceReference.(*capi.Cluster); ok {
+					cluster.Spec.InfrastructureRef = &corev1.ObjectReference{
+						Name:      fakeAWSClusterName,
+						Namespace: fakeAWSClusterNamespace,
+						Kind:      constants.InfrastructureRefAWS,
+					}
+					return nil
+				}
+				if _, ok := resourceReference.(*capav1beta2.AWSCluster); ok {
+					return errors.New("awscluster cannot found")
+				}
+				return nil
+			})
+			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("awscluster cannot found"))
+			Expect(regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()).To(Equal(0))
+		})
+	})
+	When("ingress rules should be added successfully", func() {
+		It("should return no error", func() {
+			currentClusterClient.DeleteExistingKappControllerReturns(nil)
+			regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if cluster, ok := resourceReference.(*capi.Cluster); ok {
+					cluster.Spec.InfrastructureRef = &corev1.ObjectReference{
+						Name:      fakeAWSClusterName,
+						Namespace: fakeAWSClusterNamespace,
+						Kind:      constants.InfrastructureRefAWS,
+					}
+					return nil
+				}
+				if _, ok := resourceReference.(*capav1beta2.AWSCluster); ok {
+					return nil
+				}
+				return nil
+			})
+			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(nil)
+			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
+			Expect(err).ToNot(HaveOccurred())
+			callcount := regionalClusterClient.UpdateAWSCNIIngressRulesCallCount()
+			Expect(callcount).To(Equal(1))
+		})
 	})
 	When("spec.network.seucrityGroupOverrides is not nil for aws cluster", func() {
 		It("should return no error and should not try to add aws ingress rule", func() {
-			regionalClusterClient.GetResourceReturns(nil)
-			callIndex := 0
-			regionalClusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
-				if callIndex < 1 { //in this test there is one call to GetResources before the call to check gert the awscluster
-					callIndex++
+			currentClusterClient.DeleteExistingKappControllerReturns(nil)
+			regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+				if cluster, ok := resourceReference.(*capi.Cluster); ok {
+					cluster.Spec.InfrastructureRef = &corev1.ObjectReference{
+						Name:      fakeAWSClusterName,
+						Namespace: fakeAWSClusterNamespace,
+						Kind:      constants.InfrastructureRefAWS,
+					}
 					return nil
 				}
-				awsCluster := obj.(*capav1beta2.AWSCluster)
-				securityGroupOverride := make(map[capav1beta2.SecurityGroupRole]string)
-				securityGroupOverride["secgroup1"] = "secrules"
-				awsCluster.Spec.NetworkSpec.SecurityGroupOverrides = securityGroupOverride
+				if awsCluster, ok := resourceReference.(*capav1beta2.AWSCluster); ok {
+					securityGroupOverride := make(map[capav1beta2.SecurityGroupRole]string)
+					securityGroupOverride["secgroup1"] = "secrules"
+					awsCluster.Spec.NetworkSpec.SecurityGroupOverrides = securityGroupOverride
+					return nil
+				}
 				return nil
-			}
+			})
 			regionalClusterClient.UpdateAWSCNIIngressRulesReturns(fmt.Errorf("some-error"))
 			err := tkgClient.HandleKappControllerUpgrade(&regionalClusterClient, &currentClusterClient, &upgradeClusterConfig)
 			Expect(err).ToNot(HaveOccurred())
