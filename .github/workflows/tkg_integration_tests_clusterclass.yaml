@@ -283,7 +283,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-publish-packages
     env:
-      aws_client_id: ${{secrets.AWS_ACCESS_KEY_ID}}
+      aws_client_id: ${{secrets.TESTAWS_ACCESS_KEY_ID}}
       gcp_bucket_sa: ${{ secrets.GCP_BUCKET_SA }}
     steps:
       - name: show environment
@@ -348,9 +348,9 @@ jobs:
         with:
           files: 'tkg/test/config/aws.yaml'
         env:
-          tkg_config_variables.AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          tkg_config_variables.AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          tkg_config_variables.AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          tkg_config_variables.AWS_ACCESS_KEY_ID: ${{ secrets.TESTAWS_ACCESS_KEY_ID }}
+          tkg_config_variables.AWS_SECRET_ACCESS_KEY: ${{ secrets.TESTAWS_SECRET_ACCESS_KEY }}
+          tkg_config_variables.AWS_SESSION_TOKEN: ${{ secrets.TESTAWS_SESSION_TOKEN }}
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
       - run: |
           cat tkg/test/config/aws.yaml
@@ -367,9 +367,9 @@ jobs:
           E2E_CONFIG=$PWD/test/config/aws.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/aws_cc
           popd
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.TESTAWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TESTAWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.TESTAWS_SESSION_TOKEN }}
           AWS_REGION: "us-west-2"
           _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ needs.build-and-publish-packages.outputs.registry }}/tanzu_framework/github-actions/${{ needs.build-and-publish-packages.outputs.regdir }}/management:v0.21.0
           _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
@@ -378,7 +378,7 @@ jobs:
       - name: Cleanup AWS resources
         if: ${{ always() }}
         run: |
-          tkg/test/scripts/aws_cleanup.sh ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
+          tkg/test/scripts/aws_cleanup.sh ${{ secrets.TESTAWS_ACCESS_KEY_ID }} ${{ secrets.TESTAWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
         env:
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
 
