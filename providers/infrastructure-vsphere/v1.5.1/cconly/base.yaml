@@ -2111,10 +2111,10 @@ spec:
             }
       - op: add
         path: /spec/template/spec/postKubeadmCommands/-
-        value: powershell C:/k/register_antrea_cleanup.ps1 -ExecutionPolicy Bypass
+        value: powershell C:/Temp/antrea.ps1 -ExecutionPolicy Bypass
       - op: add
         path: /spec/template/spec/postKubeadmCommands/-
-        value: powershell C:/Temp/antrea.ps1 -ExecutionPolicy Bypass
+        value: powershell C:/k/register_antrea_cleanup.ps1 -ExecutionPolicy Bypass
   - name: ntpServers
     enabledIf: '{{ not (empty .ntpServers) }}'
     definitions:
