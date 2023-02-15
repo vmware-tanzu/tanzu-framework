@@ -20,14 +20,22 @@ FULL_IMAGE_TAR_NAME="${IMAGE_NAME}-${IMAGE_TAG}"
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
 BUILDER_BASE_IMAGE="${BUILDER_BASE_IMAGE:-}"
+DISTROLESS_BASE_IMAGE="${DISTROLESS_BASE_IMAGE}"
+
 if [[ -z "${BUILDER_BASE_IMAGE}" ]];
 then
   docker build \
+    --build-arg DISTROLESS_BASE_IMAGE="${DISTROLESS_BASE_IMAGE}" \
+    -e GOPROXY="${GOPROXY}" \
+    -e GOSUMDB="${GOSUMDB}" \
     -t "${FULL_IMAGE_NAME}" \
     -f "${ROOT_DIR}"/Dockerfile ..
 else
   docker build \
     --build-arg BUILDER_BASE_IMAGE="${BUILDER_BASE_IMAGE}" \
+    --build-arg DISTROLESS_BASE_IMAGE="${DISTROLESS_BASE_IMAGE}" \
+    -e GOPROXY="${GOPROXY}" \
+    -e GOSUMDB="${GOSUMDB}" \
     -t "${FULL_IMAGE_NAME}" \
     -f "${ROOT_DIR}"/Dockerfile ..
 fi

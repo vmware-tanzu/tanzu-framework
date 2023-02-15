@@ -9,6 +9,11 @@ IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
 
 IMG_VERSION_OVERRIDE ?= $(IMG_DEFAULT_TAG)
 
+#Adding Support for GOPROXY and GOSUMDB
+GOPROXY ?= direct
+GOSUMDB ?= off
+DISTROLESS_BASE_IMAGE ?= gcr.io/distroless/static:nonroot
+
 ifeq ($(strip $(OCI_REGISTRY)),)
 	IMG ?= $(IMG_DEFAULT_NAME):$(IMG_VERSION_OVERRIDE)
 else
@@ -35,7 +40,7 @@ vet:
 
 .PHONY: docker-build
 docker-build: ## Build docker image
-	cd ../../../ && docker build -t $(IMG) -f tkr/controller/tkr-source/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd ../../../ && docker build -t $(IMG) -f tkr/controller/tkr-source/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg DISTROLESS_BASE_IMAGE="$(DISTROLESS_BASE_IMAGE)" -e GOPROXY="$(GOPROXY)" -e GOSUMDB="$(GOSUMDB)" .
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image

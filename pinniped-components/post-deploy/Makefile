@@ -10,6 +10,11 @@ GIT_VERSION ?= $(shell git describe --always --tags)
 GIT_REF_LONG = $(shell git rev-parse --verify HEAD)
 # Release version
 VERSION ?= $(GIT_VERSION)
+#Adding Support for GOPROXY and GOSUMDB
+GOPROXY ?= direct
+GOSUMDB ?= off
+DISTROLESS_BASE_IMAGE ?= gcr.io/distroless/static:nonroot
+
 
 .PHONY: test
 test: fmt vet ## Run tests
@@ -29,7 +34,7 @@ native: ## Build binary
 
 .PHONY: build-images
 build-images: ## Build tkg-pinniped-post-deploy docker images
-	VERSION=$(VERSION) ./hack/scripts/build-images.sh
+	VERSION=$(VERSION) DISTROLESS_BASE_IMAGE=$(DISTROLESS_BASE_IMAGE) ./hack/scripts/build-images.sh
 
 run:
 	go run ./cmd/job \

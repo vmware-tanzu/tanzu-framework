@@ -17,6 +17,11 @@ IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):latest
 
 IMG_VERSION_OVERRIDE ?= $(shell git describe --always --dirty --tags)
 
+#Adding Support for GOPROXY and GOSUMDB
+GOPROXY ?= direct
+GOSUMDB ?= off
+DISTROLESS_BASE_IMAGE ?= gcr.io/distroless/static:nonroot
+
 ifeq ($(strip $(OCI_REGISTRY)),)
 	IMG ?= $(IMG_DEFAULT_NAME):$(IMG_VERSION_OVERRIDE)
 else
@@ -87,7 +92,7 @@ run: fmt vet ## Run locally
 
 .PHONY: docker-build
 docker-build: ## Build the docker image
-	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg DISTROLESS_BASE_IMAGE="$(DISTROLESS_BASE_IMAGE)" -e GOPROXY="$(GOPROXY)" -e GOSUMDB="$(GOSUMDB)" .
 
 .PHONY: docker-push
 docker-push: ## Push the docker image
