@@ -11,6 +11,10 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
+const (
+	maxLabelValueLength = 63
+)
+
 // SetRefLabels sets labels from the data in OSImage.spec.image.ref field.
 func SetRefLabels(ls labels.Set, prefix string, ref map[string]interface{}) {
 	for name, value := range ref {
@@ -26,5 +30,11 @@ func SetRefLabels(ls labels.Set, prefix string, ref map[string]interface{}) {
 func labelFormat(value interface{}) string {
 	s := fmt.Sprint(value)
 	s = strings.ReplaceAll(s, "+", "---")
+
+	// truncate label value if length is more than maxLabelValueLength
+	if len(s) > maxLabelValueLength {
+		s = s[:maxLabelValueLength]
+	}
+
 	return s
 }
