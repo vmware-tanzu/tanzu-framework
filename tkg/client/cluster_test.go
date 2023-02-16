@@ -490,6 +490,12 @@ func populateConfigMap() map[string]string {
 	configMap[constants.ConfigVariableWorkerMachineCount0] = "0"
 	configMap[constants.ConfigVariableWorkerMachineCount1] = "0"
 	configMap[constants.ConfigVariableWorkerMachineCount2] = "0"
+	configMap[constants.ConfigVariableEtcdExtraArgs] = ""
+	configMap[constants.ConfigVariableAPIServerExtraArgs] = ""
+	configMap[constants.ConfigVariableKubeSchedulerExtraArgs] = ""
+	configMap[constants.ConfigVariableKubeControllerManagerExtraArgs] = ""
+	configMap[constants.ConfigVariableControlPlaneKubeletExtraArgs] = ""
+	configMap[constants.ConfigVariableWorkerKubeletExtraArgs] = ""
 	return configMap
 }
 

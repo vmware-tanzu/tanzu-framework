@@ -353,7 +353,7 @@ def get_cluster_variables():
                         "httpProxy": data.values["TKG_HTTP_PROXY"],
                         "httpsProxy": data.values["TKG_HTTPS_PROXY"],
                         "noProxy": data.values["TKG_NO_PROXY"].split(","),
-                        "systemWide": data.values["TKG_NODE_SYSTEM_WIDE_PROXY"], 
+                        "systemWide": data.values["TKG_NODE_SYSTEM_WIDE_PROXY"],
                     }
                 end
             end
@@ -410,6 +410,25 @@ def get_cluster_variables():
         vars["auditLogging"] = {
             "enabled": data.values["ENABLE_AUDIT_LOGGING"]
         }
+    end
+
+    if data.values["ETCD_EXTRA_ARGS"] != None and data.values["ETCD_EXTRA_ARGS"] != "":
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
+    end
+    if data.values["APISERVER_EXTRA_ARGS"] != None and data.values["APISERVER_EXTRA_ARGS"] != "":
+        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None and data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != "":
+        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None and data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != "":
+        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
+    end
+    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None and data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != "":
+        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
+    end
+    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None and data.values["WORKER_KUBELET_EXTRA_ARGS"] != "":
+        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
     end
 
     additionalTrustedCAs = []
@@ -631,25 +650,6 @@ def get_aws_vars():
 
     vars["worker"] = worker
 
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
     controlPlane = {}
     if data.values["CONTROL_PLANE_MACHINE_TYPE"] != None:
         controlPlane["instanceType"] = data.values["CONTROL_PLANE_MACHINE_TYPE"]
@@ -781,25 +781,6 @@ def get_azure_vars():
 
     if controlPlane != {}:
         vars["controlPlane"] = controlPlane
-    end
-
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
     end
 
     worker = {}
@@ -936,25 +917,6 @@ def get_vsphere_vars():
 
     if controlPlane != {}:
         vars["controlPlane"] = controlPlane
-    end
-
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
     end
 
     worker = {}
