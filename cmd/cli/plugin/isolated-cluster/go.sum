@@ -606,7 +606,7 @@ github.com/vmware-tanzu/carvel-imgpkg v0.33.0 h1:ZfMeJ+PKXJkkxcRSRiI/N9Vzxgyqj7Y
 github.com/vmware-tanzu/carvel-imgpkg v0.33.0/go.mod h1:9J2sqH4lTws2fPhiloEWTc7tKvdsmmOxRqEWgMokTXM=
 github.com/vmware-tanzu/carvel-kapp-controller v0.35.0 h1:zgWNumjhN+0CCiq1Wo4lVTmO89eOA6HuPXgv1sVhE4k=
 github.com/vmware-tanzu/carvel-vendir v0.30.0 h1:JqElRFpSsYJQmI5Hrxl1Fx9wJZ2xeDk+TVnnSrFLFVU=
-github.com/vmware/govmomi v0.27.1 h1:Rf3o1btFrkJa9be5KtgJ4CyOO8mbFnBxmNtAVHNyFes=
+github.com/vmware/govmomi v0.30.2 h1:zPMmLTtAfBgOVsTgwKOzVVahQIOC4A2oyFQFSsn/0ag=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.0.2/go.mod h1:1WAq6h33pAW+iRreB34OORO2Nf7qel3VV3fjBj+hCSs=
 github.com/xdg-go/scram v1.1.1/go.mod h1:RaEWvsqvNKKvBPvcKeFjrG2cJqOkHTiyTpzz23ni57g=
@@ -1049,7 +1049,7 @@ sigs.k8s.io/cluster-api v1.2.8 h1:O0ZGyxGBeJaSWVptM7U0vTArAVlxCE5OtQItZ4OS2Y4=
 sigs.k8s.io/cluster-api v1.2.8/go.mod h1:HmxYwjLGHia5yjFoMY8I03Ha4kXAB+VTJnHFhAmPVig=
 sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2 h1:WjTt0uyUG+FJBodnrSzb1L3mHfkIgtgMnNQQ+NJMuT8=
 sigs.k8s.io/cluster-api-provider-azure v1.6.1 h1:GpY9YLiUqovz4gwIEg2PRYOhJ5e/AG7sTHtoxzt6K4w=
-sigs.k8s.io/cluster-api-provider-vsphere v1.4.1 h1:HAOP2TTjBw7yxtQXTyAQLIq9rX/KQoHLhoptK+wh9PU=
+sigs.k8s.io/cluster-api-provider-vsphere v1.5.3 h1:D0bDtSyRIcBmuGFyW65otEh+VIz8SGioaAjYok/cK5Y=
 sigs.k8s.io/cluster-api/test v1.2.8 h1:kYziHLSV+KqBoQXg7STGU4ZQpClayqIyw+BTYGx71uE=
 sigs.k8s.io/controller-runtime v0.12.3 h1:FCM8xeY/FI8hoAfh/V4XbbYMY20gElh9yh+A98usMio=
 sigs.k8s.io/controller-runtime v0.12.3/go.mod h1:qKsk4WE6zW2Hfj0G4v10EnNB2jMG1C+NTb8h+DwCoU0=

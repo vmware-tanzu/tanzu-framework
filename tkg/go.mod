@@ -76,7 +76,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/tkr v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000
-	github.com/vmware/govmomi v0.27.1
+	github.com/vmware/govmomi v0.30.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	golang.org/x/mod v0.7.0
 	golang.org/x/net v0.4.0
@@ -94,7 +94,7 @@ require (
 	sigs.k8s.io/cluster-api v1.2.8
 	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2
 	sigs.k8s.io/cluster-api-provider-azure v1.6.1
-	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1
+	sigs.k8s.io/cluster-api-provider-vsphere v1.5.3
 	sigs.k8s.io/cluster-api/test v1.2.8
 	sigs.k8s.io/controller-runtime v0.12.3
 	sigs.k8s.io/kind v0.15.0

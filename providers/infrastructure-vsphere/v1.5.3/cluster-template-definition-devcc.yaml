@@ -3,7 +3,7 @@ kind: TemplateDefinition
 spec:
   paths:
     - path: providers/yttcb
-    - path: providers/infrastructure-vsphere/v1.5.1/yttcc
+    - path: providers/infrastructure-vsphere/v1.5.3/yttcc
     - path: providers/infrastructure-vsphere/yttcc
     - path: providers/yttcc
     - path: bom

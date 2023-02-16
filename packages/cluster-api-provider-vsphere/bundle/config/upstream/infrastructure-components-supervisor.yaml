@@ -1431,7 +1431,7 @@ spec:
           value: ${SERVICE_ACCOUNTS_CM_NAMESPACE}
         - name: SERVICE_ACCOUNTS_CM_NAME
           value: ${SERVICE_ACCOUNTS_CM_NAME}
-        image: gcr.io/cluster-api-provider-vsphere/release/manager:v1.5.1
+        image: gcr.io/cluster-api-provider-vsphere/release/manager:v1.5.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
