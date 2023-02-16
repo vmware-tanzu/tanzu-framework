@@ -182,7 +182,6 @@ spec:
       #@overlay/match missing_ok=True
     postKubeadmCommands:
       - #@ "if [ -f /tmp/kubeadm-join-config.yaml ] || [ -f /run/kubeadm/kubeadm-join-config.yaml ]; then echo '127.0.0.1   apiserver.{}.capz.io apiserver' >> /etc/hosts; fi".format(data.values.CLUSTER_NAME)
-      - "crictl pods -q | xargs -n1 crictl stop"
     #@ end
     clusterConfiguration:
       imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)

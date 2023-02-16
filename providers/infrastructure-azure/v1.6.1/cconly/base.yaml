@@ -1059,7 +1059,6 @@ spec:
         valueFrom:
           template: |
             - "if [ -f /tmp/kubeadm-join-config.yaml ] || [ -f /run/kubeadm/kubeadm-join-config.yaml ]; then echo '127.0.0.1   apiserver. {{- .builtin.cluster.name -}} .capz.io apiserver' >> /etc/hosts; fi"
-            - "crictl pods -q | xargs -n1 crictl stop"
   - name: ACT_EnableControlPlaneOutboundLB
     enabledIf: '{{ and .privateCluster.enabled .controlPlane.outboundLB.enabled }}'
     definitions:
@@ -1726,8 +1725,7 @@ spec:
           scheduler:
             extraArgs: {}
           controllerManager:
-            extraArgs:
-              configure-cloud-routes: "false"
+            extraArgs: {}
             extraVolumes:
             - hostPath: /etc/kubernetes/azure.json
               mountPath: /etc/kubernetes/azure.json
