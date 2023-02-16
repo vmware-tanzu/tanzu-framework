@@ -114,6 +114,39 @@ var _ = Describe("Validate", func() {
 		})
 	})
 
+	Context("Validate extra args", func() {
+		Context("When it contains multiple key=value with delimiter ;", func() {
+			It("should pass", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableEtcdExtraArgs, "heartbeat-interval=300;election-timeout=2000")
+				Expect(tkgClient.ValidateExtraArgs()).ShouldNot(HaveOccurred())
+			})
+		})
+		Context("When it contains single key=value", func() {
+			It("should pass", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableKubeSchedulerExtraArgs, "profiling=false")
+				Expect(tkgClient.ValidateExtraArgs()).ShouldNot(HaveOccurred())
+			})
+		})
+		Context("When arg's value also contains equal sign", func() {
+			It("should pass", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableKubeControllerManagerExtraArgs, "feature-gates=RotateKubeletServerCertificate=true,ReadWriteOncePod=true;enable-garbage-collector=true")
+				Expect(tkgClient.ValidateExtraArgs()).ShouldNot(HaveOccurred())
+			})
+		})
+		Context("When it does not use equal sign to delimit key and value", func() {
+			It("should fail validation", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableAPIServerExtraArgs, "tls-min-version:VersionTLS12;tls-cipher-suites:TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256")
+				Expect(tkgClient.ValidateExtraArgs().Error()).To(ContainSubstring("APISERVER_EXTRA_ARGS is not format key1=value1;key2=value2:"))
+			})
+		})
+		Context("When it contains an empty key", func() {
+			It("should fail validation", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerKubeletExtraArgs, "read-only-port=0;=0")
+				Expect(tkgClient.ValidateExtraArgs().Error()).To(ContainSubstring("WORKER_KUBELET_EXTRA_ARGS contains empty keys:"))
+			})
+		})
+	})
+
 	Context("ConfigureAndValidateManagementClusterConfiguration", func() {
 		var (
 			initRegionOptions *client.InitRegionOptions

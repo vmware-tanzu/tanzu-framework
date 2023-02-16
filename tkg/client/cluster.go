@@ -738,11 +738,44 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return err
 	}
 
+	if err = c.ValidateExtraArgs(); err != nil {
+		return err
+	}
+
 	if err = c.ValidateKubeVipLBConfiguration(TkgLabelClusterRoleWorkload); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
 	return c.ValidateSupportOfK8sVersionForManagmentCluster(clusterClient, options.KubernetesVersion, skipValidation)
+}
+
+func (c *TkgClient) ValidateExtraArgs() error {
+	supportedList := []string{
+		constants.ConfigVariableEtcdExtraArgs,
+		constants.ConfigVariableAPIServerExtraArgs,
+		constants.ConfigVariableKubeSchedulerExtraArgs,
+		constants.ConfigVariableKubeControllerManagerExtraArgs,
+		constants.ConfigVariableControlPlaneKubeletExtraArgs,
+		constants.ConfigVariableWorkerKubeletExtraArgs,
+	}
+	for _, extraArgsName := range supportedList {
+		if args, err := c.TKGConfigReaderWriter().Get(extraArgsName); err != nil {
+			c.TKGConfigReaderWriter().Set(extraArgsName, "")
+		} else if args != "" {
+			argList := strings.Split(args, ";")
+			for _, arg := range argList {
+				if index := strings.Index(arg, "="); index >= 0 {
+					key := arg[0:index]
+					if strings.TrimSpace(key) == "" {
+						return errors.New(fmt.Sprintf("%s contains empty keys: %s", extraArgsName, args))
+					}
+				} else {
+					return errors.New(fmt.Sprintf("%s is not format key1=value1;key2=value2: %s", extraArgsName, args))
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // ValidateProviderConfig configure and validate based on provider
