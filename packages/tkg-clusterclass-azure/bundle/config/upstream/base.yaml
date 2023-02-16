@@ -1050,16 +1050,31 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files
+        valueFrom:
+          template: |
+            content: |
+              #!/bin/sh
+              LB_METADATA=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/loadbalancer?api-version=2021-10-01")
+              FRONTEND_IP=$(echo "$LB_METADATA" | jq '.loadbalancer.inboundRules | .[0].frontendIpAddress' --raw-output)
+              cat <<EOF >>/etc/systemd/network/10-kubernetes.netdev
+              [NetDev]
+              Name=kubernetes
+              Kind=dummy
+              EOF
+              cat <<EOF >>/etc/systemd/network/10-kubernetes.network
+              [Match]
+              Name=kubernetes
+              EOF
+              systemctl restart systemd-networkd
+            owner: root:root
+            path: /usr/local/sbin/provision-kubernetes-dsr
+            permissions: "0755"
+      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands
         valueFrom:
           template: |
-            - "if [ -f /tmp/kubeadm.yaml ] || [ -f /run/kubeadm/kubeadm.yaml ]; then echo '127.0.0.1   apiserver. {{- .builtin.cluster.name -}} .capz.io apiserver' >> /etc/hosts; fi"
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands
-        valueFrom:
-          template: |
-            - "if [ -f /tmp/kubeadm-join-config.yaml ] || [ -f /run/kubeadm/kubeadm-join-config.yaml ]; then echo '127.0.0.1   apiserver. {{- .builtin.cluster.name -}} .capz.io apiserver' >> /etc/hosts; fi"
-            - "crictl pods -q | xargs -n1 crictl stop"
+            - /usr/local/sbin/provision-kubernetes-dsr
   - name: ACT_EnableControlPlaneOutboundLB
     enabledIf: '{{ and .privateCluster.enabled .controlPlane.outboundLB.enabled }}'
     definitions:
