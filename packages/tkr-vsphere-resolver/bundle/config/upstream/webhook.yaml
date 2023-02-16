@@ -31,3 +31,4 @@ webhooks:
     resources:
     - "clusters"
   sideEffects: None
+  timeoutSeconds: 30
