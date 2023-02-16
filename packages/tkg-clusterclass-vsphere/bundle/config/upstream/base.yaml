@@ -1410,8 +1410,8 @@ spec:
           template: &containerdProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY= {{- .proxy.httpProxy -}} "
-              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy -}} "
+              Environment="HTTP_PROXY= {{- .proxy.httpProxy | replace "%" "%%" -}} "
+              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy | replace "%" "%%" -}} "
               Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /etc/systemd/system/containerd.service.d/http-proxy.conf
@@ -1422,8 +1422,8 @@ spec:
           template: &kubeletProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY= {{- .proxy.httpProxy -}} "
-              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy -}} "
+              Environment="HTTP_PROXY= {{- .proxy.httpProxy | replace "%" "%%" -}} "
+              Environment="HTTPS_PROXY= {{- .proxy.httpsProxy | replace "%" "%%" -}} "
               Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
