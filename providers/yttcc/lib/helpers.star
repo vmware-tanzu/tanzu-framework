@@ -335,7 +335,7 @@ end
 def get_map_from_string(argsString, delimiter):
    argsMap = {}
    for val in argsString.split(delimiter):
-    kv = val.split('=')
+    kv = val.split('=', 1)
     if len(kv) != 2:
       assert.fail("given args string \""+argsString+"\" must be in the  \"key1=label1"+delimiter+"key2=label2\" format ")
     end
