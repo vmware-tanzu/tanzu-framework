@@ -1,9 +1,8 @@
 load("@ytt:data", "data")
 load("@ytt:overlay", "overlay")
 load("@ytt:yaml", "yaml")
-load("/lib/helpers.star", "get_default_tkg_bom_data")
-load("/lib/helpers.star", "get_labels_array_from_string")
-load("/lib/helpers.star", "get_extra_args_map_from_string")
+load("/lib/helpers.star", "get_default_tkg_bom_data", "get_labels_array_from_string", "get_extra_args_map_from_string")
+load("/lib/helpers.star",  "get_custom_keys", "valid_pci_devices_list", "get_pci_devices")
 
 #! This file contains function 'config_variable_association' which specifies all configuration variables
 #! mentioned in 'config_default.yaml' and describes association of each configuration variable with
@@ -60,6 +59,13 @@ return {
 "VSPHERE_INSECURE": ["vsphere"],
 "VSPHERE_CONTROL_PLANE_ENDPOINT": ["vsphere"],
 "VSPHERE_CONTROL_PLANE_ENDPOINT_PORT": ["vsphere"],
+"VSPHERE_WORKER_PCI_DEVICES": ["vsphere"],
+"VSPHERE_CONTROL_PLANE_PCI_DEVICES": ["vsphere"],
+"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST": ["vsphere"],
+"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS": ["vsphere"],
+"VSPHERE_WORKER_CUSTOM_VMX_KEYS": ["vsphere"],
+"VSPHERE_CONTROL_PLANE_HARDWARE_VERSION": ["vsphere"],
+"VSPHERE_WORKER_HARDWARE_VERSION": ["vsphere"],
 
 "NSXT_POD_ROUTING_ENABLED": ["vsphere"],
 "NSXT_ROUTER_PATH": ["vsphere"],
@@ -353,7 +359,7 @@ def get_cluster_variables():
                         "httpProxy": data.values["TKG_HTTP_PROXY"],
                         "httpsProxy": data.values["TKG_HTTPS_PROXY"],
                         "noProxy": data.values["TKG_NO_PROXY"].split(","),
-                        "systemWide": data.values["TKG_NODE_SYSTEM_WIDE_PROXY"], 
+                        "systemWide": data.values["TKG_NODE_SYSTEM_WIDE_PROXY"],
                     }
                 end
             end
@@ -410,6 +416,25 @@ def get_cluster_variables():
         vars["auditLogging"] = {
             "enabled": data.values["ENABLE_AUDIT_LOGGING"]
         }
+    end
+
+    if data.values["ETCD_EXTRA_ARGS"] != None and data.values["ETCD_EXTRA_ARGS"] != "":
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
+    end
+    if data.values["APISERVER_EXTRA_ARGS"] != None and data.values["APISERVER_EXTRA_ARGS"] != "":
+        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None and data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != "":
+        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None and data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != "":
+        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
+    end
+    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None and data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != "":
+        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
+    end
+    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None and data.values["WORKER_KUBELET_EXTRA_ARGS"] != "":
+        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
     end
 
     additionalTrustedCAs = []
@@ -631,25 +656,6 @@ def get_aws_vars():
 
     vars["worker"] = worker
 
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
     controlPlane = {}
     if data.values["CONTROL_PLANE_MACHINE_TYPE"] != None:
         controlPlane["instanceType"] = data.values["CONTROL_PLANE_MACHINE_TYPE"]
@@ -783,25 +789,6 @@ def get_azure_vars():
         vars["controlPlane"] = controlPlane
     end
 
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
     worker = {}
     if data.values["AZURE_NODE_MACHINE_TYPE"] != "":
         worker["vmSize"] = data.values["AZURE_NODE_MACHINE_TYPE"]
@@ -915,6 +902,9 @@ def get_vsphere_vars():
     if data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"] != "":
         machine["memoryMiB"] = data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"]
     end
+    if data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"] != None:
+        machine["customVMXKeys"] = get_custom_keys(data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"])
+    end
     if machine != {}:
         controlPlane["machine"] = machine
     end
@@ -938,25 +928,6 @@ def get_vsphere_vars():
         vars["controlPlane"] = controlPlane
     end
 
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
     worker = {}
     if data.values["WORKER_MACHINE_COUNT"] != "":
         worker["count"] = data.values["WORKER_MACHINE_COUNT"]
@@ -970,6 +941,9 @@ def get_vsphere_vars():
     end
     if data.values["VSPHERE_WORKER_MEM_MIB"] != "":
         machine["memoryMiB"] = data.values["VSPHERE_WORKER_MEM_MIB"]
+    end
+    if data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"] != None:
+        machine["customVMXKeys"] = get_custom_keys(data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"])
     end
     if machine != {}:
         worker["machine"] = machine
@@ -1008,6 +982,33 @@ def get_vsphere_vars():
     end
     if customTDNFRepository != {}:
         vars["customTDNFRepository"] = customTDNFRepository
+    end
+
+    pci = {}
+    pciControlPlane = {}
+    if data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"] != None:
+        pciControlPlane["devices"] = get_pci_devices(data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"], data.values["VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"])
+    end
+    if data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"] != None:
+        pciControlPlane["hardwareVersion"] = data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"]
+    end
+    if pciControlPlane != {}:
+        pci["controlPlane"] = pciControlPlane
+    end
+
+    pciWorker = {}
+    if data.values["VSPHERE_WORKER_PCI_DEVICES"] != None:
+        pciWorker["devices"] = get_pci_devices(data.values["VSPHERE_WORKER_PCI_DEVICES"], data.values["VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"])
+    end
+    if data.values["VSPHERE_WORKER_HARDWARE_VERSION"] != None:
+        pciWorker["hardwareVersion"] = data.values["VSPHERE_WORKER_HARDWARE_VERSION"]
+    end
+    if pciWorker != {}:
+        pci["worker"] = pciWorker
+    end
+
+    if pci != {}:
+        vars["pci"] = pci
     end
 
     return vars
