@@ -306,6 +306,22 @@ jobs:
           echo "free space after cleanup:"
           df -h
 
+      - name: Get AWS credentials
+        run: |
+          CG_TOKEN=$(curl -s --location --request POST 'https://api.console.cloudgate.vmware.com/authn/token' \
+            --user '${{ secrets.CG_ID }}:${{ secrets.CG_SECRET }}' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{"grant_type": "client_credentials"}' | jq -r '.access_token')
+          
+          aws_creds=$(curl -s --location --request POST 'https://api.console.cloudgate.vmware.com/access/access' \
+            --header "Authorization: Bearer ${CG_TOKEN}" \
+            --header 'Content-Type: application/json' \
+            --data-raw '{"ouId":"ou-kw69-lqh1erao","orgAccountId":"942999320260","masterAccountId":"116462199383","role":"PowerUser"}')
+          
+          echo "AWS_ACCESS_KEY_ID="$(echo $aws_creds | jq -r '.credentials.accessKeyId') >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY="$(echo $aws_creds | jq -r '.credentials.secretAccessKey') >> $GITHUB_ENV
+          echo "AWS_SESSION_TOKEN="$(echo $aws_creds | jq -r '.credentials.sessionToken') >> $GITHUB_ENV
+
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
         with:
@@ -348,9 +364,9 @@ jobs:
         with:
           files: 'tkg/test/config/aws.yaml'
         env:
-          tkg_config_variables.AWS_ACCESS_KEY_ID: ${{ secrets.TESTAWS_ACCESS_KEY_ID }}
-          tkg_config_variables.AWS_SECRET_ACCESS_KEY: ${{ secrets.TESTAWS_SECRET_ACCESS_KEY }}
-          tkg_config_variables.AWS_SESSION_TOKEN: ${{ secrets.TESTAWS_SESSION_TOKEN }}
+          tkg_config_variables.AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          tkg_config_variables.AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          tkg_config_variables.AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
       - run: |
           cat tkg/test/config/aws.yaml
@@ -367,9 +383,9 @@ jobs:
           E2E_CONFIG=$PWD/test/config/aws.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/aws_cc
           popd
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.TESTAWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.TESTAWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.TESTAWS_SESSION_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
           AWS_REGION: "us-west-2"
           _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ needs.build-and-publish-packages.outputs.registry }}/tanzu_framework/github-actions/${{ needs.build-and-publish-packages.outputs.regdir }}/management:v0.21.0
           _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
@@ -378,7 +394,7 @@ jobs:
       - name: Cleanup AWS resources
         if: ${{ always() }}
         run: |
-          tkg/test/scripts/aws_cleanup.sh ${{ secrets.TESTAWS_ACCESS_KEY_ID }} ${{ secrets.TESTAWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
+          tkg/test/scripts/aws_cleanup.sh ${{ env.AWS_ACCESS_KEY_ID }} ${{ env.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
         env:
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
 
