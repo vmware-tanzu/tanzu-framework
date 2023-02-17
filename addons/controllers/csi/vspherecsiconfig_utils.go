@@ -258,7 +258,7 @@ func (r *VSphereCSIConfigReconciler) overrideDerivedValues(ctx context.Context,
 	r.overrideTopologyValues(ctx, dvscsi, vcsiConfig)
 	r.overrideClusterValues(dvscsi, vcsiConfig)
 	r.overrideMiscValues(dvscsi, vcsiConfig)
-
+	r.overrideNetPermissionsValues(dvscsi, vcsiConfig)
 	return r.overrideCredentialValues(ctx, dvscsi, vcsiConfig)
 }
 
@@ -367,6 +367,29 @@ func (r *VSphereCSIConfigReconciler) overrideMiscValues(dvscsi *DataValuesVSpher
 	}
 	if config.InsecureFlag != nil {
 		dvscsi.InsecureFlag = *config.InsecureFlag
+	}
+}
+
+func (r *VSphereCSIConfigReconciler) overrideNetPermissionsValues(dvscsi *DataValuesVSphereCSI,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) {
+
+	config := vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig
+	if config.NetPermissions != nil {
+		netPermisions := make(map[string]*NetPermissionConfig)
+		for permKey, permConfig := range config.NetPermissions {
+			netPermisionConfig := &NetPermissionConfig{}
+			if permConfig.Ips != "" {
+				netPermisionConfig.Ips = permConfig.Ips
+			}
+			if permConfig.Permissions != "" {
+				netPermisionConfig.Permissions = permConfig.Permissions
+			}
+			if permConfig.RootSquash {
+				netPermisionConfig.RootSquash = permConfig.RootSquash
+			}
+			netPermisions[permKey] = netPermisionConfig
+		}
+		dvscsi.NetPermissions = netPermisions
 	}
 }
 
