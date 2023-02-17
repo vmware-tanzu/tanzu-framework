@@ -5,6 +5,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -13,6 +14,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capictrlpkubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -26,6 +28,11 @@ import (
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
+)
+
+const (
+	varIdentityRef = "identityRef"
+	namespaceCAPV  = "capv-system"
 )
 
 // ClusterToVSphereCSIConfig returns a list of Requests with VSphereCSIConfig ObjectKey
@@ -161,8 +168,38 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 		dvs.VSphereCSI.PublicNetwork = cpMachineTemplate.Spec.Template.Spec.Network.Devices[0].NetworkName
 	}
 
-	// derive vSphere username and password from the <cluster name> secret
-	clusterSecret, err := cutil.GetSecret(ctx, r.Client, cluster.Namespace, cluster.Name)
+	// derive vSphere username and password from the <cluster name> secret.
+	// In case of TMC based deployment, we do not create <cluster name> secret.
+	// Hence if <cluster name> secret is not found, check for VSphereClusterIdentity resource
+	// to fetch vSphere username and password
+	secretName := cluster.Name
+	secretNamespace := cluster.Namespace
+	for _, variable := range cluster.Spec.Topology.Variables {
+		if variable.Name == varIdentityRef {
+			identityRef := &capvv1beta1.VSphereIdentityReference{}
+			if err := json.Unmarshal(variable.Value.Raw, identityRef); err != nil {
+				return nil, errors.Wrapf(err, fmt.Sprintf("could not parse variable identityRef: %v", variable))
+			}
+			switch identityRef.Kind {
+			case capvv1beta1.VSphereClusterIdentityKind:
+				vSphereClusterIdentity := &capvv1beta1.VSphereClusterIdentity{}
+				if err := r.Client.Get(ctx, client.ObjectKey{Name: identityRef.Name}, vSphereClusterIdentity); err != nil {
+					return nil, errors.Wrapf(err, fmt.Sprintf("could not get VSphereClusterIdentity %s", identityRef.Name))
+				}
+				if vSphereClusterIdentity.Status.Ready {
+					secretName = vSphereClusterIdentity.Spec.SecretName
+					secretNamespace = namespaceCAPV
+				} else {
+					return nil, errors.New(fmt.Sprintf("VShereClusterIdentity %s is not ready yet", identityRef.Name))
+				}
+			case capvv1beta1.SecretKind:
+				secretName = identityRef.Name
+			default:
+				return nil, errors.New(fmt.Sprintf("not supported identityRef type %s", identityRef.Kind))
+			}
+		}
+	}
+	clusterSecret, err := cutil.GetSecret(ctx, r.Client, secretNamespace, secretName)
 	if err != nil {
 		return nil, err
 	}
