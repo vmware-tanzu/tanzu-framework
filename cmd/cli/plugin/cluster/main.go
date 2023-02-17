@@ -47,6 +47,7 @@ func main() {
 		scaleClusterCmd,
 		machineHealthCheckCmd,
 		credentialsCmd,
+		// Add the "kubeconfig" tree of commands here.
 		clusterKubeconfigCmd,
 		getClustersCmd,
 		availableUpgradesCmd,

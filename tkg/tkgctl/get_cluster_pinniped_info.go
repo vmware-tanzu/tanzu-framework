@@ -15,6 +15,7 @@ type GetClusterPinnipedInfoOptions struct {
 	IsManagementCluster bool
 }
 
+// We may need a similar path as this to go fishing to see what we have available for talking to Pinniped.
 // GetClusterPinnipedInfo returns the cluster and pinniped information
 func (t *tkgctl) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*client.ClusterPinnipedInfo, error) {
 	if !options.IsManagementCluster && options.Namespace == "" {
@@ -26,6 +27,7 @@ func (t *tkgctl) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (
 		IsManagementCluster: options.IsManagementCluster,
 	}
 
+	// assuming we make actual requests in here.
 	clusterPinnipedInfo, err := t.tkgClient.GetClusterPinnipedInfo(getClustersPinnipedInfoOptions)
 	if err != nil {
 		return nil, err

@@ -169,6 +169,8 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort
 			return nil, errors.Wrap(err, "failed to override discovery port")
 		}
 	}
+
+	// in the end here we are just making an HTTP request to the API server to get the contents of the pinniped-info configmap.
 	pinnipedInfoURL := endpoint + fmt.Sprintf("/api/v1/namespaces/%s/configmaps/pinniped-info", KubePublicNamespace)
 	//nolint:noctx
 	req, _ := http.NewRequest("GET", pinnipedInfoURL, http.NoBody)
@@ -185,6 +187,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort
 		Timeout: time.Second * 10,
 	}
 
+	// this should give us the file contents
 	response, err := clusterClient.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from the cluster")
@@ -198,11 +201,13 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort
 		return nil, fmt.Errorf("failed to get pinniped-info from the cluster. Status code: %+v", response.StatusCode)
 	}
 
+	// read out the body of the response, should be JSON string
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read the response body")
 	}
 
+	// convert the JSON into a struct we can use and pass it back.
 	var pinnipedConfigMapInfo PinnipedConfigMapInfo
 	err = json.Unmarshal(responseBody, &pinnipedConfigMapInfo)
 	if err != nil {
@@ -211,3 +216,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort
 
 	return &pinnipedConfigMapInfo, nil
 }
+
+// TODO(BEN): seems we need to support an additional helper here to wire in the ability to get the supervisor
+// .well-known/openid-configuration endpoint.  So likely a copy/paste of what we have done elsewhere to ensure we
+// can get this information

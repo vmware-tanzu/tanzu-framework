@@ -16,6 +16,8 @@ type GetWorkloadClusterCredentialsOptions struct {
 	ExportFile  string
 }
 
+// this is likely the func responsible for creating kubeconfig files,
+// either admin kubeconfig files, or pinniped specific kubeconfig files.
 // GetCredentials saves cluster credentials to a file
 func (t *tkgctl) GetCredentials(options GetWorkloadClusterCredentialsOptions) error {
 	if options.Namespace == "" {
@@ -25,9 +27,9 @@ func (t *tkgctl) GetCredentials(options GetWorkloadClusterCredentialsOptions) er
 	getWorkloadClusterCredentialsOptions := client.GetWorkloadClusterCredentialsOptions{
 		ClusterName: options.ClusterName,
 		Namespace:   options.Namespace,
-		ExportFile:  options.ExportFile,
+		// this is the file that will be written if provided.
+		ExportFile: options.ExportFile,
 	}
-
 	context, path, err := t.tkgClient.GetWorkloadClusterCredentials(getWorkloadClusterCredentialsOptions)
 	if err != nil {
 		return err

@@ -5,6 +5,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -26,6 +27,10 @@ type getClusterKubeconfigOptions struct {
 
 var getKCOptions = &getClusterKubeconfigOptions{}
 
+// mgmt.1
+// the command to add to generate the kubeconfig for the mgmt cluster
+// this will delegate to getKubecofig, which will call the function
+// chain below.
 var getClusterKubeconfigCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get Kubeconfig of a management cluster",
@@ -47,6 +52,8 @@ func init() {
 	clusterKubeconfigCmd.AddCommand(getClusterKubeconfigCmd)
 }
 
+// mgmt.2
+// the entrypoint defined by getClusterKubeconfigCmd (a Cobra cmd)
 func getKubeconfig(cmd *cobra.Command, args []string) error {
 	server, err := config.GetCurrentServer()
 	if err != nil {
@@ -59,6 +66,7 @@ func getKubeconfig(cmd *cobra.Command, args []string) error {
 	return getClusterKubeconfig(server)
 }
 
+// mgmt.3
 func getClusterKubeconfig(server *configapi.Server) error {
 	forceUpdateTKGCompatibilityImage := false
 	tkgctlClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
@@ -73,8 +81,11 @@ func getClusterKubeconfig(server *configapi.Server) error {
 	}
 
 	if getKCOptions.adminKubeconfig {
+		// this is the non-pinniped path
 		return getAdminKubeconfig(tkgctlClient, mcClustername)
 	}
+	// generate the cluster specific kubeconfig file.
+	// mgmt.4
 	return getPinnipedKubeconfig(tkgctlClient, mcClustername)
 }
 
@@ -87,6 +98,8 @@ func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) err
 	return tkgctlClient.GetCredentials(getClusterCredentialsOptions)
 }
 
+// mgmt.5
+// this function delegates to the tkgauth.GetPinnipedKubeconfig() to generate the kubeconfig file itself.
 func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) error {
 	getClusterPinnipedInfoOptions := tkgctl.GetClusterPinnipedInfoOptions{
 		ClusterName:         mcClustername,
@@ -102,8 +115,28 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) 
 	// for management cluster the audience would be set to IssuerURL
 	audience := clusterPinnipedInfo.PinnipedInfo.Data.Issuer
 
-	kubeconfig, _ := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
-		clusterPinnipedInfo.ClusterName, audience)
+	pinnipedSupervisorDiscoveryOpts := tkgctl.GetClusterPinnipedSupervisorDiscoveryOptions{
+		Endpoint: fmt.Sprintf("%s/.well-known/openid-configuration", clusterPinnipedInfo.PinnipedInfo.Data.Issuer),
+		CABundle: clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle,
+	}
+	supervisorDiscoveryInfo, err := tkgctlClient.GetPinnipedSupervisorDiscovery(pinnipedSupervisorDiscoveryOpts)
+	if err != nil {
+		return err
+	}
+
+	// TODO(BEN): remove this, we don't need it once done
+	fmt.Printf("🦄 this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
+	log.Infof("🦄 this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
+
+	// mgmt.6
+	// this seems a pretty reasonable entrypoint to pursue, however is it
+	// "getting" an existing kubeconfig, or is it generating a new kubeconfig?
+	kubeconfig, _ := tkgauth.GetPinnipedKubeconfig(
+		clusterPinnipedInfo.ClusterInfo,
+		clusterPinnipedInfo.PinnipedInfo,
+		clusterPinnipedInfo.ClusterName,
+		audience,
+		supervisorDiscoveryInfo)
 
 	kubeconfigbytes, err := json.Marshal(kubeconfig)
 	if err != nil {

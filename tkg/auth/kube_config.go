@@ -19,6 +19,7 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	tkgclient "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 	tkgutils "github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
@@ -32,8 +33,10 @@ const (
 	// ConciergeAuthenticatorName is the pinniped concierge authenticator object name
 	ConciergeAuthenticatorName = "tkg-jwt-authenticator"
 
-	// PinnipedOIDCScopes are the scopes of pinniped oidc
-	PinnipedOIDCScopes = "offline_access,openid,pinniped:request-audience"
+	// Pinniped Supervisor supports different scopes depending on the version running on cluster
+	PinnipedOIDCScopes0120 = "offline_access,openid,pinniped:request-audience"
+	PinnipedOIDCScopes0220 = "offline_access,openid,pinniped:request-audience,username,groups"
+	// make a second that contians the new additional scopes so we can conditionally swap to one or the other below.
 
 	// TanzuLocalKubeDir is the local config directory
 	TanzuLocalKubeDir = ".kube-tanzu"
@@ -61,6 +64,24 @@ type DiscoveryStrategy struct {
 	ClusterInfoConfigMap string
 }
 
+func findPinnipedSupervisorSupportedScopes(scopes []string) string {
+	contains := func(s []string, str string) bool {
+		for _, v := range s {
+			if v == str {
+				return true
+			}
+		}
+
+		return false
+	}
+	suportsGroups := contains(scopes, "groups")
+	supportsUsername := contains(scopes, "username")
+	if suportsGroups && supportsUsername {
+		return PinnipedOIDCScopes0220
+	}
+	return PinnipedOIDCScopes0120
+}
+
 // KubeconfigWithPinnipedAuthLoginPlugin prepares the kubeconfig with tanzu pinniped-auth login as client-go exec plugin
 func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions, discoveryStrategy DiscoveryStrategy) (mergeFilePath, currentContext string, err error) {
 	clusterInfo, err := tkgutils.GetClusterInfoFromCluster(endpoint, discoveryStrategy.ClusterInfoConfigMap)
@@ -80,7 +101,28 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 		return
 	}
 
-	config, err := GetPinnipedKubeconfig(clusterInfo, pinnipedInfo, pinnipedInfo.Data.ClusterName, pinnipedInfo.Data.Issuer)
+	pinnipedSupervisorDiscoveryOpts := tkgctl.GetClusterPinnipedSupervisorDiscoveryOptions{
+		Endpoint: fmt.Sprintf("%s/.well-known/openid-configuration", pinnipedInfo.Data.Issuer),
+		CABundle: pinnipedInfo.Data.IssuerCABundle,
+	}
+	// TODO: tkgutils.GetPinnipedInfoFromCluster() appears to be a different wrapper?
+	// time to work this in
+	// we will have to add it to tkgutils as a sibling
+	//    tkgutils.GetPinnipedInfoFromCluster
+	//    tkgutils.GetPinnipedSupervisorDiscovery
+	// and then copy some code to make it work properly.
+	supervisorDiscoveryInfo, err := tkgctlClient.GetPinnipedSupervisorDiscovery(pinnipedSupervisorDiscoveryOpts)
+	if err != nil {
+		return err
+
+	}
+
+	config, err := GetPinnipedKubeconfig(
+		clusterInfo,
+		pinnipedInfo,
+		pinnipedInfo.Data.ClusterName,
+		pinnipedInfo.Data.Issuer,
+		supervisorDiscoveryInfo) // TODO (BEN): this was broken as we added this field. So we need to fix the above addition to make it work
 	if err != nil {
 		err = errors.Wrap(err, "unable to get the kubeconfig")
 		return
@@ -152,8 +194,12 @@ func loadKubeconfigAndEnsureContext(kubeConfigPath, context string) ([]byte, err
 	return clientcmd.Write(*config)
 }
 
-// GetPinnipedKubeconfig generate kubeconfig given cluster-info and pinniped-info and the requested audience
-func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils.PinnipedConfigMapInfo, clustername, audience string) (*clientcmdapi.Config, error) {
+func GetPinnipedKubeconfig(
+	cluster *clientcmdapi.Cluster,
+	pinnipedInfo *tkgutils.PinnipedConfigMapInfo,
+	clustername string,
+	audience string,
+	supervisorDiscoveryInfo *tkgclient.PinnipedSupervisorDiscoveryInfo) (*clientcmdapi.Config, error) {
 	execConfig := clientcmdapi.ExecConfig{
 		APIVersion: clientauthenticationv1beta1.SchemeGroupVersion.String(),
 		Args:       []string{},
@@ -168,6 +214,8 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 		conciergeEndpoint = cluster.Server
 	}
 
+	scopesToRequest := findPinnipedSupervisorSupportedScopes(supervisorDiscoveryInfo.ScopesSupported)
+
 	// configure concierge
 	execConfig.Args = append(execConfig.Args,
 		"--enable-concierge",
@@ -177,7 +225,7 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 		"--concierge-endpoint="+conciergeEndpoint,
 		"--concierge-ca-bundle-data="+base64.StdEncoding.EncodeToString(cluster.CertificateAuthorityData),
 		"--issuer="+pinnipedInfo.Data.Issuer, // configure OIDC
-		"--scopes="+PinnipedOIDCScopes,
+		"--scopes="+scopesToRequest,
 		"--ca-bundle-data="+pinnipedInfo.Data.IssuerCABundle,
 		"--request-audience="+audience,
 	)

@@ -14,6 +14,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 )
 
+// This is important to understand.
 // TKGClient implements TKG client
 type TKGClient interface {
 	// AddRegion adds region
@@ -74,6 +75,8 @@ type TKGClient interface {
 	UpdateCredentialsCluster(options UpdateCredentialsClusterOptions) error
 	// GetClusterPinnipedInfo returns the cluster and pinniped info
 	GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*client.ClusterPinnipedInfo, error)
+	// GetClusterPinnipedSupervisorDiscovery returns the discovery information from the pinniped supervisor
+	GetPinnipedSupervisorDiscovery(options GetClusterPinnipedSupervisorDiscoveryOptions) (*client.PinnipedSupervisorDiscoveryInfo, error)
 	// GetTanzuKubernetesReleases returns the available TanzuKubernetesReleases
 	// Deprecated: This would not be supported from TKR API version v1alpha3,
 	// user can use go client to get TKR

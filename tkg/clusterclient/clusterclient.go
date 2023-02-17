@@ -67,6 +67,7 @@ import (
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
@@ -1616,6 +1617,9 @@ func (c *client) GetSecretValue(secretName, key, namespace string, pollOptions *
 	return data, nil
 }
 
+// one impl of the function to generate a kubeconfig for a cluster
+// all other instances are in the fakes package.
+// however,this is getting a kubeconfig already on disk this is not generating a new kubeconfig.
 func (c *client) GetKubeConfigForCluster(clusterName, namespace string, pollOptions *PollOptions) ([]byte, error) {
 	log.V(4).Info("getting secret for cluster")
 	clusterSecretName := fmt.Sprintf("%s-%s", clusterName, kubeConfigSecretSuffix)

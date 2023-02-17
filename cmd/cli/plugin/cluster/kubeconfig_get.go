@@ -5,6 +5,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
@@ -18,14 +19,20 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
+// this is a collection of the options that are actually passed as flags to the command itself
+// but will be captured in this struct.  See the init() function
 type getClusterKubeconfigOptions struct {
 	namespace       string
 	exportFile      string
 	adminKubeconfig bool
 }
 
+// instantiate a struct var
 var getKCOptions = &getClusterKubeconfigOptions{}
 
+// work.1
+// create the Cobra command, and delegate to the function that
+// will be responsible for generating the kubeconfig itself.
 var getClusterKubeconfigCmd = &cobra.Command{
 	Use:   "get CLUSTER_NAME",
 	Short: "Get kubeconfig of a cluster",
@@ -36,11 +43,13 @@ var getClusterKubeconfigCmd = &cobra.Command{
 
     # Get workload cluster admin kubeconfig
     tanzu cluster kubeconfig get CLUSTER_NAME --admin`,
-	Args:         cobra.ExactArgs(1),
+	Args: cobra.ExactArgs(1),
+	// the main function to run when teh command is invoked.
 	RunE:         getKubeconfig,
 	SilenceUsage: true,
 }
 
+// simply initialize the variables and capture whatever the user passes to them.
 func init() {
 	getClusterKubeconfigCmd.Flags().BoolVarP(&getKCOptions.adminKubeconfig, "admin", "", false, "Get admin kubeconfig of the workload cluster")
 	getClusterKubeconfigCmd.Flags().StringVarP(&getKCOptions.namespace, "namespace", "n", "", "The namespace where the workload cluster was created. Assumes 'default' if not specified.")
@@ -49,9 +58,11 @@ func init() {
 	clusterKubeconfigCmd.AddCommand(getClusterKubeconfigCmd)
 }
 
+// work.2
 func getKubeconfig(cmd *cobra.Command, args []string) error {
+	// not a flag, this is the first (and perhaps only?) arg to the command.
 	workloadClusterName := args[0]
-
+	// not sure what this does exactly yet.
 	server, err := config.GetCurrentServer()
 	if err != nil {
 		return err
@@ -60,9 +71,13 @@ func getKubeconfig(cmd *cobra.Command, args []string) error {
 	if server.IsGlobal() {
 		return errors.New("get cluster kubeconfig with a global server is not implemented yet")
 	}
+	// delegates out
 	return getClusterKubeconfig(server, workloadClusterName)
 }
 
+// work.4
+// get the actual kubeconfig
+// two options, admin or pinniped version.
 func getClusterKubeconfig(server *configapi.Server, workloadClusterName string) error {
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
@@ -84,6 +99,7 @@ func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName strin
 	return tkgctlClient.GetCredentials(getClusterCredentialsOptions)
 }
 
+// work.4
 func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName string) error {
 	getClusterPinnipedInfoOptions := tkgctl.GetClusterPinnipedInfoOptions{
 		ClusterName:         workloadClusterName,
@@ -102,8 +118,25 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName st
 		audience = *clusterPinnipedInfo.ClusterAudience
 	}
 
-	kubeconfig, err := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
-		clusterPinnipedInfo.ClusterName, audience)
+	pinnipedSupervisorDiscoveryOpts := tkgctl.GetClusterPinnipedSupervisorDiscoveryOptions{
+		Endpoint: fmt.Sprintf("%s/.well-known/openid-configuration", clusterPinnipedInfo.PinnipedInfo.Data.Issuer),
+		CABundle: clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle,
+	}
+	supervisorDiscoveryInfo, err := tkgctlClient.GetPinnipedSupervisorDiscovery(pinnipedSupervisorDiscoveryOpts)
+	if err != nil {
+		return err
+
+	}
+
+	// work.5
+	// this seems pretty reasonable entrypoint again.
+	// this is the same entrypoint as is called by the mgmt cluster plugin flow
+	kubeconfig, err := tkgauth.GetPinnipedKubeconfig(
+		clusterPinnipedInfo.ClusterInfo,
+		clusterPinnipedInfo.PinnipedInfo,
+		clusterPinnipedInfo.ClusterName,
+		audience,
+		supervisorDiscoveryInfo)
 
 	if err != nil {
 		return errors.Wrap(err, "unable to get kubeconfig")

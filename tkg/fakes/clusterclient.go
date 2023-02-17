@@ -3451,6 +3451,7 @@ func (fake *ClusterClient) GetKCPObjectForClusterReturnsOnCall(i int, result1 *v
 	}{result1, result2}
 }
 
+// another impl, however this is in the fakes package so likely not what we need.
 func (fake *ClusterClient) GetKubeConfigForCluster(arg1 string, arg2 string, arg3 *clusterclient.PollOptions) ([]byte, error) {
 	fake.getKubeConfigForClusterMutex.Lock()
 	ret, specificReturn := fake.getKubeConfigForClusterReturnsOnCall[len(fake.getKubeConfigForClusterArgsForCall)]

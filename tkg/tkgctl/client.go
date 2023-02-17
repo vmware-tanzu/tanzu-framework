@@ -123,7 +123,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 			Context: options.KubeContext,
 		}
 	}
-
+	// seems like here is the concrete impl used to create a tkgClient that is passed around the system and used to do work.
 	tkgClient, err := client.New(client.Options{
 		ClusterCtlClient:         allClients.ClusterCtlClient,
 		ReaderWriterConfigClient: allClients.ConfigClient,

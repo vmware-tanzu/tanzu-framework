@@ -35,6 +35,7 @@ type DeleteWorkloadClusterOptions struct {
 	Namespace   string
 }
 
+// closer to where we need to be to get the kubeconfig finally.
 // GetWorkloadClusterCredentials gets and saves workload cluster credentials
 func (c *TkgClient) GetWorkloadClusterCredentials(options GetWorkloadClusterCredentialsOptions) (string, string, error) {
 	currentRegion, err := c.GetCurrentRegionContext()
@@ -65,6 +66,9 @@ func (c *TkgClient) GetWorkloadClusterCredentials(options GetWorkloadClusterCred
 		}
 	}()
 	getKubeconfigPollOptions := &clusterclient.PollOptions{Interval: time.Second, Timeout: 3 * time.Second}
+	// specifically here we go, actually generate the kubeconfig for the cluster.
+	// this is in the context of a workload clsuter given this calling function's name
+	// but I imagine this same function will be called for a mgmt cluster at some point.
 	kubeconfig, err := clusterClient.GetKubeConfigForCluster(options.ClusterName, options.Namespace, getKubeconfigPollOptions)
 	if err != nil {
 		return "", "", errors.Wrap(err, "unable to get cluster kubeconfig. Make sure the cluster name and namespace is correct")

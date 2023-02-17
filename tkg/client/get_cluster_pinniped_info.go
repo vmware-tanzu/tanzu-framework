@@ -35,6 +35,7 @@ type ClusterPinnipedInfo struct {
 	PinnipedInfo    *utils.PinnipedConfigMapInfo
 }
 
+// following the path here from tkgctl.GetClusterPinnipedInfo()
 // GetClusterPinnipedInfo gets pinniped information from cluster
 func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error) {
 	clusterclientOptions := clusterclient.Options{
@@ -61,6 +62,8 @@ func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions
 	}
 
 	if options.IsManagementCluster {
+		// 1st of two paths:
+		// go get the MC cluster pinnipedInfo file
 		return c.GetMCClusterPinnipedInfo(regionalClusterClient, curRegion, options)
 	}
 
@@ -70,6 +73,8 @@ func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions
 		return nil, errors.Wrap(err, "failed to determine if workload cluster is ClusterClass based")
 	}
 
+	// 2nd of two paths:
+	// go get the workload cluster pinnipedInfo file
 	return c.GetWCClusterPinnipedInfo(regionalClusterClient, curRegion, options, isPacific, isClusterClassBased)
 }
 
@@ -167,6 +172,7 @@ func (c *TkgClient) GetMCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get cluster information")
 	}
+	// this gets buried rather deep.
 	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from cluster")
@@ -176,6 +182,7 @@ func (c *TkgClient) GetMCClusterPinnipedInfo(regionalClusterClient clusterclient
 		return nil, errors.New("failed to get pinniped-info from cluster")
 	}
 
+	// creates a structure with a few more bits of data that are useful.
 	return &ClusterPinnipedInfo{
 		ClusterName:  options.ClusterName,
 		ClusterInfo:  clusterInfo,
