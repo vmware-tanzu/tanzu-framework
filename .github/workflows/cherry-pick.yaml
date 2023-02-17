@@ -44,7 +44,7 @@ jobs:
           token: ${{ secrets.ALFRED_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Failed to create cherry-pick PR, workflow failed (usually due to merge conflicts), please create the cherry-pick PR manually.
+            Failed to create cherry-pick PR, workflow failed (usually due to merge conflicts), please create the cherry-pick PR manually against release-0.28 branch.
       - name: post success message
         uses: peter-evans/create-or-update-comment@v2
         if: steps.check.outputs.status == 'success'
