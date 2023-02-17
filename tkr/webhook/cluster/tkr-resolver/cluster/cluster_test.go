@@ -426,6 +426,7 @@ var _ = Describe("cluster.Webhook", func() {
 					cluster.Spec.Topology = &clusterv1.Topology{}
 					cluster.Spec.Topology.Version = k8sVersionPrefix
 
+					customImageRepository = ""
 					if rand.Intn(2) != 0 {
 						customImageRepository = rand.String(10)
 					}
@@ -488,8 +489,19 @@ var _ = Describe("cluster.Webhook", func() {
 							Expect(topology.GetVariable(cluster, VarTKRData, &tkrData)).To(Succeed())
 							Expect(tkrData).ToNot(BeNil())
 							Expect(tkrData).To(HaveKey(tkr.Spec.Kubernetes.Version))
-							Expect(tkrData[tkr.Spec.Kubernetes.Version].Labels[runv1.LabelTKR]).To(Equal(tkr.Name))
-							Expect(tkrData[tkr.Spec.Kubernetes.Version].KubernetesSpec).To(Equal(*withCustomImageRepository(customImageRepository, &tkr.Spec.Kubernetes)))
+							dataValue := tkrData[tkr.Spec.Kubernetes.Version]
+							Expect(dataValue.Labels[runv1.LabelTKR]).To(Equal(tkr.Name))
+							Expect(dataValue.KubernetesSpec).To(Equal(*withCustomImageRepository(customImageRepository, defaultImageRepository(&tkr.Spec.Kubernetes))))
+							for _, imageInfo := range []*runv1.ContainerImageInfo{
+								dataValue.KubernetesSpec.Etcd,
+								dataValue.KubernetesSpec.Pause,
+								dataValue.KubernetesSpec.CoreDNS,
+								dataValue.KubernetesSpec.KubeVIP,
+							} {
+								if imageInfo != nil {
+									Expect(imageInfo.ImageRepository).ToNot(BeEmpty())
+								}
+							}
 						})
 					})
 				})
