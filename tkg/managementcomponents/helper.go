@@ -138,11 +138,7 @@ func convertToString(config interface{}) string {
 func convertNodeNetworkList(userProviderConfigValues map[string]interface{}) (string, error) {
 	var nodeNetworkList []NodeNetwork
 	config := userProviderConfigValues[constants.ConfigVariableAviIngressNodeNetworkList]
-	if config != nil {
-		if err := yaml.Unmarshal([]byte(config.(string)), &nodeNetworkList); err != nil {
-			return "", errors.Errorf("Invalid node network list %s", config.(string))
-		}
-	} else {
+	if config == nil || config.(string) == "" || config.(string) == `""` {
 		// return vsphere network if node network list is not set
 		network_pathes := strings.Split(convertToString(userProviderConfigValues[constants.ConfigVariableVsphereNetwork]), "/")
 		network := network_pathes[len(network_pathes)-1]
@@ -150,6 +146,10 @@ func convertNodeNetworkList(userProviderConfigValues map[string]interface{}) (st
 			{
 				NetworkName: network,
 			},
+		}
+	} else {
+		if err := yaml.Unmarshal([]byte(config.(string)), &nodeNetworkList); err != nil {
+			return "", errors.Errorf("Invalid node network list %s", config.(string))
 		}
 	}
 	//convert nodeNetworkList to json string
@@ -193,7 +193,7 @@ func setAkoOperatorConfig(tkgPackageConfig *TKGPackageConfig, userProviderConfig
 
 	nodeNetworkList, err := convertNodeNetworkList(userProviderConfigValues)
 	if err != nil {
-		return errors.Errorf("Error convert node network list")
+		return errors.Wrapf(err, "Error convert node network list")
 	}
 
 	aviLabelsJsonString, err := convertAVILabels(userProviderConfigValues[constants.ConfigVariableAviLabels])

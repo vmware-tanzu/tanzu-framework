@@ -7,7 +7,7 @@
 #@ load("@ytt:struct", "struct")
 #@ load("/lib/config_variable_association.star", "config_variable_association", "get_azure_vars")
 
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_azure_image", "get_default_tkg_bom_data")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_azure_image", "get_default_tkg_bom_data","get_tkr_version_from_tkr_name")
 #@ load("lib/validate.star", "validate_configuration")
 
 #@ validate_configuration("azure")
@@ -50,6 +50,8 @@
 
 #@ bomData = get_default_tkg_bom_data()
 
+#@ tkrVersion = get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE)
+
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
@@ -79,8 +81,7 @@ spec:
       - #@ data.values.SERVICE_CIDR
   topology:
     class: #@ data.values.CLUSTER_CLASS
-    #! VVV TODO(vui) compute
-    version: #@ data.values.KUBERNETES_VERSION
+    version: #@ tkrVersion
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
       #@overlay/match missing_ok=True
@@ -170,5 +171,5 @@ spec:
     name: #@ "{}-identity-secret".format(data.values.CLUSTER_NAME)
     namespace: tkg-system
   tenantID: #@ data.values.AZURE_TENANT_ID
-  type: ServicePrincipal
+  type: ManualServicePrincipal
 #@ end

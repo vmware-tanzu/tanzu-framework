@@ -11,8 +11,6 @@ import (
 
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
-	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	capav1beta2 "sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
@@ -85,6 +83,8 @@ type ComponentInfo struct {
 	AwsRegionToAMIMap                  map[string][]tkgconfigbom.AMIInfo
 	AzureImage                         tkgconfigbom.AzureInfo
 	OsInfo                             tkgconfigbom.OSInfo
+	KubeVipFullImagePath               string
+	KubeVipTag                         string
 }
 
 type upgradeStatus string
@@ -502,6 +502,20 @@ func (c *TkgClient) getUpgradeClusterConfig(options *UpgradeClusterOptions) (*Cl
 		upgradeInfo.UpgradeComponentInfo.OsInfo = azureVMImage.OSInfo
 	}
 
+	// get kube-vip image from bom
+	if com, ok := bomConfiguration.Components["kube-vip"]; ok {
+		if len(com) >= 1 {
+			if img, ok := com[0].Images["kubeVipImage"]; ok {
+				upgradeInfo.UpgradeComponentInfo.KubeVipTag = img.Tag
+				upgradeInfo.UpgradeComponentInfo.KubeVipFullImagePath = bomConfiguration.ImageConfig.ImageRepository + "/" + img.ImagePath
+			} else {
+				log.Warning("not able to find kube-vip image tag image from bom bom kubeVipImage")
+			}
+		} else {
+			log.Warning("not able to find kube-vip from bom components list")
+		}
+	}
+
 	// We are hard-coding the assumption that during upgrade imageConfig.ImageRepository should take precedence
 	// over whatever is spelled out in the KubeAdmConfigSpec section.
 	// This change also implies when imageConfig.ImageRepository differs from kubeadmConfigSpec's repository,
@@ -549,6 +563,15 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 	clusterUpgradeConfig.ActualComponentInfo.EtcdImageRepository = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ImageRepository
 	clusterUpgradeConfig.ActualComponentInfo.EtcdImageTag = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ImageTag
 	clusterUpgradeConfig.ActualComponentInfo.EtcdExtraArgs = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs
+
+	if kcp.Spec.MachineTemplate.InfrastructureRef.Kind == constants.KindVSphereMachineTemplate {
+		image, tag, err := c.GetKubevipImageAndTag(kcp)
+		if err != nil {
+			return errors.Wrapf(err, "unable to extract kube-vip image")
+		}
+		clusterUpgradeConfig.ActualComponentInfo.KubeVipFullImagePath = image
+		clusterUpgradeConfig.ActualComponentInfo.KubeVipTag = tag
+	}
 
 	clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateName = kcp.Spec.MachineTemplate.InfrastructureRef.Name
 	clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateNamespace = kcp.Spec.MachineTemplate.InfrastructureRef.Namespace
@@ -1077,7 +1100,10 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 	// If iaas == vsphere, attempt increasing kube-vip parameters
 	if currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind == constants.KindVSphereMachineTemplate {
 		log.V(6).Infof("Kind %s", currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind)
-		newKCP, _ = c.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
+		newKCP, err = c.UpdateKubeVipConfigInKCP(currentKCP, clusterUpgradeConfig.UpgradeComponentInfo)
+		if err != nil {
+			return errors.Wrapf(err, "unable to update kube-vip config")
+		}
 		if newKCP != nil {
 			currentKCP = newKCP
 		}
@@ -1197,17 +1223,19 @@ func (c *TkgClient) patchKubernetesVersionToMachineDeployment(regionalClusterCli
 	return nil
 }
 
-func addAWSIngressrule(regionalClusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo, newRule capav1beta2.CNIIngressRule) error {
+func addAWSIngressrule(regionalClusterClient clusterclient.Client, awsClusterName string, awsClusterNamespace string, newRule capav1beta2.CNIIngressRule) error {
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
 	awsClusterObject := &capav1beta2.AWSCluster{}
-	if err := regionalClusterClient.GetResource(awsClusterObject, upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, nil, nil); err != nil {
-		return errors.Wrap(err, "unable to retrieve aws cluster object")
+	if err := regionalClusterClient.GetResource(awsClusterObject, awsClusterName, awsClusterNamespace, nil, pollOptions); err != nil {
+		return errors.Wrapf(err, "unable to get the aws cluster %s/%s", awsClusterNamespace, awsClusterName)
 	}
+
 	if awsClusterObject.Spec.NetworkSpec.SecurityGroupOverrides != nil {
 		log.Infof("aws cluster Spec.NetworkSpec.SecurityGroupOverrides is not nil. Will not configure aws ingress rules")
 		return nil
 	}
-	if err := regionalClusterClient.UpdateAWSCNIIngressRules(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, newRule); err != nil {
-		log.Warningf("unable to update AWS CNI ingress rules for %s/%s kapp-controller: %s", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName, err.Error())
+	if err := regionalClusterClient.UpdateAWSCNIIngressRules(awsClusterName, awsClusterNamespace, newRule); err != nil {
+		log.Warningf("unable to update AWS CNI ingress rules for %s/%s: %s", awsClusterNamespace, awsClusterName, err.Error())
 	}
 	return nil
 }
@@ -1225,19 +1253,21 @@ func (c *TkgClient) handleKappControllerUpgrade(regionalClusterClient, currentCl
 		return errors.Wrapf(err, "unable to delete existing kapp-controller")
 	}
 
-	// handle aws management cluster
-	if err := regionalClusterClient.GetResource(&corev1.Namespace{}, clusterclient.CAPAControllerNamespace, clusterclient.CAPAControllerNamespace, nil, nil); err != nil {
-		if !apierrors.IsNotFound(err) {
-			return errors.Wrapf(err, "unable to check if Cluster API Provider for AWS is enabled")
-		}
-	} else {
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+
+	cluster := &capi.Cluster{}
+	if err := regionalClusterClient.GetResource(cluster, upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, nil, pollOptions); err != nil {
+		return errors.Wrapf(err, "unable to get the cluster %s/%s", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName)
+	} else if cluster.Spec.InfrastructureRef != nil && cluster.Spec.InfrastructureRef.Kind == constants.InfrastructureRefAWS {
 		kappControllerAWSIngressRule := capav1beta2.CNIIngressRule{
 			Description: "kapp-controller",
 			Protocol:    capav1beta2.SecurityGroupProtocolTCP,
 			FromPort:    DefaultKappControllerHostPort,
 			ToPort:      DefaultKappControllerHostPort,
 		}
-		err := addAWSIngressrule(regionalClusterClient, upgradeClusterConfig, kappControllerAWSIngressRule)
+		awsClusterName := cluster.Spec.InfrastructureRef.Name
+		awsClusterNamespace := cluster.Spec.InfrastructureRef.Namespace
+		err := addAWSIngressrule(regionalClusterClient, awsClusterName, awsClusterNamespace, kappControllerAWSIngressRule)
 		if err != nil {
 			return err
 		}
@@ -1252,18 +1282,21 @@ func (c *TkgClient) PrepareAddonsManagerUpgrade(regionalClusterClient clustercli
 
 func (c *TkgClient) prepareAddonsManagerUpgrade(regionalClusterClient clusterclient.Client, upgradeClusterConfig *ClusterUpgradeInfo) error {
 	// handle aws management cluster
-	if err := regionalClusterClient.GetResource(&corev1.Namespace{}, clusterclient.CAPAControllerNamespace, clusterclient.CAPAControllerNamespace, nil, nil); err != nil {
-		if !apierrors.IsNotFound(err) {
-			return errors.Wrapf(err, "unable to check if Cluster API Provider for AWS is enabled")
-		}
-	} else {
+	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
+
+	cluster := &capi.Cluster{}
+	if err := regionalClusterClient.GetResource(cluster, upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, nil, pollOptions); err != nil {
+		return errors.Wrapf(err, "unable to get the cluster %s/%s", upgradeClusterConfig.ClusterNamespace, upgradeClusterConfig.ClusterName)
+	} else if cluster.Spec.InfrastructureRef != nil && cluster.Spec.InfrastructureRef.Kind == constants.InfrastructureRefAWS {
 		addonsManagerAWSIngressRule := capav1beta2.CNIIngressRule{
 			Description: "addons-manager",
 			Protocol:    capav1beta2.SecurityGroupProtocolTCP,
 			FromPort:    DefaultAddonsManagerHostPort,
 			ToPort:      DefaultAddonsManagerHostPort,
 		}
-		err := addAWSIngressrule(regionalClusterClient, upgradeClusterConfig, addonsManagerAWSIngressRule)
+		awsClusterName := cluster.Spec.InfrastructureRef.Name
+		awsClusterNamespace := cluster.Spec.InfrastructureRef.Namespace
+		err := addAWSIngressrule(regionalClusterClient, awsClusterName, awsClusterNamespace, addonsManagerAWSIngressRule)
 		if err != nil {
 			return err
 		}

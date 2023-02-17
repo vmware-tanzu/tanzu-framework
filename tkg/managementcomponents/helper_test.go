@@ -416,6 +416,36 @@ tkr-package:
 			})
 		})
 
+		Context("when AVI_ENABLE is set to true, AVI_INGRESS_NODE_NETWORK_LIST is empty", func() {
+			BeforeEach(func() {
+				managementPackageVersion = verStr
+				outputFile = "test/output_vsphere_with_avi_enabled_empty_node_network_list.yaml"
+				// Configure user provider configuration
+				userProviderConfigValues = map[string]interface{}{
+					"AVI_ENABLE":                    true,
+					"AVI_CLOUD_NAME":                "Default-Cloud",
+					"AVI_CONTROL_PLANE_HA_PROVIDER": true,
+					"AVI_CONTROLLER":                "10.191.186.55",
+					"AVI_DATA_NETWORK":              "VM Network",
+					"AVI_DATA_NETWORK_CIDR":         "10.191.176.0/20",
+					"AVI_PASSWORD":                  "Admin!23",
+					"AVI_SERVICE_ENGINE_GROUP":      "Default-Group",
+					"AVI_USERNAME":                  "admin",
+					"PROVIDER_TYPE":                 "vsphere",
+					"VSPHERE_NETWORK":               "VM Network",
+					"AVI_INGRESS_NODE_NETWORK_LIST": `""`,
+				}
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+				f1, err := os.ReadFile(valuesFile)
+				Expect(err).NotTo(HaveOccurred())
+				f2, err := os.ReadFile(outputFile)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(f1)).To(Equal(string(f2)))
+			})
+		})
+
 		Context("when AVI_ENABLE is set to true, AVI_INGRESS_NODE_NETWORK_LIST is invalid", func() {
 			BeforeEach(func() {
 				managementPackageVersion = verStr

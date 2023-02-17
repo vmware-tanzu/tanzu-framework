@@ -193,6 +193,8 @@ return {
 "ENABLE_MHC_CONTROL_PLANE": ["vsphere", "aws", "azure", "docker", "oci"],
 "MHC_UNKNOWN_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker", "oci"],
 "MHC_FALSE_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker", "oci"],
+"MHC_MAX_UNHEALTHY_CONTROL_PLANE": ["vsphere", "aws", "azure", "docker", "oci"],
+"MHC_MAX_UNHEALTHY_WORKER_NODE": ["vsphere", "aws", "azure", "docker", "oci"],
 
 "TKG_CUSTOM_IMAGE_REPOSITORY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker", "oci"],
@@ -202,6 +204,9 @@ return {
 "TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker", "oci"],
+"TKG_NODE_SYSTEM_WIDE_PROXY": ["vsphere"],
+
+"CUSTOM_TDNF_REPOSITORY_CERTIFICATE": ["vsphere"],
 
 "TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker", "oci"],
 
@@ -348,6 +353,7 @@ def get_cluster_variables():
                         "httpProxy": data.values["TKG_HTTP_PROXY"],
                         "httpsProxy": data.values["TKG_HTTPS_PROXY"],
                         "noProxy": data.values["TKG_NO_PROXY"].split(","),
+                        "systemWide": data.values["TKG_NODE_SYSTEM_WIDE_PROXY"],
                     }
                 end
             end
@@ -406,6 +412,24 @@ def get_cluster_variables():
         }
     end
 
+    if data.values["ETCD_EXTRA_ARGS"] != None and data.values["ETCD_EXTRA_ARGS"] != "":
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
+    end
+    if data.values["APISERVER_EXTRA_ARGS"] != None and data.values["APISERVER_EXTRA_ARGS"] != "":
+        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None and data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != "":
+        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None and data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != "":
+        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
+    end
+    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None and data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != "":
+        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
+    end
+    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None and data.values["WORKER_KUBELET_EXTRA_ARGS"] != "":
+        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
+    end
 
     additionalTrustedCAs = []
     #! TKG_PROXY_CA_CERT has higher priority than TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
@@ -626,25 +650,6 @@ def get_aws_vars():
 
     vars["worker"] = worker
 
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
     controlPlane = {}
     if data.values["CONTROL_PLANE_MACHINE_TYPE"] != None:
         controlPlane["instanceType"] = data.values["CONTROL_PLANE_MACHINE_TYPE"]
@@ -776,25 +781,6 @@ def get_azure_vars():
 
     if controlPlane != {}:
         vars["controlPlane"] = controlPlane
-    end
-
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
     end
 
     worker = {}
@@ -933,25 +919,6 @@ def get_vsphere_vars():
         vars["controlPlane"] = controlPlane
     end
 
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
     worker = {}
     if data.values["WORKER_MACHINE_COUNT"] != "":
         worker["count"] = data.values["WORKER_MACHINE_COUNT"]
@@ -995,6 +962,14 @@ def get_vsphere_vars():
 
     if data.values["VSPHERE_ADDITIONAL_FQDN"] != None:
         vars["additionalFQDN"] = data.values["VSPHERE_ADDITIONAL_FQDN"].replace(" ", "").split(",")
+    end
+
+    customTDNFRepository = {}
+    if data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"] != "":
+        customTDNFRepository["certificate"] = data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"]
+    end
+    if customTDNFRepository != {}:
+        vars["customTDNFRepository"] = customTDNFRepository
     end
 
     return vars
@@ -1056,6 +1031,6 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "externalControlPlaneEndpointSubnetId", "externalControlPlaneSubnetId", "externalWorkerSubnetId",
         "nodePvTransitEncryption", "controlPlaneMachineShape", "controlPlaneMachineOcpus",
         "controlPlanePvTransitEncryption",
-        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
+        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA",
         "controlPlaneCertificateRotation", "podSecurityStandard", "workerKubeletExtraArgs", "controlPlaneKubeletExtraArgs",
         "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs", "eventRateLimitConf"]

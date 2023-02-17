@@ -23,6 +23,7 @@ var ClusterAttributesToLegacyVariablesMapCommon = map[string]string{
 	"spec.topology.variables.proxy.httpProxy":     TKGHTTPProxy,        // TKG_HTTP_PROXY
 	"spec.topology.variables.proxy.httpsProxy":    TKGHTTPSProxy,       // TKG_HTTPS_PROXY
 	"spec.topology.variables.proxy.noProxy":       TKGNoProxy,          // TKG_NO_PROXY
+	"spec.topology.variables.proxy.systemWide":    TKGSystemWideProxy,  // TKG_NODE_SYSTEM_WIDE_PROXY
 
 	"spec.topology.variables.imageRepository.host":                     ConfigVariableCustomImageRepository,
 	"spec.topology.variables.imageRepository.tlsCertificateValidation": ConfigVariableCustomImageRepositorySkipTLSVerify,
@@ -245,6 +246,8 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	TopologyWorkersMachineDeploymentsName2:          "",
 	TopologyWorkersMachineDeploymentsReplicas2:      ConfigVariableWorkerMachineCount2,
 	TopologyWorkersMachineDeploymentsFailureDomain2: ConfigVariableVsphereAz2,
+
+	"spec.topology.variables.customTDNFRepository.certificate": ConfigVariableCustomTDNFRepositoryCertificate,
 }
 
 // ClusterAttributesToLegacyVariablesMapDocker has, Docker Cluster object attributes path mapped to legacy variable names.

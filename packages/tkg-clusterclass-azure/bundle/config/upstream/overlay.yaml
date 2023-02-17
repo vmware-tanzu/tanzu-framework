@@ -10,6 +10,7 @@ spec:
     #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_CONTROL_PLANE:
     #@overlay/match missing_ok=True
     machineHealthCheck:
+      maxUnhealthy: #@ data.values.MHC_MAX_UNHEALTHY_CONTROL_PLANE
       nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
       unhealthyConditions:
       - type: Ready
@@ -26,6 +27,7 @@ spec:
       #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
       #@overlay/match missing_ok=True
       machineHealthCheck:
+        maxUnhealthy: #@ data.values.MHC_MAX_UNHEALTHY_WORKER_NODE
         nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
         unhealthyConditions:
         - type: Ready
