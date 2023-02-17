@@ -262,18 +262,40 @@ tkr-package:
 			tkgBomConfig = &tkgconfigbom.BOMConfiguration{}
 			err = yaml.Unmarshal([]byte(tkgBomConfigData), tkgBomConfig)
 			Expect(err).NotTo(HaveOccurred())
-
-			// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
-			valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, nil, true)
 		})
 
 		It("should not return error", func() {
+			// invoke GetTKGPackageConfigValuesFileFromUserConfig for testing using addonsManagerPackageVersion = managementPackageVersion
+			valuesFile, err = GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, nil, true)
+
 			Expect(err).NotTo(HaveOccurred())
 			f1, err := os.ReadFile(valuesFile)
 			Expect(err).NotTo(HaveOccurred())
 			f2, err := os.ReadFile(outputFile)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(f1)).To(Equal(string(f2)))
+		})
+
+		When("skipVerifyCert is set in user config", func() {
+
+			It("skipVerify should be correctly parsed", func() {
+				userProviderConfigValues["TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY"] = 1
+			})
+			It("skipVerify should be correctly parsed", func() {
+				userProviderConfigValues["TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY"] = "1"
+			})
+			It("skipVerify should be correctly parsed", func() {
+				userProviderConfigValues["TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY"] = true
+			})
+			It("skipVerify should be correctly parsed", func() {
+				userProviderConfigValues["TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY"] = "true"
+			})
+
+			AfterEach(func() {
+				tkgPackageConfig, err := GetTKGPackageConfigFromUserConfig(managementPackageVersion, managementPackageVersion, userProviderConfigValues, tkgBomConfig, nil, true)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(tkgPackageConfig.TKRSourceControllerPackage.TKRSourceControllerPackageValues.SkipVerifyCert).To(BeTrue())
+			})
 		})
 	})
 
