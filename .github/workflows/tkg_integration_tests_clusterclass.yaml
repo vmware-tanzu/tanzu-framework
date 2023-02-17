@@ -283,7 +283,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-publish-packages
     env:
-      aws_client_id: ${{secrets.TESTAWS_ACCESS_KEY_ID}}
       gcp_bucket_sa: ${{ secrets.GCP_BUCKET_SA }}
     steps:
       - name: show environment
@@ -352,7 +351,7 @@ jobs:
           make install-cli
 
       - name: Generate cluster prefix
-        if: ${{ env.aws_client_id != '' }}
+        if: ${{ env.AWS_ACCESS_KEY_ID != '' }}
         env:
           NUM: ${{ github.run_number }}
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
@@ -360,7 +359,7 @@ jobs:
           echo ::set-env name=CLUSTER_PREFIX::"github-$NUM-"
 
       - uses: microsoft/variable-substitution@v1
-        if: ${{ env.aws_client_id != '' }}
+        if: ${{ env.AWS_ACCESS_KEY_ID != '' }}
         with:
           files: 'tkg/test/config/aws.yaml'
         env:
@@ -372,7 +371,7 @@ jobs:
           cat tkg/test/config/aws.yaml
 
       - name: Run TKG integration tests
-        if: ${{ env.aws_client_id != '' }}
+        if: ${{ env.AWS_ACCESS_KEY_ID != '' }}
         run: |
           if [[ ! -z "${{ needs.build-and-publish-packages.outputs.bompath }}" ]]; then
             export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ needs.build-and-publish-packages.outputs.bompath }}
@@ -394,7 +393,7 @@ jobs:
       - name: Cleanup AWS resources
         if: ${{ always() }}
         run: |
-          tkg/test/scripts/aws_cleanup.sh ${{ env.AWS_ACCESS_KEY_ID }} ${{ env.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
+          tkg/test/scripts/aws_cleanup.sh ${{ env.AWS_ACCESS_KEY_ID }} ${{ env.AWS_SECRET_ACCESS_KEY }} "${{ env.AWS_SESSION_TOKEN }}" "us-west-2" ${{ env.CLUSTER_PREFIX }}
         env:
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
 
