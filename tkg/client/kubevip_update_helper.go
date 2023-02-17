@@ -212,10 +212,7 @@ func (c *TkgClient) GetKubevipImageAndTag(kcp *capikubeadmv1beta1.KubeadmControl
 	}
 
 	image := kubeVipManifest.Spec.Containers[0].Image
-	imagePath := strings.Split(image, ":")
-	if len(imagePath) != 2 {
-		return "", "", errors.New("kube-vip image path is incorrect: " + image)
-	}
-	return imagePath[0], imagePath[1], nil
-
+	// only check the last :, since there are case like docker.io/kube-vip:0.3 and 127.0.0.1:8443/kube-vip:0.3
+	lastInd := strings.LastIndex(image, ":")
+	return image[:lastInd], image[lastInd+1:], nil
 }
