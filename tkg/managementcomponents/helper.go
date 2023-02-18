@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -28,7 +29,7 @@ const (
 )
 
 // GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
-func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration, readerWriter tkgconfigreaderwriter.TKGConfigReaderWriter, onBootstrapCluster bool) (string, error) {
+func GetTKGPackageConfigFromUserConfig(managementPackageVersion, addonsManagerPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration, readerWriter tkgconfigreaderwriter.TKGConfigReaderWriter, onBootstrapCluster bool) (*TKGPackageConfig, error) {
 	// TODO: Temporary hack(hard coded values) to configure TKR source controller package values. This should be replaced with the logic
 	// that fetches these values from tkg-bom(for bom related urls) and set the TKR source controller package values
 	var tkrRepoImagePath string
@@ -47,8 +48,10 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 	case constants.InfrastructureProviderOCI:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.Oracle)
 	default:
-		return "", errors.Errorf("unknown provider type %q", providerType)
+		return nil, errors.Errorf("unknown provider type %q", providerType)
 	}
+
+	skipVerifyCert := getSkipVerify(userProviderConfigValues, readerWriter)
 
 	// get cacert value from user input for tkr-controller-config cm
 	caCerts, imageRepo := getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues, tkgBomConfig, readerWriter)
@@ -98,6 +101,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 				TKRRepoImagePath:     tkrRepoImagePath,
 				DefaultCompatibleTKR: tkgBomConfig.Default.TKRVersion,
 				CaCerts:              caCerts,
+				SkipVerifyCert:       skipVerifyCert,
 				ImageRepo:            imageRepo,
 			},
 		},
@@ -108,9 +112,20 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 
 	// fill in nsx advanced load balancer(a.k.a avi) config
 	if err := setAkoOperatorConfig(&tkgPackageConfig, userProviderConfigValues, onBootstrapCluster); err != nil {
-		return "", err
+		return nil, err
 	}
 	setProxyConfiguration(&tkgPackageConfig, userProviderConfigValues)
+
+	return &tkgPackageConfig, nil
+}
+
+// GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
+func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addonsManagerPackageVersion string, userProviderConfigValues map[string]interface{}, tkgBomConfig *tkgconfigbom.BOMConfiguration, readerWriter tkgconfigreaderwriter.TKGConfigReaderWriter, onBootstrapCluster bool) (string, error) {
+
+	tkgPackageConfig, err := GetTKGPackageConfigFromUserConfig(managementPackageVersion, addonsManagerPackageVersion, userProviderConfigValues, tkgBomConfig, readerWriter, onBootstrapCluster)
+	if err != nil {
+		return "", err
+	}
 
 	configBytes, err := yaml.Marshal(tkgPackageConfig)
 	if err != nil {
@@ -118,8 +133,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, addon
 	}
 
 	valuesFile := filepath.Join(os.TempDir(), constants.TKGPackageValuesFile)
-	err = utils.SaveFile(valuesFile, configBytes)
-	if err != nil {
+	if err = utils.SaveFile(valuesFile, configBytes); err != nil {
 		return "", err
 	}
 
@@ -152,7 +166,7 @@ func convertNodeNetworkList(userProviderConfigValues map[string]interface{}) (st
 			return "", errors.Errorf("Invalid node network list %s", config.(string))
 		}
 	}
-	//convert nodeNetworkList to json string
+	// convert nodeNetworkList to json string
 	jsonBytes, err := json.Marshal(nodeNetworkList)
 	if err != nil {
 		return "", errors.Errorf("Cannot convert nodeNetworkList to json string")
@@ -328,4 +342,26 @@ func getCaCertAndImageRepoFromUserProviderConfigValues(userProviderConfigValues 
 	}
 
 	return caCert, imageRepo
+}
+
+func getSkipVerify(userProviderConfigValues map[string]interface{}, readerWriter tkgconfigreaderwriter.TKGConfigReaderWriter) bool {
+	defer func() {
+		recover() // don't panic
+	}()
+
+	if readerWriter != nil {
+		if skipVerifyStr, err := readerWriter.Get(constants.ConfigVariableCustomImageRepositorySkipTLSVerify); err == nil {
+			if skipVerifyBool, err := strconv.ParseBool(skipVerifyStr); err == nil {
+				return skipVerifyBool
+			}
+		}
+	}
+
+	if skipVerifyVal, ok := userProviderConfigValues[constants.ConfigVariableCustomImageRepositorySkipTLSVerify]; ok {
+		if skipVerifyBool, err := strconv.ParseBool(fmt.Sprint(skipVerifyVal)); err == nil {
+			return skipVerifyBool
+		}
+	}
+
+	return false
 }
