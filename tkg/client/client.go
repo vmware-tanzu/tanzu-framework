@@ -34,7 +34,7 @@ import (
 )
 
 type (
-	// Provider CAPI provider interface
+	// Provider CAPI provider interface.
 	Provider clusterctlconfig.Provider
 	// Components CAPI repostory components interface
 	Components repository.Components
