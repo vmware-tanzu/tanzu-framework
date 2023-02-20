@@ -176,7 +176,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					Expect(strings.Contains(secretData, "deployment_replicas: 3")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "windows_support: true")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "netpermissions:")).Should(BeTrue())
-					Expect(strings.Contains(secretData, "ips: \"*\"")).Should(BeTrue())
+					Expect(strings.Contains(secretData, "ips: '*'")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "permissions: READ_WRITE")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "rootsquash: false")).Should(BeTrue())
 					return nil
