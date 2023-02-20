@@ -422,9 +422,7 @@ func (r *VSphereCSIConfigReconciler) overrideNetPermissionsValues(dvscsi *DataVa
 			if permConfig.Permissions != "" {
 				netPermisionConfig.Permissions = permConfig.Permissions
 			}
-			if permConfig.RootSquash {
-				netPermisionConfig.RootSquash = permConfig.RootSquash
-			}
+			netPermisionConfig.RootSquash = permConfig.RootSquash
 			netPermisions[permKey] = netPermisionConfig
 		}
 		dvscsi.NetPermissions = netPermisions
