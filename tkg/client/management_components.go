@@ -287,7 +287,7 @@ func (c *TkgClient) getUserConfigVariableValueMapFromSecret(clusterClient cluste
 		}
 
 		// retrieve the akoo variables from legacy addon secret.
-		akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(clusterClient, clusterName)
+		akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(clusterClient, clusterName, false)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to get akoo addon secret values")
 		}
@@ -528,8 +528,11 @@ func ProcessAKOPackageInstallFile(akoPackageInstallTemplateDir, userConfigValues
 	return akoPackageInstallFile, nil
 }
 
-func GetAKOOAddonSecretValues(clusterClient clusterclient.Client, clusterName string) ([]byte, bool, error) {
+func GetAKOOAddonSecretValues(clusterClient clusterclient.Client, clusterName string, isClusterClassBased bool) ([]byte, bool, error) {
 	akoOperatorAddonName := fmt.Sprintf("%s-%s-addon", clusterName, constants.AkoOperatorName)
+	if isClusterClassBased {
+		akoOperatorAddonName = fmt.Sprintf("%s-v2-values", constants.AkoOperatorName)
+	}
 	pollOptions := &clusterclient.PollOptions{Interval: clusterclient.CheckResourceInterval, Timeout: 3 * clusterclient.CheckResourceInterval}
 	log.V(6).Infof("trying to fetch akoo addon secret %s/%s", constants.TkgNamespace, akoOperatorAddonName)
 	bytes, err := clusterClient.GetSecretValue(akoOperatorAddonName, "values.yaml", constants.TkgNamespace, pollOptions)

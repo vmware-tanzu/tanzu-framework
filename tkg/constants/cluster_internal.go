@@ -62,12 +62,13 @@ const (
 	CoreManagementPluginsPackageName = "tanzu-core-management-plugins"
 	AKODeploymentName                = "load-balancer-and-ingress-service(ako)"
 
-	AkoStatefulSetName       = "ako"
-	AkoAddonName             = "load-balancer-and-ingress-service"
-	AkoNamespace             = "avi-system"
-	AkoCleanUpAnnotationKey  = "AviObjectDeletionStatus"
-	AkoCleanUpFinishedStatus = "Done"
-	AkoOperatorName          = "ako-operator"
+	AkoStatefulSetName          = "ako"
+	AkoAddonName                = "load-balancer-and-ingress-service"
+	AkoNamespace                = "avi-system"
+	AkoCleanUpAnnotationKey     = "AviObjectDeletionStatus"
+	AkoCleanUpFinishedStatus    = "Done"
+	AkoOperatorName             = "ako-operator"
+	AkoMaxAllowedClusterNameLen = 25
 
 	ServiceDNSSuffix             = ".svc"
 	ServiceDNSClusterLocalSuffix = ".svc.cluster.local"
@@ -159,9 +160,6 @@ const (
 	TKGManagementPackageRepositoryName = "tanzu-management"
 	PackageTypeManagement              = "management"
 )
-
-// AviControllerVersionRegex Avi aka. NSX Advanced LoadBalancer version regex expression
-const AviControllerVersionRegex = `^\d+(\.\d+)*$`
 
 const (
 	TanzuCLISystemNamespace = "tanzu-cli-system"

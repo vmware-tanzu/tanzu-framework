@@ -674,3 +674,40 @@ func Test_CompareVersions(t *testing.T) {
 		})
 	}
 }
+
+func Test_IsAviInputEmpty(t *testing.T) {
+	testCases := []struct {
+		description  string
+		input        interface{}
+		expectResult bool
+	}{
+		{
+			description:  "nil should be considered as empty input",
+			input:        nil,
+			expectResult: true,
+		},
+		{
+			description:  "empty string should be considered as empty input",
+			input:        "",
+			expectResult: true,
+		},
+		{
+			description:  "\"\" should be considered as empty input",
+			input:        `""`,
+			expectResult: true,
+		},
+		{
+			description:  "test should not be considered as empty input",
+			input:        "test",
+			expectResult: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			result := IsAviInputEmpty(tc.input)
+			if result != tc.expectResult {
+				t.Errorf("IsAviInputEmpty result is not expected")
+			}
+		})
+	}
+}

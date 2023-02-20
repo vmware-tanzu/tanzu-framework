@@ -746,6 +746,10 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.ValidateAviMaxAllowedClusterNameLength(TkgLabelClusterRoleWorkload, options, clusterClient); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	return c.ValidateSupportOfK8sVersionForManagmentCluster(clusterClient, options.KubernetesVersion, skipValidation)
 }
 
@@ -949,6 +953,44 @@ func (c *TkgClient) ValidateKubeVipLBConfiguration(clusterRole string) error {
 		return errors.Errorf("%s is enabled, either %s or %s has to be set", constants.ConfigVariableKubevipLoadbalancerEnable, constants.ConfigVariableKubevipLoadbalancerCIDRs, constants.ConfigVariableKubevipLoadbalancerIPRanges)
 	}
 
+	return nil
+}
+
+// ValidateAviMaxAllowedClusterNameLength validates if AVI enabled cluster's name has no more than 25 characters
+func (c *TkgClient) ValidateAviMaxAllowedClusterNameLength(clusterRole string, options *CreateClusterOptions, regionalClusterClient clusterclient.Client) error {
+	aviLabels, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviLabels)
+	kvlbEnabled, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableKubevipLoadbalancerEnable)
+
+	// skip when:
+	// 1. cluster is management cluster, that check has already been done in ConfigureAndValidateAviConfiguration func
+	// 2. workload cluster doesn't enable avi
+	// 3. workload cluster is not clusterclass based cluster
+	if clusterRole != TkgLabelClusterRoleWorkload || kvlbEnabled == "true" || !options.IsInputFileClusterClassBased {
+		return nil
+	}
+
+	mgmtClusterName, _, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "unable to get name and namespace of current management cluster")
+	}
+	akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(regionalClusterClient, mgmtClusterName, options.IsInputFileClusterClassBased)
+	if err != nil {
+		return errors.Wrap(err, "unable to get akoo addon secret values")
+	}
+
+	if found {
+		configValues := make(map[string]interface{})
+		if err = RetrieveAKOOVariablesFromAddonSecretValues(mgmtClusterName, configValues, akooAddonSecretValues); err != nil {
+			return errors.Wrap(err, "unable to handle the akoo specific variables")
+		}
+		// mgmt avi labels is specified & workload cluster avi labels not specify, workload cluster doesn't enable Avi, skip
+		if !utils.IsAviInputEmpty(configValues[constants.ConfigVariableAviLabels]) && aviLabels == "" {
+			return nil
+		}
+		if len(options.ClusterName) > constants.AkoMaxAllowedClusterNameLen {
+			return errors.Errorf("%s is more than %d, which will cause AKO package deployment failure", options.ClusterName, constants.AkoMaxAllowedClusterNameLen)
+		}
+	}
 	return nil
 }
 

@@ -308,3 +308,8 @@ func CompareVersions(v1, cmpSign, v2 string) bool {
 	}
 	return false
 }
+
+// IsAviFieldInputEmpty check if the input is empty or not
+func IsAviInputEmpty(input interface{}) bool {
+	return input == nil || input.(string) == "" || input.(string) == `""`
+}

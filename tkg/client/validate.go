@@ -601,7 +601,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.ConfigureAndValidateAviConfiguration(); err != nil {
+	if err = c.ConfigureAndValidateAviConfiguration(options.ClusterName); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -1874,11 +1874,15 @@ func getDockerBridgeNetworkCidr() (string, error) {
 }
 
 // ConfigureAndValidateAviConfiguration validates the configuration inputs of Avi aka. NSX Advanced Load Balancer
-func (c *TkgClient) ConfigureAndValidateAviConfiguration() error {
+func (c *TkgClient) ConfigureAndValidateAviConfiguration(clusterName string) error {
 	aviEnable, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviEnable)
 	// ignoring error because AVI_ENABLE is an optional configuration
 	if aviEnable == "" || aviEnable == "false" {
 		return nil
+	}
+
+	if len(clusterName) > constants.AkoMaxAllowedClusterNameLen {
+		return errors.Errorf("%s is more than %d, which will cause AKO package deployment failure", clusterName, constants.AkoMaxAllowedClusterNameLen)
 	}
 	// init avi client
 	aviClient := avi.New()
