@@ -38,6 +38,7 @@ func (r *Resolver) GetVSphereEndpoint(svrContext *VSphereContext) (vc.Client, er
 	vcURL.Path = "/sdk"
 
 	r.Log.Info(fmt.Sprintf("Creating client with endpoint: %v", vcURL))
+	// TODO: setup a cache to reuse vc sessions
 	vcClient, err := vc.NewClient(vcURL, svrContext.TLSThumbprint, svrContext.InsecureSkipVerify)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vc client")
