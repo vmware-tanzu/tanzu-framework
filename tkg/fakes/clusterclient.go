@@ -238,6 +238,20 @@ type ClusterClient struct {
 		result2 string
 		result3 error
 	}
+	GetAzureCredentialsFromIdentityStub        func(string, string) (azure.Credentials, error)
+	getAzureCredentialsFromIdentityMutex       sync.RWMutex
+	getAzureCredentialsFromIdentityArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	getAzureCredentialsFromIdentityReturns struct {
+		result1 azure.Credentials
+		result2 error
+	}
+	getAzureCredentialsFromIdentityReturnsOnCall map[int]struct {
+		result1 azure.Credentials
+		result2 error
+	}
 	GetAzureCredentialsFromSecretStub        func() (azure.Credentials, error)
 	getAzureCredentialsFromSecretMutex       sync.RWMutex
 	getAzureCredentialsFromSecretArgsForCall []struct {
@@ -2487,6 +2501,71 @@ func (fake *ClusterClient) GetAzureClusterNameReturnsOnCall(i int, result1 strin
 		result2 string
 		result3 error
 	}{result1, result2, result3}
+}
+
+func (fake *ClusterClient) GetAzureCredentialsFromIdentity(arg1 string, arg2 string) (azure.Credentials, error) {
+	fake.getAzureCredentialsFromIdentityMutex.Lock()
+	ret, specificReturn := fake.getAzureCredentialsFromIdentityReturnsOnCall[len(fake.getAzureCredentialsFromIdentityArgsForCall)]
+	fake.getAzureCredentialsFromIdentityArgsForCall = append(fake.getAzureCredentialsFromIdentityArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetAzureCredentialsFromIdentityStub
+	fakeReturns := fake.getAzureCredentialsFromIdentityReturns
+	fake.recordInvocation("GetAzureCredentialsFromIdentity", []interface{}{arg1, arg2})
+	fake.getAzureCredentialsFromIdentityMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) GetAzureCredentialsFromIdentityCallCount() int {
+	fake.getAzureCredentialsFromIdentityMutex.RLock()
+	defer fake.getAzureCredentialsFromIdentityMutex.RUnlock()
+	return len(fake.getAzureCredentialsFromIdentityArgsForCall)
+}
+
+func (fake *ClusterClient) GetAzureCredentialsFromIdentityCalls(stub func(string, string) (azure.Credentials, error)) {
+	fake.getAzureCredentialsFromIdentityMutex.Lock()
+	defer fake.getAzureCredentialsFromIdentityMutex.Unlock()
+	fake.GetAzureCredentialsFromIdentityStub = stub
+}
+
+func (fake *ClusterClient) GetAzureCredentialsFromIdentityArgsForCall(i int) (string, string) {
+	fake.getAzureCredentialsFromIdentityMutex.RLock()
+	defer fake.getAzureCredentialsFromIdentityMutex.RUnlock()
+	argsForCall := fake.getAzureCredentialsFromIdentityArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) GetAzureCredentialsFromIdentityReturns(result1 azure.Credentials, result2 error) {
+	fake.getAzureCredentialsFromIdentityMutex.Lock()
+	defer fake.getAzureCredentialsFromIdentityMutex.Unlock()
+	fake.GetAzureCredentialsFromIdentityStub = nil
+	fake.getAzureCredentialsFromIdentityReturns = struct {
+		result1 azure.Credentials
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetAzureCredentialsFromIdentityReturnsOnCall(i int, result1 azure.Credentials, result2 error) {
+	fake.getAzureCredentialsFromIdentityMutex.Lock()
+	defer fake.getAzureCredentialsFromIdentityMutex.Unlock()
+	fake.GetAzureCredentialsFromIdentityStub = nil
+	if fake.getAzureCredentialsFromIdentityReturnsOnCall == nil {
+		fake.getAzureCredentialsFromIdentityReturnsOnCall = make(map[int]struct {
+			result1 azure.Credentials
+			result2 error
+		})
+	}
+	fake.getAzureCredentialsFromIdentityReturnsOnCall[i] = struct {
+		result1 azure.Credentials
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *ClusterClient) GetAzureCredentialsFromSecret() (azure.Credentials, error) {
@@ -8245,6 +8324,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getAWSCredentialsFromSecretMutex.RUnlock()
 	fake.getAzureClusterNameMutex.RLock()
 	defer fake.getAzureClusterNameMutex.RUnlock()
+	fake.getAzureCredentialsFromIdentityMutex.RLock()
+	defer fake.getAzureCredentialsFromIdentityMutex.RUnlock()
 	fake.getAzureCredentialsFromSecretMutex.RLock()
 	defer fake.getAzureCredentialsFromSecretMutex.RUnlock()
 	fake.getBomConfigMapMutex.RLock()

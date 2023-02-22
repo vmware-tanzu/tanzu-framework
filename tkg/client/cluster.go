@@ -799,7 +799,7 @@ func (c *TkgClient) configureAndValidateProviderConfig(providerName string, opti
 			return NewValidationError(ValidationErrorCode, errors.Wrap(err, "vSphere control plane endpoint IP validation failed").Error())
 		}
 	case AzureProviderName:
-		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation, nil); err != nil {
+		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation, clusterClient); err != nil {
 			return errors.Wrap(err, "Azure config validation failed")
 		}
 	case DockerProviderName:
