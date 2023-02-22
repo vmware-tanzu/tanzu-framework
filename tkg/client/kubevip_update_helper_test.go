@@ -86,6 +86,38 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 				Expect(err).To(HaveOccurred())
 			})
 		})
+
+		Context("avi as control plane ha", func() {
+			BeforeEach(func() {
+				kcpManfiest = getDummyKCPWithoutKubevip(constants.KindVSphereMachineTemplate)
+			})
+			It("returns an error", func() {
+				_, err := tkgClient.DecodeKubevipPodManifestFromKCP(kcpManfiest)
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(Equal(ErrUnableToFindKubeVipPodManifest))
+			})
+		})
+	})
+
+	Describe("IsKubevipManifestInKCP", func() {
+		Context("kube-vip as control plane HA provider", func() {
+			BeforeEach(func() {
+				kubevipPodManifest = getKubevipPodManifest(kubeVipImage, KubeVipTag)
+				kcpManfiest = getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, kubevipPodManifest)
+			})
+			It("returns true", func() {
+				Expect(tkgClient.IsKubevipManifestInKCP(kcpManfiest)).To(BeTrue())
+			})
+		})
+
+		Context("avi as control plane HA provider", func() {
+			BeforeEach(func() {
+				kcpManfiest = getDummyKCPWithoutKubevip(constants.KindVSphereMachineTemplate)
+			})
+			It("returns false", func() {
+				Expect(tkgClient.IsKubevipManifestInKCP(kcpManfiest)).To(BeFalse())
+			})
+		})
 	})
 
 	Describe("UpdateKubeVipConfigInKCP", func() {

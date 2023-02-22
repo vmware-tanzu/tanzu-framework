@@ -565,12 +565,14 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 	clusterUpgradeConfig.ActualComponentInfo.EtcdExtraArgs = kcp.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs
 
 	if kcp.Spec.MachineTemplate.InfrastructureRef.Kind == constants.KindVSphereMachineTemplate {
-		image, tag, err := c.GetKubevipImageAndTag(kcp)
-		if err != nil {
-			return errors.Wrapf(err, "unable to extract kube-vip image")
+		if c.IsKubevipManifestInKCP(kcp) {
+			image, tag, err := c.GetKubevipImageAndTag(kcp)
+			if err != nil {
+				return errors.Wrapf(err, "unable to extract kube-vip image")
+			}
+			clusterUpgradeConfig.ActualComponentInfo.KubeVipFullImagePath = image
+			clusterUpgradeConfig.ActualComponentInfo.KubeVipTag = tag
 		}
-		clusterUpgradeConfig.ActualComponentInfo.KubeVipFullImagePath = image
-		clusterUpgradeConfig.ActualComponentInfo.KubeVipTag = tag
 	}
 
 	clusterUpgradeConfig.ActualComponentInfo.KCPInfrastructureTemplateName = kcp.Spec.MachineTemplate.InfrastructureRef.Name
@@ -1099,13 +1101,16 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 	var newKCP *capikubeadmv1beta1.KubeadmControlPlane
 	// If iaas == vsphere, attempt increasing kube-vip parameters
 	if currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind == constants.KindVSphereMachineTemplate {
-		log.V(6).Infof("Kind %s", currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind)
-		newKCP, err = c.UpdateKubeVipConfigInKCP(currentKCP, clusterUpgradeConfig.UpgradeComponentInfo)
-		if err != nil {
-			return errors.Wrapf(err, "unable to update kube-vip config")
-		}
-		if newKCP != nil {
-			currentKCP = newKCP
+		if c.IsKubevipManifestInKCP(currentKCP) {
+			_, err := c.DecodeKubevipPodManifestFromKCP(currentKCP)
+			if err != nil {
+				return errors.Wrapf(err, "unable to decode kube-vip manifest")
+
+			}
+			currentKCP, err = c.UpdateKubeVipConfigInKCP(currentKCP, clusterUpgradeConfig.UpgradeComponentInfo)
+			if err != nil {
+				return errors.Wrapf(err, "unable to update kube-vip config")
+			}
 		}
 	}
 

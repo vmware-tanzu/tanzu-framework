@@ -307,6 +307,34 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 					Expect(regionalClusterClient.CreateResourceCallCount()).To(Equal(0))
 				})
 			})
+
+			Context("When kube-vip is control plane ha", func() {
+				Context("When kube-vip manifest in KCP is correct", func() {
+					BeforeEach(func() {
+						regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindVSphereMachineTemplate), nil)
+					})
+					It("should not return an error", func() {
+						Expect(err).NotTo(HaveOccurred())
+					})
+				})
+				Context("When kube-vip manifest in KCP is incorrect", func() {
+					BeforeEach(func() {
+						regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, "wrong"), nil)
+					})
+					It("should return an error", func() {
+						Expect(err).To(HaveOccurred())
+					})
+				})
+			})
+
+			Context("When avi is control plane ha", func() {
+				BeforeEach(func() {
+					regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCPWithoutKubevip(constants.KindVSphereMachineTemplate), nil)
+				})
+				It("should not return an error", func() {
+					Expect(err).NotTo(HaveOccurred())
+				})
+			})
 		})
 
 		Context("When environment is AWS", func() {
@@ -823,6 +851,14 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 					Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("NET_RAW"))
 					Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring(fmt.Sprintf("%s:%s", kubeVipImage, KubeVipTag)))
 				})
+
+				It("return error if kcp doesn't contain kube-vip since it's AVI as control plane HA", func() {
+					currentKCP := getDummyKCPWithoutKubevip(constants.KindVSphereMachineTemplate)
+					_, err := tkgClient.UpdateKubeVipConfigInKCP(currentKCP, clusterUpgradeConfig.UpgradeComponentInfo)
+
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring(ErrUnableToFindKubeVipPodManifest.Error()))
+				})
 			})
 		})
 	})
@@ -1242,6 +1278,41 @@ func getDummyKCP(machineTemplateKind string) *capikubeadmv1beta1.KubeadmControlP
 		},
 		Files: []capibootstrapkubeadmv1beta1.File{
 			file,
+		},
+	}
+
+	kcp.Spec.MachineTemplate.InfrastructureRef = corev1.ObjectReference{
+		Name:      "fake-infra-template-name",
+		Namespace: "fake-infra-template-namespace",
+		Kind:      machineTemplateKind,
+	}
+	return kcp
+}
+
+func getDummyKCPWithoutKubevip(machineTemplateKind string) *capikubeadmv1beta1.KubeadmControlPlane {
+	kcp := &capikubeadmv1beta1.KubeadmControlPlane{}
+	kcp.Name = "fake-kcp-name"
+	kcp.Namespace = "fake-kcp-namespace"
+	kcp.Spec.Version = currentK8sVersion
+
+	kcp.Spec.KubeadmConfigSpec = capibootstrapkubeadmv1beta1.KubeadmConfigSpec{
+		ClusterConfiguration: &capibootstrapkubeadmv1beta1.ClusterConfiguration{
+			ImageRepository: "fake-image-repo",
+			DNS: capibootstrapkubeadmv1beta1.DNS{
+				ImageMeta: capibootstrapkubeadmv1beta1.ImageMeta{
+					ImageRepository: "fake-dns-image-repo",
+					ImageTag:        "fake-dns-image-tag",
+				},
+			},
+			Etcd: capibootstrapkubeadmv1beta1.Etcd{
+				Local: &capibootstrapkubeadmv1beta1.LocalEtcd{
+					ImageMeta: capibootstrapkubeadmv1beta1.ImageMeta{
+						ImageRepository: "fake-etcd-image-repo",
+						ImageTag:        "fake-etcd-image-tag",
+					},
+					DataDir: "fake-etcd-data-dir",
+				},
+			},
 		},
 	}
 
