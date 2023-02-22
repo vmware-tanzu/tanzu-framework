@@ -155,6 +155,15 @@ VSPHERE_AZ_0:
 VSPHERE_AZ_1:
 VSPHERE_AZ_2:
 
+#! Settings to provide netpermissions for vpshere-csi file volumes
+#! example:
+#! NETPERMISSIONS:
+#!   A:
+#!     ips: "*"
+#!     permissions: READ_WRITE
+#!     rootsquash: false
+NETPERMISSIONS:
+
 #! FQDN or IP address to vCenter
 VSPHERE_SERVER:
 
