@@ -164,6 +164,9 @@ VSPHERE_AZ_2:
 #!     rootsquash: false
 NETPERMISSIONS:
 
+#! The namespace csi components are to be deployed in
+CSINAMESPACE: ""
+
 #! FQDN or IP address to vCenter
 VSPHERE_SERVER:
 
