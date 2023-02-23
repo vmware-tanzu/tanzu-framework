@@ -156,7 +156,7 @@ VSPHERE_AZ_1:
 VSPHERE_AZ_2:
 
 #! Settings to provide netpermissions for vpshere-csi file volumes as a base64-encoded string
-NETPERMISSIONS:
+NETPERMISSIONS_BASE64:
 
 #! FQDN or IP address to vCenter
 VSPHERE_SERVER:

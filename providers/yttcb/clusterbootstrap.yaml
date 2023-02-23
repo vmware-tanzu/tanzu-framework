@@ -88,7 +88,7 @@
 #@   return data.values.PROVIDER_TYPE == "vsphere" and ((not data.values.VSPHERE_INSECURE or
 #@           data.values.USE_TOPOLOGY_CATEGORIES) or (data.values.TKG_HTTP_PROXY != "" or
 #@           data.values.TKG_HTTPS_PROXY != "" or
-#@           data.values.TKG_NO_PROXY != "") or data.values.NETPERMISSIONS != "")
+#@           data.values.TKG_NO_PROXY != "") or data.values.NETPERMISSIONS_BASE64 != "")
 #@ end
 
 #@ def azurediskcsi_configs_exist():
@@ -326,7 +326,7 @@ spec:
       httpProxy: #@ data.values.TKG_HTTP_PROXY
       httpsProxy: #@ data.values.TKG_HTTPS_PROXY
       noProxy: #@ data.values.TKG_NO_PROXY
-      netPermissions: #@ base64.decode(data.values.NETPERMISSIONS)
+      netPermissions: #@ base64.decode(data.values.NETPERMISSIONS_BASE64)
 #@ end
 
 #@ def vsphere_storage_class():
