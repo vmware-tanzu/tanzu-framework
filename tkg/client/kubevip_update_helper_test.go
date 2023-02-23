@@ -24,7 +24,7 @@ var (
 	kubeVipImage       = "gcr.io/kube-vip"
 	KubeVipTag         = "3.1"
 	kubevipPodManifest string
-	kcpManfiest        *capikubeadmv1beta1.KubeadmControlPlane
+	kcpManifest        *capikubeadmv1beta1.KubeadmControlPlane
 )
 var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 
@@ -67,10 +67,10 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 		Context("kubevip manifest is correct", func() {
 			BeforeEach(func() {
 				kubevipPodManifest = getKubevipPodManifest(kubeVipImage, KubeVipTag)
-				kcpManfiest = getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, kubevipPodManifest)
+				kcpManifest = getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, kubevipPodManifest)
 			})
 			It("returns succeeds", func() {
-				pod, err := tkgClient.DecodeKubevipPodManifestFromKCP(kcpManfiest)
+				pod, err := tkgClient.DecodeKubevipPodManifestFromKCP(kcpManifest)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(len(pod.Spec.Containers)).To(Equal(1))
 				Expect(pod.Spec.Containers[0].Image).To(Equal(fmt.Sprintf("%s:%s", kubeVipImage, KubeVipTag)))
@@ -79,18 +79,50 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 
 		Context("kubevip manifest is incorrect", func() {
 			BeforeEach(func() {
-				kcpManfiest = getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, "wrong")
+				kcpManifest = getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, "wrong")
 			})
 			It("returns an error", func() {
-				_, err := tkgClient.DecodeKubevipPodManifestFromKCP(kcpManfiest)
+				_, err := tkgClient.DecodeKubevipPodManifestFromKCP(kcpManifest)
 				Expect(err).To(HaveOccurred())
+			})
+		})
+
+		Context("avi as control plane ha", func() {
+			BeforeEach(func() {
+				kcpManifest = getDummyKCPWithoutKubevip(constants.KindVSphereMachineTemplate)
+			})
+			It("returns an error", func() {
+				_, err := tkgClient.DecodeKubevipPodManifestFromKCP(kcpManifest)
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(Equal(ErrUnableToFindKubeVipPodManifest))
+			})
+		})
+	})
+
+	Describe("IsKubevipManifestInKCP", func() {
+		Context("kube-vip as control plane HA provider", func() {
+			BeforeEach(func() {
+				kubevipPodManifest = getKubevipPodManifest(kubeVipImage, KubeVipTag)
+				kcpManifest = getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, kubevipPodManifest)
+			})
+			It("returns true", func() {
+				Expect(tkgClient.IsKubevipManifestInKCP(kcpManifest)).To(BeTrue())
+			})
+		})
+
+		Context("avi as control plane HA provider", func() {
+			BeforeEach(func() {
+				kcpManifest = getDummyKCPWithoutKubevip(constants.KindVSphereMachineTemplate)
+			})
+			It("returns false", func() {
+				Expect(tkgClient.IsKubevipManifestInKCP(kcpManifest)).To(BeFalse())
 			})
 		})
 	})
 
 	Describe("UpdateKubeVipConfigInKCP", func() {
 		var (
-			kcpManfiest          *capikubeadmv1beta1.KubeadmControlPlane
+			kcpManifest          *capikubeadmv1beta1.KubeadmControlPlane
 			upgradeComponentInfo ComponentInfo
 			newKubevipImage      = "docker.io/kube-vip"
 			newKubevipTag        = "0.5.7.vmware"
@@ -103,10 +135,10 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 					KubeVipTag:           newKubevipTag,
 				}
 				kubevipPodManifest = getKubevipPodManifest(kubeVipImage, KubeVipTag)
-				kcpManfiest = getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, kubevipPodManifest)
+				kcpManifest = getDummyKCPWithKubevipManifest(constants.KindVSphereMachineTemplate, kubevipPodManifest)
 			})
 			It("succeeds and contains new image and new config", func() {
-				newKCP, err := tkgClient.UpdateKubeVipConfigInKCP(kcpManfiest, upgradeComponentInfo)
+				newKCP, err := tkgClient.UpdateKubeVipConfigInKCP(kcpManifest, upgradeComponentInfo)
 				Expect(err).To(BeNil())
 				Expect(len(newKCP.Spec.KubeadmConfigSpec.Files)).To(Equal(1))
 				Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("value: \"30\""))
