@@ -165,7 +165,7 @@ VSPHERE_AZ_2:
 NETPERMISSIONS:
 
 #! The namespace csi components are to be deployed in
-CSINAMESPACE: ""
+CSI_NAMESPACE: ""
 
 #! FQDN or IP address to vCenter
 VSPHERE_SERVER:
