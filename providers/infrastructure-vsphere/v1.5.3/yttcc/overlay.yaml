@@ -138,7 +138,7 @@ spec:
     variables:
     #@ vars = get_vsphere_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["workerKubeletExtraArgs","controlPlaneKubeletExtraArgs","kubeControllerManagerExtraArgs","kubeSchedulerExtraArgs","apiServerExtraArgs","etcdExtraArgs", "apiServerPort", "controlPlane", "worker", "vcenter", "VSPHERE_WINDOWS_TEMPLATE", "cni", "apiServerEndpoint", "network", "imageRepository", "trust", "user", "auditLogging", "aviAPIServerHAProvider", "ntpServers", "TKR_DATA", "proxy", "kubeVipLoadBalancerProvider", "additionalFQDN", "controlPlaneCertificateRotation", "podSecurityStandard", "eventRateLimitConf", "customTDNFRepository"]:
+    #@  if vars[configVariable] != None and configVariable in ["workerKubeletExtraArgs","controlPlaneKubeletExtraArgs","kubeControllerManagerExtraArgs","kubeSchedulerExtraArgs","apiServerExtraArgs","etcdExtraArgs", "apiServerPort", "controlPlane", "worker", "vcenter", "VSPHERE_WINDOWS_TEMPLATE", "cni", "apiServerEndpoint", "network", "imageRepository", "trust", "user", "auditLogging", "aviAPIServerHAProvider", "ntpServers", "TKR_DATA", "proxy", "kubeVipLoadBalancerProvider", "additionalFQDN", "controlPlaneCertificateRotation", "podSecurityStandard", "eventRateLimitConf", "customTDNFRepository", "pci"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end

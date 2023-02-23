@@ -125,7 +125,7 @@ var _ = Describe("VC Client", func() {
 			})
 			It("should return the moid of the resource pool", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(rpMOID).To(Equal("resgroup-399"))
+				Expect(rpMOID).To(Equal("resgroup-441"))
 			})
 		})
 
@@ -234,19 +234,19 @@ var _ = Describe("VC Client", func() {
 		)
 
 		const (
-			vmPathID = "DC0_C1_RP0_VM0"
+			vmPathID = "DC0_C1_RP1_VM0"
 		)
 		JustBeforeEach(func() {
 			vmMOID, err = client.FindVirtualMachine(context.Background(), vmPath, dcPath)
 		})
 		Context("when datacenter path is not specified, and vm path is the absolute path", func() {
 			BeforeEach(func() {
-				vmPath = "/DC0/vm/DC0_C1_RP0_VM0"
+				vmPath = "/DC0/vm/DC0_C1_RP1_VM0"
 				dcPath = ""
 			})
 			It("should return the vm moid", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(vmMOID).To(Equal("vm-370"))
+				Expect(vmMOID).To(Equal("vm-388"))
 			})
 		})
 
@@ -267,7 +267,7 @@ var _ = Describe("VC Client", func() {
 			})
 			It("should return the vm moid", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(vmMOID).To(Equal("vm-370"))
+				Expect(vmMOID).To(Equal("vm-388"))
 			})
 		})
 	})
@@ -290,7 +290,7 @@ var _ = Describe("VC Client", func() {
 					Name: "/DC0/host/DC0_C0/Resources/DC0_C0_RP2",
 				},
 				{
-					Moid: "resgroup-399",
+					Moid: "resgroup-441",
 					Name: "/DC0/host/DC0_C0/Resources/ChildPool",
 				},
 				{
@@ -442,29 +442,50 @@ var _ = Describe("VC Client", func() {
 				{
 					IsTemplate: nil,
 					K8sVersion: "",
-					Moid:       "vm-364",
+					Moid:       "vm-379",
 					Name:       "/DC0/vm/DC0_H0_VM0",
 					OsInfo:     nil,
 				},
 				{
 					IsTemplate: nil,
 					K8sVersion: "",
-					Moid:       "vm-367",
-					Name:       "/DC0/vm/DC0_C0_RP0_VM0",
+					Moid:       "vm-382",
+					Name:       "/DC0/vm/DC0_C0_RP1_VM0",
 					OsInfo:     nil,
 				},
 				{
 					IsTemplate: nil,
 					K8sVersion: "",
-					Moid:       "vm-370",
-					Name:       "/DC0/vm/DC0_C1_RP0_VM0",
+					Moid:       "vm-385",
+					Name:       "/DC0/vm/DC0_C0_RP2_VM0",
 					OsInfo:     nil,
 				},
 				{
 					IsTemplate: nil,
 					K8sVersion: "",
-					Moid:       "vm-373",
-					Name:       "/DC0/vm/DC0_C2_RP0_VM0",
+					Moid:       "vm-388",
+					Name:       "/DC0/vm/DC0_C1_RP1_VM0",
+					OsInfo:     nil,
+				},
+				{
+					IsTemplate: nil,
+					K8sVersion: "",
+					Moid:       "vm-391",
+					Name:       "/DC0/vm/DC0_C1_RP2_VM0",
+					OsInfo:     nil,
+				},
+				{
+					IsTemplate: nil,
+					K8sVersion: "",
+					Moid:       "vm-394",
+					Name:       "/DC0/vm/DC0_C2_RP1_VM0",
+					OsInfo:     nil,
+				},
+				{
+					IsTemplate: nil,
+					K8sVersion: "",
+					Moid:       "vm-397",
+					Name:       "/DC0/vm/DC0_C2_RP2_VM0",
 					OsInfo:     nil,
 				},
 			}
@@ -472,7 +493,7 @@ var _ = Describe("VC Client", func() {
 		JustBeforeEach(func() {
 			vms, err = client.GetVirtualMachines(context.Background(), datacenterMoID)
 		})
-		Context("When retrieveing vm from datacenter-2", func() {
+		Context("When retrieving vm from datacenter-2", func() {
 			BeforeEach(func() {
 				datacenterMoID = datacenter2ID
 			})
@@ -503,31 +524,10 @@ var _ = Describe("VC Client", func() {
 					ResourceType: "respool",
 				},
 				{
-					Moid:         "domain-c87",
-					Name:         "DC0_C2",
-					ParentMoid:   "",
-					Path:         "/DC0/host/DC0_C2",
-					ResourceType: "cluster",
-				},
-				{
-					Moid:         "resgroup-112",
-					Name:         "DC0_C2_RP1",
-					ParentMoid:   "domain-c87",
-					Path:         "/DC0/host/DC0_C2/Resources/DC0_C2_RP1",
-					ResourceType: "respool",
-				},
-				{
 					Moid:         "resgroup-55",
 					Name:         "DC0_C0_RP2",
 					ParentMoid:   "domain-c29",
 					Path:         "/DC0/host/DC0_C0/Resources/DC0_C0_RP2",
-					ResourceType: "respool",
-				},
-				{
-					Moid:         "resgroup-399",
-					Name:         "ChildPool",
-					ParentMoid:   "domain-c29",
-					Path:         "/DC0/host/DC0_C0/Resources/ChildPool",
 					ResourceType: "respool",
 				},
 				{
@@ -552,10 +552,31 @@ var _ = Describe("VC Client", func() {
 					ResourceType: "respool",
 				},
 				{
+					Moid:         "domain-c87",
+					Name:         "DC0_C2",
+					ParentMoid:   "",
+					Path:         "/DC0/host/DC0_C2",
+					ResourceType: "cluster",
+				},
+				{
+					Moid:         "resgroup-112",
+					Name:         "DC0_C2_RP1",
+					ParentMoid:   "domain-c87",
+					Path:         "/DC0/host/DC0_C2/Resources/DC0_C2_RP1",
+					ResourceType: "respool",
+				},
+				{
 					Moid:         "resgroup-113",
 					Name:         "DC0_C2_RP2",
 					ParentMoid:   "domain-c87",
 					Path:         "/DC0/host/DC0_C2/Resources/DC0_C2_RP2",
+					ResourceType: "respool",
+				},
+				{
+					Moid:         "resgroup-441",
+					Name:         "ChildPool",
+					ParentMoid:   "domain-c29",
+					Path:         "/DC0/host/DC0_C0/Resources/ChildPool",
 					ResourceType: "respool",
 				},
 			}
@@ -582,17 +603,17 @@ var _ = Describe("VC Client", func() {
 			datastores     []*models.VSphereDatastore
 			datacenterMoID string
 			desiredResult  = []string{
-				"LocalDS_0",
-				"LocalDS_1",
-				"LocalDS_2",
-				"LocalDS_3",
-				"LocalDS_4",
+				"/DC0/datastore/LocalDS_0",
+				"/DC0/datastore/LocalDS_1",
+				"/DC0/datastore/LocalDS_2",
+				"/DC0/datastore/LocalDS_3",
+				"/DC0/datastore/LocalDS_4",
 			}
 		)
 		JustBeforeEach(func() {
 			datastores, err = client.GetDatastores(context.Background(), datacenterMoID)
 		})
-		Context("When retrieveing datastore from datacenter-2", func() {
+		Context("When retrieving datastore from datacenter-2", func() {
 			BeforeEach(func() {
 				datacenterMoID = datacenter2ID
 			})
