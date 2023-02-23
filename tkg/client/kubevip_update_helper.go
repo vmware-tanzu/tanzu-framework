@@ -42,6 +42,10 @@ const (
 	kubeVipConfigPath        = "/etc/kubernetes/manifests/kube-vip.yaml"
 )
 
+var (
+	ErrUnableToFindKubeVipPodManifest = errors.New("unable to find the kube-vip pod manifest from kcp")
+)
+
 func upgradeKubeVipPodSpec(envVars []corev1.EnvVar, currentKubeVipPod *corev1.Pod, fullImagePath, imageTag string) *corev1.Pod {
 	envVar := corev1.EnvVar{Name: kubeVipCpEnableFlag, Value: "true"}
 	envVars = append(envVars, envVar)
@@ -172,6 +176,17 @@ func (c *TkgClient) UpdateKubeVipConfigInKCP(currentKCP *capikubeadmv1beta1.Kube
 	return newKCP, nil
 }
 
+func (c *TkgClient) IsKubevipManifestInKCP(kcp *capikubeadmv1beta1.KubeadmControlPlane) bool {
+	log.V(6).Infof("Try find kube-vip content from KCP")
+	for _, curFile := range kcp.Spec.KubeadmConfigSpec.Files {
+		if curFile.Path == kubeVipConfigPath {
+			return true
+		}
+	}
+	log.V(6).Infof("Kube-vip manifest not found, assume it's AVI")
+	return false
+}
+
 func (c *TkgClient) DecodeKubevipPodManifestFromKCP(kcp *capikubeadmv1beta1.KubeadmControlPlane) (*corev1.Pod, error) {
 	var currentKubeVipPod corev1.Pod
 	for _, curFile := range kcp.Spec.KubeadmConfigSpec.Files {
@@ -198,7 +213,7 @@ func (c *TkgClient) DecodeKubevipPodManifestFromKCP(kcp *capikubeadmv1beta1.Kube
 		}
 	}
 
-	return nil, errors.New("unable to find the kube-vip pod manifest from kcp")
+	return nil, ErrUnableToFindKubeVipPodManifest
 }
 
 func (c *TkgClient) GetKubevipImageAndTag(kcp *capikubeadmv1beta1.KubeadmControlPlane) (string, string, error) {
