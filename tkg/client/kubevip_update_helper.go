@@ -183,7 +183,7 @@ func (c *TkgClient) IsKubevipManifestInKCP(kcp *capikubeadmv1beta1.KubeadmContro
 			return true
 		}
 	}
-	log.V(6).Infof("Kube-vip manfiest not found, assume it's AVI")
+	log.V(6).Infof("Kube-vip manifest not found, assume it's AVI")
 	return false
 }
 
