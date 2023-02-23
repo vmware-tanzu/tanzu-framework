@@ -537,7 +537,7 @@ func GetAKOOAddonSecretValues(clusterClient clusterclient.Client, clusterName st
 	log.V(6).Infof("trying to fetch akoo addon secret %s/%s", constants.TkgNamespace, akoOperatorAddonName)
 	bytes, err := clusterClient.GetSecretValue(akoOperatorAddonName, "values.yaml", constants.TkgNamespace, pollOptions)
 	if err != nil && apierrors.IsNotFound(err) {
-		log.V(6).Infof("akoo addon secret %s/%s not found, akoo was not installed on this legacy management cluster", constants.TkgNamespace, akoOperatorAddonName)
+		log.V(6).Infof("akoo addon secret %s/%s not found, akoo was not installed on this management cluster", constants.TkgNamespace, akoOperatorAddonName)
 		return []byte{}, false, nil
 	} else if err != nil {
 		return []byte{}, false, err

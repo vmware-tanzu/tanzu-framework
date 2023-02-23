@@ -1882,7 +1882,7 @@ func (c *TkgClient) ConfigureAndValidateAviConfiguration(clusterName string) err
 	}
 
 	if len(clusterName) > constants.AkoMaxAllowedClusterNameLen {
-		return errors.Errorf("%s is more than %d, which will cause AKO package deployment failure", clusterName, constants.AkoMaxAllowedClusterNameLen)
+		return errors.Errorf("%s contains more than %d character, which will cause AKO package deployment failure", clusterName, constants.AkoMaxAllowedClusterNameLen)
 	}
 	// init avi client
 	aviClient := avi.New()
