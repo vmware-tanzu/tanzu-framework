@@ -155,17 +155,8 @@ VSPHERE_AZ_0:
 VSPHERE_AZ_1:
 VSPHERE_AZ_2:
 
-#! Settings to provide netpermissions for vpshere-csi file volumes
-#! example:
-#! NETPERMISSIONS:
-#!   A:
-#!     ips: "*"
-#!     permissions: READ_WRITE
-#!     rootsquash: false
+#! Settings to provide netpermissions for vpshere-csi file volumes as a base64-encoded string
 NETPERMISSIONS:
-
-#! The namespace csi components are to be deployed in
-CSI_NAMESPACE: ""
 
 #! FQDN or IP address to vCenter
 VSPHERE_SERVER:

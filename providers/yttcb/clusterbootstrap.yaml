@@ -2,6 +2,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:ip", "ip")
+#@ load("@ytt:base64", "base64")
 
 #@ load("pinniped_addon_secret.lib.yaml", "getPinnipedDataValuesForMC")
 
@@ -87,7 +88,7 @@
 #@   return data.values.PROVIDER_TYPE == "vsphere" and ((not data.values.VSPHERE_INSECURE or
 #@           data.values.USE_TOPOLOGY_CATEGORIES) or (data.values.TKG_HTTP_PROXY != "" or
 #@           data.values.TKG_HTTPS_PROXY != "" or
-#@           data.values.TKG_NO_PROXY != "") or data.values.CSI_NAMESPACE != "" or data.values.NETPERMISSIONS != None)
+#@           data.values.TKG_NO_PROXY != "") or data.values.NETPERMISSIONS != "")
 #@ end
 
 #@ def azurediskcsi_configs_exist():
@@ -325,8 +326,7 @@ spec:
       httpProxy: #@ data.values.TKG_HTTP_PROXY
       httpsProxy: #@ data.values.TKG_HTTPS_PROXY
       noProxy: #@ data.values.TKG_NO_PROXY
-      namespace: #@ data.values.CSI_NAMESPACE
-      netPermissions: #@ data.values.NETPERMISSIONS
+      netPermissions: #@ base64.decode(data.values.NETPERMISSIONS)
 #@ end
 
 #@ def vsphere_storage_class():
