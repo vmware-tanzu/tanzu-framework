@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Notify release-0.28 cherry-pick status
     needs: [cherry_pick_release_v0_28]
-    if: always()
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'cherry-pick/release-0.28') && github.event.pull_request.merged == true }}
     steps:
       - id: check
         uses: martialonline/workflow-status@v3
