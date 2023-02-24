@@ -16,7 +16,6 @@ concurrency:
 
 jobs:
   integ-tests-package-plugin-docker:
-    if: false
     name: Package Plugin Tests CAPD
     runs-on: tkg
     steps:

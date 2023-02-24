@@ -16,7 +16,6 @@ concurrency:
 
 jobs:
   integ-tests-docker:
-    if: false
     name: TKG Integration Tests CAPD
     runs-on: tkg
     steps:
