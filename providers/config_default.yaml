@@ -303,6 +303,10 @@ AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB: 80
 #! node instances of a cluster.
 AWS_NODE_OS_DISK_SIZE_GIB: 80
 
+#! EXP_EXTERNAL_RESOURCE_GC turns on clean up of CPI provisioned LBs in AWS
+#! (requires ResourceTagging API not available in airgapped environments)
+EXP_EXTERNAL_RESOURCE_GC: false
+
 #! Control plane and worker node instance types.
 #! For node sizing recommendations, refer to TKG documentation.
 CONTROL_PLANE_MACHINE_TYPE: t3.large
