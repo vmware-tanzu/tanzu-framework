@@ -335,7 +335,7 @@ end
 def get_map_from_string(argsString, delimiter):
    argsMap = {}
    for val in argsString.split(delimiter):
-    kv = val.split('=')
+    kv = val.split('=', 1)
     if len(kv) != 2:
       assert.fail("given args string \""+argsString+"\" must be in the  \"key1=label1"+delimiter+"key2=label2\" format ")
     end
@@ -358,4 +358,61 @@ def get_labels_array_from_string(labelString):
     labelArray.append(labelMap)
    end
    return labelArray
+end
+
+def get_custom_keys(keyValueString):
+  customKeys = dict()
+  for val in keyValueString.split(','):
+    kv = val.split('=')
+    if len(kv) != 2:
+      assert.fail("Given input is not in correct format")
+    end
+    customKeys[kv[0]] = kv[1]
+  end
+  return customKeys
+end
+
+valid_pci_devices = [[0x10DE,0x1EB8]]
+
+def valid_pci_devices_list():
+  return ",".join(map(lambda x:  "0x%X:0x%X" % (x[0], x[1]), valid_pci_devices))
+end
+
+def get_pci_devices(pci_devices_string, pci_ignore_device_validation):
+  pci_devices = list()
+  help_error = "VSPHERE_CONTROL_PLANE_PCI_DEVICES \"" + pci_devices_string + "\" must be in the  \"0x<vendorId>:0x<deviceId>,0x<vendorId>:0x<deviceId>,..\" format."
+  for val in pci_devices_string.split(","):
+    if len(val) <= 0:
+      assert.fail(help_error)
+    end
+    kv = val.split(":")
+    if len(kv) != 2:
+      assert.fail(help_error)
+    end
+    id_pair = dict()
+    # No try-catch or exception support unfortunately (https://github.com/google/skylark/issues/125).
+    # If this fails, e.g. user wrote "0zsomething", user's just going to get an "invalid literal with base 16" error.
+    # This will need to be covered in documentation.
+    vendor_id = int(kv[0], 16)
+    device_id = int(kv[1], 16)
+    if not pci_ignore_device_validation:
+      matchesAny = False
+      for x in valid_pci_devices:
+        if vendor_id == x[0] and device_id == x[1]:
+          matchesAny = True
+        end
+      end
+      if not matchesAny:
+        assert.fail("Device 0x%X:0x%X is not supported. Supported devices are: %s. Set VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST to ignore this check." % (vendor_id, device_id, valid_pci_devices_list()))
+      end
+    end
+    id_pair["vendorId"] = vendor_id
+    id_pair["deviceId"] = device_id
+    pci_devices.append(id_pair)
+  end
+  return pci_devices
+end
+
+def map(f, list):
+  return [f(x) for x in list]
 end

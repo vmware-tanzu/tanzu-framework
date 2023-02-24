@@ -53,6 +53,7 @@ spec:
           enabled: false #ENABLE_AUDIT_LOGGING
       - name: trust
         value:
+          additionalTrustedCAs:
           - name: proxy
             data: trust.proxy.val #TKG_PROXY_CA_CERT
           - name: imageRepository

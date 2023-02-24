@@ -21,6 +21,7 @@ const (
 	k8sVersion1dot18dot1vmware1  = "v1.18.1+vmware.1"
 	k8sVersion1dot19dot1vmware1  = "v1.19.1+vmware.1"
 	k8sVersion2dot16dot1vmware1  = "v2.16.1+vmware.1"
+	k8sVersion1dot25dot6vmware1  = "v1.25.6+vmware.1"
 	tkgVersion1dot0dot0          = "v1.0.0"
 	tkgVersion1dot1dot0          = "v1.1.0"
 	tkgVersion1dot1dot0rc1       = "v1.1.0-rc.1"
@@ -131,7 +132,7 @@ var _ = Describe("ValidateK8sVersionSupport", func() {
 			})
 			It("should return error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("only [v1.0 v1.1 v1.2 v1.3 v1.4 v1.5 v1.6 v1.7 v2.1] management cluster versions are supported with current version of TKG CLI. Please upgrade TKG CLI to latest version if you are using it on latest version of management cluster."))
+				Expect(err.Error()).To(ContainSubstring("only [v1.0 v1.1 v1.2 v1.3 v1.4 v1.5 v1.6 v1.7 v2.1 v2.2] management cluster versions are supported with current version of TKG CLI. Please upgrade TKG CLI to latest version if you are using it on latest version of management cluster."))
 			})
 		})
 	})
@@ -246,6 +247,16 @@ var _ = Describe("ValidateK8sVersionSupport", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
+		Context("mgmtClusterVersion= v2.2.0, kubernetesVersion=v1.25.6+vmware.1", func() {
+			BeforeEach(func() {
+				mgmtClusterVersion = "v2.2.0"
+				kubernetesVersion = k8sVersion1dot25dot6vmware1
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
 	})
 })
 

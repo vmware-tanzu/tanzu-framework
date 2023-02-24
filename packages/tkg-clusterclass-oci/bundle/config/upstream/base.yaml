@@ -977,7 +977,7 @@ spec:
         files: []
         preKubeadmCommands:
           #! Ensure a non-empty preKubeadmCommands array is present to facilitate patching
-          - echo "running preKubeadmCommands…"
+          - echo "running preKubeadmCommands..."
         useExperimentalRetryJoin: true
         clusterConfiguration:
           apiServer:

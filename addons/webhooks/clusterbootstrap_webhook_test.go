@@ -386,6 +386,37 @@ func createCarvelPackages(ctx context.Context, client client.Client) {
 				},
 			},
 		})
+		if err != nil && !apierrors.IsAlreadyExists(err) {
+			Expect(err).NotTo(HaveOccurred())
+		}
+	}
+}
+
+func deleteCarvelPackages(ctx context.Context, client client.Client) {
+	packageRefNames := []string{
+		fakeAntreaCarvelPackageRefName,
+		fakeCalicoCarvelPackageRefName,
+		fakeCSICarvelPackageRefName,
+		fakeKappCarvelPackageRefName,
+		fakePinnipedCarvelPackageRefName,
+		fakeMetricsServerCarvelPackageRefName,
+		fakeKubevipcloudproviderCarvelPackageRefName,
+	}
+
+	for _, refName := range packageRefNames {
+		err := client.Delete(ctx, &packagev1alpha1.Package{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      fmt.Sprintf("%s.%s", refName, fakeCarvelPackageVersion),
+				Namespace: SystemNamespace,
+			},
+			Spec: packagev1alpha1.PackageSpec{
+				RefName: refName,
+				Version: fakeCarvelPackageVersion,
+				Template: packagev1alpha1.AppTemplateSpec{
+					Spec: &kappctrlv1alph1.AppSpec{},
+				},
+			},
+		})
 		Expect(err).NotTo(HaveOccurred())
 	}
 }
@@ -404,3 +435,358 @@ func assertFindKubeVipInClusterBootstrap(clusterBootstrap *runv1alpha3.ClusterBo
 	Expect(kubevipPackage.RefName).To(Equal(fmt.Sprintf("%s.%s", fakeKubevipcloudproviderCarvelPackageRefName, fakeCarvelPackageVersion)))
 	Expect(kubevipPackage.ValuesFrom.Inline["foo"]).To(Equal("bar"))
 }
+
+var _ = Describe("Unmanaged CNI:", func() {
+	var (
+		clusterBootstrapTemplate  *runv1alpha3.ClusterBootstrapTemplate
+		tanzuKubernetesRelease    *runv1alpha3.TanzuKubernetesRelease
+		clusterBootstrapName      = "fake-clusterbootstrap"
+		clusterBootstrapNamespace = "default"
+	)
+	BeforeEach(func() {
+		// Prepare the Carvel packages
+		createCarvelPackages(ctx, k8sClient)
+		// Prepare the ClusterBootstrapTemplate
+		clusterBootstrapTemplate = constructClusterBootstrapTemplate()
+		err := k8sClient.Create(ctx, clusterBootstrapTemplate)
+		if err != nil && !apierrors.IsAlreadyExists(err) {
+			Expect(err).NotTo(HaveOccurred())
+		}
+		// Prepare the TanzuKubernetesRelease
+		tanzuKubernetesRelease = constructFakeTanzuKubernetesRelease()
+		err = k8sClient.Create(ctx, tanzuKubernetesRelease)
+		if err != nil && !apierrors.IsAlreadyExists(err) {
+			Expect(err).NotTo(HaveOccurred())
+		}
+	})
+	AfterEach(func() {
+		// Delete Carvel packages
+		deleteCarvelPackages(ctx, k8sClient)
+
+		// Delete the ClusterBootstrapTemplate
+		clusterBootstrapTemplate = constructClusterBootstrapTemplate()
+		err := k8sClient.Delete(ctx, clusterBootstrapTemplate)
+		Expect(err).NotTo(HaveOccurred())
+
+		// Delete the TanzuKubernetesRelease
+		tanzuKubernetesRelease = constructFakeTanzuKubernetesRelease()
+		err = k8sClient.Delete(ctx, tanzuKubernetesRelease)
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	Context("Default webhook:", func() {
+		AfterEach(func() {
+			_ = k8sClient.Delete(ctx, &runv1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      clusterBootstrapName,
+					Namespace: clusterBootstrapNamespace,
+				},
+			})
+		})
+
+		When("Clusterbootstrap is NOT annotated and spec is nil", func() {
+			It("should return error", func() {
+				clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterBootstrapName,
+						Namespace: clusterBootstrapNamespace,
+						Annotations: map[string]string{
+							constants.AddCBMissingFieldsAnnotationKey: tkrName,
+						},
+					},
+				}
+				err := k8sClient.Create(ctx, clusterBootstrap)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+		When("Clusterbootstrap is NOT annotated and CNI is NOT listed", func() {
+			It("should copy CNI from template ", func() {
+				clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterBootstrapName,
+						Namespace: clusterBootstrapNamespace,
+						Annotations: map[string]string{
+							constants.AddCBMissingFieldsAnnotationKey: tkrName,
+						},
+					},
+					Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+						CNI: nil,
+					},
+				}
+				err := k8sClient.Create(ctx, clusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+				defaultedClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				err = k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, defaultedClusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(defaultedClusterBootstrap.Spec).NotTo(BeNil())
+				Expect(defaultedClusterBootstrap.Spec.CNI).NotTo(BeNil())
+				Expect(defaultedClusterBootstrap.Spec.CNI.RefName).To(Equal(clusterBootstrapTemplate.Spec.CNI.RefName))
+			})
+		})
+		When("Clusterbootstrap is NOT annotated and CNI is empty", func() {
+			It("should use listed CNI", func() {
+				clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterBootstrapName,
+						Namespace: clusterBootstrapNamespace,
+						Annotations: map[string]string{
+							constants.AddCBMissingFieldsAnnotationKey: tkrName,
+						},
+					},
+					Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+						CNI: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", "calico-carvel-package", fakeCarvelPackageVersion)},
+					},
+				}
+				err := k8sClient.Create(ctx, clusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+
+				defaultedClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				err = k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, defaultedClusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(defaultedClusterBootstrap.Spec).NotTo(BeNil())
+				Expect(defaultedClusterBootstrap.Spec.CNI).NotTo(BeNil())
+				Expect(defaultedClusterBootstrap.Spec.CNI.RefName).To(Equal(clusterBootstrap.Spec.CNI.RefName))
+			})
+		})
+
+		When("Clusterbootstrap is annotated and CNI is NOT listed", func() {
+			It("should set CNI to empty", func() {
+				clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterBootstrapName,
+						Namespace: clusterBootstrapNamespace,
+						Annotations: map[string]string{
+							constants.AddCBMissingFieldsAnnotationKey: tkrName,
+							constants.UnmanagedCNI:                    "",
+						},
+					},
+					Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+						CNI: nil,
+					},
+				}
+				err := k8sClient.Create(ctx, clusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+
+				defaultedClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				err = k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, defaultedClusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(defaultedClusterBootstrap.Spec).NotTo(BeNil())
+				Expect(defaultedClusterBootstrap.Spec.CNI).To(BeNil())
+			})
+		})
+		When("Clusterbootstrap is annotated and CNI is empty", func() {
+			It("should set CNI to empty", func() {
+				clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterBootstrapName,
+						Namespace: clusterBootstrapNamespace,
+						Annotations: map[string]string{
+							constants.AddCBMissingFieldsAnnotationKey: tkrName,
+							constants.UnmanagedCNI:                    "",
+						},
+					},
+					Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+						CNI: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", "calico-carvel-package", fakeCarvelPackageVersion)},
+					},
+				}
+				err := k8sClient.Create(ctx, clusterBootstrap)
+				Expect(err).ToNot(HaveOccurred())
+
+				defaultedClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				err = k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, defaultedClusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(defaultedClusterBootstrap.Spec).NotTo(BeNil())
+				Expect(defaultedClusterBootstrap.Spec.CNI).To(BeNil())
+			})
+		})
+	})
+	Context("ValidationCreate  webhook:", func() {
+		AfterEach(func() {
+			_ = k8sClient.Delete(ctx, &runv1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      clusterBootstrapName,
+					Namespace: clusterBootstrapNamespace,
+				},
+			})
+		})
+		When("Clusterbootstrap is NOT annotated and CNI is NOT listed", func() {
+			It("should reject clusterbootstrap", func() {
+				clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterBootstrapName,
+						Namespace: clusterBootstrapNamespace,
+					},
+					Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+						Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
+					},
+				}
+				err := k8sClient.Create(ctx, clusterBootstrap)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+		When("Clusterbootstrap is NOT annotated and CNI is empty", func() {
+			It("should accept clusterbootstrap", func() {
+				clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterBootstrapName,
+						Namespace: clusterBootstrapNamespace,
+					},
+					Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+						CNI:  &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", "calico-carvel-package", fakeCarvelPackageVersion)},
+						Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
+					},
+				}
+				err := k8sClient.Create(ctx, clusterBootstrap)
+				Expect(err).ToNot(HaveOccurred())
+
+				newClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				Expect(k8sClient.Get(ctx, client.ObjectKeyFromObject(clusterBootstrap), newClusterBootstrap)).To(Succeed())
+				Expect(newClusterBootstrap.Spec.CNI).To(Equal(clusterBootstrap.Spec.CNI))
+			})
+		})
+
+		When("Clusterbootstrap is annotated and CNI is NOT listed", func() {
+			It("should accept clusterbootstrap", func() {
+				clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterBootstrapName,
+						Namespace: clusterBootstrapNamespace,
+						Annotations: map[string]string{
+							constants.UnmanagedCNI: "",
+						},
+					},
+					Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+						Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
+					},
+				}
+				err := k8sClient.Create(ctx, clusterBootstrap)
+				Expect(err).ToNot(HaveOccurred())
+
+				newClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				Expect(k8sClient.Get(ctx, client.ObjectKeyFromObject(clusterBootstrap), newClusterBootstrap)).To(Succeed())
+				Expect(newClusterBootstrap.Spec.CNI).To(Equal(clusterBootstrap.Spec.CNI))
+			})
+		})
+		When("Clusterbootstrap is annotated and CNI is empty", func() {
+			It("should reject clusterbootstrap", func() {
+				clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      clusterBootstrapName,
+						Namespace: clusterBootstrapNamespace,
+						Annotations: map[string]string{
+							constants.UnmanagedCNI: "",
+						},
+					},
+					Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+						CNI:  &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", "calico-carvel-package", fakeCarvelPackageVersion)},
+						Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
+					},
+				}
+				err := k8sClient.Create(ctx, clusterBootstrap)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+	})
+	Context("ValidationUpdate webhook:", func() {
+		BeforeEach(func() {
+			clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      clusterBootstrapName,
+					Namespace: clusterBootstrapNamespace,
+				},
+				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+					CNI:  &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", "calico-carvel-package", fakeCarvelPackageVersion)},
+					Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
+				},
+			}
+			err := k8sClient.Create(ctx, clusterBootstrap)
+			Expect(err).ToNot(HaveOccurred())
+		})
+		AfterEach(func() {
+			_ = k8sClient.Delete(ctx, &runv1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      clusterBootstrapName,
+					Namespace: clusterBootstrapNamespace,
+				},
+			})
+		})
+		When("New Clusterbootstrap is NOT annotated and CNI is NOT listed", func() {
+			It("should reject clusterbootstrap", func() {
+				originalClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, originalClusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+				newClusterBootstrap := originalClusterBootstrap.DeepCopy()
+				if _, ok := newClusterBootstrap.Annotations[constants.UnmanagedCNI]; ok {
+					delete(newClusterBootstrap.Annotations, constants.UnmanagedCNI)
+				}
+				newClusterBootstrap.Spec = &runv1alpha3.ClusterBootstrapTemplateSpec{
+					Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
+				}
+
+				err = k8sClient.Update(ctx, newClusterBootstrap)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+		When("Clusterbootstrap is NOT annotated and CNI is empty", func() {
+			It("should accept clusterbootstrap", func() {
+				originalClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, originalClusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+				clusterBootstrap := originalClusterBootstrap.DeepCopy()
+				if _, ok := clusterBootstrap.Annotations[constants.UnmanagedCNI]; ok {
+					delete(clusterBootstrap.Annotations, constants.UnmanagedCNI)
+				}
+				clusterBootstrap.Spec = &runv1alpha3.ClusterBootstrapTemplateSpec{
+					CNI:  &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", "calico-carvel-package", fakeCarvelPackageVersion)},
+					Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
+				}
+
+				err = k8sClient.Update(ctx, clusterBootstrap)
+				Expect(err).ToNot(HaveOccurred())
+
+				newClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				Expect(k8sClient.Get(ctx, client.ObjectKeyFromObject(clusterBootstrap), newClusterBootstrap)).To(Succeed())
+				Expect(newClusterBootstrap.Spec.CNI).To(Equal(clusterBootstrap.Spec.CNI))
+			})
+		})
+
+		When("Clusterbootstrap is annotated and CNI is NOT listed", func() {
+			It("should accept clusterbootstrap", func() {
+				originalClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, originalClusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+				clusterBootstrap := originalClusterBootstrap.DeepCopy()
+				if _, ok := clusterBootstrap.Annotations[constants.UnmanagedCNI]; !ok {
+					clusterBootstrap.Annotations = map[string]string{constants.UnmanagedCNI: ""}
+				}
+				clusterBootstrap.Spec = &runv1alpha3.ClusterBootstrapTemplateSpec{
+					Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
+				}
+
+				err = k8sClient.Update(ctx, clusterBootstrap)
+				Expect(err).ToNot(HaveOccurred())
+
+				newClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				Expect(k8sClient.Get(ctx, client.ObjectKeyFromObject(clusterBootstrap), newClusterBootstrap)).To(Succeed())
+				Expect(newClusterBootstrap.Spec.CNI).To(Equal(clusterBootstrap.Spec.CNI))
+			})
+		})
+		When("Clusterbootstrap is annotated and CNI is empty", func() {
+			It("reject clusterbootstrap", func() {
+				originalClusterBootstrap := &runv1alpha3.ClusterBootstrap{}
+				err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, originalClusterBootstrap)
+				Expect(err).NotTo(HaveOccurred())
+				newClusterBootstrap := originalClusterBootstrap.DeepCopy()
+				if _, ok := newClusterBootstrap.Annotations[constants.UnmanagedCNI]; !ok {
+					newClusterBootstrap.Annotations = map[string]string{constants.UnmanagedCNI: ""}
+				}
+				newClusterBootstrap.Spec = &runv1alpha3.ClusterBootstrapTemplateSpec{
+					CNI:  &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", "calico-carvel-package", fakeCarvelPackageVersion)},
+					Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
+				}
+				err = k8sClient.Update(ctx, newClusterBootstrap)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+	})
+})

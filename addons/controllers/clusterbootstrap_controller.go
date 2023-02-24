@@ -150,7 +150,7 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, nil
 	}
 
-	tkr, err := util.GetTKRByNameV1Alpha3(r.context, r.Client, tkrName)
+	tkr, err := util.GetTKRByNameV1Alpha3(r.context, r.Client, cluster, tkrName)
 	if err != nil {
 		log.Error(err, "unable to fetch TKR object", "name", tkrName)
 		return ctrl.Result{}, err
@@ -500,19 +500,29 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 	//    4. All packages, including additional packages, can't be deleted (meaning the package refName can't be changed, only allow version bump)
 	//    5. We will keep users' customization on valuesFrom of each package, users are responsible for the correctness of the content they put in will work with the next version.
 	packages := make([]*runtanzuv1alpha3.ClusterBootstrapPackage, 0)
-	if updatedClusterBootstrap.Spec.CNI == nil {
-		log.Info("no CNI package specified in ClusterBootstrap, should not happen. Continue with CNI in ClusterBootstrapTemplate of new TKR")
-		updatedClusterBootstrap.Spec.CNI = clusterBootstrapTemplate.Spec.CNI.DeepCopy()
+
+	_, unmanagedCNI := updatedClusterBootstrap.Annotations[constants.UnmanagedCNI]
+	if unmanagedCNI && updatedClusterBootstrap.Spec.CNI != nil {
+		return nil, errors.New("Spec.CNI should be empty if the clusterbootstrap is annotated to use unmanaged CNI.")
+	}
+
+	if unmanagedCNI {
+		log.Info("Unmanaged CNI")
 	} else {
-		// We don't allow change to the CNI selection once it starts running, however we allow version bump
-		// TODO: check correctness of the following statement, as we still allow version bump
-		// ClusterBootstrap webhook will make sure the package RefName always match the original CNI
-		updatedCNI, cniNamePrefix, err := util.GetBootstrapPackageNameFromTKR(r.context, r.Client, updatedClusterBootstrap.Spec.CNI.RefName, cluster)
-		if err != nil {
-			errorMsg := fmt.Sprintf("unable to find any CNI bootstrap package prefixed with '%s' for ClusterBootstrap %s/%s in TKR", cniNamePrefix, cluster.Namespace, cluster.Name)
-			return nil, errors.Wrap(err, errorMsg)
+		if updatedClusterBootstrap.Spec.CNI == nil {
+			log.Info("no CNI package specified in ClusterBootstrap, and it is not annotated to use a unmanaged CNI. Continue with CNI in ClusterBootstrapTemplate of new TKR")
+			updatedClusterBootstrap.Spec.CNI = clusterBootstrapTemplate.Spec.CNI.DeepCopy()
+		} else {
+			// We don't allow change to the CNI selection once it starts running, however we allow version bump
+			// TODO: check correctness of the following statement, as we still allow version bump
+			// ClusterBootstrap webhook will make sure the package RefName always match the original CNI
+			updatedCNI, cniNamePrefix, err := util.GetBootstrapPackageNameFromTKR(r.context, r.Client, updatedClusterBootstrap.Spec.CNI.RefName, cluster)
+			if err != nil {
+				errorMsg := fmt.Sprintf("unable to find any CNI bootstrap package prefixed with '%s' for ClusterBootstrap %s/%s in TKR", cniNamePrefix, cluster.Namespace, cluster.Name)
+				return nil, errors.Wrap(err, errorMsg)
+			}
+			updatedClusterBootstrap.Spec.CNI.RefName = updatedCNI
 		}
-		updatedClusterBootstrap.Spec.CNI.RefName = updatedCNI
 	}
 
 	if updatedClusterBootstrap.Spec.Kapp == nil {

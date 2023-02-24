@@ -100,6 +100,11 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		return errors.Wrap(err, "failed to set configurations for deletion")
 	}
 
+	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, regionalClusterNamespace)
+	if err != nil {
+		return errors.Wrap(err, "error while checking bootstrap cluster type")
+	}
+
 	isFailure, err := c.IsManagementClusterAKindCluster(options.ClusterName)
 	if err != nil {
 		return err
@@ -184,7 +189,8 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 			return errors.Wrap(err, "unable to wait for cluster getting ready for move")
 		}
 
-		if err = c.cleanUpAVIResourcesInManagementCluster(regionalClusterClient, options.ClusterName, regionalClusterNamespace); err != nil {
+		// Clean up avi resources in management cluster
+		if err = c.cleanUpAVIResourcesInManagementCluster(regionalClusterClient, isFailure, isClusterClassBased, options.ClusterName, regionalClusterNamespace); err != nil {
 			return errors.Wrap(err, "unable to clean up avi resource")
 		}
 	} else { // remove a management cluster whose deploymentStatus is 'Failed'
@@ -192,6 +198,12 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 		cleanupClusterName = strings.TrimLeft(regionContext.ContextName, "kind-")
 		isCleanupClusterCreated = true
 		isStartedRegionalClusterDeletion = true
+
+		// Clean up avi resources in bootstrap cluster
+		if err = c.cleanUpAVIResourcesInManagementCluster(regionalClusterClient, isFailure, isClusterClassBased, options.ClusterName, regionalClusterNamespace); err != nil {
+			return errors.Wrap(err, "unable to clean up avi resource")
+		}
+
 	}
 
 	log.Info("Deleting management cluster...")
@@ -446,9 +458,21 @@ func (c *TkgClient) verifyProviderConfigVariablesExists(providerName string) err
 	return errors.Errorf("value for variables [%s] is not set. Please set the value using os environment variables or the tkg config file", strings.Join(missingVariables, ","))
 }
 
-func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient clusterclient.Client, clusterName, clusterNamespace string) error {
+func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient clusterclient.Client, isFailure, isClusterClassBased bool, clusterName, clusterNamespace string) error {
 	akoAddonSecret := &corev1.Secret{}
-	if err := regionalClusterClient.GetResource(akoAddonSecret, constants.AkoAddonName+"-data-values", clusterNamespace, nil, nil); err != nil {
+
+	// Ako addon secret name is different between legacy cluster and classy cluster
+	// Ako addon secret name depends on if management cluster is successfully created
+	akoAddonSecretName := constants.AkoAddonName + "-data-values"
+	if isFailure {
+		akoAddonSecretName = constants.AkoAddonName + "-addon"
+	}
+
+	if isClusterClassBased {
+		akoAddonSecretName = clusterName + "-" + akoAddonSecretName
+	}
+
+	if err := regionalClusterClient.GetResource(akoAddonSecret, akoAddonSecretName, clusterNamespace, nil, nil); err != nil {
 		if apierrors.IsNotFound(err) {
 			return nil
 		}
@@ -478,8 +502,13 @@ func (c *TkgClient) cleanUpAVIResourcesInManagementCluster(regionalClusterClient
 	if err != nil {
 		return err
 	}
-	akoAddonSecret.Data["values.yaml"] = []byte(constants.TKGDataValueFormatString + string(akoAddonSecretData))
-	if err := regionalClusterClient.UpdateResource(akoAddonSecret, constants.AkoAddonName+"-data-values", clusterNamespace); err != nil {
+	// Add header to ako addon secret when the cluster is legacy
+	akoAddonSecretStr := string(akoAddonSecretData)
+	if !isClusterClassBased {
+		akoAddonSecretStr = constants.TKGDataValueFormatString + akoAddonSecretStr
+	}
+	akoAddonSecret.Data["values.yaml"] = []byte(akoAddonSecretStr)
+	if err := regionalClusterClient.UpdateResource(akoAddonSecret, akoAddonSecretName, clusterNamespace); err != nil {
 		return errors.Wrapf(err, "unable to update ako add-on secret")
 	}
 	return c.waitForAVIResourceCleanup(regionalClusterClient)

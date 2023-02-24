@@ -2059,6 +2059,27 @@ spec:
                             required:
                             - name
                             type: object
+                          serviceEndpoints:
+                            description: ServiceEndpoints is a slice of Virtual Network
+                              service endpoints to enable for the subnets.
+                            items:
+                              description: ServiceEndpointSpec configures an Azure
+                                Service Endpoint.
+                              properties:
+                                locations:
+                                  items:
+                                    type: string
+                                  type: array
+                                service:
+                                  type: string
+                              required:
+                              - locations
+                              - service
+                              type: object
+                            type: array
+                            x-kubernetes-list-map-keys:
+                            - service
+                            x-kubernetes-list-type: map
                         required:
                         - name
                         - role
@@ -2612,6 +2633,27 @@ spec:
                           required:
                           - name
                           type: object
+                        serviceEndpoints:
+                          description: ServiceEndpoints is a slice of Virtual Network
+                            service endpoints to enable for the subnets.
+                          items:
+                            description: ServiceEndpointSpec configures an Azure Service
+                              Endpoint.
+                            properties:
+                              locations:
+                                items:
+                                  type: string
+                                type: array
+                              service:
+                                type: string
+                            required:
+                            - locations
+                            - service
+                            type: object
+                          type: array
+                          x-kubernetes-list-map-keys:
+                          - service
+                          x-kubernetes-list-type: map
                       required:
                       - name
                       - role
@@ -3009,6 +3051,28 @@ spec:
                                         description: Tags defines a map of tags.
                                         type: object
                                     type: object
+                                  serviceEndpoints:
+                                    description: ServiceEndpoints is a slice of Virtual
+                                      Network service endpoints to enable for the
+                                      subnets.
+                                    items:
+                                      description: ServiceEndpointSpec configures
+                                        an Azure Service Endpoint.
+                                      properties:
+                                        locations:
+                                          items:
+                                            type: string
+                                          type: array
+                                        service:
+                                          type: string
+                                      required:
+                                      - locations
+                                      - service
+                                      type: object
+                                    type: array
+                                    x-kubernetes-list-map-keys:
+                                    - service
+                                    x-kubernetes-list-type: map
                                 required:
                                 - name
                                 - role
@@ -3339,6 +3403,27 @@ spec:
                                       description: Tags defines a map of tags.
                                       type: object
                                   type: object
+                                serviceEndpoints:
+                                  description: ServiceEndpoints is a slice of Virtual
+                                    Network service endpoints to enable for the subnets.
+                                  items:
+                                    description: ServiceEndpointSpec configures an
+                                      Azure Service Endpoint.
+                                    properties:
+                                      locations:
+                                        items:
+                                          type: string
+                                        type: array
+                                      service:
+                                        type: string
+                                    required:
+                                    - locations
+                                    - service
+                                    type: object
+                                  type: array
+                                  x-kubernetes-list-map-keys:
+                                  - service
+                                  x-kubernetes-list-type: map
                               required:
                               - name
                               - role
@@ -5841,6 +5926,13 @@ spec:
                     description: SpotVMOptions allows the ability to specify the Machine
                       should use a Spot VM
                     properties:
+                      evictionPolicy:
+                        description: EvictionPolicy defines the behavior of the virtual
+                          machine when it is evicted. It can be either Delete or Deallocate.
+                        enum:
+                        - Deallocate
+                        - Delete
+                        type: string
                       maxPrice:
                         anyOf:
                         - type: integer
@@ -5863,6 +5955,42 @@ spec:
                       VMSS scheduled events termination notification with specified
                       timeout allowed values are between 5 and 15 (mins)
                     type: integer
+                  vmExtensions:
+                    description: VMExtensions specifies a list of extensions to be
+                      added to the scale set.
+                    items:
+                      description: VMExtension specifies the parameters for a custom
+                        VM extension.
+                      properties:
+                        name:
+                          description: Name is the name of the extension.
+                          type: string
+                        protectedSettings:
+                          additionalProperties:
+                            type: string
+                          description: ProtectedSettings is a JSON formatted protected
+                            settings for the extension.
+                          type: object
+                        publisher:
+                          description: Publisher is the name of the extension handler
+                            publisher.
+                          type: string
+                        settings:
+                          additionalProperties:
+                            type: string
+                          description: Settings is a JSON formatted public settings
+                            for the extension.
+                          type: object
+                        version:
+                          description: Version specifies the version of the script
+                            handler.
+                          type: string
+                      required:
+                      - name
+                      - publisher
+                      - version
+                      type: object
+                    type: array
                   vmSize:
                     description: VMSize is the size of the Virtual Machine to build.
                       See https://docs.microsoft.com/en-us/rest/api/compute/virtualmachines/createorupdate#virtualmachinesizetypes
@@ -7663,6 +7791,13 @@ spec:
                 description: SpotVMOptions allows the ability to specify the Machine
                   should use a Spot VM
                 properties:
+                  evictionPolicy:
+                    description: EvictionPolicy defines the behavior of the virtual
+                      machine when it is evicted. It can be either Delete or Deallocate.
+                    enum:
+                    - Deallocate
+                    - Delete
+                    type: string
                   maxPrice:
                     anyOf:
                     - type: integer
@@ -7692,6 +7827,41 @@ spec:
                       type: string
                   required:
                   - providerID
+                  type: object
+                type: array
+              vmExtensions:
+                description: VMExtensions specifies a list of extensions to be added
+                  to the virtual machine.
+                items:
+                  description: VMExtension specifies the parameters for a custom VM
+                    extension.
+                  properties:
+                    name:
+                      description: Name is the name of the extension.
+                      type: string
+                    protectedSettings:
+                      additionalProperties:
+                        type: string
+                      description: ProtectedSettings is a JSON formatted protected
+                        settings for the extension.
+                      type: object
+                    publisher:
+                      description: Publisher is the name of the extension handler
+                        publisher.
+                      type: string
+                    settings:
+                      additionalProperties:
+                        type: string
+                      description: Settings is a JSON formatted public settings for
+                        the extension.
+                      type: object
+                    version:
+                      description: Version specifies the version of the script handler.
+                      type: string
+                  required:
+                  - name
+                  - publisher
+                  - version
                   type: object
                 type: array
               vmSize:
@@ -9048,6 +9218,14 @@ spec:
                         description: SpotVMOptions allows the ability to specify the
                           Machine should use a Spot VM
                         properties:
+                          evictionPolicy:
+                            description: EvictionPolicy defines the behavior of the
+                              virtual machine when it is evicted. It can be either
+                              Delete or Deallocate.
+                            enum:
+                            - Deallocate
+                            - Delete
+                            type: string
                           maxPrice:
                             anyOf:
                             - type: integer
@@ -9080,6 +9258,42 @@ spec:
                               type: string
                           required:
                           - providerID
+                          type: object
+                        type: array
+                      vmExtensions:
+                        description: VMExtensions specifies a list of extensions to
+                          be added to the virtual machine.
+                        items:
+                          description: VMExtension specifies the parameters for a
+                            custom VM extension.
+                          properties:
+                            name:
+                              description: Name is the name of the extension.
+                              type: string
+                            protectedSettings:
+                              additionalProperties:
+                                type: string
+                              description: ProtectedSettings is a JSON formatted protected
+                                settings for the extension.
+                              type: object
+                            publisher:
+                              description: Publisher is the name of the extension
+                                handler publisher.
+                              type: string
+                            settings:
+                              additionalProperties:
+                                type: string
+                              description: Settings is a JSON formatted public settings
+                                for the extension.
+                              type: object
+                            version:
+                              description: Version specifies the version of the script
+                                handler.
+                              type: string
+                          required:
+                          - name
+                          - publisher
+                          - version
                           type: object
                         type: array
                       vmSize:
@@ -10007,6 +10221,10 @@ spec:
                     type: string
                   name:
                     type: string
+                  resourceGroup:
+                    description: ResourceGroup is the name of the Azure resource group
+                      for the VNet and Subnet.
+                    type: string
                   subnet:
                     description: ManagedControlPlaneSubnet describes a subnet for
                       an AKS cluster.
@@ -10015,6 +10233,27 @@ spec:
                         type: string
                       name:
                         type: string
+                      serviceEndpoints:
+                        description: ServiceEndpoints is a slice of Virtual Network
+                          service endpoints to enable for the subnets.
+                        items:
+                          description: ServiceEndpointSpec configures an Azure Service
+                            Endpoint.
+                          properties:
+                            locations:
+                              items:
+                                type: string
+                              type: array
+                            service:
+                              type: string
+                          required:
+                          - locations
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-map-keys:
+                        - service
+                        x-kubernetes-list-type: map
                     required:
                     - cidrBlock
                     - name
@@ -10370,6 +10609,10 @@ spec:
                 description: Node labels - labels for all of the nodes present in
                   node pool
                 type: object
+              nodePublicIPPrefixID:
+                description: NodePublicIPPrefixID specifies the public IP prefix resource
+                  ID which VM nodes should use IPs from.
+                type: string
               osDiskSizeGB:
                 description: OSDiskSizeGB is the disk size for every machine in this
                   agent pool. If you specify 0, it will apply the default osDisk size
@@ -10397,6 +10640,13 @@ spec:
                 items:
                   type: string
                 type: array
+              scaleSetPriority:
+                description: 'ScaleSetPriority specifies the ScaleSetPriority value.
+                  Default to Regular. Possible values include: ''Regular'', ''Spot'''
+                enum:
+                - Regular
+                - Spot
+                type: string
               scaling:
                 description: Scaling specifies the autoscaling parameters for the
                   node pool.
@@ -11083,7 +11333,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: registry.k8s.io/cluster-api-azure/cluster-api-azure-controller:v1.5.3
+        image: registry.k8s.io/cluster-api-azure/cluster-api-azure-controller:v1.6.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -11164,7 +11414,7 @@ spec:
               fieldPath: spec.nodeName
         - name: LOG_LEVEL
           value: DEBUG
-        image: mcr.microsoft.com/oss/azure/aad-pod-identity/nmi:v1.8.9
+        image: mcr.microsoft.com/oss/azure/aad-pod-identity/nmi:v1.8.14
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -11203,6 +11453,11 @@ spec:
       nodeSelector:
         kubernetes.io/os: linux
       serviceAccountName: capz-manager
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
       volumes:
       - hostPath:
           path: /run/xtables.lock

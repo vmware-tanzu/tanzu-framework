@@ -71,6 +71,20 @@ func init() {
 	flag.IntVar(&continuousTKRDiscoverFreq, "continuous-discover-frequency", 600, "Continuous TKR discovery frequency in seconds")
 	flag.Parse()
 
+	// validate image path vars
+	if bomImagePath == "" {
+		setupLog.Error(fmt.Errorf("unable to set up controller manager"), "bom image path should not be empty")
+		os.Exit(1)
+	}
+	if bomMetadataImagePath == "" {
+		setupLog.Error(fmt.Errorf("unable to set up controller manager"), "bom metadata image path should not be empty")
+		os.Exit(1)
+	}
+	if tkrRepoImagePath == "" {
+		setupLog.Error(fmt.Errorf("unable to set up controller manager"), "tkr repo image path should not be empty")
+		os.Exit(1)
+	}
+
 	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
 
 	registryConfig = registry.Config{

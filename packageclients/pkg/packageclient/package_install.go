@@ -401,7 +401,7 @@ func (p *pkgClient) waitForResourceInstallation(name, namespace string, pollInte
 	}
 
 	if !reconcileSucceeded {
-		return fmt.Errorf("'%s' resource reconciliation failed", rscType.String())
+		return fmt.Errorf("'%s' resource reconciliation timeout", rscType.String())
 	}
 
 	return nil

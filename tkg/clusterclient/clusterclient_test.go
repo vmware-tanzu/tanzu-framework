@@ -170,8 +170,20 @@ var _ = Describe("Cluster Client", func() {
 			return getterFunc()
 		})
 		poller.PollImmediateInfiniteWithGetterCalls(func(interval time.Duration, getterFunc GetterFunc) error {
-			_, errGetter := getterFunc()
-			return errGetter
+			pollMaxRetry := 40
+			timeout, err := getterFunc()
+			for i := 0; i <= pollMaxRetry; i++ {
+				timeoutBool := timeout.(bool)
+				if timeoutBool {
+					return err
+				}
+				if err == nil {
+					return nil
+				}
+				time.Sleep(time.Second * interval)
+				timeout, err = getterFunc()
+			}
+			return err
 		})
 		clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 		discoveryClient.ServerVersionReturns(&version.Info{}, nil)
@@ -2566,6 +2578,8 @@ var _ = Describe("Cluster Client", func() {
 
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						*o = getDummyAzureCluster(clusterName, identityName)
 					case *capzv1beta1.AzureClusterIdentity:
@@ -2584,6 +2598,8 @@ var _ = Describe("Cluster Client", func() {
 
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						*o = getDummyAzureCluster(clusterName, "")
 					}
@@ -2599,7 +2615,9 @@ var _ = Describe("Cluster Client", func() {
 				clientset.GetReturns(errors.New("dummy"))
 
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
-					switch o.(type) {
+					switch o := o.(type) {
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						return errors.New("dummy")
 					}
@@ -2624,6 +2642,8 @@ var _ = Describe("Cluster Client", func() {
 
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						*o = getDummyAzureCluster(clusterName, identityName)
 					case *capzv1beta1.AzureClusterIdentity:
@@ -2648,6 +2668,8 @@ var _ = Describe("Cluster Client", func() {
 
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						*o = getDummyAzureCluster(clusterName, identityName)
 					case *capzv1beta1.AzureClusterIdentity:
@@ -2670,6 +2692,8 @@ var _ = Describe("Cluster Client", func() {
 					switch o := o.(type) {
 					case *capzv1beta1.AzureClusterIdentity:
 						return errors.New("dummy")
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						*o = getDummyAzureCluster(clusterName, "")
 					}
@@ -2704,6 +2728,8 @@ var _ = Describe("Cluster Client", func() {
 					switch o := o.(type) {
 					case *capzv1beta1.AzureClusterIdentity:
 						return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "AzureClusterIdentity"}, "not found")
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						*o = getDummyAzureCluster(clusterName, identityName)
 					}
@@ -2725,6 +2751,8 @@ var _ = Describe("Cluster Client", func() {
 
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						*o = getDummyAzureCluster(clusterName, identityName)
 					case *capzv1beta1.AzureClusterIdentity:
@@ -2758,6 +2786,8 @@ var _ = Describe("Cluster Client", func() {
 						return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "Secret"}, "not found")
 					case *capzv1beta1.AzureClusterIdentity:
 						*o = getDummyAzureClusterIdentity(identityName, identitySecretName, tenantID, clientID)
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						*o = getDummyAzureCluster(clusterName, identityName)
 					}
@@ -2779,6 +2809,8 @@ var _ = Describe("Cluster Client", func() {
 
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
 					case *capzv1beta1.AzureCluster:
 						*o = getDummyAzureCluster(clusterName, identityName)
 					case *capzv1beta1.AzureClusterIdentity:
@@ -2809,15 +2841,17 @@ var _ = Describe("Cluster Client", func() {
 				clientset.GetReturns(nil)
 				clientset.PatchReturns(nil)
 				kcpReplicas = Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
-				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
-					case *controlplanev1.KubeadmControlPlaneList:
-						o.Items = append(o.Items, getDummyKCP(kcpReplicas.SpecReplica, kcpReplicas.Replicas, kcpReplicas.ReadyReplicas, kcpReplicas.UpdatedReplicas))
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
+					case *controlplanev1.KubeadmControlPlane:
+						*o = getDummyKCP(kcpReplicas.SpecReplica, kcpReplicas.Replicas, kcpReplicas.ReadyReplicas, kcpReplicas.UpdatedReplicas)
 					}
 					return nil
 				})
 
-				err = clstClient.UpdateAzureKCP("clusterName", "")
+				err = clstClient.UpdateAzureKCP(clusterName, constants.DefaultNamespace)
 				Expect(err).To(BeNil())
 			})
 
@@ -2825,15 +2859,17 @@ var _ = Describe("Cluster Client", func() {
 				clientset.GetReturns(nil)
 				clientset.PatchReturns(errors.New("dummy"))
 				kcpReplicas = Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
-				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 					switch o := o.(type) {
-					case *controlplanev1.KubeadmControlPlaneList:
-						o.Items = append(o.Items, getDummyKCP(kcpReplicas.SpecReplica, kcpReplicas.Replicas, kcpReplicas.ReadyReplicas, kcpReplicas.UpdatedReplicas))
+					case *capi.Cluster:
+						*o = getDummyCluster(clusterName)
+					case *controlplanev1.KubeadmControlPlane:
+						*o = getDummyKCP(kcpReplicas.SpecReplica, kcpReplicas.Replicas, kcpReplicas.ReadyReplicas, kcpReplicas.UpdatedReplicas)
 					}
 					return nil
 				})
 
-				err = clstClient.UpdateAzureKCP("clusterName", "")
+				err = clstClient.UpdateAzureKCP(clusterName, constants.DefaultNamespace)
 				Expect(err).ToNot(BeNil())
 			})
 		})
@@ -3848,6 +3884,35 @@ func getDummyAzureClusterIdentity(identityName string, identitySecretName string
 	azureClusterIdentity.Spec.ClientSecret.Namespace = constants.DefaultNamespace
 	azureClusterIdentity.Spec.Type = "ServicePrincipal"
 	return azureClusterIdentity
+}
+
+func getDummyCluster(clusterName string) capi.Cluster {
+	clusterSpecs := capi.ClusterSpec{
+		InfrastructureRef: &corev1.ObjectReference{
+			Kind:       "AzureCluster",
+			Name:       clusterName,
+			Namespace:  constants.DefaultNamespace,
+			APIVersion: "infrastructure.cluster.x-k8s.io/v1beta1",
+		},
+		ControlPlaneRef: &corev1.ObjectReference{
+			APIVersion: "controlplane.cluster.x-k8s.io/v1beta1",
+			Kind:       "KubeadmControlPlane",
+			Name:       "fake-kcp-name",
+			Namespace:  "fake-kcp-namespace",
+		},
+	}
+
+	cluster := capi.Cluster{
+		TypeMeta: metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      clusterName,
+			Namespace: constants.DefaultNamespace,
+		},
+		Spec:   clusterSpecs,
+		Status: capi.ClusterStatus{},
+	}
+
+	return cluster
 }
 
 func getDummyAzureCluster(clusterName string, identityName string) capzv1beta1.AzureCluster {

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -62,6 +63,10 @@ func NewHelper(ctx context.Context, k8sClient client.Client, aggregateAPIResourc
 // a fully qualified name(<packageShortName>.<domain>.<version>). The fully qualified name is fetched from TKR.
 func (h *Helper) CompleteCBPackageRefNamesFromTKR(tkr *runtanzuv1alpha3.TanzuKubernetesRelease, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
 	var suffix = "*"
+
+	if clusterBootstrap.Spec == nil {
+		return errors.New("missing spec definition")
+	}
 	clusterBootstrapPackages := []*runtanzuv1alpha3.ClusterBootstrapPackage{
 		clusterBootstrap.Spec.CNI,
 		clusterBootstrap.Spec.CPI,
@@ -368,6 +373,10 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 			}
 		}
 
+		if _, ok := clusterBootstrap.Annotations[constants.UnmanagedCNI]; ok {
+			clusterBootstrapTemplate.Spec.CNI = clusterBootstrap.Spec.CNI
+		}
+
 		if err := h.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, nil); err != nil {
 			h.Logger.Error(err, fmt.Sprintf("unable to add missing spec fields of ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
 				clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
@@ -667,14 +676,14 @@ func (h *Helper) CreateOrPatchInlineSecret(
 
 	inlineSecret.Type = corev1.SecretTypeOpaque
 	opResult, createOrPatchErr := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, inlineSecret, func() error {
-		inlineSecret.OwnerReferences = []metav1.OwnerReference{
-			{
-				APIVersion: clusterapiv1beta1.GroupVersion.String(),
-				Kind:       cluster.Kind,
-				Name:       cluster.Name,
-				UID:        cluster.UID,
-			},
+		clusterOwnerRef := metav1.OwnerReference{
+			APIVersion: clusterapiv1beta1.GroupVersion.String(),
+			Kind:       cluster.Kind,
+			Name:       cluster.Name,
+			UID:        cluster.UID,
 		}
+		inlineSecret.OwnerReferences = clusterapiutil.EnsureOwnerRef(inlineSecret.OwnerReferences, clusterOwnerRef)
+
 		if inlineSecret.StringData == nil {
 			inlineSecret.StringData = make(map[string]string)
 		}

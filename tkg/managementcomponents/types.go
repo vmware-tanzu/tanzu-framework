@@ -34,6 +34,7 @@ type TKRSourceControllerPackageValues struct {
 	TKRRepoImagePath     string                                     `yaml:"tkrRepoImagePath,omitempty"`
 	DefaultCompatibleTKR string                                     `yaml:"defaultCompatibleTKR,omitempty"`
 	CaCerts              string                                     `yaml:"caCerts,omitempty"`
+	SkipVerifyCert       bool                                       `yaml:"skipVerifyRegistryCert,omitempty"`
 	ImageRepo            string                                     `yaml:"imageRepository,omitempty"`
 	Deployment           TKRSourceControllerPackageValuesDeployment `yaml:"deployment,omitempty"`
 }
@@ -73,13 +74,8 @@ type TanzuAddonsManager struct {
 	FeatureGates AddonsFeatureGates `yaml:"featureGates,omitempty"`
 }
 type CoreManagementPluginsPackage struct {
-	NamespaceForPackageInstallation   string                            `yaml:"namespaceForPackageInstallation,omitempty"`
-	VersionConstraints                string                            `yaml:"versionConstraints,omitempty"`
-	CoreManagementPluginsPackageValue CoreManagementPluginsPackageValue `yaml:"clusterclassInfraPackageValues,omitempty"`
-}
-
-type CoreManagementPluginsPackageValue struct {
-	DeployCLIPluginCRD bool `yaml:"deployCLIPluginCRD,omitempty"`
+	NamespaceForPackageInstallation string `yaml:"namespaceForPackageInstallation,omitempty"`
+	VersionConstraints              string `yaml:"versionConstraints,omitempty"`
 }
 
 type AddonsManagerPackageValues struct {
@@ -94,15 +90,23 @@ type FeaturegatePackageValues struct {
 }
 
 type TKRServicePackageValues struct {
-	Namespace          string `yaml:"namespace,omitempty"`
-	CreateNamespace    string `yaml:"createNamespace,omitempty"`
-	VersionConstraints string `yaml:"versionConstraints,omitempty"`
+	Namespace          string                            `yaml:"namespace,omitempty"`
+	CreateNamespace    string                            `yaml:"createNamespace,omitempty"`
+	VersionConstraints string                            `yaml:"versionConstraints,omitempty"`
+	Deployment         TKRServicePackageValuesDeployment `yaml:"deployment,omitempty"`
+}
+
+type TKRServicePackageValuesDeployment struct {
+	HttpProxy  string `yaml:"httpProxy,omitempty"`
+	HttpsProxy string `yaml:"httpsProxy,omitempty"`
+	NoProxy    string `yaml:"noProxy,omitempty"`
 }
 
 type CLIPluginsPackageValues struct {
 	Namespace          string `yaml:"namespace,omitempty"`
 	CreateNamespace    string `yaml:"createNamespace,omitempty"`
 	VersionConstraints string `yaml:"versionConstraints,omitempty"`
+	DeployCLIPluginCRD bool   `yaml:"deployCLIPluginCRD,omitempty"`
 }
 
 type ClusterClassInfraPackageValues struct {
@@ -125,6 +129,12 @@ type AkoOperatorPackageValues struct {
 	AkoOperatorConfig  AkoOperatorConfig `yaml:"config,omitempty"`
 }
 
+// NodeNetwork
+type NodeNetwork struct {
+	NetworkName string   `yaml:"networkName,omitempty" json:"networkName,omitempty"`
+	Cidrs       []string `yaml:"cidrs,omitempty" json:"cidrs,omitempty"`
+}
+
 // AkoOperatorConfig
 type AkoOperatorConfig struct {
 	AviControllerAddress                           string `yaml:"avi_controller,omitempty"`
@@ -143,5 +153,8 @@ type AkoOperatorConfig struct {
 	AviManagementClusterDataPlaneNetworkCIDR       string `yaml:"avi_management_cluster_vip_network_cidr,omitempty"`
 	AviManagementClusterControlPlaneVipNetworkName string `yaml:"avi_management_cluster_control_plane_vip_network_name,omitempty"`
 	AviManagementClusterControlPlaneVipNetworkCIDR string `yaml:"avi_management_cluster_control_plane_vip_network_cidr,omitempty"`
+	AviLabels                                      string `yaml:"avi_labels,omitempty"`
+	AviNSXTT1Router                                string `yaml:"avi_nsxt_t1_lr,omitempty"`
 	AviControlPlaneHaProvider                      bool   `yaml:"avi_control_plane_ha_provider,omitempty"`
+	AviIngressNodeNetworkList                      string `yaml:"avi_ingress_node_network_list,omitempty"`
 }

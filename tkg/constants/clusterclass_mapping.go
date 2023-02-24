@@ -23,6 +23,7 @@ var ClusterAttributesToLegacyVariablesMapCommon = map[string]string{
 	"spec.topology.variables.proxy.httpProxy":     TKGHTTPProxy,        // TKG_HTTP_PROXY
 	"spec.topology.variables.proxy.httpsProxy":    TKGHTTPSProxy,       // TKG_HTTPS_PROXY
 	"spec.topology.variables.proxy.noProxy":       TKGNoProxy,          // TKG_NO_PROXY
+	"spec.topology.variables.proxy.systemWide":    TKGSystemWideProxy,  // TKG_NODE_SYSTEM_WIDE_PROXY
 
 	"spec.topology.variables.imageRepository.host":                     ConfigVariableCustomImageRepository,
 	"spec.topology.variables.imageRepository.tlsCertificateValidation": ConfigVariableCustomImageRepositorySkipTLSVerify,
@@ -31,8 +32,8 @@ var ClusterAttributesToLegacyVariablesMapCommon = map[string]string{
 
 	"spec.topology.variables.auditLogging.enabled": EnableAuditLogging, // ENABLE_AUDIT_LOGGING
 
-	"spec.topology.variables.trust.proxy":           TKGProxyCACert,                                   // TKG_PROXY_CA_CERT
-	"spec.topology.variables.trust.imageRepository": ConfigVariableCustomImageRepositoryCaCertificate, // TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+	"spec.topology.variables.trust.additionalTrustedCAs.proxy":           TKGProxyCACert,                                   // TKG_PROXY_CA_CERT
+	"spec.topology.variables.trust.additionalTrustedCAs.imageRepository": ConfigVariableCustomImageRepositoryCaCertificate, // TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
 
 	"spec.topology.variables.apiServerPort": ConfigVariableClusterAPIServerPort, // CLUSTER_API_SERVER_PORT
 
@@ -217,6 +218,7 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	"spec.topology.variables.vcenter.datastore":     ConfigVariableVsphereDatastore,     // VSPHERE_DATASTORE
 	"spec.topology.variables.vcenter.folder":        ConfigVariableVsphereFolder,        // VSPHERE_FOLDER
 	"spec.topology.variables.vcenter.server":        ConfigVariableVsphereServer,        // VSPHERE_SERVER
+	"spec.topology.variables.vcenter.insecure":      ConfigVariableVsphereInsecure,      // VSPHERE_INSECURE this variable doesn't exist in clusterclass, will be infer from tlsThumbprint
 
 	"spec.topology.variables.user.sshAuthorizedKeys": ConfigVariableVsphereSSHAuthorizedKey, // VSPHERE_SSH_AUTHORIZED_KEY
 
@@ -229,6 +231,9 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	"spec.topology.variables.worker.machine.memoryMiB":   ConfigVariableVsphereWorkerMemMib,   // VSPHERE_WORKER_MEM_MIB
 	"spec.topology.variables.worker.machine.numCPUs":     ConfigVariableVsphereWorkerNumCpus,  // VSPHERE_WORKER_NUM_CPUS
 	"spec.topology.variables.worker.network.nameservers": ConfigVariableWorkerNodeNameservers, // WORKER_NODE_NAMESERVERS
+
+	"spec.topology.variables.pci.controlPlane.hardwareVersion": ConfigVariableVSphereControlPlaneHardwareVersion, // VSPHERE_CONTROL_PLANE_HARDWARE_VERSION
+	"spec.topology.variables.pci.worker.hardwareVersion":       ConfigVariableVSphereWorkerHardwareVersion,       // VSPHERE_WORKER_HARDWARE_VERSION
 
 	TopologyWorkersMachineDeploymentsClass0:         "",
 	TopologyWorkersMachineDeploymentsName0:          "",
@@ -244,6 +249,8 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	TopologyWorkersMachineDeploymentsName2:          "",
 	TopologyWorkersMachineDeploymentsReplicas2:      ConfigVariableWorkerMachineCount2,
 	TopologyWorkersMachineDeploymentsFailureDomain2: ConfigVariableVsphereAz2,
+
+	"spec.topology.variables.customTDNFRepository.certificate": ConfigVariableCustomTDNFRepositoryCertificate,
 }
 
 // ClusterAttributesToLegacyVariablesMapDocker has, Docker Cluster object attributes path mapped to legacy variable names.

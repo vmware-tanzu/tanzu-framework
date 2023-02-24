@@ -11,6 +11,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/pointer"
@@ -328,6 +329,16 @@ ova: []
 				tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFileStub = func() (string, error) {
 					return "FakeFileShaIsSame", nil
 				}
+				tkgConfigReaderWriter.GetCalls(func(key string) (string, error) {
+					configMap := populateConfigMap()
+					if val, ok := configMap[key]; ok {
+						return val, nil
+					}
+					if key == constants.ConfigVariableAllowLegacyCluster {
+						return "true", nil
+					}
+					return "192.168.2.1/16", nil
+				})
 			})
 
 			It("Should go to create a legacy based workload cluster directly", func() {
@@ -350,6 +361,16 @@ ova: []
 				tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFileStub = func() (string, error) {
 					return "FakeFileShaIsSame", nil
 				}
+				tkgConfigReaderWriter.GetCalls(func(key string) (string, error) {
+					configMap := populateConfigMap()
+					if val, ok := configMap[key]; ok {
+						return val, nil
+					}
+					if key == constants.ConfigVariableAllowLegacyCluster {
+						return "false", nil
+					}
+					return "192.168.2.1/16", nil
+				})
 			})
 
 			It("Should go to create a classy based workload cluster directly", func() {
@@ -385,6 +406,43 @@ ova: []
 				Expect(result).To(ContainSubstring("To create a cluster with it, use"))
 			})
 
+		})
+
+		When("ALLOW_LEGACY_CLUSTER is failed to set", func() {
+			BeforeEach(func() {
+				tkgConfigReaderWriter.GetCalls(func(key string) (string, error) {
+					configMap := populateConfigMap()
+					if val, ok := configMap[key]; ok {
+						return val, nil
+					}
+					if key == constants.ConfigVariableAllowLegacyCluster {
+						return "false", errors.Errorf("fake error")
+					}
+					return "192.168.2.1/16", nil
+				})
+
+				featureFlagClient.IsConfigFeatureActivatedStub = func(featureFlagName string) (bool, error) {
+					if featureFlagName == constants.FeatureFlagAllowLegacyCluster {
+						return false, nil
+					}
+					return true, nil
+				}
+
+				tkgConfigUpdaterClient.GetProvidersChecksumStub = func() (string, error) {
+					return "FakeFileShaIsSame", nil
+				}
+				tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFileStub = func() (string, error) {
+					return "FakeFileShaIsSame", nil
+				}
+			})
+
+			It("Should return an error", func() {
+				options = createClusterOptions(clusterName, "../fakes/config/config.yaml")
+				options.IsInputFileClusterClassBased = false
+				Expect(err).ToNot(HaveOccurred())
+				result := captureOutput(*tkgClient, options, false)
+				Expect(result).To(ContainSubstring("failed getting variable ALLOW_LEGACY_CLUSTER"))
+			})
 		})
 	})
 
@@ -432,6 +490,12 @@ func populateConfigMap() map[string]string {
 	configMap[constants.ConfigVariableWorkerMachineCount0] = "0"
 	configMap[constants.ConfigVariableWorkerMachineCount1] = "0"
 	configMap[constants.ConfigVariableWorkerMachineCount2] = "0"
+	configMap[constants.ConfigVariableEtcdExtraArgs] = ""
+	configMap[constants.ConfigVariableAPIServerExtraArgs] = ""
+	configMap[constants.ConfigVariableKubeSchedulerExtraArgs] = ""
+	configMap[constants.ConfigVariableKubeControllerManagerExtraArgs] = ""
+	configMap[constants.ConfigVariableControlPlaneKubeletExtraArgs] = ""
+	configMap[constants.ConfigVariableWorkerKubeletExtraArgs] = ""
 	return configMap
 }
 

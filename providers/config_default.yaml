@@ -480,6 +480,8 @@ ENABLE_MHC_WORKER_NODE: true
 ENABLE_MHC_CONTROL_PLANE: true
 MHC_UNKNOWN_STATUS_TIMEOUT: 5m
 MHC_FALSE_STATUS_TIMEOUT: 12m
+MHC_MAX_UNHEALTHY_CONTROL_PLANE: 100%
+MHC_MAX_UNHEALTHY_WORKER_NODE: 100%
 
 #! ---------------------------------------------------------------------
 #! Bootstrap Token Duration configuration
@@ -507,6 +509,7 @@ TKG_HTTP_PROXY: ""
 TKG_HTTPS_PROXY: ""
 TKG_NO_PROXY: ""
 TKG_PROXY_CA_CERT: ""
+TKG_NODE_SYSTEM_WIDE_PROXY: false
 
 #! IP Family setting
 TKG_IP_FAMILY:
@@ -748,6 +751,8 @@ KUBEVIP_LOADBALANCER_ENABLE: false
 KUBEVIP_LOADBALANCER_IP_RANGES: ""
 KUBEVIP_LOADBALANCER_CIDRS: ""
 
+CUSTOM_TDNF_REPOSITORY_CERTIFICATE: ""
+
 #! ---------------------------------------------------------------------
 #! Internal configuration, not meant to be overridden
 #! ---------------------------------------------------------------------
@@ -803,6 +808,9 @@ OCI_EXTERNAL_WORKER_NSG_ID:
 OCI_EXTERNAL_CONTROL_PLANE_EP_SUBNET_ID:
 OCI_EXTERNAL_CONTROL_PLANE_SUBNET_ID:
 OCI_EXTERNAL_WORKER_SUBNET_ID:
+
+#! Use base64 to encode the config.yaml content
+APISERVER_EVENT_RATE_LIMIT_CONF_BASE64:
 
 #! ---------------------------------------------------------------------
 #! BoM file processing, internal use only
