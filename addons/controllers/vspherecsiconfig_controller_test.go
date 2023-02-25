@@ -244,7 +244,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					fmt.Println(secretData) // debug dump
 					Expect(strings.Contains(secretData, "vsphereCSI:")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "tlsThumbprint: thumbprint-yadayada")).Should(BeTrue())
-					Expect(strings.Contains(secretData, "namespace: kube-system")).Should(BeTrue())
+					Expect(strings.Contains(secretData, "namespace: vmware-system-csi")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "server: vsphere-server.local")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "datacenter: dc0")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "publicNetwork: test-network")).Should(BeTrue())
