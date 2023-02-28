@@ -88,6 +88,7 @@
   },
   "overrides": {
     "glob-parent": "5.1.2",
+    "http-cache-semantics": "4.1.1",
     "json5": "2.2.3",
     "loader-utils": "2.0.4",
     "meow": "10.1.5",
