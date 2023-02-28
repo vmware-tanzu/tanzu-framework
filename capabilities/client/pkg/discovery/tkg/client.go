@@ -25,6 +25,7 @@ func init() {
 }
 
 // DiscoveryClient allows clients to determine capabilities of a TKG cluster.
+// Deprecated: This struct type will be removed in a future release.
 type DiscoveryClient struct {
 	k8sClient          client.Client
 	clusterQueryClient *discovery.ClusterQueryClient
