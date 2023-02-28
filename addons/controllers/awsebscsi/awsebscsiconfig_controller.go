@@ -5,6 +5,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	"gopkg.in/yaml.v2"
@@ -55,6 +56,13 @@ func (r *AwsEbsCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		logger.Error(err, "Unable to fetch AwsEbsCSIConfig resource")
 		return ctrl.Result{}, err
 	}
+
+	annotations := awsebsCSIConfig.GetAnnotations()
+	if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		logger.Info(fmt.Sprintf("resource '%v' is a config template. Skipping reconciling", req.NamespacedName))
+		return ctrl.Result{}, nil
+	}
+
 
 	// deep copy awsebsCSIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	awsebsCSIConfig = awsebsCSIConfig.DeepCopy()
