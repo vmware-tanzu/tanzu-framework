@@ -5,6 +5,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	"gopkg.in/yaml.v2"
@@ -54,6 +55,12 @@ func (r *AzureFileCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 		logger.Error(err, "Unable to fetch AzureFileCSIConfig resource")
 		return ctrl.Result{}, err
+	}
+
+	annotations := azurefileCSIConfig.GetAnnotations()
+	if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		logger.Info(fmt.Sprintf("resource '%v' is a config template. Skipping reconciling", req.NamespacedName))
+		return ctrl.Result{}, nil
 	}
 
 	// deep copy azurefileCSIConfig to avoid issues if in the future other controllers where interacting with the same copy

@@ -5,6 +5,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
@@ -56,6 +57,12 @@ func (r *AzureDiskCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 		logger.Error(err, "Unable to fetch azureDiskCSIConfig resource")
 		return ctrl.Result{}, err
+	}
+
+	annotations := azureDiskCSIConfig.GetAnnotations()
+	if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		logger.Info(fmt.Sprintf("resource '%v' is a config template. Skipping reconciling", req.NamespacedName))
+		return ctrl.Result{}, nil
 	}
 
 	// deep copy azureDiskCSIConfig to avoid issues if in the future other controllers where interacting with the same copy
