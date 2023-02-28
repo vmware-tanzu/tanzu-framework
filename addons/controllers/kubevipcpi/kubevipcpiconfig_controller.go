@@ -59,6 +59,12 @@ func (r *KubevipCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	annotations := kvcpConfig.GetAnnotations()
+	if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		logger.Info(fmt.Sprintf("resource '%v' is a config template. Skipping reconciling", req.NamespacedName))
+		return ctrl.Result{}, nil
+	}
+
 	// deep copy KubevipCPIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	kvcpConfig = kvcpConfig.DeepCopy()
 
