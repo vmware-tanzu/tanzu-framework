@@ -188,7 +188,7 @@ func TestGVRQueries(t *testing.T) {
 			},
 		},
 		{
-			GroupVersion: "autoscaling/v2beta1",
+			GroupVersion: "autoscaling/v2",
 			APIResources: []metav1.APIResource{
 				{
 					Name:       "horizontalpodautoscalers",
@@ -299,7 +299,7 @@ func TestGVRQueries(t *testing.T) {
 		},
 		{
 			description: "group and versions found",
-			query:       Group("test", "autoscaling").WithVersions("v2beta1", "v1", "v2beta2"),
+			query:       Group("test", "autoscaling").WithVersions("v2", "v1", "v2beta2"),
 			want:        true,
 		},
 		{
@@ -314,13 +314,13 @@ func TestGVRQueries(t *testing.T) {
 		},
 		{
 			description: "group found and version not found",
-			query:       Group("test", "autoscaling").WithVersions("v1", "v2", "v2beta2"),
+			query:       Group("test", "autoscaling").WithVersions("v1", "v2beta1", "v2beta2"),
 			want:        false,
 		},
 		{
 			description: "group, versions, resource found",
 			query: Group("test", "autoscaling").
-				WithVersions("v1", "v2beta1", "v2beta2").
+				WithVersions("v1", "v2", "v2beta2").
 				WithResource("horizontalpodautoscalers"),
 			want: true,
 		},
@@ -334,7 +334,7 @@ func TestGVRQueries(t *testing.T) {
 		{
 			description: "group, resource found, version not found",
 			query: Group("test", "autoscaling").
-				WithVersions("v2").
+				WithVersions("v3").
 				WithResource("horizontalpodautoscalers"),
 			want: false,
 		},
