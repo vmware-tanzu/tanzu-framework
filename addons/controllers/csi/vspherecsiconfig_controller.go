@@ -158,6 +158,12 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	annotations := vcsiConfig.GetAnnotations()
+	if _, ok := annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		logger.Info(fmt.Sprintf("resource '%v' is a config template. Skipping reconciling", req.NamespacedName))
+		return ctrl.Result{}, nil
+	}
+
 	// deep copy VSphereCSIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	vcsiConfig = vcsiConfig.DeepCopy()
 
