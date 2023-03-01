@@ -24,6 +24,7 @@ const (
 )
 
 // HasInfrastructureProvider checks the cluster's CAPI infrastructure provider.
+// Deprecated: This function will be removed in a future release.
 func (dc *DiscoveryClient) HasInfrastructureProvider(ctx context.Context, infraProvider InfrastructureProvider) (bool, error) {
 	if infraProvider != InfrastructureProviderAWS && infraProvider != InfrastructureProviderAzure && infraProvider != InfrastructureProviderVsphere {
 		return false, fmt.Errorf("unsupported infrastructure provider: %v", infraProvider)
