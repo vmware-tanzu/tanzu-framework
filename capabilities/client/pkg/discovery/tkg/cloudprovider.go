@@ -24,6 +24,7 @@ const (
 )
 
 // HasCloudProvider checks if the cluster is configured with the given cloud provider.
+// Deprecated: This function will be removed in a future release.
 func (dc *DiscoveryClient) HasCloudProvider(ctx context.Context, cloudProvider CloudProvider) (bool, error) {
 	if cloudProvider != CloudProviderAWS && cloudProvider != CloudProviderAzure && cloudProvider != CloudProviderVsphere {
 		return false, fmt.Errorf("unsupported cloud provider: %v", cloudProvider)
