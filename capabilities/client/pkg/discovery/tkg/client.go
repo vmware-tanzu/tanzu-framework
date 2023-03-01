@@ -25,12 +25,14 @@ func init() {
 }
 
 // DiscoveryClient allows clients to determine capabilities of a TKG cluster.
+// Deprecated: This struct type will be removed in a future release.
 type DiscoveryClient struct {
 	k8sClient          client.Client
 	clusterQueryClient *discovery.ClusterQueryClient
 }
 
 // NewDiscoveryClientForConfig returns a DiscoveryClient for a rest.Config.
+// Deprecated: This function will be removed in a future release.
 func NewDiscoveryClientForConfig(config *rest.Config) (*DiscoveryClient, error) {
 	c, err := client.New(config, client.Options{Scheme: Scheme})
 	if err != nil {
@@ -44,6 +46,7 @@ func NewDiscoveryClientForConfig(config *rest.Config) (*DiscoveryClient, error) 
 }
 
 // NewDiscoveryClient returns a DiscoveryClient for a controller-runtime Client and ClusterQueryClient.
+// Deprecated: This function will be removed in a future release.
 func NewDiscoveryClient(c client.Client, clusterQueryClient *discovery.ClusterQueryClient) *DiscoveryClient {
 	return &DiscoveryClient{k8sClient: c, clusterQueryClient: clusterQueryClient}
 }
