@@ -91,14 +91,14 @@ type VSphereConfig struct {
 	AviManagementClusterVipNetworkCidr             string `yaml:"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR"`
 	AviManagementClusterControlPlaneVipNetworkName string `yaml:"AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME"`
 	AviManagementClusterControlPlaneVipNetworkCIDR string `yaml:"AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"`
-	VSphereWorkerPCIDevices                        string `yaml:"VSPHERE_WORKER_PCI_DEVICES"`
-	VSphereControlPlanePCIDevices                  string `yaml:"VSPHERE_CONTROL_PLANE_PCI_DEVICES"`
+	VSphereWorkerPCIDevices                        string `yaml:"VSPHERE_WORKER_PCI_DEVICES,omitempty"`
+	VSphereControlPlanePCIDevices                  string `yaml:"VSPHERE_CONTROL_PLANE_PCI_DEVICES,omitempty"`
 	WorkerRolloutStrategy                          string `yaml:"WORKER_ROLLOUT_STRATEGY"`
-	VSphereControlPlaneCustomVMXKeys               string `yaml:"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"`
-	VSphereWorkerCustomVMXKeys                     string `yaml:"VSPHERE_WORKER_CUSTOM_VMX_KEYS"`
-	VSphereIgnorePCIDevicesAllowList               string `yaml:"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"`
-	VSphereControlPlaneHardwareVersion             string `yaml:"VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"`
-	VSphereWorkerHardwareVersion                   string `yaml:"VSPHERE_WORKER_HARDWARE_VERSION"`
+	VSphereControlPlaneCustomVMXKeys               string `yaml:"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS,omitempty"`
+	VSphereWorkerCustomVMXKeys                     string `yaml:"VSPHERE_WORKER_CUSTOM_VMX_KEYS,omitempty"`
+	VSphereIgnorePCIDevicesAllowList               string `yaml:"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST,omitempty"`
+	VSphereControlPlaneHardwareVersion             string `yaml:"VSPHERE_CONTROL_PLANE_HARDWARE_VERSION,omitempty"`
+	VSphereWorkerHardwareVersion                   string `yaml:"VSPHERE_WORKER_HARDWARE_VERSION,omitempty"`
 	IDPConfig                                      `yaml:",inline"`
 	OsInfo                                         `yaml:",inline"`
 }
