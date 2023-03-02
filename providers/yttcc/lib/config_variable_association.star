@@ -902,7 +902,7 @@ def get_vsphere_vars():
     if data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"] != "":
         machine["memoryMiB"] = data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"]
     end
-    if data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"] != None:
+    if data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"] != None and data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"] != "":
         machine["customVMXKeys"] = get_custom_keys(data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"])
     end
     if machine != {}:
@@ -942,7 +942,7 @@ def get_vsphere_vars():
     if data.values["VSPHERE_WORKER_MEM_MIB"] != "":
         machine["memoryMiB"] = data.values["VSPHERE_WORKER_MEM_MIB"]
     end
-    if data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"] != None:
+    if data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"] != None and data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"] != "":
         machine["customVMXKeys"] = get_custom_keys(data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"])
     end
     if machine != {}:
@@ -986,10 +986,10 @@ def get_vsphere_vars():
 
     pci = {}
     pciControlPlane = {}
-    if data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"] != None:
+    if data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"] != None and data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"] != "":
         pciControlPlane["devices"] = get_pci_devices(data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"], data.values["VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"])
     end
-    if data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"] != None:
+    if data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"] != None and data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"] != "":
         pciControlPlane["hardwareVersion"] = data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"]
     end
     if pciControlPlane != {}:
@@ -997,10 +997,10 @@ def get_vsphere_vars():
     end
 
     pciWorker = {}
-    if data.values["VSPHERE_WORKER_PCI_DEVICES"] != None:
+    if data.values["VSPHERE_WORKER_PCI_DEVICES"] != None and data.values["VSPHERE_WORKER_PCI_DEVICES"] != "":
         pciWorker["devices"] = get_pci_devices(data.values["VSPHERE_WORKER_PCI_DEVICES"], data.values["VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"])
     end
-    if data.values["VSPHERE_WORKER_HARDWARE_VERSION"] != None:
+    if data.values["VSPHERE_WORKER_HARDWARE_VERSION"] != None and data.values["VSPHERE_WORKER_HARDWARE_VERSION"] != "":
         pciWorker["hardwareVersion"] = data.values["VSPHERE_WORKER_HARDWARE_VERSION"]
     end
     if pciWorker != {}:
