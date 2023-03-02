@@ -85,6 +85,10 @@ ifeq ($(SELINUX_ENABLED),1)
   DOCKER_VOL_OPTS?=:z
 endif
 
+# Support DISTROLESS_BASE_IMAGE,GOPROXY,GOPROXY change while building image
+GOPROXY ?= "https://proxy.golang.org,direct"
+GOPROXY ?= "sum.golang.org"
+DISTROLESS_BASE_IMAGE ?= gcr.io/distroless/static:nonroot
 
 # Directories
 TOOLS_DIR := $(abspath $(ROOT_DIR)/hack/tools)

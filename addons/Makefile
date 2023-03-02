@@ -87,7 +87,7 @@ run: fmt vet ## Run locally
 
 .PHONY: docker-build
 docker-build: ## Build the docker image
-	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg DISTROLESS_BASE_IMAGE="$(DISTROLESS_BASE_IMAGE)" --build-arg GOPROXY="$(GOPROXY)" --build-arg GOSUMDB="$(GOSUMDB)" .
 
 .PHONY: docker-push
 docker-push: ## Push the docker image

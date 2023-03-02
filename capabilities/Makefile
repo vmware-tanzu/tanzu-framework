@@ -68,7 +68,7 @@ endif
 
 .PHONY: docker-build
 docker-build:
-	cd .. && docker build -t $(IMG) -f capabilities/controller/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd .. && docker build -t $(IMG) -f capabilities/controller/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg DISTROLESS_BASE_IMAGE="$(DISTROLESS_BASE_IMAGE)" --build-arg GOPROXY="$(GOPROXY)" --build-arg GOSUMDB="$(GOSUMDB)" .
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image

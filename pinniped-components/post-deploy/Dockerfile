@@ -5,6 +5,7 @@
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
 ARG BUILDER_BASE_IMAGE=golang:1.18
+ARG DISTROLESS_BASE_IMAGE=gcr.io/distroless/static:nonroot
 
 # Build the post-deploy binary
 FROM $BUILDER_BASE_IMAGE as builder
@@ -24,7 +25,15 @@ COPY post-deploy/pkg/ post-deploy/pkg/
 COPY post-deploy/Makefile post-deploy/Makefile
 #COPY .git/ .git/
 
+# Setting default GOPROXY to https://proxy.golang.org,direct and GOSUMDB to sum.golang.org which can be override by Makefile
+ARG GOSUMDB
+ARG GOPROXY
+ENV GOSUMDB=$GOSUMDB
+ENV GOPROXY=$GOPROXY
+# cache deps before building and copying source so that we don't need to re-download as much
+# and so that source changes don't invalidate our downloaded layer
 RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/root/.local/share/golang --mount=type=cache,target=/go/pkg/mod make native -C post-deploy
+
 
 # Support older deployment YAMLs by providing symlink for the historic job name without -job.
 # The subdirectory here is to ensure that the docker COPY command does not follow the symlink
@@ -32,7 +41,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/r
 RUN mkdir -p /tmp/links
 RUN ln -s /tkg-pinniped-post-deploy-job /tmp/links/tkg-pinniped-post-deploy
 
-FROM gcr.io/distroless/static:nonroot
+FROM $DISTROLESS_BASE_IMAGE
 WORKDIR /
 # Make sure to copy the symlink.
 COPY --from=builder /tmp/links/ .
