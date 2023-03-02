@@ -697,6 +697,9 @@ func (c *DefaultClient) GetVirtualMachineImages(ctx context.Context, datacenterM
 		if ovaVersion, distroName, distroVersion, distroArch := c.getVMMetadata(&vms[i]); ovaVersion != "" {
 			path, _, err := c.GetPath(ctx, vms[i].Self.Value)
 			if err != nil {
+				if ctx.Err() != nil {
+					return results, err
+				}
 				continue
 			}
 			obj := &tkgtypes.VSphereVirtualMachine{
