@@ -61,4 +61,4 @@ fakes: ## Generate fake files for go unit tests
 
 .PHONY: docker-build
 docker-build:
-	cd ../../../ && docker build -t $(IMG) -f pkg/v1/tkr/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd ../../../ && docker build -t $(IMG) -f pkg/v1/tkr/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg DISTROLESS_BASE_IMAGE="$(DISTROLESS_BASE_IMAGE)" --build-arg GOPROXY="$(GOPROXY)" --build-arg GOSUMDB="$(GOSUMDB)" .
