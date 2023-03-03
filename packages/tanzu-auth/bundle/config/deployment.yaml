@@ -23,6 +23,17 @@ spec:
       - image: #@ data.values.controller.image
         name: tanzu-auth-controller-manager
         args: ["--disable-cascade-v1alpha1", "--metrics-bind-addr=0"]
+        securityContext:
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ "ALL" ]
+          #! seccompProfile was introduced in Kube v1.19. Using it on an older Kube version will result in a
+          #! kubectl validation error when installing via `kubectl apply`, which can be ignored using kubectl's
+          #! `--validate=false` flag. Note that installing via `kapp` does not complain about this validation error.
+          seccompProfile:
+            type: "RuntimeDefault"
       #@ if/end data.values.deployment.hostNetwork:
       hostNetwork: true
       #@ if/end hasattr(data.values.deployment, 'tolerations') and data.values.deployment.tolerations:
