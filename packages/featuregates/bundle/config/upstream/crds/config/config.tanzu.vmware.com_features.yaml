@@ -4,7 +4,6 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
-    kapp.k14s.io/change-group: "features.config.tanzu.vmware.com/crd"
   creationTimestamp: null
   name: features.config.tanzu.vmware.com
 spec:
