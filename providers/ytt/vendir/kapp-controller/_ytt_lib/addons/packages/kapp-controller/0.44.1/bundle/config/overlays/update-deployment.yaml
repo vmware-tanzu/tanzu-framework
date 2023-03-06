@@ -62,7 +62,7 @@ spec:
         - /bin/sh
         #! Beware, update this image with each version bump!!!!!!!
         #! This image needs to be the same as the image used in basefile
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:1de0182159da1fe0b9a6aab838a23b4c5aac62090ff1df90cc08df7443137add
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:2c5d238a508e0978490a89ca13c5a4ccb9210558dbcb51d3bb4c37fc59964744
         name: init-kapp-controller
         securityContext:
           allowPrivilegeEscalation: false
