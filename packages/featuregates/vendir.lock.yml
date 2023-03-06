@@ -18,8 +18,6 @@ directories:
   - manual: {}
     path: webhooks/core/webhook.yaml
   - manual: {}
-    path: default-featuregate-cr.yaml
-  - manual: {}
     path: helpers.star
   path: bundle/config/upstream
 kind: LockConfig
