@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: cert-manager
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
 ---
 # Source: cert-manager/templates/crd-templates.yaml
 apiVersion: apiextensions.k8s.io/v1
@@ -5167,6 +5169,8 @@ spec:
       serviceAccountName: cert-manager-cainjector
       securityContext:
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: cert-manager
           image: "quay.io/jetstack/cert-manager-cainjector:v1.9.1"
@@ -5181,6 +5185,9 @@ spec:
                   fieldPath: metadata.namespace
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
       nodeSelector:
         kubernetes.io/os: linux
 ---
@@ -5219,6 +5226,8 @@ spec:
       serviceAccountName: cert-manager
       securityContext:
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: cert-manager
           image: "quay.io/jetstack/cert-manager-controller:v1.9.1"
@@ -5233,6 +5242,9 @@ spec:
               protocol: TCP
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           env:
             - name: POD_NAMESPACE
               valueFrom:
@@ -5272,6 +5284,8 @@ spec:
       serviceAccountName: cert-manager-webhook
       securityContext:
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: cert-manager
           image: "quay.io/jetstack/cert-manager-webhook:v1.9.1"
@@ -5308,6 +5322,9 @@ spec:
             failureThreshold: 3
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           env:
             - name: POD_NAMESPACE
               valueFrom:
