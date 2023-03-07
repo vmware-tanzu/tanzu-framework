@@ -6,4 +6,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: #@ data.values.namespace
+  labels:
+    #@ if/end data.values.deployment.hostNetwork:
+    pod-security.kubernetes.io/enforce: privileged
 #@ end
