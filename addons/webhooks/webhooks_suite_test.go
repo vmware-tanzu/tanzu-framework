@@ -13,6 +13,10 @@ import (
 	"testing"
 	"time"
 
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
+
+	apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1"
+
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -86,6 +90,12 @@ var _ = BeforeSuite(func(done Done) {
 	cfg, err := testEnv.Start()
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cfg).ToNot(BeNil())
+
+	err = csiv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = apiregistrationv1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
 
 	err = admissionv1beta1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
