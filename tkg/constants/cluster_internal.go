@@ -68,7 +68,7 @@ const (
 	AkoCleanUpAnnotationKey     = "AviObjectDeletionStatus"
 	AkoCleanUpFinishedStatus    = "Done"
 	AkoOperatorName             = "ako-operator"
-	AkoMaxAllowedClusterNameLen = 29
+	AkoMaxAllowedClusterNameLen = 25
 
 	ServiceDNSSuffix             = ".svc"
 	ServiceDNSClusterLocalSuffix = ".svc.cluster.local"
