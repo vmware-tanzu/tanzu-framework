@@ -58,6 +58,26 @@ spec:
                         description: The namespace csi components are to be deployed
                           in
                         type: string
+                      netPermissions:
+                        additionalProperties:
+                          description: NetPermissionConfig consists of information
+                            used to restrict the network permissions set on file share
+                            volumes
+                          properties:
+                            ips:
+                              description: 'Client IP address, IP range or IP subnet.
+                                Example: "10.20.30.0/24"; defaults to "*" if not specified'
+                              type: string
+                            permissions:
+                              description: Is it READ_ONLY, READ_WRITE or NO_ACCESS.
+                                Defaults to "READ_WRITE" if not specified
+                              type: string
+                            rootsquash:
+                              description: Disallow root access for this IP range.
+                                Defaults to "false" if not specified
+                              type: boolean
+                          type: object
+                        type: object
                       noProxy:
                         type: string
                       provisionTimeout:

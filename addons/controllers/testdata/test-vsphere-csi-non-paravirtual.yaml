@@ -130,4 +130,9 @@ spec:
       vSphereCredentialLocalObjRef:
         kind: Secret
         name: csi-vsphere-credential
+      netPermissions:
+        A:
+          ips: "*"
+          permissions: READ_WRITE
+          rootsquash: false
 
