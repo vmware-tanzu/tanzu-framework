@@ -26,7 +26,7 @@ const (
 )
 
 const (
-	VSphereCSINamespace                 = "kube-system"
+	VSphereCSINamespace                 = "vmware-system-csi"
 	VSphereCSIProvisionTimeout          = "300s"
 	VSphereCSIAttachTimeout             = "300s"
 	VSphereCSIResizerTimeout            = "300s"
