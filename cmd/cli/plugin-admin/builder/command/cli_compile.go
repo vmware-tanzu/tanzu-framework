@@ -63,18 +63,18 @@ const local = "local"
 
 var minConcurrent = 2
 var identifiers = []string{
-	string('\U0001F435'),
-	string('\U0001F43C'),
-	string('\U0001F436'),
-	string('\U0001F430'),
-	string('\U0001F98A'),
-	string('\U0001F431'),
-	string('\U0001F981'),
-	string('\U0001F42F'),
-	string('\U0001F42E'),
-	string('\U0001F437'),
-	string('\U0001F42D'),
-	string('\U0001F428'),
+	"T01",
+	"T02",
+	"T03",
+	"T04",
+	"T05",
+	"T06",
+	"T07",
+	"T08",
+	"T09",
+	"T10",
+	"T11",
+	"T12",
 }
 
 func getID(i int) string {
@@ -182,6 +182,7 @@ func Compile(compileArgs *PluginCompileArgs) error {
 		if f.IsDir() {
 			if g.Match(f.Name()) {
 				wg.Add(1)
+				log.Infof("\tstarting compile thread %v for %v", identifiers[i], f.Name())
 				guard <- struct{}{}
 				go func(fullPath, id string) {
 					defer wg.Done()
@@ -338,7 +339,7 @@ func (t target) build(targetPath, prefix, modPath, ldflags, tags string) error {
 
 	cmd.Args = append(cmd.Args, fmt.Sprintf("./%s", targetPath))
 
-	log.Infof("%s$ %s", prefix, cmd.String())
+	log.Infof("%s %s", prefix, cmd.String())
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Errorf("%serror: %v", prefix, err)
@@ -502,7 +503,7 @@ func runDownloadGoDep(targetPath, prefix string) error {
 	cmdgomoddownload := goCommand("mod", "download")
 	cmdgomoddownload.Dir = targetPath
 
-	log.Infof("%s$ %s", prefix, cmdgomoddownload.String())
+	log.Infof("%s %s", prefix, cmdgomoddownload.String())
 	output, err := cmdgomoddownload.CombinedOutput()
 	if err != nil {
 		log.Errorf("%serror: %v", prefix, err)
