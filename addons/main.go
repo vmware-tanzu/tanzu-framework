@@ -33,6 +33,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
+	nsxoperator "github.com/vmware-tanzu/nsx-operator/pkg/apis/v1alpha1"
+
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kappdatapkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
@@ -53,6 +55,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/webhooks"
 	addonwebhooks "github.com/vmware-tanzu/tanzu-framework/addons/webhooks"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
+	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
@@ -78,12 +81,14 @@ func init() {
 	_ = controlplanev1beta1.AddToScheme(scheme)
 	_ = runtanzuv1alpha3.AddToScheme(scheme)
 	_ = cniv1alpha1.AddToScheme(scheme)
+	_ = cniv1alpha2.AddToScheme(scheme)
 	_ = cpiv1alpha1.AddToScheme(scheme)
 	_ = csiv1alpha1.AddToScheme(scheme)
 	_ = capvv1beta1.AddToScheme(scheme)
 	_ = capvvmwarev1beta1.AddToScheme(scheme)
 	_ = vmoperatorv1alpha1.AddToScheme(scheme)
 	_ = topologyv1alpha1.AddToScheme(scheme)
+	_ = nsxoperator.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }
@@ -465,6 +470,10 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 	}
 	// Set up the webhooks in the manager
 	if err := (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to set up webhooks", "webhook", "antrea")
+		os.Exit(1)
+	}
+	if err := (&cniv1alpha2.AntreaConfig{}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to set up webhooks", "webhook", "antrea")
 		os.Exit(1)
 	}

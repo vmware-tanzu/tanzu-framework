@@ -20,17 +20,57 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
+	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
 )
 
 // AntreaConfigSpec defines the desired state of AntreaConfig
-type antreaConfigSpec struct {
-	InfraProvider string `yaml:"infraProvider"`
-	Antrea        antrea `yaml:"antrea,omitempty"`
+type AntreaConfigSpec struct {
+	InfraProvider string    `yaml:"infraProvider"`
+	Antrea        antrea    `yaml:"antrea,omitempty"`
+	AntreaNsx     antreaNsx `yaml:"antreaNsx,omitempty"`
 }
 
 type antrea struct {
 	AntreaConfigDataValue antreaConfigDataValue `yaml:"config,omitempty"`
+}
+
+type antreaNsx struct {
+	Enable          bool                   `yaml:"enable,omitempty"`
+	BootstrapFrom   antreaNsxBootstrapFrom `yaml:"bootstrapFrom,omitempty"`
+	AntreaNsxConfig antreaNsxConfig        `yaml:"config,omitempty"`
+}
+
+type antreaNsxBootstrapFrom struct {
+	// ProviderRef is used with uTKG, which will be filled by NCP operator
+	ProviderRef *antreaNsxProvider `yaml:"providerRef,omitempty"`
+	// Inline is used with TKGm, user need to fill in manually
+	Inline *antreaNsxInline `yaml:"inline,omitempty"`
+}
+
+type antreaNsxProvider struct {
+	// Api version for nsxServiceAccount, its value is "nsx.vmware.com/v1alpha1" now
+	ApiVersion string `yaml:"apiVersion,omitempty"`
+	// Its value is NsxServiceAccount
+	Kind string `yaml:"kind,omitempty"`
+	// Name is the name for NsxServiceAccount
+	Name string `yaml:"name,omitempty"`
+}
+
+type nsxCertRef struct {
+	// TLSCert is cert file to access nsx manager
+	TLSCert string `yaml:"tls.crt,omitempty"`
+	// TLSKey is key file to access nsx manager
+	TLSKey string `yaml:"tls.key,omitempty"`
+}
+
+type antreaNsxInline struct {
+	NsxManagers []string   `yaml:"nsxManagers,omitempty"`
+	ClusterName string     `yaml:"clusterName,omitempty"`
+	NsxCertRef  nsxCertRef `yaml:"NsxCert,omitempty"`
+}
+
+type antreaNsxConfig struct {
+	InfraType string `yaml:"infraType,omitempty"`
 }
 
 type antreaEgress struct {
@@ -77,9 +117,9 @@ type antreaConfigDataValue struct {
 	Multicast                antreaMulticast     `yaml:"multicast,omitempty"`
 	MultiCluster             antreaMultiCluster  `yaml:"multicluster,omitempty"`
 	KubeAPIServerOverride    string              `yaml:"kubeAPIServerOverride,omitempty"`
-	transportInterface       string              `yaml:"transportInterface,omitempty"`
-	transportInterfaceCIDRs  []string            `yaml:"transportInterfaceCIDRs,omitempty"`
-	multicastInterfaces      []string            `yaml:"multicastInterfaces,omitempty"`
+	TransportInterface       string              `yaml:"transportInterface,omitempty"`
+	TransportInterfaceCIDRs  []string            `yaml:"transportInterfaceCIDRs,omitempty"`
+	MulticastInterfaces      []string            `yaml:"multicastInterfaces,omitempty"`
 	TunnelType               string              `yaml:"tunnelType,omitempty"`
 	TrafficEncryptionMode    string              `yaml:"trafficEncryptionMode,omitempty"`
 	EnableUsageReporting     bool                `yaml:"enableUsageReporting,omitempty"`
@@ -126,7 +166,7 @@ func (r *AntreaConfigReconciler) ClusterToAntreaConfig(o client.Object) []ctrl.R
 
 	r.Log.V(4).Info("Mapping cluster to AntreaConfig")
 
-	configs := &cniv1alpha1.AntreaConfigList{}
+	configs := &cniv1alpha2.AntreaConfigList{}
 
 	if err := r.Client.List(context.Background(), configs); err != nil {
 		r.Log.Error(err, "Error listing AntreaConfig")
@@ -165,13 +205,13 @@ func (r *AntreaConfigReconciler) ClusterToAntreaConfig(o client.Object) []ctrl.R
 	return requests
 }
 
-func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.AntreaConfig) (*antreaConfigSpec, error) {
+func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha2.AntreaConfig, client client.Client) (*AntreaConfigSpec, error) {
 
 	packageName := config.GetLabels()[addontypes.PackageNameLabel]
 	version := strings.TrimPrefix(strings.Split(packageName, "---")[0], "antrea.tanzu.vmware.com.")
 	version = "v" + version
 
-	configSpec := &antreaConfigSpec{}
+	configSpec := &AntreaConfigSpec{}
 
 	// Derive InfraProvider from the cluster
 	infraProvider, err := util.GetInfraProvider(cluster)
@@ -204,9 +244,9 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha1.An
 	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.IdleFlowTimeout = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.IdleFlowTimeout
 
 	configSpec.Antrea.AntreaConfigDataValue.KubeAPIServerOverride = config.Spec.Antrea.AntreaConfigDataValue.KubeAPIServerOverride
-	configSpec.Antrea.AntreaConfigDataValue.transportInterface = config.Spec.Antrea.AntreaConfigDataValue.TransportInterface
-	configSpec.Antrea.AntreaConfigDataValue.transportInterfaceCIDRs = config.Spec.Antrea.AntreaConfigDataValue.TransportInterfaceCIDRs
-	configSpec.Antrea.AntreaConfigDataValue.multicastInterfaces = config.Spec.Antrea.AntreaConfigDataValue.MulticastInterfaces
+	configSpec.Antrea.AntreaConfigDataValue.TransportInterface = config.Spec.Antrea.AntreaConfigDataValue.TransportInterface
+	configSpec.Antrea.AntreaConfigDataValue.TransportInterfaceCIDRs = config.Spec.Antrea.AntreaConfigDataValue.TransportInterfaceCIDRs
+	configSpec.Antrea.AntreaConfigDataValue.MulticastInterfaces = config.Spec.Antrea.AntreaConfigDataValue.MulticastInterfaces
 	configSpec.Antrea.AntreaConfigDataValue.TunnelType = config.Spec.Antrea.AntreaConfigDataValue.TunnelType
 	configSpec.Antrea.AntreaConfigDataValue.EnableUsageReporting = config.Spec.Antrea.AntreaConfigDataValue.EnableUsageReporting
 	configSpec.Antrea.AntreaConfigDataValue.WireGuard.Port = config.Spec.Antrea.AntreaConfigDataValue.WireGuard.Port
