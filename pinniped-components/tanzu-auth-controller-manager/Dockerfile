@@ -38,5 +38,5 @@ RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/r
 FROM $DISTROLESS_BASE_IMAGE
 WORKDIR /
 COPY --from=builder /workspace/tanzu-auth-controller-manager .
-USER nonroot:nonroot
+USER 65532:65532
 ENTRYPOINT ["/tanzu-auth-controller-manager"]
