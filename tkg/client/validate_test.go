@@ -1208,13 +1208,21 @@ var _ = Describe("Validate", func() {
 			})
 			When("avi is not enabled", func() {
 				It("should skip avi validation", func() {
-					err := tkgClient.ConfigureAndValidateAviConfiguration()
+					err := tkgClient.ConfigureAndValidateAviConfiguration("test-mgmt")
 					Expect(err).ShouldNot(HaveOccurred())
 				})
 				It("should skip avi validation", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviEnable, "false")
-					err := tkgClient.ConfigureAndValidateAviConfiguration()
+					err := tkgClient.ConfigureAndValidateAviConfiguration("test-mgmt")
 					Expect(err).ShouldNot(HaveOccurred())
+				})
+			})
+
+			When("avi is enabled", func() {
+				It("should throw error if cluster name is longer than avi max allowed length", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviEnable, "true")
+					err := tkgClient.ConfigureAndValidateAviConfiguration("test-mgmt-abcdefghigklmnopqrstuvwxyz")
+					Expect(err).Should(HaveOccurred())
 				})
 			})
 

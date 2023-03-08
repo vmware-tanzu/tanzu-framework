@@ -152,7 +152,7 @@ func convertToString(config interface{}) string {
 func convertNodeNetworkList(userProviderConfigValues map[string]interface{}) (string, error) {
 	var nodeNetworkList []NodeNetwork
 	config := userProviderConfigValues[constants.ConfigVariableAviIngressNodeNetworkList]
-	if config == nil || config.(string) == "" || config.(string) == `""` {
+	if utils.IsAviInputEmpty(config) {
 		// return vsphere network if node network list is not set
 		network_pathes := strings.Split(convertToString(userProviderConfigValues[constants.ConfigVariableVsphereNetwork]), "/")
 		network := network_pathes[len(network_pathes)-1]

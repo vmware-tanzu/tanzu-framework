@@ -367,7 +367,7 @@ var _ = Describe("Unit tests for GetAKOOAddonSecretValues", func() {
 		secretContent = "foo"
 	})
 	JustBeforeEach(func() {
-		bytes, found, err = GetAKOOAddonSecretValues(clusterClient, clusterName)
+		bytes, found, err = GetAKOOAddonSecretValues(clusterClient, clusterName, false)
 	})
 	Describe("When the ako-operator addon secret is not found", func() {
 		BeforeEach(func() {
