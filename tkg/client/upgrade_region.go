@@ -266,7 +266,11 @@ func (c *TkgClient) validateAndconfigure(options *UpgradeClusterOptions, regiona
 	}
 
 	if providerType == VSphereProviderName {
-		if akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(regionalClusterClient, clusterName); err != nil {
+		isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
+		if err != nil {
+			return errors.Wrap(err, "unable to determine cluster type")
+		}
+		if akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(regionalClusterClient, clusterName, isClusterClassBased); err != nil {
 			return errors.Wrap(err, "unable to get akoo addon secret values")
 		} else if found {
 			configValues := make(map[string]interface{})
