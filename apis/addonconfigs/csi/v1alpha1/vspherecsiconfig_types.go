@@ -116,6 +116,20 @@ type NonParavirtualConfig struct {
 
 	// +kubebuilder:validation:Optional
 	WindowsSupport *bool `json:"windowsSupport,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NetPermissions map[string]*NetPermissionConfig `json:"netPermissions,omitempty"`
+}
+
+// NetPermissionConfig consists of information used to restrict the
+// network permissions set on file share volumes
+type NetPermissionConfig struct {
+	// Client IP address, IP range or IP subnet. Example: "10.20.30.0/24"; defaults to "*" if not specified
+	Ips string `json:"ips,omitempty"`
+	// Is it READ_ONLY, READ_WRITE or NO_ACCESS. Defaults to "READ_WRITE" if not specified
+	Permissions string `json:"permissions,omitempty"`
+	// Disallow root access for this IP range. Defaults to "false" if not specified
+	RootSquash bool `json:"rootsquash,omitempty"`
 }
 
 func init() {

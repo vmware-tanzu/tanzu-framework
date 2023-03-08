@@ -127,6 +127,10 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.DeploymentReplicas).Should(Equal(int32(3)))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.WindowsSupport).NotTo(BeZero())
 					Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.WindowsSupport).Should(Equal(true))
+					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NetPermissions).NotTo(BeZero())
+					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NetPermissions["A"].Ips).Should(Equal("*"))
+					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NetPermissions["A"].Permissions).Should(Equal("READ_WRITE"))
+					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NetPermissions["A"].RootSquash).Should(Equal(false))
 
 					if len(config.OwnerReferences) == 0 {
 						return fmt.Errorf("OwnerReferences not yet set")
@@ -171,7 +175,10 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					Expect(strings.Contains(secretData, "no_proxy: 3.3.3.3")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "deployment_replicas: 3")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "windows_support: true")).Should(BeTrue())
-
+					Expect(strings.Contains(secretData, "netpermissions:")).Should(BeTrue())
+					Expect(strings.Contains(secretData, "ips: '*'")).Should(BeTrue())
+					Expect(strings.Contains(secretData, "permissions: READ_WRITE")).Should(BeTrue())
+					Expect(strings.Contains(secretData, "rootsquash: false")).Should(BeTrue())
 					return nil
 				}, waitTimeout, pollingInterval).Should(Succeed())
 
