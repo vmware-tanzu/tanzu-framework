@@ -413,6 +413,24 @@ def get_pci_devices(pci_devices_string, pci_ignore_device_validation):
   return pci_devices
 end
 
+def get_image_registry(host, skipTlsVerify, caCert):
+  if host != None and host != "":
+    imageRegistry = {}
+    imageRegistry["host"] = host
+    imageRegistry["skipTlsVerify"] = skipTlsVerify
+    if skipTlsVerify == False:
+      if caCert != None and caCert != "":
+        imageRegistry["caCert"] = caCert
+      else:
+        assert.fail("Must provide CA for host " + host)
+      end
+    end
+    return imageRegistry
+  else:
+    return None
+  end
+end
+
 def map(f, list):
   return [f(x) for x in list]
 end

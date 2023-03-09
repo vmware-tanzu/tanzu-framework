@@ -2,7 +2,7 @@ load("@ytt:data", "data")
 load("@ytt:overlay", "overlay")
 load("@ytt:yaml", "yaml")
 load("/lib/helpers.star", "get_default_tkg_bom_data", "get_labels_array_from_string", "get_extra_args_map_from_string")
-load("/lib/helpers.star",  "get_custom_keys", "valid_pci_devices_list", "get_pci_devices")
+load("/lib/helpers.star",  "get_custom_keys", "valid_pci_devices_list", "get_pci_devices", "get_image_registry")
 
 #! This file contains function 'config_variable_association' which specifies all configuration variables
 #! mentioned in 'config_default.yaml' and describes association of each configuration variable with
@@ -206,6 +206,16 @@ return {
 "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker", "oci"],
 
+"ADDITIONAL_IMAGE_REGISTRY_1": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_1_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_1_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_2": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_2_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_2_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_3": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_3_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_3_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker"],
+
 "TKG_HTTP_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
@@ -406,6 +416,23 @@ def get_cluster_variables():
 
     if customImageRepository != {}:
         vars["imageRepository"] = customImageRepository
+    end
+
+    additionalImageRegistries = []
+    imageRegistry1 = get_image_registry(data.values["ADDITIONAL_IMAGE_REGISTRY_1"], data.values["ADDITIONAL_IMAGE_REGISTRY_1_SKIP_TLS_VERIFY"], data.values["ADDITIONAL_IMAGE_REGISTRY_1_CA_CERTIFICATE"])
+    if imageRegistry1 != None:
+        additionalImageRegistries.append(imageRegistry1)
+    end
+    imageRegistry2 = get_image_registry(data.values["ADDITIONAL_IMAGE_REGISTRY_2"], data.values["ADDITIONAL_IMAGE_REGISTRY_2_SKIP_TLS_VERIFY"], data.values["ADDITIONAL_IMAGE_REGISTRY_2_CA_CERTIFICATE"])
+    if imageRegistry2 != None:
+        additionalImageRegistries.append(imageRegistry2)
+    end
+    imageRegistry3 = get_image_registry(data.values["ADDITIONAL_IMAGE_REGISTRY_3"], data.values["ADDITIONAL_IMAGE_REGISTRY_3_SKIP_TLS_VERIFY"], data.values["ADDITIONAL_IMAGE_REGISTRY_3_CA_CERTIFICATE"])
+    if imageRegistry3 != None:
+        additionalImageRegistries.append(imageRegistry3)
+    end
+    if len(additionalImageRegistries) > 0:
+        vars["additionalImageRegistries"] = additionalImageRegistries
     end
 
     if data.values["TKG_CLUSTER_ROLE"] != "":
