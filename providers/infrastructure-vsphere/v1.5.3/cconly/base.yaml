@@ -1463,12 +1463,6 @@ spec:
         value: systemctl daemon-reload
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: systemctl stop containerd
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: systemctl start containerd
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: &exportHTTPProxy |
             export HTTP_PROXY= {{- .proxy.httpProxy }}
@@ -1503,9 +1497,6 @@ spec:
         value: systemctl daemon-reload
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: systemctl restart containerd
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
         valueFrom:
           template: *exportHTTPProxy
       - op: add
@@ -1534,9 +1525,6 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         value: '! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)'
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: systemctl restart containerd
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/files/-
         valueFrom:
@@ -1568,9 +1556,6 @@ spec:
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         value: '! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)'
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        value: systemctl restart containerd
       - op: add
         path: /spec/template/spec/files/-
         valueFrom:
@@ -1643,9 +1628,6 @@ spec:
             {{- end }}
             {{- template "echo" $val -}}
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: systemctl restart containerd
-      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/files/-
         valueFrom:
           template: |
@@ -1692,9 +1674,6 @@ spec:
               echo '  {{ . -}} ' >> /etc/containerd/config.toml
             {{- end }}
             {{- template "echo" $val -}}
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        value: systemctl restart containerd
       - op: add
         path: /spec/template/spec/files/-
         valueFrom:
