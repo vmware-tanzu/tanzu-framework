@@ -7,7 +7,7 @@
 set +x
 
 CG_TOKEN=$(curl -s --location --request POST 'https://api.console.cloudgate.vmware.com/authn/token' \
-  --user '${{ secrets.CG_ID }}:${{ secrets.CG_SECRET }}' \
+  --user "$USER_PASS" \
   --header 'Content-Type: application/json' \
   --data-raw '{"grant_type": "client_credentials"}' | jq -r '.access_token')
 

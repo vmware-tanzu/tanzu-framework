@@ -335,7 +335,7 @@ jobs:
         make install-cli
 
     - name: Setup AWS access
-      run: tkg/test/scripts/aws_setup.sh
+      run: USER_PASS='${{ secrets.CG_ID }}:${{ secrets.CG_SECRET }}' tkg/test/scripts/aws_setup.sh
 
     - name: Mask AWS access
       run: |
