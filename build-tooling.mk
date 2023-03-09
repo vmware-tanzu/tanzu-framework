@@ -164,7 +164,7 @@ vet:
 # Run tests
 test: fmt vet
 	$(DOCKER) build . -f Dockerfile --target test --build-arg COMPONENT=$(COMPONENT) --build-arg GOPROXY_ARG=$(GOPROXY)
-	@$(DOCKER) build . -f Dockerfile --target unit-test-coverage --build-arg COMPONENT=$(COMPONENT) --output build/$(COMPONENT)/coverage
+	@$(DOCKER) build . -f Dockerfile --target unit-test-coverage --build-arg COMPONENT=$(COMPONENT) --build-arg GOPROXY_ARG=$(GOPROXY) --output build/$(COMPONENT)/coverage
 
 .PHONY: binary-build
 # Build the binary
