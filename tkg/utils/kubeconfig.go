@@ -220,3 +220,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort
 // TODO(BEN): seems we need to support an additional helper here to wire in the ability to get the supervisor
 // .well-known/openid-configuration endpoint.  So likely a copy/paste of what we have done elsewhere to ensure we
 // can get this information
+// func GetPinnipedSupervisorDiscoveryFromCluster() {
+// 	// TODO: flesh this out, with some API call similar to above probably.
+// 	panic()
+// }

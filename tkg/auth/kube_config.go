@@ -64,6 +64,10 @@ type DiscoveryStrategy struct {
 	ClusterInfoConfigMap string
 }
 
+// KubeconfigWithPinnipedAuthLoginPlugin looks for the existence groups,sername scopes in the provided set of scopes
+// if both exist, will return a string containing these scopes.
+// should be used for generating a kubeconfig that requests the scopes that are supported by the pinniped supervisor
+// installed on the cluster.
 func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	contains := func(s []string, str string) bool {
 		for _, v := range s {
@@ -82,6 +86,11 @@ func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	return PinnipedOIDCScopes0120
 }
 
+// TODO (BEN): So what is the purpose of this function?
+//
+//	GetPinnipedKubeconfig() below is in the path of the plugins [cluster,managementcluster] kubeconfig generation.
+//	this function does not seem to be in those code paths.
+//
 // KubeconfigWithPinnipedAuthLoginPlugin prepares the kubeconfig with tanzu pinniped-auth login as client-go exec plugin
 func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions, discoveryStrategy DiscoveryStrategy) (mergeFilePath, currentContext string, err error) {
 	clusterInfo, err := tkgutils.GetClusterInfoFromCluster(endpoint, discoveryStrategy.ClusterInfoConfigMap)
@@ -105,16 +114,21 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 		Endpoint: fmt.Sprintf("%s/.well-known/openid-configuration", pinnipedInfo.Data.Issuer),
 		CABundle: pinnipedInfo.Data.IssuerCABundle,
 	}
-	// TODO: tkgutils.GetPinnipedInfoFromCluster() appears to be a different wrapper?
-	// time to work this in
-	// we will have to add it to tkgutils as a sibling
-	//    tkgutils.GetPinnipedInfoFromCluster
-	//    tkgutils.GetPinnipedSupervisorDiscovery
-	// and then copy some code to make it work properly.
+
+	// // TODO (BEN): make this work, tkgctlClient doesnt have this func.
+	// // TODO: tkgutils.GetPinnipedInfoFromCluster() appears to be a different wrapper?
+	// // time to work this in
+	// // we will have to add it to tkgutils as a sibling
+	// //    tkgutils.GetPinnipedInfoFromCluster
+	// //    tkgutils.GetPinnipedSupervisorDiscovery
+	// // and then copy some code to make it work properly.
+	// TODO: it appears we need to pass in a tkgctlClient in order to use it?
 	supervisorDiscoveryInfo, err := tkgctlClient.GetPinnipedSupervisorDiscovery(pinnipedSupervisorDiscoveryOpts)
+	// TODO: it seems we actually have to reimplement this function here, rather than use what we implemented elsewhere.
+	// at least to follow the existing pattern in this repository
+	supervisorDiscoveryInfo, err := tkgutils.GetPinnipedSupervisorDiscoveryFromCluster(pinnipedSupervisorDiscoveryOpts)
 	if err != nil {
 		return err
-
 	}
 
 	config, err := GetPinnipedKubeconfig(
@@ -122,7 +136,7 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 		pinnipedInfo,
 		pinnipedInfo.Data.ClusterName,
 		pinnipedInfo.Data.Issuer,
-		supervisorDiscoveryInfo) // TODO (BEN): this was broken as we added this field. So we need to fix the above addition to make it work
+		&supervisorDiscoveryInfo) // TODO (BEN): this was broken as we added this field. So we need to fix the above addition to make it work
 	if err != nil {
 		err = errors.Wrap(err, "unable to get the kubeconfig")
 		return
@@ -194,6 +208,8 @@ func loadKubeconfigAndEnsureContext(kubeConfigPath, context string) ([]byte, err
 	return clientcmd.Write(*config)
 }
 
+// work.7 final kubeconfig generated.
+// mgmt.6 final kubeconfig generated.
 func GetPinnipedKubeconfig(
 	cluster *clientcmdapi.Cluster,
 	pinnipedInfo *tkgutils.PinnipedConfigMapInfo,

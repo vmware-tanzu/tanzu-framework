@@ -44,6 +44,12 @@ const (
 	knownGlobalHost = "cloud.vmware.com"
 )
 
+// TODO (BEN): this appears to also be a plugin as `tanzu context` has subcommands as a top level plugin
+//
+//	Its less clear to me how this is done as the code path is not as obvious (yet)
+//	But it does call the func we are trying to manipulate currently so it will need to be updated.
+//
+// context.1
 var contextCmd = &cobra.Command{
 	Use:     "context",
 	Short:   "Configure and manage contexts for the Tanzu CLI",
@@ -56,6 +62,7 @@ var contextCmd = &cobra.Command{
 func init() {
 	contextCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	contextCmd.AddCommand(
+		// context.2->
 		createCtxCmd,
 		listCtxCmd,
 		getCtxCmd,
@@ -74,10 +81,12 @@ func init() {
 	deleteCtxCmd.Flags().BoolVarP(&unattended, "yes", "y", false, "delete the context entry without confirmation")
 }
 
+// context.2
 var createCtxCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a Tanzu CLI context",
-	RunE:  createCtx,
+	// context.3->
+	RunE: createCtx,
 	Example: `
 	# Create a TKG management cluster context using endpoint
 	tanzu context create --endpoint "https://k8s.example.com" --name mgmt-cluster
@@ -111,7 +120,9 @@ func initCreateCtxCmd() {
 	_ = createCtxCmd.Flags().MarkHidden("staging")
 }
 
+// context.3
 func createCtx(_ *cobra.Command, _ []string) (err error) {
+	// context.X
 	ctx, err := createNewContext()
 	if err != nil {
 		return err
@@ -162,6 +173,7 @@ func createNewContext() (context *configapi.Context, err error) {
 	}
 	// user provided command line options to create a context using endpoint
 	if endpoint != "" {
+		// context.X
 		return createContextWithEndpoint()
 	}
 	promptOpts := getPromptOpts()
@@ -182,6 +194,7 @@ func createNewContext() (context *configapi.Context, err error) {
 	}
 
 	if ctxCreationType == "Control plane endpoint" {
+		// context.X again
 		return createContextWithEndpoint()
 	}
 
@@ -255,6 +268,7 @@ func createContextWithKubeconfig() (context *configapi.Context, err error) {
 	return context, err
 }
 
+// context.X
 func createContextWithEndpoint() (context *configapi.Context, err error) {
 	promptOpts := getPromptOpts()
 	if endpoint == "" {
@@ -315,6 +329,8 @@ func createContextWithEndpoint() (context *configapi.Context, err error) {
 				return nil, err
 			}
 		} else {
+			// TODO (BEN): tracking what calls this function....
+			// context.X
 			kubeConfig, kubeContext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{ClusterInfoConfigMap: tkgauth.DefaultClusterInfoConfigMap})
 			if err != nil {
 				log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)

@@ -87,6 +87,7 @@ func getClusterKubeconfig(server *configapi.Server, workloadClusterName string) 
 	if getKCOptions.adminKubeconfig {
 		return getAdminKubeconfig(tkgctlClient, workloadClusterName)
 	}
+	// work.5->
 	return getPinnipedKubeconfig(tkgctlClient, workloadClusterName)
 }
 
@@ -99,7 +100,7 @@ func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName strin
 	return tkgctlClient.GetCredentials(getClusterCredentialsOptions)
 }
 
-// work.4
+// work.5
 func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName string) error {
 	getClusterPinnipedInfoOptions := tkgctl.GetClusterPinnipedInfoOptions{
 		ClusterName:         workloadClusterName,
@@ -122,13 +123,18 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName st
 		Endpoint: fmt.Sprintf("%s/.well-known/openid-configuration", clusterPinnipedInfo.PinnipedInfo.Data.Issuer),
 		CABundle: clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle,
 	}
+	// work.6->
 	supervisorDiscoveryInfo, err := tkgctlClient.GetPinnipedSupervisorDiscovery(pinnipedSupervisorDiscoveryOpts)
 	if err != nil {
 		return err
 
 	}
 
-	// work.5
+	// TODO(BEN): remove this, we don't need it once done
+	fmt.Printf("🦄 (work) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
+	log.Infof("🦄 (work) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
+
+	// work.7 finally generate the kubeconfig file
 	// this seems pretty reasonable entrypoint again.
 	// this is the same entrypoint as is called by the mgmt cluster plugin flow
 	kubeconfig, err := tkgauth.GetPinnipedKubeconfig(

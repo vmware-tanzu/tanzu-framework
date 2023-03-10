@@ -4,7 +4,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 )
 
-// TODO(Ben): rename and drop "cluster"
 type GetClusterPinnipedSupervisorDiscoveryOptions struct {
 	// the .well-known/openid-configuration discovery endpoint for a pinniped supervisor
 	Endpoint string
@@ -12,8 +11,6 @@ type GetClusterPinnipedSupervisorDiscoveryOptions struct {
 	CABundle string
 }
 
-// NOTE: like tkgctl.GetClusterPinnipedInfo() this should really just be a wrapper to
-// make a call into tkgClient.GetClusterPinnipedInfo()
 func (t *tkgctl) GetPinnipedSupervisorDiscovery(options GetClusterPinnipedSupervisorDiscoveryOptions) (*client.PinnipedSupervisorDiscoveryInfo, error) {
 
 	getClusterPinnipedSupervisorDiscoveryOptions := client.GetPinnipedSupervisorDiscoveryOptions{

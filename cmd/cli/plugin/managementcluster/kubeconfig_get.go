@@ -125,10 +125,10 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) 
 	}
 
 	// TODO(BEN): remove this, we don't need it once done
-	fmt.Printf("🦄 this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
-	log.Infof("🦄 this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
+	fmt.Printf("🦄 (mgmt) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
+	log.Infof("🦄 (mgmt) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
 
-	// mgmt.6
+	// mgmt.6->
 	// this seems a pretty reasonable entrypoint to pursue, however is it
 	// "getting" an existing kubeconfig, or is it generating a new kubeconfig?
 	kubeconfig, _ := tkgauth.GetPinnipedKubeconfig(
