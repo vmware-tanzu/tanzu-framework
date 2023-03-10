@@ -16,10 +16,7 @@ required_variable_list_aws = [
   "AWS_SSH_KEY_NAME"]
 
 required_variable_list_azure = [
-  "AZURE_TENANT_ID",
   "AZURE_SUBSCRIPTION_ID",
-  "AZURE_CLIENT_ID",
-  "AZURE_CLIENT_SECRET",
   "AZURE_LOCATION",
   "AZURE_SSH_PUBLIC_KEY_B64"]
 

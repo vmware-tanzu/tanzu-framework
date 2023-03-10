@@ -443,6 +443,33 @@ func (c *client) GetAzureCredentialsFromSecret() (azureclient.Credentials, error
 	return res, nil
 }
 
+func (c *client) GetAzureCredentialsFromIdentity(identityName string, identityNamespace string) (azureclient.Credentials, error) {
+	res := azureclient.Credentials{}
+
+	azureClusterIdentityGet := &capzv1beta1.AzureClusterIdentity{}
+	err := c.GetResource(azureClusterIdentityGet, identityName, identityNamespace, nil, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "unable to retrieve AzureClusterIdentity")
+	}
+	res.ClientID = azureClusterIdentityGet.Spec.ClientID
+	res.TenantID = azureClusterIdentityGet.Spec.TenantID
+	clientSecretName := azureClusterIdentityGet.Spec.ClientSecret.Name
+	clientSecretNamespace := azureClusterIdentityGet.Spec.ClientSecret.Namespace
+
+	if res.ClientID == "" || res.TenantID == "" || clientSecretName == "" || clientSecretNamespace == "" {
+		return res, errors.New("unable to retrieve azure credentials from AzureClusterIdentity")
+	}
+
+	secretGet := &corev1.Secret{}
+	err = c.GetResource(secretGet, clientSecretName, clientSecretNamespace, nil, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "unable to retrieve secret that is referenced by AzureClusterIdentity")
+	}
+	res.ClientSecret = string(secretGet.Data["clientSecret"])
+
+	return res, nil
+}
+
 func (c *client) UpdateCapzManagerBootstrapCredentialsSecret(tenantID, clientID, clientSecret string) error {
 	var tenantIDBytes []byte
 	var clientIDBytes []byte

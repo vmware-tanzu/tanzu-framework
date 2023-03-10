@@ -400,6 +400,7 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 			log.V(1).Infof("Using namespace from config: %s", cc.Namespace)
 		} else {
 			cc.Namespace = constants.DefaultNamespace
+			t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, constants.DefaultNamespace)
 			log.V(1).Infof("Using namespace: %s", cc.Namespace)
 		}
 	}
