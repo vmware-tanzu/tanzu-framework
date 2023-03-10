@@ -314,6 +314,8 @@ type Client interface {
 	GetAWSCredentialsFromSecret() (string, error)
 	// GetAzureCredentialsFromSecret gets the Azure base64 credentials used to deploy the cluster
 	GetAzureCredentialsFromSecret() (azureclient.Credentials, error)
+	// GetAzureCredentialsFromIdentity gets the Azure base64 credentials from AzureClusterIdentity
+	GetAzureCredentialsFromIdentity(identityName string, identityNamespace string) (azureclient.Credentials, error)
 	// UpdateCapvManagerBootstrapCredentialsSecret updates the vsphere creds used by the capv provider
 	UpdateCapvManagerBootstrapCredentialsSecret(username string, password string) error
 	// UpdateVsphereIdentityRefSecret updates vsphere cluster identityRef secret

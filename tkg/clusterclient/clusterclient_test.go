@@ -3796,6 +3796,63 @@ prod.repo.com: prod.custom.repo.com`
 		})
 	})
 
+	Describe("Unit tests for GetAzureCredentialsFromIdentity", func() {
+		var (
+			tenantID           string
+			clientID           string
+			clientSecret       string
+			identitySecretName string
+			identityName       string
+		)
+
+		BeforeEach(func() {
+			tenantID = defaultTenantID
+			clientID = defaultClientID
+			clientSecret = defaultClientSecret
+
+			identitySecretName = "foo-identitySecret"
+			identityName = "foo-identity"
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		It("should not return an error", func() {
+			clientset.GetReturns(nil)
+
+			secretData := map[string][]byte{
+				"clientSecret": []byte(clientSecret),
+			}
+
+			clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
+				switch o := o.(type) {
+				case *corev1.Secret:
+					*o = getDummySecret(identitySecretName, secretData, map[string]string{})
+				case *capzv1beta1.AzureClusterIdentity:
+					*o = getDummyAzureClusterIdentity(identityName, identitySecretName, tenantID, clientID)
+				}
+				return nil
+			})
+
+			credentials, err := clstClient.GetAzureCredentialsFromIdentity(identityName, constants.DefaultNamespace)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(credentials.ClientID).To(Equal(defaultClientID))
+			Expect(credentials.ClientSecret).To(Equal(defaultClientSecret))
+			Expect(credentials.TenantID).To(Equal(defaultTenantID))
+		})
+
+		It("should return an error when AzureClusterIdentity not exists", func() {
+			_, err = clstClient.GetAzureCredentialsFromIdentity(identityName, constants.DefaultNamespace)
+			Expect(err.Error()).To(ContainSubstring("unable to retrieve azure credentials from AzureClusterIdentity"))
+		})
+
+		It("should return an error when get resource failed", func() {
+			clientset.GetReturns(errors.New("fake list error"))
+
+			_, err = clstClient.GetAzureCredentialsFromIdentity(identityName, constants.DefaultNamespace)
+			Expect(err.Error()).To(ContainSubstring("unable to retrieve AzureClusterIdentity"))
+		})
+	})
 })
 
 func createTempDirectory() {

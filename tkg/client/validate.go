@@ -1347,10 +1347,36 @@ func (c *TkgClient) SetTKGClusterRole(clusterType TKGClusterType) {
 func (c *TkgClient) EncodeAzureCredentialsAndGetClient(clusterClient clusterclient.Client) (azure.Client, error) {
 	var creds azure.Credentials
 	var err error
+	// clusterClient exists during workload cluster creation or management cluster upgrade
 	if clusterClient != nil {
-		creds, err = clusterClient.GetAzureCredentialsFromSecret()
+		azureClusterIdentityName, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureIdentityName)
 		if err != nil {
-			return nil, err
+			// If don't specify the AzureClusterIdentity, then use the same one with management cluster.
+			// Get credentials from capz-manager-bootstrap-credentials
+			creds, err = clusterClient.GetAzureCredentialsFromSecret()
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			subscriptionID, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureSubscriptionID)
+			if err != nil {
+				return nil, errors.Errorf("failed to get Azure Subscription ID")
+			}
+			// If the AzureClusterIdentity is specified, then use the specified identity
+			azureClusterIdentityNamespace, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureIdentityNamespace)
+			if err != nil {
+				// AzureClusterIdentity will use the same namespace with AzureCluster by default
+				azureClusterIdentityNamespace, err = c.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
+				if err != nil {
+					return nil, err
+				}
+			}
+			// Retrive credentials from AzureClusterIdentity
+			creds, err = clusterClient.GetAzureCredentialsFromIdentity(azureClusterIdentityName, azureClusterIdentityNamespace)
+			if err != nil {
+				return nil, err
+			}
+			creds.SubscriptionID = subscriptionID
 		}
 	} else {
 		subscriptionID, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureSubscriptionID)
