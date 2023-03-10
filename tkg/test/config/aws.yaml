@@ -1,5 +1,6 @@
 ---
 infrastructure_name: aws
+default_timeout: 45m
 cluster_prefix: "tkg-cc-"
 tkg_config_variables:
   AWS_REGION: "us-west-2"
