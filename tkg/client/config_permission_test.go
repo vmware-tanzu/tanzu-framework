@@ -71,6 +71,7 @@ var _ = Describe("Unit tests for get AWS credentials", func() {
 			os.Setenv(constants.ConfigVariableAWSRegion, "us-east-2")
 			os.Unsetenv(constants.ConfigVariableAWSAccessKeyID)
 			os.Unsetenv(constants.ConfigVariableAWSSecretAccessKey)
+			os.Unsetenv(constants.ConfigVariableAWSSessionToken)
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
@@ -84,6 +85,7 @@ var _ = Describe("Unit tests for get AWS credentials", func() {
 			os.Setenv(constants.ConfigVariableAWSRegion, "us-east-2")
 			os.Unsetenv(constants.ConfigVariableAWSAccessKeyID)
 			os.Unsetenv(constants.ConfigVariableAWSSecretAccessKey)
+			os.Unsetenv(constants.ConfigVariableAWSSessionToken)
 			err = os.Mkdir(filepath.Join(testingDir, ".aws"), os.ModePerm)
 
 			Expect(err).ToNot(HaveOccurred())

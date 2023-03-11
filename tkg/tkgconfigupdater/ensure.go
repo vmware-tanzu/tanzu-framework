@@ -28,6 +28,7 @@ var KeysToEncode = []string{
 	constants.ConfigVariableVspherePassword,
 	constants.ConfigVariableAWSAccessKeyID,
 	constants.ConfigVariableAWSSecretAccessKey,
+	constants.ConfigVariableAWSSessionToken,
 	constants.ConfigVariableAzureClientID,
 	constants.ConfigVariableAzureClientSecret,
 	constants.ConfigVariableNsxtPassword,
