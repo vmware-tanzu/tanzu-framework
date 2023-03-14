@@ -12,17 +12,20 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 	"k8s.io/client-go/discovery"
 	clientauthenticationv1beta1 "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
+	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
+
 	kubeutils "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/utils/kubeconfig"
 )
 
+// TODO (BEN): This is one of two places where we need to swap scope requests
 const (
 	// ConciergeNamespace is the namespace where pinniped concierge is deployed
 	ConciergeNamespace = "pinniped-concierge"
@@ -81,8 +84,10 @@ func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	suportsGroups := contains(scopes, "groups")
 	supportsUsername := contains(scopes, "username")
 	if suportsGroups && supportsUsername {
+		log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
 		return PinnipedOIDCScopes0220
 	}
+	log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
 	return PinnipedOIDCScopes0120
 }
 

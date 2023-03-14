@@ -44,6 +44,11 @@ const (
 	knownGlobalHost = "cloud.vmware.com"
 )
 
+// TODO (BEN): ensure context code path works, this is a "builtin" command, not a plugin
+//
+//	since it is "built in" it may not share the same code
+//	I've found that there is some duplication in the repository due to this
+//
 // TODO (BEN): this appears to also be a plugin as `tanzu context` has subcommands as a top level plugin
 //
 //	Its less clear to me how this is done as the code path is not as obvious (yet)

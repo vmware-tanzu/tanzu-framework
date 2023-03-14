@@ -52,6 +52,10 @@ const (
 	knownGlobalHost = "cloud.vmware.com"
 )
 
+// TODO (BEN): ensure login code path works
+//
+//	 this is another plugin like cluster & managementcluster, not "core" like context
+//		however, this login command is deprecated I believe and will be replaced by "context" in the future.***
 func main() {
 	p, err := plugin.NewPlugin(&descriptor)
 	if err != nil {
@@ -377,6 +381,10 @@ func createServerWithEndpoint() (server *configapi.Server, err error) {
 				return nil, err
 			}
 		} else {
+			// TODO (BEN): ensure this code path continues to work as well, once we update to
+			// conditionally request scopes from the supervisor
+			// cli/core/pkg/auth/tkg/kube_config.go is the reference to this version of the func,
+			// so this does share an existing code path
 			kubeConfig, kubecontext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{ClusterInfoConfigMap: tkgauth.DefaultClusterInfoConfigMap})
 			if err != nil {
 				log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)

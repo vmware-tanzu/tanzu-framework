@@ -27,6 +27,7 @@ type getClusterKubeconfigOptions struct {
 
 var getKCOptions = &getClusterKubeconfigOptions{}
 
+// TODO (BEN): ensure mgmg cluster code path works
 // mgmt.1
 // the command to add to generate the kubeconfig for the mgmt cluster
 // this will delegate to getKubecofig, which will call the function
@@ -125,6 +126,7 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) 
 	}
 
 	// TODO(BEN): remove this, we don't need it once done
+	//   alternatively do log.Debug() instead
 	fmt.Printf("🦄 (mgmt) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
 	log.Infof("🦄 (mgmt) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
 

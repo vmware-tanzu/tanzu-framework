@@ -30,6 +30,7 @@ type getClusterKubeconfigOptions struct {
 // instantiate a struct var
 var getKCOptions = &getClusterKubeconfigOptions{}
 
+// TODO (BEN): ensure workload cluster code path works
 // work.1
 // create the Cobra command, and delegate to the function that
 // will be responsible for generating the kubeconfig itself.
@@ -131,8 +132,9 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName st
 	}
 
 	// TODO(BEN): remove this, we don't need it once done
-	fmt.Printf("🦄 (work) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
-	log.Infof("🦄 (work) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
+	//   alternatively do log.Debug() instead
+	fmt.Printf("🦄 (workload cluster) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
+	log.Infof("🦄 (workload cluster) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
 
 	// work.7 finally generate the kubeconfig file
 	// this seems pretty reasonable entrypoint again.
