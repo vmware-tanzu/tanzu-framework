@@ -7305,6 +7305,11 @@ spec:
         - mountPath: /tmp/k8s-webhook-server/serving-certs
           name: cert
           readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
       serviceAccountName: capi-manager
       terminationGracePeriodSeconds: 10
       tolerations:
@@ -7316,6 +7321,10 @@ spec:
       - name: cert
         secret:
           secretName: capi-webhook-service-cert
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate

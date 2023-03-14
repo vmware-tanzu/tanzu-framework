@@ -5306,6 +5306,11 @@ spec:
           value: ${TKG_HTTPS_PROXY}
         - name: NO_PROXY
           value: ${TKG_NO_PROXY}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
       terminationGracePeriodSeconds: 10
       tolerations:
       - effect: NoSchedule
@@ -5320,6 +5325,10 @@ spec:
       - name: manager-bootstrap-credentials
         secret:
           secretName: capv-manager-bootstrap-credentials
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate

@@ -8995,8 +8995,16 @@ spec:
           readOnly: true
         - mountPath: /home/.aws
           name: credentials
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
       securityContext:
         fsGroup: 1000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: capa-controller-manager
       terminationGracePeriodSeconds: 10
       tolerations:
