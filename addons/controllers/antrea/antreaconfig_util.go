@@ -9,9 +9,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-
 	"golang.org/x/mod/semver"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -282,6 +283,40 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha2.An
 		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork
 		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl
 		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster
+	}
+
+	//NSX related
+	if semver.Compare(version, "1.7.1") >= 0 && config.Spec.AntreaNsx.Enable {
+		configSpec.AntreaNsx.Enable = config.Spec.AntreaNsx.Enable
+		if config.Spec.AntreaNsx.BootstrapFrom.Inline != nil {
+			configSpec.AntreaNsx.BootstrapFrom.Inline.NsxManagers = config.Spec.AntreaNsx.BootstrapFrom.Inline.NsxManagers
+			configSpec.AntreaNsx.BootstrapFrom.Inline.ClusterName = config.Spec.AntreaNsx.BootstrapFrom.Inline.ClusterName
+			// NSX cert
+			secret := &corev1.Secret{}
+			err = client.Get(context.TODO(), types.NamespacedName{
+				Namespace: config.Namespace,
+				Name:      config.Name,
+			}, secret)
+			if err != nil {
+				return configSpec, err
+			}
+			if secret.Data == nil {
+				return configSpec, fmt.Errorf("missing secret data")
+			}
+			if _, ok := secret.Data["tls.crt"]; !ok {
+				return configSpec, fmt.Errorf("missing tls.crt")
+			}
+			configSpec.AntreaNsx.BootstrapFrom.Inline.NsxCertRef.TLSCert = string(secret.Data["tls.crt"])
+			if _, ok := secret.Data["tls.key"]; !ok {
+				return configSpec, fmt.Errorf("missing tls.key")
+			}
+			configSpec.AntreaNsx.BootstrapFrom.Inline.NsxCertRef.TLSKey = string(secret.Data["tls.key"])
+		} else if config.Spec.AntreaNsx.BootstrapFrom.ProviderRef != nil {
+			configSpec.AntreaNsx.BootstrapFrom.ProviderRef.ApiVersion = config.Spec.AntreaNsx.BootstrapFrom.ProviderRef.ApiGroup
+			configSpec.AntreaNsx.BootstrapFrom.ProviderRef.Kind = config.Spec.AntreaNsx.BootstrapFrom.ProviderRef.Kind
+			configSpec.AntreaNsx.BootstrapFrom.ProviderRef.Name = config.Spec.AntreaNsx.BootstrapFrom.ProviderRef.Name
+		}
+		configSpec.AntreaNsx.AntreaNsxConfig.InfraType = config.Spec.AntreaNsx.AntreaNsxConfig.InfraType
 	}
 
 	return configSpec, nil
