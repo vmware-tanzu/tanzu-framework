@@ -32,25 +32,26 @@
         REVIEW CONFIGURATION
     </button>
 </div>
-
-<ng-container *ngIf="review">
-    <app-confirmation [wizard]="wizardName"></app-confirmation>
-    <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
-    <div class="clr-row mt-20">
-        <div class="clr-col-12 btn-container">
-            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
-            </button>
-            <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
-                    i18n="return to wizard for edit button">
-                Edit Configuration
-            </button>
-            <ng-container *featureToggle="'management-cluster.export-from-confirm'">
-                <button class="btn btn-link export-btn" (click)="exportConfiguration()"
-                        i18n="export configuration button">
-                    Export Configuration
+<div aria-live="polite">
+    <ng-container *ngIf="review">
+        <app-confirmation [wizard]="wizardName"></app-confirmation>
+        <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
+        <div class="clr-row mt-20">
+            <div class="clr-col-12 btn-container">
+                <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
+                    Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
                 </button>
-            </ng-container>
+                <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
+                        i18n="return to wizard for edit button">
+                    Edit Configuration
+                </button>
+                <ng-container *featureToggle="'management-cluster.export-from-confirm'">
+                    <button class="btn btn-link export-btn" (click)="exportConfiguration()"
+                            i18n="export configuration button">
+                        Export Configuration
+                    </button>
+                </ng-container>
+            </div>
         </div>
-    </div>
-</ng-container>
+    </ng-container>
+</div>

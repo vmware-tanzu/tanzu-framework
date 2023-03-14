@@ -52,7 +52,7 @@
                             <clr-datalist-container>
                                 <!-- Add a invisible label to avoid accessibility issue -->
                                 <label style="display: none;">dev instance type</label>
-                                <input clrDatalistInput name="devInstanceType" formControlName="devInstanceType" role="listbox" aria-label="development instance type" autocomplete="off"/>
+                                <input clrDatalistInput name="devInstanceType" formControlName="devInstanceType" role="combobox" aria-label="development instance type" autocomplete="off"/>
                                 <datalist id="devInstanceType">
                                     <option *ngFor="let nodeType of nodeTypes" [value]="nodeType"></option>
                                 </datalist>
@@ -100,7 +100,7 @@
                             <clr-datalist-container>
                                 <!-- Add a invisible label to avoid accessibility issue -->
                                 <label style="display: none;">prod instance type</label>
-                                <input clrDatalistInput name="prodInstanceType" formControlName="prodInstanceType" role="listbox" aria-label="production instance type" autocomplete="off"/>
+                                <input clrDatalistInput name="prodInstanceType" formControlName="prodInstanceType" role="combobox" aria-label="production instance type" autocomplete="off"/>
                                 <datalist id="prodInstanceType">
                                     <option *ngFor="let nodeType of nodeTypes" [value]="nodeType"></option>
                                 </datalist>

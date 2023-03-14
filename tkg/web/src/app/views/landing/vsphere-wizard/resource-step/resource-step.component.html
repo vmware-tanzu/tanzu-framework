@@ -105,7 +105,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12">
-            <app-tree-select [data]="treeData" [selectedHandler]="handleOnClick"></app-tree-select>
+            <app-tree-select [data]="treeData" [selectedHandler]="handleOnClick" role="tree"></app-tree-select>
             <clr-control-error *ngIf="showFormError('resourcePool')" >Selecting a resource is required</clr-control-error>
         </div>
     </div>
