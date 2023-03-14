@@ -8749,6 +8749,11 @@ spec:
         - mountPath: /tmp/k8s-webhook-server/serving-certs
           name: cert
           readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
       serviceAccountName: capz-manager
       terminationGracePeriodSeconds: 10
       tolerations:
@@ -8761,6 +8766,10 @@ spec:
         secret:
           defaultMode: 420
           secretName: capz-webhook-service-cert
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 ---
 apiVersion: apps/v1
 kind: DaemonSet

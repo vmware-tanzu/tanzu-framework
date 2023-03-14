@@ -1323,6 +1323,11 @@ spec:
         - mountPath: /etc/capv
           name: manager-bootstrap-credentials
           readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
       terminationGracePeriodSeconds: 10
       tolerations:
       - effect: NoSchedule
@@ -1337,6 +1342,10 @@ spec:
       - name: manager-bootstrap-credentials
         secret:
           secretName: capv-manager-bootstrap-credentials
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
