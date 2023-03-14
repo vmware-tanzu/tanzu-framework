@@ -200,6 +200,28 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 				}
 
+				By("packagemetadata should have been created for each package in the clusterbootstrap")
+				Eventually(func() bool {
+					var packages []*runtanzuv1alpha3.ClusterBootstrapPackage
+					packages = append(packages, clusterBootstrap.Spec.CNI, clusterBootstrap.Spec.CPI, clusterBootstrap.Spec.CSI)
+					packages = append(packages, clusterBootstrap.Spec.AdditionalPackages...)
+
+					for _, pkg := range packages {
+						packageRefName, _, err := util.GetPackageMetadata(ctx, k8sClient, pkg.RefName, cluster.Namespace)
+						if packageRefName == "" || err != nil {
+							return false
+						}
+
+						packageMetadata := &kapppkgv1alpha1.PackageMetadata{}
+						packageMetadataKey := client.ObjectKey{Name: packageRefName, Namespace: constants.TKGSystemNS}
+
+						if err = k8sClient.Get(ctx, packageMetadataKey, packageMetadata); err != nil {
+							return false
+						}
+					}
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
 				By("verifying that CNI has been populated properly")
 				// Verify CNI is populated in the cloned object with the value from the cluster bootstrap template
 				Expect(clusterBootstrap.Spec.CNI).NotTo(BeNil())

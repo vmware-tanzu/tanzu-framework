@@ -154,6 +154,24 @@ spec:
               - --kube-api-burst=30
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: foobar.example.com
+  namespace: cluster-namespace
+spec:
+  categories:
+    - test package
+  displayName: foobar
+  longDescription: foobar test package
+  maintainers:
+    - name: TKG
+  providerName: VMware
+  shortDescription: foobar
+  supportDescription: Support provided by VMware for deployment on Tanzu clusters.
+    Best-effort support for deployment on any conformant Kubernetes cluster. Contact
+    support by opening a support request via VMware Cloud Services or my.vmware.com.
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: foobar3.example.com.1.17.2
@@ -196,6 +214,24 @@ spec:
               - --kube-api-burst=30
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: foobar3.example.com
+  namespace: cluster-namespace
+spec:
+  categories:
+    - test package
+  displayName: foobar3
+  longDescription: foobar3 test package
+  maintainers:
+    - name: TKG
+  providerName: VMware
+  shortDescription: foobar3
+  supportDescription: Support provided by VMware for deployment on Tanzu clusters.
+    Best-effort support for deployment on any conformant Kubernetes cluster. Contact
+    support by opening a support request via VMware Cloud Services or my.vmware.com.
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: foobar1.example.com.1.17.2
@@ -236,6 +272,24 @@ spec:
               - --wait-timeout=5m
               - --kube-api-qps=20
               - --kube-api-burst=30
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: foobar1.example.com
+  namespace: cluster-namespace
+spec:
+  categories:
+    - test package
+  displayName: foobar1
+  longDescription: foobar1 test package
+  maintainers:
+    - name: TKG
+  providerName: VMware
+  shortDescription: foobar1
+  supportDescription: Support provided by VMware for deployment on Tanzu clusters.
+    Best-effort support for deployment on any conformant Kubernetes cluster. Contact
+    support by opening a support request via VMware Cloud Services or my.vmware.com.
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
@@ -322,6 +376,24 @@ spec:
               - --kube-api-burst=30
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: foobar2.example.com
+  namespace: cluster-namespace
+spec:
+  categories:
+    - test package
+  displayName: foobar2
+  longDescription: foobar2 test package
+  maintainers:
+    - name: TKG
+  providerName: VMware
+  shortDescription: foobar2
+  supportDescription: Support provided by VMware for deployment on Tanzu clusters.
+    Best-effort support for deployment on any conformant Kubernetes cluster. Contact
+    support by opening a support request via VMware Cloud Services or my.vmware.com.
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: kapp-controller.tanzu.vmware.com.0.30.0
@@ -394,6 +466,24 @@ spec:
       title: kapp-controller.tanzu.vmware.com.0.30.2+vmware.1-tkg.1 values schema
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: kapp-controller.tanzu.vmware.com
+  namespace: cluster-namespace
+spec:
+  categories:
+    - package lifecycle management
+  displayName: kapp-controller
+  longDescription: kapp-controller test package
+  maintainers:
+    - name: TKG
+  providerName: VMware
+  shortDescription: kapp-controller
+  supportDescription: Support provided by VMware for deployment on Tanzu clusters.
+    Best-effort support for deployment on any conformant Kubernetes cluster. Contact
+    support by opening a support request via VMware Cloud Services or my.vmware.com.
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: calico.tanzu.vmware.com.3.19.1--vmware.1-tkg.1
@@ -463,6 +553,24 @@ spec:
               - --kube-api-qps=20
               - --kube-api-burst=30
   releasedAt: "2022-03-07T10:53:29Z"
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: calico.tanzu.vmware.com
+  namespace: cluster-namespace
+spec:
+  categories:
+    - networking
+  displayName: calico
+  longDescription: calico test package
+  maintainers:
+    - name: TKG
+  providerName: VMware
+  shortDescription: calico
+  supportDescription: Support provided by VMware for deployment on Tanzu clusters.
+    Best-effort support for deployment on any conformant Kubernetes cluster. Contact
+    support by opening a support request via VMware Cloud Services or my.vmware.com.
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
@@ -537,6 +645,24 @@ spec:
       title: antrea.tanzu.vmware.com.1.2.3+vmware.4-tkg.2-advanced-zshippable values schema
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: antrea.tanzu.vmware.com
+  namespace: cluster-namespace
+spec:
+  categories:
+    - networking
+  displayName: antrea
+  longDescription: antrea test package
+  maintainers:
+    - name: TKG
+  providerName: VMware
+  shortDescription: antrea
+  supportDescription: Support provided by VMware for deployment on Tanzu clusters.
+    Best-effort support for deployment on any conformant Kubernetes cluster. Contact
+    support by opening a support request via VMware Cloud Services or my.vmware.com.
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1
@@ -573,6 +699,24 @@ spec:
       title: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1 values schema
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: vsphere-cpi.tanzu.vmware.com
+  namespace: cluster-namespace
+spec:
+  categories:
+    - cloud provider
+  displayName: vsphere-cpi
+  longDescription: vsphere-cpi test package
+  maintainers:
+    - name: TKG
+  providerName: VMware
+  shortDescription: vsphere-cpi
+  supportDescription: Support provided by VMware for deployment on Tanzu clusters.
+    Best-effort support for deployment on any conformant Kubernetes cluster. Contact
+    support by opening a support request via VMware Cloud Services or my.vmware.com.
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: vsphere-csi.community.tanzu.vmware.com.2.4.1
@@ -598,6 +742,24 @@ spec:
               - .imgpkg/images.yml
       deploy:
         - kapp: {}
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: vsphere-csi.community.tanzu.vmware.com
+  namespace: cluster-namespace
+spec:
+  categories:
+    - container storage
+  displayName: vsphere-csi
+  longDescription: vsphere-csi test package
+  maintainers:
+    - name: TKG
+  providerName: VMware
+  shortDescription: vsphere-csi
+  supportDescription: Support provided by VMware for deployment on Tanzu clusters.
+    Best-effort support for deployment on any conformant Kubernetes cluster. Contact
+    support by opening a support request via VMware Cloud Services or my.vmware.com.
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
