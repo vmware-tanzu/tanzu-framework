@@ -17,7 +17,6 @@ import (
 
 	"github.com/pkg/errors"
 	batchv1 "k8s.io/api/batch/v1"
-	"k8s.io/api/batch/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -117,7 +116,7 @@ func E2ECEIPSpec(context context.Context, inputGetter func() E2ECEIPSpecInput) {
 
 func verifyTelemetryJobURL(context context.Context, url string, mcProxy *framework.ClusterProxy) error {
 	client := mcProxy.GetClient()
-	cronJob := &v1beta1.CronJob{}
+	cronJob := &batchv1.CronJob{}
 
 	_, _ = GinkgoWriter.Write([]byte(fmt.Sprintf("Context : %s \n", context)))
 	err := client.Get(context, types.NamespacedName{Name: telemetryName, Namespace: telemetryNamespace}, cronJob)
@@ -149,7 +148,7 @@ func verifyTelemetryJobRunning(context context.Context, mcProxy *framework.Clust
 	scheme := mcProxy.GetScheme()
 	batchv1.AddToScheme(scheme)
 
-	cronJob := &v1beta1.CronJob{}
+	cronJob := &batchv1.CronJob{}
 	if err = client.Get(context, types.NamespacedName{Name: telemetryName, Namespace: telemetryNamespace}, cronJob); err != nil {
 		return err
 	}
@@ -216,7 +215,7 @@ func verifyTelemetryJobRunning(context context.Context, mcProxy *framework.Clust
 	}
 
 	// returning the telemetry cron job schedule back to "0 */6 * * *"
-	cronJob = &v1beta1.CronJob{}
+	cronJob = &batchv1.CronJob{}
 	if err = client.Get(context, types.NamespacedName{Name: telemetryName, Namespace: telemetryNamespace}, cronJob); err != nil {
 		return err
 	}

@@ -5,7 +5,7 @@ package framework
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
-	v1beta1 "k8s.io/api/batch/v1beta1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -52,7 +52,7 @@ func AddDefaultSchemes(scheme *runtime.Scheme) {
 	_ = clusterctlv1.AddToScheme(scheme)
 
 	// Add the v1beta1 scheme
-	_ = v1beta1.AddToScheme(scheme)
+	_ = batchv1.AddToScheme(scheme)
 
 	// Add the run v1alpha3 scheme
 	_ = runv1.AddToScheme(scheme)

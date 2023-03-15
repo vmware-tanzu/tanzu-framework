@@ -45,7 +45,7 @@ roleRef:
   name: tkg-telemetry-cluster-role
 
 ---
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: tkg-telemetry
