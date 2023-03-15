@@ -17,6 +17,7 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting tkr-source-controller.tanzu.vmware.com/ClusterRoleBinding"
     kapp.k14s.io/change-rule.1: "delete before deleting tkr-source-controller.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.3: "upsert after upserting tkr-source-controller.tanzu.vmware.com/ConfigMap"
 spec:
   replicas: 1
   selector:
