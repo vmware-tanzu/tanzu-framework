@@ -71,7 +71,7 @@ spec:
     name: KCP_INIT_APISERVER_EMPTY_EXTRAVOLUMES_ARRAY
   #@overlay/append
   - name: restartContainerdService
-    enabledIf: '{{ not (and (empty .proxy) (empty .trust.additionalTrustedCAs) (empty .imageRepository.host)) }}'
+    enabledIf: '{{ not (and (empty .proxy) (empty .trust.additionalTrustedCAs) (empty .imageRepository.host) (empty .additionalImageRegistries)) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
