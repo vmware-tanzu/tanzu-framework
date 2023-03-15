@@ -109,7 +109,7 @@ spec:
     variables:
     #@ vars = get_aws_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["workerKubeletExtraArgs","controlPlaneKubeletExtraArgs","kubeControllerManagerExtraArgs","kubeSchedulerExtraArgs","apiServerExtraArgs","etcdExtraArgs", "region", "sshKeyName", "bastion", "network", "controlPlane", "worker", "loadBalancerSchemeInternal", "identityRef", "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", "proxy", "controlPlaneCertificateRotation", "podSecurityStandard", "eventRateLimitConf"]:
+    #@  if vars[configVariable] != None and configVariable in ["additionalImageRegistries","workerKubeletExtraArgs","controlPlaneKubeletExtraArgs","kubeControllerManagerExtraArgs","kubeSchedulerExtraArgs","apiServerExtraArgs","etcdExtraArgs", "region", "sshKeyName", "bastion", "network", "controlPlane", "worker", "loadBalancerSchemeInternal", "identityRef", "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", "proxy", "controlPlaneCertificateRotation", "podSecurityStandard", "eventRateLimitConf"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end

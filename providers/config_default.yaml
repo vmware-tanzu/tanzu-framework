@@ -496,6 +496,25 @@ TKG_CUSTOM_IMAGE_REPOSITORY: ""
 TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: false
 TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE: ""
 
+#! When user's application images are from a registry with a self-signed CA
+#! set this value to configure the cluster to trust it. For a registry with
+#! a public CA nothing need to change. This is only for user's application
+#! images, to configure TKG image repository for cluster creation, use
+#! TKG_CUSTOM_IMAGE_REPOSITORY instead.
+#! Example image registry host name: 10.191.247.30:8443
+ADDITIONAL_IMAGE_REGISTRY_1: ""
+ADDITIONAL_IMAGE_REGISTRY_1_SKIP_TLS_VERIFY: false
+#! Base64 encoded self-signed CA certificate
+ADDITIONAL_IMAGE_REGISTRY_1_CA_CERTIFICATE: ""
+
+ADDITIONAL_IMAGE_REGISTRY_2: ""
+ADDITIONAL_IMAGE_REGISTRY_2_SKIP_TLS_VERIFY: false
+ADDITIONAL_IMAGE_REGISTRY_2_CA_CERTIFICATE: ""
+
+ADDITIONAL_IMAGE_REGISTRY_3: ""
+ADDITIONAL_IMAGE_REGISTRY_3_SKIP_TLS_VERIFY: false
+ADDITIONAL_IMAGE_REGISTRY_3_CA_CERTIFICATE: ""
+
 #! PROXY configuration
 #! If `TKG_PROXY_CA_CERT` is specified it gets used instead of
 #! `TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE` while communicating
