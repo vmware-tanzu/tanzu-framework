@@ -375,6 +375,7 @@ func createServerWithEndpoint() (server *configapi.Server, err error) {
 		}
 		if isVSphereSupervisor {
 			log.Info("Detected a vSphere Supervisor being used")
+			// TODO (BEN): does this still call KubeconfigWithPinnipedAuthLoginPlugin()
 			kubeConfig, kubecontext, err = vSphereSupervisorLogin(endpoint)
 			if err != nil {
 				log.Fatalf("Error logging in to vSphere Supervisor: %v", err)
@@ -536,6 +537,9 @@ func getDiscoveryHTTPClient() *http.Client {
 
 func vSphereSupervisorLogin(endpoint string) (mergeFilePath, currentContext string, err error) {
 	port := 443
+
+	// within this function there is already a call to GetPinnipedInfoFromCluster()
+	// so we should put the call to get SupervisorDiscovery bits in here also.
 	kubeConfig, kubecontext, err := tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{DiscoveryPort: &port, ClusterInfoConfigMap: wcpauth.SupervisorVIPConfigMapName})
 	if err != nil {
 		log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
