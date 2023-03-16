@@ -31,6 +31,7 @@ import (
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
@@ -158,6 +159,11 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	labels := vcsiConfig.GetLabels()
+	if _, ok := labels[pkgtypes.PackageNameLabel]; !ok {
+		r.Log.Info(fmt.Sprintf("VSphereCSIConfig resource '%v' does not contains package name label", req.NamespacedName))
+		return ctrl.Result{}, errors.New("VSphereCSIConfig does not contains package name label")
+	}
 	// deep copy VSphereCSIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	vcsiConfig = vcsiConfig.DeepCopy()
 

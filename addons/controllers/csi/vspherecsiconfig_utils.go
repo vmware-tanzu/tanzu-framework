@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"golang.org/x/mod/semver"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -144,6 +145,9 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	vcsiConfig *csiv1alpha1.VSphereCSIConfig,
 	cluster *clusterv1beta1.Cluster) (*DataValues, error) {
 
+	packageName := vcsiConfig.GetLabels()[pkgtypes.PackageNameLabel]
+	version := strings.TrimPrefix(strings.Split(packageName, "---")[0], "vsphere-csi.tanzu.vmware.com.")
+	version = "v" + version
 	dvs := &DataValues{}
 
 	// populate derived values
@@ -216,6 +220,9 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 
 	// populated from default value in https://github.com/vmware-tanzu/community-edition/blob/main/addons/packages/vsphere-csi/2.4.1/bundle/config/values.yaml
 	dvs.VSphereCSI.Namespace = VSphereCSINamespace
+	if semver.Compare(version, "v2.7.0") < 0 {
+		dvs.VSphereCSI.Namespace = VSphereCSINamespace_old
+	}
 	dvs.VSphereCSI.UseTopologyCategories = false
 	dvs.VSphereCSI.ProvisionTimeout = VSphereCSIProvisionTimeout
 	dvs.VSphereCSI.AttachTimeout = VSphereCSIAttachTimeout
