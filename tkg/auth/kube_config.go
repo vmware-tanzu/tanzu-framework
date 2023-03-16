@@ -5,7 +5,6 @@ package auth
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,7 +18,6 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	tkgclient "github.com/vmware-tanzu/tanzu-framework/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 	tkgutils "github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
@@ -86,87 +84,11 @@ func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	return PinnipedOIDCScopes0120
 }
 
-// TODO (BEN): So what is the purpose of this function?
-//
-//	GetPinnipedKubeconfig() below is in the path of the plugins [cluster,managementcluster] kubeconfig generation.
-//	this function does not seem to be in those code paths.
-//
-// KubeconfigWithPinnipedAuthLoginPlugin prepares the kubeconfig with tanzu pinniped-auth login as client-go exec plugin
-func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions, discoveryStrategy DiscoveryStrategy) (mergeFilePath, currentContext string, err error) {
-	clusterInfo, err := tkgutils.GetClusterInfoFromCluster(endpoint, discoveryStrategy.ClusterInfoConfigMap)
-	if err != nil {
-		err = errors.Wrap(err, "failed to get cluster-info")
-		return
-	}
-
-	pinnipedInfo, err := tkgutils.GetPinnipedInfoFromCluster(clusterInfo, discoveryStrategy.DiscoveryPort)
-	if err != nil {
-		err = errors.Wrap(err, "failed to get pinniped-info")
-		return
-	}
-
-	if pinnipedInfo == nil {
-		err = errors.New("failed to get pinniped-info from cluster")
-		return
-	}
-
-	pinnipedSupervisorDiscoveryOpts := tkgctl.GetClusterPinnipedSupervisorDiscoveryOptions{
-		Endpoint: fmt.Sprintf("%s/.well-known/openid-configuration", pinnipedInfo.Data.Issuer),
-		CABundle: pinnipedInfo.Data.IssuerCABundle,
-	}
-
-	// // TODO (BEN): make this work, tkgctlClient doesnt have this func.
-	// // TODO: tkgutils.GetPinnipedInfoFromCluster() appears to be a different wrapper?
-	// // time to work this in
-	// // we will have to add it to tkgutils as a sibling
-	// //    tkgutils.GetPinnipedInfoFromCluster
-	// //    tkgutils.GetPinnipedSupervisorDiscovery
-	// // and then copy some code to make it work properly.
-	// TODO: it appears we need to pass in a tkgctlClient in order to use it?
-	supervisorDiscoveryInfo, err := tkgctlClient.GetPinnipedSupervisorDiscovery(pinnipedSupervisorDiscoveryOpts)
-	// TODO: it seems we actually have to reimplement this function here, rather than use what we implemented elsewhere.
-	// at least to follow the existing pattern in this repository
-	supervisorDiscoveryInfo, err := tkgutils.GetPinnipedSupervisorDiscoveryFromCluster(pinnipedSupervisorDiscoveryOpts)
-	if err != nil {
-		return err
-	}
-
-	config, err := GetPinnipedKubeconfig(
-		clusterInfo,
-		pinnipedInfo,
-		pinnipedInfo.Data.ClusterName,
-		pinnipedInfo.Data.Issuer,
-		&supervisorDiscoveryInfo) // TODO (BEN): this was broken as we added this field. So we need to fix the above addition to make it work
-	if err != nil {
-		err = errors.Wrap(err, "unable to get the kubeconfig")
-		return
-	}
-
-	kubeconfigBytes, err := json.Marshal(config)
-	if err != nil {
-		err = errors.Wrap(err, "unable to marshall the kubeconfig")
-		return
-	}
-
-	mergeFilePath = ""
-	if options != nil && options.MergeFilePath != "" {
-		mergeFilePath = options.MergeFilePath
-	} else {
-		mergeFilePath, err = TanzuLocalKubeConfigPath()
-		if err != nil {
-			err = errors.Wrap(err, "unable to get the Tanzu local kubeconfig path")
-			return
-		}
-	}
-
-	err = tkgclient.MergeKubeConfigWithoutSwitchContext(kubeconfigBytes, mergeFilePath)
-	if err != nil {
-		err = errors.Wrap(err, "unable to merge cluster kubeconfig to the Tanzu local kubeconfig path")
-		return
-	}
-	currentContext = config.CurrentContext
-	return mergeFilePath, currentContext, err
-}
+// NOTE (BEN): deleted this func.
+// func KubeconfigWithPinnipedAuthLoginPlugin
+// - it was duplicated into:
+//   - `cli/core/pkg/auth/tkg/kube_config.go`
+// - this copy has no calling code outside of tests.
 
 // GetServerKubernetesVersion uses the kubeconfig to get the server k8s version.
 func GetServerKubernetesVersion(kubeconfigPath, context string) (string, error) {
