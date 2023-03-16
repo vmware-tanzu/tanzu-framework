@@ -291,7 +291,9 @@ func (wh *ClusterBootstrap) getGVR(gk schema.GroupKind) (*schema.GroupVersionRes
 		return gvr, nil
 	}
 	apiResourceList, err := wh.cachedDiscoveryClient.ServerPreferredResources()
-	if err != nil {
+	// ServerPreferredResources will return a list for apiResourceList, even if err != nil.
+	// For example, in the case of err = discovery.ErrGroupDiscoveryFailed for just one of the apiResources
+	if _, ok := err.(*discovery.ErrGroupDiscoveryFailed); err != nil && !ok {
 		return nil, err
 	}
 	for _, apiResource := range apiResourceList {
