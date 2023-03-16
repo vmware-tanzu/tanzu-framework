@@ -44,6 +44,11 @@ const (
 	knownGlobalHost = "cloud.vmware.com"
 )
 
+// TODO FINAL (BEN): last step for me to fix is this.
+//
+//	well, and then tests.
+//	well, and then eliminate all my comments all over the place. clean up the mess.
+//
 // TODO (BEN): ensure context code path works, this is a "builtin" command, not a plugin
 //
 //	since it is "built in" it may not share the same code

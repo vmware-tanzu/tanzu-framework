@@ -19,9 +19,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
-
 	kubeutils "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/utils/kubeconfig"
 )
 
@@ -91,6 +88,12 @@ func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	return PinnipedOIDCScopes0120
 }
 
+// hi.
+// TODO (BEN): gonna have to update this func.
+// This is the "library" version of the func that is also found in /tkg/auth/kube_config.go of the same name.
+// - I may delete the other copy, it has no callers
+// - But I may have to update this copy, it is called by vSphereSupervisorLogin()
+//
 // KubeconfigWithPinnipedAuthLoginPlugin prepares the kubeconfig with tanzu pinniped-auth login as client-go exec plugin
 func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions, discoveryStrategy DiscoveryStrategy) (mergeFilePath, currentContext string, err error) {
 	clusterInfo, err := GetClusterInfoFromCluster(endpoint, discoveryStrategy.ClusterInfoConfigMap)
@@ -110,20 +113,15 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 		return
 	}
 
-	pinnipedSupervisorDiscoveryOpts := tkgctl.GetClusterPinnipedSupervisorDiscoveryOptions{
+	pinnipedSupervisorDiscoveryOpts := GetClusterPinnipedSupervisorDiscoveryOptions{
 		Endpoint: fmt.Sprintf("%s/.well-known/openid-configuration", pinnipedInfo.Data.Issuer),
 		CABundle: pinnipedInfo.Data.IssuerCABundle,
 	}
-	// TODO: tkgutils.GetPinnipedInfoFromCluster() appears to be a different wrapper?
-	// time to work this in
-	// we will have to add it to tkgutils as a sibling
-	//    tkgutils.GetPinnipedInfoFromCluster
-	//    tkgutils.GetPinnipedSupervisorDiscovery
-	// and then copy some code to make it work properly.
-	supervisorDiscoveryInfo, err := tkgctlClient.GetPinnipedSupervisorDiscovery(pinnipedSupervisorDiscoveryOpts)
-	if err != nil {
-		return err
 
+	supervisorDiscoveryInfo, err := GetPinnipedSupervisorDiscovery(pinnipedSupervisorDiscoveryOpts)
+	if err != nil {
+		err = errors.Wrap(err, "failed to get pinniped supervisor discovery data")
+		return
 	}
 
 	// finally we call GetPinnipedKubeconfig() which is where we generate the kubeconfig file, and what needs
@@ -210,7 +208,7 @@ func GetPinnipedKubeconfig(
 	pinnipedInfo *PinnipedConfigMapInfo,
 	clustername,
 	audience string,
-	supervisorDiscoveryInfo *client.PinnipedSupervisorDiscoveryInfo) (*clientcmdapi.Config, error) {
+	supervisorDiscoveryInfo *PinnipedSupervisorDiscoveryInfo) (*clientcmdapi.Config, error) {
 	execConfig := clientcmdapi.ExecConfig{
 		APIVersion: clientauthenticationv1beta1.SchemeGroupVersion.String(),
 		Args:       []string{},
