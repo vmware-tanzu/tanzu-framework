@@ -159,11 +159,14 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
-	labels := vcsiConfig.GetLabels()
-	if _, ok := labels[pkgtypes.PackageNameLabel]; !ok {
-		r.Log.Info(fmt.Sprintf("VSphereCSIConfig resource '%v' does not contains package name label", req.NamespacedName))
-		return ctrl.Result{}, errors.New("VSphereCSIConfig does not contains package name label")
+	if vcsiConfig.Spec.VSphereCSI.Mode == VSphereCSINonParavirtualMode {
+		labels := vcsiConfig.GetLabels()
+		if _, ok := labels[pkgtypes.PackageNameLabel]; !ok {
+			r.Log.Info(fmt.Sprintf("VSphereCSIConfig resource '%v' does not contains package name label", req.NamespacedName))
+			return ctrl.Result{}, errors.New("VSphereCSIConfig does not contains package name label")
+		}
 	}
+
 	// deep copy VSphereCSIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	vcsiConfig = vcsiConfig.DeepCopy()
 
