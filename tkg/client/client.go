@@ -196,9 +196,9 @@ type Client interface {
 	UpdateCredentialsCluster(options *UpdateCredentialsOptions) error
 	// GetClusterPinnipedInfo returns the cluster and pinniped info
 	GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error)
-	// DescribeCluster describes all the objects in the Cluster
 	// GetPinnipedSupervisorDiscovery returns the discovery information from the pinniped supervisor
 	GetPinnipedSupervisorDiscovery(options GetPinnipedSupervisorDiscoveryOptions) (*PinnipedSupervisorDiscoveryInfo, error)
+	// DescribeCluster describes all the objects in the Cluster
 	DescribeCluster(options DescribeTKGClustersOptions) (*clusterctltree.ObjectTree, *capi.Cluster, *clusterctlv1.ProviderList, error)
 	// DescribeProvider describes all the installed providers
 	DescribeProvider() (*clusterctlv1.ProviderList, error)

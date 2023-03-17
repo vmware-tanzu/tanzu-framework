@@ -322,6 +322,19 @@ type Client struct {
 		result1 []v1alpha3a.MachineDeployment
 		result2 error
 	}
+	GetPinnipedSupervisorDiscoveryStub        func(client.GetPinnipedSupervisorDiscoveryOptions) (*client.PinnipedSupervisorDiscoveryInfo, error)
+	getPinnipedSupervisorDiscoveryMutex       sync.RWMutex
+	getPinnipedSupervisorDiscoveryArgsForCall []struct {
+		arg1 client.GetPinnipedSupervisorDiscoveryOptions
+	}
+	getPinnipedSupervisorDiscoveryReturns struct {
+		result1 *client.PinnipedSupervisorDiscoveryInfo
+		result2 error
+	}
+	getPinnipedSupervisorDiscoveryReturnsOnCall map[int]struct {
+		result1 *client.PinnipedSupervisorDiscoveryInfo
+		result2 error
+	}
 	GetRegionContextsStub        func(string) ([]region.RegionContext, error)
 	getRegionContextsMutex       sync.RWMutex
 	getRegionContextsArgsForCall []struct {
@@ -2132,6 +2145,70 @@ func (fake *Client) GetPacificMachineDeploymentsReturnsOnCall(i int, result1 []v
 	}{result1, result2}
 }
 
+func (fake *Client) GetPinnipedSupervisorDiscovery(arg1 client.GetPinnipedSupervisorDiscoveryOptions) (*client.PinnipedSupervisorDiscoveryInfo, error) {
+	fake.getPinnipedSupervisorDiscoveryMutex.Lock()
+	ret, specificReturn := fake.getPinnipedSupervisorDiscoveryReturnsOnCall[len(fake.getPinnipedSupervisorDiscoveryArgsForCall)]
+	fake.getPinnipedSupervisorDiscoveryArgsForCall = append(fake.getPinnipedSupervisorDiscoveryArgsForCall, struct {
+		arg1 client.GetPinnipedSupervisorDiscoveryOptions
+	}{arg1})
+	stub := fake.GetPinnipedSupervisorDiscoveryStub
+	fakeReturns := fake.getPinnipedSupervisorDiscoveryReturns
+	fake.recordInvocation("GetPinnipedSupervisorDiscovery", []interface{}{arg1})
+	fake.getPinnipedSupervisorDiscoveryMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *Client) GetPinnipedSupervisorDiscoveryCallCount() int {
+	fake.getPinnipedSupervisorDiscoveryMutex.RLock()
+	defer fake.getPinnipedSupervisorDiscoveryMutex.RUnlock()
+	return len(fake.getPinnipedSupervisorDiscoveryArgsForCall)
+}
+
+func (fake *Client) GetPinnipedSupervisorDiscoveryCalls(stub func(client.GetPinnipedSupervisorDiscoveryOptions) (*client.PinnipedSupervisorDiscoveryInfo, error)) {
+	fake.getPinnipedSupervisorDiscoveryMutex.Lock()
+	defer fake.getPinnipedSupervisorDiscoveryMutex.Unlock()
+	fake.GetPinnipedSupervisorDiscoveryStub = stub
+}
+
+func (fake *Client) GetPinnipedSupervisorDiscoveryArgsForCall(i int) client.GetPinnipedSupervisorDiscoveryOptions {
+	fake.getPinnipedSupervisorDiscoveryMutex.RLock()
+	defer fake.getPinnipedSupervisorDiscoveryMutex.RUnlock()
+	argsForCall := fake.getPinnipedSupervisorDiscoveryArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *Client) GetPinnipedSupervisorDiscoveryReturns(result1 *client.PinnipedSupervisorDiscoveryInfo, result2 error) {
+	fake.getPinnipedSupervisorDiscoveryMutex.Lock()
+	defer fake.getPinnipedSupervisorDiscoveryMutex.Unlock()
+	fake.GetPinnipedSupervisorDiscoveryStub = nil
+	fake.getPinnipedSupervisorDiscoveryReturns = struct {
+		result1 *client.PinnipedSupervisorDiscoveryInfo
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *Client) GetPinnipedSupervisorDiscoveryReturnsOnCall(i int, result1 *client.PinnipedSupervisorDiscoveryInfo, result2 error) {
+	fake.getPinnipedSupervisorDiscoveryMutex.Lock()
+	defer fake.getPinnipedSupervisorDiscoveryMutex.Unlock()
+	fake.GetPinnipedSupervisorDiscoveryStub = nil
+	if fake.getPinnipedSupervisorDiscoveryReturnsOnCall == nil {
+		fake.getPinnipedSupervisorDiscoveryReturnsOnCall = make(map[int]struct {
+			result1 *client.PinnipedSupervisorDiscoveryInfo
+			result2 error
+		})
+	}
+	fake.getPinnipedSupervisorDiscoveryReturnsOnCall[i] = struct {
+		result1 *client.PinnipedSupervisorDiscoveryInfo
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *Client) GetRegionContexts(arg1 string) ([]region.RegionContext, error) {
 	fake.getRegionContextsMutex.Lock()
 	ret, specificReturn := fake.getRegionContextsReturnsOnCall[len(fake.getRegionContextsArgsForCall)]
@@ -3747,6 +3824,8 @@ func (fake *Client) Invocations() map[string][][]interface{} {
 	defer fake.getPacificClusterObjectMutex.RUnlock()
 	fake.getPacificMachineDeploymentsMutex.RLock()
 	defer fake.getPacificMachineDeploymentsMutex.RUnlock()
+	fake.getPinnipedSupervisorDiscoveryMutex.RLock()
+	defer fake.getPinnipedSupervisorDiscoveryMutex.RUnlock()
 	fake.getRegionContextsMutex.RLock()
 	defer fake.getRegionContextsMutex.RUnlock()
 	fake.getTanzuKubernetesReleasesMutex.RLock()

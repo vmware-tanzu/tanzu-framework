@@ -1,3 +1,5 @@
+// Copyright 2021 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 package client
 
 import (
@@ -14,6 +16,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// GetClusterPinnipedInfoOptions contains options supported by GetPinnipedSupervisorDiscovery
 type GetPinnipedSupervisorDiscoveryOptions struct {
 	// the .well-known/openid-configuration discovery endpoint for a pinniped supervisor
 	Endpoint string
@@ -25,6 +28,7 @@ type PinnipedSupervisorDiscoveryV1Alpha1 struct {
 	PinnipedIdentityProvidersEndpoint string `json:"pinniped_identity_providers_endpoint,omitempty"`
 }
 
+// ClusterPinnipedInfo defines the fields of discovery object returned from the pinniped supervisor .well-known endpoint
 type PinnipedSupervisorDiscoveryInfo struct {
 	Issuer                           string                              `json:"issuer,omitempty"`
 	AuthorizationEndpoint            string                              `json:"authorization_endpoint,omitempty"`
@@ -39,9 +43,9 @@ type PinnipedSupervisorDiscoveryInfo struct {
 	DiscoveryV1Aplha1                PinnipedSupervisorDiscoveryV1Alpha1 `json:"discovery.supervisor.pinniped.dev/v1alpha1,omitempty"`
 }
 
-// There is only one supervisor on the mgmt cluster, unlike GetClusterPinnipedInfo() which may look for the
-// configmap on either a mgmt cluster or a workload cluster.  In this case we are always looking to the mgmt
-// cluster to get the resource we need.
+// GetPinnipedSupervisorDiscovery() gets the discovery information from the pinniped supervisor .well-known endpoint.
+// The pinniped supervisor always is always on a supervisor/management style cluster, never on a workload cluster,
+// unlike the GetClusterPinnipedInfo() func which may look for the info file on the workload cluster.
 func (c *TkgClient) GetPinnipedSupervisorDiscovery(options GetPinnipedSupervisorDiscoveryOptions) (*PinnipedSupervisorDiscoveryInfo, error) {
 
 	fmt.Println("tkgClient.GetPinnipedSupervisorDiscovery()")
@@ -58,7 +62,7 @@ func (c *TkgClient) GetPinnipedSupervisorDiscovery(options GetPinnipedSupervisor
 	// check to see if the caBundle is usable, if the user custom configured anything, etc.
 	// basically, if we have a value we have to try to use it
 	if caBundle != "" {
-		// TODO(BEN): should this be done in the pinniped-info function?  to the value that it returns, rather than returning a string to
+		// TODO(BEN): should this be done in the pinniped-info function? Ought it decode before returning so we don't do this here?
 		decoded, err := base64.StdEncoding.DecodeString(caBundle)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
