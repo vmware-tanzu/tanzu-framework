@@ -62,6 +62,8 @@ spec:
       transportInterfaceCIDRs: []
       multicastInterfaces: []
       tunnelType: geneve
+      tunnelPort: 0
+      tunnelCsum: false
       trafficEncryptionMode: none
       wireGuard:
         port: 51820
@@ -91,3 +93,4 @@ spec:
         Multicluster: false
         SecondaryNetwork: false
         TrafficControl: false
+        TopologyAwareHints: false

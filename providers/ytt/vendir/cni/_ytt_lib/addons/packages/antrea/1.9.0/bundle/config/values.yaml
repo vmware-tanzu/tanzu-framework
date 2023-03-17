@@ -33,6 +33,8 @@ antrea:
     transportInterface: null
     transportInterfaceCIDRs: []
     tunnelType: geneve
+    tunnelPort: 0
+    tunnelCsum: false
     trafficEncryptionMode: none
     wireGuard:
       port: 51820
@@ -70,3 +72,4 @@ antrea:
       Multicluster: false
       SecondaryNetwork: false
       TrafficControl: false
+      TopologyAwareHints: false
