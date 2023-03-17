@@ -21,6 +21,10 @@ spec:
       labels:
         app: tanzu-ako-operator
     spec:
+      securityContext:
+         runAsNonRoot: true
+         seccompProfile:
+           type: RuntimeDefault
       containers:
         - args:
             - --metrics-addr=:8080

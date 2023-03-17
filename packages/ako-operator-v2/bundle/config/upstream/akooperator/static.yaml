@@ -423,6 +423,12 @@ spec:
                       which are not backward compatible with the advancedL4 APIs which
                       uses a fork and a version of v1alpha1pre1 default value is false'
                     type: boolean
+                  useDefaultSecretsOnly:
+                    description: If this flag is set to true, AKO will only handle
+                      default secrets from the namespace where AKO is installed This
+                      flag is applicable only to Openshift clusters default value
+                      is false
+                    type: boolean
                   vipPerNamespace:
                     description: Enabling this flag would tell AKO to create Parent
                       VS per Namespace in EVH mode default value is false
@@ -682,21 +688,14 @@ rules:
   resources:
   - clusterbootstraps
   - clusterbootstraps/status
-  verbs:
-  - get
-  - list
-  - watch
-  - patch
-  - update
-- apiGroups:
-  - run.tanzu.vmware.com
-  resources:
   - tanzukubernetesreleases
   - tanzukubernetesreleases/status
   verbs:
   - get
   - list
   - watch
+  - patch
+  - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
