@@ -33,6 +33,9 @@ type expiry struct {
 	IDTokens       string `yaml:"idTokens,omitempty"`
 	AuthRequests   string `yaml:"authRequests,omitempty"`
 	DeviceRequests string `yaml:"deviceRequests,omitempty"`
+	// https://dexidp.io/docs/id-tokens/#expiration-and-rotation-settings
+	// Leave this as map[string]any because the contents do not need to be read
+	RefreshTokens map[string]any `yaml:"refreshTokens,omitempty"`
 }
 
 type logger struct {
