@@ -3,6 +3,14 @@
 
 package auth
 
+// A large portion of this file must stay in sync with the functions of the same name found in:
+// <tanzu-framework>/cli/core/pkg/auth/tkg/kube_config.go
+// Tanzu CLI core and Tanzu CLI plugins are being bifurcated, thus there are two copies of this code.
+// Ideally they will be merged again into a single library file that can be used in either
+// context without requiring significant dependency bloat.
+// One option is for this code to live with the /pinniped-components when they are extracted,
+// but in a separate directory as a separate module.
+
 import (
 	"encoding/base64"
 	"fmt"
@@ -11,6 +19,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/discovery"
 	clientauthenticationv1beta1 "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
@@ -79,8 +88,14 @@ func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	suportsGroups := contains(scopes, "groups")
 	supportsUsername := contains(scopes, "username")
 	if suportsGroups && supportsUsername {
+		// log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
+		log.Info("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
+		fmt.Printf("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
 		return PinnipedOIDCScopes0220
 	}
+	// log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
+	log.Info("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
+	fmt.Printf("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
 	return PinnipedOIDCScopes0120
 }
 
@@ -143,6 +158,8 @@ func GetPinnipedKubeconfig(
 		Args:       []string{},
 		Env:        []clientcmdapi.ExecEnvVar{},
 	}
+
+	log.Info("GetPinnipedKubeconfig() tkg/auth/kube_config.go")
 
 	execConfig.Command = "tanzu"
 	execConfig.Args = append([]string{"pinniped-auth", "login"}, execConfig.Args...)

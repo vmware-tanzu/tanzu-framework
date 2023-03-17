@@ -223,6 +223,7 @@ func getPromptOpts() []component.PromptOpt {
 }
 
 func createNewServer() (server *configapi.Server, err error) {
+	fmt.Printf("🦄 createNewServer()\n")
 	// user provided command line options to create a server using kubeconfig[optional] and context
 	if kubecontext != "" {
 		return createServerWithKubeconfig()
@@ -256,6 +257,7 @@ func createNewServer() (server *configapi.Server, err error) {
 }
 
 func createServerWithKubeconfig() (server *configapi.Server, err error) {
+	fmt.Printf("🦄 createServerWithKubeconfig()\n")
 	promptOpts := getPromptOpts()
 	if kubeConfig == "" && kubecontext == "" {
 		err = component.Prompt(
@@ -323,6 +325,7 @@ func createServerWithKubeconfig() (server *configapi.Server, err error) {
 }
 
 func createServerWithEndpoint() (server *configapi.Server, err error) {
+	fmt.Printf("🦄 createServerWithEndpoint()\n")
 	promptOpts := getPromptOpts()
 	if endpoint == "" {
 		err = component.Prompt(
@@ -358,13 +361,16 @@ func createServerWithEndpoint() (server *configapi.Server, err error) {
 		err = fmt.Errorf("server %q already exists", name)
 		return
 	}
+	fmt.Printf("🦄 createServerWithEndpoint() endpoint: %v name: %v nameExists: %v\n", endpoint, name, nameExists)
 	if isGlobalServer(endpoint) {
+		fmt.Printf("🦄 createServerWithEndpoint() isGlobalServer(true)\n")
 		server = &configapi.Server{
 			Name:       name,
 			Type:       configapi.GlobalServerType,
 			GlobalOpts: &configapi.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
 		}
 	} else {
+		fmt.Printf("🦄 createServerWithEndpoint() isGlobalServer(false)")
 		// While this would add an extra HTTP round trip, it avoids the need to
 		// add extra provider specific login flags.
 		isVSphereSupervisor, err := wcpauth.IsVSphereSupervisor(endpoint, getDiscoveryHTTPClient())
@@ -375,13 +381,14 @@ func createServerWithEndpoint() (server *configapi.Server, err error) {
 		}
 		if isVSphereSupervisor {
 			log.Info("Detected a vSphere Supervisor being used")
-			// TODO (BEN): does this still call KubeconfigWithPinnipedAuthLoginPlugin()
+			fmt.Printf("🦄 createServerWithEndpoint() Detected a vSphere Supervisor being used\n")
 			kubeConfig, kubecontext, err = vSphereSupervisorLogin(endpoint)
 			if err != nil {
 				log.Fatalf("Error logging in to vSphere Supervisor: %v", err)
 				return nil, err
 			}
 		} else {
+			fmt.Printf("🦄 createServerWithEndpoint() OTHER mgmt cluster....\n")
 			// TODO (BEN): ensure this code path continues to work as well, once we update to
 			// conditionally request scopes from the supervisor
 			// cli/core/pkg/auth/tkg/kube_config.go is the reference to this version of the func,
@@ -402,6 +409,7 @@ func createServerWithEndpoint() (server *configapi.Server, err error) {
 				Endpoint: endpoint},
 		}
 	}
+	fmt.Printf("🦄 createServerWithEndpoint() %+v\\n", server)
 	return server, err
 }
 

@@ -3,6 +3,14 @@
 
 package tkgauth
 
+// A large portion of this file must stay in sync with the functions of the same name found in:
+// <tanzu-framework>/tkg/auth/kube_config.go
+// Tanzu CLI core and Tanzu CLI plugins are being bifurcated, thus there are two copies of this code.
+// Ideally they will be merged again into a single library file that can be used in either
+// context without requiring significant dependency bloat.
+// One option is for this code to live with the /pinniped-components when they are extracted,
+// but in a separate directory as a separate module.
+
 import (
 	"encoding/base64"
 	"encoding/json"
@@ -81,10 +89,14 @@ func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	suportsGroups := contains(scopes, "groups")
 	supportsUsername := contains(scopes, "username")
 	if suportsGroups && supportsUsername {
-		log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
+		// log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
+		log.Info("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
+		fmt.Printf("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
 		return PinnipedOIDCScopes0220
 	}
-	log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
+	// log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
+	log.Info("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
+	fmt.Printf("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
 	return PinnipedOIDCScopes0120
 }
 
@@ -96,6 +108,7 @@ func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 //
 // KubeconfigWithPinnipedAuthLoginPlugin prepares the kubeconfig with tanzu pinniped-auth login as client-go exec plugin
 func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions, discoveryStrategy DiscoveryStrategy) (mergeFilePath, currentContext string, err error) {
+	log.Info("KubeconfigWithPinnipedAuthLoginPlugin() cli/core/pkg/auth/tkg/kube_config.go")
 	clusterInfo, err := GetClusterInfoFromCluster(endpoint, discoveryStrategy.ClusterInfoConfigMap)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get cluster-info")
