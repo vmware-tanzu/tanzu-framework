@@ -402,7 +402,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				}
 				Expect(serviceAccount.Spec.Ref.Name).To(Equal(vsphereClusterName))
 				Expect(serviceAccount.Spec.Ref.Namespace).To(Equal(configKey.Namespace))
-				Expect(serviceAccount.Spec.Rules).To(HaveLen(6))
+				Expect(serviceAccount.Spec.Rules).To(HaveLen(7))
 				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-csi"))
 				Expect(serviceAccount.Spec.TargetSecretName).To(Equal("pvcsi-provider-creds"))
 				return nil
@@ -421,7 +421,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				Expect(clusterRole.Labels).To(Equal(map[string]string{
 					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
 				}))
-				Expect(clusterRole.Rules).To(HaveLen(6))
+				Expect(clusterRole.Rules).To(HaveLen(7))
 				return nil
 			}, waitTimeout, pollingInterval).Should(Succeed())
 		})
