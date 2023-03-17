@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/uuid"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -22,6 +23,7 @@ import (
 	packagev1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/webhooks"
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -789,4 +791,120 @@ var _ = Describe("Unmanaged CNI:", func() {
 			})
 		})
 	})
+})
+
+var _ = Describe("Clusterbootstrap", func() {
+	var (
+		clusterBootstrapTemplate  *runv1alpha3.ClusterBootstrapTemplate
+		tanzuKubernetesRelease    *runv1alpha3.TanzuKubernetesRelease
+		clusterBootstrapName      = "fake-clusterbootstrap"
+		clusterBootstrapNamespace = "default"
+	)
+	BeforeEach(func() {
+		// Prepare the Carvel packages
+		createCarvelPackages(ctx, k8sClient)
+		// Prepare the ClusterBootstrapTemplate
+		clusterBootstrapTemplate = constructClusterBootstrapTemplate()
+		err := k8sClient.Create(ctx, clusterBootstrapTemplate)
+		if err != nil && !apierrors.IsAlreadyExists(err) {
+			Expect(err).NotTo(HaveOccurred())
+		}
+		// Prepare the TanzuKubernetesRelease
+		tanzuKubernetesRelease = constructFakeTanzuKubernetesRelease()
+		err = k8sClient.Create(ctx, tanzuKubernetesRelease)
+		if err != nil && !apierrors.IsAlreadyExists(err) {
+			Expect(err).NotTo(HaveOccurred())
+		}
+	})
+	AfterEach(func() {
+		// Delete Carvel packages
+		deleteCarvelPackages(ctx, k8sClient)
+
+		// Delete the ClusterBootstrapTemplate
+		clusterBootstrapTemplate = constructClusterBootstrapTemplate()
+		err := k8sClient.Delete(ctx, clusterBootstrapTemplate)
+		Expect(err).NotTo(HaveOccurred())
+
+		// Delete the TanzuKubernetesRelease
+		tanzuKubernetesRelease = constructFakeTanzuKubernetesRelease()
+		err = k8sClient.Delete(ctx, tanzuKubernetesRelease)
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	Context("Create Validation", func() {
+		AfterEach(func() {
+			_ = k8sClient.Delete(ctx, &runv1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      clusterBootstrapName,
+					Namespace: clusterBootstrapNamespace,
+				},
+			})
+		})
+		It("should not deny create request when some APIServices have no endpoint running", func() {
+			// Create an external APIService which has no endpoints running
+			var port int32 = 443
+			customAPIService := &apiregistrationv1.APIService{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "v1beta1.custom.k8s.io",
+				},
+				Spec: apiregistrationv1.APIServiceSpec{
+					Group:                 "custom.k8s.io",
+					GroupPriorityMinimum:  100,
+					InsecureSkipTLSVerify: true,
+					Service: &apiregistrationv1.ServiceReference{
+						Name:      "custom-server",
+						Namespace: "kube-system",
+						Port:      &port,
+					},
+					Version:         "v1beta1",
+					VersionPriority: 100,
+				},
+			}
+			err := k8sClient.Create(ctx, customAPIService)
+			Expect(err).NotTo(HaveOccurred())
+			// Create a VSphereCSIConfig
+			vSphereCSIConfigName := "fake-csiconfig"
+			vSphereCSIConfig := &csiv1alpha1.VSphereCSIConfig{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      vSphereCSIConfigName,
+					Namespace: clusterBootstrapNamespace,
+				},
+				Spec: csiv1alpha1.VSphereCSIConfigSpec{
+					VSphereCSI: csiv1alpha1.VSphereCSI{
+						Mode: "vsphereParavirtualCSI",
+					},
+				},
+			}
+			err = k8sClient.Create(ctx, vSphereCSIConfig)
+			Expect(err).NotTo(HaveOccurred())
+			// Create a ClusterBootstrap with empty spec
+			clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      clusterBootstrapName,
+					Namespace: clusterBootstrapNamespace,
+					Annotations: map[string]string{
+						constants.AddCBMissingFieldsAnnotationKey: tkrName,
+					},
+				},
+				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+					CSI: &runv1alpha3.ClusterBootstrapPackage{
+						RefName: fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion),
+						ValuesFrom: &runv1alpha3.ValuesFrom{
+							ProviderRef: &corev1.TypedLocalObjectReference{
+								Name:     vSphereCSIConfigName,
+								APIGroup: &csiv1alpha1.GroupVersion.Group,
+								Kind:     "VSphereCSIConfig",
+							},
+						},
+					},
+				},
+			}
+			err = k8sClient.Create(ctx, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+
+			err = k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
 })
