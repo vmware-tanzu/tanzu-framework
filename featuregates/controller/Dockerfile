@@ -20,6 +20,7 @@ COPY featuregates/client featuregates/client
 COPY apis/ apis/
 COPY cli/runtime cli/runtime
 COPY capabilities/client capabilities/client
+COPY util/go.mod util/go.mod
 
 WORKDIR featuregates/controller
 # Setting default GOPROXY to https://proxy.golang.org,direct and GOSUMDB to sum.golang.org which can be override by Makefile
