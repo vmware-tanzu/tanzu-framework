@@ -13,7 +13,7 @@ import (
 
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
-	betav1 "k8s.io/api/batch/v1beta1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/util/version"
@@ -702,7 +702,7 @@ func (c *TkgClient) upgradeTelemetryImageIfExists(regionalClusterClient clusterc
 	}
 
 	if CEIPJobExists {
-		telemetryJob := &betav1.CronJob{}
+		telemetryJob := &batchv1.CronJob{}
 		err := regionalClusterClient.GetResource(telemetryJob, "tkg-telemetry", "tkg-system-telemetry", nil, nil)
 		if err != nil {
 			return errors.Wrap(err, "Failed to determine if telemetry job is installed or not")

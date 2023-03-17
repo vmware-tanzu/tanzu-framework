@@ -29,7 +29,7 @@ const (
 
 	CronJobKind    = "CronJob"
 	CeipNamespace  = "tkg-system-telemetry"
-	CeipAPIVersion = "batch/v1beta1"
+	CeipAPIVersion = "batch/v1"
 	CeipJobName    = "tkg-telemetry"
 
 	AntreaDeploymentName      = "antrea-controller"
