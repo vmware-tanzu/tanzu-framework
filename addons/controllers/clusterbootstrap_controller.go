@@ -577,7 +577,16 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 
 		// Find the one to one match for additional package in new ClusterBootstrapTemplate and old ClusterBootstrap and update
 		if pkg, ok := additionalPackageMap[packageRefName]; ok {
+			oldCBTPkg := r.getPackageFromCBTInResolvedTKR(pkg.RefName, cluster, updatedClusterBootstrap, log)
 			pkg.RefName = templatePkg.RefName
+
+			if pkg.ValuesFrom == nil {
+				pkg.ValuesFrom = templatePkg.ValuesFrom.DeepCopy()
+			} else if pkg.ValuesFrom.ProviderRef == nil && pkg.ValuesFrom.SecretRef == "" &&
+				(oldCBTPkg == nil || oldCBTPkg.ValuesFrom.Inline == nil) {
+				pkg.ValuesFrom.Inline = templatePkg.ValuesFrom.Inline
+			}
+
 		} else {
 			// If new additional package is added in ClusterBootstrapTemplate, just add it to updated ClusterBootstrap
 			newPkg := templatePkg.DeepCopy()
@@ -602,6 +611,34 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 	}
 
 	return packages, nil
+}
+
+func (r *ClusterBootstrapReconciler) getPackageFromCBTInResolvedTKR(
+	packageRefName string,
+	cluster *clusterapiv1beta1.Cluster,
+	updatedClusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
+	log logr.Logger) *runtanzuv1alpha3.ClusterBootstrapPackage {
+
+	clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
+	key := client.ObjectKey{Namespace: r.Config.SystemNamespace, Name: updatedClusterBootstrap.Status.ResolvedTKR}
+	if err := r.Client.Get(r.context, key, clusterBootstrapTemplate); err != nil {
+		log.Error(err, "unable to fetch ClusterBootstrapTemplate", "objectkey", key)
+		return nil
+	}
+	for _, pkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
+		// use the refName in package CR, since the package CR hasn't been cloned at this point, use SystemNamespace to fetch packageCR
+		pkgRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, pkg.RefName, r.Config.SystemNamespace)
+		if err != nil || pkgRefName == "" {
+			errorMsg := fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s", cluster.Namespace, pkg.RefName)
+			r.Log.Error(err, errorMsg)
+			return nil
+		}
+		if packageRefName == pkgRefName {
+			return pkg
+		}
+	}
+
+	return nil
 }
 
 // createOrPatchKappPackageInstall contains the logic that create/update PackageInstall CR for kapp-controller on
