@@ -630,14 +630,7 @@ func (r *ClusterBootstrapReconciler) getPackageFromCBTInResolvedTKR(
 		return nil, err
 	}
 	for _, pkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
-		// use the refName in package CR, since the package CR hasn't been cloned at this point, use SystemNamespace to fetch packageCR
-		pkgRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, pkg.RefName, r.Config.SystemNamespace)
-		if err != nil || pkgRefName == "" {
-			errorMsg := fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s", cluster.Namespace, pkg.RefName)
-			r.Log.Error(err, errorMsg)
-			return nil, err
-		}
-		if packageRefName == pkgRefName {
+		if packageRefName == pkg.RefName {
 			return pkg, nil
 		}
 	}
