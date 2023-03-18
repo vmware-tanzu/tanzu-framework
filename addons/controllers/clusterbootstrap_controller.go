@@ -48,6 +48,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util/clusterbootstrapclone"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -577,14 +578,17 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 
 		// Find the one to one match for additional package in new ClusterBootstrapTemplate and old ClusterBootstrap and update
 		if pkg, ok := additionalPackageMap[packageRefName]; ok {
-			oldCBTPkg := r.getPackageFromCBTInResolvedTKR(pkg.RefName, cluster, updatedClusterBootstrap, log)
+			oldCBTPkg, err := r.getPackageFromCBTInResolvedTKR(pkg.RefName, cluster, updatedClusterBootstrap, log)
+			if err != nil {
+				return nil, err
+			}
 			pkg.RefName = templatePkg.RefName
 
-			if pkg.ValuesFrom == nil {
-				pkg.ValuesFrom = templatePkg.ValuesFrom.DeepCopy()
-			} else if pkg.ValuesFrom.ProviderRef == nil && pkg.ValuesFrom.SecretRef == "" &&
-				(oldCBTPkg == nil || oldCBTPkg.ValuesFrom.Inline == nil) {
-				pkg.ValuesFrom.Inline = templatePkg.ValuesFrom.Inline
+			if isCBPackageValuesFromNil(pkg) && oldCBTPkg != nil && isCBPackageValuesFromNil(oldCBTPkg) {
+				if templatePkg.ValuesFrom != nil {
+					pkg.ValuesFrom = templatePkg.ValuesFrom.DeepCopy()
+					packages = append(packages, pkg)
+				}
 			}
 
 		} else {
@@ -617,13 +621,13 @@ func (r *ClusterBootstrapReconciler) getPackageFromCBTInResolvedTKR(
 	packageRefName string,
 	cluster *clusterapiv1beta1.Cluster,
 	updatedClusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
-	log logr.Logger) *runtanzuv1alpha3.ClusterBootstrapPackage {
+	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrapPackage, error) {
 
 	clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
 	key := client.ObjectKey{Namespace: r.Config.SystemNamespace, Name: updatedClusterBootstrap.Status.ResolvedTKR}
 	if err := r.Client.Get(r.context, key, clusterBootstrapTemplate); err != nil {
 		log.Error(err, "unable to fetch ClusterBootstrapTemplate", "objectkey", key)
-		return nil
+		return nil, err
 	}
 	for _, pkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
 		// use the refName in package CR, since the package CR hasn't been cloned at this point, use SystemNamespace to fetch packageCR
@@ -631,14 +635,19 @@ func (r *ClusterBootstrapReconciler) getPackageFromCBTInResolvedTKR(
 		if err != nil || pkgRefName == "" {
 			errorMsg := fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s", cluster.Namespace, pkg.RefName)
 			r.Log.Error(err, errorMsg)
-			return nil
+			return nil, err
 		}
 		if packageRefName == pkgRefName {
-			return pkg
+			return pkg, nil
 		}
 	}
 
-	return nil
+	// If the specified package is not found, it is not an error condition. So return error as nil
+	return nil, nil
+}
+
+func isCBPackageValuesFromNil(cbpkg *v1alpha3.ClusterBootstrapPackage) bool {
+	return cbpkg.ValuesFrom == nil || (cbpkg.ValuesFrom.ProviderRef == nil && cbpkg.ValuesFrom.SecretRef == "" && cbpkg.ValuesFrom.Inline == nil)
 }
 
 // createOrPatchKappPackageInstall contains the logic that create/update PackageInstall CR for kapp-controller on
