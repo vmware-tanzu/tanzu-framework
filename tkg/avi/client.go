@@ -25,7 +25,7 @@ const AviSessionTimeout = 60
 const pageSizeMax = "200"
 const aviDefaultTenant = "admin" // Per TKG-5862
 // TODO:(xudongl) avi min support version need to be review and update for each TKG release
-const aviMinSupportVersion = "21.1.3" // 2.1.0 min supported AVI controller version
+const aviMinSupportVersion = "21.1.5" // 2.2.0 min supported AVI controller version
 
 type client struct {
 	ControllerParams   *avi_models.AviControllerParams
