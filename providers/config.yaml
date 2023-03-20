@@ -30,5 +30,5 @@ providers:
   url: providers/infrastructure-ipam-in-cluster/v0.1.0/ipam-components.yaml
   type: InfrastructureProvider
 cert-manager:
-  url: providers/cert-manager/v1.9.1/cert-manager.yaml
-  version: "v1.9.1"
+  url: providers/cert-manager/v1.10.2/cert-manager.yaml
+  version: "v1.10.2"
