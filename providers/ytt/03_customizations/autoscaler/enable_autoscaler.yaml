@@ -38,7 +38,7 @@
 #@   args.append("--v=4")
 #@   args.append("--clusterapi-cloud-config-authoritative")
 #@   args.append("--kubeconfig=" + autoscaler_kubeconfig_mount_path() + "/value")
-#@   args.append("--node-group-auto-discovery=clusterapi:clusterName=" + data.values.CLUSTER_NAME)
+#@   args.append("--node-group-auto-discovery=clusterapi:clusterName=" + data.values.CLUSTER_NAME + ",namespace=" +data.values.NAMESPACE)
 #@   args.append("--scale-down-delay-after-add=" + data.values.AUTOSCALER_SCALE_DOWN_DELAY_AFTER_ADD)
 #@   args.append("--scale-down-delay-after-delete=" + data.values.AUTOSCALER_SCALE_DOWN_DELAY_AFTER_DELETE)
 #@   args.append("--scale-down-delay-after-failure=" + data.values.AUTOSCALER_SCALE_DOWN_DELAY_AFTER_FAILURE)
@@ -234,5 +234,12 @@ rules:
   verbs:
   - get
   - update
+- apiGroups:
+  - infrastructure.cluster.x-k8s.io
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
 
 #@ end
