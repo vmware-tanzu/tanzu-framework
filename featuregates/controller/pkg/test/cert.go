@@ -1,8 +1,8 @@
 // Copyright 2023 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// Package cert has helper functions for creating self-signed certificates for unit testing
-package cert
+// Package test has helper functions for featuregates unit tests
+package test
 
 import (
 	"bytes"

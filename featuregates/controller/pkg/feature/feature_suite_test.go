@@ -32,8 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	"github.com/vmware-tanzu/tanzu-framework/util/cert"
-	"github.com/vmware-tanzu/tanzu-framework/util/kube"
+	testutil "github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/test"
 )
 
 func TestFeaturegate(t *testing.T) {
@@ -57,7 +56,7 @@ var (
 )
 
 func generateCertificateAndManifests() error {
-	key, cert, err := cert.GenerateSelfSignedCertsForTest("tanzu-featuregates-webhook-service.tkg-system.svc")
+	key, cert, err := testutil.GenerateSelfSignedCertsForTest("tanzu-featuregates-webhook-service.tkg-system.svc")
 	if err != nil {
 		return err
 	}
@@ -157,7 +156,7 @@ var _ = BeforeSuite(func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to run manager")
 	}()
 
-	err = kube.CreateResourcesFromManifest(generatedWebhookManifestBytes, cfg, dynamicClient)
+	err = testutil.CreateResourcesFromManifest(generatedWebhookManifestBytes, cfg, dynamicClient)
 	Expect(err).ToNot(HaveOccurred())
 })
 

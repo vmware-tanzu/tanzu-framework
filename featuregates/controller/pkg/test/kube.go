@@ -1,8 +1,7 @@
 // Copyright 2023 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// Package kube has utility functions for interacting with kubernetes cluster using client-go library
-package kube
+package test
 
 import (
 	"bytes"
