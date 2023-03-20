@@ -63,16 +63,9 @@ tools: $(TOOLING_BINARIES) ## Build tooling binaries
 $(TOOLING_BINARIES):
 	make -C $(TOOLS_DIR) $(@F)
 
-
-
 ## --------------------------------------
 ##@ Generate files
 ## --------------------------------------
-
-# .PHONY: generate-fakes
-# generate-fakes: ## Generate fakes for writing unit tests
-#	$(GO) generate ./...
-#	$(MAKE) fmt
 
 COUNTERFEITER := $(TOOLS_BIN_DIR)/counterfeiter
 $(COUNTERFEITER): $(TOOLS_BIN_DIR)
