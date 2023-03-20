@@ -14,7 +14,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 )
 
-// This is important to understand.
 // TKGClient implements TKG client
 type TKGClient interface {
 	// AddRegion adds region

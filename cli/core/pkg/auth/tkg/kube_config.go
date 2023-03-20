@@ -30,7 +30,6 @@ import (
 	kubeutils "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/utils/kubeconfig"
 )
 
-// TODO (BEN): This is one of two places where we need to swap scope requests
 const (
 	// ConciergeNamespace is the namespace where pinniped concierge is deployed
 	ConciergeNamespace = "pinniped-concierge"
@@ -41,12 +40,6 @@ const (
 	// ConciergeAuthenticatorName is the pinniped concierge authenticator object name
 	ConciergeAuthenticatorName = "tkg-jwt-authenticator"
 
-	// TODO (BEN): why is this file duplicated???
-	//    this is a full duplication of the file from:
-	//    - tkg/auth/kube_config.go
-	//    is there a good reason this was not refactored into a shared directory rather than duplicated?
-	// PinnipedOIDCScopes are the scopes of pinniped oidc
-	// Pinniped Supervisor supports different scopes depending on the version running on cluster
 	PinnipedOIDCScopes0120 = "offline_access,openid,pinniped:request-audience"
 	PinnipedOIDCScopes0220 = "offline_access,openid,pinniped:request-audience,username,groups"
 
@@ -100,12 +93,6 @@ func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	return PinnipedOIDCScopes0120
 }
 
-// hi.
-// TODO (BEN): gonna have to update this func.
-// This is the "library" version of the func that is also found in /tkg/auth/kube_config.go of the same name.
-// - I may delete the other copy, it has no callers
-// - But I may have to update this copy, it is called by vSphereSupervisorLogin()
-//
 // KubeconfigWithPinnipedAuthLoginPlugin prepares the kubeconfig with tanzu pinniped-auth login as client-go exec plugin
 func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions, discoveryStrategy DiscoveryStrategy) (mergeFilePath, currentContext string, err error) {
 	log.Info("KubeconfigWithPinnipedAuthLoginPlugin() cli/core/pkg/auth/tkg/kube_config.go")
@@ -137,13 +124,12 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 		return
 	}
 
-	// finally we call GetPinnipedKubeconfig() which is where we generate the kubeconfig file, and what needs
 	config, err := GetPinnipedKubeconfig(
 		clusterInfo,
 		pinnipedInfo,
 		pinnipedInfo.Data.ClusterName,
 		pinnipedInfo.Data.Issuer,
-		supervisorDiscoveryInfo) // TODO (BEN): this was broken as we added this field. So we need to fix the above addition to make it work
+		supervisorDiscoveryInfo)
 	if err != nil {
 		err = errors.Wrap(err, "unable to get the kubeconfig")
 		return

@@ -12,9 +12,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command"
 )
 
-// hi, I'm the tanzu cli.
-// this is the main entrypoint for the cli and thus must be built in order
-// to see if the built-in commands build.
 func main() {
 	if err := command.Execute(); err != nil {
 		if errStr, ok := err.(*exec.ExitError); ok {

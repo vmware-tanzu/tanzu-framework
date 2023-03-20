@@ -1617,9 +1617,6 @@ func (c *client) GetSecretValue(secretName, key, namespace string, pollOptions *
 	return data, nil
 }
 
-// one impl of the function to generate a kubeconfig for a cluster
-// all other instances are in the fakes package.
-// however,this is getting a kubeconfig already on disk this is not generating a new kubeconfig.
 func (c *client) GetKubeConfigForCluster(clusterName, namespace string, pollOptions *PollOptions) ([]byte, error) {
 	log.V(4).Info("getting secret for cluster")
 	clusterSecretName := fmt.Sprintf("%s-%s", clusterName, kubeConfigSecretSuffix)

@@ -198,7 +198,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 			})
 			It("should generate the kubeconfig and merge the kubeconfig to given path", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(kubeConfigPath).Should(Equal(kubeconfigMergeFilePath))
+				Expect(kubeConfigPath).Should(Equal(kubeconfigMergeFilePath)) // THIS??? WHAT IS UP WITH THIS???
 				Expect(len(kubeContext)).Should(Not(Equal(0)))
 				config, err := clientcmd.LoadFromFile(kubeConfigPath)
 				Expect(err).ToNot(HaveOccurred())
@@ -283,6 +283,7 @@ func getExpectedExecConfig(endpoint string, issuer string, issuerCA string, conc
 func createTempDirectory(prefix string) error {
 	var err error
 	testingDir, err = os.MkdirTemp("", prefix)
+	// fmt.Printf("🦄 🦄 THE DIRECTORY CREATED IS (%v): %v\n", prefix, testingDir)
 	if err != nil {
 		fmt.Println("Error TempDir: ", err.Error())
 		return err

@@ -27,11 +27,6 @@ type getClusterKubeconfigOptions struct {
 
 var getKCOptions = &getClusterKubeconfigOptions{}
 
-// TODO (BEN): ensure mgmg cluster code path works
-// mgmt.1
-// the command to add to generate the kubeconfig for the mgmt cluster
-// this will delegate to getKubecofig, which will call the function
-// chain below.
 var getClusterKubeconfigCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get Kubeconfig of a management cluster",
@@ -53,8 +48,6 @@ func init() {
 	clusterKubeconfigCmd.AddCommand(getClusterKubeconfigCmd)
 }
 
-// mgmt.2
-// the entrypoint defined by getClusterKubeconfigCmd (a Cobra cmd)
 func getKubeconfig(cmd *cobra.Command, args []string) error {
 	server, err := config.GetCurrentServer()
 	if err != nil {
@@ -67,7 +60,6 @@ func getKubeconfig(cmd *cobra.Command, args []string) error {
 	return getClusterKubeconfig(server)
 }
 
-// mgmt.3
 func getClusterKubeconfig(server *configapi.Server) error {
 	forceUpdateTKGCompatibilityImage := false
 	tkgctlClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
@@ -82,11 +74,8 @@ func getClusterKubeconfig(server *configapi.Server) error {
 	}
 
 	if getKCOptions.adminKubeconfig {
-		// this is the non-pinniped path
 		return getAdminKubeconfig(tkgctlClient, mcClustername)
 	}
-	// generate the cluster specific kubeconfig file.
-	// mgmt.4
 	return getPinnipedKubeconfig(tkgctlClient, mcClustername)
 }
 
@@ -99,8 +88,6 @@ func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) err
 	return tkgctlClient.GetCredentials(getClusterCredentialsOptions)
 }
 
-// mgmt.5
-// this function delegates to the tkgauth.GetPinnipedKubeconfig() to generate the kubeconfig file itself.
 func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) error {
 	getClusterPinnipedInfoOptions := tkgctl.GetClusterPinnipedInfoOptions{
 		ClusterName:         mcClustername,
@@ -125,14 +112,11 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) 
 		return err
 	}
 
-	// TODO(BEN): remove this, we don't need it once done
+	// TODO(BEN): remove this, we don't need it once done with manual testing
 	//   alternatively do log.Debug() instead
 	fmt.Printf("🦄 (mgmt) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
 	log.Infof("🦄 (mgmt) this is the response from the well-known endpoint: \n%+v\n", supervisorDiscoveryInfo)
 
-	// mgmt.6->
-	// this seems a pretty reasonable entrypoint to pursue, however is it
-	// "getting" an existing kubeconfig, or is it generating a new kubeconfig?
 	kubeconfig, _ := tkgauth.GetPinnipedKubeconfig(
 		clusterPinnipedInfo.ClusterInfo,
 		clusterPinnipedInfo.PinnipedInfo,

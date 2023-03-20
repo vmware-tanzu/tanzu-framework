@@ -43,7 +43,6 @@ const (
 	// Pinniped Supervisor supports different scopes depending on the version running on cluster
 	PinnipedOIDCScopes0120 = "offline_access,openid,pinniped:request-audience"
 	PinnipedOIDCScopes0220 = "offline_access,openid,pinniped:request-audience,username,groups"
-	// make a second that contians the new additional scopes so we can conditionally swap to one or the other below.
 
 	// TanzuLocalKubeDir is the local config directory
 	TanzuLocalKubeDir = ".kube-tanzu"
@@ -71,10 +70,6 @@ type DiscoveryStrategy struct {
 	ClusterInfoConfigMap string
 }
 
-// KubeconfigWithPinnipedAuthLoginPlugin looks for the existence groups,sername scopes in the provided set of scopes
-// if both exist, will return a string containing these scopes.
-// should be used for generating a kubeconfig that requests the scopes that are supported by the pinniped supervisor
-// installed on the cluster.
 func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	contains := func(s []string, str string) bool {
 		for _, v := range s {
@@ -88,22 +83,18 @@ func findPinnipedSupervisorSupportedScopes(scopes []string) string {
 	suportsGroups := contains(scopes, "groups")
 	supportsUsername := contains(scopes, "username")
 	if suportsGroups && supportsUsername {
+		// TODO (BEN): set this back to debug log only once done with manual testing
 		// log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
 		log.Info("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
 		fmt.Printf("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0220)
 		return PinnipedOIDCScopes0220
 	}
+	// TODO (BEN): set this back to debug log only once done with manual testing
 	// log.Debug("pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
 	log.Info("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
 	fmt.Printf("🦄 pinniped supervisor currently supports the following scopes: %+v", PinnipedOIDCScopes0120)
 	return PinnipedOIDCScopes0120
 }
-
-// NOTE (BEN): deleted this func.
-// func KubeconfigWithPinnipedAuthLoginPlugin
-// - it was duplicated into:
-//   - `cli/core/pkg/auth/tkg/kube_config.go`
-// - this copy has no calling code outside of tests.
 
 // GetServerKubernetesVersion uses the kubeconfig to get the server k8s version.
 func GetServerKubernetesVersion(kubeconfigPath, context string) (string, error) {
@@ -145,8 +136,6 @@ func loadKubeconfigAndEnsureContext(kubeConfigPath, context string) ([]byte, err
 	return clientcmd.Write(*config)
 }
 
-// work.7 final kubeconfig generated.
-// mgmt.6 final kubeconfig generated.
 func GetPinnipedKubeconfig(
 	cluster *clientcmdapi.Cluster,
 	pinnipedInfo *tkgutils.PinnipedConfigMapInfo,
@@ -158,8 +147,6 @@ func GetPinnipedKubeconfig(
 		Args:       []string{},
 		Env:        []clientcmdapi.ExecEnvVar{},
 	}
-
-	log.Info("GetPinnipedKubeconfig() tkg/auth/kube_config.go")
 
 	execConfig.Command = "tanzu"
 	execConfig.Args = append([]string{"pinniped-auth", "login"}, execConfig.Args...)

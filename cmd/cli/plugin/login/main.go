@@ -52,10 +52,6 @@ const (
 	knownGlobalHost = "cloud.vmware.com"
 )
 
-// TODO (BEN): ensure login code path works
-//
-//	 this is another plugin like cluster & managementcluster, not "core" like context
-//		however, this login command is deprecated I believe and will be replaced by "context" in the future.***
 func main() {
 	p, err := plugin.NewPlugin(&descriptor)
 	if err != nil {
@@ -223,7 +219,6 @@ func getPromptOpts() []component.PromptOpt {
 }
 
 func createNewServer() (server *configapi.Server, err error) {
-	fmt.Printf("🦄 createNewServer()\n")
 	// user provided command line options to create a server using kubeconfig[optional] and context
 	if kubecontext != "" {
 		return createServerWithKubeconfig()
@@ -257,7 +252,6 @@ func createNewServer() (server *configapi.Server, err error) {
 }
 
 func createServerWithKubeconfig() (server *configapi.Server, err error) {
-	fmt.Printf("🦄 createServerWithKubeconfig()\n")
 	promptOpts := getPromptOpts()
 	if kubeConfig == "" && kubecontext == "" {
 		err = component.Prompt(
@@ -325,7 +319,6 @@ func createServerWithKubeconfig() (server *configapi.Server, err error) {
 }
 
 func createServerWithEndpoint() (server *configapi.Server, err error) {
-	fmt.Printf("🦄 createServerWithEndpoint()\n")
 	promptOpts := getPromptOpts()
 	if endpoint == "" {
 		err = component.Prompt(
@@ -361,7 +354,6 @@ func createServerWithEndpoint() (server *configapi.Server, err error) {
 		err = fmt.Errorf("server %q already exists", name)
 		return
 	}
-	fmt.Printf("🦄 createServerWithEndpoint() endpoint: %v name: %v nameExists: %v\n", endpoint, name, nameExists)
 	if isGlobalServer(endpoint) {
 		fmt.Printf("🦄 createServerWithEndpoint() isGlobalServer(true)\n")
 		server = &configapi.Server{
@@ -370,7 +362,6 @@ func createServerWithEndpoint() (server *configapi.Server, err error) {
 			GlobalOpts: &configapi.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
 		}
 	} else {
-		fmt.Printf("🦄 createServerWithEndpoint() isGlobalServer(false)")
 		// While this would add an extra HTTP round trip, it avoids the need to
 		// add extra provider specific login flags.
 		isVSphereSupervisor, err := wcpauth.IsVSphereSupervisor(endpoint, getDiscoveryHTTPClient())
@@ -381,18 +372,12 @@ func createServerWithEndpoint() (server *configapi.Server, err error) {
 		}
 		if isVSphereSupervisor {
 			log.Info("Detected a vSphere Supervisor being used")
-			fmt.Printf("🦄 createServerWithEndpoint() Detected a vSphere Supervisor being used\n")
 			kubeConfig, kubecontext, err = vSphereSupervisorLogin(endpoint)
 			if err != nil {
 				log.Fatalf("Error logging in to vSphere Supervisor: %v", err)
 				return nil, err
 			}
 		} else {
-			fmt.Printf("🦄 createServerWithEndpoint() OTHER mgmt cluster....\n")
-			// TODO (BEN): ensure this code path continues to work as well, once we update to
-			// conditionally request scopes from the supervisor
-			// cli/core/pkg/auth/tkg/kube_config.go is the reference to this version of the func,
-			// so this does share an existing code path
 			kubeConfig, kubecontext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{ClusterInfoConfigMap: tkgauth.DefaultClusterInfoConfigMap})
 			if err != nil {
 				log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
@@ -546,8 +531,6 @@ func getDiscoveryHTTPClient() *http.Client {
 func vSphereSupervisorLogin(endpoint string) (mergeFilePath, currentContext string, err error) {
 	port := 443
 
-	// within this function there is already a call to GetPinnipedInfoFromCluster()
-	// so we should put the call to get SupervisorDiscovery bits in here also.
 	kubeConfig, kubecontext, err := tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{DiscoveryPort: &port, ClusterInfoConfigMap: wcpauth.SupervisorVIPConfigMapName})
 	if err != nil {
 		log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
