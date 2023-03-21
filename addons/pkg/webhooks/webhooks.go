@@ -32,14 +32,19 @@ type WebhookTLS struct {
 }
 
 const (
-	oneWeek = time.Hour * 24 * 7
-	oneDay  = time.Hour * 24
+	oneWeek               = time.Hour * 24 * 7
+	oneDay                = time.Hour * 24
+	RequireMinGracePeriod = time.Hour * 24
 )
 
 func (w *WebhookTLS) UpdateOrCreate() error {
-	if w.RotationTime > oneWeek {
-		w.Logger.Info("rotation time will be set to maximum allowed value of one Week")
-		w.RotationTime = oneWeek
+	// We need to have enough time (RequireMinGracePeriod) to rotate the certificates before their end of life (one week) to avoid race conditions.
+	// The function we are solving for is  "RotationTime + RequiredMinGracePeriod <= oneWeek && RotationTime > 0"
+	maxAllowedRotationTime := oneWeek - RequireMinGracePeriod // ensures gracePeriod > 0
+
+	if w.RotationTime > maxAllowedRotationTime {
+		w.Logger.Info("rotation time will be set to maximum allowed value of " + maxAllowedRotationTime.String())
+		w.RotationTime = maxAllowedRotationTime
 	}
 	if w.RotationTime <= time.Second*0 {
 		w.Logger.Info("rotation may not be 0 or less than 0, setting rotation to one day")

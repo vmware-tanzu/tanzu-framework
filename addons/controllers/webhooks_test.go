@@ -65,7 +65,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 		})
 	})
 	Context("if rotation time is longer than one week", func() {
-		It("should set rotation to one week", func() {
+		It("should set rotation to one week minus required minimum grace period", func() {
 			rotationTime := oneWeek + oneDay
 			managementFrequency := rotationTime / 2
 			webhookTLS := webhooks.WebhookTLS{
@@ -82,7 +82,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 			}
 			err := webhookTLS.ManageCertificates(managementFrequency)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(webhookTLS.RotationTime).To(Equal(oneWeek))
+			Expect(webhookTLS.RotationTime).To(Equal(oneWeek - webhooks.RequireMinGracePeriod))
 
 		})
 	})
@@ -106,6 +106,27 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(webhookTLS.RotationTime).To(Equal(oneDay))
 
+		})
+	})
+	Context("if rotation times is  less than minGracePeriod", func() {
+		It("should set rotation to match minGracePeriod", func() {
+			rotationTime := oneWeek - webhooks.RequireMinGracePeriod + time.Second*1
+			managementFrequency := oneDay // any value larger than 0 will work here
+			webhookTLS := webhooks.WebhookTLS{
+				Ctx:           context.Background(),
+				K8sConfig:     k8sConfig,
+				CertPath:      certPath,
+				KeyPath:       keyPath,
+				Name:          constants.WebhookScrtName,
+				ServiceName:   webhookServiceName,
+				LabelSelector: constants.AddonWebhookLabelKey,
+				Logger:        setupLog,
+				Namespace:     addonNamespace,
+				RotationTime:  rotationTime,
+			}
+			err := webhookTLS.ManageCertificates(managementFrequency)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(webhookTLS.RotationTime).To(Equal(oneWeek - webhooks.RequireMinGracePeriod))
 		})
 	})
 	Context("if rotation time is one week", func() {
