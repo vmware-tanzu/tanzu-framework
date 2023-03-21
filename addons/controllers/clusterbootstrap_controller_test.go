@@ -1524,6 +1524,118 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			})
 		})
 	})
+
+	When("cluster upgrade with values change", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-10"
+			clusterNamespace = "cluster-namespace-10"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-10.yaml"
+		})
+
+		Context("cluster with no inline values are set", func() {
+			It("should work when no inline values are set", func() {
+
+				By("filling  ClusterBootstrap correctly", func() {
+					Eventually(func(g Gomega) {
+						clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+						err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, clusterBootstrap)
+						g.Expect(err).ShouldNot(HaveOccurred())
+						g.Expect(clusterBootstrap.Spec.CNI.RefName).To(BeEquivalentTo("antrea.tanzu.vmware.com.1.11.7--vmware.1-tkg.2"))
+						g.Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+						g.Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
+						g.Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea-package", clusterName)))
+
+						// Validate Kapp
+						g.Expect(clusterBootstrap.Spec.Kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.32.11"))
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom).NotTo(BeNil())
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller-package", clusterName)))
+
+						// Validate additional packages
+						g.Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(2))
+
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).To(BeEquivalentTo("pinniped.tanzu.vmware.com.0.13.3--vmware.1-tkg.1"))
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom).NotTo(BeNil())
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.SecretRef).To(BeEquivalentTo(fmt.Sprintf("%s-pinniped-package", clusterName)))
+
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[1].RefName).To(BeEquivalentTo("foobar.tanzu.vmware.com.0.2.4--vmware.1-tkg.1"))
+						//g.Expect(clusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom).To(BeNil())
+					}, waitTimeout, pollingInterval).Should(Succeed())
+				})
+
+				By("setting cluster phase to provisioned", func() {
+					cluster := &clusterapiv1beta1.Cluster{}
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+					cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+					Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+				})
+
+				By("upgrading Cluster to newer TKR", func() {
+					cluster := &clusterapiv1beta1.Cluster{}
+					newTKRVersion := "v1.25.6-custom"
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+					cluster.Labels[constants.TKRLabelClassyClusters] = newTKRVersion
+
+					// Mock cluster pause mutating webhook
+					cluster.Spec.Paused = true
+					if cluster.Annotations == nil {
+						cluster.Annotations = map[string]string{}
+					}
+					cluster.Annotations[constants.ClusterPauseLabel] = newTKRVersion
+					Expect(k8sClient.Update(ctx, cluster)).To(Succeed())
+
+					Eventually(func(g Gomega) {
+						upgradedClusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), upgradedClusterBootstrap)
+
+						g.Expect(err).To(BeNil())
+						g.Expect(upgradedClusterBootstrap.Status.ResolvedTKR).To(BeEquivalentTo(newTKRVersion))
+
+						// Validate CNI
+						cni := upgradedClusterBootstrap.Spec.CNI
+						// Note: The value of CNI has been bumped to the one in TKR after cluster upgrade
+						g.Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.11.8--vmware.1-tkg.2"))
+						g.Expect(cni.ValuesFrom).NotTo(BeNil())
+						g.Expect(cni.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+						g.Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
+						g.Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea-package", clusterName)))
+
+						// Validate Kapp
+						kapp := upgradedClusterBootstrap.Spec.Kapp
+						g.Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.32.12"))
+						g.Expect(kapp.ValuesFrom).NotTo(BeNil())
+						g.Expect(kapp.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
+						g.Expect(kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
+						g.Expect(kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller-package", clusterName)))
+
+						// Validate additional packages
+						g.Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(2))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[0].RefName).To(BeEquivalentTo("pinniped.tanzu.vmware.com.0.13.4--vmware.1-tkg.1"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom).NotTo(BeNil())
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.SecretRef).To(BeEquivalentTo(fmt.Sprintf("%s-pinniped-package", clusterName)))
+
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].RefName).To(BeEquivalentTo("foobar.tanzu.vmware.com.0.2.5--vmware.1-tkg.1"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom).NotTo(BeNil())
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.Inline).NotTo(BeNil())
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.Inline["key1"]).To(Equal("value1"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.Inline["key2"].(map[string]interface{})["key3"]).To(Equal("value3"))
+
+						g.Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+						g.Expect(cluster.Spec.Paused).ToNot(BeTrue())
+						if cluster.Annotations != nil {
+							_, ok := cluster.Annotations[constants.ClusterPauseLabel]
+							g.Expect(ok).ToNot(BeTrue())
+						}
+					}, waitTimeout, pollingInterval).Should(Succeed())
+				})
+			})
+		})
+	})
 })
 
 func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {
