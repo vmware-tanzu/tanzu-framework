@@ -982,7 +982,7 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	})
 	Context("When cluster patch fails", func() {
 		BeforeEach(func() {
-			regionalClusterClient.PatchClusterObjectReturns(errors.New("fake-patch-error"))
+			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(errors.New("fake-patch-error"))
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
@@ -991,7 +991,7 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	})
 	Context("When failure happens while waiting for control-plane node upgrade", func() {
 		BeforeEach(func() {
-			regionalClusterClient.PatchClusterObjectReturns(nil)
+			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(errors.New("fake-error-kcp-upgrade"))
 		})
 		It("should return an error", func() {
@@ -1001,7 +1001,7 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	})
 	Context("When failure happens while waiting for worker node upgrade", func() {
 		BeforeEach(func() {
-			regionalClusterClient.PatchClusterObjectReturns(nil)
+			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(errors.New("fake-error-worker-upgrade"))
 		})
@@ -1012,7 +1012,7 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	})
 	Context("When failure happens while applyPatch for autoscaler upgrade", func() {
 		BeforeEach(func() {
-			regionalClusterClient.PatchClusterObjectReturns(nil)
+			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(nil)
 			regionalClusterClient.ApplyPatchForAutoScalerDeploymentReturns(errors.Errorf("autoscaler image not available for kubernetes minor version %s", k8sVersionPrefix))
@@ -1024,7 +1024,7 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	})
 	Context("When cluster patch is successful and cluster get's upgraded successfully", func() {
 		BeforeEach(func() {
-			regionalClusterClient.PatchClusterObjectReturns(nil)
+			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(nil)
 			regionalClusterClient.ApplyPatchForAutoScalerDeploymentReturns(nil)
