@@ -149,6 +149,17 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	}
 	log.Info("Management cluster providers upgraded successfully...")
 
+	// Patch management cluster with the TKG version
+	// The TKG version should be patched before tkr-source-controller(in tkg-pkg) upgrade.
+	// So that tkr-source-controller's initial fetch can download the new tkrs.
+	// This will prevent the circular dependency that:
+	// A. Tanzu CLI updates TKG version after cluster upgraded to the desired tkr.
+	// B. tkr-source-controller downloads the desired tkr for cluster upgrade based on the updated TKG version
+	err = regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, options.Namespace, c.tkgBomClient.GetCurrentTKGVersion())
+	if err != nil {
+		return err
+	}
+
 	// If clusterclass feature flag is enabled then deploy management components
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
 		log.Info("Preparing addons manager for upgrade")
@@ -187,12 +198,6 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	}
 
 	err = c.upgradeTelemetryImageIfExists(regionalClusterClient, currentRegion)
-	if err != nil {
-		return err
-	}
-
-	// Patch management cluster with the TKG version
-	err = regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, options.Namespace, c.tkgBomClient.GetCurrentTKGVersion())
 	if err != nil {
 		return err
 	}
