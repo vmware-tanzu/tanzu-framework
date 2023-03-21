@@ -64,7 +64,7 @@ vsphereCSI:
     tag: #@ csiDriverRegistrarImage.tag
     pullPolicy: "IfNotPresent"
 #@ end
-  namespace: kube-system
+  namespace: vmware-system-csi
   clusterName: #@ data.values.CLUSTER_NAME
   tlsThumbprint: #@ get_vsphere_thumbprint()
   server: #@ data.values.VSPHERE_SERVER
