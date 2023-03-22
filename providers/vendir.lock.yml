@@ -13,7 +13,7 @@ directories:
       commitTitle: Add antrea 1.7.2 package (#5627)...
       sha: 71dd9381be1a4f075a64f404ca262f860e769a68
       tags:
-        - v0.13.0-dev.2-544-g71dd9381
+      - v0.13.0-dev.2-544-g71dd9381
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
