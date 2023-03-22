@@ -403,7 +403,7 @@ ova: []
 
 				result := captureOutput(*tkgClient, options, false)
 				Expect(result).To(ContainSubstring("Legacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration"))
-				Expect(result).To(ContainSubstring("To create a cluster with it, use"))
+				Expect(result).To(ContainSubstring("To create a cluster with it, please use the following command together with all customized flags set in the last step. e.g. --tkr, -v"))
 			})
 
 		})
