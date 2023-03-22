@@ -21,6 +21,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/tkg/auth"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 )
@@ -100,7 +101,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				var clusterInfo, pinnipedInfo string
 				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = helper.GetFakePinnipedInfo(
-					helper.PinnipedInfo{
+					pinnipedinfo.PinnipedInfo{
 						ClusterName:        clustername,
 						Issuer:             issuer,
 						IssuerCABundleData: issuerCA,
@@ -143,7 +144,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				var clusterInfo, pinnipedInfo string
 				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = helper.GetFakePinnipedInfo(
-					helper.PinnipedInfo{
+					pinnipedinfo.PinnipedInfo{
 						ClusterName:              clustername,
 						Issuer:                   issuer,
 						IssuerCABundleData:       issuerCA,
@@ -188,7 +189,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				conciergeIsClusterScoped = false
 				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = helper.GetFakePinnipedInfo(
-					helper.PinnipedInfo{
+					pinnipedinfo.PinnipedInfo{
 						ClusterName:              clustername,
 						Issuer:                   issuer,
 						IssuerCABundleData:       issuerCA,

@@ -23,6 +23,7 @@ COPY packageclients/ packageclients/
 COPY apis/run/ apis/run/
 COPY util/ util/
 COPY tkr/ tkr/
+COPY pinniped-components/common pinniped-components/common
 
 COPY tkg/go.mod tkg/go.mod
 COPY tkg/go.sum tkg/go.sum

@@ -18,6 +18,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 	tkgclient "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	tkgutils "github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
@@ -80,7 +81,7 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 		return
 	}
 
-	config, err := GetPinnipedKubeconfig(clusterInfo, pinnipedInfo, pinnipedInfo.Data.ClusterName, pinnipedInfo.Data.Issuer)
+	config, err := GetPinnipedKubeconfig(clusterInfo, pinnipedInfo, pinnipedInfo.ClusterName, pinnipedInfo.Issuer)
 	if err != nil {
 		err = errors.Wrap(err, "unable to get the kubeconfig")
 		return
@@ -153,7 +154,7 @@ func loadKubeconfigAndEnsureContext(kubeConfigPath, context string) ([]byte, err
 }
 
 // GetPinnipedKubeconfig generate kubeconfig given cluster-info and pinniped-info and the requested audience
-func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils.PinnipedConfigMapInfo, clustername, audience string) (*clientcmdapi.Config, error) {
+func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *pinnipedinfo.PinnipedInfo, clustername, audience string) (*clientcmdapi.Config, error) {
 	execConfig := clientcmdapi.ExecConfig{
 		APIVersion: clientauthenticationv1beta1.SchemeGroupVersion.String(),
 		Args:       []string{},
@@ -163,9 +164,9 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 	execConfig.Command = "tanzu"
 	execConfig.Args = append([]string{"pinniped-auth", "login"}, execConfig.Args...)
 
-	conciergeEndpoint := pinnipedInfo.Data.ConciergeEndpoint
-	if conciergeEndpoint == "" {
-		conciergeEndpoint = cluster.Server
+	conciergeEndpoint := cluster.Server
+	if pinnipedInfo.ConciergeEndpoint != "" {
+		conciergeEndpoint = pinnipedInfo.ConciergeEndpoint
 	}
 
 	// configure concierge
@@ -173,16 +174,16 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 		"--enable-concierge",
 		"--concierge-authenticator-name="+ConciergeAuthenticatorName,
 		"--concierge-authenticator-type="+ConciergeAuthenticatorType,
-		"--concierge-is-cluster-scoped="+strconv.FormatBool(pinnipedInfo.Data.ConciergeIsClusterScoped),
+		"--concierge-is-cluster-scoped="+strconv.FormatBool(pinnipedInfo.ConciergeIsClusterScoped),
 		"--concierge-endpoint="+conciergeEndpoint,
 		"--concierge-ca-bundle-data="+base64.StdEncoding.EncodeToString(cluster.CertificateAuthorityData),
-		"--issuer="+pinnipedInfo.Data.Issuer, // configure OIDC
+		"--issuer="+pinnipedInfo.Issuer, // configure OIDC
 		"--scopes="+PinnipedOIDCScopes,
-		"--ca-bundle-data="+pinnipedInfo.Data.IssuerCABundle,
+		"--ca-bundle-data="+pinnipedInfo.IssuerCABundleData,
 		"--request-audience="+audience,
 	)
 
-	if !pinnipedInfo.Data.ConciergeIsClusterScoped {
+	if !pinnipedInfo.ConciergeIsClusterScoped {
 		execConfig.Args = append(execConfig.Args, "--concierge-namespace="+ConciergeNamespace)
 	}
 

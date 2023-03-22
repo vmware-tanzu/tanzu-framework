@@ -10,6 +10,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ../cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../packageclients
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common => ../pinniped-components/common
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../util
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
@@ -74,6 +75,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/cli/core v0.0.0-20220914003300-5b2ed024556a
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/tkr v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000
 	github.com/vmware/govmomi v0.30.2

@@ -16,13 +16,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/util/retry"
 
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/constants"
-
-	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/supervisor"
 )
 
 // createOrUpdateManagementClusterPinnipedInfo creates Pinniped information or updates existing data for a management cluster.
-func createOrUpdateManagementClusterPinnipedInfo(ctx context.Context, pinnipedInfo supervisor.PinnipedInfo, k8sClientSet kubernetes.Interface, supervisorNamespaceName string) error {
+func createOrUpdateManagementClusterPinnipedInfo(ctx context.Context, pinnipedInfo pinnipedinfo.PinnipedInfo, k8sClientSet kubernetes.Interface, supervisorNamespaceName string) error {
 	var err error
 	zap.S().Info("Creating the ConfigMap for Pinniped info")
 

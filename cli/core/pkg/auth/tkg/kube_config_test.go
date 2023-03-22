@@ -24,6 +24,7 @@ import (
 
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/tkg"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/fakes/helper"
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 )
 
 var testingDir string
@@ -103,7 +104,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				var clusterInfo, pinnipedInfo string
 				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = helper.GetFakePinnipedInfo(
-					helper.PinnipedInfo{
+					pinnipedinfo.PinnipedInfo{
 						ClusterName:        clustername,
 						Issuer:             issuer,
 						IssuerCABundleData: issuerCA,
@@ -146,7 +147,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				var clusterInfo, pinnipedInfo string
 				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = helper.GetFakePinnipedInfo(
-					helper.PinnipedInfo{
+					pinnipedinfo.PinnipedInfo{
 						ClusterName:              clustername,
 						Issuer:                   issuer,
 						IssuerCABundleData:       issuerCA,
@@ -191,7 +192,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				conciergeIsClusterScoped = false
 				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = helper.GetFakePinnipedInfo(
-					helper.PinnipedInfo{
+					pinnipedinfo.PinnipedInfo{
 						ClusterName:              clustername,
 						Issuer:                   issuer,
 						IssuerCABundleData:       issuerCA,

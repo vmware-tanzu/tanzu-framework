@@ -100,7 +100,7 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) 
 	}
 
 	// for management cluster the audience would be set to IssuerURL
-	audience := clusterPinnipedInfo.PinnipedInfo.Data.Issuer
+	audience := clusterPinnipedInfo.PinnipedInfo.Issuer
 
 	kubeconfig, _ := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
 		clusterPinnipedInfo.ClusterName, audience)
