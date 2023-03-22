@@ -31,14 +31,6 @@ type Configurator struct {
 	K8SClientset kubernetes.Interface
 }
 
-// PinnipedInfo contains settings for the supervisor.
-type PinnipedInfo struct {
-	MgmtClusterName          *string `json:"cluster_name,omitempty"`
-	Issuer                   *string `json:"issuer,omitempty"`
-	IssuerCABundleData       *string `json:"issuer_ca_bundle_data,omitempty"`
-	ConciergeIsClusterScoped bool    `json:"concierge_is_cluster_scoped,string"`
-}
-
 // CreateOrUpdateFederationDomain creates a new federation domain or updates an existing one.
 func (c Configurator) CreateOrUpdateFederationDomain(ctx context.Context, namespace, name, issuer string) error {
 	var err error

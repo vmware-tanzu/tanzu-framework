@@ -12,6 +12,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../../../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret => ../../../../cmd/cli/plugin/secret
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../../../../packageclients
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common => ../../../../pinniped-components/common
 	github.com/vmware-tanzu/tanzu-framework/tkg => ../../../../tkg
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../../../../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../../../../util
@@ -211,6 +212,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220824221239-af5a644ffef7 // indirect
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/cli/core v0.0.0-20220914003300-5b2ed024556a // indirect
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/tkr v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware/govmomi v0.30.2 // indirect

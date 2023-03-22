@@ -15,6 +15,7 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
@@ -32,7 +33,7 @@ type ClusterPinnipedInfo struct {
 	ClusterName     string
 	ClusterInfo     *clientcmdapi.Cluster
 	ClusterAudience *string
-	PinnipedInfo    *utils.PinnipedConfigMapInfo
+	PinnipedInfo    *pinnipedinfo.PinnipedInfo
 }
 
 // GetClusterPinnipedInfo gets pinniped information from cluster
@@ -101,7 +102,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		return nil, errors.New("failed to marshal pinniped-info from management cluster")
 	}
 
-	managementClusterPinnipedInfo := &utils.PinnipedConfigMapInfo{}
+	managementClusterPinnipedInfo := &pinnipedinfo.PinnipedInfo{}
 
 	// Really, this should never fail unless we're doing something silly like
 	// marshaling a channel/function. Which we aren't.
@@ -119,10 +120,10 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 	pinnipedInfo := managementClusterPinnipedInfo
 	if workloadClusterPinnipedInfo != nil {
 		// Get ConciergeIsClusterScoped from workload cluster in case it is different from the management cluster
-		pinnipedInfo.Data.ConciergeIsClusterScoped = workloadClusterPinnipedInfo.Data.ConciergeIsClusterScoped
+		pinnipedInfo.ConciergeIsClusterScoped = workloadClusterPinnipedInfo.ConciergeIsClusterScoped
 	} else {
 		// If workloadClusterPinnipedInfo is nil, assume it is an older TKG cluster and set ConciergeIsClusterScoped to defaults
-		pinnipedInfo.Data.ConciergeIsClusterScoped = false
+		pinnipedInfo.ConciergeIsClusterScoped = false
 	}
 
 	// For clusters that use a TKr API version newer than v1alpha1, we use the cluster name + UID as the audience.
@@ -148,7 +149,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		// Pacific uses a different Concierge endpoint. Ignore it when fetching
 		// a kubeconfig for a workload cluster since we use the workload
 		// cluster APIserver as the concierge endpoint.
-		pinnipedInfo.Data.ConciergeEndpoint = ""
+		pinnipedInfo.ConciergeEndpoint = ""
 	}
 
 	return &ClusterPinnipedInfo{

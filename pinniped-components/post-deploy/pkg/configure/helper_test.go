@@ -18,7 +18,7 @@ import (
 	kubefake "k8s.io/client-go/kubernetes/fake"
 	kubetesting "k8s.io/client-go/testing"
 
-	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/supervisor"
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 )
 
 func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
@@ -32,26 +32,16 @@ func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
 		clusterName = "some-cluster-name"
 		issuer      = "some-issuer"
 		issuerCA    = "some-issuer-ca-bundle-data"
-		emptyString = ""
 	)
 
-	managementClusterPinnipedInfo := supervisor.PinnipedInfo{
-		MgmtClusterName:          &clusterName,
-		Issuer:                   &issuer,
-		IssuerCABundleData:       &issuerCA,
+	managementClusterPinnipedInfo := pinnipedinfo.PinnipedInfo{
+		ClusterName:              clusterName,
+		Issuer:                   issuer,
+		IssuerCABundleData:       issuerCA,
 		ConciergeIsClusterScoped: true,
 	}
 
-	workloadClusterPinnipedInfo := supervisor.PinnipedInfo{
-		ConciergeIsClusterScoped: true,
-	}
-
-	emptyFieldsPinnipedInfo := supervisor.PinnipedInfo{
-		MgmtClusterName:          &emptyString,
-		Issuer:                   &emptyString,
-		IssuerCABundleData:       &emptyString,
-		ConciergeIsClusterScoped: false,
-	}
+	emptyFieldsPinnipedInfo := pinnipedinfo.PinnipedInfo{}
 
 	configMapGVR := corev1.SchemeGroupVersion.WithResource("configmaps")
 	namespaceGVR := corev1.SchemeGroupVersion.WithResource("namespaces")
@@ -74,17 +64,6 @@ func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
 			"issuer":                      issuer,
 			"issuer_ca_bundle_data":       issuerCA,
 			"concierge_is_cluster_scoped": fmt.Sprintf("%t", managementClusterPinnipedInfo.ConciergeIsClusterScoped),
-		},
-	}
-
-	workloadClusterPinnipedInfoConfigMap := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace:       kubePublicNamespaceName,
-			Name:            pinnipedInfoConfigMapName,
-			OwnerReferences: []metav1.OwnerReference{supervisorNamespaceOwnerRef},
-		},
-		Data: map[string]string{
-			"concierge_is_cluster_scoped": fmt.Sprintf("%t", workloadClusterPinnipedInfo.ConciergeIsClusterScoped),
 		},
 	}
 
@@ -131,7 +110,7 @@ func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
 	tests := []struct {
 		name          string
 		newKubeClient func() *kubefake.Clientset
-		pinnipedInfo  supervisor.PinnipedInfo
+		pinnipedInfo  pinnipedinfo.PinnipedInfo
 		wantError     string
 		wantActions   []kubetesting.Action
 	}{
@@ -217,19 +196,6 @@ func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
 				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
 				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
 				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, managementClusterPinnipedInfoConfigMap),
-			},
-		},
-		{
-			name: "pinniped info exists and is up to date for workload cluster",
-			newKubeClient: func() *kubefake.Clientset {
-				return kubefake.NewSimpleClientset(workloadClusterPinnipedInfoConfigMap, supervisorNamespace)
-			},
-			pinnipedInfo: workloadClusterPinnipedInfo,
-			wantActions: []kubetesting.Action{
-				kubetesting.NewRootGetAction(namespaceGVR, supervisorNamespaceName),
-				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
-				kubetesting.NewGetAction(configMapGVR, kubePublicNamespaceName, pinnipedInfoConfigMapName),
-				kubetesting.NewUpdateAction(configMapGVR, kubePublicNamespaceName, workloadClusterPinnipedInfoConfigMap),
 			},
 		},
 		{

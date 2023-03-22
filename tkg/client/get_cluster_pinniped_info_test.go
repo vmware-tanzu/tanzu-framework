@@ -28,6 +28,7 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck,nolintlint
 
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
@@ -162,7 +163,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
-				pinnipedInfo = fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+				pinnipedInfo = fakehelper.GetFakePinnipedInfo(pinnipedinfo.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
@@ -183,9 +184,9 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(clusterPinnipedInfo.ClusterName).To(Equal(mgmtClusterName))
 				Expect(clusterPinnipedInfo.ClusterAudience).To(BeNil())
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(endpoint))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScoped))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Issuer).To(Equal(issuer))
+				Expect(clusterPinnipedInfo.PinnipedInfo.IssuerCABundleData).To(Equal(issuerCA))
+				Expect(clusterPinnipedInfo.PinnipedInfo.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScoped))
 			})
 		})
 	})
@@ -263,7 +264,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
-				pinnipedInfoCM := fakehelper.PinnipedInfo{
+				pinnipedInfoCM := pinnipedinfo.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
@@ -290,9 +291,9 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(clusterPinnipedInfo.ClusterName).To(Equal(wlClusterName))
 				Expect(clusterPinnipedInfo.ClusterAudience).To(BeNil())
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(false))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Issuer).To(Equal(issuer))
+				Expect(clusterPinnipedInfo.PinnipedInfo.IssuerCABundleData).To(Equal(issuerCA))
+				Expect(clusterPinnipedInfo.PinnipedInfo.ConciergeIsClusterScoped).To(Equal(false))
 
 			})
 		})
@@ -305,7 +306,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
-				pinnipedInfoCM := fakehelper.PinnipedInfo{
+				pinnipedInfoCM := pinnipedinfo.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
@@ -338,7 +339,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
 				conciergeIsClusterScopedWLCluster = true
-				pinnipedInfoCM := fakehelper.PinnipedInfo{
+				pinnipedInfoCM := pinnipedinfo.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
@@ -346,7 +347,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				}
 				clusterRefs = append(clusterRefs, getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM))
 
-				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(pinnipedinfo.PinnipedInfo{
 					ConciergeIsClusterScoped: conciergeIsClusterScopedWLCluster,
 				})
 				searchNamespace = constants.DefaultNamespace
@@ -365,9 +366,9 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(clusterPinnipedInfo.ClusterName).To(Equal(wlClusterName))
 				Expect(clusterPinnipedInfo.ClusterAudience).To(BeNil())
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Issuer).To(Equal(issuer))
+				Expect(clusterPinnipedInfo.PinnipedInfo.IssuerCABundleData).To(Equal(issuerCA))
+				Expect(clusterPinnipedInfo.PinnipedInfo.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
 			})
 		})
 
@@ -384,7 +385,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
 				conciergeIsClusterScopedWLCluster = true
-				pinnipedInfoCM := fakehelper.PinnipedInfo{
+				pinnipedInfoCM := pinnipedinfo.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
@@ -392,7 +393,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				}
 				clusterRefs = append(clusterRefs, getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM))
 
-				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(pinnipedinfo.PinnipedInfo{
 					ConciergeIsClusterScoped: conciergeIsClusterScopedWLCluster,
 				})
 				searchNamespace = constants.DefaultNamespace
@@ -412,9 +413,9 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(clusterPinnipedInfo.ClusterName).To(Equal(wlClusterName))
 				Expect(clusterPinnipedInfo.ClusterAudience).To(Equal(&wantClusterAudience))
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Issuer).To(Equal(issuer))
+				Expect(clusterPinnipedInfo.PinnipedInfo.IssuerCABundleData).To(Equal(issuerCA))
+				Expect(clusterPinnipedInfo.PinnipedInfo.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
 			})
 		})
 
@@ -431,7 +432,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
 				conciergeIsClusterScopedWLCluster = true
-				pinnipedInfoCM := fakehelper.PinnipedInfo{
+				pinnipedInfoCM := pinnipedinfo.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
@@ -439,7 +440,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				}
 				clusterRefs = append(clusterRefs, getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM))
 
-				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(pinnipedinfo.PinnipedInfo{
 					ConciergeIsClusterScoped: conciergeIsClusterScopedWLCluster,
 				})
 				searchNamespace = constants.DefaultNamespace
@@ -459,9 +460,9 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(clusterPinnipedInfo.ClusterName).To(Equal(wlClusterName))
 				Expect(clusterPinnipedInfo.ClusterAudience).To(Equal(&wantClusterAudience))
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
-				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Issuer).To(Equal(issuer))
+				Expect(clusterPinnipedInfo.PinnipedInfo.IssuerCABundleData).To(Equal(issuerCA))
+				Expect(clusterPinnipedInfo.PinnipedInfo.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
 			})
 		})
 	})
@@ -541,7 +542,7 @@ func readFile(path string) string {
 	return string(data)
 }
 
-func getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM fakehelper.PinnipedInfo) *corev1.ConfigMap {
+func getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM pinnipedinfo.PinnipedInfo) *corev1.ConfigMap {
 	return &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "kube-public",

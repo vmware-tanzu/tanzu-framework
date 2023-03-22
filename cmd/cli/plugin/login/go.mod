@@ -8,6 +8,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ../../../../capabilities/client
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ../../../../cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../../../cli/runtime
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common => ../../../../pinniped-components/common
 )
 
 require (
@@ -110,6 +111,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000 // indirect
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common v0.0.0-00010101000000-000000000000 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
