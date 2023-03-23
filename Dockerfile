@@ -11,9 +11,9 @@ ARG COMPONENT
 ARG GOPROXY_ARG
 ENV GOPROXY=${GOPROXY_ARG}
 WORKDIR /workspace
-COPY "$COMPONENT"/go.* ./
-RUN --mount=type=cache,target=/go/pkg/mod \
-    go mod download
+RUN --mount=target=. \
+    --mount=type=cache,target=/go/pkg/mod \
+    cd $COMPONENT && go mod download
 
 # Linting
 FROM harbor-repo.vmware.com/dockerhub-proxy-cache/golangci/golangci-lint:v1.50 AS lint-base

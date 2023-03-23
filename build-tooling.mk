@@ -13,7 +13,10 @@ IMG_VERSION_OVERRIDE ?= $(IMG_DEFAULT_TAG)
 GOPROXY ?= "https://proxy.golang.org,direct"
 PLATFORM=local
 # check out step 2 in this documentation on how to set the COMPONENTS variable https://github.com/vmware-tanzu/build-tooling-for-integrations/blob/main/docs/build-tooling-getting-started.md
-COMPONENTS ?= capabilities/client capabilities/controller.capabilities-controller-manager.capabilities
+COMPONENTS ?= capabilities/client \
+capabilities/controller.capabilities-controller-manager.capabilities \
+featuregates/client \
+featuregates/controller.featuregates-controller-manager.featuregates
 
 BUILD_TOOLING_CONTAINER_IMAGE ?= ghcr.io/vmware-tanzu/build-tooling
 PACKAGING_CONTAINER_IMAGE ?= ghcr.io/vmware-tanzu/package-tooling
