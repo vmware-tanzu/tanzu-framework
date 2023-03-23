@@ -3,7 +3,11 @@ module github.com/vmware-tanzu/tanzu-framework/capabilities/controller
 go 1.18
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework/apis/cli => github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-20230119181514-3c34115bc248
+	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../apis/cli
+	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../apis/core
+	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
+	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ../client
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../cli/runtime
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
 )
 
@@ -11,10 +15,10 @@ require (
 	github.com/go-logr/logr v1.2.3
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
-	github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-20230119181514-3c34115bc248
-	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20230119181514-3c34115bc248
-	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-20230119181514-3c34115bc248
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20230119181514-3c34115bc248
+	github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	k8s.io/api v0.24.2
 	k8s.io/apimachinery v0.24.2
 	k8s.io/client-go v0.24.2
@@ -61,11 +65,11 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
-	golang.org/x/net v0.4.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.3.0 // indirect
-	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/term v0.3.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
