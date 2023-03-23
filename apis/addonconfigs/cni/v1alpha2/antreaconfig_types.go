@@ -123,6 +123,16 @@ type AntreaConfigDataValue struct {
 	// +kubebuilder:validation:Optional
 	TunnelType string `json:"tunnelType,omitempty"`
 
+	// TunnelPort is the destination port for UDP and TCP based tunnel protocols (Geneve, VXLAN, and STT).If zero, it will use the assigned IANA port for the protocol.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=0
+	TunnelPort int `json:"tunnelPort,omitempty"`
+
+	// TunnelCsum determines whether to compute UDP encapsulation header (Geneve or VXLAN) checksums on outgoing packets
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	TunnelCsum bool `json:"tunnelCsum,omitempty"`
+
 	// Determines how tunnel traffic is encrypted. One of the following options =:> none, ipsec, wireguard
 	// +kubebuilder:validation:Optional
 	TrafficEncryptionMode string `json:"trafficEncryptionMode,omitempty"`
@@ -256,6 +266,11 @@ type AntreaFeatureGates struct {
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
 	TrafficControl bool `json:"TrafficControl,omitempty"`
+
+	// Enable TopologyAwareHints in AntreaProxy. This requires AntreaProxy and EndpointSlice to be enabled, otherwise this flag will not take effect.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	TopologyAwareHints bool `json:"TopologyAwareHints,omitempty"`
 }
 
 // AntreaConfigStatus defines the observed state of AntreaConfig

@@ -121,6 +121,8 @@ type antreaConfigDataValue struct {
 	TransportInterfaceCIDRs  []string            `yaml:"transportInterfaceCIDRs,omitempty"`
 	MulticastInterfaces      []string            `yaml:"multicastInterfaces,omitempty"`
 	TunnelType               string              `yaml:"tunnelType,omitempty"`
+	TunnelPort               int                 `yaml:"tunnelPort,omitempty"`
+	TunnelCsum               bool                `yaml:"tunnelCsum,omitempty"`
 	TrafficEncryptionMode    string              `yaml:"trafficEncryptionMode,omitempty"`
 	EnableUsageReporting     bool                `yaml:"enableUsageReporting,omitempty"`
 	WireGuard                antreaWireGuard     `yaml:"wireGuard,omitempty"`
@@ -152,6 +154,7 @@ type antreaFeatureGates struct {
 	MultiCluster       *bool `yaml:"Multicluster,omitempty"`
 	SecondaryNetwork   *bool `yaml:"SecondaryNetwork,omitempty"`
 	TrafficControl     *bool `yaml:"TrafficControl,omitempty"`
+	TopologyAwareHints *bool `yaml:"TopologyAwareHints,omitempty"`
 }
 
 // ClusterToAntreaConfig returns a list of Requests with AntreaConfig ObjectKey
@@ -265,6 +268,11 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha2.An
 		configSpec.Antrea.AntreaConfigDataValue.Multicast.IGMPQueryInterval = config.Spec.Antrea.AntreaConfigDataValue.Multicast.IGMPQueryInterval
 	}
 
+	if semver.Compare(version, "v1.9.0") >= 0 {
+		configSpec.Antrea.AntreaConfigDataValue.TunnelPort = config.Spec.Antrea.AntreaConfigDataValue.TunnelPort
+		configSpec.Antrea.AntreaConfigDataValue.TunnelCsum = config.Spec.Antrea.AntreaConfigDataValue.TunnelCsum
+	}
+
 	// FeatureGates
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice
@@ -282,6 +290,10 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha2.An
 		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork
 		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl
 		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.MultiCluster
+	}
+
+	if semver.Compare(version, "v1.9.0") >= 0 {
+		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.TopologyAwareHints = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TopologyAwareHints
 	}
 
 	return configSpec, nil
