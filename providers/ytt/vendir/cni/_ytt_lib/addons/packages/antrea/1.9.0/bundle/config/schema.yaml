@@ -69,6 +69,10 @@ antrea:
       - ""
     #@schema/desc "Tunnel protocols used for encapsulating traffic across Nodes. One of the following options => geneve, vxlan, gre, stt"
     tunnelType: none
+    #@schema/desc "TunnelPort is the destination port for UDP and TCP based tunnel protocols (Geneve, VXLAN, and STT)."
+    tunnelPort: 0
+    #@schema/desc "TunnelCsum determines whether to compute UDP encapsulation header (Geneve or VXLAN) checksums on outgoing packets."
+    tunnelCsum: false
     #@schema/desc "Determines how tunnel traffic is encrypted. One of the following options => none, ipsec, wireGuard"
     trafficEncryptionMode: none
     #@schema/desc "WireGuard related configurations."
@@ -145,6 +149,8 @@ antrea:
       SecondaryNetwork: false
       #@schema/desc "Enable mirroring or redirecting the traffic Pods send or receive."
       TrafficControl: false
+      #@schema/desc "Enable TopologyAwareHints in AntreaProxy. This requires AntreaProxy and EndpointSlice to be enabled."
+      TopologyAwareHints: false
   #! Deprecated. Kept for backward compatibility
   image:
     #@schema/desc "The repository of antrea image"
