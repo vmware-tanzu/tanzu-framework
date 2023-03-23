@@ -30,7 +30,7 @@ antrea:
     egress:
       #@schema/desc "The CIDR ranges to which outbound Pod traffic will not be SNAT'd by Egresses."
       exceptCIDRs:
-      - ""
+        - ""
     nodePortLocal:
       #@schema/desc "Enable NodePortLocal feature."
       enabled: false
@@ -42,7 +42,7 @@ antrea:
       proxyAll: false
       #@schema/desc "Specifies the host IPv4/IPv6 addresses for NodePort."
       nodePortAddresses:
-       - ""
+        - ""
       #@schema/desc "List of Services which should be ignored by AntreaProxy."
       skipServices:
         - ""
@@ -151,6 +151,83 @@ antrea:
       TrafficControl: false
       #@schema/desc "Enable TopologyAwareHints in AntreaProxy. This requires AntreaProxy and EndpointSlice to be enabled."
       TopologyAwareHints: false
+antrea_nsx:
+  enable: false
+antrea_interworking:
+  #@schema/desc "Configuration for antrea-interworking"
+  config:
+    #@schema/desc "base64 encoded NSX client certificate data"
+    nsxCert: ZHVtbXlBZG1pbg
+    #@schema/desc "base64 encoded NSX client key data"
+    nsxKey: ZHVtbXlQYXNzd29yZA
+    #@schema/desc " "
+    clusterName: dummyClusterName
+    #@schema/desc " "
+    NSXManagers: [dummyNSXIP1]
+    #@schema/desc " "
+    vpcPath: dummyVPCPath
+    #@schema/desc " "
+    bootstrapFrom: SupervisorCluster
+    #@schema/desc " "
+    proxyEndpoints:
+      #@schema/desc " "
+      rest_api: [fakeRestApi]
+      #@schema/desc " "
+      nsx_rpc_fwd_proxy: [fakeNsxRpcFwdProxy]
+    #@schema/desc " "
+    mp_adapter_conf:
+      #@schema/desc " "
+      NSXCAFile: ""
+      #@schema/desc " "
+      NSXClientAuthCertFile: ""
+      #@schema/desc " "
+      NSXClientAuthKeyFile: ""
+      #@schema/desc " "
+      NSXRemoteAuth: false
+      #@schema/desc " "
+      NSXInsecure: true
+      #@schema/desc " "
+      NSXRPCConnType: tnproxy
+      #@schema/desc " "
+      clusterType: "kubernetes"
+      #@schema/desc " "
+      NSXClientTimeout: 120
+      #@schema/desc " "
+      InventoryBatchSize: 50
+      #@schema/desc " "
+      InventoryBatchPeriod: 5
+      #@schema/desc " "
+      EnableDebugServer: false
+      #@schema/desc " "
+      APIServerPort: 16664
+      #@schema/desc " "
+      DebugServerPort: 16666
+      #@schema/desc " "
+      NSXRPCDebug: false
+      #@schema/desc "#in second"
+      ConditionTimeout: 150
+    #@schema/desc " "
+    ccp_adapter_conf:
+      #@schema/desc " "
+      EnableDebugServer: false
+      #@schema/desc " "
+      APIServerPort: 16665
+      #@schema/desc " "
+      DebugServerPort: 16667
+      #@schema/desc " "
+      NSXRPCDebug: false
+      #@schema/desc "# Time to wait for realization"
+      RealizeTimeoutSeconds: 60
+      #@schema/desc "# An interval for regularly report latest realization error in background"
+      RealizeErrorSyncIntervalSeconds: 600
+      #@schema/desc " "
+      ReconcilerWorkerCount: 8
+      #@schema/desc "# Average QPS = ReconcilerWorkerCount * ReconcilerQPS"
+      ReconcilerQPS: 5.0
+      #@schema/desc "# Peak QPS =  ReconcilerWorkerCount * ReconcilerBurst"
+      ReconcilerBurst: 10
+      #@schema/desc "# 24 Hours"
+      ReconcilerResyncSeconds: 86400
   #! Deprecated. Kept for backward compatibility
   image:
     #@schema/desc "The repository of antrea image"

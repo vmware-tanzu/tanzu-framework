@@ -1,0 +1,11 @@
+---
+apiVersion: imgpkg.carvel.dev/v1alpha1
+images:
+  - annotations:
+      kbld.carvel.dev/id: vmware.io/antrea/interworking:0.9.0
+      kbld.carvel.dev/origins: |
+        - resolved:
+            tag: latest
+            url: vmware.io/antrea/interworking:0.9.0
+    image: projects.registry.vmware.com/antreainterworking/interworking-debian:0.9.0@sha256:a56d62bb2b0e60cb29d3fca75d6940c9a555cafb3bb5cd4bfaf125cf3e90cb02
+kind: ImagesLock

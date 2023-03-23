@@ -202,13 +202,6 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 		return err
 	}
 
-	if antreaConfig.Spec.AntreaNsx.BootstrapFrom.ProviderRef != nil && antreaConfig.Spec.AntreaNsx.BootstrapFrom.Inline != nil {
-		err := fmt.Errorf("providerRef and inline should not be both set in AntreaConfig.spec.antreaNsx.bootstrapFrom")
-		antreaConfig.Status.Message = err.Error()
-	} else {
-		// clear the message here.
-		antreaConfig.Status.Message = ""
-	}
 	// update status.secretRef
 	dataValueSecretName := util.GenerateDataValueSecretName(cluster.Name, constants.AntreaAddonName)
 	antreaConfig.Status.SecretRef = dataValueSecretName
@@ -228,18 +221,10 @@ func getClusterName(antreaConfig *cniv1alpha2.AntreaConfig) (name string, exists
 	return
 }
 
-func (r *AntreaConfigReconciler) getProviderServiceAccountName(clusterName string) string {
-	return fmt.Sprintf("%s-antrea", clusterName)
-}
-
-func (r *AntreaConfigReconciler) getNSXServiceAccountName(clusterName string) string {
-	return fmt.Sprintf("%s-antrea", clusterName)
-}
-
 func (r *AntreaConfigReconciler) ensureNsxServiceAccount(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
 	account := &nsxoperatorapi.NSXServiceAccount{}
 
-	account.Name = r.getNSXServiceAccountName(cluster.Name)
+	account.Name = getNSXServiceAccountName(cluster.Name)
 	account.Namespace = antreaConfig.Namespace
 	account.OwnerReferences = []metav1.OwnerReference{
 		{
@@ -304,7 +289,7 @@ func (r *AntreaConfigReconciler) ensureProviderServiceAccount(ctx context.Contex
 		r.Log.Error(err, "Error creating or patching cluster role", "name", vsphereAntreaConfigProviderServiceAccountAggregatedClusterRole)
 		return err
 	}
-	provider.Name = r.getProviderServiceAccountName(clusterName)
+	provider.Name = getProviderServiceAccountName(clusterName)
 	provider.Namespace = antreaConfig.Namespace
 	provider.Spec = vsphere.ProviderServiceAccountSpec{
 		Ref: &corev1.ObjectReference{
@@ -329,20 +314,10 @@ func (r *AntreaConfigReconciler) ensureProviderServiceAccount(ctx context.Contex
 }
 
 func (r *AntreaConfigReconciler) registerAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
-	if !antreaConfig.Spec.AntreaNsx.Enable || antreaConfig.Spec.AntreaNsx.BootstrapFrom.Inline != nil {
-		r.Log.Info("antreaNsx is not enabled or inline is set, there is no ProviderServiceAccount or NsxServiceAccount to be created")
+	if !antreaConfig.Spec.AntreaNsx.Enable || antreaConfig.Spec.AntreaInterworking.Config.BootstrapFrom == bootstrapFromInline {
+		r.Log.Info("antrea_nsx is not enabled or inline is set, there is no ProviderServiceAccount or NsxServiceAccount to be created")
 		r.deregisterAntreaNSX(ctx, antreaConfig, cluster)
 		return nil
-	}
-	if antreaConfig.Spec.AntreaNsx.BootstrapFrom.ProviderRef != nil {
-		if strings.ToLower(antreaConfig.Spec.AntreaNsx.BootstrapFrom.ProviderRef.Kind) != nsxServiceAccountKind ||
-			strings.ToLower(antreaConfig.Spec.AntreaNsx.BootstrapFrom.ProviderRef.ApiGroup) != nsxServiceAccountAPIGroup {
-			err := fmt.Errorf("either ProviderRef.Kind(%s) or ProviderRef.ApiGroup(%s) is invalid, expcted:ProviderRef.Kind(%s) ProviderRef.ApiGroup(%s)",
-				antreaConfig.Spec.AntreaNsx.BootstrapFrom.ProviderRef.Kind, antreaConfig.Spec.AntreaNsx.BootstrapFrom.ProviderRef.ApiGroup,
-				nsxServiceAccountKind, nsxServiceAccountAPIGroup)
-			antreaConfig.Status.Message = err.Error()
-			return err
-		}
 	}
 	antreaConfig.Status.Message = ""
 	err := r.ensureProviderServiceAccount(ctx, antreaConfig, cluster)
@@ -355,7 +330,7 @@ func (r *AntreaConfigReconciler) registerAntreaNSX(ctx context.Context, antreaCo
 
 func (r *AntreaConfigReconciler) deregisterAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
 	if !antreaConfig.Spec.AntreaNsx.Enable {
-		r.Log.Info("antreaNsx is not enabled, there is no ProviderServiceAccount or NsxServiceAccount to be deleted")
+		r.Log.Info("antrea_nsx is not enabled, there is no ProviderServiceAccount or NsxServiceAccount to be deleted")
 		return nil
 	}
 	vsphereCluster, err := cutil.VSphereClusterParavirtualForCAPICluster(ctx, r.Client, cluster)
@@ -371,7 +346,7 @@ func (r *AntreaConfigReconciler) deregisterAntreaNSX(ctx context.Context, antrea
 	}
 	account := &nsxoperatorapi.NSXServiceAccount{}
 
-	account.Name = r.getNSXServiceAccountName(clusterName)
+	account.Name = getNSXServiceAccountName(clusterName)
 	account.Namespace = antreaConfig.Namespace
 	err = r.Client.Delete(ctx, account)
 	if err != nil && !apierrors.IsNotFound(err) {
@@ -380,7 +355,7 @@ func (r *AntreaConfigReconciler) deregisterAntreaNSX(ctx context.Context, antrea
 	}
 
 	provider := &vsphere.ProviderServiceAccount{}
-	provider.Name = r.getProviderServiceAccountName(vsphereCluster.Name)
+	provider.Name = getProviderServiceAccountName(vsphereCluster.Name)
 	provider.Namespace = vsphereCluster.Namespace
 	err = r.Client.Delete(ctx, provider)
 	if err != nil && !apierrors.IsNotFound(err) {

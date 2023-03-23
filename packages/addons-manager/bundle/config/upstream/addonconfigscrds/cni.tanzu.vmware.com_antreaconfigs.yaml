@@ -576,54 +576,135 @@ spec:
                         type: object
                     type: object
                 type: object
-              antreaNsx:
-                description: AntreaNsx defines nsxt adapter related configurations
+              antrea_interworking:
+                description: Config is  configuration for nsxt adapter
                 properties:
-                  bootstrapFrom:
-                    description: BootstrapFrom either providerRef or inline configs
-                    properties:
-                      inline:
-                        description: Inline is used with TKGm, user need to fill in
-                          manually
-                        properties:
-                          clusterName:
-                            description: ClusterName is the name for the created cluster
-                            type: string
-                          nsxCertName:
-                            description: NsxCertName is cert files to access nsx manager
-                            type: string
-                          nsxManagers:
-                            description: NsxManagers is the list for nsx managers,
-                              it can be either IP address or domain name
-                            items:
-                              type: string
-                            type: array
-                        type: object
-                      providerRef:
-                        description: ProviderRef is used with uTKG, which will be
-                          filled by uTKG Addon Controller
-                        properties:
-                          apigroup:
-                            description: Api version for nsxServiceAccount, its value
-                              is "nsx.vmware.com/v1alpha1" now
-                            type: string
-                          kind:
-                            description: Kind is the kind for crd, here its value
-                              is NsxServiceAccount
-                            type: string
-                          name:
-                            description: Name is the name for NsxServiceAccount
-                            type: string
-                        type: object
-                    type: object
                   config:
-                    description: Config is  configuration for nsxt adapter
                     properties:
+                      NSXManagers:
+                        items:
+                          type: string
+                        type: array
+                      bootstrapFrom:
+                        description: BootstrapFrom either providerRef or inline configs
+                        type: string
+                      ccp_adapter_conf:
+                        properties:
+                          APIServerPort:
+                            default: 16665
+                            type: integer
+                          DebugServerPort:
+                            default: 16667
+                            type: integer
+                          EnableDebugServer:
+                            default: false
+                            type: boolean
+                          NSXRPCDebug:
+                            default: false
+                            type: boolean
+                          RealizeErrorSyncIntervalSeconds:
+                            default: 600
+                            description: An interval for regularly report latest realization
+                              error in background
+                            type: integer
+                          RealizeTimeoutSeconds:
+                            default: 60
+                            description: Time to wait for realization
+                            type: integer
+                          ReconcilerBurst:
+                            default: 10
+                            description: Peak QPS =  ReconcilerWorkerCount * ReconcilerBurst
+                            type: integer
+                          ReconcilerQPS:
+                            default: 5
+                            description: Average QPS = ReconcilerWorkerCount * ReconcilerQPS
+                            type: integer
+                          ReconcilerResyncSeconds:
+                            default: 86400
+                            description: '#! 24 Hours'
+                            type: integer
+                          ReconcilerWorkerCount:
+                            default: 8
+                            type: integer
+                        type: object
+                      clusterName:
+                        type: string
                       infraType:
                         description: InfraType is the type for infrastructure, so
                           far it is vSphere, VMC, AWS, Azure
                         type: string
+                      mp_adapter_conf:
+                        properties:
+                          APIServerPort:
+                            default: 16664
+                            type: integer
+                          ConditionTimeout:
+                            default: 150
+                            type: integer
+                          DebugServerPort:
+                            default: 16666
+                            type: integer
+                          EnableDebugServer:
+                            default: false
+                            type: boolean
+                          InventoryBatchPeriod:
+                            default: 5
+                            type: integer
+                          InventoryBatchSize:
+                            default: 50
+                            type: integer
+                          NSXCAFile:
+                            default: ""
+                            type: string
+                          NSXClientAuthCertFile:
+                            default: /etc/antrea/nsx-cert/tls.crt
+                            type: string
+                          NSXClientAuthKeyFile:
+                            default: /etc/antrea/nsx-cert/tls.key
+                            type: string
+                          NSXClientTimeout:
+                            default: 120
+                            type: integer
+                          NSXInsecure:
+                            default: true
+                            type: boolean
+                          NSXRPCConnType:
+                            default: tnproxy
+                            type: string
+                          NSXRPCDebug:
+                            default: false
+                            type: boolean
+                          NSXRemoteAuth:
+                            default: false
+                            type: boolean
+                          clusterType:
+                            default: kubernetes
+                            type: string
+                        type: object
+                      nsxCert:
+                        type: string
+                      nsxKey:
+                        type: string
+                      proxyEndpoints:
+                        properties:
+                          nsx_rpc_fwd_proxy:
+                            items:
+                              type: string
+                            type: array
+                          rest_api:
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      vpcPath:
+                        items:
+                          type: string
+                        type: array
                     type: object
+                type: object
+              antrea_nsx:
+                description: AntreaNsx defines nsxt adapter related configurations
+                properties:
                   enable:
                     default: false
                     description: Enable indicates whether nsxt adapter shall be enabled
