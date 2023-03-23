@@ -91,8 +91,23 @@ type VSphereNodePool struct {
 	NumCPUs           int32    `yaml:"numCPUs,omitempty"`
 
 	// PCI and GPU related parameters...
-	HardwareVersion string              `yaml:"hardwareVersion,omitempty"`
-	PCISettings     *VsphereNodePoolPCI `yaml:pciSettings,omitempty`
+	HardwareVersion string                      `yaml:"hardwareVersion,omitempty"`
+	PCISettings     *VsphereNodePoolPCI         `yaml:pciSettings,omitempty`
+	PCIDevices      []*VsphereNodePoolPCIDevice `yaml:pciDevices,omitempty`
+}
+
+/*
+*
+
+	/spec/template/spec/pciDevices
+	- deviceId: 0x10DE  <-- this defines "nvidia"
+	vendorId: 0x1EB8 <-- this identifies that it is a "T4 GPU"
+	- deviceId: ...
+	vendorId: ...
+*/
+type VsphereNodePoolPCIDevice struct {
+	DeviceId string `yaml:"deviceId,omitempty"`
+	VendorId string `yaml:"vendorId,omitempty"`
 }
 
 /*
@@ -101,12 +116,6 @@ type VSphereNodePool struct {
     pciPassthru.RelaxACSforP2P:true
     pciPassthru.use64bitMMIO:true
     pciPassthru.64bitMMIOSizeGB:512
-
-/spec/template/spec/pciDevices
-  - deviceId: 0x10DE  <-- this defines "nvidia"
-    vendorId: 0x1EB8 <-- this identifies that it is a "T4 GPU"
-  - deviceId: ...
-    vendorId: ...
 */
 type VsphereNodePoolPCI struct {
 	Use64bitMMIO      bool `yaml:"use64bitMMIO,omitempty"`
