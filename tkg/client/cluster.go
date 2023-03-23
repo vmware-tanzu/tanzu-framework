@@ -180,7 +180,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
 			// log command to use to create cluster using ClusterClass based config file and return
 			if !c.IsFeatureActivated(constants.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
-				log.Warningf("\nTo create a cluster with it, use")
+				log.Warningf("\nTo create a cluster with it, please use the following command together with all customized flags set in the last step. e.g. --tkr, -v")
 				log.Warningf("    tanzu cluster create --file %v", configFilePath)
 				return false, nil
 			}
