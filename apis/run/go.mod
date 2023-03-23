@@ -14,7 +14,7 @@ require (
 	k8s.io/api v0.24.2
 	k8s.io/apimachinery v0.24.2
 	k8s.io/kubectl v0.24.0
-	sigs.k8s.io/cluster-api v1.2.8
+	sigs.k8s.io/cluster-api v1.2.10
 	sigs.k8s.io/controller-runtime v0.12.3
 )
 

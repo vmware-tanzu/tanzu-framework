@@ -5,7 +5,7 @@ go 1.18
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs => ../apis/addonconfigs
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.10
 )
 
 require (
@@ -37,7 +37,7 @@ require (
 	k8s.io/kube-aggregator v0.22.4
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5
 	knative.dev/pkg v0.0.0-20220302134643-d2cdc682d974
-	sigs.k8s.io/cluster-api v1.2.8
+	sigs.k8s.io/cluster-api v1.2.10
 	sigs.k8s.io/cluster-api-provider-vsphere v1.5.3
 	sigs.k8s.io/controller-runtime v0.12.3
 	sigs.k8s.io/yaml v1.3.0

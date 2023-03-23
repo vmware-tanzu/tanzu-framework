@@ -16,7 +16,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/tkg => ../../../../tkg
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../../../../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../../../../util
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.10
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.12.3
 )
 
@@ -248,7 +248,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20221207184640-f3cff1453715 // indirect
 	k8s.io/kubectl v0.24.0 // indirect
 	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5 // indirect
-	sigs.k8s.io/cluster-api v1.2.8 // indirect
+	sigs.k8s.io/cluster-api v1.2.10 // indirect
 	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2 // indirect
 	sigs.k8s.io/cluster-api-provider-azure v1.6.1 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.5.3 // indirect

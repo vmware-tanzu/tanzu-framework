@@ -15,7 +15,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/tkg => ./tkg
 	github.com/vmware-tanzu/tanzu-framework/tkr => ./tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ./util
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.10
 )
 
 // Legacy tags before v0.1.0 was created
@@ -46,7 +46,7 @@ require (
 	k8s.io/api v0.24.4
 	k8s.io/apimachinery v0.24.4
 	k8s.io/client-go v0.24.4
-	sigs.k8s.io/cluster-api v1.2.8
+	sigs.k8s.io/cluster-api v1.2.10
 	sigs.k8s.io/controller-runtime v0.12.3
 )
 
