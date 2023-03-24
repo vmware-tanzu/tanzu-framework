@@ -493,14 +493,6 @@ github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PK
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20201229170055-e5319fda7802/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
-github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-20230119181514-3c34115bc248 h1:mb+EBlaJ5NSS9LIS1zJer9p3u74wv2Wo0iWP0JWTd2k=
-github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-20230119181514-3c34115bc248/go.mod h1:vjqilqQVGbzt4XpV8gEoLnehe7/IfQ49wikteZpKngU=
-github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20230119181514-3c34115bc248 h1:Oxp+iTBH105m9YnkvOF76wH8mNHUdLYPhf+aC70ZTyM=
-github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20230119181514-3c34115bc248/go.mod h1:8Kx/YbIyv07c3UZKVkb6i/jp0imJelAQS3YaDwXYM54=
-github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-20230119181514-3c34115bc248 h1:VSbPOzDdpJ0cAmCt221Y8+KXAmb/h5XfsMQ84NBgsZ8=
-github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-20230119181514-3c34115bc248/go.mod h1:rcIfoGpdav3evsyEMMzYH0xhGZOkIy+Ra3koypM8Aco=
-github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20230119181514-3c34115bc248 h1:LsJU0l37dcA9AMhtCNQUp5EVIzvEJN4tulZ0NQcZvP4=
-github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20230119181514-3c34115bc248/go.mod h1:VVSZnVr/a+jvXV0heOJS8CPHtqPG+RPmjGMpOowUsb0=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca/go.mod h1:ce1O1j6UtZfjr22oyGxGLbauSBp2YVXpARAosm7dHBg=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
