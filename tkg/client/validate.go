@@ -651,6 +651,11 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 
 // ValidateVsphereControlPlaneEndpointIP validates if the control plane endpoint has been used by another cluster in the same network
 func (c *TkgClient) ValidateVsphereControlPlaneEndpointIP(endpointIP string) *ValidationError {
+	//should read from TKGConfigReaderWriter if endpointIP not set
+	if endpointIP == "" {
+		endpointIP, _ = c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
+	}
+
 	log.V(6).Infof("Checking if VSPHERE_CONTROL_PLANE_ENDPOINT %s is already in use", endpointIP)
 	currentNetwork, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereNetwork)
 	if err != nil {
@@ -838,6 +843,12 @@ func (c *TkgClient) ValidateVsphereVipWorkloadCluster(clusterClient clusterclien
 	if err != nil {
 		return errors.Wrapf(err, "failed to get clusters")
 	}
+
+	//should read from TKGConfigReaderWriter if vip not set
+	if vip == "" {
+		vip, _ = c.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
+	}
+
 	for i := range clusterList {
 		if clusterList[i].Spec.ControlPlaneEndpoint.Host == vip {
 			return errors.Errorf("control plane endpoint '%s' already in use by cluster '%s' and cannot be reused", vip, clusterList[i].ObjectMeta.Name)

@@ -369,6 +369,10 @@ var _ = Describe("ValidateVSphereControlPlaneEndpointIP", func() {
 		clusterclient = &fakes.ClusterClient{}
 		vip           = ""
 	)
+	BeforeEach(func() {
+		tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
+		Expect(err).ToNot(HaveOccurred())
+	})
 
 	JustBeforeEach(func() {
 		clusterclient.ListClustersReturns([]capi.Cluster{
@@ -402,6 +406,31 @@ var _ = Describe("ValidateVSphereControlPlaneEndpointIP", func() {
 		})
 		It("should not error", func() {
 			Expect(err).To(Not(HaveOccurred()))
+		})
+	})
+
+	Context("When --vsphere-controlplane-endpoint is not provided", func() {
+		BeforeEach(func() {
+			vip = ""
+		})
+		Context("When VSPHERE_CONTROL_PLANE_ENDPOINT is set with valid IP", func() {
+			BeforeEach(func() {
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereControlPlaneEndpoint, "10.0.1.2")
+			})
+			It("should not error", func() {
+				Expect(err).To(Not(HaveOccurred()))
+			})
+		})
+
+		Context("When VSPHERE_CONTROL_PLANE_ENDPOINT is set with invalid IP", func() {
+			BeforeEach(func() {
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereControlPlaneEndpoint, "10.0.0.0")
+			})
+			It("should not error", func() {
+				Expect(vip).To(Equal(""))
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("control plane endpoint '10.0.0.0' already in use by cluster 'my-cluster' and cannot be reused"))
+			})
 		})
 	})
 })
