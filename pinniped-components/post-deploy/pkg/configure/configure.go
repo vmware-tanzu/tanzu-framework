@@ -207,7 +207,6 @@ func TKGAuthentication(c Clients) error {
 		DexSvcName:               vars.DexSvcName,
 		DexCertName:              vars.DexCertName,
 		DexConfigMapName:         vars.DexConfigMapName,
-		ConciergeIsClusterScoped: vars.ConciergeIsClusterScoped,
 	}); err != nil {
 		// logging has been done inside the function
 		return err
@@ -309,10 +308,9 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 
 		// create configmap for Pinniped info
 		if err := createOrUpdateManagementClusterPinnipedInfo(ctx, pinnipedinfo.PinnipedInfo{
-			ClusterName:              p.ClusterName,
-			Issuer:                   supervisorSvcEndpoint,
-			IssuerCABundleData:       caData,
-			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
+			ClusterName:        p.ClusterName,
+			Issuer:             supervisorSvcEndpoint,
+			IssuerCABundleData: caData,
 		}, c.K8SClientset, p.SupervisorSvcNamespace); err != nil {
 			return err
 		}

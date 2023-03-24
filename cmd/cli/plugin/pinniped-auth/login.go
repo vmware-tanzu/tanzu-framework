@@ -45,17 +45,10 @@ type loginOIDCOptions struct {
 	skipBrowser                bool
 	debugSessionCache          bool
 	conciergeEnabled           bool
-	conciergeIsClusterScoped   bool
 }
 
-// We currently embed both the v0.4.4 and v0.12.1 Pinniped CLIs. This is so that the pinniped-auth
-// plugin can work with old TKr's that are still running Pinniped version v0.4.4. The v0.12.1 CLI
-// will not work with the v0.4.4 Concierge because Pinniped changed its Concierge APIs to be cluster
-// scoped in v0.6.0. We can remove the v0.4.4 CLI when the pinniped-auth plugin no longer needs to
-// work with Pinniped version v0.4.4.
+// Currently embed only the v0.12.1 CLI
 var (
-	//go:embed asset/pinniped-v0.4.4
-	pinnipedv044Binary []byte
 	//go:embed asset/pinniped-v0.12.1
 	pinnipedv0121Binary []byte
 )
@@ -104,12 +97,7 @@ func loginOIDCCommand(
 			fmt.Sprintf("--concierge-authenticator-name=%s", loginOptions.conciergeAuthenticatorName),
 			fmt.Sprintf("--concierge-endpoint=%s", loginOptions.conciergeEndpoint),
 			fmt.Sprintf("--concierge-ca-bundle-data=%s", loginOptions.conciergeCABundle),
-		}
-
-		if !loginOptions.conciergeIsClusterScoped {
-			oidcLoginArgs = append(oidcLoginArgs, fmt.Sprintf("--concierge-namespace=%s", loginOptions.conciergeNamespace))
-		} else {
-			oidcLoginArgs = append(oidcLoginArgs, fmt.Sprintf("--credential-cache=%s", loginOptions.credentialCachePath))
+			fmt.Sprintf("--credential-cache=%s", loginOptions.credentialCachePath),
 		}
 
 		pinnipedCliCmd, err := getPinnipedCLICmdFunc(oidcLoginArgs, loginOptions, DefaultPluginRoot, buildinfo.Version, buildinfo.SHA)
@@ -124,16 +112,9 @@ func loginOIDCCommand(
 	return loginCommand
 }
 
-func getPinnipedCLICmd(args []string, loginOptions *loginOIDCOptions, pluginRoot, buildVersion, buildSHA string) (*exec.Cmd, error) {
-	var pinnipedBinary []byte
-	var pinnipedVersion string
-	if !loginOptions.conciergeIsClusterScoped {
-		pinnipedBinary = pinnipedv044Binary
-		pinnipedVersion = "v0.4.4"
-	} else {
-		pinnipedBinary = pinnipedv0121Binary
-		pinnipedVersion = "v0.12.1"
-	}
+func getPinnipedCLICmd(args []string, pluginRoot, buildVersion, buildSHA string) (*exec.Cmd, error) {
+	pinnipedBinary := pinnipedv0121Binary
+	pinnipedVersion := "v0.12.1"
 
 	buildSHA = strings.ReplaceAll(buildSHA, "-dirty", "")
 	pinnipedCLIBinFile := fmt.Sprintf("tanzu-pinniped-%s-client-%s-%s", pinnipedVersion, buildVersion, buildSHA)
@@ -177,7 +158,6 @@ func setLoginCommandFlags() {
 	loginCommand.Flags().StringVar(&loginOptions.conciergeEndpoint, "concierge-endpoint", "", "API base for the Pinniped concierge endpoint")
 	loginCommand.Flags().StringVar(&loginOptions.conciergeCABundle, "concierge-ca-bundle-data", "", "CA bundle to use when connecting to the concierge")
 	loginCommand.Flags().StringVar(&loginOptions.credentialCachePath, "credential-cache", filepath.Join(mustGetConfigDir(), "credentials.yaml"), "Path to cluster-specific credentials cache (\"\" disables the cache)")
-	loginCommand.Flags().BoolVar(&loginOptions.conciergeIsClusterScoped, "concierge-is-cluster-scoped", false, "Is concierge cluster scoped")
 	loginCommand.Flags().MarkHidden("debug-session-cache") //nolint
 	loginCommand.MarkFlagRequired("issuer")                //nolint
 }

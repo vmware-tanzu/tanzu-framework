@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -38,11 +37,10 @@ const kubeconfigPath = "../../fakes/config/kubeconfig_server_ver.yaml"
 
 var _ = Describe("Unit tests for tkg auth", func() {
 	var (
-		err                      error
-		endpoint                 string
-		tlsserver                *ghttp.Server
-		conciergeIsClusterScoped bool
-		servCert                 *x509.Certificate
+		err       error
+		endpoint  string
+		tlsserver *ghttp.Server
+		servCert  *x509.Certificate
 	)
 
 	const (
@@ -136,7 +134,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				user := config.AuthInfos[config.Contexts[kubeContext].AuthInfo]
 				Expect(cluster.Server).To(Equal(endpoint))
 				Expect(gotClusterName).To(Equal(clustername))
-				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, false, servCert)
+				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, servCert)
 				Expect(*user.Exec).To(Equal(*expectedExecConf))
 
 			})
@@ -148,10 +146,9 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = helper.GetFakePinnipedInfo(
 					pinnipedinfo.PinnipedInfo{
-						ClusterName:              clustername,
-						Issuer:                   issuer,
-						IssuerCABundleData:       issuerCA,
-						ConciergeIsClusterScoped: true,
+						ClusterName:        clustername,
+						Issuer:             issuer,
+						IssuerCABundleData: issuerCA,
 					})
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -180,7 +177,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				user := config.AuthInfos[config.Contexts[kubeContext].AuthInfo]
 				Expect(cluster.Server).To(Equal(endpoint))
 				Expect(gotClusterName).To(Equal(clustername))
-				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, true, servCert)
+				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, servCert)
 				Expect(*user.Exec).To(Equal(*expectedExecConf))
 
 			})
@@ -189,14 +186,12 @@ var _ = Describe("Unit tests for tkg auth", func() {
 			var kubeConfigPath, kubeContext, kubeconfigMergeFilePath string
 			BeforeEach(func() {
 				var clusterInfo, pinnipedInfo string
-				conciergeIsClusterScoped = false
 				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = helper.GetFakePinnipedInfo(
 					pinnipedinfo.PinnipedInfo{
-						ClusterName:              clustername,
-						Issuer:                   issuer,
-						IssuerCABundleData:       issuerCA,
-						ConciergeIsClusterScoped: conciergeIsClusterScoped,
+						ClusterName:        clustername,
+						Issuer:             issuer,
+						IssuerCABundleData: issuerCA,
 					})
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -225,7 +220,7 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				user := config.AuthInfos[config.Contexts[kubeContext].AuthInfo]
 				Expect(cluster.Server).To(Equal(endpoint))
 				Expect(gotClusterName).To(Equal(clustername))
-				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, conciergeIsClusterScoped, servCert)
+				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, servCert)
 				Expect(*user.Exec).To(Equal(*expectedExecConf))
 
 			})
@@ -284,24 +279,19 @@ func GetFakeClusterInfo(server string, cert *x509.Certificate) string {
 	return clusterInfoJSON
 }
 
-func getExpectedExecConfig(endpoint string, issuer string, issuerCA string, conciergeIsClusterScoped bool, servCert *x509.Certificate) *clientcmdapi.ExecConfig {
+func getExpectedExecConfig(endpoint string, issuer string, issuerCA string, servCert *x509.Certificate) *clientcmdapi.ExecConfig {
 	certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 	args := []string{
 		"pinniped-auth", "login",
 		"--enable-concierge",
 		"--concierge-authenticator-name=" + tkgauth.ConciergeAuthenticatorName,
 		"--concierge-authenticator-type=" + tkgauth.ConciergeAuthenticatorType,
-		"--concierge-is-cluster-scoped=" + strconv.FormatBool(conciergeIsClusterScoped),
 		"--concierge-endpoint=" + endpoint,
 		"--concierge-ca-bundle-data=" + base64.StdEncoding.EncodeToString(certBytes),
 		"--issuer=" + issuer,
 		"--scopes=" + tkgauth.PinnipedOIDCScopes,
 		"--ca-bundle-data=" + issuerCA,
 		"--request-audience=" + issuer,
-	}
-
-	if !conciergeIsClusterScoped {
-		args = append(args, "--concierge-namespace="+tkgauth.ConciergeNamespace)
 	}
 
 	execConfig := &clientcmdapi.ExecConfig{

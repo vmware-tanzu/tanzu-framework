@@ -35,10 +35,9 @@ func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
 	)
 
 	managementClusterPinnipedInfo := pinnipedinfo.PinnipedInfo{
-		ClusterName:              clusterName,
-		Issuer:                   issuer,
-		IssuerCABundleData:       issuerCA,
-		ConciergeIsClusterScoped: true,
+		ClusterName:        clusterName,
+		Issuer:             issuer,
+		IssuerCABundleData: issuerCA,
 	}
 
 	emptyFieldsPinnipedInfo := pinnipedinfo.PinnipedInfo{}
@@ -60,10 +59,9 @@ func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
 			OwnerReferences: []metav1.OwnerReference{supervisorNamespaceOwnerRef},
 		},
 		Data: map[string]string{
-			"cluster_name":                clusterName,
-			"issuer":                      issuer,
-			"issuer_ca_bundle_data":       issuerCA,
-			"concierge_is_cluster_scoped": fmt.Sprintf("%t", managementClusterPinnipedInfo.ConciergeIsClusterScoped),
+			"cluster_name":          clusterName,
+			"issuer":                issuer,
+			"issuer_ca_bundle_data": issuerCA,
 		},
 	}
 
@@ -74,10 +72,9 @@ func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
 			OwnerReferences: []metav1.OwnerReference{supervisorNamespaceOwnerRef},
 		},
 		Data: map[string]string{
-			"cluster_name":                "",
-			"issuer":                      "",
-			"issuer_ca_bundle_data":       "",
-			"concierge_is_cluster_scoped": "false",
+			"cluster_name":          "",
+			"issuer":                "",
+			"issuer_ca_bundle_data": "",
 		},
 	}
 
@@ -87,10 +84,9 @@ func TestCreateOrUpdateManagementClusterPinnipedInfo(t *testing.T) {
 			Name:      pinnipedInfoConfigMapName,
 		},
 		Data: map[string]string{
-			"cluster_name":                clusterName,
-			"issuer":                      issuer,
-			"issuer_ca_bundle_data":       issuerCA,
-			"concierge_is_cluster_scoped": fmt.Sprintf("%t", managementClusterPinnipedInfo.ConciergeIsClusterScoped),
+			"cluster_name":          clusterName,
+			"issuer":                issuer,
+			"issuer_ca_bundle_data": issuerCA,
 		},
 	}
 

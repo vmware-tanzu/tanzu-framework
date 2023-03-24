@@ -5,10 +5,6 @@
 package vars
 
 var (
-	// ConciergeIsClusterScoped indicates whether the Pinniped Concierge APIs are
-	// cluster-scoped (as opposed to namespace-scoped).
-	ConciergeIsClusterScoped = false
-
 	// SupervisorNamespace is the supervisor service namespace.
 	SupervisorNamespace = "pinniped-supervisor"
 

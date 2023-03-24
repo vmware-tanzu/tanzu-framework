@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -174,7 +173,6 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *pinniped
 		"--enable-concierge",
 		"--concierge-authenticator-name="+ConciergeAuthenticatorName,
 		"--concierge-authenticator-type="+ConciergeAuthenticatorType,
-		"--concierge-is-cluster-scoped="+strconv.FormatBool(pinnipedInfo.ConciergeIsClusterScoped),
 		"--concierge-endpoint="+conciergeEndpoint,
 		"--concierge-ca-bundle-data="+base64.StdEncoding.EncodeToString(cluster.CertificateAuthorityData),
 		"--issuer="+pinnipedInfo.Issuer, // configure OIDC
@@ -182,10 +180,6 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *pinniped
 		"--ca-bundle-data="+pinnipedInfo.IssuerCABundleData,
 		"--request-audience="+audience,
 	)
-
-	if !pinnipedInfo.ConciergeIsClusterScoped {
-		execConfig.Args = append(execConfig.Args, "--concierge-namespace="+ConciergeNamespace)
-	}
 
 	if os.Getenv("TANZU_CLI_PINNIPED_AUTH_LOGIN_SKIP_BROWSER") != "" {
 		execConfig.Args = append(execConfig.Args, "--skip-browser")

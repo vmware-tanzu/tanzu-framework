@@ -184,7 +184,6 @@ func TestLoginOIDCCommand(t *testing.T) {
 				"--concierge-authenticator-name", "concierge-authenticator",
 				"--concierge-endpoint", "test-endpoint",
 				"--concierge-ca-bundle-data", "test-bundle",
-				"--concierge-is-cluster-scoped", "true",
 			},
 			wantArgs: []string{
 				"login",
@@ -208,10 +207,9 @@ func TestLoginOIDCCommand(t *testing.T) {
 			},
 		},
 		{
-			name: "test concierge-namespace not included in login args when concierge-is-cluster-scoped is true",
+			name: "test concierge-namespace not included in login args",
 			args: []string{
 				"--issuer", "test-issuer",
-				"--concierge-is-cluster-scoped", "true",
 			},
 			wantArgs: []string{
 				"login",
@@ -280,27 +278,18 @@ func TestGetPinnipedCLICmd(t *testing.T) {
 	tests := []struct {
 		name                string
 		isBuildSHADirty     bool
-		loginOptions        *loginOIDCOptions
 		wantError           string
 		wantPinnipedVersion string
 		wantBinary          []byte
 	}{
 		{
-			name:                "0.4.4 cli",
-			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: false},
-			wantPinnipedVersion: "v0.4.4",
-			wantBinary:          pinnipedv044Binary,
-		},
-		{
-			name:                "0.4.4 cli with dirty build sha",
-			isBuildSHADirty:     true,
-			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: false},
-			wantPinnipedVersion: "v0.4.4",
-			wantBinary:          pinnipedv044Binary,
-		},
-		{
 			name:                "0.12.1 cli",
-			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: true},
+			wantPinnipedVersion: "v0.12.1",
+			wantBinary:          pinnipedv0121Binary,
+		},
+		{
+			name:                "0.12.1 cli with dirty build sha",
+			isBuildSHADirty:     true,
 			wantPinnipedVersion: "v0.12.1",
 			wantBinary:          pinnipedv0121Binary,
 		},
@@ -322,7 +311,7 @@ func TestGetPinnipedCLICmd(t *testing.T) {
 			wantPath := filepath.Join(pluginRoot, "tanzu-pinniped-go-client", wantPathBasename)
 			wantArgs := []string{"some", "args", "here"}
 
-			cmd, err := getPinnipedCLICmd(wantArgs, test.loginOptions, pluginRoot, tanzuCLIBuildVersion, buildSHA)
+			cmd, err := getPinnipedCLICmd(wantArgs, pluginRoot, tanzuCLIBuildVersion, buildSHA)
 			if test.wantError != "" {
 				require.EqualError(t, err, test.wantError)
 				return
@@ -350,17 +339,10 @@ func TestGetPinnipedCLICmdMultipleUsage(t *testing.T) {
 	defer require.NoError(t, os.RemoveAll(pluginRoot))
 
 	steps := []struct {
-		loginOptions        *loginOIDCOptions
 		wantPinnipedVersion string
 		wantBinary          []byte
 	}{
 		{
-			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: false},
-			wantPinnipedVersion: "v0.4.4",
-			wantBinary:          pinnipedv044Binary,
-		},
-		{
-			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: true},
 			wantPinnipedVersion: "v0.12.1",
 			wantBinary:          pinnipedv0121Binary,
 		},
@@ -369,7 +351,7 @@ func TestGetPinnipedCLICmdMultipleUsage(t *testing.T) {
 		wantPathBasename := fmt.Sprintf("tanzu-pinniped-%s-client-%s-%s", step.wantPinnipedVersion, tanzuCLIBuildVersion, tanzuCLIBuildSHA)
 		wantPath := filepath.Join(pluginRoot, "tanzu-pinniped-go-client", wantPathBasename)
 
-		cmd, err := getPinnipedCLICmd([]string{}, step.loginOptions, pluginRoot, tanzuCLIBuildVersion, tanzuCLIBuildSHA)
+		cmd, err := getPinnipedCLICmd([]string{}, pluginRoot, tanzuCLIBuildVersion, tanzuCLIBuildSHA)
 		require.NoError(t, err)
 		require.Equal(t, wantPath, cmd.Path)
 		require.FileExists(t, cmd.Path)

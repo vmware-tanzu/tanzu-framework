@@ -27,14 +27,13 @@ const (
 
 var _ = Describe("Kubeconfig Tests", func() {
 	var (
-		err                      error
-		endpoint                 string
-		tlsserver                *ghttp.Server
-		clustername              string
-		issuer                   string
-		issuerCA                 string
-		conciergeIsClusterScoped bool
-		servCert                 *x509.Certificate
+		err         error
+		endpoint    string
+		tlsserver   *ghttp.Server
+		clustername string
+		issuer      string
+		issuerCA    string
+		servCert    *x509.Certificate
 	)
 
 	Describe("Get cluster-info from the cluster", func() {
@@ -168,12 +167,10 @@ var _ = Describe("Kubeconfig Tests", func() {
 				clustername = fakeCluster
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
-				conciergeIsClusterScoped = false
 				pinnipedInfo := fakehelper.GetFakePinnipedInfo(pinnipedinfo.PinnipedInfo{
-					ClusterName:              clustername,
-					Issuer:                   issuer,
-					IssuerCABundleData:       issuerCA,
-					ConciergeIsClusterScoped: conciergeIsClusterScoped})
+					ClusterName:        clustername,
+					Issuer:             issuer,
+					IssuerCABundleData: issuerCA})
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
@@ -190,7 +187,6 @@ var _ = Describe("Kubeconfig Tests", func() {
 				Expect(gotPinnipedInfo.ClusterName).Should(Equal(clustername))
 				Expect(gotPinnipedInfo.Issuer).Should(Equal(issuer))
 				Expect(gotPinnipedInfo.IssuerCABundleData).Should(Equal(issuerCA))
-				Expect(gotPinnipedInfo.ConciergeIsClusterScoped).Should(Equal(conciergeIsClusterScoped))
 			})
 		})
 		Context("When a different port is used for discovery of 'pinniped-info'", func() {
@@ -211,12 +207,10 @@ var _ = Describe("Kubeconfig Tests", func() {
 				clustername = fakeCluster
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
-				conciergeIsClusterScoped = false
 				pinnipedInfo := fakehelper.GetFakePinnipedInfo(pinnipedinfo.PinnipedInfo{
-					ClusterName:              clustername,
-					Issuer:                   issuer,
-					IssuerCABundleData:       issuerCA,
-					ConciergeIsClusterScoped: conciergeIsClusterScoped})
+					ClusterName:        clustername,
+					Issuer:             issuer,
+					IssuerCABundleData: issuerCA})
 				discoveryTLSServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
@@ -233,7 +227,6 @@ var _ = Describe("Kubeconfig Tests", func() {
 				Expect(gotPinnipedInfo.ClusterName).Should(Equal(clustername))
 				Expect(gotPinnipedInfo.Issuer).Should(Equal(issuer))
 				Expect(gotPinnipedInfo.IssuerCABundleData).Should(Equal(issuerCA))
-				Expect(gotPinnipedInfo.ConciergeIsClusterScoped).Should(Equal(conciergeIsClusterScoped))
 			})
 		})
 		Context("When the concierge endpoint is distinct from the cluster endpoint", func() {
@@ -244,13 +237,11 @@ var _ = Describe("Kubeconfig Tests", func() {
 				clustername = fakeCluster
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
-				conciergeIsClusterScoped = false
 				pinnipedInfo := fakehelper.GetFakePinnipedInfo(pinnipedinfo.PinnipedInfo{
-					ClusterName:              clustername,
-					Issuer:                   issuer,
-					IssuerCABundleData:       issuerCA,
-					ConciergeEndpoint:        conciergeEndpoint,
-					ConciergeIsClusterScoped: conciergeIsClusterScoped})
+					ClusterName:        clustername,
+					Issuer:             issuer,
+					IssuerCABundleData: issuerCA,
+					ConciergeEndpoint:  conciergeEndpoint})
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
@@ -267,7 +258,6 @@ var _ = Describe("Kubeconfig Tests", func() {
 				Expect(gotPinnipedInfo.ClusterName).Should(Equal(clustername))
 				Expect(gotPinnipedInfo.Issuer).Should(Equal(issuer))
 				Expect(gotPinnipedInfo.IssuerCABundleData).Should(Equal(issuerCA))
-				Expect(gotPinnipedInfo.ConciergeIsClusterScoped).Should(Equal(conciergeIsClusterScoped))
 				Expect(gotPinnipedInfo.ConciergeEndpoint).Should(Equal(conciergeEndpoint))
 			})
 		})

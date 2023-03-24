@@ -567,15 +567,14 @@ func TestPinniped(t *testing.T) {
 				return pinnipedconciergefake.NewSimpleClientset(defaultJWTAuthenticator)
 			},
 			parameters: Parameters{
-				ClusterType:              "management",
-				ClusterName:              pinnipedInfoConfigMap.Data["cluster_name"],
-				SupervisorSvcNamespace:   supervisorService.Namespace,
-				SupervisorSvcName:        supervisorService.Name,
-				FederationDomainName:     federationDomain.Name,
-				SupervisorCertNamespace:  supervisorCertificate.Namespace,
-				SupervisorCertName:       supervisorCertificate.Name,
-				JWTAuthenticatorName:     jwtAuthenticator.Name,
-				ConciergeIsClusterScoped: true,
+				ClusterType:             "management",
+				ClusterName:             pinnipedInfoConfigMap.Data["cluster_name"],
+				SupervisorSvcNamespace:  supervisorService.Namespace,
+				SupervisorSvcName:       supervisorService.Name,
+				FederationDomainName:    federationDomain.Name,
+				SupervisorCertNamespace: supervisorCertificate.Namespace,
+				SupervisorCertName:      supervisorCertificate.Name,
+				JWTAuthenticatorName:    jwtAuthenticator.Name,
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 1. Get the supervisor service endpoint to create the correct issuer
@@ -652,7 +651,6 @@ func TestPinniped(t *testing.T) {
 				SupervisorCertName:       supervisorCertificate.Name,
 				JWTAuthenticatorName:     jwtAuthenticator.Name,
 				JWTAuthenticatorAudience: "I am a rebel and providing this even when I should not have done so.",
-				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 1. Get the supervisor service endpoint to create the correct issuer
@@ -709,13 +707,12 @@ func TestPinniped(t *testing.T) {
 				return pinnipedconciergefake.NewSimpleClientset(defaultJWTAuthenticator)
 			},
 			parameters: Parameters{
-				ClusterType:              "workload",
-				ClusterName:              jwtAuthenticator.Spec.Audience,
-				SupervisorSvcNamespace:   supervisorService.Namespace,
-				SupervisorSvcEndpoint:    jwtAuthenticator.Spec.Issuer,
-				SupervisorCABundleData:   jwtAuthenticator.Spec.TLS.CertificateAuthorityData,
-				JWTAuthenticatorName:     jwtAuthenticator.Name,
-				ConciergeIsClusterScoped: true,
+				ClusterType:            "workload",
+				ClusterName:            jwtAuthenticator.Spec.Audience,
+				SupervisorSvcNamespace: supervisorService.Namespace,
+				SupervisorSvcEndpoint:  jwtAuthenticator.Spec.Issuer,
+				SupervisorCABundleData: jwtAuthenticator.Spec.TLS.CertificateAuthorityData,
+				JWTAuthenticatorName:   jwtAuthenticator.Name,
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 2. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
@@ -756,7 +753,6 @@ func TestPinniped(t *testing.T) {
 				JWTAuthenticatorName:   jwtAuthenticatorWithUUIDAudience.Name,
 				// custom audience provided
 				JWTAuthenticatorAudience: jwtAuthenticatorWithUUIDAudience.Spec.Audience,
-				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
 				// 2. Look for any supervisor pods to recreate (we do this on both management and workload clusters)

@@ -71,12 +71,15 @@ func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions
 		return nil, errors.Wrap(err, "failed to determine if workload cluster is ClusterClass based")
 	}
 
-	return c.GetWCClusterPinnipedInfo(regionalClusterClient, curRegion, options, isPacific, isClusterClassBased)
+	return c.GetWCClusterPinnipedInfo(regionalClusterClient, options, isPacific, isClusterClassBased)
 }
 
 // GetWCClusterPinnipedInfo gets pinniped information for workload cluster
-func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient.Client,
-	curRegion region.RegionContext, options GetClusterPinnipedInfoOptions, isPacific bool, isClusterClassBased bool) (*ClusterPinnipedInfo, error) {
+func (c *TkgClient) GetWCClusterPinnipedInfo(
+	regionalClusterClient clusterclient.Client,
+	options GetClusterPinnipedInfoOptions,
+	isPacific bool,
+	isClusterClassBased bool) (*ClusterPinnipedInfo, error) {
 
 	wcClusterInfo, err := getClusterInfo(regionalClusterClient, options.ClusterName, options.Namespace)
 	if err != nil {
@@ -112,20 +115,6 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 
 	log.Debugf("Management cluster pinniped info: %+v", managementClusterPinnipedInfo)
 
-	workloadClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(wcClusterInfo, nil)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get pinniped-info from workload cluster")
-	}
-
-	pinnipedInfo := managementClusterPinnipedInfo
-	if workloadClusterPinnipedInfo != nil {
-		// Get ConciergeIsClusterScoped from workload cluster in case it is different from the management cluster
-		pinnipedInfo.ConciergeIsClusterScoped = workloadClusterPinnipedInfo.ConciergeIsClusterScoped
-	} else {
-		// If workloadClusterPinnipedInfo is nil, assume it is an older TKG cluster and set ConciergeIsClusterScoped to defaults
-		pinnipedInfo.ConciergeIsClusterScoped = false
-	}
-
 	// For clusters that use a TKr API version newer than v1alpha1, we use the cluster name + UID as the audience.
 	// Do this on pacific clusters and TKG "classy" clusters, but not on TKG legacy (non-classy) clusters.
 	var audience *string
@@ -149,14 +138,14 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		// Pacific uses a different Concierge endpoint. Ignore it when fetching
 		// a kubeconfig for a workload cluster since we use the workload
 		// cluster APIserver as the concierge endpoint.
-		pinnipedInfo.ConciergeEndpoint = ""
+		managementClusterPinnipedInfo.ConciergeEndpoint = ""
 	}
 
 	return &ClusterPinnipedInfo{
 		ClusterName:     options.ClusterName,
 		ClusterAudience: audience,
 		ClusterInfo:     wcClusterInfo,
-		PinnipedInfo:    pinnipedInfo,
+		PinnipedInfo:    managementClusterPinnipedInfo,
 	}, nil
 }
 
