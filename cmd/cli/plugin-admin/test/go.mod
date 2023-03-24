@@ -8,6 +8,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ../../../../capabilities/client
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ../../../../cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../../../cli/runtime
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common => ../../../../pinniped-components/common
 )
 
 require (
