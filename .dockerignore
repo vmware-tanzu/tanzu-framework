@@ -4,3 +4,5 @@ hack/
 packages/
 docs/
 test/
+build/
+bin/
