@@ -24,6 +24,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
 
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/concierge"
 	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/dex"
 	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/supervisor"
@@ -307,10 +308,10 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 		}
 
 		// create configmap for Pinniped info
-		if err := createOrUpdateManagementClusterPinnipedInfo(ctx, supervisor.PinnipedInfo{
-			MgmtClusterName:          &p.ClusterName,
-			Issuer:                   &supervisorSvcEndpoint,
-			IssuerCABundleData:       &caData,
+		if err := createOrUpdateManagementClusterPinnipedInfo(ctx, pinnipedinfo.PinnipedInfo{
+			ClusterName:              p.ClusterName,
+			Issuer:                   supervisorSvcEndpoint,
+			IssuerCABundleData:       caData,
 			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
 		}, c.K8SClientset, p.SupervisorSvcNamespace); err != nil {
 			return err

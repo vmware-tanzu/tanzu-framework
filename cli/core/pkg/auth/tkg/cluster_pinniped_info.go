@@ -19,24 +19,12 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	netutil "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/utils/net"
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 )
 
 const (
 	KubePublicNamespace = "kube-public"
 )
-
-// PinnipedConfigMapInfo defines the fields of pinniped-info configMap
-type PinnipedConfigMapInfo struct {
-	Kind    string `json:"kind" yaml:"kind"`
-	Version string `json:"apiVersion" yaml:"apiVersion"`
-	Data    struct {
-		ClusterName              string `json:"cluster_name" yaml:"cluster_name"`
-		Issuer                   string `json:"issuer" yaml:"issuer"`
-		IssuerCABundle           string `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
-		ConciergeEndpoint        string `json:"concierge_endpoint" yaml:"concierge_endpoint"`
-		ConciergeIsClusterScoped bool   `json:"concierge_is_cluster_scoped,string" yaml:"concierge_is_cluster_scoped"`
-	}
-}
 
 type clusterInfoConfig struct {
 	Version string `json:"apiVersion"`
@@ -114,7 +102,7 @@ func GetClusterInfoFromCluster(clusterAPIServerURL, configmapName string) (*clie
 // 'discoveryPort' is used to optionally override the port used for discovery. This may be needed on setups that expose
 // discovery information to unauthenticated users on a different port (for instance, to avoid the need to anonymous auth
 // on the apiserver). By default, the endpoint from the cluster-info is used.
-func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort *int) (*PinnipedConfigMapInfo, error) {
+func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort *int) (*pinnipedinfo.PinnipedInfo, error) {
 	endpoint := strings.TrimRight(clusterInfo.Server, " /")
 	var err error
 	if discoveryPort != nil {
@@ -156,11 +144,5 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort
 		return nil, errors.Wrap(err, "failed to read the response body")
 	}
 
-	var pinnipedConfigMapInfo PinnipedConfigMapInfo
-	err = json.Unmarshal(responseBody, &pinnipedConfigMapInfo)
-	if err != nil {
-		return nil, errors.Wrap(err, "error parsing http response body")
-	}
-
-	return &pinnipedConfigMapInfo, nil
+	return pinnipedinfo.ByteArrayToPinnipedInfo(responseBody)
 }
