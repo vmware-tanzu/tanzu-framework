@@ -27,8 +27,6 @@ tanzu pinniped-auth login [flags]
       --concierge-authenticator-type string   Concierge authenticator type (e.g., 'webhook', 'jwt')
       --concierge-ca-bundle-data string       CA bundle to use when connecting to the concierge
       --concierge-endpoint string             API base for the Pinniped concierge endpoint
-      --concierge-is-cluster-scoped           Is concierge cluster scoped
-      --concierge-namespace string            Namespace in which the concierge was installed (default "pinniped-concierge")
       --credential-cache string               Path to cluster-specific credentials cache ("" disables the cache) (default "/Users/pkalle/.config/tanzu/pinniped/credentials.yaml")
       --enable-concierge                      Exchange the OIDC ID token with the Pinniped concierge during login
   -h, --help                                  help for login

@@ -30,7 +30,7 @@ PROVIDER_BUNDLE_ZIP = providers/client/manifest/providers.zip
 TKG_PROVIDER_BUNDLE_ZIP = tkg/tkgctl/client/manifest/providers.zip
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
-PINNIPED_VERSIONS = v0.4.4 v0.12.1
+PINNIPED_VERSIONS = v0.12.1
 
 ifndef IS_OFFICIAL_BUILD
 IS_OFFICIAL_BUILD = ""
