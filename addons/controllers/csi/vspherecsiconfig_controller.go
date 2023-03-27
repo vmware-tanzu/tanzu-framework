@@ -28,8 +28,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -158,14 +156,6 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 		logger.Error(err, "Unable to fetch VSphereCSIConfig resource")
 		return ctrl.Result{}, err
-	}
-
-	if vcsiConfig.Spec.VSphereCSI.Mode == VSphereCSINonParavirtualMode {
-		labels := vcsiConfig.GetLabels()
-		if _, ok := labels[pkgtypes.PackageNameLabel]; !ok {
-			r.Log.Info(fmt.Sprintf("VSphereCSIConfig resource '%v' does not contains package name label", req.NamespacedName))
-			return ctrl.Result{}, errors.New("VSphereCSIConfig does not contains package name label")
-		}
 	}
 
 	// deep copy VSphereCSIConfig to avoid issues if in the future other controllers where interacting with the same copy

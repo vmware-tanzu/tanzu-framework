@@ -97,8 +97,6 @@ kind: VSphereCSIConfig
 metadata:
   name: test-cluster-csi-vsphere-csi-package
   namespace: default
-  labels:
-    tkg.tanzu.vmware.com/package-name: vsphere-csi.tanzu.vmware.com.2.7.1---vmware.1-tkg.1-zshippable
   ownerReferences:
     - apiVersion: cluster.x-k8s.io/v1beta1
       blockOwnerDeletion: true
