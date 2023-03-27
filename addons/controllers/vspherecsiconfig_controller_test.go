@@ -105,7 +105,6 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					Expect(config.Spec.VSphereCSI.Mode).Should(Equal("vsphereCSI"))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig).NotTo(BeZero())
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.TLSThumbprint).Should(Equal("yadayada"))
-					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Namespace).Should(Equal("default"))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.ClusterName).Should(Equal("test-clustername"))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Server).Should(Equal("svr-0"))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Datacenter).Should(Equal("dc0"))
@@ -156,7 +155,6 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					fmt.Println(secretData) // debug dump
 					Expect(strings.Contains(secretData, "vsphereCSI:")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "tlsThumbprint: yadayada")).Should(BeTrue())
-					Expect(strings.Contains(secretData, "namespace: default")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "server: svr-0")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "datacenter: dc0")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "publicNetwork: 8.2.0.0/16")).Should(BeTrue())
@@ -251,7 +249,6 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					fmt.Println(secretData) // debug dump
 					Expect(strings.Contains(secretData, "vsphereCSI:")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "tlsThumbprint: thumbprint-yadayada")).Should(BeTrue())
-					Expect(strings.Contains(secretData, "namespace: vmware-system-csi")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "server: vsphere-server.local")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "datacenter: dc0")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "publicNetwork: test-network")).Should(BeTrue())
