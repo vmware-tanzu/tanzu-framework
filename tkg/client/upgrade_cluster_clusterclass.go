@@ -16,15 +16,20 @@ import (
 func (c *TkgClient) DoClassyClusterUpgrade(regionalClusterClient clusterclient.Client,
 	currentClusterClient clusterclient.Client, options *UpgradeClusterOptions) error {
 
+	if err := currentClusterClient.PatchClusterAPIAWSControllersToUseEC2Credentials(); err != nil {
+		return errors.Wrap(err, "unable to zero out the cluster-api-aws credentials")
+	}
+
 	kubernetesVersion := options.KubernetesVersion
 	tkrVersion := options.TkrVersion
 
 	log.Infof("Upgrading kubernetes cluster to `%v` version, tkr version: `%s`", kubernetesVersion, tkrVersion)
 	patchJSONString := fmt.Sprintf(`{"spec": {"topology": {"version": "%v"}}}`, tkrVersion)
 
-	// Timeout set to 15 minutes because the continuousTKRDiscoverFreq for tkr-source-controller's fetcher is 10 minutes.
-	// Wait time should be longer than the fetcher's frequency of pulling tkrs.
-	pollOptions := &clusterclient.PollOptions{Interval: upgradePatchInterval, Timeout: 15 * time.Minute}
+	// Timeout set to 30 minutes because the continuousTKRDiscoverFreq for tkr-source-controller's fetcher is 10 minutes.
+	// And kapp package reconcile frequency is 10 minutes.
+	// Wait time should be longer than the fetcher's frequency of pulling tkrs plus the frequency of kapp package reconciliation.
+	pollOptions := &clusterclient.PollOptions{Interval: upgradePatchInterval, Timeout: 30 * time.Minute}
 	err := regionalClusterClient.PatchClusterObjectWithPollOptions(options.ClusterName, options.Namespace, patchJSONString, pollOptions)
 	if err != nil {
 		return errors.Wrap(err, "unable to patch kubernetes version to cluster")

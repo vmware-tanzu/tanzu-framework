@@ -980,8 +980,18 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	JustBeforeEach(func() {
 		err = tkgClient.DoClassyClusterUpgrade(regionalClusterClient, currentClusterClient, &upgradeClusterOptions)
 	})
+	Context("When patch ClusterAPI AWSControllers to use EC2 credentials fails", func() {
+		BeforeEach(func() {
+			currentClusterClient.PatchClusterAPIAWSControllersToUseEC2CredentialsReturns(errors.New("fake-patch-CAPA-cred-error"))
+		})
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("unable to zero out the cluster-api-aws credentials: fake-patch-CAPA-cred-error"))
+		})
+	})
 	Context("When cluster patch fails", func() {
 		BeforeEach(func() {
+			currentClusterClient.PatchClusterAPIAWSControllersToUseEC2CredentialsReturns(nil)
 			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(errors.New("fake-patch-error"))
 		})
 		It("should return an error", func() {
@@ -991,6 +1001,7 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	})
 	Context("When failure happens while waiting for control-plane node upgrade", func() {
 		BeforeEach(func() {
+			currentClusterClient.PatchClusterAPIAWSControllersToUseEC2CredentialsReturns(nil)
 			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(errors.New("fake-error-kcp-upgrade"))
 		})
@@ -1001,6 +1012,7 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	})
 	Context("When failure happens while waiting for worker node upgrade", func() {
 		BeforeEach(func() {
+			currentClusterClient.PatchClusterAPIAWSControllersToUseEC2CredentialsReturns(nil)
 			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(errors.New("fake-error-worker-upgrade"))
@@ -1012,6 +1024,7 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	})
 	Context("When failure happens while applyPatch for autoscaler upgrade", func() {
 		BeforeEach(func() {
+			currentClusterClient.PatchClusterAPIAWSControllersToUseEC2CredentialsReturns(nil)
 			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(nil)
@@ -1024,6 +1037,7 @@ var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
 	})
 	Context("When cluster patch is successful and cluster get's upgraded successfully", func() {
 		BeforeEach(func() {
+			currentClusterClient.PatchClusterAPIAWSControllersToUseEC2CredentialsReturns(nil)
 			regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(nil)
