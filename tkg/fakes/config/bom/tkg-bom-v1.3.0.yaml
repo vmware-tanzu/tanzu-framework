@@ -70,6 +70,12 @@ components:
   - version: v0.5.1+vmware.2
   cloud_provider_vsphere:
   - version: v1.2.1+vmware.1
+  cluster-api-ipam-provider-in-cluster:
+  - version: v0.1.0+vmware.2
+    images:
+      capiIPAMProviderInClusterControllerImage:
+        imagePath: cluster-api/cluster-api-ipam-provider-in-cluster
+        tag: v0.1.0_vmware.2
   cluster-api-provider-azure:
   - version: v0.4.8-47-gfbb2d55b+vmware.1
     images:
