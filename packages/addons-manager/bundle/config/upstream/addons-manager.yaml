@@ -372,6 +372,7 @@ spec:
         - --feature-gate-cluster-bootstrap=true
         #@ if/end data.values.tanzuAddonsManager.featureGates.packageInstallStatus:
         - --feature-gate-package-install-status=true
+        - --config-file=/etc/addons-manager/addons-manager.conf
         image: addons-controller:latest
         imagePullPolicy: IfNotPresent
         name: tanzu-addons-controller
@@ -412,6 +413,20 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+        volumeMounts:
+          - mountPath: /etc/addons-manager
+            name: addons-manager-config
+            readOnly: true
+      volumes:
+        - name: addons-manager-config
+          projected:
+            sources:
+              - configMap:
+                  name: vmware-system-tkg-addons-manager-config
+                  items:
+                    - key: addons-manager.conf
+                      path: addons-manager.conf
+                  optional: true
       serviceAccount: tanzu-addons-manager-sa
       terminationGracePeriodSeconds: 10
       #@ if/end data.values.tanzuAddonsManager.deployment.hostNetwork:

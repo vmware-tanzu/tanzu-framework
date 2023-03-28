@@ -120,6 +120,7 @@ type addonFlags struct {
 	pprofBindAddress                string
 	tlsMinVersion                   string
 	tlsCipherSuites                 string
+	configFile                      string
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -164,6 +165,7 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.pprofBindAddress, "pprof-bind-addr", ":18318", "Bind address of pprof web server if enabled")
 	flag.StringVar(&addonFlags.tlsMinVersion, "tls-min-version", "1.2", "minimum TLS version in use by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
 	flag.StringVar(&addonFlags.tlsCipherSuites, "tls-cipher-suites", "", "Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be used.\n"+fmt.Sprintf("Possible values are %s.", strings.Join(cliflag.TLSCipherPossibleValues(), ", ")))
+	flag.StringVar(&addonFlags.configFile, "config-file", "", "The path to set configuration file for addon manager")
 	flag.Parse()
 }
 
@@ -237,6 +239,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	opt := addonconfig.NewOptions(ctrl.Log.WithName("controllers").WithName("Addon"))
+	opt.Complete(flags.configFile)
+
 	addonReconciler := &controllers.AddonReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
@@ -251,6 +256,7 @@ func main() {
 			AddonImagePullPolicy:        flags.addonImagePullPolicy,
 			CorePackageRepoName:         flags.corePackageRepoName,
 			FeatureGateClusterBootstrap: flags.featureGateClusterBootstrap,
+			AntreaNsxEnabled:            opt.Config.AntreaNsxEnabled,
 		},
 	}
 	if err = addonReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
@@ -258,7 +264,7 @@ func main() {
 		os.Exit(1)
 	}
 	if flags.featureGateClusterBootstrap {
-		enableClusterBootstrapAndConfigControllers(ctx, mgr, flags)
+		enableClusterBootstrapAndConfigControllers(ctx, mgr, flags, opt.Config.AntreaNsxEnabled)
 		enableWebhooks(ctx, mgr, flags)
 	}
 
@@ -300,7 +306,7 @@ func setupChecks(mgr ctrl.Manager) {
 	}
 }
 
-func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
+func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Manager, flags *addonFlags, antreaNsxEnabled bool) {
 	if err := (&calicocontroller.CalicoConfigReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("CalicoConfigController"),
@@ -317,7 +323,9 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Log:    ctrl.Log.WithName("AntreaConfigController"),
 		Scheme: mgr.GetScheme(),
 		Config: addonconfig.AntreaConfigControllerConfig{
-			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace},
+			AntreaNsxEnabledFSS:    antreaNsxEnabled,
+		},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create AntreaConfigController", "controller", "antrea")
 		os.Exit(1)
