@@ -15,7 +15,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
-var _ = Describe("PCI Parameters", func() {
+var _ = Describe("PCI Parameters for node pools with GPUs", func() {
 	It("Should parse nested stuff", func() {
 
 		values1 := []interface{}{
