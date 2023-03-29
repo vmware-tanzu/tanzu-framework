@@ -4,41 +4,26 @@
 package tkgauth
 
 import (
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/pkg/errors"
+
 	"k8s.io/client-go/discovery"
-	clientauthenticationv1beta1 "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
 	"k8s.io/client-go/tools/clientcmd"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	kubeutils "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/utils/kubeconfig"
-	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
+
+	pinnipedkubeconfig "github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/kubeconfig"
 )
 
 const (
-	// ConciergeAuthenticatorType is the pinniped concierge authenticator type
-	ConciergeAuthenticatorType = "jwt"
-
-	// ConciergeAuthenticatorName is the pinniped concierge authenticator object name
-	ConciergeAuthenticatorName = "tkg-jwt-authenticator"
-
-	// PinnipedOIDCScopes are the scopes of pinniped oidc
-	PinnipedOIDCScopes = "offline_access,openid,pinniped:request-audience"
-
 	// TanzuLocalKubeDir is the local config directory
 	TanzuLocalKubeDir = ".kube-tanzu"
 
 	// TanzuKubeconfigFile is the name the of the kubeconfig file
 	TanzuKubeconfigFile = "config"
-
-	// DefaultPinnipedLoginTimeout is the default login timeout
-	DefaultPinnipedLoginTimeout = time.Minute
 
 	// DefaultClusterInfoConfigMap is the default ConfigMap looked up in the kube-public namespace when generating a kubeconfig.
 	DefaultClusterInfoConfigMap = "cluster-info"
@@ -76,7 +61,7 @@ func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigO
 		return
 	}
 
-	config, err := GetPinnipedKubeconfig(clusterInfo, pinnipedInfo, pinnipedInfo.ClusterName, pinnipedInfo.Issuer)
+	config, err := pinnipedkubeconfig.GetPinnipedKubeconfig(clusterInfo, pinnipedInfo, pinnipedInfo.ClusterName, pinnipedInfo.Issuer)
 	if err != nil {
 		err = errors.Wrap(err, "unable to get the kubeconfig")
 		return
@@ -121,7 +106,7 @@ func GetServerKubernetesVersion(kubeconfigPath, context string) (string, error) 
 		return "", errors.Errorf("Unable to set up rest config due to : %v", err)
 	}
 	// set the timeout to give user sufficient time to enter the login credentials
-	restConfig.Timeout = DefaultPinnipedLoginTimeout
+	restConfig.Timeout = pinnipedkubeconfig.DefaultPinnipedLoginTimeout
 
 	discoveryClient, err = discovery.NewDiscoveryClientForConfig(restConfig)
 	if err != nil {
@@ -146,52 +131,6 @@ func loadKubeconfigAndEnsureContext(kubeConfigPath, context string) ([]byte, err
 	}
 
 	return clientcmd.Write(*config)
-}
-
-// GetPinnipedKubeconfig generate kubeconfig given cluster-info and pinniped-info and the requested audience
-func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *pinnipedinfo.PinnipedInfo, clustername, audience string) (*clientcmdapi.Config, error) {
-	execConfig := clientcmdapi.ExecConfig{
-		APIVersion: clientauthenticationv1beta1.SchemeGroupVersion.String(),
-		Args:       []string{},
-		Env:        []clientcmdapi.ExecEnvVar{},
-	}
-
-	execConfig.Command = "tanzu"
-	execConfig.Args = append([]string{"pinniped-auth", "login"}, execConfig.Args...)
-
-	conciergeEndpoint := cluster.Server
-	if pinnipedInfo.ConciergeEndpoint != "" {
-		conciergeEndpoint = pinnipedInfo.ConciergeEndpoint
-	}
-
-	// configure concierge
-	execConfig.Args = append(execConfig.Args,
-		"--enable-concierge",
-		"--concierge-authenticator-name="+ConciergeAuthenticatorName,
-		"--concierge-authenticator-type="+ConciergeAuthenticatorType,
-		"--concierge-endpoint="+conciergeEndpoint,
-		"--concierge-ca-bundle-data="+base64.StdEncoding.EncodeToString(cluster.CertificateAuthorityData),
-		"--issuer="+pinnipedInfo.Issuer, // configure OIDC
-		"--scopes="+PinnipedOIDCScopes,
-		"--ca-bundle-data="+pinnipedInfo.IssuerCABundleData,
-		"--request-audience="+audience,
-	)
-
-	if os.Getenv("TANZU_CLI_PINNIPED_AUTH_LOGIN_SKIP_BROWSER") != "" {
-		execConfig.Args = append(execConfig.Args, "--skip-browser")
-	}
-
-	username := "tanzu-cli-" + clustername
-	contextName := fmt.Sprintf("%s@%s", username, clustername)
-
-	return &clientcmdapi.Config{
-		Kind:           "Config",
-		APIVersion:     clientcmdapi.SchemeGroupVersion.Version,
-		Clusters:       map[string]*clientcmdapi.Cluster{clustername: cluster},
-		AuthInfos:      map[string]*clientcmdapi.AuthInfo{username: {Exec: &execConfig}},
-		Contexts:       map[string]*clientcmdapi.Context{contextName: {Cluster: clustername, AuthInfo: username}},
-		CurrentContext: contextName,
-	}, nil
 }
 
 // TanzuLocalKubeConfigPath returns the local tanzu kubeconfig path

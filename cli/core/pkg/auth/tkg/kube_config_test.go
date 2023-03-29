@@ -13,9 +13,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
 	"github.com/onsi/gomega/ghttp"
 	clientauthenticationv1beta1 "k8s.io/client-go/pkg/apis/clientauthentication/v1beta1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -23,6 +20,8 @@ import (
 
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/tkg"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/fakes/helper"
+	pinnipedkubeconfig "github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/kubeconfig"
+
 	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 )
 
@@ -197,12 +196,12 @@ func getExpectedExecConfig(endpoint string, issuer string, issuerCA string, serv
 	args := []string{
 		"pinniped-auth", "login",
 		"--enable-concierge",
-		"--concierge-authenticator-name=" + tkgauth.ConciergeAuthenticatorName,
-		"--concierge-authenticator-type=" + tkgauth.ConciergeAuthenticatorType,
+		"--concierge-authenticator-name=" + pinnipedkubeconfig.ConciergeAuthenticatorName,
+		"--concierge-authenticator-type=" + pinnipedkubeconfig.ConciergeAuthenticatorType,
 		"--concierge-endpoint=" + endpoint,
 		"--concierge-ca-bundle-data=" + base64.StdEncoding.EncodeToString(certBytes),
 		"--issuer=" + issuer,
-		"--scopes=" + tkgauth.PinnipedOIDCScopes,
+		"--scopes=" + pinnipedkubeconfig.PinnipedOIDCScopes,
 		"--ca-bundle-data=" + issuerCA,
 		"--request-audience=" + issuer,
 	}

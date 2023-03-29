@@ -4,9 +4,24 @@
 package pinnipedinfo
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"time"
 
 	"github.com/pkg/errors"
+	"k8s.io/client-go/tools/clientcmd/api"
+
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/net"
+)
+
+const (
+	KubePublicNamespace       = "kube-public"
+	PinnipedInfoConfigmapName = "pinniped-info"
 )
 
 // PinnipedInfo contains settings for the supervisor.
@@ -31,4 +46,54 @@ func ByteArrayToPinnipedInfo(responseBody []byte) (*PinnipedInfo, error) {
 	}
 
 	return &pinnipedConfigMapInfo.Data, nil
+}
+
+// GetPinnipedInfoFromCluster gets the Pinniped Info by accessing the pinniped-info configMap in kube-public namespace
+// 'discoveryPort' is used to optionally override the port used for discovery. This may be needed on setups that expose
+// discovery information to unauthenticated users on a different port (for instance, to avoid the need to anonymous auth
+// on the apiserver). By default, the endpoint from the cluster-info is used.
+func GetPinnipedInfoFromCluster(clusterInfo *api.Cluster, discoveryPort *int) (*PinnipedInfo, error) {
+	endpoint := strings.TrimRight(clusterInfo.Server, " /")
+	var err error
+	if discoveryPort != nil {
+		endpoint, err = net.SetPort(clusterInfo.Server, *discoveryPort)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to override discovery port")
+		}
+	}
+	pinnipedInfoURL := endpoint + fmt.Sprintf("/api/v1/namespaces/%s/configmaps/pinniped-info", KubePublicNamespace)
+	//nolint:noctx
+	req, _ := http.NewRequest("GET", pinnipedInfoURL, http.NoBody)
+	pool := x509.NewCertPool()
+	pool.AppendCertsFromPEM(clusterInfo.CertificateAuthorityData)
+	clusterClient := &http.Client{
+		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			TLSClientConfig: &tls.Config{
+				RootCAs:    pool,
+				MinVersion: tls.VersionTLS12,
+			},
+		},
+		Timeout: time.Second * 10,
+	}
+
+	response, err := clusterClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get pinniped-info from the cluster")
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		if response.StatusCode == http.StatusNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get pinniped-info from the cluster. Status code: %+v", response.StatusCode)
+	}
+
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read the response body")
+	}
+
+	return ByteArrayToPinnipedInfo(responseBody)
 }

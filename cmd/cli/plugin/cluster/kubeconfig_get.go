@@ -12,10 +12,10 @@ import (
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-	tkgauth "github.com/vmware-tanzu/tanzu-framework/tkg/auth"
-
 	tkgclient "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
+
+	pinnipedkubeconfig "github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/kubeconfig"
 )
 
 type getClusterKubeconfigOptions struct {
@@ -102,8 +102,12 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName st
 		audience = *clusterPinnipedInfo.ClusterAudience
 	}
 
-	kubeconfig, err := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
-		clusterPinnipedInfo.ClusterName, audience)
+	kubeconfig, err := pinnipedkubeconfig.GetPinnipedKubeconfig(
+		clusterPinnipedInfo.ClusterInfo,
+		clusterPinnipedInfo.PinnipedInfo,
+		clusterPinnipedInfo.ClusterName,
+		audience,
+	)
 
 	if err != nil {
 		return errors.Wrap(err, "unable to get kubeconfig")

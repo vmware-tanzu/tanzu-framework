@@ -16,7 +16,8 @@ import (
 
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-	tkgauth "github.com/vmware-tanzu/tanzu-framework/tkg/auth"
+
+	pinnipedkubeconfig "github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/kubeconfig"
 )
 
 type getClusterKubeconfigOptions struct {
@@ -102,7 +103,7 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) 
 	// for management cluster the audience would be set to IssuerURL
 	audience := clusterPinnipedInfo.PinnipedInfo.Issuer
 
-	kubeconfig, _ := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
+	kubeconfig, _ := pinnipedkubeconfig.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
 		clusterPinnipedInfo.ClusterName, audience)
 
 	kubeconfigbytes, err := json.Marshal(kubeconfig)

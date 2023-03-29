@@ -15,10 +15,11 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 )
 
 // GetClusterPinnipedInfoOptions contains options supported by GetClusterPinnipedInfo
@@ -95,7 +96,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(
 	// be constructed from an existing ConfigMap.
 	configMap := corev1.ConfigMap{}
 
-	if err := regionalClusterClient.GetResource(&configMap, utils.PinnipedInfoConfigMapName, utils.KubePublicNamespace, nil, nil); err != nil {
+	if err := regionalClusterClient.GetResource(&configMap, pinnipedinfo.PinnipedInfoConfigmapName, utils.KubePublicNamespace, nil, nil); err != nil {
 		return nil, errors.New("failed to get pinniped-info from management cluster")
 	}
 
@@ -158,7 +159,7 @@ func (c *TkgClient) GetMCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get cluster information")
 	}
-	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo, nil)
+	pinnipedInfo, err := pinnipedinfo.GetPinnipedInfoFromCluster(clusterInfo, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from cluster")
 	}

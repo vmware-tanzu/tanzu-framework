@@ -20,9 +20,12 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
-	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
-	tkgauth "github.com/vmware-tanzu/tanzu-framework/tkg/auth"
+	tkgauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/tkg"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/auth"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
+
+	pinnipedkubeconfig "github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/kubeconfig"
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 )
 
 var testingDir string
@@ -66,7 +69,8 @@ var _ = Describe("Unit tests for tkg auth", func() {
 						ghttp.RespondWith(http.StatusNotFound, "not found"),
 					),
 				)
-				_, _, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{ClusterInfoConfigMap: tkgauth.DefaultClusterInfoConfigMap})
+
+				_, _, err = auth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, auth.DiscoveryStrategy{ClusterInfoConfigMap: auth.DefaultClusterInfoConfigMap})
 			})
 			It("should return the error", func() {
 				Expect(err).To(HaveOccurred())
@@ -177,12 +181,12 @@ func getExpectedExecConfig(endpoint string, issuer string, issuerCA string, serv
 	args := []string{
 		"pinniped-auth", "login",
 		"--enable-concierge",
-		"--concierge-authenticator-name=" + tkgauth.ConciergeAuthenticatorName,
-		"--concierge-authenticator-type=" + tkgauth.ConciergeAuthenticatorType,
+		"--concierge-authenticator-name=" + pinnipedkubeconfig.ConciergeAuthenticatorName,
+		"--concierge-authenticator-type=" + pinnipedkubeconfig.ConciergeAuthenticatorType,
 		"--concierge-endpoint=" + endpoint,
 		"--concierge-ca-bundle-data=" + base64.StdEncoding.EncodeToString(certBytes),
 		"--issuer=" + issuer,
-		"--scopes=" + tkgauth.PinnipedOIDCScopes,
+		"--scopes=" + pinnipedkubeconfig.PinnipedOIDCScopes,
 		"--ca-bundle-data=" + issuerCA,
 		"--request-audience=" + issuer,
 	}
