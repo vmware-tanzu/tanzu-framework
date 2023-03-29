@@ -136,6 +136,11 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		return errors.Wrap(err, "failed to upgrade management cluster providers")
 	}
 
+	// Ensure Cluster API Provider AWS is running on the control plane before continuing with EC2 instance profile
+	if err := regionalClusterClient.PatchClusterAPIAWSControllersToUseEC2Credentials(); err != nil {
+		return errors.Wrap(err, "unable to patch the Cluster API Provider AWS controller to use EC2 instance profile")
+	}
+
 	// Wait for installed providers to get up and running
 	// TODO: Currently tkg doesn't support TargetNamespace and WatchingNamespace as it's not supporting multi-tenency of providers
 	// If we support it in future we need to make these namespaces as command line options and use here
@@ -147,6 +152,7 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	if err != nil {
 		return errors.Wrap(err, "error waiting for provider components to be up and running after upgrading them")
 	}
+
 	log.Info("Management cluster providers upgraded successfully...")
 
 	// Patch management cluster with the TKG version
