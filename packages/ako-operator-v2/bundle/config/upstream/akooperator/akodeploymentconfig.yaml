@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
 kind: AKODeploymentConfig
@@ -53,4 +54,32 @@ spec:
         disableStaticRouteSync: false
         ingress:
             disableIngressClass: true
+            defaultIngressController: false
+
+---
+apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
+kind: AKODeploymentConfig
+metadata:
+    name: install-ako-for-all-npl
+spec:
+    cloudName: ""
+    serviceEngineGroup: ""
+    controller: ""
+    adminCredentialRef:
+        name: controller-credentials
+        namespace: default
+    certificateAuthorityRef:
+        name: controller-ca
+        namespace: default
+    dataNetwork:
+        name: ""
+        cidr: ""
+    controlPlaneNetwork:
+        name: ""
+        cidr: ""
+    extraConfigs:
+        disableStaticRouteSync: false
+        ingress:
+            disableIngressClass: true
+            serviceType: NodePortLocal
             defaultIngressController: false

@@ -240,6 +240,7 @@ func setAkoOperatorConfig(tkgPackageConfig *TKGPackageConfig, userProviderConfig
 				AviLabels:                                      aviLabelsJsonString,
 				AviControlPlaneHaProvider:                      convertToBool(userProviderConfigValues[constants.ConfigVariableVsphereHaProvider]),
 				AviIngressNodeNetworkList:                      nodeNetworkList,
+				AviCniPlugin:                                   convertToString(userProviderConfigValues[constants.ConfigVariableCNI]),
 			},
 		},
 	}

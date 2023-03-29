@@ -117,3 +117,57 @@ spec:
         networksConfig:
             nsxtT1LR: #@ values.akoOperator.config.avi_nsxt_t1_lr
 #@ end
+
+#@overlay/match by=overlay.subset({"kind": "AKODeploymentConfig", "metadata": {"name": "install-ako-for-all-npl"}})
+---
+#@overlay/replace
+apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
+kind: AKODeploymentConfig
+metadata:
+    name: install-ako-for-all-npl
+spec:
+    #@overlay/match missing_ok=True
+    clusterSelector:
+        matchLabels:
+            nodeportlocal: "true"
+#@ if values.akoOperator.config.avi_controller_version != "":
+    #@overlay/match missing_ok=True
+    controllerVersion: #@ values.akoOperator.config.avi_controller_version
+#@ end
+    cloudName: #@ values.akoOperator.config.avi_cloud_name
+    serviceEngineGroup: #@ values.akoOperator.config.avi_service_engine_group
+    controller: #@ values.akoOperator.config.avi_controller
+    adminCredentialRef:
+        name: #@ values.akoOperator.config.avi_admin_credential_name
+        namespace: #@ values.akoOperator.namespace
+    certificateAuthorityRef:
+        name: #@ values.akoOperator.config.avi_ca_name
+        namespace: #@ values.akoOperator.namespace
+    dataNetwork:
+        name: #@ values.akoOperator.config.avi_data_network
+        cidr: #@ values.akoOperator.config.avi_data_network_cidr
+    controlPlaneNetwork:
+        name: #@ values.akoOperator.config.avi_control_plane_network
+        cidr: #@ values.akoOperator.config.avi_control_plane_network_cidr
+    extraConfigs:
+#@ if values.akoOperator.config.avi_cni_plugin:
+#@overlay/match missing_ok=True
+        cniPlugin: #@ values.akoOperator.config.avi_cni_plugin
+#@ end
+        disableStaticRouteSync: #@ values.akoOperator.config.avi_disable_static_route_sync
+        ingress:
+            disableIngressClass: #@ values.akoOperator.config.avi_disable_ingress_class
+            defaultIngressController: #@ values.akoOperator.config.avi_ingress_default_ingress_controller
+#@ if values.akoOperator.config.avi_ingress_shard_vs_size != "":
+            #@overlay/match missing_ok=True
+            shardVSSize: #@ values.akoOperator.config.avi_ingress_shard_vs_size
+#@ end
+#@ if values.akoOperator.config.avi_ingress_node_network_list != '""':
+            #@overlay/match missing_ok=True
+            nodeNetworkList: #@ json.decode(values.akoOperator.config.avi_ingress_node_network_list)
+#@ end
+#@ if values.akoOperator.config.avi_nsxt_t1_lr:
+        #@overlay/match missing_ok=True
+        networksConfig:
+            nsxtT1LR: #@ values.akoOperator.config.avi_nsxt_t1_lr
+#@ end
