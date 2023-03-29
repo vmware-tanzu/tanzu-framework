@@ -12,7 +12,6 @@ severity:
 scan:
   skip-dirs:
     - docs
-    - hack
   scanners:
     - vuln
 # Vulnerability Options
