@@ -26,11 +26,10 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/core v0.0.0-20220914003300-5b2ed024556a
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
-	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/tkg v0.0.0-00010101000000-000000000000
 	golang.org/x/sync v0.1.0
-	k8s.io/api v0.26.3
-	k8s.io/apimachinery v0.26.3
+	k8s.io/api v0.24.4
+	k8s.io/apimachinery v0.24.4
 	sigs.k8s.io/cluster-api v1.2.8
 	sigs.k8s.io/controller-runtime v0.12.3
 )
@@ -204,6 +203,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220824221239-af5a644ffef7 // indirect
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-20220908202723-7a1ddb97efab // indirect
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/tkr v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware/govmomi v0.30.2 // indirect
@@ -233,13 +233,13 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.24.4 // indirect
 	k8s.io/apiserver v0.24.4 // indirect
-	k8s.io/client-go v0.26.3 // indirect
+	k8s.io/client-go v0.24.4 // indirect
 	k8s.io/cluster-bootstrap v0.24.4 // indirect
 	k8s.io/component-base v0.24.4 // indirect
-	k8s.io/klog/v2 v2.80.1 // indirect
+	k8s.io/klog/v2 v2.80.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20221207184640-f3cff1453715 // indirect
 	k8s.io/kubectl v0.24.0 // indirect
-	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
+	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5 // indirect
 	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2 // indirect
 	sigs.k8s.io/cluster-api-provider-azure v1.6.1 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.5.3 // indirect
