@@ -1,9 +1,0 @@
-
----
-apiVersion: core.tanzu.vmware.com/v1alpha2
-kind: Feature
-metadata:
-  name: foo
-spec:
-  stability: Technical Preview
-status: {}
