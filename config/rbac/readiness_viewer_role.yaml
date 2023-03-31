@@ -1,0 +1,20 @@
+# permissions for end users to view readinesses.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: readiness-viewer-role
+rules:
+- apiGroups:
+  - core.tanzu.vmware.com
+  resources:
+  - readinesses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - core.tanzu.vmware.com
+  resources:
+  - readinesses/status
+  verbs:
+  - get

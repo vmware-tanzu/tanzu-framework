@@ -1,0 +1,6 @@
+apiVersion: core.tanzu.vmware.com/v1alpha1
+kind: Readiness
+metadata:
+  name: readiness-sample
+spec:
+  # TODO(user): Add fields here

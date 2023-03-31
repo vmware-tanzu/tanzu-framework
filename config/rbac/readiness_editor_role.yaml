@@ -1,0 +1,24 @@
+# permissions for end users to edit readinesses.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: readiness-editor-role
+rules:
+- apiGroups:
+  - core.tanzu.vmware.com
+  resources:
+  - readinesses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - core.tanzu.vmware.com
+  resources:
+  - readinesses/status
+  verbs:
+  - get
