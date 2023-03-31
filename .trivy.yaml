@@ -1,0 +1,19 @@
+# Ref: https://aquasecurity.github.io/trivy/v0.33/docs/references/customization/config-file
+# Global Options
+debug: true
+# Report Options
+exit-code: 1
+format: 'sarif'
+output: 'trivy-results.sarif'
+severity:
+  - CRITICAL
+  - HIGH
+# Scan Options
+scan:
+  skip-dirs:
+    - docs
+  scanners:
+    - vuln
+# Vulnerability Options
+vulnerability:
+  ignore-unfixed: true
