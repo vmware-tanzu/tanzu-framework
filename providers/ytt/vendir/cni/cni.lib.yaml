@@ -1,4 +1,0 @@
-#@ load("@ytt:library", "library")
-
-#@ cni_antrea_lib = library.get("addons/packages/antrea/1.9.0/bundle/config")
-#@ cni_calico_lib = library.get("addons/packages/calico/3.24.1/bundle/config")
