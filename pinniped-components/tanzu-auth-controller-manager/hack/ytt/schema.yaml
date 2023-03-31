@@ -1,4 +1,0 @@
-#@data/values-schema
----
-tkr: "1.2.3---vmware.1-tkg.1" #! tkr values look something like this
-infrastructure_provider: "vsphere" #! infra provider will be one of several options, such as vsphere, aws, azure
