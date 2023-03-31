@@ -1,0 +1,7 @@
+apiVersion: foo.tanzu.vmware.com/v1alpha1
+kind: Bar
+metadata:
+  name: bar-sample
+spec:
+  # Add fields here
+  foo: bar
