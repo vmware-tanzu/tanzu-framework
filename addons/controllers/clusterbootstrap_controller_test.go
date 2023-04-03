@@ -1295,25 +1295,16 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					if err := k8sClient.Get(ctx, key, config); err != nil {
 						return false
 					}
-
-					if len(config.OwnerReferences) > 0 {
-						return false
+					ownerRef := metav1.OwnerReference{
+						APIVersion: clusterapiv1beta1.GroupVersion.String(),
+						Kind:       "Cluster",
+						Name:       cluster.Name,
+						UID:        cluster.UID,
 					}
-
-					Expect(len(config.OwnerReferences)).Should(Equal(0))
-					return true
+					return clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerRef)
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
-				patchedSecret := config.DeepCopy()
-				ownerRef := metav1.OwnerReference{
-					APIVersion: clusterapiv1beta1.GroupVersion.String(),
-					Kind:       "Cluster",
-					Name:       cluster.Name,
-					UID:        cluster.UID,
-				}
-
-				patchedSecret.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedSecret.OwnerReferences, ownerRef)
-				Expect(k8sClient.Patch(ctx, patchedSecret, client.MergeFrom(config))).ShouldNot(HaveOccurred())
+				Expect(config.ObjectMeta.Labels["tkg.tanzu.vmware.com/package-name"]).Should(Equal("load-balancer-and-ingress-service.tanzu.vmware.com.0.0.4"))
 
 				By("ClusterBootstrap CR is created with correct ownerReference added")
 				// Verify ownerReference for cluster in cloned object
@@ -1350,7 +1341,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				deleteOptions := client.DeleteOptions{PropagationPolicy: &deletePropagation}
 				Expect(k8sClient.Delete(ctx, cluster, &deleteOptions)).To(Succeed())
 
-				By("instacllpackages for additional packages should have been removed.")
+				By("installpackages for additional packages should have been removed.")
 				Eventually(func() bool {
 					return hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
 						clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, setupLog)
