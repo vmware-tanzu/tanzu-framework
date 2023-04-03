@@ -10,6 +10,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ../cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../packageclients
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common => ../pinniped-components/common
 	github.com/vmware-tanzu/tanzu-framework/tkr => ../tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ../util
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
@@ -51,6 +52,7 @@ require (
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/k14s/imgpkg v0.17.0
 	github.com/k14s/kbld v0.32.0
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.4.1
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.24.1
 	github.com/oracle/oci-go-sdk/v49 v49.2.0
@@ -74,14 +76,15 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/cli/core v0.0.0-20220914003300-5b2ed024556a
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/tkr v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000
-	github.com/vmware/govmomi v0.27.1
+	github.com/vmware/govmomi v0.30.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
-	golang.org/x/mod v0.7.0
-	golang.org/x/net v0.4.0
+	golang.org/x/mod v0.8.0
+	golang.org/x/net v0.8.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/text v0.5.0
+	golang.org/x/text v0.8.0
 	gomodules.xyz/jsonpatch/v2 v2.2.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -94,7 +97,7 @@ require (
 	sigs.k8s.io/cluster-api v1.2.8
 	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2
 	sigs.k8s.io/cluster-api-provider-azure v1.6.1
-	sigs.k8s.io/cluster-api-provider-vsphere v1.4.1
+	sigs.k8s.io/cluster-api-provider-vsphere v1.5.3
 	sigs.k8s.io/cluster-api/test v1.2.8
 	sigs.k8s.io/controller-runtime v0.12.3
 	sigs.k8s.io/kind v0.15.0
@@ -229,9 +232,10 @@ require (
 	go.uber.org/zap v1.22.0 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/oauth2 v0.3.0 // indirect
-	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/term v0.3.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.102.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect

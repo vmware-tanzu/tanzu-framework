@@ -24,7 +24,7 @@ import (
 	"github.com/yalp/jsonpath"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
-	betav1 "k8s.io/api/batch/v1beta1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	extensionsV1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -314,6 +314,8 @@ type Client interface {
 	GetAWSCredentialsFromSecret() (string, error)
 	// GetAzureCredentialsFromSecret gets the Azure base64 credentials used to deploy the cluster
 	GetAzureCredentialsFromSecret() (azureclient.Credentials, error)
+	// GetAzureCredentialsFromIdentity gets the Azure base64 credentials from AzureClusterIdentity
+	GetAzureCredentialsFromIdentity(identityName string, identityNamespace string) (azureclient.Credentials, error)
 	// UpdateCapvManagerBootstrapCredentialsSecret updates the vsphere creds used by the capv provider
 	UpdateCapvManagerBootstrapCredentialsSecret(username string, password string) error
 	// UpdateVsphereIdentityRefSecret updates vsphere cluster identityRef secret
@@ -481,7 +483,7 @@ func init() {
 	_ = capdv1.AddToScheme(scheme)
 	_ = bootstrapv1.AddToScheme(scheme)
 	_ = runv1alpha1.AddToScheme(scheme)
-	_ = betav1.AddToScheme(scheme)
+	_ = batchv1.AddToScheme(scheme)
 	_ = tmcv1alpha1.AddToScheme(scheme)
 	_ = extensionsV1.AddToScheme(scheme)
 	_ = rbacv1.AddToScheme(scheme)
@@ -1016,7 +1018,7 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 					reason,
 					message)
 			}
-			if !(strings.Contains(message, "context deadline exceeded") || strings.Contains(message, "context canceled")) {
+			if !(strings.Contains(message, "Failed to refresh the Token for request to") || strings.Contains(message, "context deadline exceeded") || strings.Contains(message, "context canceled")) {
 				errorRetry++
 			}
 			return false, errors.Errorf("cluster not ready, reason:'%s', message:'%s'", reason, message)
@@ -2564,7 +2566,7 @@ func (c *client) RemoveCEIPTelemetryJob(clusterName string) error {
 		// Don't attempt to delete cronjob if it doesn't exist
 		return nil
 	}
-	jobResource := &betav1.CronJob{}
+	jobResource := &batchv1.CronJob{}
 	jobResource.Namespace = constants.CeipNamespace
 	jobResource.Name = constants.CeipJobName
 	err = c.DeleteResource(jobResource)
@@ -2611,7 +2613,7 @@ func (c *client) AddCEIPTelemetryJob(clusterName, providerName string, bomConfig
 
 // HasCEIPTelemetryJob check whether CEIP telemetry job is present or not
 func (c *client) HasCEIPTelemetryJob(clusterName string) (bool, error) {
-	cronJobs := &betav1.CronJobList{}
+	cronJobs := &batchv1.CronJobList{}
 	err := c.GetResourceList(cronJobs, clusterName, constants.CeipNamespace, nil, nil)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to find telemetry cronjob")

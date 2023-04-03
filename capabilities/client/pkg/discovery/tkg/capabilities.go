@@ -32,11 +32,13 @@ const (
 )
 
 // IsTKGm returns true if the cluster is a TKGm cluster.
+// Deprecated: This function will be removed in a future release.
 func (dc *DiscoveryClient) IsTKGm(ctx context.Context) (bool, error) {
 	return dc.HasInfrastructureProvider(ctx, InfrastructureProviderVsphere)
 }
 
 // IsTKGS returns true if the cluster is a TKGS cluster. Checks for the existence of any TKC API version.
+// Deprecated: This function will be removed in a future release.
 func (dc *DiscoveryClient) IsTKGS(ctx context.Context) (bool, error) {
 	query := discovery.Group("tkc", runv1alpha1.GroupVersion.Group).
 		WithResource("tanzukubernetesclusters")
@@ -44,6 +46,7 @@ func (dc *DiscoveryClient) IsTKGS(ctx context.Context) (bool, error) {
 }
 
 // IsManagementCluster returns true if the cluster is a TKG management cluster.
+// Deprecated: This function will be removed in a future release.
 func (dc *DiscoveryClient) IsManagementCluster(ctx context.Context) (bool, error) {
 	s, err := clusterTypeFromMetadataConfigMap(ctx, dc.k8sClient)
 	if err != nil {
@@ -53,6 +56,7 @@ func (dc *DiscoveryClient) IsManagementCluster(ctx context.Context) (bool, error
 }
 
 // IsWorkloadCluster returns true if the cluster is a TKG workload cluster.
+// Deprecated: This function will be removed in a future release.
 func (dc *DiscoveryClient) IsWorkloadCluster(ctx context.Context) (bool, error) {
 	s, err := clusterTypeFromMetadataConfigMap(ctx, dc.k8sClient)
 	if err != nil {
@@ -88,6 +92,7 @@ func clusterTypeFromMetadataConfigMap(ctx context.Context, c client.Client) (str
 }
 
 // HasNSX indicates if a cluster has NSX capabilities.
+// Deprecated: This function will be removed in a future release.
 func (dc *DiscoveryClient) HasNSX(ctx context.Context) (bool, error) {
 	nsx := &corev1.ObjectReference{
 		Kind:       "Namespace",

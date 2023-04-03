@@ -24,6 +24,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
 
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/concierge"
 	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/dex"
 	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy/pkg/configure/supervisor"
@@ -58,7 +59,6 @@ type Parameters struct {
 	DexSvcName               string
 	DexCertName              string
 	DexConfigMapName         string
-	ConciergeIsClusterScoped bool
 }
 
 func ensureDeploymentReady(ctx context.Context, c Clients, namespace, deploymentTypeName string) error {
@@ -206,7 +206,6 @@ func TKGAuthentication(c Clients) error {
 		DexSvcName:               vars.DexSvcName,
 		DexCertName:              vars.DexCertName,
 		DexConfigMapName:         vars.DexConfigMapName,
-		ConciergeIsClusterScoped: vars.ConciergeIsClusterScoped,
 	}); err != nil {
 		// logging has been done inside the function
 		return err
@@ -307,11 +306,10 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 		}
 
 		// create configmap for Pinniped info
-		if err := createOrUpdateManagementClusterPinnipedInfo(ctx, supervisor.PinnipedInfo{
-			MgmtClusterName:          &p.ClusterName,
-			Issuer:                   &supervisorSvcEndpoint,
-			IssuerCABundleData:       &caData,
-			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
+		if err := createOrUpdateManagementClusterPinnipedInfo(ctx, pinnipedinfo.PinnipedInfo{
+			ClusterName:        p.ClusterName,
+			Issuer:             supervisorSvcEndpoint,
+			IssuerCABundleData: caData,
 		}, c.K8SClientset, p.SupervisorSvcNamespace); err != nil {
 			return err
 		}

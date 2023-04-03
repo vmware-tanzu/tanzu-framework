@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 )
 
 // ###################### Fake CAPI objects creation helper ######################
@@ -38,17 +39,8 @@ func GetFakeClusterInfo(server string, cert *x509.Certificate) string {
 	return clusterInfoJSON
 }
 
-// PinnipedInfo contains settings for the supervisor.
-type PinnipedInfo struct {
-	ClusterName              string `json:"cluster_name"`
-	ConciergeEndpoint        string `json:"concierge_endpoint"`
-	Issuer                   string `json:"issuer"`
-	IssuerCABundleData       string `json:"issuer_ca_bundle_data"`
-	ConciergeIsClusterScoped bool   `json:"concierge_is_cluster_scoped,string"`
-}
-
 // GetFakePinnipedInfo returns the pinniped-info configmap
-func GetFakePinnipedInfo(pinnipedInfo PinnipedInfo) string {
+func GetFakePinnipedInfo(pinnipedInfo pinnipedinfo.PinnipedInfo) string {
 	data, err := json.Marshal(pinnipedInfo)
 	if err != nil {
 		err = fmt.Errorf("could not marshal Pinniped info into JSON: %w", err)

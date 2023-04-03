@@ -180,7 +180,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 			// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
 			// log command to use to create cluster using ClusterClass based config file and return
 			if !c.IsFeatureActivated(constants.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
-				log.Warningf("\nTo create a cluster with it, use")
+				log.Warningf("\nTo create a cluster with it, please use the following command together with all customized flags set in the last step. e.g. --tkr, -v")
 				log.Warningf("    tanzu cluster create --file %v", configFilePath)
 				return false, nil
 			}
@@ -738,11 +738,48 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return err
 	}
 
+	if err = c.ValidateExtraArgs(); err != nil {
+		return err
+	}
+
 	if err = c.ValidateKubeVipLBConfiguration(TkgLabelClusterRoleWorkload); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.ValidateAviMaxAllowedClusterNameLength(TkgLabelClusterRoleWorkload, options.ClusterName, clusterClient, skipValidation); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	return c.ValidateSupportOfK8sVersionForManagmentCluster(clusterClient, options.KubernetesVersion, skipValidation)
+}
+
+func (c *TkgClient) ValidateExtraArgs() error {
+	supportedList := []string{
+		constants.ConfigVariableEtcdExtraArgs,
+		constants.ConfigVariableAPIServerExtraArgs,
+		constants.ConfigVariableKubeSchedulerExtraArgs,
+		constants.ConfigVariableKubeControllerManagerExtraArgs,
+		constants.ConfigVariableControlPlaneKubeletExtraArgs,
+		constants.ConfigVariableWorkerKubeletExtraArgs,
+	}
+	for _, extraArgsName := range supportedList {
+		if args, err := c.TKGConfigReaderWriter().Get(extraArgsName); err != nil {
+			c.TKGConfigReaderWriter().Set(extraArgsName, "")
+		} else if args != "" {
+			argList := strings.Split(args, ";")
+			for _, arg := range argList {
+				if index := strings.Index(arg, "="); index >= 0 {
+					key := arg[0:index]
+					if strings.TrimSpace(key) == "" {
+						return errors.New(fmt.Sprintf("%s contains empty keys: %s", extraArgsName, args))
+					}
+				} else {
+					return errors.New(fmt.Sprintf("%s is not format key1=value1;key2=value2: %s", extraArgsName, args))
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // ValidateProviderConfig configure and validate based on provider
@@ -762,7 +799,7 @@ func (c *TkgClient) configureAndValidateProviderConfig(providerName string, opti
 			return NewValidationError(ValidationErrorCode, errors.Wrap(err, "vSphere control plane endpoint IP validation failed").Error())
 		}
 	case AzureProviderName:
-		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation, nil); err != nil {
+		if err := c.ConfigureAndValidateAzureConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation, clusterClient); err != nil {
 			return errors.Wrap(err, "Azure config validation failed")
 		}
 	case DockerProviderName:
@@ -916,6 +953,44 @@ func (c *TkgClient) ValidateKubeVipLBConfiguration(clusterRole string) error {
 		return errors.Errorf("%s is enabled, either %s or %s has to be set", constants.ConfigVariableKubevipLoadbalancerEnable, constants.ConfigVariableKubevipLoadbalancerCIDRs, constants.ConfigVariableKubevipLoadbalancerIPRanges)
 	}
 
+	return nil
+}
+
+// ValidateAviMaxAllowedClusterNameLength validates if AVI enabled cluster's name has no more than 25 characters
+func (c *TkgClient) ValidateAviMaxAllowedClusterNameLength(clusterRole, clusterName string, regionalClusterClient clusterclient.Client, skipValidation bool) error {
+	aviLabels, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviLabels)
+	kvlbEnabled, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableKubevipLoadbalancerEnable)
+
+	// skip when:
+	// 1. cluster is management cluster, that check has already been done in ConfigureAndValidateAviConfiguration func
+	// 2. workload cluster doesn't enable avi
+	// 3. skip validation
+	if clusterRole != TkgLabelClusterRoleWorkload || kvlbEnabled == "true" || skipValidation {
+		return nil
+	}
+
+	mgmtClusterName, _, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "unable to get name and namespace of current management cluster")
+	}
+	akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(regionalClusterClient, mgmtClusterName, true)
+	if err != nil {
+		return errors.Wrap(err, "unable to get akoo addon secret values")
+	}
+
+	if found {
+		configValues := make(map[string]interface{})
+		if err = RetrieveAKOOVariablesFromAddonSecretValues(mgmtClusterName, configValues, akooAddonSecretValues); err != nil {
+			return errors.Wrap(err, "unable to handle the akoo specific variables")
+		}
+		// mgmt avi labels is specified & workload cluster avi labels not specify, workload cluster doesn't enable Avi, skip
+		if !utils.IsAviInputEmpty(configValues[constants.ConfigVariableAviLabels]) && aviLabels == "" {
+			return nil
+		}
+		if len(clusterName) > constants.AkoMaxAllowedClusterNameLen {
+			return errors.Errorf("%s contains more than %d character, which will cause AKO package deployment failure", clusterName, constants.AkoMaxAllowedClusterNameLen)
+		}
+	}
 	return nil
 }
 

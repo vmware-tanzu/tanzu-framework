@@ -5,6 +5,7 @@ package client
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"strconv"
 	"strings"
@@ -12,7 +13,7 @@ import (
 
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
-	betav1 "k8s.io/api/batch/v1beta1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/util/version"
@@ -29,6 +30,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/avi"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -36,6 +38,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 // ErrorBlockUpgradeTMCIncompatible defines the error message to display during upgrade when cluster is registred to TMC and TMC does not support latest version of TKG
@@ -133,6 +136,11 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		return errors.Wrap(err, "failed to upgrade management cluster providers")
 	}
 
+	// Ensure Cluster API Provider AWS is running on the control plane before continuing with EC2 instance profile
+	if err := regionalClusterClient.PatchClusterAPIAWSControllersToUseEC2Credentials(); err != nil {
+		return errors.Wrap(err, "unable to patch the Cluster API Provider AWS controller to use EC2 instance profile")
+	}
+
 	// Wait for installed providers to get up and running
 	// TODO: Currently tkg doesn't support TargetNamespace and WatchingNamespace as it's not supporting multi-tenency of providers
 	// If we support it in future we need to make these namespaces as command line options and use here
@@ -144,7 +152,19 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	if err != nil {
 		return errors.Wrap(err, "error waiting for provider components to be up and running after upgrading them")
 	}
+
 	log.Info("Management cluster providers upgraded successfully...")
+
+	// Patch management cluster with the TKG version
+	// The TKG version should be patched before tkr-source-controller(in tkg-pkg) upgrade.
+	// So that tkr-source-controller's initial fetch can download the new tkrs.
+	// This will prevent the circular dependency that:
+	// A. Tanzu CLI updates TKG version after cluster upgraded to the desired tkr.
+	// B. tkr-source-controller downloads the desired tkr for cluster upgrade based on the updated TKG version
+	err = regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, options.Namespace, c.tkgBomClient.GetCurrentTKGVersion())
+	if err != nil {
+		return err
+	}
 
 	// If clusterclass feature flag is enabled then deploy management components
 	if config.IsFeatureActivated(constants.FeatureFlagPackageBasedCC) {
@@ -184,12 +204,6 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	}
 
 	err = c.upgradeTelemetryImageIfExists(regionalClusterClient, currentRegion)
-	if err != nil {
-		return err
-	}
-
-	// Patch management cluster with the TKG version
-	err = regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, options.Namespace, c.tkgBomClient.GetCurrentTKGVersion())
 	if err != nil {
 		return err
 	}
@@ -262,6 +276,23 @@ func (c *TkgClient) validateAndconfigure(options *UpgradeClusterOptions, regiona
 		}
 	}
 
+	if providerType == VSphereProviderName {
+		isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
+		if err != nil {
+			return errors.Wrap(err, "unable to determine cluster type")
+		}
+		if akooAddonSecretValues, found, err := GetAKOOAddonSecretValues(regionalClusterClient, clusterName, isClusterClassBased); err != nil {
+			return errors.Wrap(err, "unable to get akoo addon secret values")
+		} else if found {
+			configValues := make(map[string]interface{})
+			if err = RetrieveAKOOVariablesFromAddonSecretValues(clusterName, configValues, akooAddonSecretValues); err != nil {
+				return errors.Wrap(err, "unable to handle the akoo specific variables")
+			}
+			if err = c.validateCompatibilityWithAVIController(configValues); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
@@ -652,6 +683,27 @@ func (c *TkgClient) validateCompatibilityWithTMC(regionalClusterClient clustercl
 	return errors.Errorf(ErrorBlockUpgradeTMCIncompatible, tkgVersion)
 }
 
+// validateCompatibilityWithAVIController validates compatibility of new TKG version with current AVI controller
+func (c *TkgClient) validateCompatibilityWithAVIController(configValues map[string]interface{}) error {
+	aviCA, err := base64.StdEncoding.DecodeString(configValues[constants.ConfigVariableAviControllerCA].(string))
+	if err != nil {
+		return errors.Wrap(err, "unable to base64 decode avi certification")
+	}
+	aviControllerParams := &models.AviControllerParams{
+		Username: configValues[constants.ConfigVariableAviControllerUsername].(string),
+		Password: configValues[constants.ConfigVariableAviControllerPassword].(string),
+		Host:     configValues[constants.ConfigVariableAviControllerAddress].(string),
+		Tenant:   "admin",
+		CAData:   string(aviCA),
+	}
+	if authed, err := avi.New().VerifyAccount(aviControllerParams); err != nil {
+		return err
+	} else if !authed {
+		return errors.Errorf("unable to authenticate avi controller due to incorrect credentials")
+	}
+	return nil
+}
+
 // upgradeTelemetryImage will upgrade the telemetry image if the management-cluster is opted into telemetry
 // additional labels set by the user using the CLI will be preserved (such as: isProd or customer identification)
 func (c *TkgClient) upgradeTelemetryImageIfExists(regionalClusterClient clusterclient.Client, ctx region.RegionContext) error {
@@ -661,7 +713,7 @@ func (c *TkgClient) upgradeTelemetryImageIfExists(regionalClusterClient clusterc
 	}
 
 	if CEIPJobExists {
-		telemetryJob := &betav1.CronJob{}
+		telemetryJob := &batchv1.CronJob{}
 		err := regionalClusterClient.GetResource(telemetryJob, "tkg-telemetry", "tkg-system-telemetry", nil, nil)
 		if err != nil {
 			return errors.Wrap(err, "Failed to determine if telemetry job is installed or not")

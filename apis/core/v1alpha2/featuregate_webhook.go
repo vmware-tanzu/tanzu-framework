@@ -56,6 +56,16 @@ func (r *FeatureGate) getClient() (client.Client, error) {
 
 // SetupWebhookWithManager adds the webhook to the manager.
 func (r *FeatureGate) SetupWebhookWithManager(mgr ctrl.Manager) error {
+	s, err := getScheme()
+	if err != nil {
+		return err
+	}
+
+	cl, err = client.New(mgr.GetConfig(), client.Options{Scheme: s})
+	if err != nil {
+		return err
+	}
+
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
 		Complete()

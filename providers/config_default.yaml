@@ -480,6 +480,8 @@ ENABLE_MHC_WORKER_NODE: true
 ENABLE_MHC_CONTROL_PLANE: true
 MHC_UNKNOWN_STATUS_TIMEOUT: 5m
 MHC_FALSE_STATUS_TIMEOUT: 12m
+MHC_MAX_UNHEALTHY_CONTROL_PLANE: 100%
+MHC_MAX_UNHEALTHY_WORKER_NODE: 100%
 
 #! Common configuration
 #! ---------------------------------------------------------------------
@@ -494,6 +496,25 @@ TKG_CUSTOM_IMAGE_REPOSITORY: ""
 TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: false
 TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE: ""
 
+#! When user's application images are from a registry with a self-signed CA
+#! set this value to configure the cluster to trust it. For a registry with
+#! a public CA nothing need to change. This is only for user's application
+#! images, to configure TKG image repository for cluster creation, use
+#! TKG_CUSTOM_IMAGE_REPOSITORY instead.
+#! Example image registry host name: 10.191.247.30:8443
+ADDITIONAL_IMAGE_REGISTRY_1: ""
+ADDITIONAL_IMAGE_REGISTRY_1_SKIP_TLS_VERIFY: false
+#! Base64 encoded self-signed CA certificate
+ADDITIONAL_IMAGE_REGISTRY_1_CA_CERTIFICATE: ""
+
+ADDITIONAL_IMAGE_REGISTRY_2: ""
+ADDITIONAL_IMAGE_REGISTRY_2_SKIP_TLS_VERIFY: false
+ADDITIONAL_IMAGE_REGISTRY_2_CA_CERTIFICATE: ""
+
+ADDITIONAL_IMAGE_REGISTRY_3: ""
+ADDITIONAL_IMAGE_REGISTRY_3_SKIP_TLS_VERIFY: false
+ADDITIONAL_IMAGE_REGISTRY_3_CA_CERTIFICATE: ""
+
 #! PROXY configuration
 #! If `TKG_PROXY_CA_CERT` is specified it gets used instead of
 #! `TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE` while communicating
@@ -502,6 +523,7 @@ TKG_HTTP_PROXY: ""
 TKG_HTTPS_PROXY: ""
 TKG_NO_PROXY: ""
 TKG_PROXY_CA_CERT: ""
+TKG_NODE_SYSTEM_WIDE_PROXY: false
 
 #! IP Family setting
 TKG_IP_FAMILY:
@@ -712,6 +734,8 @@ ANTREA_TRANSPORT_INTERFACE_CIDRS: ""
 ANTREA_MULTICAST_INTERFACES: ""
 ANTREA_MULTICAST_IGMPQUERY_INTERVAL: "125s"
 ANTREA_TUNNEL_TYPE: geneve
+ANTREA_TUNNEL_PORT: 0
+ANTREA_TUNNEL_CSUM: false
 ANTREA_TRAFFIC_ENCRYPTION_MODE: none
 ANTREA_WIREGUARD_PORT: 51820
 ANTREA_ENABLE_USAGE_REPORTING: false
@@ -736,12 +760,15 @@ ANTREA_MULTICAST: false
 ANTREA_MULTICLUSTER: false
 ANTREA_SECONDARY_NETWORK: false
 ANTREA_TRAFFIC_CONTROL: false
+ANTREA_TOPOLOGY_AWARE_HINTS: false
 
 
 
 KUBEVIP_LOADBALANCER_ENABLE: false
 KUBEVIP_LOADBALANCER_IP_RANGES: ""
 KUBEVIP_LOADBALANCER_CIDRS: ""
+
+CUSTOM_TDNF_REPOSITORY_CERTIFICATE: ""
 
 #! ---------------------------------------------------------------------
 #! Internal configuration, not meant to be overridden

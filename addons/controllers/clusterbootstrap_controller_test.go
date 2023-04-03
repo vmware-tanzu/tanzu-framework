@@ -30,7 +30,7 @@ import (
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/builder"
-	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
+	antreaconfigv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
 	kvcpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
@@ -921,7 +921,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 	When("Cluster is created", func() {
 
-		var routableAntreaConfig *antreaconfigv1alpha1.AntreaConfig
+		var routableAntreaConfig *antreaconfigv1alpha2.AntreaConfig
 
 		BeforeEach(func() {
 			clusterName = "test-cluster-tcbt-3"
@@ -937,17 +937,17 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(apierrors.IsAlreadyExists(err)).To(BeTrue())
 			}
 
-			routableAntreaConfig = &antreaconfigv1alpha1.AntreaConfig{
+			routableAntreaConfig = &antreaconfigv1alpha2.AntreaConfig{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      fmt.Sprintf("%s-antrea-package", clusterName),
 					Namespace: clusterNamespace,
 				},
-				Spec: antreaconfigv1alpha1.AntreaConfigSpec{
-					Antrea: antreaconfigv1alpha1.Antrea{
-						AntreaConfigDataValue: antreaconfigv1alpha1.AntreaConfigDataValue{
+				Spec: antreaconfigv1alpha2.AntreaConfigSpec{
+					Antrea: antreaconfigv1alpha2.Antrea{
+						AntreaConfigDataValue: antreaconfigv1alpha2.AntreaConfigDataValue{
 							TrafficEncapMode: "hybrid",
 							NoSNAT:           true,
-							FeatureGates: antreaconfigv1alpha1.AntreaFeatureGates{
+							FeatureGates: antreaconfigv1alpha2.AntreaFeatureGates{
 								AntreaProxy:   true,
 								EndpointSlice: true,
 							},
@@ -956,7 +956,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				},
 			}
 			Expect(k8sClient.Create(ctx, routableAntreaConfig)).NotTo(HaveOccurred())
-			assertEventuallyExistInNamespace(ctx, k8sClient, clusterNamespace, routableAntreaConfig.Name, &antreaconfigv1alpha1.AntreaConfig{})
+			assertEventuallyExistInNamespace(ctx, k8sClient, clusterNamespace, routableAntreaConfig.Name, &antreaconfigv1alpha2.AntreaConfig{})
 		})
 
 		Context("with a routable AntreaConfig resource already exist", func() {
@@ -969,7 +969,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return err == nil
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
-				antreaConfig := &antreaconfigv1alpha1.AntreaConfig{}
+				antreaConfig := &antreaconfigv1alpha2.AntreaConfig{}
 				// use the name from cloned clusterBootstrap to verify it is the same
 				assertOwnerReferencesExist(ctx, k8sClient, clusterNamespace, clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name, antreaConfig, []metav1.OwnerReference{
 					{
@@ -1519,6 +1519,118 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						err = k8sClient.Get(ctx, client.ObjectKey{Name: pkgInstallName, Namespace: constants.TKGSystemNS}, pkgInstall)
 						g.Expect(err).NotTo(HaveOccurred())
 						g.Expect(pkgInstall.Spec.PackageRef.VersionSelection.Constraints).To(BeEquivalentTo("1.0.1+vmware.1-tkg.1"))
+					}, waitTimeout, pollingInterval).Should(Succeed())
+				})
+			})
+		})
+	})
+
+	When("cluster upgrade with values change", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-10"
+			clusterNamespace = "cluster-namespace-10"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-10.yaml"
+		})
+
+		Context("cluster with no inline values are set", func() {
+			It("should work when no inline values are set", func() {
+
+				By("filling  ClusterBootstrap correctly", func() {
+					Eventually(func(g Gomega) {
+						clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+						err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, clusterBootstrap)
+						g.Expect(err).ShouldNot(HaveOccurred())
+						g.Expect(clusterBootstrap.Spec.CNI.RefName).To(BeEquivalentTo("antrea.tanzu.vmware.com.1.11.7--vmware.1-tkg.2"))
+						g.Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+						g.Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
+						g.Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea-package", clusterName)))
+
+						// Validate Kapp
+						g.Expect(clusterBootstrap.Spec.Kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.32.11"))
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom).NotTo(BeNil())
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
+						g.Expect(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller-package", clusterName)))
+
+						// Validate additional packages
+						g.Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(2))
+
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).To(BeEquivalentTo("pinniped.tanzu.vmware.com.0.13.3--vmware.1-tkg.1"))
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom).NotTo(BeNil())
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.SecretRef).To(BeEquivalentTo(fmt.Sprintf("%s-pinniped-package", clusterName)))
+
+						g.Expect(clusterBootstrap.Spec.AdditionalPackages[1].RefName).To(BeEquivalentTo("foobar.tanzu.vmware.com.0.2.4--vmware.1-tkg.1"))
+						//g.Expect(clusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom).To(BeNil())
+					}, waitTimeout, pollingInterval).Should(Succeed())
+				})
+
+				By("setting cluster phase to provisioned", func() {
+					cluster := &clusterapiv1beta1.Cluster{}
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+					cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+					Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+				})
+
+				By("upgrading Cluster to newer TKR", func() {
+					cluster := &clusterapiv1beta1.Cluster{}
+					newTKRVersion := "v1.25.6-custom"
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+					cluster.Labels[constants.TKRLabelClassyClusters] = newTKRVersion
+
+					// Mock cluster pause mutating webhook
+					cluster.Spec.Paused = true
+					if cluster.Annotations == nil {
+						cluster.Annotations = map[string]string{}
+					}
+					cluster.Annotations[constants.ClusterPauseLabel] = newTKRVersion
+					Expect(k8sClient.Update(ctx, cluster)).To(Succeed())
+
+					Eventually(func(g Gomega) {
+						upgradedClusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), upgradedClusterBootstrap)
+
+						g.Expect(err).To(BeNil())
+						g.Expect(upgradedClusterBootstrap.Status.ResolvedTKR).To(BeEquivalentTo(newTKRVersion))
+
+						// Validate CNI
+						cni := upgradedClusterBootstrap.Spec.CNI
+						// Note: The value of CNI has been bumped to the one in TKR after cluster upgrade
+						g.Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.11.8--vmware.1-tkg.2"))
+						g.Expect(cni.ValuesFrom).NotTo(BeNil())
+						g.Expect(cni.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+						g.Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
+						g.Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea-package", clusterName)))
+
+						// Validate Kapp
+						kapp := upgradedClusterBootstrap.Spec.Kapp
+						g.Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.32.12"))
+						g.Expect(kapp.ValuesFrom).NotTo(BeNil())
+						g.Expect(kapp.ValuesFrom.ProviderRef.APIGroup).NotTo(BeNil())
+						g.Expect(*kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
+						g.Expect(kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
+						g.Expect(kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller-package", clusterName)))
+
+						// Validate additional packages
+						g.Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(2))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[0].RefName).To(BeEquivalentTo("pinniped.tanzu.vmware.com.0.13.4--vmware.1-tkg.1"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom).NotTo(BeNil())
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.SecretRef).To(BeEquivalentTo(fmt.Sprintf("%s-pinniped-package", clusterName)))
+
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].RefName).To(BeEquivalentTo("foobar.tanzu.vmware.com.0.2.5--vmware.1-tkg.1"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom).NotTo(BeNil())
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.Inline).NotTo(BeNil())
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.Inline["key1"]).To(Equal("value1"))
+						g.Expect(upgradedClusterBootstrap.Spec.AdditionalPackages[1].ValuesFrom.Inline["key2"].(map[string]interface{})["key3"]).To(Equal("value3"))
+
+						g.Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+						g.Expect(cluster.Spec.Paused).ToNot(BeTrue())
+						if cluster.Annotations != nil {
+							_, ok := cluster.Annotations[constants.ClusterPauseLabel]
+							g.Expect(ok).ToNot(BeTrue())
+						}
 					}, waitTimeout, pollingInterval).Should(Succeed())
 				})
 			})

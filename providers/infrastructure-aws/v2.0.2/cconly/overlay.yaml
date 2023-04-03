@@ -10,6 +10,7 @@ spec:
     #@overlay/match missing_ok=True
     machineHealthCheck:
       #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_CONTROL_PLANE:
+      maxUnhealthy: #@ data.values.MHC_MAX_UNHEALTHY_CONTROL_PLANE
       nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
       unhealthyConditions:
       - type: Ready
@@ -26,6 +27,7 @@ spec:
       #@overlay/match missing_ok=True
       machineHealthCheck:
         #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
+        maxUnhealthy: #@ data.values.MHC_MAX_UNHEALTHY_WORKER_NODE
         nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
         unhealthyConditions:
         - type: Ready
@@ -49,3 +51,27 @@ spec:
         matchResources:
           controlPlane: true
     name: KCP_INIT_APISERVER_EMPTY_EXTRAVOLUMES_ARRAY
+  #@overlay/append
+  - name: restartContainerdService
+    enabledIf: '{{ not (and (empty .proxy) (empty .trust.additionalTrustedCAs) (empty .imageRepository.host) (empty .additionalImageRegistries)) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl restart containerd
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl restart containerd

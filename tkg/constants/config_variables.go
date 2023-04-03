@@ -18,6 +18,12 @@ const (
 	ConfigVariableClusterAPIServerPort                = "CLUSTER_API_SERVER_PORT"
 	ConfigVariableBastionHostEnabled                  = "BASTION_HOST_ENABLED"
 	ConfigVariableVipNetworkInterface                 = "VIP_NETWORK_INTERFACE"
+	ConfigVariableEtcdExtraArgs                       = "ETCD_EXTRA_ARGS"
+	ConfigVariableAPIServerExtraArgs                  = "APISERVER_EXTRA_ARGS"
+	ConfigVariableKubeSchedulerExtraArgs              = "KUBE_SCHEDULER_EXTRA_ARGS"
+	ConfigVariableKubeControllerManagerExtraArgs      = "KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"
+	ConfigVariableControlPlaneKubeletExtraArgs        = "CONTROLPLANE_KUBELET_EXTRA_ARGS"
+	ConfigVariableWorkerKubeletExtraArgs              = "WORKER_KUBELET_EXTRA_ARGS"
 
 	ConfigVariableAWSRegion          = "AWS_REGION"
 	ConfigVariableAWSSecretAccessKey = "AWS_SECRET_ACCESS_KEY" //nolint:gosec
@@ -192,6 +198,7 @@ const (
 	TKGHTTPProxyEnabled = "TKG_HTTP_PROXY_ENABLED"
 	TKGNoProxy          = "TKG_NO_PROXY"
 	TKGProxyCACert      = "TKG_PROXY_CA_CERT"
+	TKGSystemWideProxy  = "TKG_NODE_SYSTEM_WIDE_PROXY"
 	EnableAuditLogging  = "ENABLE_AUDIT_LOGGING"
 	TKGIPFamily         = "TKG_IP_FAMILY"
 
@@ -292,6 +299,8 @@ const (
 	ConfigVariableKubevipLoadbalancerCIDRs    = "KUBEVIP_LOADBALANCER_CIDRS"
 	ConfigVariableKubevipLoadbalancerIPRanges = "KUBEVIP_LOADBALANCER_IP_RANGES"
 	ConfigVariableFeatureFlagPackageBasedCC   = "FEATURE_FLAG_PACKAGE_BASED_CC"
+
+	ConfigVariableCustomTDNFRepositoryCertificate = "CUSTOM_TDNF_REPOSITORY_CERTIFICATE"
 
 	// Config variable for enabling tkgs routable pod feature
 	ConfigVariableEnableTKGSRoutablePod = "ENABLE_TKGS_ROUTABLE_POD"

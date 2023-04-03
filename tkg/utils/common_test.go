@@ -599,3 +599,115 @@ var _ = Describe("CompareMajorMinorPatchVersion", func() {
 		})
 	})
 })
+
+func Test_CompareVersions(t *testing.T) {
+	testCases := []struct {
+		description  string
+		v1           string
+		v2           string
+		cmpSign      string
+		expectResult bool
+	}{
+		{
+			description:  "v1 should be smaller than v2",
+			v1:           "20.1.6",
+			v2:           "21.1.3",
+			cmpSign:      "<",
+			expectResult: true,
+		},
+		{
+			description:  "v1 should not be smaller than v2",
+			v1:           "22.1.6",
+			v2:           "21.1.3",
+			cmpSign:      "<",
+			expectResult: false,
+		},
+		{
+			description:  "v1 should not be smaller than v2",
+			v1:           "21.1.3",
+			v2:           "21.1.3",
+			cmpSign:      "<",
+			expectResult: false,
+		},
+		{
+			description:  "v1 should be equal to v2",
+			v1:           "21.1.3",
+			v2:           "21.1.3",
+			cmpSign:      "=",
+			expectResult: true,
+		},
+		{
+			description:  "v1 should not be equal to v2",
+			v1:           "22.1.3",
+			v2:           "21.1.3",
+			cmpSign:      "=",
+			expectResult: false,
+		},
+		{
+			description:  "v1 should be greater than v2",
+			v1:           "22.1.3",
+			v2:           "21.1.3",
+			cmpSign:      ">",
+			expectResult: true,
+		},
+		{
+			description:  "v1 should not be greater than v2",
+			v1:           "21.1.3",
+			v2:           "21.1.3",
+			cmpSign:      ">",
+			expectResult: false,
+		},
+		{
+			description:  "v1 should not be greater than v2",
+			v1:           "20.1.3",
+			v2:           "21.1.3",
+			cmpSign:      ">",
+			expectResult: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			result := CompareVersions(tc.v1, tc.cmpSign, tc.v2)
+			if result != tc.expectResult {
+				t.Errorf("version compare result is not expected")
+			}
+		})
+	}
+}
+
+func Test_IsAviInputEmpty(t *testing.T) {
+	testCases := []struct {
+		description  string
+		input        interface{}
+		expectResult bool
+	}{
+		{
+			description:  "nil should be considered as empty input",
+			input:        nil,
+			expectResult: true,
+		},
+		{
+			description:  "empty string should be considered as empty input",
+			input:        "",
+			expectResult: true,
+		},
+		{
+			description:  "\"\" should be considered as empty input",
+			input:        `""`,
+			expectResult: true,
+		},
+		{
+			description:  "test should not be considered as empty input",
+			input:        "test",
+			expectResult: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			result := IsAviInputEmpty(tc.input)
+			if result != tc.expectResult {
+				t.Errorf("IsAviInputEmpty result is not expected")
+			}
+		})
+	}
+}

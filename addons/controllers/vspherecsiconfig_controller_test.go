@@ -105,7 +105,6 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					Expect(config.Spec.VSphereCSI.Mode).Should(Equal("vsphereCSI"))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig).NotTo(BeZero())
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.TLSThumbprint).Should(Equal("yadayada"))
-					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Namespace).Should(Equal("default"))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.ClusterName).Should(Equal("test-clustername"))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Server).Should(Equal("svr-0"))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Datacenter).Should(Equal("dc0"))
@@ -127,6 +126,10 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.DeploymentReplicas).Should(Equal(int32(3)))
 					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.WindowsSupport).NotTo(BeZero())
 					Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.WindowsSupport).Should(Equal(true))
+					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NetPermissions).NotTo(BeZero())
+					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NetPermissions["A"].Ips).Should(Equal("*"))
+					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NetPermissions["A"].Permissions).Should(Equal("READ_WRITE"))
+					Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NetPermissions["A"].RootSquash).Should(Equal(false))
 
 					if len(config.OwnerReferences) == 0 {
 						return fmt.Errorf("OwnerReferences not yet set")
@@ -152,7 +155,6 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					fmt.Println(secretData) // debug dump
 					Expect(strings.Contains(secretData, "vsphereCSI:")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "tlsThumbprint: yadayada")).Should(BeTrue())
-					Expect(strings.Contains(secretData, "namespace: default")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "server: svr-0")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "datacenter: dc0")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "publicNetwork: 8.2.0.0/16")).Should(BeTrue())
@@ -171,7 +173,10 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					Expect(strings.Contains(secretData, "no_proxy: 3.3.3.3")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "deployment_replicas: 3")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "windows_support: true")).Should(BeTrue())
-
+					Expect(strings.Contains(secretData, "netpermissions:")).Should(BeTrue())
+					Expect(strings.Contains(secretData, "ips: '*'")).Should(BeTrue())
+					Expect(strings.Contains(secretData, "permissions: READ_WRITE")).Should(BeTrue())
+					Expect(strings.Contains(secretData, "rootsquash: false")).Should(BeTrue())
 					return nil
 				}, waitTimeout, pollingInterval).Should(Succeed())
 
@@ -244,7 +249,6 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					fmt.Println(secretData) // debug dump
 					Expect(strings.Contains(secretData, "vsphereCSI:")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "tlsThumbprint: thumbprint-yadayada")).Should(BeTrue())
-					Expect(strings.Contains(secretData, "namespace: kube-system")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "server: vsphere-server.local")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "datacenter: dc0")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "publicNetwork: test-network")).Should(BeTrue())
@@ -395,7 +399,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				}
 				Expect(serviceAccount.Spec.Ref.Name).To(Equal(vsphereClusterName))
 				Expect(serviceAccount.Spec.Ref.Namespace).To(Equal(configKey.Namespace))
-				Expect(serviceAccount.Spec.Rules).To(HaveLen(6))
+				Expect(serviceAccount.Spec.Rules).To(HaveLen(7))
 				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-csi"))
 				Expect(serviceAccount.Spec.TargetSecretName).To(Equal("pvcsi-provider-creds"))
 				return nil
@@ -414,7 +418,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				Expect(clusterRole.Labels).To(Equal(map[string]string{
 					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
 				}))
-				Expect(clusterRole.Rules).To(HaveLen(6))
+				Expect(clusterRole.Rules).To(HaveLen(7))
 				return nil
 			}, waitTimeout, pollingInterval).Should(Succeed())
 		})

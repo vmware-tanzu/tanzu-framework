@@ -75,6 +75,11 @@ var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
 		Resources: []string{"events"},
 		Verbs:     []string{"list"},
 	},
+	{
+		APIGroups: []string{""},
+		Resources: []string{"volumesnapshots"},
+		Verbs:     []string{"create", "delete", "get", "list", "patch"},
+	},
 }
 
 // VsphereCSIProviderServiceAccountAggregatedClusterRole is the cluster role to assign permissions to capv provider

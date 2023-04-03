@@ -601,7 +601,11 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.ConfigureAndValidateAviConfiguration(); err != nil {
+	if err = c.ConfigureAndValidateAviConfiguration(options.ClusterName); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.ValidateExtraArgs(); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -1343,10 +1347,36 @@ func (c *TkgClient) SetTKGClusterRole(clusterType TKGClusterType) {
 func (c *TkgClient) EncodeAzureCredentialsAndGetClient(clusterClient clusterclient.Client) (azure.Client, error) {
 	var creds azure.Credentials
 	var err error
+	// clusterClient exists during workload cluster creation or management cluster upgrade
 	if clusterClient != nil {
-		creds, err = clusterClient.GetAzureCredentialsFromSecret()
+		azureClusterIdentityName, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureIdentityName)
 		if err != nil {
-			return nil, err
+			// If don't specify the AzureClusterIdentity, then use the same one with management cluster.
+			// Get credentials from capz-manager-bootstrap-credentials
+			creds, err = clusterClient.GetAzureCredentialsFromSecret()
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			subscriptionID, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureSubscriptionID)
+			if err != nil {
+				return nil, errors.Errorf("failed to get Azure Subscription ID")
+			}
+			// If the AzureClusterIdentity is specified, then use the specified identity
+			azureClusterIdentityNamespace, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureIdentityNamespace)
+			if err != nil {
+				// AzureClusterIdentity will use the same namespace with AzureCluster by default
+				azureClusterIdentityNamespace, err = c.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
+				if err != nil {
+					return nil, err
+				}
+			}
+			// Retrive credentials from AzureClusterIdentity
+			creds, err = clusterClient.GetAzureCredentialsFromIdentity(azureClusterIdentityName, azureClusterIdentityNamespace)
+			if err != nil {
+				return nil, err
+			}
+			creds.SubscriptionID = subscriptionID
 		}
 	} else {
 		subscriptionID, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureSubscriptionID)
@@ -1870,11 +1900,15 @@ func getDockerBridgeNetworkCidr() (string, error) {
 }
 
 // ConfigureAndValidateAviConfiguration validates the configuration inputs of Avi aka. NSX Advanced Load Balancer
-func (c *TkgClient) ConfigureAndValidateAviConfiguration() error {
+func (c *TkgClient) ConfigureAndValidateAviConfiguration(clusterName string) error {
 	aviEnable, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviEnable)
 	// ignoring error because AVI_ENABLE is an optional configuration
 	if aviEnable == "" || aviEnable == "false" {
 		return nil
+	}
+
+	if len(clusterName) > constants.AkoMaxAllowedClusterNameLen {
+		return errors.Errorf("%s contains more than %d character, which will cause AKO package deployment failure", clusterName, constants.AkoMaxAllowedClusterNameLen)
 	}
 	// init avi client
 	aviClient := avi.New()

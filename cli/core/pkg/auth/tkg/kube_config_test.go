@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -24,6 +23,7 @@ import (
 
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/tkg"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/fakes/helper"
+	"github.com/vmware-tanzu/tanzu-framework/pinniped-components/common/pkg/pinnipedinfo"
 )
 
 var testingDir string
@@ -37,11 +37,10 @@ const kubeconfigPath = "../../fakes/config/kubeconfig_server_ver.yaml"
 
 var _ = Describe("Unit tests for tkg auth", func() {
 	var (
-		err                      error
-		endpoint                 string
-		tlsserver                *ghttp.Server
-		conciergeIsClusterScoped bool
-		servCert                 *x509.Certificate
+		err       error
+		endpoint  string
+		tlsserver *ghttp.Server
+		servCert  *x509.Certificate
 	)
 
 	const (
@@ -97,105 +96,16 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				Expect(err.Error()).Should(ContainSubstring("failed to get pinniped-info"))
 			})
 		})
-		Context("When ConciergeIsClusterScoped is not set in 'pinniped-info' configMap", func() {
-			var kubeConfigPath, kubeContext, kubeconfigMergeFilePath string
-			BeforeEach(func() {
-				var clusterInfo, pinnipedInfo string
-				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
-				pinnipedInfo = helper.GetFakePinnipedInfo(
-					helper.PinnipedInfo{
-						ClusterName:        clustername,
-						Issuer:             issuer,
-						IssuerCABundleData: issuerCA,
-					})
-				tlsserver.AppendHandlers(
-					ghttp.CombineHandlers(
-						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
-						ghttp.RespondWith(http.StatusOK, clusterInfo),
-					),
-					ghttp.CombineHandlers(
-						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
-						ghttp.RespondWith(http.StatusOK, pinnipedInfo),
-					),
-				)
-				kubeconfigMergeFilePath = testingDir + "/config"
-				options := &tkgauth.KubeConfigOptions{
-					MergeFilePath: kubeconfigMergeFilePath,
-				}
-				kubeConfigPath, kubeContext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, options, tkgauth.DiscoveryStrategy{ClusterInfoConfigMap: tkgauth.DefaultClusterInfoConfigMap})
-			})
-			It("should set default values", func() {
-				Expect(err).ToNot(HaveOccurred())
-				Expect(kubeConfigPath).Should(Equal(kubeconfigMergeFilePath))
-				Expect(len(kubeContext)).Should(Not(Equal(0)))
-				config, err := clientcmd.LoadFromFile(kubeConfigPath)
-				Expect(err).ToNot(HaveOccurred())
-				gotClusterName := config.Contexts[kubeContext].Cluster
-				cluster := config.Clusters[config.Contexts[kubeContext].Cluster]
-				user := config.AuthInfos[config.Contexts[kubeContext].AuthInfo]
-				Expect(cluster.Server).To(Equal(endpoint))
-				Expect(gotClusterName).To(Equal(clustername))
-				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, false, servCert)
-				Expect(*user.Exec).To(Equal(*expectedExecConf))
-
-			})
-		})
-		Context("When ConciergeIsClusterScoped is true in 'pinniped-info' configMap", func() {
-			var kubeConfigPath, kubeContext, kubeconfigMergeFilePath string
-			BeforeEach(func() {
-				var clusterInfo, pinnipedInfo string
-				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
-				pinnipedInfo = helper.GetFakePinnipedInfo(
-					helper.PinnipedInfo{
-						ClusterName:              clustername,
-						Issuer:                   issuer,
-						IssuerCABundleData:       issuerCA,
-						ConciergeIsClusterScoped: true,
-					})
-				tlsserver.AppendHandlers(
-					ghttp.CombineHandlers(
-						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/cluster-info"),
-						ghttp.RespondWith(http.StatusOK, clusterInfo),
-					),
-					ghttp.CombineHandlers(
-						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
-						ghttp.RespondWith(http.StatusOK, pinnipedInfo),
-					),
-				)
-				kubeconfigMergeFilePath = testingDir + "/config"
-				options := &tkgauth.KubeConfigOptions{
-					MergeFilePath: kubeconfigMergeFilePath,
-				}
-				kubeConfigPath, kubeContext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, options, tkgauth.DiscoveryStrategy{ClusterInfoConfigMap: tkgauth.DefaultClusterInfoConfigMap})
-			})
-			It("should not include --concierge-namespace arg in kubeconfig", func() {
-				Expect(err).ToNot(HaveOccurred())
-				Expect(kubeConfigPath).Should(Equal(kubeconfigMergeFilePath))
-				Expect(len(kubeContext)).Should(Not(Equal(0)))
-				config, err := clientcmd.LoadFromFile(kubeConfigPath)
-				Expect(err).ToNot(HaveOccurred())
-				gotClusterName := config.Contexts[kubeContext].Cluster
-				cluster := config.Clusters[config.Contexts[kubeContext].Cluster]
-				user := config.AuthInfos[config.Contexts[kubeContext].AuthInfo]
-				Expect(cluster.Server).To(Equal(endpoint))
-				Expect(gotClusterName).To(Equal(clustername))
-				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, true, servCert)
-				Expect(*user.Exec).To(Equal(*expectedExecConf))
-
-			})
-		})
 		Context("When the configMap 'pinniped-info' is present in kube-public namespace", func() {
 			var kubeConfigPath, kubeContext, kubeconfigMergeFilePath string
 			BeforeEach(func() {
 				var clusterInfo, pinnipedInfo string
-				conciergeIsClusterScoped = false
 				clusterInfo = GetFakeClusterInfo(endpoint, servCert)
 				pinnipedInfo = helper.GetFakePinnipedInfo(
-					helper.PinnipedInfo{
-						ClusterName:              clustername,
-						Issuer:                   issuer,
-						IssuerCABundleData:       issuerCA,
-						ConciergeIsClusterScoped: conciergeIsClusterScoped,
+					pinnipedinfo.PinnipedInfo{
+						ClusterName:        clustername,
+						Issuer:             issuer,
+						IssuerCABundleData: issuerCA,
 					})
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -224,9 +134,8 @@ var _ = Describe("Unit tests for tkg auth", func() {
 				user := config.AuthInfos[config.Contexts[kubeContext].AuthInfo]
 				Expect(cluster.Server).To(Equal(endpoint))
 				Expect(gotClusterName).To(Equal(clustername))
-				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, conciergeIsClusterScoped, servCert)
+				expectedExecConf := getExpectedExecConfig(endpoint, issuer, issuerCA, servCert)
 				Expect(*user.Exec).To(Equal(*expectedExecConf))
-
 			})
 		})
 		Describe("Get Tanzu local Kubeconfig path", func() {
@@ -283,24 +192,19 @@ func GetFakeClusterInfo(server string, cert *x509.Certificate) string {
 	return clusterInfoJSON
 }
 
-func getExpectedExecConfig(endpoint string, issuer string, issuerCA string, conciergeIsClusterScoped bool, servCert *x509.Certificate) *clientcmdapi.ExecConfig {
+func getExpectedExecConfig(endpoint string, issuer string, issuerCA string, servCert *x509.Certificate) *clientcmdapi.ExecConfig {
 	certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 	args := []string{
 		"pinniped-auth", "login",
 		"--enable-concierge",
 		"--concierge-authenticator-name=" + tkgauth.ConciergeAuthenticatorName,
 		"--concierge-authenticator-type=" + tkgauth.ConciergeAuthenticatorType,
-		"--concierge-is-cluster-scoped=" + strconv.FormatBool(conciergeIsClusterScoped),
 		"--concierge-endpoint=" + endpoint,
 		"--concierge-ca-bundle-data=" + base64.StdEncoding.EncodeToString(certBytes),
 		"--issuer=" + issuer,
 		"--scopes=" + tkgauth.PinnipedOIDCScopes,
 		"--ca-bundle-data=" + issuerCA,
 		"--request-audience=" + issuer,
-	}
-
-	if !conciergeIsClusterScoped {
-		args = append(args, "--concierge-namespace="+tkgauth.ConciergeNamespace)
 	}
 
 	execConfig := &clientcmdapi.ExecConfig{

@@ -9,10 +9,7 @@ spec:
   providerName: VMware
   maintainers:
   - name: Xudong Liu
-  - name: Guangyuan Wang
-  - name: Fang Han
   - name: Lubron Zhan
-  - name: Sharath Bhat
   - name: Chen Lin
   categories:
     - "networking"

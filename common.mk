@@ -10,6 +10,11 @@ ROOT_DIR := $(shell git rev-parse --show-toplevel)
 RELATIVE_ROOT ?= .
 CONTROLLER_GEN_SRC ?= "./..."
 
+# Framework has lots of components, and many build steps that are disparate.
+# Use docker buildkit so that we get faster image builds and skip redundant work.
+# TODO: We need to measure what this speeds up, and what it doesn't (and why).
+export DOCKER_BUILDKIT := 1
+
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -80,6 +85,10 @@ ifeq ($(SELINUX_ENABLED),1)
   DOCKER_VOL_OPTS?=:z
 endif
 
+# Support DISTROLESS_BASE_IMAGE,GOPROXY,GOPROXY change while building image
+GOPROXY ?= "https://proxy.golang.org,direct"
+GOPROXY ?= "sum.golang.org"
+DISTROLESS_BASE_IMAGE ?= gcr.io/distroless/static:nonroot
 
 # Directories
 TOOLS_DIR := $(abspath $(ROOT_DIR)/hack/tools)

@@ -62,6 +62,8 @@ antrea:
     transportInterfaceCIDRs: #@ split_comma_values(data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS)
     multicastInterfaces: #@ split_comma_values(data.values.ANTREA_MULTICAST_INTERFACES)
     tunnelType: #@ data.values.ANTREA_TUNNEL_TYPE
+    tunnelPort: #@ data.values.ANTREA_TUNNEL_PORT
+    tunnelCsum: #@ data.values.ANTREA_TUNNEL_CSUM
     trafficEncryptionMode: #@ data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE
     enableUsageReporting: #@ data.values.ANTREA_ENABLE_USAGE_REPORTING
     wireGuard:
@@ -109,6 +111,7 @@ antrea:
       Multicluster: #@ data.values.ANTREA_MULTICLUSTER
       SecondaryNetwork: #@ data.values.ANTREA_SECONDARY_NETWORK
       TrafficControl: #@ data.values.ANTREA_TRAFFIC_CONTROL
+      TopologyAwareHints: #@ data.values.ANTREA_TOPOLOGY_AWARE_HINTS
 
 
 

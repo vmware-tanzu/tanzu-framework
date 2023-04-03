@@ -24,6 +24,7 @@ require (
 	github.com/go-logr/logr v1.2.2
 	github.com/jetstack/cert-manager v1.1.0
 	github.com/stretchr/testify v1.8.0
+	github.com/vmware-tanzu/tanzu-framework/pinniped-components/common v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/pinniped-components/tanzu-auth-controller-manager v0.0.0-00010101000000-000000000000
 	go.pinniped.dev/generated/1.20/apis v0.0.0-00010101000000-000000000000
 	go.pinniped.dev/generated/1.20/client v0.0.0-20220209183828-4d6a2af89419 // Commit SHA 4d6a2af89419 is tag v0.12.1.
@@ -76,11 +77,11 @@ require (
 	go.pinniped.dev/generated/1.19/apis v0.0.0-20220310140840-61c8d5452705 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
-	golang.org/x/net v0.4.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.3.0 // indirect
-	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/term v0.3.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -102,5 +103,7 @@ require (
 replace go.pinniped.dev/generated/1.20/apis => go.pinniped.dev/generated/1.19/apis v0.0.0-20220209183828-4d6a2af89419
 
 replace github.com/vmware-tanzu/tanzu-framework/pinniped-components/tanzu-auth-controller-manager => ../tanzu-auth-controller-manager
+
+replace github.com/vmware-tanzu/tanzu-framework/pinniped-components/common => ../common
 
 replace sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8

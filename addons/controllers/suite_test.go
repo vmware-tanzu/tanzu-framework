@@ -18,12 +18,14 @@ import (
 	. "github.com/onsi/gomega"
 	capociv1beta1 "github.com/oracle/cluster-api-provider-oci/api/v1beta1"
 	corev1 "k8s.io/api/core/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/fake"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
@@ -33,6 +35,7 @@ import (
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	ctrlruntimefake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/envtest/printer"
@@ -59,6 +62,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	addonwebhooks "github.com/vmware-tanzu/tanzu-framework/addons/webhooks"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
+	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
@@ -209,6 +213,9 @@ var _ = BeforeSuite(func(done Done) {
 	err = cniv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = cniv1alpha2.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	err = cpiv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -229,6 +236,9 @@ var _ = BeforeSuite(func(done Done) {
 
 	err = topologyv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
+
+	err = apiextensionsv1.AddToScheme(scheme)
+	Expect(err).ToNot(HaveOccurred())
 
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
 	Expect(err).ToNot(HaveOccurred())
@@ -258,18 +268,24 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).ToNot(HaveOccurred())
 
 	ctx, cancel = context.WithCancel(ctx)
+
+	initObjs := []client.Object{}
+	fakeApiReader := ctrlruntimefake.NewClientBuilder().WithScheme(scheme).WithObjects(initObjs...).Build()
+
 	crdwaiter := crdwait.CRDWaiter{
-		Ctx: ctx,
-		ClientSetFn: func() (kubernetes.Interface, error) {
-			return kubernetes.NewForConfig(cfg)
-		},
+		Ctx:          ctx,
+		ClientSet:    fake.NewSimpleClientset(),
+		APIReader:    fakeApiReader,
 		Logger:       setupLog,
 		Scheme:       scheme,
 		PollInterval: constants.CRDWaitPollInterval,
 		PollTimeout:  constants.CRDWaitPollTimeout,
 	}
 
-	if err := crdwaiter.WaitForCRDs(GetExternalCRDs(),
+	crds, initObjs := GetExternalCRDs()
+	crdwaiter.APIReader = ctrlruntimefake.NewClientBuilder().WithScheme(scheme).WithObjects(initObjs...).Build()
+
+	if err := crdwaiter.WaitForCRDs(crds,
 		&corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: "test-pod", Namespace: "default"}},
 		constants.AddonControllerName,
 	); err != nil {
@@ -438,6 +454,8 @@ var _ = BeforeSuite(func(done Done) {
 
 	// Set up the webhooks in the manager
 	err = (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr)
+	Expect(err).ToNot(HaveOccurred())
+	err = (&cniv1alpha2.AntreaConfig{}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
 	err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())

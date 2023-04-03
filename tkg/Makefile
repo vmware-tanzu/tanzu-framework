@@ -63,3 +63,14 @@ tools: $(TOOLING_BINARIES) ## Build tooling binaries
 $(TOOLING_BINARIES):
 	make -C $(TOOLS_DIR) $(@F)
 
+## --------------------------------------
+##@ Generate files
+## --------------------------------------
+
+COUNTERFEITER := $(TOOLS_BIN_DIR)/counterfeiter
+$(COUNTERFEITER): $(TOOLS_BIN_DIR)
+	$(GO) build -tags=tools -o $@ github.com/maxbrunsfeld/counterfeiter/v6
+
+generate-fakes: $(COUNTERFEITER) ## Generate fakes for unit tests
+	PATH=$(TOOLS_BIN_DIR):"$(PATH)" $(GO) generate ./...
+	$(MAKE) fmt

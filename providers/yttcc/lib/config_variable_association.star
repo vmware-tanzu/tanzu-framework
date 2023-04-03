@@ -1,9 +1,8 @@
 load("@ytt:data", "data")
 load("@ytt:overlay", "overlay")
 load("@ytt:yaml", "yaml")
-load("/lib/helpers.star", "get_default_tkg_bom_data")
-load("/lib/helpers.star", "get_labels_array_from_string")
-load("/lib/helpers.star", "get_extra_args_map_from_string")
+load("/lib/helpers.star", "get_default_tkg_bom_data", "get_labels_array_from_string", "get_extra_args_map_from_string")
+load("/lib/helpers.star",  "get_custom_keys", "valid_pci_devices_list", "get_pci_devices", "get_image_registry")
 
 #! This file contains function 'config_variable_association' which specifies all configuration variables
 #! mentioned in 'config_default.yaml' and describes association of each configuration variable with
@@ -60,6 +59,13 @@ return {
 "VSPHERE_INSECURE": ["vsphere"],
 "VSPHERE_CONTROL_PLANE_ENDPOINT": ["vsphere"],
 "VSPHERE_CONTROL_PLANE_ENDPOINT_PORT": ["vsphere"],
+"VSPHERE_WORKER_PCI_DEVICES": ["vsphere"],
+"VSPHERE_CONTROL_PLANE_PCI_DEVICES": ["vsphere"],
+"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST": ["vsphere"],
+"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS": ["vsphere"],
+"VSPHERE_WORKER_CUSTOM_VMX_KEYS": ["vsphere"],
+"VSPHERE_CONTROL_PLANE_HARDWARE_VERSION": ["vsphere"],
+"VSPHERE_WORKER_HARDWARE_VERSION": ["vsphere"],
 
 "NSXT_POD_ROUTING_ENABLED": ["vsphere"],
 "NSXT_ROUTER_PATH": ["vsphere"],
@@ -193,15 +199,30 @@ return {
 "ENABLE_MHC_CONTROL_PLANE": ["vsphere", "aws", "azure", "docker", "oci"],
 "MHC_UNKNOWN_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker", "oci"],
 "MHC_FALSE_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker", "oci"],
+"MHC_MAX_UNHEALTHY_CONTROL_PLANE": ["vsphere", "aws", "azure", "docker", "oci"],
+"MHC_MAX_UNHEALTHY_WORKER_NODE": ["vsphere", "aws", "azure", "docker", "oci"],
 
 "TKG_CUSTOM_IMAGE_REPOSITORY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker", "oci"],
 
+"ADDITIONAL_IMAGE_REGISTRY_1": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_1_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_1_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_2": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_2_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_2_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_3": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_3_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker"],
+"ADDITIONAL_IMAGE_REGISTRY_3_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker"],
+
 "TKG_HTTP_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
 "TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker", "oci"],
+"TKG_NODE_SYSTEM_WIDE_PROXY": ["vsphere"],
+
+"CUSTOM_TDNF_REPOSITORY_CERTIFICATE": ["vsphere"],
 
 "TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker", "oci"],
 
@@ -348,6 +369,7 @@ def get_cluster_variables():
                         "httpProxy": data.values["TKG_HTTP_PROXY"],
                         "httpsProxy": data.values["TKG_HTTPS_PROXY"],
                         "noProxy": data.values["TKG_NO_PROXY"].split(","),
+                        "systemWide": data.values["TKG_NODE_SYSTEM_WIDE_PROXY"],
                     }
                 end
             end
@@ -396,6 +418,23 @@ def get_cluster_variables():
         vars["imageRepository"] = customImageRepository
     end
 
+    additionalImageRegistries = []
+    imageRegistry1 = get_image_registry(data.values["ADDITIONAL_IMAGE_REGISTRY_1"], data.values["ADDITIONAL_IMAGE_REGISTRY_1_SKIP_TLS_VERIFY"], data.values["ADDITIONAL_IMAGE_REGISTRY_1_CA_CERTIFICATE"])
+    if imageRegistry1 != None:
+        additionalImageRegistries.append(imageRegistry1)
+    end
+    imageRegistry2 = get_image_registry(data.values["ADDITIONAL_IMAGE_REGISTRY_2"], data.values["ADDITIONAL_IMAGE_REGISTRY_2_SKIP_TLS_VERIFY"], data.values["ADDITIONAL_IMAGE_REGISTRY_2_CA_CERTIFICATE"])
+    if imageRegistry2 != None:
+        additionalImageRegistries.append(imageRegistry2)
+    end
+    imageRegistry3 = get_image_registry(data.values["ADDITIONAL_IMAGE_REGISTRY_3"], data.values["ADDITIONAL_IMAGE_REGISTRY_3_SKIP_TLS_VERIFY"], data.values["ADDITIONAL_IMAGE_REGISTRY_3_CA_CERTIFICATE"])
+    if imageRegistry3 != None:
+        additionalImageRegistries.append(imageRegistry3)
+    end
+    if len(additionalImageRegistries) > 0:
+        vars["additionalImageRegistries"] = additionalImageRegistries
+    end
+
     if data.values["TKG_CLUSTER_ROLE"] != "":
         vars["clusterRole"] = data.values["TKG_CLUSTER_ROLE"]
     end
@@ -406,6 +445,24 @@ def get_cluster_variables():
         }
     end
 
+    if data.values["ETCD_EXTRA_ARGS"] != None and data.values["ETCD_EXTRA_ARGS"] != "":
+        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
+    end
+    if data.values["APISERVER_EXTRA_ARGS"] != None and data.values["APISERVER_EXTRA_ARGS"] != "":
+        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None and data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != "":
+        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
+    end
+    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None and data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != "":
+        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
+    end
+    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None and data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != "":
+        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
+    end
+    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None and data.values["WORKER_KUBELET_EXTRA_ARGS"] != "":
+        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
+    end
 
     additionalTrustedCAs = []
     #! TKG_PROXY_CA_CERT has higher priority than TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
@@ -626,25 +683,6 @@ def get_aws_vars():
 
     vars["worker"] = worker
 
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
     controlPlane = {}
     if data.values["CONTROL_PLANE_MACHINE_TYPE"] != None:
         controlPlane["instanceType"] = data.values["CONTROL_PLANE_MACHINE_TYPE"]
@@ -778,25 +816,6 @@ def get_azure_vars():
         vars["controlPlane"] = controlPlane
     end
 
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
     worker = {}
     if data.values["AZURE_NODE_MACHINE_TYPE"] != "":
         worker["vmSize"] = data.values["AZURE_NODE_MACHINE_TYPE"]
@@ -910,6 +929,9 @@ def get_vsphere_vars():
     if data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"] != "":
         machine["memoryMiB"] = data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"]
     end
+    if data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"] != None and data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"] != "":
+        machine["customVMXKeys"] = get_custom_keys(data.values["VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"])
+    end
     if machine != {}:
         controlPlane["machine"] = machine
     end
@@ -933,25 +955,6 @@ def get_vsphere_vars():
         vars["controlPlane"] = controlPlane
     end
 
-    if data.values["ETCD_EXTRA_ARGS"] != None:
-        vars["etcdExtraArgs"] = get_extra_args_map_from_string(data.values["ETCD_EXTRA_ARGS"])
-    end
-    if data.values["APISERVER_EXTRA_ARGS"] != None:
-        vars["apiServerExtraArgs"] = get_extra_args_map_from_string(data.values["APISERVER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_SCHEDULER_EXTRA_ARGS"] != None:
-        vars["kubeSchedulerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_SCHEDULER_EXTRA_ARGS"])
-    end
-    if data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"] != None:
-        vars["kubeControllerManagerExtraArgs"] = get_extra_args_map_from_string(data.values["KUBE_CONTROLLER_MANAGER_EXTRA_ARGS"])
-    end
-    if data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"] != None:
-        vars["controlPlaneKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["CONTROLPLANE_KUBELET_EXTRA_ARGS"])
-    end
-    if data.values["WORKER_KUBELET_EXTRA_ARGS"] != None:
-        vars["workerKubeletExtraArgs"] = get_extra_args_map_from_string(data.values["WORKER_KUBELET_EXTRA_ARGS"])
-    end
-
     worker = {}
     if data.values["WORKER_MACHINE_COUNT"] != "":
         worker["count"] = data.values["WORKER_MACHINE_COUNT"]
@@ -965,6 +968,9 @@ def get_vsphere_vars():
     end
     if data.values["VSPHERE_WORKER_MEM_MIB"] != "":
         machine["memoryMiB"] = data.values["VSPHERE_WORKER_MEM_MIB"]
+    end
+    if data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"] != None and data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"] != "":
+        machine["customVMXKeys"] = get_custom_keys(data.values["VSPHERE_WORKER_CUSTOM_VMX_KEYS"])
     end
     if machine != {}:
         worker["machine"] = machine
@@ -995,6 +1001,41 @@ def get_vsphere_vars():
 
     if data.values["VSPHERE_ADDITIONAL_FQDN"] != None:
         vars["additionalFQDN"] = data.values["VSPHERE_ADDITIONAL_FQDN"].replace(" ", "").split(",")
+    end
+
+    customTDNFRepository = {}
+    if data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"] != "":
+        customTDNFRepository["certificate"] = data.values["CUSTOM_TDNF_REPOSITORY_CERTIFICATE"]
+    end
+    if customTDNFRepository != {}:
+        vars["customTDNFRepository"] = customTDNFRepository
+    end
+
+    pci = {}
+    pciControlPlane = {}
+    if data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"] != None and data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"] != "":
+        pciControlPlane["devices"] = get_pci_devices(data.values["VSPHERE_CONTROL_PLANE_PCI_DEVICES"], data.values["VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"])
+    end
+    if data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"] != None and data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"] != "":
+        pciControlPlane["hardwareVersion"] = data.values["VSPHERE_CONTROL_PLANE_HARDWARE_VERSION"]
+    end
+    if pciControlPlane != {}:
+        pci["controlPlane"] = pciControlPlane
+    end
+
+    pciWorker = {}
+    if data.values["VSPHERE_WORKER_PCI_DEVICES"] != None and data.values["VSPHERE_WORKER_PCI_DEVICES"] != "":
+        pciWorker["devices"] = get_pci_devices(data.values["VSPHERE_WORKER_PCI_DEVICES"], data.values["VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"])
+    end
+    if data.values["VSPHERE_WORKER_HARDWARE_VERSION"] != None and data.values["VSPHERE_WORKER_HARDWARE_VERSION"] != "":
+        pciWorker["hardwareVersion"] = data.values["VSPHERE_WORKER_HARDWARE_VERSION"]
+    end
+    if pciWorker != {}:
+        pci["worker"] = pciWorker
+    end
+
+    if pci != {}:
+        vars["pci"] = pci
     end
 
     return vars
@@ -1056,6 +1097,6 @@ oci_var_keys = ["compartmentId", "sshKey", "nodeMachineShape", "nodeMachineOcpus
         "externalControlPlaneEndpointSubnetId", "externalControlPlaneSubnetId", "externalWorkerSubnetId",
         "nodePvTransitEncryption", "controlPlaneMachineShape", "controlPlaneMachineOcpus",
         "controlPlanePvTransitEncryption",
-        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA", 
+        "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA",
         "controlPlaneCertificateRotation", "podSecurityStandard", "workerKubeletExtraArgs", "controlPlaneKubeletExtraArgs",
         "kubeControllerManagerExtraArgs", "kubeSchedulerExtraArgs", "apiServerExtraArgs", "etcdExtraArgs", "eventRateLimitConf"]

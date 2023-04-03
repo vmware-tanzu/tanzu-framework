@@ -403,7 +403,7 @@ ova: []
 
 				result := captureOutput(*tkgClient, options, false)
 				Expect(result).To(ContainSubstring("Legacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration"))
-				Expect(result).To(ContainSubstring("To create a cluster with it, use"))
+				Expect(result).To(ContainSubstring("To create a cluster with it, please use the following command together with all customized flags set in the last step. e.g. --tkr, -v"))
 			})
 
 		})
@@ -490,6 +490,12 @@ func populateConfigMap() map[string]string {
 	configMap[constants.ConfigVariableWorkerMachineCount0] = "0"
 	configMap[constants.ConfigVariableWorkerMachineCount1] = "0"
 	configMap[constants.ConfigVariableWorkerMachineCount2] = "0"
+	configMap[constants.ConfigVariableEtcdExtraArgs] = ""
+	configMap[constants.ConfigVariableAPIServerExtraArgs] = ""
+	configMap[constants.ConfigVariableKubeSchedulerExtraArgs] = ""
+	configMap[constants.ConfigVariableKubeControllerManagerExtraArgs] = ""
+	configMap[constants.ConfigVariableControlPlaneKubeletExtraArgs] = ""
+	configMap[constants.ConfigVariableWorkerKubeletExtraArgs] = ""
 	return configMap
 }
 

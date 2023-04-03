@@ -22,25 +22,32 @@ type DataValuesVSpherePVCSI struct {
 }
 
 type DataValuesVSphereCSI struct {
-	TLSThumbprint         string `yaml:"tlsThumbprint"`
-	Namespace             string `yaml:"namespace"`
-	ClusterName           string `yaml:"clusterName"`
-	Server                string `yaml:"server"`
-	Datacenter            string `yaml:"datacenter"`
-	PublicNetwork         string `yaml:"publicNetwork"`
-	Username              string `yaml:"username"`
-	Password              string `yaml:"password"`
-	Region                string `yaml:"region"`
-	Zone                  string `yaml:"zone"`
-	InsecureFlag          bool   `yaml:"insecureFlag"`
-	UseTopologyCategories bool   `yaml:"useTopologyCategories"`
-	ProvisionTimeout      string `yaml:"provisionTimeout"`
-	AttachTimeout         string `yaml:"attachTimeout"`
-	ResizerTimeout        string `yaml:"resizerTimeout"`
-	VSphereVersion        string `yaml:"vSphereVersion"`
-	HTTPProxy             string `yaml:"http_proxy"`
-	HTTPSProxy            string `yaml:"https_proxy"`
-	NoProxy               string `yaml:"no_proxy"`
-	DeploymentReplicas    int32  `yaml:"deployment_replicas"`
-	WindowsSupport        bool   `yaml:"windows_support"`
+	TLSThumbprint         string                          `yaml:"tlsThumbprint"`
+	Namespace             string                          `yaml:"namespace"`
+	ClusterName           string                          `yaml:"clusterName"`
+	Server                string                          `yaml:"server"`
+	Datacenter            string                          `yaml:"datacenter"`
+	PublicNetwork         string                          `yaml:"publicNetwork"`
+	Username              string                          `yaml:"username"`
+	Password              string                          `yaml:"password"`
+	Region                string                          `yaml:"region"`
+	Zone                  string                          `yaml:"zone"`
+	InsecureFlag          bool                            `yaml:"insecureFlag"`
+	UseTopologyCategories bool                            `yaml:"useTopologyCategories"`
+	ProvisionTimeout      string                          `yaml:"provisionTimeout"`
+	AttachTimeout         string                          `yaml:"attachTimeout"`
+	ResizerTimeout        string                          `yaml:"resizerTimeout"`
+	VSphereVersion        string                          `yaml:"vSphereVersion"`
+	HTTPProxy             string                          `yaml:"http_proxy"`
+	HTTPSProxy            string                          `yaml:"https_proxy"`
+	NoProxy               string                          `yaml:"no_proxy"`
+	DeploymentReplicas    int32                           `yaml:"deployment_replicas"`
+	WindowsSupport        bool                            `yaml:"windows_support"`
+	NetPermissions        map[string]*NetPermissionConfig `yaml:"netpermissions"`
+}
+
+type NetPermissionConfig struct {
+	Ips         string `yaml:"ips"`
+	Permissions string `yaml:"permissions"`
+	RootSquash  bool   `yaml:"rootsquash"`
 }

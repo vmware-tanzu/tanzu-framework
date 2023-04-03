@@ -16,6 +16,7 @@ import (
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
 	aviMock "github.com/vmware-tanzu/tanzu-framework/tkg/avi/mocks"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
@@ -110,6 +111,39 @@ var _ = Describe("Validate", func() {
 				vip := "10.10.10.10"
 				err = tkgClient.ConfigureAndValidateVsphereConfig("", nodeSizeOptions, vip, true, nil)
 				Expect(err).To(HaveOccurred())
+			})
+		})
+	})
+
+	Context("Validate extra args", func() {
+		Context("When it contains multiple key=value with delimiter ;", func() {
+			It("should pass", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableEtcdExtraArgs, "heartbeat-interval=300;election-timeout=2000")
+				Expect(tkgClient.ValidateExtraArgs()).ShouldNot(HaveOccurred())
+			})
+		})
+		Context("When it contains single key=value", func() {
+			It("should pass", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableKubeSchedulerExtraArgs, "profiling=false")
+				Expect(tkgClient.ValidateExtraArgs()).ShouldNot(HaveOccurred())
+			})
+		})
+		Context("When arg's value also contains equal sign", func() {
+			It("should pass", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableKubeControllerManagerExtraArgs, "feature-gates=RotateKubeletServerCertificate=true,ReadWriteOncePod=true;enable-garbage-collector=true")
+				Expect(tkgClient.ValidateExtraArgs()).ShouldNot(HaveOccurred())
+			})
+		})
+		Context("When it does not use equal sign to delimit key and value", func() {
+			It("should fail validation", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableAPIServerExtraArgs, "tls-min-version:VersionTLS12;tls-cipher-suites:TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256")
+				Expect(tkgClient.ValidateExtraArgs().Error()).To(ContainSubstring("APISERVER_EXTRA_ARGS is not format key1=value1;key2=value2:"))
+			})
+		})
+		Context("When it contains an empty key", func() {
+			It("should fail validation", func() {
+				tkgConfigReaderWriter.Set(constants.ConfigVariableWorkerKubeletExtraArgs, "read-only-port=0;=0")
+				Expect(tkgClient.ValidateExtraArgs().Error()).To(ContainSubstring("WORKER_KUBELET_EXTRA_ARGS contains empty keys:"))
 			})
 		})
 	})
@@ -1175,13 +1209,21 @@ var _ = Describe("Validate", func() {
 			})
 			When("avi is not enabled", func() {
 				It("should skip avi validation", func() {
-					err := tkgClient.ConfigureAndValidateAviConfiguration()
+					err := tkgClient.ConfigureAndValidateAviConfiguration("test-mgmt")
 					Expect(err).ShouldNot(HaveOccurred())
 				})
 				It("should skip avi validation", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviEnable, "false")
-					err := tkgClient.ConfigureAndValidateAviConfiguration()
+					err := tkgClient.ConfigureAndValidateAviConfiguration("test-mgmt")
 					Expect(err).ShouldNot(HaveOccurred())
+				})
+			})
+
+			When("avi is enabled", func() {
+				It("should throw error if cluster name is longer than avi max allowed length", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviEnable, "true")
+					err := tkgClient.ConfigureAndValidateAviConfiguration("test-mgmt-abcdefghigklmnopqrstuvwxyz")
+					Expect(err).Should(HaveOccurred())
 				})
 			})
 
@@ -1695,6 +1737,73 @@ var _ = Describe("Validate", func() {
 			Entry("ipv4-primary dualstack: cidrs at max size", "ipv4,ipv6", "1.2.3.4/12,::1/108"),
 			Entry("ipv6-primary dualstack: cidrs at max size", "ipv6,ipv4", "::1/108,1.2.3.4/12"),
 		)
+	})
+
+	Context("EncodeAzureCredentialsAndGetClient", func() {
+		Context("Management cluster on Azure", func() {
+			It("should return error when Azure credentials are not set", func() {
+				credentialVariales := []string{constants.ConfigVariableAzureSubscriptionID, constants.ConfigVariableAzureTenantID, constants.ConfigVariableAzureClientID, constants.ConfigVariableAzureClientSecret}
+				for _, credential := range credentialVariales {
+					os.Unsetenv(credential)
+					_, err := tkgConfigReaderWriter.Get(credential)
+					Expect(err).To(HaveOccurred())
+					_, err = tkgClient.EncodeAzureCredentialsAndGetClient(nil)
+					Expect(err).To(HaveOccurred())
+					tkgConfigReaderWriter.Set(credential, "foobar")
+				}
+				_, err = tkgClient.EncodeAzureCredentialsAndGetClient(nil)
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+		})
+
+		Context("Workload cluster on Azure", func() {
+			var (
+				clusterClient *fakes.ClusterClient
+			)
+			BeforeEach(func() {
+				os.Setenv(constants.ConfigVariableNamespace, "default")
+				clusterClient = &fakes.ClusterClient{}
+			})
+			AfterEach(func() {
+				os.Unsetenv(constants.ConfigVariableNamespace)
+			})
+			It("should return credentials from bootstrap secret", func() {
+				clusterClient.GetAzureCredentialsFromSecretStub = func() (azure.Credentials, error) {
+					creds := azure.Credentials{
+						SubscriptionID: "foo-subscriptionID",
+						ClientID:       "foo-clientID",
+						ClientSecret:   "foo-clientSecret",
+						TenantID:       "foo-tenantID",
+					}
+					return creds, nil
+				}
+				_, err := tkgConfigReaderWriter.Get(constants.ConfigVariableAzureIdentityName)
+				Expect(err).To(HaveOccurred())
+				_, err = tkgClient.EncodeAzureCredentialsAndGetClient(clusterClient)
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should return credentials from AzureClusterIdentity", func() {
+				clusterClient.GetAzureCredentialsFromIdentityStub = func(identityName, identityNamepace string) (azure.Credentials, error) {
+					creds := azure.Credentials{
+						SubscriptionID: "foo-subscriptionID",
+						ClientID:       "foo-clientID",
+						ClientSecret:   "foo-clientSecret",
+						TenantID:       "foo-tenantID",
+					}
+					return creds, nil
+				}
+				os.Unsetenv(constants.ConfigVariableAzureSubscriptionID)
+				tkgConfigReaderWriter.Set(constants.ConfigVariableAzureIdentityName, "foo-identity")
+				_, err := tkgConfigReaderWriter.Get(constants.ConfigVariableAzureSubscriptionID)
+				Expect(err.Error()).To(ContainSubstring("AZURE_SUBSCRIPTION_ID"))
+				tkgConfigReaderWriter.Set(constants.ConfigVariableAzureSubscriptionID, "foo-subscriptionID")
+				_, err = tkgClient.EncodeAzureCredentialsAndGetClient(clusterClient)
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
 	})
 })
 

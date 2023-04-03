@@ -1,2 +1,4 @@
 # a fake config file for reader writer
 foo: bar
+
+TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: true
