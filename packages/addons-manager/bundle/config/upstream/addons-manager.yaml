@@ -209,6 +209,16 @@ rules:
   - update
   - patch
 - apiGroups:
+  - "snapshot.storage.k8s.io"
+  resources:
+  - volumesnapshots
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+- apiGroups:
   - ""
   resources:
   - events

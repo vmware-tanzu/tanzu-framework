@@ -76,7 +76,7 @@ var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
 		Verbs:     []string{"list"},
 	},
 	{
-		APIGroups: []string{""},
+		APIGroups: []string{"snapshot.storage.k8s.io"},
 		Resources: []string{"volumesnapshots"},
 		Verbs:     []string{"create", "delete", "get", "list", "patch"},
 	},
