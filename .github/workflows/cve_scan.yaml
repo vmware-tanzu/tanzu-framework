@@ -36,13 +36,13 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      # **The URL in comment message is formulated specifically for pull-requests.**
-      # If this workflow is enhanced for push/scheduled events,
-      # please update the message contents accordingly.
-      - name: Comment on PR with results URL
-        uses: mshick/add-pr-comment@v2
-        if: ${{ steps.upload-report.outputs.sarif-id }} # Run only if report uploaded successfully
-        with:
-          message: |
-            CVE Scan results for this PR can be viewed from
-            ${{ github.server_url }}/${{ github.repository }}/security/code-scanning?query=pr%3A${{ github.event.number }}
+#      # **The URL in comment message is formulated specifically for pull-requests.**
+#      # If this workflow is enhanced for push/scheduled events,
+#      # please update the message contents accordingly.
+#      - name: Comment on PR with results URL
+#        uses: mshick/add-pr-comment@v2
+#        if: ${{ steps.upload-report.outputs.sarif-id }} # Run only if report uploaded successfully
+#        with:
+#          message: |
+#            CVE Scan results for this PR can be viewed from
+#            ${{ github.server_url }}/${{ github.repository }}/security/code-scanning?query=pr%3A${{ github.event.number }}
