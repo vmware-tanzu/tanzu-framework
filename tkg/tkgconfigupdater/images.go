@@ -109,6 +109,11 @@ func (c *client) getImageMapForConfigFile() (map[string]imageForConfigFile, erro
 	images["all"] = imageForConfigFile{Repository: defaultBaseRepositoryForClusterAPI}
 
 	for configKey, bomImageComponent := range configKeyTObomImageKeyMap {
+		if _, exists := bomConfig.Components[bomImageComponent.ComponentName]; !exists {
+			log.V(7).Infof("unable to find component %s in BOM file", bomImageComponent.ComponentName)
+			continue
+		}
+
 		imageInfoFromBOM, exists := bomConfig.Components[bomImageComponent.ComponentName][0].Images[bomImageComponent.ImageName]
 		if !exists {
 			log.V(7).Infof("unable to find component %s, image %s in BOM file", bomImageComponent.ComponentName, bomImageComponent.ImageName)
