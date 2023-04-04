@@ -6,7 +6,6 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../apis/core
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/featuregates/client => ../client
 	github.com/vmware-tanzu/tanzu-framework/util => ../../util
 )
@@ -17,8 +16,8 @@ require (
 	github.com/onsi/gomega v1.20.2
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220824221239-af5a644ffef7
 	github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-00010101000000-000000000000
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/featuregates/client v0.0.0-20221024130358-59eae49d96aa
+	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000
 	k8s.io/api v0.24.4
 	k8s.io/apimachinery v0.24.4
 	k8s.io/client-go v0.24.4
@@ -65,11 +64,11 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
-	golang.org/x/net v0.4.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.3.0 // indirect
-	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/term v0.3.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
