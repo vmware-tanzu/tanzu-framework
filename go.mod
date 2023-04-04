@@ -7,8 +7,6 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ./apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ./apis/run
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ./capabilities/client
-	github.com/vmware-tanzu/tanzu-framework/cli/core => ./cli/core
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ./cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr => ./pkg/v1/tkr
 	github.com/vmware-tanzu/tanzu-framework/util => ./util
 )
@@ -27,7 +25,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20230404004437-6467efc6e7c7
 	github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20221114124829-a8c2eac58dbf
 	golang.org/x/oauth2 v0.3.0
 	google.golang.org/grpc v1.50.1
