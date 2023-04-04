@@ -21,7 +21,7 @@ import (
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/capabilities/core"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/capabilities/run"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
+	"github.com/vmware-tanzu/tanzu-framework/util/buildinfo"
 )
 
 var (
