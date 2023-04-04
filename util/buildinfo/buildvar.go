@@ -5,18 +5,16 @@
 // This package SHOULD NOT import other packages -- to avoid dependency cycles.
 package buildinfo
 
-// This package
-
 var (
 	// Date is the date the binary was built.
-	// Set by go build -ldflags "-X" flag
+	// Set by go build -ldflags "-X 'github.com/vmware-tanzu/tanzu-framework/util/buildinfo.Date=...'"
 	Date string
 
 	// SHA is the git commit SHA the binary was built with.
-	// Set by go build -ldflags "-X" flag
+	// Set by go build -ldflags "-X 'github.com/vmware-tanzu/tanzu-framework/util/buildinfo.SHA=...'"
 	SHA string
 
 	// Version is the version the binary was built with.
-	// Set by go build -ldflags "-X" flag
+	// Set by go build -ldflags "-X 'github.com/vmware-tanzu/tanzu-framework/util/buildinfo.Version=...'"
 	Version string
 )
