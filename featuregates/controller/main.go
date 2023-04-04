@@ -22,9 +22,9 @@ import (
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	coreFeatureController "github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/feature"
 	configFeatureGateController "github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/featuregate"
+	"github.com/vmware-tanzu/tanzu-framework/util/buildinfo"
 )
 
 var (
