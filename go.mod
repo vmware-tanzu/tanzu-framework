@@ -4,6 +4,7 @@ go 1.18
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ./apis/config
+	github.com/vmware-tanzu/tanzu-framework/apis/core => ./apis/core
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ./apis/run
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ./capabilities/client
 	github.com/vmware-tanzu/tanzu-framework/util => ./util
