@@ -683,13 +683,18 @@ func (h *Helper) cloneSecretRef(
 	secret := &corev1.Secret{}
 	key := client.ObjectKey{Namespace: sourceNamespace, Name: cbPkg.ValuesFrom.SecretRef}
 	if err := h.K8sClient.Get(h.Ctx, key, secret); err != nil {
-		// Look for secret in cluster namespace for customer cluster bootstrap
-		customSecretKey := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
-		if err = h.K8sClient.Get(h.Ctx, customSecretKey, secret); err != nil {
-			h.Logger.Error(err, "unable to fetch secret %s or %s", key, customSecretKey)
-			return nil, err
+		if apierrors.IsNotFound(err) {
+			// Look for secret in cluster namespace for custom cluster bootstrap
+			customSecretKey := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
+			if err = h.K8sClient.Get(h.Ctx, customSecretKey, secret); err != nil {
+				h.Logger.Error(err, "unable to fetch secret %s or %s", key, customSecretKey)
+				return nil, err
+			} else {
+				customSecret = true
+			}
 		} else {
-			customSecret = true
+			h.Logger.Error(err, "unable to fetch secret %s", key)
+			return nil, err
 		}
 	}
 
@@ -758,13 +763,18 @@ func (h *Helper) cloneProviderRef(
 	isCustomCB := false
 	provider, err := h.DynamicClient.Resource(*gvr).Namespace(sourceNamespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
 	if err != nil {
-		// Look in cluster namespace for custom bootstrap configs
-		provider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
-		if err != nil {
-			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespaces %s or %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace, cluster.Namespace), "gvr", gvr)
-			return nil, err
+		if apierrors.IsNotFound(err) {
+			// Look in cluster namespace for custom bootstrap configs
+			provider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+			if err != nil {
+				h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespaces %s or %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace, cluster.Namespace), "gvr", gvr)
+				return nil, err
+			} else {
+				isCustomCB = true
+			}
 		} else {
-			isCustomCB = true
+			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespace %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace), "gvr", gvr)
+			return nil, err
 		}
 	}
 
