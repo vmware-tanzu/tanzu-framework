@@ -2,14 +2,8 @@ domain: tanzu.vmware.com
 multigroup: true
 repo: github.com/vmware-tanzu/tanzu-framework
 resources:
-- group: config
-  kind: ClientConfig
-  version: v1alpha1
 - group: run
   kind: TanzuKubernetesRelease
-  version: v1alpha1
-- group: cli
-  kind: Catalog
   version: v1alpha1
 - group: config
   kind: Feature
@@ -19,12 +13,6 @@ resources:
   version: v1alpha1
 - group: config
   kind: FeatureGate
-  version: v1alpha1
-- group: cni
-  kind: CalicoConfig
-  version: v1alpha1
-- group: cni
-  kind: AntreaConfig
   version: v1alpha1
 - group: run
   kind: ClusterBootstrap
@@ -38,27 +26,12 @@ resources:
 - group: run
   kind: TanzuKubernetesRelease
   version: v1alpha3
-- group: cpi
-  kind: CPIConfig
-  version: v1alpha1
-- group: csi
-  kind: AzureDiskCSIConfig
-  version: v1alpha1
 - group: core
   kind: Capability
-  version: v1alpha1
-- group: csi
-  kind: AwsEbsCSIConfig
-  version: v1alpha1
-- group: csi
-  kind: AzureFileCSIConfig
   version: v1alpha1
 - group: core
   kind: Capability
   version: v1alpha2
-- group: cpi
-  kind: KubevipCPIConfig
-  version: v1alpha1
 - group: core
   kind: FeatureGate
   version: v1alpha2
