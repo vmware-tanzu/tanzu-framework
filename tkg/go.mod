@@ -28,7 +28,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.107
 	github.com/awslabs/goformation/v4 v4.19.5
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
-	github.com/docker/docker v20.10.17+incompatible
+	github.com/docker/docker v20.10.24+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/fatih/color v1.13.0
 	github.com/go-ldap/ldap/v3 v3.3.0
