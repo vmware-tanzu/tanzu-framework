@@ -1,7 +1,6 @@
+# syntax=docker/dockerfile:1.4
 # SPDX-License-Identifier: Apache-2.0
 # Enable Buildkit
-
-# syntax=docker/dockerfile:1.4
 
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.

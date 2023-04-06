@@ -1,6 +1,7 @@
+# syntax=docker.io/docker/dockerfile:1.3.0
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-# syntax=docker.io/docker/dockerfile:1.3.0
+
 
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
