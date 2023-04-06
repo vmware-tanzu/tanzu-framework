@@ -205,8 +205,6 @@ github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o
 github.com/tj/assert v0.0.3 h1:Df/BlaZ20mq6kuai7f5z2TvPFiwC3xaWJSDQNiIS3Rk=
 github.com/vmware-labs/yaml-jsonpath v0.3.2 h1:/5QKeCBGdsInyDCyVNLbXyilb61MXGi9NP674f9Hobk=
 github.com/vmware-labs/yaml-jsonpath v0.3.2/go.mod h1:U6whw1z03QyqgWdgXxvVnQ90zN1BWz5V+51Ewf8k+rQ=
-github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20230404004437-6467efc6e7c7 h1:ztX6nqnStsPVogagjoQcQ/Tg/HEllCpleyL9P6KiesI=
-github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20230404004437-6467efc6e7c7/go.mod h1:fw+yGD1Xfnt7CzWq/lL8AaOg/h6H1STMJpQC3LMHYGQ=
 github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20221114124829-a8c2eac58dbf h1:KL+cthxghTjH0qrj3AtN26qDWatqXrbp7a/StjcnmMU=
 github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20221114124829-a8c2eac58dbf/go.mod h1:WxG7I8d++BA0bcic2Ta3Rm5BHuWkGtH6rpSs0ry9uLA=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
