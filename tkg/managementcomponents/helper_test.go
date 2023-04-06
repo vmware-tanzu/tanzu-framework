@@ -397,7 +397,6 @@ tkr-package:
 					"AVI_SERVICE_ENGINE_GROUP": "Default-Group",
 					"AVI_USERNAME":             "admin",
 					"PROVIDER_TYPE":            "vsphere",
-					"CNI":                      "antrea",
 				}
 			})
 			It("should not return error", func() {
@@ -582,7 +581,6 @@ tkr-package:
 					"AVI_SERVICE_ENGINE_GROUP": "Default-Group",
 					"AVI_USERNAME":             "admin",
 					"PROVIDER_TYPE":            "vsphere",
-					"CNI":                      "antrea",
 				}
 			})
 			It("should not return error", func() {

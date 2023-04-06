@@ -157,5 +157,4 @@ type AkoOperatorConfig struct {
 	AviNSXTT1Router                                string `yaml:"avi_nsxt_t1_lr,omitempty"`
 	AviControlPlaneHaProvider                      bool   `yaml:"avi_control_plane_ha_provider,omitempty"`
 	AviIngressNodeNetworkList                      string `yaml:"avi_ingress_node_network_list,omitempty"`
-	AviCniPlugin                                   string `yaml:"avi_cni_plugin,omitempty"`
 }

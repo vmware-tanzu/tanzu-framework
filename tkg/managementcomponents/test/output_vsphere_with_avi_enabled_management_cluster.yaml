@@ -14,7 +14,6 @@ configvalues:
     AVI_PASSWORD: Admin!23
     AVI_SERVICE_ENGINE_GROUP: Default-Group
     AVI_USERNAME: admin
-    CNI: antrea
     PROVIDER_TYPE: vsphere
 frameworkPackage:
     versionConstraints: v0.21.0
@@ -67,4 +66,3 @@ akoOperatorPackage:
             avi_management_cluster_control_plane_vip_network_cidr: 10.191.176.0/20
             avi_control_plane_ha_provider: true
             avi_ingress_node_network_list: '[{"networkName":"node-network-name","cidrs":["10.191.176.0/20"]}]'
-            avi_cni_plugin: antrea

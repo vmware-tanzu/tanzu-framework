@@ -1,4 +1,3 @@
-#@ load("@ytt:data", "data")
 ---
 apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
 kind: AKODeploymentConfig
