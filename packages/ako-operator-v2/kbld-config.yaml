@@ -1,5 +1,0 @@
-apiVersion: kbld.k14s.io/v1alpha1
-kind: Config
-overrides:
-  - image: ako-operator:latest
-    newImage: "projects-stg.registry.vmware.com/tkg/ako-operator:v1.7.0_vmware.3"
