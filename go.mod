@@ -3,7 +3,6 @@ module github.com/vmware-tanzu/tanzu-framework
 go 1.18
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework/apis/cli => ./apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ./apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ./apis/run
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ./capabilities/client
@@ -25,7 +24,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20230404004437-6467efc6e7c7
+	github.com/vmware-tanzu/tanzu-plugin-runtime v0.80.0
 	github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20221114124829-a8c2eac58dbf
 	golang.org/x/oauth2 v0.3.0
 	google.golang.org/grpc v1.50.1
@@ -71,7 +70,6 @@ require (
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
-	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
