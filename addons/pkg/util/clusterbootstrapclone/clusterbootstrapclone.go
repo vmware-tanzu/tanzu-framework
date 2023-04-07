@@ -346,6 +346,9 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		clusterBootstrap.Spec.Kapp,
 	}, clusterBootstrap.Spec.AdditionalPackages...)
 
+	var packagesToBeCloned []*runtanzuv1alpha3.ClusterBootstrapPackage
+	var packagesToBeUpdated []*runtanzuv1alpha3.ClusterBootstrapPackage
+
 	if annotationValue, annotationExist := clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]; annotationExist {
 		tkrName = annotationValue
 		clusterBootstrapTemplateName := annotationValue // TanzuKubernetesRelease and ClusterBootstrapTemplate share the same name
@@ -353,6 +356,24 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		// Get the ClusterBootstrapTemplate mentioned in the annotation under system namespace
 		if err := h.K8sClient.Get(h.Ctx, client.ObjectKey{Namespace: systemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
 			return nil, err
+		}
+
+		// Update the packages slice to make it only contains the ones we want the rest of the code to do the cloning.
+		// For cloning, we only care about the ClusterBootstrap packages which have no valuesFrom originally. The missing
+		// valuesFrom field will be added by AddMissingSpecFieldsFromTemplate() in few lines below, and we want to clone
+		// those packages from system namespace.
+		var nilValuesFromPackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, cbPackage := range packages {
+			if cbPackage != nil && cbPackage.ValuesFrom == nil {
+				nilValuesFromPackages = append(nilValuesFromPackages, cbPackage)
+			}
+		}
+
+		var nonEmptyInlinePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, cbPackage := range packages {
+			if cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.Inline != nil {
+				nonEmptyInlinePackages = append(nonEmptyInlinePackages, cbPackage)
+			}
 		}
 
 		if _, ok := clusterBootstrap.Annotations[constants.UnmanagedCNI]; ok {
@@ -375,16 +396,67 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 			clusterBootstrap.Spec.Kapp,
 		}, clusterBootstrap.Spec.AdditionalPackages...)
 
+		for _, nilValuesFromPackage := range nilValuesFromPackages {
+			for _, updatedCBPackage := range updatedCBPackages {
+				// If the nilValuesFromPackage has been filled by AddMissingSpecFieldsFromTemplate(), it is the package
+				// we want to record and do cloning.
+				if updatedCBPackage != nil && updatedCBPackage.ValuesFrom != nil && updatedCBPackage.RefName == nilValuesFromPackage.RefName {
+					packagesToBeCloned = append(packagesToBeCloned, updatedCBPackage)
+				}
+			}
+		}
+		h.Logger.Info("Updating packagesToBeCloned with inline packages")
+		packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
 		packages = updatedCBPackages
+	} else {
+		// packages with values from inline need to be cloned for two cases:
+		//
+		// 1. When no Clusterbootstrap is given by user and clusterbootstraptemplate
+		//    is cloned as clusterbootstrap but resolved tkr is not set - In this
+		//   case the providers are already cloned so providers do not have to be cloned again
+		//
+		// 2. When full clusterbootstrap without tkr annotation is given by user.
+		//    In this case we only want to handle inline packages for creating
+		//    secret. The providers are expected to be present in the
+		//   clusternamespace, created by user before clusterbootstrap is created.
+		var nonEmptyInlinePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+		for _, cbPackage := range packages {
+			if cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.Inline != nil {
+				nonEmptyInlinePackages = append(nonEmptyInlinePackages, cbPackage)
+			}
+		}
+		packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
 	}
 
-	secrets, _, err := h.CloneReferencedObjectsFromCBPackages(cluster, packages, systemNamespace)
+	// find the packages that don't need to be cloned by updated only
+	var toBeCloned bool
+	for _, cbPackage := range packages {
+		toBeCloned = false
+		for _, clonePackage := range packagesToBeCloned {
+			if cbPackage == clonePackage {
+				toBeCloned = true
+			}
+		}
+		if !toBeCloned {
+			packagesToBeUpdated = append(packagesToBeUpdated, cbPackage)
+		}
+	}
+
+	// Clone the required objects
+	secrets, _, err := h.CloneReferencedObjectsFromCBPackages(cluster, packagesToBeCloned, systemNamespace)
 	if err != nil {
 		h.Logger.Error(err, "unable to clone secrets or providers")
 		return nil, err
 	}
 
-	// We need to verify that all the listed providers in the clusterbootstrap with fromRef exist
+	// Update the existing objects to ensure labels are present for cluster bootstrap
+	err = h.updateProvidersAndSecretsLabels(cluster, packagesToBeUpdated)
+	if err != nil {
+		h.Logger.Error(err, "unable to update labels on secrets or providers")
+		return nil, err
+	}
+
+	// We need to verify that all the listed prvoiders in the clusterbootstrap with fromRef exist
 	providers, err := h.verifyProvidersFromRefExist(clusterBootstrap)
 	if err != nil {
 		h.Logger.Error(err, "could not verify all providers listed with providerRef in clusterbootstrap exists")
@@ -418,7 +490,7 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		return nil, err
 	}
 
-	// all providers have the clusterbootstrap added as controller owner reference.
+	// all providers have the clusterboostrap added as controller owner reference.
 	if err := h.EnsureOwnerRef(clusterBootstrap, secrets, providers); err != nil {
 		h.Logger.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return nil, err
@@ -679,56 +751,20 @@ func (h *Helper) cloneSecretRef(
 		return nil, nil
 	}
 
-	customSecret := false
-	secretInSrcNs, secretInClusterNs := false, false
 	secret := &corev1.Secret{}
-	clusterNsSecret := &corev1.Secret{}
-	var clusterNsSecretKey client.ObjectKey
 	key := client.ObjectKey{Namespace: sourceNamespace, Name: cbPkg.ValuesFrom.SecretRef}
-	err := h.K8sClient.Get(h.Ctx, key, secret)
-	if err != nil {
-		if !apierrors.IsNotFound(err) {
-			h.Logger.Error(err, "unable to fetch secret %s", key)
-			return nil, err
-		}
-	} else {
-		secretInSrcNs = true
-	}
-	if sourceNamespace != cluster.Namespace {
-		// Look for secret in cluster namespace for custom cluster bootstrap
-		clusterNsSecretKey = client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
-		err = h.K8sClient.Get(h.Ctx, clusterNsSecretKey, clusterNsSecret)
-		if err != nil {
-			if !apierrors.IsNotFound(err) {
-				h.Logger.Error(err, "unable to fetch secret %s", clusterNsSecretKey)
-				return nil, err
-			}
-		} else {
-			secretInClusterNs = true
-		}
-	}
-
-	if !secretInSrcNs && !secretInClusterNs {
-		h.Logger.Error(err, "unable to fetch secret %s or %s", key, clusterNsSecretKey)
+	if err := h.K8sClient.Get(h.Ctx, key, secret); err != nil {
+		h.Logger.Error(err, "unable to fetch secret", "objectkey", key)
 		return nil, err
-	} else if secretInClusterNs {
-		// custom clusterbootstrap case
-		customSecret = true
 	}
 
-	createOrPatchSecret := &corev1.Secret{}
-	if customSecret {
-		createOrPatchSecret = clusterNsSecret
-	} else {
-		newSecret := secret.DeepCopy()
-		newSecret.ObjectMeta.Reset()
-		newSecret.Name = util.GeneratePackageSecretName(cluster.Name, carvelPkgRefName)
-		newSecret.Namespace = cluster.Namespace
-		createOrPatchSecret = newSecret
-	}
+	newSecret := secret.DeepCopy()
+	newSecret.ObjectMeta.Reset()
+	newSecret.Name = util.GeneratePackageSecretName(cluster.Name, carvelPkgRefName)
+	newSecret.Namespace = cluster.Namespace
 
-	opResult, createOrPatchErr := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, createOrPatchSecret, func() error {
-		createOrPatchSecret.OwnerReferences = []metav1.OwnerReference{
+	opResult, createOrPatchErr := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, newSecret, func() error {
+		newSecret.OwnerReferences = []metav1.OwnerReference{
 			{
 				APIVersion: clusterapiv1beta1.GroupVersion.String(),
 				Kind:       cluster.Kind,
@@ -738,25 +774,22 @@ func (h *Helper) cloneSecretRef(
 		}
 
 		// Add cluster and package labels to cloned secrets
-		if createOrPatchSecret.Labels == nil {
-			createOrPatchSecret.Labels = map[string]string{}
+		if newSecret.Labels == nil {
+			newSecret.Labels = map[string]string{}
 		}
-		createOrPatchSecret.Labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(cbPkg.RefName)
-		createOrPatchSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
-
-		if !customSecret {
-			// Set secret.Type to ClusterBootstrapManagedSecret to enable clusterbootstrap_controller to Watch these secrets
-			createOrPatchSecret.Type = constants.ClusterBootstrapManagedSecret
-		}
+		newSecret.Labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(cbPkg.RefName)
+		newSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
+		// Set secret.Type to ClusterBootstrapManagedSecret to enable clusterbootstrap_controller to Watch these secrets
+		newSecret.Type = constants.ClusterBootstrapManagedSecret
 		return nil
 	})
 	if createOrPatchErr != nil {
 		return nil, createOrPatchErr
 	}
-	h.Logger.Info(fmt.Sprintf("Secret %s/%s %s", createOrPatchSecret.Namespace, createOrPatchSecret.Name, opResult))
-	cbPkg.ValuesFrom.SecretRef = createOrPatchSecret.Name
+	h.Logger.Info(fmt.Sprintf("Secret %s/%s %s", newSecret.Namespace, newSecret.Name, opResult))
+	cbPkg.ValuesFrom.SecretRef = newSecret.Name
 
-	return createOrPatchSecret, nil
+	return newSecret, nil
 }
 
 // cloneProviderRef is an internal function clones the referenced objects of a single ClusterBootstrapPackage.ValuesFrom.ProviderRef
@@ -772,104 +805,17 @@ func (h *Helper) cloneProviderRef(
 	}
 
 	var newProvider *unstructured.Unstructured
-	var clusterProvider *unstructured.Unstructured
 	var createdOrUpdatedProvider *unstructured.Unstructured
 	gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
 	if err != nil {
 		h.Logger.Error(err, "failed to getGVR")
 		return nil, err
 	}
-	isCustomCB := false
-	providerInSrcNs, providerInClusterNs := false, false
-
 	provider, err := h.DynamicClient.Resource(*gvr).Namespace(sourceNamespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
 	if err != nil {
-		if !apierrors.IsNotFound(err) {
-			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespace %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace), "gvr", gvr)
-			return nil, err
-		}
-	} else {
-		providerInSrcNs = true
-	}
-	if sourceNamespace != cluster.Namespace {
-		// Look in cluster namespace for custom bootstrap configs
-		clusterProvider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
-		if err != nil {
-			if !apierrors.IsNotFound(err) {
-				h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespace %s", cbPkg.ValuesFrom.ProviderRef.Name, cluster.Namespace), "gvr", gvr)
-				return nil, err
-			}
-		} else {
-			providerInClusterNs = true
-		}
-	}
-	if !providerInSrcNs && !providerInClusterNs {
-		h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespaces %s or %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace, cluster.Namespace), "gvr", gvr)
+		h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s/%s", sourceNamespace, cbPkg.ValuesFrom.ProviderRef.Name), "gvr", gvr)
 		return nil, err
-	} else if providerInClusterNs {
-		// custom clusterbootstrap case
-		isCustomCB = true
-		newProvider = h.createNewProviderToClone(cluster, clusterProvider, cbPkg, carvelPkgRefName)
-	} else {
-		newProvider = h.createNewProviderToClone(cluster, provider, cbPkg, carvelPkgRefName)
 	}
-
-	patchExistingProvider := false
-	if !isCustomCB {
-		h.Logger.Info(fmt.Sprintf("cloning provider %s/%s to namespace %s", sourceNamespace, newProvider.GetName(), cluster.Namespace), "gvr", gvr)
-		createdOrUpdatedProvider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Create(h.Ctx, newProvider, metav1.CreateOptions{})
-		if err != nil {
-			if apierrors.IsAlreadyExists(err) {
-				h.Logger.Info(fmt.Sprintf("provider %s/%s already exist, patching its Labels and OwnerReferences fields", newProvider.GetNamespace(), newProvider.GetName()))
-				patchExistingProvider = true
-			} else {
-				h.Logger.Error(err, fmt.Sprintf("unable to clone provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
-				return nil, err
-			}
-		}
-	}
-	if isCustomCB || patchExistingProvider {
-		// Instantiate an empty unstructured and only set ownerReferences and Labels for patching
-		patchObj := unstructured.Unstructured{}
-		patchObj.SetLabels(newProvider.GetLabels())
-		patchObj.SetOwnerReferences(newProvider.GetOwnerReferences())
-		patchData, err := patchObj.MarshalJSON()
-		if err != nil {
-			h.Logger.Error(err, fmt.Sprintf("unable to patch provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
-			return nil, err
-		}
-		var providerName string
-		if isCustomCB {
-			providerName = clusterProvider.GetName()
-		} else {
-			providerName = newProvider.GetName()
-		}
-		createdOrUpdatedProvider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(h.Ctx, providerName, types.MergePatchType, patchData, metav1.PatchOptions{})
-		if err != nil {
-			h.Logger.Error(err, fmt.Sprintf("unable to update provider %s/%s", cluster.Namespace, providerName), "gvr", gvr)
-			return nil, err
-		}
-	}
-
-	cbPkg.ValuesFrom.ProviderRef.Name = createdOrUpdatedProvider.GetName()
-	h.Logger.Info(fmt.Sprintf("cloned provider %s/%s to namespace %s", createdOrUpdatedProvider.GetNamespace(), createdOrUpdatedProvider.GetName(), cluster.Namespace), "gvr", gvr)
-
-	if !isCustomCB {
-		if err := h.cloneEmbeddedLocalObjectRef(cluster, provider); err != nil {
-			return nil, err
-		}
-	}
-
-	return createdOrUpdatedProvider, nil
-}
-
-func (h *Helper) createNewProviderToClone(
-	cluster *clusterapiv1beta1.Cluster,
-	provider *unstructured.Unstructured,
-	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage,
-	carvelPkgRefName string) *unstructured.Unstructured {
-
-	var newProvider *unstructured.Unstructured
 	newProvider = provider.DeepCopy()
 	unstructured.RemoveNestedField(newProvider.Object, "metadata")
 	newProvider.SetOwnerReferences([]metav1.OwnerReference{
@@ -899,7 +845,143 @@ func (h *Helper) createNewProviderToClone(
 
 	newProvider.SetName(util.GeneratePackageSecretName(cluster.Name, carvelPkgRefName))
 	newProvider.SetNamespace(cluster.Namespace)
-	return newProvider
+	h.Logger.Info(fmt.Sprintf("cloning provider %s/%s to namespace %s", sourceNamespace, newProvider.GetName(), cluster.Namespace), "gvr", gvr)
+	createdOrUpdatedProvider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Create(h.Ctx, newProvider, metav1.CreateOptions{})
+	if err != nil {
+		if apierrors.IsAlreadyExists(err) {
+			h.Logger.Info(fmt.Sprintf("provider %s/%s already exist, patching its Labels and OwnerReferences fields", newProvider.GetNamespace(), newProvider.GetName()))
+			// Instantiate an empty unstructured and only set ownerReferences and Labels for patching
+			patchObj := unstructured.Unstructured{}
+			patchObj.SetLabels(newProvider.GetLabels())
+			patchObj.SetOwnerReferences(newProvider.GetOwnerReferences())
+			patchData, err := patchObj.MarshalJSON()
+			if err != nil {
+				h.Logger.Error(err, fmt.Sprintf("unable to patch provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
+				return nil, err
+			}
+			createdOrUpdatedProvider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(h.Ctx, newProvider.GetName(), types.MergePatchType, patchData, metav1.PatchOptions{})
+			if err != nil {
+				h.Logger.Info(fmt.Sprintf("unable to update provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
+				return nil, err
+			}
+		} else {
+			h.Logger.Error(err, fmt.Sprintf("unable to clone provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
+			return nil, err
+		}
+	}
+
+	cbPkg.ValuesFrom.ProviderRef.Name = createdOrUpdatedProvider.GetName()
+	h.Logger.Info(fmt.Sprintf("cloned provider %s/%s to namespace %s", createdOrUpdatedProvider.GetNamespace(), createdOrUpdatedProvider.GetName(), cluster.Namespace), "gvr", gvr)
+
+	if err := h.cloneEmbeddedLocalObjectRef(cluster, provider); err != nil {
+		return nil, err
+	}
+
+	return createdOrUpdatedProvider, nil
+}
+
+// updateProvidersAndSecretsLabels ensure that all referenced providers and secrets in the given packages have appropriate labels
+// as required for cluster bootstrap
+func (h *Helper) updateProvidersAndSecretsLabels(
+	cluster *clusterapiv1beta1.Cluster,
+	cbPackages []*runtanzuv1alpha3.ClusterBootstrapPackage) error {
+
+	for _, cbPackage := range cbPackages {
+		if cbPackage == nil {
+			continue
+		}
+
+		if cbPackage.ValuesFrom.SecretRef != "" {
+			err := h.updateSecretLabels(cluster, cbPackage)
+			if err != nil {
+				return err
+			}
+		}
+
+		if cbPackage.ValuesFrom.ProviderRef != nil {
+			err := h.updateProviderLabels(cluster, cbPackage)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// updateSecretLabels is an internal function that updates the labels on the provided secret
+func (h *Helper) updateSecretLabels(
+	cluster *clusterapiv1beta1.Cluster,
+	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage) error {
+
+	if cbPkg.ValuesFrom.SecretRef == "" {
+		return nil
+	}
+	secret := &corev1.Secret{}
+	key := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
+	if err := h.K8sClient.Get(h.Ctx, key, secret); err != nil {
+		h.Logger.Error(err, "unable to fetch secret to update labels", "objectkey", key)
+		return err
+	}
+
+	opResult, createOrPatchErr := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, secret, func() error {
+		// Add cluster and package labels to secrets
+		if secret.Labels == nil {
+			secret.Labels = map[string]string{}
+		}
+		secret.Labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(cbPkg.RefName)
+		secret.Labels[addontypes.ClusterNameLabel] = cluster.Name
+		return nil
+	})
+	if createOrPatchErr != nil {
+		return createOrPatchErr
+	}
+	h.Logger.Info(fmt.Sprintf("Secret %s/%s %s with labels", secret.Namespace, secret.Name, opResult))
+	return nil
+}
+
+// updateProviderLabels is an internal function clones update the labels on the given provider
+func (h *Helper) updateProviderLabels(
+	cluster *clusterapiv1beta1.Cluster,
+	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage) error {
+
+	if cbPkg.ValuesFrom == nil {
+		return nil
+	}
+	var createdOrUpdatedProvider *unstructured.Unstructured
+	gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
+	if err != nil {
+		h.Logger.Error(err, "failed to getGVR")
+		return err
+	}
+	provider, err := h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+	if err != nil {
+		h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s/%s to update labels", cluster.Namespace, cbPkg.ValuesFrom.ProviderRef.Name), "gvr", gvr)
+		return err
+	}
+
+	h.Logger.Info(fmt.Sprintf("provider %s/%s already exist, patching its Labels", provider.GetNamespace(), provider.GetName()))
+	// Instantiate an empty unstructured and only set Labels for patching
+	patchObj := unstructured.Unstructured{}
+	patchObj.SetLabels(map[string]string{
+		// A package refName could contain characters that K8S does not like as a label value.
+		// For example, kapp-controller.tanzu.vmware.com.0.30.0+vmware.1-tkg.1 is a
+		// valid package refName, but it contains "+" that K8S complains. We parse the refName by replacing
+		// + to ---.
+		addontypes.PackageNameLabel: util.ParseStringForLabel(cbPkg.RefName),
+		addontypes.ClusterNameLabel: cluster.Name,
+	})
+	patchData, err := patchObj.MarshalJSON()
+	if err != nil {
+		h.Logger.Error(err, fmt.Sprintf("unable to patch provider %s/%s with labels", provider.GetNamespace(), provider.GetName()), "gvr", gvr)
+		return err
+	}
+	createdOrUpdatedProvider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(h.Ctx, provider.GetName(), types.MergePatchType, patchData, metav1.PatchOptions{})
+	if err != nil {
+		h.Logger.Info(fmt.Sprintf("unable to update provider %s/%s with labels", provider.GetNamespace(), provider.GetName()), "gvr", gvr)
+		return err
+	}
+	h.Logger.Info(fmt.Sprintf("updated provider %s/%s with labels", createdOrUpdatedProvider.GetNamespace(), createdOrUpdatedProvider.GetName()), "gvr", gvr)
+	return nil
 }
 
 // cloneEmbeddedLocalObjectRef is an internal function attempts to clone the embedded local object references from provider's namespace to cluster's
