@@ -166,6 +166,8 @@ kind: AntreaConfig
 metadata:
   name: test-cluster-tcbt
   namespace: tkg-system
+  labels:
+    tkg.tanzu.vmware.com/package-name: antrea.tanzu.vmware.com.1.7.2---tkg.1-advanced
   annotations:
     tkg.tanzu.vmware.com/template-config: "true"
 spec:
