@@ -478,6 +478,7 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 				Expect(k8sClient.Get(ctx, configKey, calicoConfig)).To(Succeed())
 
 				Expect(calicoConfig.Spec.Calico.Config.VethMTU).Should(Equal(int64(1420)))
+				Expect(calicoConfig.ObjectMeta.Labels["tkg.tanzu.vmware.com/package-name"]).Should(Equal("calico.tanzu.vmware.com.1.2.5--vmware.12-tkg.1"))
 				//  why  int64??  that would make it architecture specific, as oposed to why not just int?
 				// (defined in apis/addonconfigs/cni/v1alpha1/calicoconfig_types.go)
 				// seems to also have forced part of this fix: https://github.com/vmware-tanzu/tanzu-framework/pull/2164
