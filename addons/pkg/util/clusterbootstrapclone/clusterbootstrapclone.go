@@ -680,27 +680,45 @@ func (h *Helper) cloneSecretRef(
 	}
 
 	customSecret := false
+	secretInSrcNs, secretInClusterNs := false, false
 	secret := &corev1.Secret{}
+	clusterNsSecret := &corev1.Secret{}
+	var clusterNsSecretKey client.ObjectKey
 	key := client.ObjectKey{Namespace: sourceNamespace, Name: cbPkg.ValuesFrom.SecretRef}
-	if err := h.K8sClient.Get(h.Ctx, key, secret); err != nil {
-		if apierrors.IsNotFound(err) {
-			// Look for secret in cluster namespace for custom cluster bootstrap
-			customSecretKey := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
-			if err = h.K8sClient.Get(h.Ctx, customSecretKey, secret); err != nil {
-				h.Logger.Error(err, "unable to fetch secret %s or %s", key, customSecretKey)
-				return nil, err
-			} else {
-				customSecret = true
-			}
-		} else {
+	err := h.K8sClient.Get(h.Ctx, key, secret)
+	if err != nil {
+		if !apierrors.IsNotFound(err) {
 			h.Logger.Error(err, "unable to fetch secret %s", key)
 			return nil, err
 		}
+	} else {
+		secretInSrcNs = true
+	}
+	if sourceNamespace != cluster.Namespace {
+		// Look for secret in cluster namespace for custom cluster bootstrap
+		clusterNsSecretKey = client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
+		err = h.K8sClient.Get(h.Ctx, clusterNsSecretKey, clusterNsSecret)
+		if err != nil {
+			if !apierrors.IsNotFound(err) {
+				h.Logger.Error(err, "unable to fetch secret %s", clusterNsSecretKey)
+				return nil, err
+			}
+		} else {
+			secretInClusterNs = true
+		}
+	}
+
+	if !secretInSrcNs && !secretInClusterNs {
+		h.Logger.Error(err, "unable to fetch secret %s or %s", key, clusterNsSecretKey)
+		return nil, err
+	} else if secretInClusterNs {
+		// custom clusterbootstrap case
+		customSecret = true
 	}
 
 	createOrPatchSecret := &corev1.Secret{}
 	if customSecret {
-		createOrPatchSecret = secret
+		createOrPatchSecret = clusterNsSecret
 	} else {
 		newSecret := secret.DeepCopy()
 		newSecret.ObjectMeta.Reset()
@@ -754,6 +772,7 @@ func (h *Helper) cloneProviderRef(
 	}
 
 	var newProvider *unstructured.Unstructured
+	var clusterProvider *unstructured.Unstructured
 	var createdOrUpdatedProvider *unstructured.Unstructured
 	gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
 	if err != nil {
@@ -761,24 +780,40 @@ func (h *Helper) cloneProviderRef(
 		return nil, err
 	}
 	isCustomCB := false
+	providerInSrcNs, providerInClusterNs := false, false
+
 	provider, err := h.DynamicClient.Resource(*gvr).Namespace(sourceNamespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
 	if err != nil {
-		if apierrors.IsNotFound(err) {
-			// Look in cluster namespace for custom bootstrap configs
-			provider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
-			if err != nil {
-				h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespaces %s or %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace, cluster.Namespace), "gvr", gvr)
-				return nil, err
-			} else {
-				isCustomCB = true
-			}
-		} else {
+		if !apierrors.IsNotFound(err) {
 			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespace %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace), "gvr", gvr)
 			return nil, err
 		}
+	} else {
+		providerInSrcNs = true
+	}
+	if sourceNamespace != cluster.Namespace {
+		// Look in cluster namespace for custom bootstrap configs
+		clusterProvider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+		if err != nil {
+			if !apierrors.IsNotFound(err) {
+				h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespace %s", cbPkg.ValuesFrom.ProviderRef.Name, cluster.Namespace), "gvr", gvr)
+				return nil, err
+			}
+		} else {
+			providerInClusterNs = true
+		}
+	}
+	if !providerInSrcNs && !providerInClusterNs {
+		h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespaces %s or %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace, cluster.Namespace), "gvr", gvr)
+		return nil, err
+	} else if providerInClusterNs {
+		// custom clusterbootstrap case
+		isCustomCB = true
+		newProvider = h.createNewProviderToClone(cluster, clusterProvider, cbPkg, carvelPkgRefName)
+	} else {
+		newProvider = h.createNewProviderToClone(cluster, provider, cbPkg, carvelPkgRefName)
 	}
 
-	newProvider = h.createNewProviderToClone(cluster, provider, cbPkg, carvelPkgRefName)
 	patchExistingProvider := false
 	if !isCustomCB {
 		h.Logger.Info(fmt.Sprintf("cloning provider %s/%s to namespace %s", sourceNamespace, newProvider.GetName(), cluster.Namespace), "gvr", gvr)
@@ -805,7 +840,7 @@ func (h *Helper) cloneProviderRef(
 		}
 		var providerName string
 		if isCustomCB {
-			providerName = provider.GetName()
+			providerName = clusterProvider.GetName()
 		} else {
 			providerName = newProvider.GetName()
 		}
@@ -819,8 +854,10 @@ func (h *Helper) cloneProviderRef(
 	cbPkg.ValuesFrom.ProviderRef.Name = createdOrUpdatedProvider.GetName()
 	h.Logger.Info(fmt.Sprintf("cloned provider %s/%s to namespace %s", createdOrUpdatedProvider.GetNamespace(), createdOrUpdatedProvider.GetName(), cluster.Namespace), "gvr", gvr)
 
-	if err := h.cloneEmbeddedLocalObjectRef(cluster, provider); err != nil {
-		return nil, err
+	if !isCustomCB {
+		if err := h.cloneEmbeddedLocalObjectRef(cluster, provider); err != nil {
+			return nil, err
+		}
 	}
 
 	return createdOrUpdatedProvider, nil
