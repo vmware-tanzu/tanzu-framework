@@ -1042,7 +1042,7 @@ func (h *Helper) setLabels(labels map[string]string, child *unstructured.Unstruc
 	}
 	_, err = h.DynamicClient.Resource(*gvr).Namespace(child.GetNamespace()).Patch(h.Ctx, child.GetName(), types.MergePatchType, patchData, metav1.PatchOptions{})
 	if err != nil {
-		h.Logger.Error(fmt.Sprintf("unable to patch provider %s/%s", child.GetNamespace(), child.GetName()), "gvr", gvr)
+		h.Logger.Error(err, fmt.Sprintf("unable to patch provider %s/%s", child.GetNamespace(), child.GetName()), "gvr", gvr)
 	}
 	return err
 
