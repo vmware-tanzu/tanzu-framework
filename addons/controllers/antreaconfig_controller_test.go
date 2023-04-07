@@ -128,11 +128,17 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 					return false
 				}
 
+				spec, err := antreatype.MapAntreaConfigSpec(cluster, config)
+				if err != nil {
+					return false
+				}
+
 				Expect(len(config.OwnerReferences)).Should(Equal(1))
 				Expect(config.OwnerReferences[0].Name).Should(Equal(clusterName))
 
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).Should(Equal("encap"))
-				Expect(config.Spec.Antrea.AntreaConfigDataValue.TunnelCsum).Should(Equal(true))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.TunnelCsum).Should(Equal(spec.Antrea.AntreaConfigDataValue.TunnelCsum))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.TunnelPort).Should(Equal(spec.Antrea.AntreaConfigDataValue.TunnelPort))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy).Should(Equal(true))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.FlowExporter).Should(Equal(false))
@@ -143,7 +149,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.SecondaryNetwork).Should(Equal(false))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TrafficControl).Should(Equal(false))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.NodePortLocal).Should(Equal(true))
-				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TopologyAwareHints).Should(Equal(true))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TopologyAwareHints).Should(Equal(spec.Antrea.AntreaConfigDataValue.FeatureGates.TopologyAwareHints))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
