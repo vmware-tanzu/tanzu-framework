@@ -444,7 +444,7 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		h.Logger.Error(err, fmt.Sprintf("unable to add cluster %s/%s as owner reference to providers", cluster.Namespace, cluster.Name))
 	}
 
-	if err := h.addPackageLabelForCNIProvider(cluster.Name, clusterBootstrap); err != nil {
+	if err := h.AddPackageLabelForCNIProvider(cluster.Name, clusterBootstrap); err != nil {
 		h.Logger.Error(err, fmt.Sprintf("unable to add labels to cni provider"))
 		return nil, err
 	}
@@ -970,9 +970,9 @@ func (h *Helper) AddClusterOwnerRefToExistingProviders(cluster *clusterapiv1beta
 	return nil
 }
 
-// AddPackageLabelForCNIConfig patch the missing labels for AntreaConfig(cni config) when it's related to
+// AddPackageLabelForCNIProvider patch the missing labels for AntreaConfig(cni config) when it's related to
 // an existing clusterboostrap. To make antreaconfig works with old versions, it relies on the package label now.
-func (h *Helper) addPackageLabelForCNIProvider(clusterName string, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
+func (h *Helper) AddPackageLabelForCNIProvider(clusterName string, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
 	cni := clusterBootstrap.Spec.CNI
 	if cni != nil {
 		providers, err := h.getListOfExistingProviders(clusterBootstrap)
