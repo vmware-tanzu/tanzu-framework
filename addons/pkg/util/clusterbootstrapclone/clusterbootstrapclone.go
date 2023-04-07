@@ -681,21 +681,21 @@ func (h *Helper) cloneSecretRef(
 
 	customSecret := false
 	secret := &corev1.Secret{}
-	// Look for secret in cluster namespace for custom cluster bootstrap
-	customSecretKey := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
-	if err := h.K8sClient.Get(h.Ctx, customSecretKey, secret); err != nil {
+	key := client.ObjectKey{Namespace: sourceNamespace, Name: cbPkg.ValuesFrom.SecretRef}
+	if err := h.K8sClient.Get(h.Ctx, key, secret); err != nil {
 		if apierrors.IsNotFound(err) {
-			key := client.ObjectKey{Namespace: sourceNamespace, Name: cbPkg.ValuesFrom.SecretRef}
-			if err := h.K8sClient.Get(h.Ctx, key, secret); err != nil {
+			// Look for secret in cluster namespace for custom cluster bootstrap
+			customSecretKey := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
+			if err = h.K8sClient.Get(h.Ctx, customSecretKey, secret); err != nil {
 				h.Logger.Error(err, "unable to fetch secret %s or %s", key, customSecretKey)
 				return nil, err
+			} else {
+				customSecret = true
 			}
 		} else {
-			h.Logger.Error(err, "unable to fetch secret %s", customSecretKey)
+			h.Logger.Error(err, "unable to fetch secret %s", key)
 			return nil, err
 		}
-	} else {
-		customSecret = true
 	}
 
 	createOrPatchSecret := &corev1.Secret{}
@@ -761,21 +761,21 @@ func (h *Helper) cloneProviderRef(
 		return nil, err
 	}
 	isCustomCB := false
-	// Look in cluster namespace for custom bootstrap configs
-	provider, err := h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+	provider, err := h.DynamicClient.Resource(*gvr).Namespace(sourceNamespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			provider, err = h.DynamicClient.Resource(*gvr).Namespace(sourceNamespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+			// Look in cluster namespace for custom bootstrap configs
+			provider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(h.Ctx, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
 			if err != nil {
 				h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespaces %s or %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace, cluster.Namespace), "gvr", gvr)
 				return nil, err
+			} else {
+				isCustomCB = true
 			}
 		} else {
-			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespace %s", cbPkg.ValuesFrom.ProviderRef.Name, cluster.Namespace), "gvr", gvr)
+			h.Logger.Error(err, fmt.Sprintf("unable to fetch provider %s in namespace %s", cbPkg.ValuesFrom.ProviderRef.Name, sourceNamespace), "gvr", gvr)
 			return nil, err
 		}
-	} else {
-		isCustomCB = true
 	}
 
 	newProvider = h.createNewProviderToClone(cluster, provider, cbPkg, carvelPkgRefName)
