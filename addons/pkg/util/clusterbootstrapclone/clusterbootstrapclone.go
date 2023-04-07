@@ -1032,24 +1032,20 @@ func (h *Helper) setLabels(labels map[string]string, child *unstructured.Unstruc
 		h.Logger.Error(err, fmt.Sprintf("unable to get GVR of %s/%s", child.GetNamespace(), child.GetName()))
 		return err
 	}
-	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		// We need to get and update, otherwise there could have concurrency issue: ["the object has been modified; please
-		// apply your changes to the latest version and try again"]
-		newChild, errGetProvider := h.DynamicClient.Resource(*gvr).Namespace(child.GetNamespace()).Get(h.Ctx, child.GetName(), metav1.GetOptions{})
-		if errGetProvider != nil {
-			h.Logger.Error(errGetProvider, fmt.Sprintf("unable to get %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
-			return errGetProvider
-		}
-		newChild = newChild.DeepCopy()
-		newChild.SetLabels(labels)
-		_, errUpdateProvider := h.DynamicClient.Resource(*gvr).Namespace(newChild.GetNamespace()).Update(h.Ctx, newChild, metav1.UpdateOptions{})
-		if errUpdateProvider != nil {
-			h.Logger.Error(errUpdateProvider, fmt.Sprintf("unable to update %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
-			return errUpdateProvider
-		}
-		return nil
-	})
+
+	patchObj := unstructured.Unstructured{}
+	patchObj.SetLabels(labels)
+	patchData, err := patchObj.MarshalJSON()
+	if err != nil {
+		h.Logger.Error(err, fmt.Sprintf("unable to patch provider %s/%s", child.GetNamespace(), child.GetName()), "gvr", gvr)
+		return err
+	}
+	_, err = h.DynamicClient.Resource(*gvr).Namespace(child.GetNamespace()).Patch(h.Ctx, child.GetName(), types.MergePatchType, patchData, metav1.PatchOptions{})
+	if err != nil {
+		h.Logger.Error(fmt.Sprintf("unable to patch provider %s/%s", child.GetNamespace(), child.GetName()), "gvr", gvr)
+	}
 	return err
+
 }
 
 func (h *Helper) setOwnerRef(ownerRef *metav1.OwnerReference, children []*unstructured.Unstructured) error {
