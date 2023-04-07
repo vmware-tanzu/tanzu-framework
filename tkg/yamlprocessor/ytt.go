@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
@@ -166,6 +167,7 @@ func (p *YTTProcessor) Process(rawArtifact []byte, variablesClient func(string) 
 
 	// build out the data values for ytt
 	dataValues := make([]string, 0, len(variables))
+	stringValues := make([]string, 0, len(variables))
 	for _, vName := range variables {
 		vValue, err := variablesClient(vName)
 		if err != nil {
@@ -189,14 +191,17 @@ func (p *YTTProcessor) Process(rawArtifact []byte, variablesClient func(string) 
 			}
 		}
 
-		if convertable {
+		if strings.Contains(strings.ToUpper(vName), "PASSWORD") {
+			stringValues = append(stringValues, fmt.Sprintf("%s=%s", vName, vValue))
+		} else if convertable {
 			dataValues = append(dataValues, fmt.Sprintf("%s=%s", vName, vValue))
 		} else {
 			dataValues = append(dataValues, fmt.Sprintf("%s=%q", vName, vValue))
 		}
 	}
 	dvf := template.DataValuesFlags{
-		KVsFromYAML: dataValues,
+		KVsFromStrings: stringValues,
+		KVsFromYAML:    dataValues,
 	}
 
 	// add the data values as overlays to the ytt templates
