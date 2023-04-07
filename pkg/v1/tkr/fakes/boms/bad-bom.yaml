@@ -1,4 +1,0 @@
-release:
-  version: ""
-imageConfig:
-  imageRepository: registry.tkg.vmware.run
