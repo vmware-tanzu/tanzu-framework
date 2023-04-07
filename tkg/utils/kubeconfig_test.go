@@ -201,7 +201,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster, nil)
+				gotPinnipedInfo, err = pinnipedinfo.GetPinnipedInfoFromCluster(&cluster, nil)
 			})
 			It("should not return an error", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -220,7 +220,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				_, err = utils.GetPinnipedInfoFromCluster(&cluster, nil)
+				_, err = pinnipedinfo.GetPinnipedInfoFromCluster(&cluster, nil)
 			})
 			It("should return the pinniped-info successfully", func() {
 				Expect(err).To(HaveOccurred())
@@ -248,7 +248,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster, nil)
+				gotPinnipedInfo, err = pinnipedinfo.GetPinnipedInfoFromCluster(&cluster, nil)
 			})
 			It("should return the pinniped-info successfully", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -289,7 +289,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster, &discoveryPort)
+				gotPinnipedInfo, err = pinnipedinfo.GetPinnipedInfoFromCluster(&cluster, &discoveryPort)
 			})
 			It("should return the pinniped-info successfully", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -322,7 +322,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				cluster.Server = endpoint
 				certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: servCert.Raw})
 				cluster.CertificateAuthorityData = certBytes
-				gotPinnipedInfo, err = utils.GetPinnipedInfoFromCluster(&cluster, nil)
+				gotPinnipedInfo, err = pinnipedinfo.GetPinnipedInfoFromCluster(&cluster, nil)
 			})
 			It("should return the pinniped-info successfully", func() {
 				Expect(err).ToNot(HaveOccurred())

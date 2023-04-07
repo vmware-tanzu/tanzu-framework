@@ -377,6 +377,8 @@ func createServerWithEndpoint() (server *configapi.Server, err error) {
 				return nil, err
 			}
 		} else {
+			// TODO(BEN): this func has more complicated dependencies, but is obviouisly pinniped related, and it is
+			// duplicated.  we need to decide how to factor it out.
 			kubeConfig, kubecontext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{ClusterInfoConfigMap: tkgauth.DefaultClusterInfoConfigMap})
 			if err != nil {
 				log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
@@ -528,6 +530,8 @@ func getDiscoveryHTTPClient() *http.Client {
 
 func vSphereSupervisorLogin(endpoint string) (mergeFilePath, currentContext string, err error) {
 	port := 443
+	// TODO(BEN): this func is trickier, it has more dependencies on things that we likely don't
+	// want to pull into <TF>/pinniped-components/common.
 	kubeConfig, kubecontext, err := tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{DiscoveryPort: &port, ClusterInfoConfigMap: wcpauth.SupervisorVIPConfigMapName})
 	if err != nil {
 		log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
