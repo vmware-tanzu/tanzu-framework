@@ -458,6 +458,12 @@ spec:
                             default: false
                             description: Flag to enable/disable service external IP
                             type: boolean
+                          TopologyAwareHints:
+                            default: false
+                            description: Enable TopologyAwareHints in AntreaProxy.
+                              This requires AntreaProxy and EndpointSlice to be enabled,
+                              otherwise this flag will not take effect.
+                            type: boolean
                           TrafficControl:
                             default: false
                             description: Enable mirroring or redirecting the traffic
@@ -545,6 +551,18 @@ spec:
                         items:
                           type: string
                         type: array
+                      tunnelCsum:
+                        default: false
+                        description: TunnelCsum determines whether to compute UDP
+                          encapsulation header (Geneve or VXLAN) checksums on outgoing
+                          packets
+                        type: boolean
+                      tunnelPort:
+                        default: 0
+                        description: TunnelPort is the destination port for UDP and
+                          TCP based tunnel protocols (Geneve, VXLAN, and STT).If zero,
+                          it will use the assigned IANA port for the protocol.
+                        type: integer
                       tunnelType:
                         description: Tunnel protocols used for encapsulating traffic
                           across Nodes. One of the following options =:> geneve, vxlan,

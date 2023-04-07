@@ -208,6 +208,11 @@ func (r *AntreaConfigReconciler) ClusterToAntreaConfig(o client.Object) []ctrl.R
 	return requests
 }
 
+// MapAntreaConfigSpec is a handy function to use outside the pkg.
+func MapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha2.AntreaConfig) (*AntreaConfigSpec, error) {
+	return mapAntreaConfigSpec(cluster, config, nil)
+}
+
 func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha2.AntreaConfig, client client.Client) (*AntreaConfigSpec, error) {
 
 	packageName := config.GetLabels()[addontypes.PackageNameLabel]

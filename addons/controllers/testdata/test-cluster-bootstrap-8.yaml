@@ -405,6 +405,8 @@ kind: AntreaConfig
 metadata:
   name: test-cluster-8
   namespace: tkg-system
+  labels:
+    tkg.tanzu.vmware.com/package-name: antrea.tanzu.vmware.com.1.7.2---tkg.1-advanced
 spec:
   antrea:
     config:
@@ -415,6 +417,8 @@ kind: AntreaConfig
 metadata:
   name: test-cluster-8
   namespace: cluster-namespace-8
+  labels:
+    tkg.tanzu.vmware.com/package-name: antrea.tanzu.vmware.com.1.7.2---tkg.1-advanced
 spec:
   antrea:
     config:
