@@ -444,6 +444,12 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		h.Logger.Error(err, fmt.Sprintf("unable to add cluster %s/%s as owner reference to providers", cluster.Namespace, cluster.Name))
 	}
 
+	if err := h.addPackageLabelForCNIProvider(cluster.Name, clusterBootstrap); err != nil {
+		h.Logger.Error(err, fmt.Sprintf("unable to add labels to cni provider"))
+		return nil, err
+	}
+	h.Logger.Info("patched labels for cni provider.")
+
 	clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion:         clusterapiv1beta1.GroupVersion.String(),
@@ -964,6 +970,31 @@ func (h *Helper) AddClusterOwnerRefToExistingProviders(cluster *clusterapiv1beta
 	return nil
 }
 
+// AddPackageLabelForCNIConfig patch the missing labels for AntreaConfig(cni config) when it's related to
+// an existing clusterboostrap. To make antreaconfig works with old versions, it relies on the package label now.
+func (h *Helper) addPackageLabelForCNIProvider(clusterName string, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
+	cni := clusterBootstrap.Spec.CNI
+	if cni != nil {
+		providers, err := h.getListOfExistingProviders(clusterBootstrap)
+		if err != nil {
+			return err
+		}
+		for _, p := range providers {
+			if cni.ValuesFrom != nil && cni.ValuesFrom.ProviderRef != nil && p.GetKind() == cni.ValuesFrom.ProviderRef.Kind {
+				labels := p.GetLabels()
+				if labels == nil {
+					labels = map[string]string{}
+				}
+				labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(cni.RefName)
+				labels[addontypes.ClusterNameLabel] = clusterName
+				return h.setLabels(labels, p)
+			}
+		}
+
+	}
+	return nil
+}
+
 // AddClusterOwnerRef adds cluster as an owner reference to the children with given controller and blockownerdeletion settings
 func (h *Helper) AddClusterOwnerRef(cluster *clusterapiv1beta1.Cluster, children []*unstructured.Unstructured, controller, blockownerdeletion *bool) error {
 	ownerRef := metav1.OwnerReference{
@@ -993,6 +1024,32 @@ func ownedByDifferentCluster(k8SObject *unstructured.Unstructured, cluster *clus
 		}
 	}
 	return ""
+}
+
+func (h *Helper) setLabels(labels map[string]string, child *unstructured.Unstructured) error {
+	gvr, err := h.GVRHelper.GetGVR(child.GroupVersionKind().GroupKind())
+	if err != nil {
+		h.Logger.Error(err, fmt.Sprintf("unable to get GVR of %s/%s", child.GetNamespace(), child.GetName()))
+		return err
+	}
+	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		// We need to get and update, otherwise there could have concurrency issue: ["the object has been modified; please
+		// apply your changes to the latest version and try again"]
+		newChild, errGetProvider := h.DynamicClient.Resource(*gvr).Namespace(child.GetNamespace()).Get(h.Ctx, child.GetName(), metav1.GetOptions{})
+		if errGetProvider != nil {
+			h.Logger.Error(errGetProvider, fmt.Sprintf("unable to get %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
+			return errGetProvider
+		}
+		newChild = newChild.DeepCopy()
+		newChild.SetLabels(labels)
+		_, errUpdateProvider := h.DynamicClient.Resource(*gvr).Namespace(newChild.GetNamespace()).Update(h.Ctx, newChild, metav1.UpdateOptions{})
+		if errUpdateProvider != nil {
+			h.Logger.Error(errUpdateProvider, fmt.Sprintf("unable to update %s %s/%s", child.GetKind(), child.GetNamespace(), child.GetName()))
+			return errUpdateProvider
+		}
+		return nil
+	})
+	return err
 }
 
 func (h *Helper) setOwnerRef(ownerRef *metav1.OwnerReference, children []*unstructured.Unstructured) error {
