@@ -89,6 +89,39 @@ type VSphereNodePool struct {
 	MemoryMiB         int64    `yaml:"memoryMiB,omitempty"`
 	DiskGiB           int32    `yaml:"diskGiB,omitempty"`
 	NumCPUs           int32    `yaml:"numCPUs,omitempty"`
+
+	// PCI and GPU related parameters...
+	HardwareVersion string                      `yaml:"hardwareVersion,omitempty"`
+	PCISettings     *VsphereNodePoolPCI         `yaml:pciSettings,omitempty`
+	PCIDevices      []*VsphereNodePoolPCIDevice `yaml:pciDevices,omitempty`
+}
+
+/*
+*
+
+	/spec/template/spec/pciDevices
+	- deviceId: 0x10DE  <-- this defines "nvidia"
+	vendorId: 0x1EB8 <-- this identifies that it is a "T4 GPU"
+	- deviceId: ...
+	vendorId: ...
+*/
+type VsphereNodePoolPCIDevice struct {
+	DeviceId string `yaml:"deviceId,omitempty"`
+	VendorId string `yaml:"vendorId,omitempty"`
+}
+
+/*
+/spec/template/spec/customVMXKeys:
+  - pciPassthru.allowP2P:true
+    pciPassthru.RelaxACSforP2P:true
+    pciPassthru.use64bitMMIO:true
+    pciPassthru.64bitMMIOSizeGB:512
+*/
+type VsphereNodePoolPCI struct {
+	Use64bitMMIO      bool `yaml:"use64bitMMIO,omitempty"`
+	N_64bitMMIOSizeGB int  `yaml:"64bitMMIOSizeGB,omitempty"`
+	AllowP2P          bool `yaml:"allowP2P,omitempty"`
+	RelaxACSforP2P    bool `yaml:"relaxACSforP2P,omitempty"`
 }
 
 const deploymentNameLabelKey = "cluster.x-k8s.io/deployment-name"
