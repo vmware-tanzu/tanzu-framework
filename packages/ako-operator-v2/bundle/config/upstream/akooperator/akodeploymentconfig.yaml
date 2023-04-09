@@ -20,6 +20,7 @@ spec:
         name: ""
         cidr: ""
     extraConfigs:
+        cniPlugin: antrea
         disableStaticRouteSync: false
         ingress:
             disableIngressClass: true
@@ -50,7 +51,37 @@ spec:
         name: ""
         cidr: ""
     extraConfigs:
+        cniPlugin: antrea
         disableStaticRouteSync: false
         ingress:
             disableIngressClass: true
+            defaultIngressController: false
+
+---
+apiVersion: networking.tkg.tanzu.vmware.com/v1alpha1
+kind: AKODeploymentConfig
+metadata:
+    name: install-ako-for-node-port-local
+spec:
+    cloudName: ""
+    serviceEngineGroup: ""
+    controller: ""
+    adminCredentialRef:
+        name: controller-credentials
+        namespace: default
+    certificateAuthorityRef:
+        name: controller-ca
+        namespace: default
+    dataNetwork:
+        name: ""
+        cidr: ""
+    controlPlaneNetwork:
+        name: ""
+        cidr: ""
+    extraConfigs:
+        cniPlugin: antrea
+        disableStaticRouteSync: false
+        ingress:
+            disableIngressClass: true
+            serviceType: NodePortLocal
             defaultIngressController: false
