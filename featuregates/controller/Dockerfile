@@ -19,6 +19,7 @@ COPY featuregates/client featuregates/client
 COPY apis/ apis/
 COPY cli/runtime cli/runtime
 COPY capabilities/client capabilities/client
+COPY util/ util/
 COPY util/go.mod util/go.mod
 
 WORKDIR featuregates/controller
