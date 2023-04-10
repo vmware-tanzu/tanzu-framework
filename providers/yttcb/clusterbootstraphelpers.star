@@ -36,3 +36,23 @@ def get_no_proxy():
   end
   return ""
 end
+
+#! Takes in something that looks like "prompt=consent,something-else=other-value"
+#! and returns something that looks like [{name: prompt, value: consent},{name: something-else, value: other-value}]
+#! This is purposely intended to be forgiving of additional whitespace.
+def get_additional_authorize_params():
+  result = []
+
+  if data.values.OIDC_IDENTITY_PROVIDER_ADDITIONAL_AUTHORIZE_PARAMS:
+    for pair in data.values.OIDC_IDENTITY_PROVIDER_ADDITIONAL_AUTHORIZE_PARAMS.split(","):
+      pair = pair.lstrip().rstrip()
+      elements = pair.split("=")
+
+      if len(elements) == 2:
+        result.append(dict(name=elements[0].lstrip().rstrip(), value=elements[1].lstrip().rstrip()))
+      end
+    end
+  end
+
+  return result
+end
