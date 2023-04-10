@@ -169,6 +169,8 @@ antrea_interworking:
     #@schema/desc " "
     bootstrapFrom: SupervisorCluster
     #@schema/desc " "
+    bootstrapSupervisorResourceName: dummyClusterName
+    #@schema/desc " "
     proxyEndpoints:
       #@schema/desc " "
       rest_api: [fakeRestApi]

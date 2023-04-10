@@ -75,7 +75,7 @@ antrea:
       TopologyAwareHints: false
 
 antrea_nsx:
-  enable: false
+  enable: true
 
 antrea_interworking:
   config:
@@ -85,6 +85,7 @@ antrea_interworking:
     NSXManagers: []
     vpcPath: ""
     bootstrapFrom: SupervisorCluster
+    bootstrapSupervisorResourceName: dummyClusterName
     proxyEndpoints:
       rest_api: [ ]
       nsx_rpc_fwd_proxy: [ ]
