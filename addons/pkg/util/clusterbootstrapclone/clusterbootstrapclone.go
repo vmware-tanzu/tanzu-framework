@@ -428,7 +428,7 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
 	}
 
-	// find the packages that don't need to be cloned by updated only
+	// find the packages that don't need to be cloned but updated only
 	var toBeCloned bool
 	for _, cbPackage := range packages {
 		toBeCloned = false
@@ -887,7 +887,7 @@ func (h *Helper) updateProvidersAndSecretsLabels(
 	cbPackages []*runtanzuv1alpha3.ClusterBootstrapPackage) error {
 
 	for _, cbPackage := range cbPackages {
-		if cbPackage == nil {
+		if cbPackage == nil || cbPackage.ValuesFrom == nil {
 			continue
 		}
 
@@ -913,9 +913,6 @@ func (h *Helper) updateSecretLabels(
 	cluster *clusterapiv1beta1.Cluster,
 	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage) error {
 
-	if cbPkg.ValuesFrom.SecretRef == "" {
-		return nil
-	}
 	secret := &corev1.Secret{}
 	key := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.ValuesFrom.SecretRef}
 	if err := h.K8sClient.Get(h.Ctx, key, secret); err != nil {
@@ -944,9 +941,6 @@ func (h *Helper) updateProviderLabels(
 	cluster *clusterapiv1beta1.Cluster,
 	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage) error {
 
-	if cbPkg.ValuesFrom == nil {
-		return nil
-	}
 	var createdOrUpdatedProvider *unstructured.Unstructured
 	gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
 	if err != nil {
