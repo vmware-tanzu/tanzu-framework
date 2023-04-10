@@ -43,7 +43,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 	)
 
 	const (
-		waitTimeout                            = waitTimeout //use this to change test speed when debugging
+		waitTimeout                            = waitTimeout // use this to change test speed when debugging
 		antreaManifestsTestFile1               = "testdata/antrea-test-1.yaml"
 		antreamanifestsTestFile2               = "testdata/antrea-test-2.yaml"
 		antreaTemplateConfigManifestsTestFile1 = "testdata/antrea-test-template-config-1.yaml"
@@ -224,7 +224,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 	})
 
-	Context("Reconcile AntreaConfig with antreaNsx enabled for management cluster", func() {
+	Context("Reconcile AntreaConfig with antrea_nsx enabled for management cluster", func() {
 
 		BeforeEach(func() {
 			clusterName = antreaTestCluster2

@@ -88,7 +88,7 @@ func (r *AntreaConfig) ValidateUpdate(old runtime.Object) error {
 		)
 	}
 	if !reflect.DeepEqual(r.Spec.AntreaNsx.Enable, oldObj.Spec.AntreaNsx.Enable) {
-		allErrs = append(allErrs, field.Invalid(field.NewPath("spec", "antreaNsx", "enable", ""),
+		allErrs = append(allErrs, field.Invalid(field.NewPath("spec", "antrea_nsx", "enable", ""),
 			r.Spec.AntreaNsx.Enable, "filed is immutable"),
 		)
 	}

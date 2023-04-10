@@ -15,6 +15,7 @@ require (
 	github.com/onsi/gomega v1.20.2
 	github.com/oracle/cluster-api-provider-oci v0.6.0
 	github.com/pkg/errors v0.9.1
+	github.com/stretchr/testify v1.8.0
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.26.0
@@ -91,6 +92,7 @@ require (
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/oracle/oci-go-sdk/v65 v65.18.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.13.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect

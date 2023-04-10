@@ -13,7 +13,10 @@ type AntreaProxyNodePortAddress []string
 type AntreaConfigSpec struct {
 	Antrea Antrea `json:"antrea,omitempty"`
 	// AntreaNsx defines nsxt adapter related configurations
-	AntreaNsx AntreaNsx `json:"antreaNsx,omitempty"`
+	AntreaNsx AntreaNsx `json:"antrea_nsx,omitempty"`
+	// Config is  configuration for nsxt adapter
+	// +kubebuilder:validation:Optional
+	AntreaInterworking AntreaInterworkingConfig `json:"antrea_interworking,omitempty"`
 }
 
 type Antrea struct {
@@ -21,60 +24,60 @@ type Antrea struct {
 }
 
 type AntreaEgress struct {
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	EgressExceptCIDRs []string `json:"exceptCIDRs,omitempty"`
 }
 
 type AntreaNodePortLocal struct {
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	Enabled bool `json:"enabled,omitempty"`
 
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	PortRange string `json:"portRange,omitempty"`
 }
 
 type AntreaProxy struct {
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	ProxyAll bool `json:"proxyAll,omitempty"`
 
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	NodePortAddresses []string `json:"nodePortAddresses,omitempty"`
 
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	SkipServices []string `json:"skipServices,omitempty"`
 
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	ProxyLoadBalancerIPs bool `json:"proxyLoadBalancerIPs,omitempty"`
 }
 
 type AntreaFlowExporter struct {
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	CollectorAddress string `json:"collectorAddress,omitempty"`
 
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	PollInterval string `json:"pollInterval,omitempty"`
 
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	ActiveFlowTimeout string `json:"activeFlowTimeout,omitempty"`
 
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	IdleFlowTimeout string `json:"idleFlowTimeout,omitempty"`
 }
 
 type AntreaWireGuard struct {
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	Port int `json:"port,omitempty"`
 }
 
 type AntreaMultiCluster struct {
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	Enable bool `json:"enable,omitempty"`
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	Namespace string `json:"namespace,omitempty"`
 }
 
 type AntreaMulticast struct {
-	//+ kubebuilder:validation:Optional
+	// + kubebuilder:validation:Optional
 	IGMPQueryInterval string `json:"igmpQueryInterval,omitempty"`
 }
 
@@ -288,51 +291,161 @@ type AntreaNsx struct {
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
 	Enable bool `json:"enable,omitempty"`
-	// BootstrapFrom either providerRef or inline configs
-	// +kubebuilder:validation:Optional
-	BootstrapFrom AntreaNsxBootstrapFrom `json:"bootstrapFrom,omitempty"`
-	// Config is  configuration for nsxt adapter
-	// +kubebuilder:validation:Optional
-	AntreaNsxConfig AntreaNsxConfig `json:"config,omitempty"`
 }
 
-type AntreaNsxBootstrapFrom struct {
-	// ProviderRef is used with uTKG, which will be filled by uTKG Addon Controller
-	// +kubebuilder:validation:Optional
-	ProviderRef *AntreaNsxProvider `json:"providerRef,omitempty"`
-	// Inline is used with TKGm, user need to fill in manually
-	// +kubebuilder:validation:Optional
-	Inline *AntreaNsxInline `json:"inline,omitempty"`
-}
-
-type AntreaNsxProvider struct {
-	// Api version for nsxServiceAccount, its value is "nsx.vmware.com/v1alpha1" now
-	// +kubebuilder:validation:Optional
-	ApiGroup string `json:"apigroup,omitempty"`
-	// Kind is the kind for crd, here its value is NsxServiceAccount
-	// +kubebuilder:validation:Optional
-	Kind string `json:"kind,omitempty"`
-	// Name is the name for NsxServiceAccount
-	// +kubebuilder:validation:Optional
-	Name string `json:"name,omitempty"`
-}
-
-type AntreaNsxInline struct {
-	// NsxManagers is the list for nsx managers, it can be either IP address or domain name
-	// +kubebuilder:validation:Optional
-	NsxManagers []string `json:"nsxManagers,omitempty"`
-	// ClusterName is the name for the created cluster
-	// +kubebuilder:validation:Optional
-	ClusterName string `json:"clusterName,omitempty"`
-	// NsxCertName is cert files to access nsx manager
-	// +kubebuilder:validation:Optional
-	NsxCertName string `json:"nsxCertName,omitempty"`
+type AntreaInterworkingConfig struct {
+	Config AntreaNsxConfig `json:"config,omitempty"`
 }
 
 type AntreaNsxConfig struct {
+	// BootstrapFrom either providerRef or inline configs
+	// +kubebuilder:validation:Optional
+	BootstrapFrom string `json:"bootstrapFrom,omitempty"`
+
 	// InfraType is the type for infrastructure, so far it is vSphere, VMC, AWS, Azure
 	// +kubebuilder:validation:Optional
 	InfraType string `json:"infraType,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NSXCert string `json:"nsxCert,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NSXKey string `json:"nsxKey,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	ClusterName string `json:"clusterName,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NSXManagers []string `json:"NSXManagers,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	VPCPath []string `json:"vpcPath,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	ProxyEndpoints ProxyEndpoints `json:"proxyEndpoints,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	MpAdapterConf MpAdapterConf `json:"mp_adapter_conf,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	CcpAdapterConf CcpAdapterConf `json:"ccp_adapter_conf,omitempty"`
+}
+
+type ProxyEndpoints struct {
+	// +kubebuilder:validation:Optional
+	RestApi []string `json:"rest_api,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NSXRpcFwdProxy []string `json:"nsx_rpc_fwd_proxy,omitempty"`
+}
+
+type MpAdapterConf struct {
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:="/etc/antrea/nsx-cert/tls.crt"
+	NSXClientAuthCertFile string `json:"NSXClientAuthCertFile,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:="/etc/antrea/nsx-cert/tls.key"
+	NSXClientAuthKeyFile string `json:"NSXClientAuthKeyFile,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	NSXRemoteAuth bool `json:"NSXRemoteAuth,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=""
+	NSXCAFile string `json:"NSXCAFile,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=true
+	NSXInsecure bool `json:"NSXInsecure,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:="tnproxy"
+	NSXRPCConnType string `json:"NSXRPCConnType,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:="kubernetes"
+	ClusterType string `json:"clusterType,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=120
+	NSXClientTimeout int `json:"NSXClientTimeout,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=50
+	InventoryBatchSize int `json:"InventoryBatchSize,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=5
+	InventoryBatchPeriod int `json:"InventoryBatchPeriod,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	EnableDebugServer bool `json:"EnableDebugServer,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=16664
+	APIServerPort int `json:"APIServerPort,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=16666
+	DebugServerPort int `json:"DebugServerPort,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	NSXRPCDebug bool `json:"NSXRPCDebug,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=150
+	ConditionTimeout int `json:"ConditionTimeout,omitempty"`
+}
+
+type CcpAdapterConf struct {
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	EnableDebugServer bool `json:"EnableDebugServer,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=16665
+	APIServerPort int `json:"APIServerPort,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=16667
+	DebugServerPort int `json:"DebugServerPort,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	NSXRPCDebug bool `json:"NSXRPCDebug,omitempty"`
+
+	// Time to wait for realization
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=60
+	RealizeTimeoutSeconds int `json:"RealizeTimeoutSeconds,omitempty"`
+
+	// An interval for regularly report latest realization error in background
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=600
+	RealizeErrorSyncIntervalSeconds int `json:"RealizeErrorSyncIntervalSeconds,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=8
+	ReconcilerWorkerCount int `json:"ReconcilerWorkerCount,omitempty"`
+
+	// Average QPS = ReconcilerWorkerCount * ReconcilerQPS
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=5
+	ReconcilerQPS int `json:"ReconcilerQPS,omitempty"`
+
+	// Peak QPS =  ReconcilerWorkerCount * ReconcilerBurst
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=10
+	ReconcilerBurst int `json:"ReconcilerBurst,omitempty"`
+
+	// #! 24 Hours
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=86400
+	ReconcilerResyncSeconds int `json:"ReconcilerResyncSeconds,omitempty"`
 }
 
 // +kubebuilder:object:root=true

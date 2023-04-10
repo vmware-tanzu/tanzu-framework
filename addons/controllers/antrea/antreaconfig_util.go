@@ -6,10 +6,10 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/pkg/errors"
-
 	"golang.org/x/mod/semver"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -23,54 +23,84 @@ import (
 	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
 )
 
+const (
+	bootstrapFromInline            = "Inline"
+	bootstrapFromSupervisorCluster = "SupervisorCluster"
+)
+
 // AntreaConfigSpec defines the desired state of AntreaConfig
 type AntreaConfigSpec struct {
-	InfraProvider string    `yaml:"infraProvider"`
-	Antrea        antrea    `yaml:"antrea,omitempty"`
-	AntreaNsx     antreaNsx `yaml:"antreaNsx,omitempty"`
+	InfraProvider      string             `yaml:"infraProvider"`
+	Antrea             antrea             `yaml:"antrea,omitempty"`
+	AntreaNsx          antreaNsx          `yaml:"antrea_nsx,omitempty"`
+	AntreaInterworking antreaInterworking `yaml:"antrea_interworking,omitempty"`
 }
 
 type antrea struct {
 	AntreaConfigDataValue antreaConfigDataValue `yaml:"config,omitempty"`
 }
 
+type antreaInterworking struct {
+	Config antreaInterworkingConfig `yaml:"config,omitempty"`
+}
+
 type antreaNsx struct {
-	Enable          bool                   `yaml:"enable,omitempty"`
-	BootstrapFrom   antreaNsxBootstrapFrom `yaml:"bootstrapFrom,omitempty"`
-	AntreaNsxConfig antreaNsxConfig        `yaml:"config,omitempty"`
+	Enable bool `yaml:"enable,omitempty"`
 }
 
-type antreaNsxBootstrapFrom struct {
-	// ProviderRef is used with uTKG, which will be filled by NCP operator
-	ProviderRef *antreaNsxProvider `yaml:"providerRef,omitempty"`
-	// Inline is used with TKGm, user need to fill in manually
-	Inline *antreaNsxInline `yaml:"inline,omitempty"`
+type antreaInterworkingConfig struct {
+	InfraType                       string         `yaml:"infraType,omitempty"`
+	BootstrapFrom                   string         `yaml:"bootstrapFrom,omitempty"`
+	BootstrapSupervisorResourceName string         `yaml:"bootstrapSupervisorResourceName,omitempty"`
+	NSXCert                         string         `yaml:"nsxCert,omitempty"`
+	NSXKey                          string         `yaml:"nsxKey,omitempty"`
+	ClusterName                     string         `yaml:"clusterName,omitempty"`
+	NSXManagers                     []string       `yaml:"NSXManagers,omitempty"`
+	VPCPath                         []string       `yaml:"vpcPath,omitempty"`
+	ProxyEndpoints                  proxyEndpoints `yaml:"proxyEndpoints,omitempty"`
+	MpAdapterConf                   mpAdapterConf  `yaml:"mp_adapter_conf,omitempty"`
+	CcpAdapterConf                  ccpAdapterConf `yaml:"ccp_adapter_conf,omitempty"`
 }
 
-type antreaNsxProvider struct {
-	// Api version for nsxServiceAccount, its value is "nsx.vmware.com/v1alpha1" now
-	ApiVersion string `yaml:"apiVersion,omitempty"`
-	// Its value is NsxServiceAccount
-	Kind string `yaml:"kind,omitempty"`
-	// Name is the name for NsxServiceAccount
-	Name string `yaml:"name,omitempty"`
+type proxyEndpoints struct {
+	RestApi        []string `yaml:"rest_api,omitempty"`
+	NSXRpcFwdProxy []string `yaml:"nsx_rpc_fwd_proxy,omitempty"`
 }
 
-type nsxCertRef struct {
-	// TLSCert is cert file to access nsx manager
-	TLSCert string `yaml:"tls.crt,omitempty"`
-	// TLSKey is key file to access nsx manager
-	TLSKey string `yaml:"tls.key,omitempty"`
+type mpAdapterConf struct {
+	NSXClientAuthCertFile string `yaml:"NSXClientAuthCertFile,omitempty"`
+	NSXClientAuthKeyFile  string `yaml:"NSXClientAuthKeyFile,omitempty"`
+	NSXRemoteAuth         bool   `yaml:"NSXRemoteAuth,omitempty"`
+	NSXCAFile             string `yaml:"NSXCAFile,omitempty"`
+	NSXInsecure           bool   `yaml:"NSXInsecure,omitempty"`
+	NSXRPCConnType        string `yaml:"NSXRPCConnType,omitempty"`
+	ClusterType           string `yaml:"clusterType,omitempty"`
+	NSXClientTimeout      int    `yaml:"NSXClientTimeout,omitempty"`
+	InventoryBatchSize    int    `yaml:"InventoryBatchSize,omitempty"`
+	InventoryBatchPeriod  int    `yaml:"InventoryBatchPeriod,omitempty"`
+	EnableDebugServer     bool   `yaml:"EnableDebugServer,omitempty"`
+	APIServerPort         int    `yaml:"APIServerPort,omitempty"`
+	DebugServerPort       int    `yaml:"DebugServerPort,omitempty"`
+	NSXRPCDebug           bool   `yaml:"NSXRPCDebug,omitempty"`
+	ConditionTimeout      int    `yaml:"ConditionTimeout,omitempty"`
 }
 
-type antreaNsxInline struct {
-	NsxManagers []string   `yaml:"nsxManagers,omitempty"`
-	ClusterName string     `yaml:"clusterName,omitempty"`
-	NsxCertRef  nsxCertRef `yaml:"NsxCert,omitempty"`
-}
-
-type antreaNsxConfig struct {
-	InfraType string `yaml:"infraType,omitempty"`
+type ccpAdapterConf struct {
+	EnableDebugServer bool `yaml:"EnableDebugServer,omitempty"`
+	APIServerPort     int  `yaml:"APIServerPort,omitempty"`
+	DebugServerPort   int  `yaml:"DebugServerPort,omitempty"`
+	NSXRPCDebug       bool `yaml:"NSXRPCDebug,omitempty"`
+	// Time to wait for realization
+	RealizeTimeoutSeconds int `yaml:"RealizeTimeoutSeconds,omitempty"`
+	// An interval for regularly report latest realization error in background
+	RealizeErrorSyncIntervalSeconds int `yaml:"RealizeErrorSyncIntervalSeconds,omitempty"`
+	ReconcilerWorkerCount           int `yaml:"ReconcilerWorkerCount,omitempty"`
+	// Average QPS = ReconcilerWorkerCount * ReconcilerQPS
+	ReconcilerQPS int `yaml:"ReconcilerQPS,omitempty"`
+	// Peak QPS =  ReconcilerWorkerCount * ReconcilerBurst
+	ReconcilerBurst int `yaml:"ReconcilerBurst,omitempty"`
+	// #! 24 Hours
+	ReconcilerResyncSeconds int `yaml:"ReconcilerResyncSeconds,omitempty"`
 }
 
 type antreaEgress struct {
@@ -300,6 +330,52 @@ func mapAntreaConfigSpec(cluster *clusterv1beta1.Cluster, config *cniv1alpha2.An
 	if semver.Compare(version, "v1.9.0") >= 0 {
 		configSpec.Antrea.AntreaConfigDataValue.FeatureGates.TopologyAwareHints = &config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.TopologyAwareHints
 	}
+	// NSX related
+	if semver.Compare(version, "1.9.0") >= 0 && config.Spec.AntreaNsx.Enable {
+		configSpec.AntreaNsx.Enable = config.Spec.AntreaNsx.Enable
+		if config.Spec.AntreaInterworking.Config.BootstrapFrom == bootstrapFromInline {
+			configSpec.AntreaInterworking.Config.NSXManagers = config.Spec.AntreaInterworking.Config.NSXManagers
+			configSpec.AntreaInterworking.Config.ClusterName = config.Spec.AntreaInterworking.Config.ClusterName
+			configSpec.AntreaInterworking.Config.NSXCert = config.Spec.AntreaInterworking.Config.NSXCert
+			configSpec.AntreaInterworking.Config.NSXKey = config.Spec.AntreaInterworking.Config.NSXKey
+			configSpec.AntreaInterworking.Config.VPCPath = config.Spec.AntreaInterworking.Config.VPCPath
+			configSpec.AntreaInterworking.Config.ProxyEndpoints.NSXRpcFwdProxy = config.Spec.AntreaInterworking.Config.ProxyEndpoints.NSXRpcFwdProxy
+			configSpec.AntreaInterworking.Config.ProxyEndpoints.RestApi = config.Spec.AntreaInterworking.Config.ProxyEndpoints.RestApi
+		} else {
+			configSpec.AntreaInterworking.Config.BootstrapFrom = bootstrapFromSupervisorCluster
+			configSpec.AntreaInterworking.Config.BootstrapSupervisorResourceName = getNSXServiceAccountName(cluster.Name)
+		}
+
+		ccpConf := config.Spec.AntreaInterworking.Config.CcpAdapterConf
+		if err := copyStructAtoB(ccpConf, &configSpec.AntreaInterworking.Config.CcpAdapterConf); err != nil {
+			return configSpec, err
+		}
+		mpConf := config.Spec.AntreaInterworking.Config.MpAdapterConf
+		if err := copyStructAtoB(mpConf, &configSpec.AntreaInterworking.Config.MpAdapterConf); err != nil {
+			return configSpec, err
+		}
+	}
 
 	return configSpec, nil
+}
+
+func copyStructAtoB(a interface{}, b interface{}) error {
+	va := reflect.ValueOf(a)
+	vb := reflect.ValueOf(b).Elem()
+	for i := 0; i < va.NumField(); i++ {
+		fieldA := va.Field(i)
+		fieldB := vb.FieldByName(va.Type().Field(i).Name)
+		if fieldB.IsValid() && fieldA.Type() == fieldB.Type() {
+			fieldB.Set(fieldA)
+		}
+	}
+	return nil
+}
+
+func getProviderServiceAccountName(clusterName string) string {
+	return fmt.Sprintf("%s-antrea", clusterName)
+}
+
+func getNSXServiceAccountName(clusterName string) string {
+	return fmt.Sprintf("%s-antrea", clusterName)
 }

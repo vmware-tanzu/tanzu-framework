@@ -94,5 +94,5 @@ spec:
         AntreaIPAM: false
         ServiceExternalIP: false
         Multicast: false
-  antreaNsx:
+  antrea_nsx:
     enable: true
