@@ -4,6 +4,8 @@
 package handlers
 
 import (
+	"os"
+
 	"github.com/go-openapi/runtime/middleware"
 	yaml "gopkg.in/yaml.v3"
 
@@ -61,8 +63,14 @@ func (app *App) ExportAzureConfig(params azure.ExportTKGConfigForAzureParams) mi
 func (app *App) ExportAWSConfig(params aws.ExportTKGConfigForAWSParams) middleware.Responder {
 	var config *tkgconfigproviders.AWSConfig
 	var configString string
+	var err error
+	var encodedCreds string
 
-	encodedCreds, err := app.awsClient.EncodeCredentials()
+	if os.Getenv("CLI_TEST_RUN") == "true" {
+		encodedCreds = "foobar"
+	} else {
+		encodedCreds, err = app.awsClient.EncodeCredentials()
+	}
 	if err == nil {
 		// create the provider object with the configuration data
 		config, err = tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAWSConfig(params.Params, encodedCreds)
