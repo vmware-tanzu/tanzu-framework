@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   name: kubevipcpiconfigs.cpi.tanzu.vmware.com
 spec:
@@ -36,9 +36,9 @@ spec:
             description: KubevipCPIConfigSpec defines the desired state of KubevipCPIConfig
             properties:
               loadbalancerCIDRs:
-                description: loadbalancerCIDRs is a list of comma separated
-                  cidrs will be used to allocate IP for external load balancer. For
-                  example 192.168.0.200/29,192.168.1.200/29
+                description: loadbalancerCIDRs is a list of comma separated cidrs
+                  will be used to allocate IP for external load balancer. For example
+                  192.168.0.200/29,192.168.1.200/29
                 type: string
               loadbalancerIPRanges:
                 description: loadbalancerIPRanges is a list of comma separated IP
@@ -59,9 +59,3 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
