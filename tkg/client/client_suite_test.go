@@ -382,6 +382,16 @@ var _ = Describe("ValidateVSphereControlPlaneEndpointIP", func() {
 					},
 				},
 			},
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cluster-in-creation",
+				},
+				Spec: capi.ClusterSpec{
+					ControlPlaneEndpoint: capi.APIEndpoint{
+						Host: "",
+					},
+				},
+			},
 		}, nil)
 		err = tkgClient.ValidateVsphereVipWorkloadCluster(clusterclient, vip, false)
 	})
@@ -399,6 +409,15 @@ var _ = Describe("ValidateVSphereControlPlaneEndpointIP", func() {
 	Context("When vsphere --vsphere-controlplane-endpoint is provided with valid IP", func() {
 		BeforeEach(func() {
 			vip = "10.0.0.1"
+		})
+		It("should not error", func() {
+			Expect(err).To(Not(HaveOccurred()))
+		})
+	})
+
+	Context("When vsphere --vsphere-controlplane-endpoint empty, but there is in-creation cluster whose cp endpoint is also empty", func() {
+		BeforeEach(func() {
+			vip = ""
 		})
 		It("should not error", func() {
 			Expect(err).To(Not(HaveOccurred()))

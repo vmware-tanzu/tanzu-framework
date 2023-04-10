@@ -831,7 +831,9 @@ func (c *TkgClient) configureAndValidateVIPForVsphereCluster(vip string) error {
 
 // ValidateVsphereVipWorkloadCluster validates that the control plane endpoint is unique
 func (c *TkgClient) ValidateVsphereVipWorkloadCluster(clusterClient clusterclient.Client, vip string, skipValidation bool) error {
-	if skipValidation {
+	// Skip vip validation when we enable avi ha provider and set empty vip
+	// Since when we create many workload clusters at same time, it's expected to have many clusters whose control plane endpoint are empty at some time
+	if vip == "" || skipValidation {
 		return nil
 	}
 	clusterList, err := clusterClient.ListClusters("")
