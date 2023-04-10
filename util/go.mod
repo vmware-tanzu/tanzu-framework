@@ -16,6 +16,7 @@ require (
 	k8s.io/api v0.25.4
 	k8s.io/apiextensions-apiserver v0.25.4
 	k8s.io/apimachinery v0.25.4
+	k8s.io/client-go v0.25.4
 	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2
 	knative.dev/pkg v0.0.0-20230404101938-ee73c9355c9d
 	sigs.k8s.io/cluster-api v1.2.8
@@ -33,6 +34,7 @@ require (
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/go-logr/zapr v1.2.3 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.5 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
@@ -73,7 +75,6 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/client-go v0.25.4 // indirect
 	k8s.io/component-base v0.25.4 // indirect
 	k8s.io/klog/v2 v2.80.2-0.20221028030830-9ae4992afb54 // indirect
 	k8s.io/kube-openapi v0.0.0-20221207184640-f3cff1453715 // indirect

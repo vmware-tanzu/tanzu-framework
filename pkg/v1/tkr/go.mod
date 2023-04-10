@@ -17,8 +17,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000
-	k8s.io/api v0.24.2
-	k8s.io/apimachinery v0.24.2
+	k8s.io/api v0.25.4
+	k8s.io/apimachinery v0.25.4
 	sigs.k8s.io/cluster-api v1.2.8
 	sigs.k8s.io/controller-runtime v0.12.3
 	sigs.k8s.io/yaml v1.3.0
@@ -60,7 +60,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.15.4 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
-	github.com/mailru/easyjson v0.7.6 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
@@ -81,10 +81,9 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.7.5 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
 	github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec // indirect
-	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
@@ -102,13 +101,13 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiextensions-apiserver v0.24.2 // indirect
-	k8s.io/client-go v0.24.2 // indirect
-	k8s.io/component-base v0.24.2 // indirect
-	k8s.io/klog/v2 v2.70.1 // indirect
+	k8s.io/apiextensions-apiserver v0.25.4 // indirect
+	k8s.io/client-go v0.25.4 // indirect
+	k8s.io/component-base v0.25.4 // indirect
+	k8s.io/klog/v2 v2.80.2-0.20221028030830-9ae4992afb54 // indirect
 	k8s.io/kube-openapi v0.0.0-20221207184640-f3cff1453715 // indirect
 	k8s.io/kubectl v0.24.0 // indirect
-	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
-	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
+	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2 // indirect
+	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )

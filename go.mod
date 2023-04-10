@@ -43,9 +43,9 @@ require (
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.24.4
-	k8s.io/apimachinery v0.24.4
-	k8s.io/client-go v0.24.4
+	k8s.io/api v0.25.4
+	k8s.io/apimachinery v0.25.4
+	k8s.io/client-go v0.25.4
 	sigs.k8s.io/cluster-api v1.2.8
 	sigs.k8s.io/controller-runtime v0.12.3
 )
@@ -59,8 +59,8 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.5 // indirect
 	github.com/Azure/azure-sdk-for-go v66.0.0+incompatible // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
-	github.com/Azure/go-autorest/autorest v0.11.23 // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.9.18 // indirect
+	github.com/Azure/go-autorest/autorest v0.11.27 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.9.20 // indirect
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.10 // indirect
 	github.com/Azure/go-autorest/autorest/azure/cli v0.4.2 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
@@ -87,6 +87,7 @@ require (
 	github.com/awslabs/goformation/v4 v4.19.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/briandowns/spinner v1.19.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cheggaaa/pb v1.0.29 // indirect
@@ -131,7 +132,7 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gobuffalo/flect v0.2.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.0.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -242,14 +243,14 @@ require (
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiextensions-apiserver v0.24.4 // indirect
-	k8s.io/apiserver v0.24.4 // indirect
+	k8s.io/apiextensions-apiserver v0.25.4 // indirect
+	k8s.io/apiserver v0.25.4 // indirect
 	k8s.io/cluster-bootstrap v0.24.4 // indirect
-	k8s.io/component-base v0.24.4 // indirect
-	k8s.io/klog/v2 v2.80.0 // indirect
+	k8s.io/component-base v0.25.4 // indirect
+	k8s.io/klog/v2 v2.80.2-0.20221028030830-9ae4992afb54 // indirect
 	k8s.io/kube-openapi v0.0.0-20221207184640-f3cff1453715 // indirect
 	k8s.io/kubectl v0.24.0 // indirect
-	k8s.io/utils v0.0.0-20220812165043-ad590609e2e5 // indirect
+	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2 // indirect
 	sigs.k8s.io/cluster-api-provider-aws/v2 v2.0.2 // indirect
 	sigs.k8s.io/cluster-api-provider-azure v1.6.1 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.5.3 // indirect
