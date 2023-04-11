@@ -34,7 +34,7 @@ native: ## Build binary
 
 .PHONY: build-images
 build-images: ## Build tkg-pinniped-post-deploy docker images
-	VERSION=$(VERSION) DISTROLESS_BASE_IMAGE=$(DISTROLESS_BASE_IMAGE) ./hack/scripts/build-images.sh
+	GOPROXY=$(GOPROXY) GOSUMDB=$(GOSUMDB) VERSION=$(VERSION) DISTROLESS_BASE_IMAGE=$(DISTROLESS_BASE_IMAGE) ./hack/scripts/build-images.sh
 
 run:
 	go run ./cmd/job \
