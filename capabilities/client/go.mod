@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/capabilities/client
 
-go 1.18
+go 1.19
 
 replace github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
 

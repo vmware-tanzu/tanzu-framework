@@ -4,7 +4,7 @@
 # This Dockerfile is currently consumed by build tooling https://github.com/vmware-tanzu/build-tooling-for-integrations
 # to build components in tanzu-framework, check out build-tooling.mk to understand how this is being consumed.
 
-ARG BUILDER_BASE_IMAGE=golang:1.18
+ARG BUILDER_BASE_IMAGE=golang:1.19
 
 FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE as base
 ARG COMPONENT

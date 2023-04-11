@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/pinniped-components/post-deploy
 
-go 1.18
+go 1.19
 
 // Right now, we depend on Kube 1.23, but Pinniped 1.20.
 //
