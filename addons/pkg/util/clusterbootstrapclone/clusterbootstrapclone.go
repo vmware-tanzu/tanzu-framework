@@ -466,12 +466,6 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		h.Logger.Error(err, fmt.Sprintf("unable to add cluster %s/%s as owner reference to providers", cluster.Namespace, cluster.Name))
 	}
 
-	if err := h.AddPackageLabelForCNIProvider(cluster.Name, clusterBootstrap); err != nil {
-		h.Logger.Error(err, fmt.Sprintf("unable to add labels to cni provider"))
-		return nil, err
-	}
-	h.Logger.Info("patched labels for cni provider.")
-
 	clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion:         clusterapiv1beta1.GroupVersion.String(),
@@ -1080,37 +1074,12 @@ func (h *Helper) getListOfExistingProviders(clusterBootstrap *runtanzuv1alpha3.C
 
 func (h *Helper) AddClusterOwnerRefToExistingProviders(cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
 
-	exsitingProviders, err := h.getListOfExistingProviders(clusterBootstrap)
+	existingProviders, err := h.getListOfExistingProviders(clusterBootstrap)
 	if err != nil {
 		return err
 	}
-	if err = h.AddClusterOwnerRef(cluster, exsitingProviders, nil, nil); err != nil {
+	if err = h.AddClusterOwnerRef(cluster, existingProviders, nil, nil); err != nil {
 		return err
-	}
-	return nil
-}
-
-// AddPackageLabelForCNIProvider patch the missing labels for AntreaConfig(cni config) when it's related to
-// an existing clusterboostrap. To make antreaconfig works with old versions, it relies on the package label now.
-func (h *Helper) AddPackageLabelForCNIProvider(clusterName string, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
-	cni := clusterBootstrap.Spec.CNI
-	if cni != nil {
-		providers, err := h.getListOfExistingProviders(clusterBootstrap)
-		if err != nil {
-			return err
-		}
-		for _, p := range providers {
-			if cni.ValuesFrom != nil && cni.ValuesFrom.ProviderRef != nil && p.GetKind() == cni.ValuesFrom.ProviderRef.Kind {
-				labels := p.GetLabels()
-				if labels == nil {
-					labels = map[string]string{}
-				}
-				labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(cni.RefName)
-				labels[addontypes.ClusterNameLabel] = clusterName
-				return h.setLabels(labels, p)
-			}
-		}
-
 	}
 	return nil
 }
@@ -1144,28 +1113,6 @@ func ownedByDifferentCluster(k8SObject *unstructured.Unstructured, cluster *clus
 		}
 	}
 	return ""
-}
-
-func (h *Helper) setLabels(labels map[string]string, child *unstructured.Unstructured) error {
-	gvr, err := h.GVRHelper.GetGVR(child.GroupVersionKind().GroupKind())
-	if err != nil {
-		h.Logger.Error(err, fmt.Sprintf("unable to get GVR of %s/%s", child.GetNamespace(), child.GetName()))
-		return err
-	}
-
-	patchObj := unstructured.Unstructured{}
-	patchObj.SetLabels(labels)
-	patchData, err := patchObj.MarshalJSON()
-	if err != nil {
-		h.Logger.Error(err, fmt.Sprintf("unable to patch provider %s/%s", child.GetNamespace(), child.GetName()), "gvr", gvr)
-		return err
-	}
-	_, err = h.DynamicClient.Resource(*gvr).Namespace(child.GetNamespace()).Patch(h.Ctx, child.GetName(), types.MergePatchType, patchData, metav1.PatchOptions{})
-	if err != nil {
-		h.Logger.Error(err, fmt.Sprintf("unable to patch provider %s/%s", child.GetNamespace(), child.GetName()), "gvr", gvr)
-	}
-	return err
-
 }
 
 func (h *Helper) setOwnerRef(ownerRef *metav1.OwnerReference, children []*unstructured.Unstructured) error {
