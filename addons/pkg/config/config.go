@@ -19,6 +19,7 @@ type AddonControllerConfig struct {
 	AddonImagePullPolicy        string
 	CorePackageRepoName         string
 	FeatureGateClusterBootstrap bool
+	AntreaNsxEnabled            bool
 }
 
 // ClusterBootstrapControllerConfig contains configuration information related to ClusterBootstrap
@@ -53,6 +54,7 @@ type ConfigControllerConfig struct {
 // AntreaConfigControllerConfig contains configuration information of AntreaConfig controller
 type AntreaConfigControllerConfig struct {
 	ConfigControllerConfig
+	AntreaNsxEnabledFSS bool
 }
 
 // CalicoConfigControllerConfig contains configuration information of CalicoConfig controller

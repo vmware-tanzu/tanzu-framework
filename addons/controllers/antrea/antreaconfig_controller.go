@@ -329,7 +329,7 @@ func (r *AntreaConfigReconciler) ensureProviderServiceAccount(ctx context.Contex
 }
 
 func (r *AntreaConfigReconciler) registerAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
-	if !antreaConfig.Spec.AntreaNsx.Enable || antreaConfig.Spec.AntreaNsx.BootstrapFrom.Inline != nil {
+	if !r.Config.AntreaNsxEnabledFSS || !antreaConfig.Spec.AntreaNsx.Enable || antreaConfig.Spec.AntreaNsx.BootstrapFrom.Inline != nil {
 		r.Log.Info("antreaNsx is not enabled or inline is set, there is no ProviderServiceAccount or NsxServiceAccount to be created")
 		r.deregisterAntreaNSX(ctx, antreaConfig, cluster)
 		return nil
@@ -354,7 +354,7 @@ func (r *AntreaConfigReconciler) registerAntreaNSX(ctx context.Context, antreaCo
 }
 
 func (r *AntreaConfigReconciler) deregisterAntreaNSX(ctx context.Context, antreaConfig *cniv1alpha2.AntreaConfig, cluster *clusterapiv1beta1.Cluster) error {
-	if !antreaConfig.Spec.AntreaNsx.Enable {
+	if !r.Config.AntreaNsxEnabledFSS || !antreaConfig.Spec.AntreaNsx.Enable {
 		r.Log.Info("antreaNsx is not enabled, there is no ProviderServiceAccount or NsxServiceAccount to be deleted")
 		return nil
 	}
