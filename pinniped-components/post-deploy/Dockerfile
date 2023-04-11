@@ -15,6 +15,8 @@ WORKDIR /workspace
 # Copy the Go Modules manifests
 # We depend on tanzu-auth-controller-manager, so copy it in
 COPY tanzu-auth-controller-manager tanzu-auth-controller-manager
+# We depend on common, so copy it in
+COPY common common
 COPY post-deploy/go.mod post-deploy/go.mod
 COPY post-deploy/go.sum post-deploy/go.sum
 
