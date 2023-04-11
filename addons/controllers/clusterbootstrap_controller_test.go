@@ -1295,14 +1295,25 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					if err := k8sClient.Get(ctx, key, config); err != nil {
 						return false
 					}
-					ownerRef := metav1.OwnerReference{
-						APIVersion: clusterapiv1beta1.GroupVersion.String(),
-						Kind:       "Cluster",
-						Name:       cluster.Name,
-						UID:        cluster.UID,
+
+					if len(config.OwnerReferences) > 0 {
+						return false
 					}
-					return clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerRef)
+
+					Expect(len(config.OwnerReferences)).Should(Equal(0))
+					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				patchedSecret := config.DeepCopy()
+				ownerRef := metav1.OwnerReference{
+					APIVersion: clusterapiv1beta1.GroupVersion.String(),
+					Kind:       "Cluster",
+					Name:       cluster.Name,
+					UID:        cluster.UID,
+				}
+
+				patchedSecret.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedSecret.OwnerReferences, ownerRef)
+				Expect(k8sClient.Patch(ctx, patchedSecret, client.MergeFrom(config))).ShouldNot(HaveOccurred())
 
 				Expect(config.ObjectMeta.Labels["tkg.tanzu.vmware.com/package-name"]).Should(Equal("load-balancer-and-ingress-service.tanzu.vmware.com.0.0.4"))
 
