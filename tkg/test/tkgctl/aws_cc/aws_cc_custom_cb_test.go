@@ -12,7 +12,7 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/test/tkgctl/shared"
 )
 
-var _ = FDescribe("Functional tests to create & upgrade AWS cluster with custom ClusterBootstrap", func() {
+var _ = Describe("Functional tests to create & upgrade AWS cluster with custom ClusterBootstrap", func() {
 	E2ECommonCCSpec(context.TODO(), func() E2ECommonCCSpecInput {
 		return E2ECommonCCSpecInput{
 			E2EConfig:       e2eConfig,

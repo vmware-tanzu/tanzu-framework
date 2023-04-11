@@ -12,7 +12,7 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/test/tkgctl/shared"
 )
 
-var _ = FDescribe("Functional tests for aws - TKRResolver and cluster upgrade with CNI Antrea", func() {
+var _ = Describe("Functional tests for aws - TKRResolver and cluster upgrade with CNI Antrea", func() {
 	E2ETKRResolverValidationForClusterCRUDSpec(context.TODO(), func() E2ETKRResolverValidationForClusterCRUDSpecInput {
 		return E2ETKRResolverValidationForClusterCRUDSpecInput{
 			E2EConfig:       e2eConfig,
