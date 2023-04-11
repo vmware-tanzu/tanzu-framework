@@ -481,11 +481,6 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 		return nil, err
 	}
 
-	if err := clusterBootstrapHelper.AddPackageLabelForCNIProvider(cluster.Name, updatedClusterBootstrap); err != nil {
-		r.Log.Error(err, fmt.Sprintf("unable to add labels to cni provider"))
-		return nil, err
-	}
-
 	r.Log.Info("updated clusterBootstrap", "clusterBootstrap", updatedClusterBootstrap)
 	return updatedClusterBootstrap, nil
 }

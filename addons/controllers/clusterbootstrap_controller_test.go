@@ -1315,6 +1315,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				patchedSecret.OwnerReferences = clusterapiutil.EnsureOwnerRef(patchedSecret.OwnerReferences, ownerRef)
 				Expect(k8sClient.Patch(ctx, patchedSecret, client.MergeFrom(config))).ShouldNot(HaveOccurred())
 
+				Expect(config.ObjectMeta.Labels["tkg.tanzu.vmware.com/package-name"]).Should(Equal("load-balancer-and-ingress-service.tanzu.vmware.com.0.0.4"))
+
 				By("ClusterBootstrap CR is created with correct ownerReference added")
 				// Verify ownerReference for cluster in cloned object
 				Eventually(func() bool {
@@ -1350,7 +1352,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				deleteOptions := client.DeleteOptions{PropagationPolicy: &deletePropagation}
 				Expect(k8sClient.Delete(ctx, cluster, &deleteOptions)).To(Succeed())
 
-				By("instacllpackages for additional packages should have been removed.")
+				By("installpackages for additional packages should have been removed.")
 				Eventually(func() bool {
 					return hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
 						clusterBootstrap.Spec.AdditionalPackages, clusterBootstrap.Annotations, setupLog)
