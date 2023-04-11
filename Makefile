@@ -623,7 +623,6 @@ modules: ## Runs go mod to ensure modules are up to date.
 .PHONY: verify
 verify: tools modules ## Run all verification scripts
 	$(MAKE) smoke-build generate-go generate
-	./packages/tkg-clusterclass/hack/sync-cc.sh
 	./hack/verify-dirty.sh
 
 .PHONY: clean-catalog-cache
@@ -688,13 +687,13 @@ generate-bindata: generate-telemetry-bindata generate-ui-bindata
 .PHONY: configure-bom
 configure-bom: configure-plugin-runtime-version ## Configure bill of materials
 	# Update default BoM Filename variable in tkgconfig pkg
-	sed "s+TKG_DEFAULT_IMAGE_REPOSITORY+${TKG_DEFAULT_IMAGE_REPOSITORY}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
-	sed "s+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH+${TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH}+g" | \
-	sed "s+TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION+${BUILD_VERSION}+g"  > tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
+	# sed "s+TKG_DEFAULT_IMAGE_REPOSITORY+${TKG_DEFAULT_IMAGE_REPOSITORY}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
+	# sed "s+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH+${TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH}+g" | \
+    # sed "s+TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION+${BUILD_VERSION}+g"  > tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
 
 .PHONY: configure-plugin-runtime-version
 configure-plugin-runtime-version: ## Configure plugin runtime version
-	$(MAKE) configure-version -C cli/runtime
+#	$(MAKE) configure-version -C cli/runtime
 
 .PHONY: generate-ui-swagger-api
 generate-ui-swagger-api: ## Generate swagger files for UI backend
@@ -872,7 +871,7 @@ push-package-repo-bundle: tools prep-package-tools ## Push package repo bundles
 
 .PHONY: package-vendir-sync
 package-vendir-sync: tools ## Performs a `vendir sync` for each package in a repository
-	cd hack/packages/package-tools && $(GO) run main.go vendir sync --repository=$(PACKAGE_REPOSITORY)
+# cd hack/packages/package-tools && $(GO) run main.go vendir sync --repository=$(PACKAGE_REPOSITORY)
 
 .PHONY: local-registry
 local-registry: clean-registry ## Starts up a local docker registry. Local docker registry is used for pushing the package bundle to get the sha256, for using it later when producing repo bundle
