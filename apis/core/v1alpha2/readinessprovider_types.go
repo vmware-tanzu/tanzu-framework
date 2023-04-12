@@ -12,8 +12,12 @@ import (
 
 // ReadinessProviderSpec defines the desired state of ReadinessProvider
 type ReadinessProviderSpec struct {
-	CheckRef                string                       `json:"checkName"`
-	Repeatable              bool                         `json:"repeatable"`
+	CheckRef string `json:"checkRef"`
+
+	//+kubebuilder:validation:Optional
+	Repeatable bool `json:"repeatable"`
+
+	//+kubebuilder:validation:Optional
 	RepeatIntervalInSeconds int32                        `json:"repeatIntervalInSeconds"`
 	Conditions              []ReadinessProviderCondition `json:"conditions"`
 }
@@ -24,9 +28,11 @@ type ReadinessProviderCondition struct {
 }
 
 type ResourceExistenceCondition struct {
-	Group     string `json:"group"`
-	Version   string `json:"version"`
-	Kind      string `json:"kind"`
+	Group   string `json:"group"`
+	Version string `json:"version"`
+	Kind    string `json:"kind"`
+
+	//+kubebuilder:validation:Optional
 	Namespace string `json:"namespace"`
 	Name      string `json:"name"`
 }

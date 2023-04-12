@@ -35,7 +35,7 @@ spec:
           spec:
             description: ReadinessProviderSpec defines the desired state of ReadinessProvider
             properties:
-              checkName:
+              checkRef:
                 type: string
               conditions:
                 items:
@@ -58,7 +58,6 @@ spec:
                       - group
                       - kind
                       - name
-                      - namespace
                       - version
                       type: object
                   required:
@@ -72,13 +71,37 @@ spec:
               repeatable:
                 type: boolean
             required:
-            - checkName
+            - checkRef
             - conditions
-            - repeatIntervalInSeconds
-            - repeatable
             type: object
           status:
             description: ReadinessProviderStatus defines the observed state of ReadinessProvider
+            properties:
+              conditions:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    state:
+                      enum:
+                      - success
+                      - failure
+                      - inprogress
+                      type: string
+                  required:
+                  - name
+                  - state
+                  type: object
+                type: array
+              state:
+                enum:
+                - success
+                - failure
+                - inprogress
+                type: string
+            required:
+            - conditions
+            - state
             type: object
         type: object
     served: true
