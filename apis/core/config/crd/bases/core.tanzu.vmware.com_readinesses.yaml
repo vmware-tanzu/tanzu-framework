@@ -35,13 +35,61 @@ spec:
           spec:
             description: ReadinessSpec defines the desired state of Readiness
             properties:
-              foo:
-                description: Foo is an example field of Readiness. Edit readiness_types.go
-                  to remove/update
-                type: string
+              checks:
+                items:
+                  properties:
+                    category:
+                      type: string
+                    name:
+                      type: string
+                    type:
+                      enum:
+                      - basic
+                      - composite
+                      type: string
+                  required:
+                  - category
+                  - name
+                  - type
+                  type: object
+                type: array
+            required:
+            - checks
             type: object
           status:
             description: ReadinessStatus defines the observed state of Readiness
+            properties:
+              checkStatus:
+                items:
+                  properties:
+                    activeProviders:
+                      items:
+                        type: string
+                      type: array
+                    name:
+                      type: string
+                    providers:
+                      items:
+                        type: string
+                      type: array
+                    status:
+                      type: boolean
+                  required:
+                  - activeProviders
+                  - name
+                  - providers
+                  - status
+                  type: object
+                type: array
+              lastComputedTime:
+                format: date-time
+                type: string
+              ready:
+                type: boolean
+            required:
+            - checkStatus
+            - lastComputedTime
+            - ready
             type: object
         type: object
     served: true

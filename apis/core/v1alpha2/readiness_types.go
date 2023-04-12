@@ -12,17 +12,30 @@ import (
 
 // ReadinessSpec defines the desired state of Readiness
 type ReadinessSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	Checks []Check `json:"checks"`
+}
 
-	// Foo is an example field of Readiness. Edit readiness_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+type Check struct {
+	Name string `json:"name"`
+
+	// +kubebuilder:validation:Enum=basic;composite
+	Type string `json:"type"`
+
+	Category string `json:"category"`
 }
 
 // ReadinessStatus defines the observed state of Readiness
 type ReadinessStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	CheckStatus      []CheckStatus `json:"checkStatus"`
+	Ready            bool          `json:"ready"`
+	LastComputedTime metav1.Time   `json:"lastComputedTime"`
+}
+
+type CheckStatus struct {
+	Name            string   `json:"name"`
+	Ready           bool     `json:"status"`
+	Providers       []string `json:"providers"`
+	ActiveProviders []string `json:"activeProviders"`
 }
 
 //+kubebuilder:object:root=true
