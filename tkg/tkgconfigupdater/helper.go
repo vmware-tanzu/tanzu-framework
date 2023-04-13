@@ -212,6 +212,9 @@ func getFilesForChecksum(dirPath string) ([]string, error) {
 			return err
 		}
 
+		if info.IsDir() && (info.Name() == "yttcc" || info.Name() == "yttcb") {
+			return filepath.SkipDir
+		}
 		if !info.IsDir() && includePathForChecksum(path) {
 			files = append(files, path)
 		}

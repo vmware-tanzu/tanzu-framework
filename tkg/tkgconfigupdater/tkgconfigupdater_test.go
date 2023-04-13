@@ -349,6 +349,8 @@ var _ = Describe("GetProvidersChecksum", func() {
 		err      error
 		client   Client
 		checksum string
+		yttCCDir string
+		yttCBDir string
 	)
 
 	BeforeEach(func() {
@@ -359,6 +361,12 @@ var _ = Describe("GetProvidersChecksum", func() {
 		Expect(err).NotTo(HaveOccurred())
 		client = New(testingDir, NewProviderTest(), tkgConfigReaderWriter)
 		_, err = client.EnsureTemplateFiles()
+		Expect(err).NotTo(HaveOccurred())
+		yttCCDir = testingDir + "/" + constants.LocalProvidersFolderName + "/yttcc"
+		yttCBDir = testingDir + "/" + constants.LocalProvidersFolderName + "/yttcb"
+		err = os.MkdirAll(yttCCDir, constants.DefaultDirectoryPermissions)
+		Expect(err).NotTo(HaveOccurred())
+		err = os.MkdirAll(yttCBDir, constants.DefaultDirectoryPermissions)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -405,6 +413,32 @@ var _ = Describe("GetProvidersChecksum", func() {
 	Context("When new cluster class yaml file clusterclass-xxx.yaml is added to the providers directory", func() {
 		BeforeEach(func() {
 			providersTempFile := filepath.Join(testingDir, constants.LocalProvidersFolderName, "clusterclass-foo.yaml")
+			err = os.WriteFile(providersTempFile, []byte("---"), 0644)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("checksum is not modified", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(checksum).To(Equal("cb3805b1f66ea62bc52a712085c48b1d3c3e90807da332bf15d478cf558269d1"))
+		})
+	})
+
+	Context("When new yaml file is added to the providers yttcc directory", func() {
+		BeforeEach(func() {
+			providersTempFile := filepath.Join(yttCCDir, "foo.yaml")
+			err = os.WriteFile(providersTempFile, []byte("---"), 0644)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("checksum is not modified", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(checksum).To(Equal("cb3805b1f66ea62bc52a712085c48b1d3c3e90807da332bf15d478cf558269d1"))
+		})
+	})
+
+	Context("When new yaml file is added to the providers yttcb directory", func() {
+		BeforeEach(func() {
+			providersTempFile := filepath.Join(yttCBDir, "foo.yaml")
 			err = os.WriteFile(providersTempFile, []byte("---"), 0644)
 			Expect(err).ToNot(HaveOccurred())
 		})
