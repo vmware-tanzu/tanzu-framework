@@ -1,0 +1,43 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tanzu-readiness-controller-manager
+  labels:
+    app: tanzu-readiness-manager
+  namespace: #@ data.values.namespace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tanzu-readiness-manager
+  template:
+    metadata:
+      labels:
+        app: tanzu-readiness-manager
+    spec:
+      containers:
+        - name: manager
+          image: readiness-controller-manager:latest
+          imagePullPolicy: IfNotPresent
+      serviceAccount: tanzu-readiness-manager-sa
+      terminationGracePeriodSeconds: 10
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'hostNetwork') and data.values.deployment.hostNetwork:
+      #@overlay/match missing_ok=True
+      hostNetwork: true
+      #@ end
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'tolerations') and data.values.deployment.tolerations:
+      #@overlay/match missing_ok=True
+      tolerations: #@ data.values.deployment.tolerations
+      #@ else:
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+      #@ end
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'nodeSelector') and data.values.deployment.nodeSelector:
+      #@overlay/match missing_ok=True
+      nodeSelector: #@ data.values.deployment.nodeSelector
+      #@ end

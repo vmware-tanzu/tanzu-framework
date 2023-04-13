@@ -1,0 +1,11 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - directory: {}
+    path: crds/core
+  - manual: {}
+    path: rbac.yaml
+  - manual: {}
+    path: tanzu-readiness-manager.yaml
+  path: bundle/config/upstream
+kind: LockConfig
