@@ -36,13 +36,20 @@ spec:
             description: ReadinessSpec defines the desired state of Readiness
             properties:
               checks:
+                description: Checks is the set of checks that are required to mark
+                  the readiness
                 items:
                   properties:
                     category:
+                      description: Category is the category of the check. Examples
+                        of catagories are availability and security.
                       type: string
                     name:
+                      description: Name is the name of the check
                       type: string
                     type:
+                      description: Type is the type of the check. the Type can be
+                        either basic or composite
                       enum:
                       - basic
                       - composite
@@ -62,20 +69,31 @@ spec:
               checkStatus:
                 items:
                   properties:
-                    activeProviders:
-                      items:
-                        type: string
-                      type: array
                     name:
+                      description: Name is the name of the check
                       type: string
                     providers:
+                      description: Providers is the list of providers available for
+                        the given check
                       items:
-                        type: string
+                        properties:
+                          isActive:
+                            description: IsActive is the boolean flag indicating if
+                              the provider is active
+                            type: boolean
+                          name:
+                            description: Name is the name of the provider
+                            type: string
+                        required:
+                        - isActive
+                        - name
+                        type: object
                       type: array
                     status:
+                      description: Ready is the boolean flag indicating if the check
+                        is ready
                       type: boolean
                   required:
-                  - activeProviders
                   - name
                   - providers
                   - status

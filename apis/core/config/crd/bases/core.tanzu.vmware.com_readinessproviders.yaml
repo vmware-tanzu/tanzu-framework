@@ -36,39 +36,54 @@ spec:
             description: ReadinessProviderSpec defines the desired state of ReadinessProvider
             properties:
               checkRef:
+                description: CheckRef is the name of the check that the current provider
+                  satisfies
                 type: string
               conditions:
+                description: Conditions is the set of checks that must be evaluated
+                  to true to mark the provider as ready
                 items:
                   properties:
                     name:
+                      description: Name is the name of the condition
                       type: string
-                    resourceExistence:
+                    resourceExistenceCondition:
+                      description: ResourceExistenceCondition is the condition that
+                        checks for the presence of a certain resource in the cluster
                       properties:
-                        group:
+                        apiVersion:
+                          description: APIVersion is the API version of the resource
+                            that is being checked
                           type: string
                         kind:
+                          description: Kind is the API kind of the resource that is
+                            being checked
                           type: string
                         name:
                           type: string
                         namespace:
-                          type: string
-                        version:
+                          description: Namespace is the namespace of the resource
+                            that is being checked; if the Namespace is nil, the resource
+                            is assumed to be cluster scoped. Empty string for the
+                            namespace will throw error
                           type: string
                       required:
-                      - group
+                      - apiVersion
                       - kind
                       - name
-                      - version
                       type: object
                   required:
                   - name
-                  - resourceExistence
+                  - resourceExistenceCondition
                   type: object
                 type: array
-              repeatIntervalInSeconds:
-                format: int32
-                type: integer
+              repeatInterval:
+                description: RepeatInterval is the re-evaluation interval
+                format: date-time
+                type: string
               repeatable:
+                description: Repeatable denotes if the provider should be re-evaluated
+                  periodically
                 type: boolean
             required:
             - checkRef
@@ -78,11 +93,15 @@ spec:
             description: ReadinessProviderStatus defines the observed state of ReadinessProvider
             properties:
               conditions:
+                description: Conditions is the set of ReadinessConditions that are
+                  being evaluated
                 items:
                   properties:
                     name:
+                      description: Name is the name of the readiness condition
                       type: string
                     state:
+                      description: State is the computed state of the condition
                       enum:
                       - success
                       - failure
@@ -94,6 +113,9 @@ spec:
                   type: object
                 type: array
               state:
+                description: State is the computed state of the provider. The state
+                  will be success if all the coditions pass; The state will be failure
+                  if any of the conditions fail. Otherwise, the state will be in-progress
                 enum:
                 - success
                 - failure

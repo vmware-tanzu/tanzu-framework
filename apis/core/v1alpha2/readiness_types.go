@@ -7,20 +7,21 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // ReadinessSpec defines the desired state of Readiness
 type ReadinessSpec struct {
+	// Checks is the set of checks that are required to mark the readiness
 	Checks []Check `json:"checks"`
 }
 
 type Check struct {
+	// Name is the name of the check
 	Name string `json:"name"`
 
+	// Type is the type of the check. the Type can be either basic or composite
 	// +kubebuilder:validation:Enum=basic;composite
 	Type string `json:"type"`
 
+	// Category is the category of the check. Examples of catagories are availability and security.
 	Category string `json:"category"`
 }
 
@@ -28,14 +29,26 @@ type Check struct {
 type ReadinessStatus struct {
 	CheckStatus      []CheckStatus `json:"checkStatus"`
 	Ready            bool          `json:"ready"`
-	LastComputedTime metav1.Time   `json:"lastComputedTime"`
+	LastComputedTime *metav1.Time  `json:"lastComputedTime"`
 }
 
 type CheckStatus struct {
-	Name            string   `json:"name"`
-	Ready           bool     `json:"status"`
-	Providers       []string `json:"providers"`
-	ActiveProviders []string `json:"activeProviders"`
+	// Name is the name of the check
+	Name string `json:"name"`
+
+	// Ready is the boolean flag indicating if the check is ready
+	Ready bool `json:"status"`
+
+	// Providers is the list of providers available for the given check
+	Providers []Provider `json:"providers"`
+}
+
+type Provider struct {
+	// Name is the name of the provider
+	Name string `json:"name"`
+
+	// IsActive is the boolean flag indicating if the provider is active
+	IsActive bool `json:"isActive"`
 }
 
 //+kubebuilder:object:root=true
