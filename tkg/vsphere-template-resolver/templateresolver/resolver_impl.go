@@ -81,7 +81,7 @@ func getVirtualMachineTemplateForOVAs(ctx context.Context, dc string, vcClient v
 	// Get all vcVMs.
 	vcVMs, err := vcClient.GetVirtualMachineImages(ctx, dcMOID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get K8s VM templates")
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to get K8s VM templates from datacenter %v", dc))
 	}
 
 	return vcVMs, nil
