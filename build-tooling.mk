@@ -6,7 +6,6 @@ PACKAGE_PREFIX := $(REGISTRY_ENDPOINT)
 REGISTRY_NAME := tanzu-integration-registry
 
 DOCKER := DOCKER_BUILDKIT=1 docker
-MAKE := make -f build-tooling.mk
 
 IMG_DEFAULT_TAG := latest
 IMG_VERSION_OVERRIDE ?= $(IMG_DEFAULT_TAG)
