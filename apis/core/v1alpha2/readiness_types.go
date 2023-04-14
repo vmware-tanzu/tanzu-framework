@@ -7,22 +7,57 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // ReadinessSpec defines the desired state of Readiness
 type ReadinessSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Checks is the set of checks that are required to mark the readiness
+	Checks []Check `json:"checks"`
+}
 
-	// Foo is an example field of Readiness. Edit readiness_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+type Check struct {
+	// Name is the name of the check
+	Name string `json:"name"`
+
+	// Type is the type of the check. the Type can be either basic or composite
+	// The basic checks depend on its providers to be ready
+	// The composite checks depend on the basic checks for their readiness
+	// +kubebuilder:validation:Enum=basic;composite
+	Type string `json:"type"`
+
+	// Category is the category of the check. Examples of catagories are availability and security.
+	Category string `json:"category"`
 }
 
 // ReadinessStatus defines the observed state of Readiness
 type ReadinessStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// CheckStatus presents the status of check defined in the spec
+	CheckStatus []CheckStatus `json:"checkStatus"`
+
+	// Ready is the flag that denotes if the defined readiness is ready
+	// The readiness is marked ready if all the checks are satisfied
+	// The time at which this field is evaluated is given by LastComputedTime
+	Ready bool `json:"ready"`
+
+	// LastComputedTime is the field that denotes the time at which the readiness is computed.
+	LastComputedTime *metav1.Time `json:"lastComputedTime"`
+}
+
+type CheckStatus struct {
+	// Name is the name of the check
+	Name string `json:"name"`
+
+	// Ready is the boolean flag indicating if the check is ready
+	Ready bool `json:"status"`
+
+	// Providers is the list of providers available for the given check
+	Providers []Provider `json:"providers"`
+}
+
+type Provider struct {
+	// Name is the name of the provider
+	Name string `json:"name"`
+
+	// IsActive is the boolean flag indicating if the provider is active
+	IsActive bool `json:"isActive"`
 }
 
 //+kubebuilder:object:root=true
