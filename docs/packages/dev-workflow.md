@@ -56,7 +56,12 @@ This document provides guidance on how to build and publish package and repo bun
    target:
 
    ```shell
-      PACKAGE_REPOSITORY=management OCI_REGISTRY="****" make package-repo-bundle
+      PACKAGE_REPOSITORY="management" \
+      OCI_REGISTRY="****" \
+      REPO_BUNDLE_VERSION="v1.0.0" \
+      REPO_BUNDLE_SUB_VERSION="0" \
+      PACKAGE_VALUES_FILE=packages/package-values.yaml \
+      make repo-bundle-generate -f build-tooling.mk
    ```
 
 5. Push package bundles 
@@ -94,7 +99,14 @@ This document provides guidance on how to build and publish package and repo bun
    To push the generated repo bundle to an OCI registry, run:
 
    ```shell
-      PACKAGE_REPOSITORY=management OCI_REGISTRY="****" make repo-bundle-push -f build-tooling.mk
+      PACKAGE_REPOSITORY="management" \
+      OCI_REGISTRY="****" \
+      REPO_BUNDLE_VERSION="v1.0.0" \
+      REPO_BUNDLE_SUB_VERSION="0" \
+      REGISTRY_USERNAME="****" \
+      REGISTRY_PASSWORD="****" \
+      REGISTRY_SERVER="****" \
+      make repo-bundle-generate repo-bundle-push -f build-tooling.mk
    ```
 
 ----
@@ -105,7 +117,7 @@ Follow the below steps to test the artifacts that are generated in previous step
 
 #### To install on a cluster without `kapp-controller` installed in it.
 
-1. Download the package bundle. The sha tag can be noted from the registry where package was published.
+1. Download the package bundle. The image sha tag can be noted from the registry where package was published.
    ```shell
       imgpkg pull -b ${OCI_REGISTRY}/readiness@sha256:1fb9f9c6f0c6ba1f995440885b02806551a79d9cef5b9c7c3d6f53a586facddd -o readiness-pkg
    ```
@@ -116,20 +128,49 @@ Follow the below steps to test the artifacts that are generated in previous step
    ```
 
 #### To install on a cluster with `kapp-controller` installed in it.
-You can also use [management cluster](https://github.com/vmware-tanzu/tanzu-framework/blob/main/cmd/cli/plugin/managementcluster/README.md)
-or [workload cluster](https://github.com/vmware-tanzu/tanzu-framework/blob/main/cmd/cli/plugin/cluster/README.md) which
-comes with `kapp-controller` already installed in it to test the artifacts.
 
-We can use the `package` plugin to add the repo bundle to the cluster and to install the packages
+> For more details about these steps, see kapp [packaging tutorial](https://carvel.dev/kapp-controller/docs/v0.31.0/packaging-tutorial)
 
-1. Add package repo bundle to the cluster
+1. Create a `PackageRepository` resource. The image sha tag can be noted from the registry where **repo bundle** was published.
 
-   ```shell
-      tanzu package repository add repo --url ${REPO_BUNDLE_URL} --namespace ${NAMESPACE}
+   Create `repo.yaml`
+   ```yaml
+      ---
+      apiVersion: packaging.carvel.dev/v1alpha1
+      kind: PackageRepository
+      metadata:
+      name: tanzu-management-repo
+      spec:
+      fetch:
+         imgpkgBundle:
+            image: ${OCI_REGISTRY}/management@sha256:1fb9f9c6f0c6ba1f995440885b02806551a79d9cef5b9c7c3d6f53a586facddd
    ```
 
-2. Install the package
+   ```bash
+      kapp deploy -a repo -f repo.yaml -y
+   ```
+
+2. Install kapp-controller service account [Optional if already present]
+   ```bash
+      kapp deploy -a default-ns-rbac -f https://raw.githubusercontent.com/vmware-tanzu/carvel-kapp-controller/develop/examples/rbac/default-ns.yml -y
+   ```
+   This will create a service account named `default-ns-sa`.
+
+3. Install the package
+
+   Create `pkginstall.yaml`
+   ```yaml
+      ---
+      apiVersion: packaging.carvel.dev/v1alpha1
+      kind: PackageInstall
+      metadata:
+      name: tanzu-readiness-pkg
+      spec:
+      serviceAccountName: default-ns-sa # service account from step 2
+      packageRef:
+         refName: readiness.tanzu.vmware.com
+   ```
 
    ```shell
-      tanzu package install tkg --namespace ${NAMESPACE} --package-name ${PACKAGE_NAMA} --version ${PACKAGE_VERSION}
+      kapp deploy -a tanzu-readiness-package -f pkginstall.yaml -y
    ```
