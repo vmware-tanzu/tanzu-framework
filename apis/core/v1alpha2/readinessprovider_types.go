@@ -28,11 +28,8 @@ type ReadinessProviderSpec struct {
 	// CheckRef is the name of the check that the current provider satisfies
 	CheckRef string `json:"checkRef"`
 
-	// Repeatable denotes if the provider should be re-evaluated periodically
-	//+kubebuilder:validation:Optional
-	Repeatable bool `json:"repeatable"`
-
 	// RepeatInterval is the re-evaluation interval
+	// If RepeatInterval is not provided or nil, the provider will be evaluated only once and the evaluation will not be repeated
 	//+kubebuilder:validation:Optional
 	RepeatInterval *metav1.Time `json:"repeatInterval"`
 
@@ -80,6 +77,9 @@ type ReadinessConditionStatus struct {
 	// State is the computed state of the condition
 	// +kubebuilder:validation:Enum=success;failure;inprogress
 	State ReadinessConditionState `json:"state"`
+
+	// Message is the field that provides information about the condition evaluation
+	Message string `json:"message"`
 }
 
 //+kubebuilder:object:root=true

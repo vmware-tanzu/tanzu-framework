@@ -49,7 +49,9 @@ spec:
                       type: string
                     type:
                       description: Type is the type of the check. the Type can be
-                        either basic or composite
+                        either basic or composite The basic checks depend on its providers
+                        to be ready The composite checks depend on the basic checks
+                        for their readiness
                       enum:
                       - basic
                       - composite
@@ -67,6 +69,8 @@ spec:
             description: ReadinessStatus defines the observed state of Readiness
             properties:
               checkStatus:
+                description: CheckStatus presents the status of check defined in the
+                  spec
                 items:
                   properties:
                     name:
@@ -100,9 +104,14 @@ spec:
                   type: object
                 type: array
               lastComputedTime:
+                description: LastComputedTime is the field that denotes the time at
+                  which the readiness is computed.
                 format: date-time
                 type: string
               ready:
+                description: Ready is the flag that denodes if the defined readiness
+                  is ready The readiness is marked ready if all the checks are satisfied
+                  The time at which this field is evaluated is given by LastComputedTime
                 type: boolean
             required:
             - checkStatus

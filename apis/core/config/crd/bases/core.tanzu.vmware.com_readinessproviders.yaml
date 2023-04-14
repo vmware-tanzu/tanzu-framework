@@ -78,13 +78,11 @@ spec:
                   type: object
                 type: array
               repeatInterval:
-                description: RepeatInterval is the re-evaluation interval
+                description: RepeatInterval is the re-evaluation interval If RepeatInterval
+                  is not provided or nil, the provider will be evaluated only once
+                  and the evaluation will not be repeated
                 format: date-time
                 type: string
-              repeatable:
-                description: Repeatable denotes if the provider should be re-evaluated
-                  periodically
-                type: boolean
             required:
             - checkRef
             - conditions
@@ -97,6 +95,10 @@ spec:
                   being evaluated
                 items:
                   properties:
+                    message:
+                      description: Message is the field that provides information
+                        about the condition evaluation
+                      type: string
                     name:
                       description: Name is the name of the readiness condition
                       type: string
@@ -108,6 +110,7 @@ spec:
                       - inprogress
                       type: string
                   required:
+                  - message
                   - name
                   - state
                   type: object

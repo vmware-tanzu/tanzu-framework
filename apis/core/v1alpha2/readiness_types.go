@@ -18,6 +18,8 @@ type Check struct {
 	Name string `json:"name"`
 
 	// Type is the type of the check. the Type can be either basic or composite
+	// The basic checks depend on its providers to be ready
+	// The composite checks depend on the basic checks for their readiness
 	// +kubebuilder:validation:Enum=basic;composite
 	Type string `json:"type"`
 
@@ -27,9 +29,16 @@ type Check struct {
 
 // ReadinessStatus defines the observed state of Readiness
 type ReadinessStatus struct {
-	CheckStatus      []CheckStatus `json:"checkStatus"`
-	Ready            bool          `json:"ready"`
-	LastComputedTime *metav1.Time  `json:"lastComputedTime"`
+	// CheckStatus presents the status of check defined in the spec
+	CheckStatus []CheckStatus `json:"checkStatus"`
+
+	// Ready is the flag that denodes if the defined readiness is ready
+	// The readiness is marked ready if all the checks are satisfied
+	// The time at which this field is evaluated is given by LastComputedTime
+	Ready bool `json:"ready"`
+
+	// LastComputedTime is the field that denotes the time at which the readiness is computed.
+	LastComputedTime *metav1.Time `json:"lastComputedTime"`
 }
 
 type CheckStatus struct {
