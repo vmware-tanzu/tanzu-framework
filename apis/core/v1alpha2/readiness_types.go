@@ -32,7 +32,7 @@ type ReadinessStatus struct {
 	// CheckStatus presents the status of check defined in the spec
 	CheckStatus []CheckStatus `json:"checkStatus"`
 
-	// Ready is the flag that denodes if the defined readiness is ready
+	// Ready is the flag that denotes if the defined readiness is ready
 	// The readiness is marked ready if all the checks are satisfied
 	// The time at which this field is evaluated is given by LastComputedTime
 	Ready bool `json:"ready"`
