@@ -3,6 +3,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: tkg-system-telemetry
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
 
 ---
 apiVersion: v1
