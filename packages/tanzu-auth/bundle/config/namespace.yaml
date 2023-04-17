@@ -1,9 +1,0 @@
-#@ load("@ytt:data", "data")
-
-#@ if data.values.createNamespace:
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: #@ data.values.namespace
-#@ end
