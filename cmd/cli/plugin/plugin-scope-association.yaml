@@ -1,0 +1,4 @@
+plugins:
+- name: isolated-cluster
+  target: global
+  isContextScoped: false

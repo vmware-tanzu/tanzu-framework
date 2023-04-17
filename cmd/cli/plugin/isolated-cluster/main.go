@@ -7,18 +7,18 @@ import (
 	"os"
 
 	"github.com/aunum/log"
-
-	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
+	"github.com/vmware-tanzu/tanzu-plugin-runtime/config/types"
+	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin"
+	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepullop"
 	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepushop"
 )
 
-var descriptor = cliapi.PluginDescriptor{
+var descriptor = plugin.PluginDescriptor{
 	Name:        "isolated-cluster",
 	Description: "Prepopulating images/bundle for internet-restricted environments",
-	Group:       cliapi.RunCmdGroup,
+	Group:       plugin.RunCmdGroup,
+	Target:      types.TargetGlobal,
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,
 }
