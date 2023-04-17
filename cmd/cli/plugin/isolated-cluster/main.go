@@ -7,11 +7,12 @@ import (
 	"os"
 
 	"github.com/aunum/log"
+
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepullop"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepushop"
 	"github.com/vmware-tanzu/tanzu-plugin-runtime/config/types"
 	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin"
 	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepullop"
-	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/isolated-cluster/imagepushop"
 )
 
 var descriptor = plugin.PluginDescriptor{
