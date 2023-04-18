@@ -18,20 +18,6 @@
 *.bak
 bin
 artifacts
-artifacts-admin
-test/cli/mock/artifacts*
-tanzu
-addons/artifacts
-addons/controllers/testdata/internal-crds
-pinniped/
-!addons/pinniped/
-!pinniped-components/
-
-# providers/clustergen-related files
-provider-bundle
-providers.zip
-providers.tar.gz
-hack/providers-sync-tools/**/build
 
 # Build artifacts that may not be cleaned up properly
 .rendered-output/

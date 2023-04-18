@@ -21,7 +21,7 @@ endif
 TOOLS_DIR := $(abspath hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
-GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped/" | xargs -I _ dirname _)
+GO_MODULES=$(shell find . -path "*/go.mod" | xargs -I _ dirname _)
 
 ifndef IS_OFFICIAL_BUILD
 IS_OFFICIAL_BUILD = ""
@@ -101,7 +101,7 @@ go-lint: tools
 	done
 
 	# Prevent use of deprecated ioutils module
-	@CHECK=$$(grep -r --include="*.go" --exclude-dir="pinniped" --exclude="zz_generated*" ioutil .); \
+	@CHECK=$$(grep -r --include="*.go" --exclude="zz_generated*" ioutil .); \
 	if [ -n "$${CHECK}" ]; then \
 		echo "ioutil is deprecated, use io or os replacements"; \
 		echo "https://go.dev/doc/go1.16#ioutil"; \
@@ -201,16 +201,14 @@ generate-go-conversions: $(CONVERSION_GEN)
 		--go-header-file=./hack/boilerplate.go.txt
 
 .PHONY: generate-package-secret
-# Generate the default package values secret. Usage: make generate-package-secret PACKAGE=pinniped tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
+# Generate the default package values secret. Usage: make generate-package-secret PACKAGE=capabilities tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
 generate-package-secret:
 	@if [ -z "$(PACKAGE)" ]; then \
 		echo "PACKAGE argument required"; \
 		exit 1 ;\
 	fi
 
-	@if [ $(PACKAGE) == 'pinniped' ]; then \
-	  ./pinniped-components/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas} ;\
-	elif [ $(PACKAGE) == 'capabilities' ]; then \
+	@if [ $(PACKAGE) == 'capabilities' ]; then \
 	  ./capabilities/hack/generate-package-secret.sh -v tkr=${tkr} --data-value-yaml 'rbac.podSecurityPolicyNames=[${psp}]';\
 	else \
 	  echo "invalid PACKAGE: $(PACKAGE)" ;\
