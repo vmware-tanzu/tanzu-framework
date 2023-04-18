@@ -9,10 +9,6 @@ metadata:
     app: tanzu-featuregates-manager
   name: tanzu-featuregates-controller-manager
   namespace: #@ data.values.namespace
-  annotations:
-    kapp.k14s.io/update-strategy: "fallback-on-replace"
-    kapp.k14s.io/change-rule.0: "upsert after upserting featuregates.config.tanzu.vmware.com/certificate"
-    kapp.k14s.io/change-rule.1: "delete before deleting featuregates.config.tanzu.vmware.com/certificate"
 spec:
   replicas: 1
   selector:
@@ -30,6 +26,11 @@ spec:
           args:
             - #@ "--webhook-server-port={}".format(getWebhookServerPort())
             - #@ "--tls-cipher-suites={}".format(data.values.deployment.tlsCipherSuites)
+            - "--webhook-config-label=tanzu.vmware.com/featuregates-webhook-managed-certs=true"
+            - #@ "--webhook-service-namespace={}".format(data.values.namespace)
+            - "--webhook-service-name=tanzu-featuregates-webhook-service"
+            - #@ "--webhook-secret-namespace={}".format(data.values.namespace)
+            - "--webhook-secret-name=tanzu-featuregates-webhook-server-cert"
           resources:
             limits:
               cpu: 100m

@@ -25,11 +25,18 @@ import (
 	coreFeatureController "github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/feature"
 	configFeatureGateController "github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/featuregate"
 	"github.com/vmware-tanzu/tanzu-framework/util/buildinfo"
+	"github.com/vmware-tanzu/tanzu-framework/util/webhook/certs"
 )
 
 var (
-	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
+	scheme                              = runtime.NewScheme()
+	setupLog                            = ctrl.Log.WithName("setup")
+	defaultWebhookConfigLabel           = "tanzu.vmware.com/featuregates-webhook-managed-certs=true"
+	defaultWebhookServiceNamespace      = "default"
+	defaultWebhookServiceName           = "tanzu-featuregates-webhook-service"
+	defaultWebhookSecretNamespace       = "default"
+	defaultWebhookSecretName            = "tanzu-featuregates-webhook-server-cert"
+	defaultWebhookSecretVolumeMountPath = "/tmp/k8s-webhook-server/serving-certs"
 )
 
 func init() {
@@ -51,12 +58,27 @@ func setCipherSuiteFunc(cipherSuiteString string) (func(cfg *tls.Config), error)
 }
 
 func main() {
-	var webhookServerPort int
-	var tlsMinVersion string
-	var tlsCipherSuites string
+	var (
+		webhookServerPort            int
+		tlsMinVersion                string
+		tlsCipherSuites              string
+		webhookConfigLabel           string
+		webhookServiceNamespace      string
+		webhookServiceName           string
+		webhookSecretNamespace       string
+		webhookSecretName            string
+		webhookSecretVolumeMountPath string
+	)
+
 	flag.IntVar(&webhookServerPort, "webhook-server-port", 9443, "The port that the webhook server serves at.")
-	flag.StringVar(&tlsMinVersion, "tls-min-version", "1.2", "minimum TLS version in use by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
+	flag.StringVar(&tlsMinVersion, "tls-min-version", "1.2", "The minimum TLS version to be used by the webhook server. Recommended values are \"1.2\" and \"1.3\".")
 	flag.StringVar(&tlsCipherSuites, "tls-cipher-suites", "", "Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be used.\n"+fmt.Sprintf("Possible values are %s.", strings.Join(cliflag.TLSCipherPossibleValues(), ", ")))
+	flag.StringVar(&webhookConfigLabel, "webhook-config-label", defaultWebhookConfigLabel, "The label used to select webhook configurations to update the certs for.")
+	flag.StringVar(&webhookServiceNamespace, "webhook-service-namespace", defaultWebhookServiceNamespace, "The namespace in which webhook service is installed.")
+	flag.StringVar(&webhookServiceName, "webhook-service-name", defaultWebhookServiceName, "The name of the webhook service.")
+	flag.StringVar(&webhookSecretNamespace, "webhook-secret-namespace", defaultWebhookSecretNamespace, "The namespace in which webhook secret is installed.")
+	flag.StringVar(&webhookSecretName, "webhook-secret-name", defaultWebhookSecretName, "The name of the webhook secret.")
+	flag.StringVar(&webhookSecretVolumeMountPath, "webhook-secret-volume-mount-path", defaultWebhookSecretVolumeMountPath, "The filesystem path to which the webhook secret is mounted.")
 
 	opts := zap.Options{
 		Development: true,
@@ -69,7 +91,7 @@ func main() {
 	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
 
 	var err error
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{Scheme: scheme, MetricsBindAddress: "0", Port: webhookServerPort})
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{Scheme: scheme, MetricsBindAddress: "0", Port: webhookServerPort, CertDir: webhookSecretVolumeMountPath})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
@@ -114,6 +136,42 @@ func main() {
 
 	//+kubebuilder:scaffold:builder
 
+	signalHandler := ctrl.SetupSignalHandler()
+
+	// Start certificate manager
+	setupLog.Info("Starting certificate manager")
+	certManagerOpts := certs.Options{
+		Client:                        mgr.GetClient(),
+		Logger:                        ctrl.Log.WithName("featuregates-webhook-cert-manager"),
+		CertDir:                       webhookSecretVolumeMountPath,
+		WebhookConfigLabel:            webhookConfigLabel,
+		RotationIntervalAnnotationKey: "tanzu.vmware.com/featuregates-webhook-rotation-interval",
+		NextRotationAnnotationKey:     "tanzu.vmware.com/featuregates-webhook-next-rotation",
+		RotationCountAnnotationKey:    "tanzu.vmware.com/featuregates-webhook-rotation-count",
+		SecretName:                    webhookSecretName,
+		SecretNamespace:               webhookSecretNamespace,
+		ServiceName:                   webhookServiceName,
+		ServiceNamespace:              webhookServiceNamespace,
+	}
+
+	certManager, err := certs.New(certManagerOpts)
+	if err != nil {
+		setupLog.Error(err, "failed to create certificate manager")
+		os.Exit(1)
+	}
+
+	// Start cert manager.
+	if err := certManager.Start(signalHandler); err != nil {
+		setupLog.Error(err, "failed to start certificate manager")
+		os.Exit(1)
+	}
+
+	// Wait for cert dir to be ready.
+	if err := certManager.WaitForCertDirReady(); err != nil {
+		setupLog.Error(err, "certificates not ready")
+		os.Exit(1)
+	}
+
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")
 		os.Exit(1)
@@ -124,7 +182,7 @@ func main() {
 	}
 
 	setupLog.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(signalHandler); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
