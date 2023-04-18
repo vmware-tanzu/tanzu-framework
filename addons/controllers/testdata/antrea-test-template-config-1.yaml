@@ -1,5 +1,5 @@
 ---
-apiVersion: cni.tanzu.vmware.com/v1alpha2
+apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
   name: test-cluster-4-antrea-package

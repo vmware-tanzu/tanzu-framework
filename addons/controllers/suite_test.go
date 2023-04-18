@@ -62,7 +62,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	addonwebhooks "github.com/vmware-tanzu/tanzu-framework/addons/webhooks"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
-	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
@@ -211,9 +210,6 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).NotTo(HaveOccurred())
 
 	err = cniv1alpha1.AddToScheme(scheme)
-	Expect(err).NotTo(HaveOccurred())
-
-	err = cniv1alpha2.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	err = cpiv1alpha1.AddToScheme(scheme)
@@ -454,8 +450,6 @@ var _ = BeforeSuite(func(done Done) {
 
 	// Set up the webhooks in the manager
 	err = (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr)
-	Expect(err).ToNot(HaveOccurred())
-	err = (&cniv1alpha2.AntreaConfig{}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
 	err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())

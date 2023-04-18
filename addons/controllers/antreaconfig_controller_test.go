@@ -22,7 +22,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
-	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -116,7 +116,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				return err == nil
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
-			config := &cniv1alpha2.AntreaConfig{}
+			config := &cniv1alpha1.AntreaConfig{}
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, configKey, config)
 				if err != nil {
@@ -212,7 +212,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 			Eventually(func() bool {
 				// Check status.secretRef after reconciliation
-				config := &cniv1alpha2.AntreaConfig{}
+				config := &cniv1alpha1.AntreaConfig{}
 				err := k8sClient.Get(ctx, configKey, config)
 				if err != nil {
 					return false
@@ -250,7 +250,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				return err == nil
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
-			config := &cniv1alpha2.AntreaConfig{}
+			config := &cniv1alpha1.AntreaConfig{}
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, configKey, config)
 				if err != nil {
@@ -334,7 +334,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 			Eventually(func() bool {
 				// Check status.secretRef after reconciliation
-				config := &cniv1alpha2.AntreaConfig{}
+				config := &cniv1alpha1.AntreaConfig{}
 				err := k8sClient.Get(ctx, configKey, config)
 				if err != nil {
 					return false
@@ -380,7 +380,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Namespace: addonNamespace,
 				Name:      configCRName,
 			}
-			config := &cniv1alpha2.AntreaConfig{}
+			config := &cniv1alpha1.AntreaConfig{}
 			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
 
 			By("OwnerReferences is not set")
@@ -403,7 +403,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Namespace: clusterNamespace,
 				Name:      configCRName,
 			}
-			config := &cniv1alpha2.AntreaConfig{}
+			config := &cniv1alpha1.AntreaConfig{}
 			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
 
 			By("Trying to update the immutable TrafficEncapMode field in Antrea Spec")
@@ -443,7 +443,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 			f.Close()
 
 			By("Create antrea config in the cluster's namespace with expected name pattern", func() {
-				datavalues := &cniv1alpha2.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
+				datavalues := &cniv1alpha1.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
 				antreaConfig := generateAntreaConfig(configName, clusterNamespace, datavalues)
 				err := k8sClient.Create(ctx, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
@@ -474,7 +474,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 			})
 
 			By("Verify contents of resulting antrea config", func() {
-				antreaConfig := &cniv1alpha2.AntreaConfig{}
+				antreaConfig := &cniv1alpha1.AntreaConfig{}
 				key := client.ObjectKey{Name: clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name, Namespace: clusterNamespace}
 				err := k8sClient.Get(ctx, key, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
@@ -518,7 +518,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 			})
 
 			By("Create antrea config in the cluster's namespace with random name", func() {
-				datavalues := &cniv1alpha2.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
+				datavalues := &cniv1alpha1.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
 				antreaConfig := generateAntreaConfig(configName, clusterNamespace, datavalues)
 				err := k8sClient.Create(ctx, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
@@ -545,7 +545,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 			By("Verify contents of resulting antrea config", func() {
 				// eventually the secret ref to the data values should be updated
-				antreaConfig := &cniv1alpha2.AntreaConfig{}
+				antreaConfig := &cniv1alpha1.AntreaConfig{}
 				Eventually(func() error {
 					configKey := client.ObjectKey{
 						Namespace: clusterNamespace,
@@ -561,7 +561,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 					return nil
 				}, waitTimeout, pollingInterval).Should(Succeed())
 
-				antreaConfig = &cniv1alpha2.AntreaConfig{}
+				antreaConfig = &cniv1alpha1.AntreaConfig{}
 				key := client.ObjectKey{Name: configName, Namespace: clusterNamespace}
 				err := k8sClient.Get(ctx, key, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
@@ -573,17 +573,17 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 	})
 })
 
-func generateAntreaConfig(name, namespace string, datavalues *cniv1alpha2.AntreaConfigDataValue) *cniv1alpha2.AntreaConfig {
+func generateAntreaConfig(name, namespace string, datavalues *cniv1alpha1.AntreaConfigDataValue) *cniv1alpha1.AntreaConfig {
 	labels := map[string]string{}
 	labels["tkg.tanzu.vmware.com/package-name"] = "antrea.tanzu.vmware.com.1.7.2---tkg.1-advanced"
-	config := &cniv1alpha2.AntreaConfig{
+	config := &cniv1alpha1.AntreaConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			Labels:    labels,
 		},
-		Spec: cniv1alpha2.AntreaConfigSpec{
-			Antrea: cniv1alpha2.Antrea{
+		Spec: cniv1alpha1.AntreaConfigSpec{
+			Antrea: cniv1alpha1.Antrea{
 				AntreaConfigDataValue: *datavalues,
 			},
 		},

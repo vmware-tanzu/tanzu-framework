@@ -27,7 +27,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
-	antreaconfigv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
+	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
@@ -56,7 +56,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 	BeforeEach(func() {
 		scheme = runtime.NewScheme()
 		_ = corev1.AddToScheme(scheme)
-		_ = antreaconfigv1alpha2.AddToScheme(scheme)
+		_ = antreaconfigv1alpha1.AddToScheme(scheme)
 		_ = kapppkgv1alpha1.AddToScheme(scheme)
 		_ = v1alpha3.AddToScheme(scheme)
 
@@ -72,7 +72,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 					},
 				},
 				{
-					GroupVersion: antreaconfigv1alpha2.GroupVersion.String(),
+					GroupVersion: antreaconfigv1alpha1.GroupVersion.String(),
 					APIResources: []metav1.APIResource{
 						{Name: "antreaconfigs", Namespaced: true, Kind: "AntreaConfig"},
 					},
@@ -481,7 +481,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		})
 
 		It("should not overwrite the components which already exist", func() {
-			antreaAPIGroup := antreaconfigv1alpha2.GroupVersion.Group
+			antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
 			fakeCPIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithSecretRef()
 			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
 			// Update fakeClusterBootstrapTemplate by adding a fake CPI and CSI package
@@ -584,7 +584,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		})
 
 		It("should not add the fields which are meant to be skipped", func() {
-			antreaAPIGroup := antreaconfigv1alpha2.GroupVersion.Group
+			antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
 			fakeCPIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithSecretRef()
 			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
 			// Update fakeClusterBootstrapTemplate by adding a fake CPI and CSI package
@@ -638,7 +638,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		})
 
 		It("should not add the fields which are meant to be skipped in additionalPackages", func() {
-			antreaAPIGroup := antreaconfigv1alpha2.GroupVersion.Group
+			antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
 			fakeCPIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithSecretRef()
 			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
 			// Update fakeClusterBootstrapTemplate by adding a fake CPI and CSI package
@@ -942,7 +942,7 @@ func constructFakeClusterBootstrapPackageWithInlineRef() *v1alpha3.ClusterBootst
 }
 
 func constructFakeClusterBootstrapPackageWithAntreaProviderRef() *v1alpha3.ClusterBootstrapPackage {
-	antreaAPIGroup := antreaconfigv1alpha2.GroupVersion.Group
+	antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
 	antreaConfig := constructFakeAntreaConfig()
 	return &v1alpha3.ClusterBootstrapPackage{
 		RefName: fakeAntreaCBPackageRefName,
@@ -1034,11 +1034,11 @@ func constructFakeVSphereCPIConfig() *vspherecpiv1alpha1.VSphereCPIConfig {
 	}
 }
 
-func constructFakeAntreaConfig() *antreaconfigv1alpha2.AntreaConfig {
-	return &antreaconfigv1alpha2.AntreaConfig{
+func constructFakeAntreaConfig() *antreaconfigv1alpha1.AntreaConfig {
+	return &antreaconfigv1alpha1.AntreaConfig{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "AntreaConfig",
-			APIVersion: antreaconfigv1alpha2.GroupVersion.String(),
+			APIVersion: antreaconfigv1alpha1.GroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "fake-antreaconfig",
@@ -1047,25 +1047,25 @@ func constructFakeAntreaConfig() *antreaconfigv1alpha2.AntreaConfig {
 				constants.TKGAnnotationTemplateConfig: "true",
 			},
 		},
-		Spec: antreaconfigv1alpha2.AntreaConfigSpec{
-			Antrea: antreaconfigv1alpha2.Antrea{
-				AntreaConfigDataValue: antreaconfigv1alpha2.AntreaConfigDataValue{TrafficEncapMode: "encap"},
+		Spec: antreaconfigv1alpha1.AntreaConfigSpec{
+			Antrea: antreaconfigv1alpha1.Antrea{
+				AntreaConfigDataValue: antreaconfigv1alpha1.AntreaConfigDataValue{TrafficEncapMode: "encap"},
 			},
 		},
 	}
 }
 
-func constructFakeAntreaConfigWithClusterOwner(configName, clusterName string) *antreaconfigv1alpha2.AntreaConfig {
+func constructFakeAntreaConfigWithClusterOwner(configName, clusterName string) *antreaconfigv1alpha1.AntreaConfig {
 	ownerRef := metav1.OwnerReference{
 		APIVersion: "",
 		Kind:       constants.ClusterKind,
 		Name:       clusterName,
 		UID:        "",
 	}
-	return &antreaconfigv1alpha2.AntreaConfig{
+	return &antreaconfigv1alpha1.AntreaConfig{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "AntreaConfig",
-			APIVersion: antreaconfigv1alpha2.GroupVersion.String(),
+			APIVersion: antreaconfigv1alpha1.GroupVersion.String(),
 		},
 
 		ObjectMeta: metav1.ObjectMeta{
@@ -1076,9 +1076,9 @@ func constructFakeAntreaConfigWithClusterOwner(configName, clusterName string) *
 			},
 			OwnerReferences: []metav1.OwnerReference{ownerRef},
 		},
-		Spec: antreaconfigv1alpha2.AntreaConfigSpec{
-			Antrea: antreaconfigv1alpha2.Antrea{
-				AntreaConfigDataValue: antreaconfigv1alpha2.AntreaConfigDataValue{TrafficEncapMode: "encap"},
+		Spec: antreaconfigv1alpha1.AntreaConfigSpec{
+			Antrea: antreaconfigv1alpha1.Antrea{
+				AntreaConfigDataValue: antreaconfigv1alpha1.AntreaConfigDataValue{TrafficEncapMode: "encap"},
 			},
 		},
 	}

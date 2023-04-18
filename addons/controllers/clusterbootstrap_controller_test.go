@@ -30,7 +30,7 @@ import (
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/builder"
-	antreaconfigv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
+	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 	kvcpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
@@ -921,7 +921,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 	When("Cluster is created", func() {
 
-		var routableAntreaConfig *antreaconfigv1alpha2.AntreaConfig
+		var routableAntreaConfig *antreaconfigv1alpha1.AntreaConfig
 
 		BeforeEach(func() {
 			clusterName = "test-cluster-tcbt-3"
@@ -937,17 +937,17 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(apierrors.IsAlreadyExists(err)).To(BeTrue())
 			}
 
-			routableAntreaConfig = &antreaconfigv1alpha2.AntreaConfig{
+			routableAntreaConfig = &antreaconfigv1alpha1.AntreaConfig{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      fmt.Sprintf("%s-antrea-package", clusterName),
 					Namespace: clusterNamespace,
 				},
-				Spec: antreaconfigv1alpha2.AntreaConfigSpec{
-					Antrea: antreaconfigv1alpha2.Antrea{
-						AntreaConfigDataValue: antreaconfigv1alpha2.AntreaConfigDataValue{
+				Spec: antreaconfigv1alpha1.AntreaConfigSpec{
+					Antrea: antreaconfigv1alpha1.Antrea{
+						AntreaConfigDataValue: antreaconfigv1alpha1.AntreaConfigDataValue{
 							TrafficEncapMode: "hybrid",
 							NoSNAT:           true,
-							FeatureGates: antreaconfigv1alpha2.AntreaFeatureGates{
+							FeatureGates: antreaconfigv1alpha1.AntreaFeatureGates{
 								AntreaProxy:   true,
 								EndpointSlice: true,
 							},
@@ -956,7 +956,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				},
 			}
 			Expect(k8sClient.Create(ctx, routableAntreaConfig)).NotTo(HaveOccurred())
-			assertEventuallyExistInNamespace(ctx, k8sClient, clusterNamespace, routableAntreaConfig.Name, &antreaconfigv1alpha2.AntreaConfig{})
+			assertEventuallyExistInNamespace(ctx, k8sClient, clusterNamespace, routableAntreaConfig.Name, &antreaconfigv1alpha1.AntreaConfig{})
 		})
 
 		Context("with a routable AntreaConfig resource already exist", func() {
@@ -969,7 +969,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return err == nil
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
-				antreaConfig := &antreaconfigv1alpha2.AntreaConfig{}
+				antreaConfig := &antreaconfigv1alpha1.AntreaConfig{}
 				// use the name from cloned clusterBootstrap to verify it is the same
 				assertOwnerReferencesExist(ctx, k8sClient, clusterNamespace, clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name, antreaConfig, []metav1.OwnerReference{
 					{
