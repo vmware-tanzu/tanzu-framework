@@ -18,9 +18,4 @@ coverage:
         only_pulls: false
     changes: false
 ignore:
-  - "vendor"
-  - "pinniped/**/*"
-  - "provider-bundle"
-  - "providers.zip"
-  - "providers.tar.gz"
   - "**/zz_generated.deepcopy.go"
