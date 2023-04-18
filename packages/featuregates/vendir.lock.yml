@@ -6,7 +6,7 @@ directories:
   - directory: {}
     path: crds/core
   - manual: {}
-    path: certificates.yaml
+    path: webhook-secret.yaml
   - manual: {}
     path: rbac.yaml
   - manual: {}
