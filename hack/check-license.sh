@@ -12,13 +12,12 @@ set -o pipefail
 verify_license() {
   printf "Checking License in shell scripts and Makefiles ...\n"
   local required_keywords=("VMware, Inc." "SPDX-License-Identifier: Apache-2.0")
-  local file_patterns_to_check=("*.sh" "Makefile")
+  local file_patterns_to_check=("*.sh" "Makefile" "*.mk")
 
   local result
   result=$(mktemp /tmp/tf-licence-check.XXXXXX)
   for ext in "${file_patterns_to_check[@]}"; do
-    # ignore ./vendor dir, ./pinniped dir ( the dir is cloned while building CLI) and node_modules dir
-    find . -type d \( -path ./vendor -o -path ./pinniped -o -name node_modules \) -prune -o -name "$ext" -type f -print0 |
+    find . -type d -o -name "$ext" -type f -print0 |
       while IFS= read -r -d '' path; do
         for rword in "${required_keywords[@]}"; do
           if ! grep -q "$rword" "$path"; then

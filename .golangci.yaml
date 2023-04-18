@@ -113,9 +113,6 @@ issues:
     - '(Expect directory permissions to be 0750 or less|Expect (WriteFile|file) permissions to be 0600 or less)'
 
   exclude-rules:
-    - path: pinniped/internal/mocks
-      linters:
-        - goimports
     - path: apis/run/v1alpha1
       linters:
         - goimports
