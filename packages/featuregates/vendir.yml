@@ -12,7 +12,7 @@ directories:
         includePaths:
           - core.tanzu.vmware.com_features.yaml
           - core.tanzu.vmware.com_featuregates.yaml
-      - path: certificates.yaml
+      - path: webhook-secret.yaml
         manual: {}
       - path: rbac.yaml
         manual: {}
