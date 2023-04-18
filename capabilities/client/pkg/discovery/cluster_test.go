@@ -177,35 +177,53 @@ func TestGVRQueries(t *testing.T) {
 	// apiResources has information similar to an actual Kubernetes cluster.
 	apiResources := []*metav1.APIResourceList{
 		{
-			GroupVersion: "autoscaling/v1",
+			GroupVersion: "admissionregistration.k8s.io/v1",
 			APIResources: []metav1.APIResource{
 				{
-					Name:       "horizontalpodautoscalers",
-					Kind:       "HorizontalPodAutoscaler",
+					Name:       "mutatingwebhookconfigurations",
+					Kind:       "MutatingWebhookConfiguration",
 					Namespaced: true,
-					ShortNames: []string{"hpa"},
 				},
 			},
 		},
 		{
-			GroupVersion: "autoscaling/v2",
+			GroupVersion: "apps/v1",
 			APIResources: []metav1.APIResource{
 				{
-					Name:       "horizontalpodautoscalers",
-					Kind:       "HorizontalPodAutoscaler",
+					Name:       "deployments",
+					Kind:       "Deployment",
 					Namespaced: true,
-					ShortNames: []string{"hpa"},
+					ShortNames: []string{"deploy"},
 				},
 			},
 		},
 		{
-			GroupVersion: "autoscaling/v2beta2",
+			GroupVersion: "core.tanzu.vmware.com/v1alpha1",
 			APIResources: []metav1.APIResource{
 				{
-					Name:       "horizontalpodautoscalers",
-					Kind:       "HorizontalPodAutoscaler",
+					Name:       "features",
+					Kind:       "Feature",
+					Namespaced: false,
+				},
+			},
+		},
+		{
+			GroupVersion: "core.tanzu.vmware.com/v1alpha2",
+			APIResources: []metav1.APIResource{
+				{
+					Name:       "features",
+					Kind:       "Feature",
+					Namespaced: false,
+				},
+			},
+		},
+		{
+			GroupVersion: "rbac.authorization.k8s.io/v1",
+			APIResources: []metav1.APIResource{
+				{
+					Name:       "roles",
+					Kind:       "Role",
 					Namespaced: true,
-					ShortNames: []string{"hpa"},
 				},
 			},
 		},
@@ -258,8 +276,8 @@ func TestGVRQueries(t *testing.T) {
 			want:        true,
 		},
 		{
-			description: "existing autoscaling group is found",
-			query:       Group("test", "autoscaling"),
+			description: "existing apps group is found",
+			query:       Group("test", "apps"),
 			want:        true,
 		},
 		{
@@ -269,42 +287,42 @@ func TestGVRQueries(t *testing.T) {
 		},
 		{
 			description: "group not found, resource found",
-			query:       Group("test", "hotscalers").WithResource("horizontalpodautoscalers"),
+			query:       Group("test", "hotscalers").WithResource("deployments"),
 			want:        false,
 		},
 		{
 			description: "group found, resource not found",
-			query:       Group("test", "autoscaling").WithResource("verticalautoscaling"),
+			query:       Group("test", "apps").WithResource("nonexistingresource"),
 			want:        false,
 		},
 		{
 			description: "group and resource found",
-			query:       Group("test", "autoscaling").WithResource("horizontalpodautoscalers"),
+			query:       Group("test", "admissionregistration.k8s.io").WithResource("mutatingwebhookconfigurations"),
 			want:        true,
 		},
 		{
 			description: "group exists, but empty string resource returns error",
-			query:       Group("test", "autoscaling").WithResource(""),
+			query:       Group("test", "admissionregistration.k8s.io").WithResource(""),
 			err:         errInvalidWithResourceMethodArgument,
 		},
 		{
 			description: "group not found, version found",
-			query:       Group("test", "hotscaling").WithVersions("v1"),
+			query:       Group("test", "admissionregistration.k8s.io").WithVersions("v1alpha1"),
 			want:        false,
 		},
 		{
 			description: "group and version found",
-			query:       Group("test", "autoscaling").WithVersions("v1"),
+			query:       Group("test", "apps").WithVersions("v1"),
 			want:        true,
 		},
 		{
 			description: "group and versions found",
-			query:       Group("test", "autoscaling").WithVersions("v2", "v1", "v2beta2"),
+			query:       Group("test", "core.tanzu.vmware.com").WithVersions("v1alpha1", "v1alpha2"),
 			want:        true,
 		},
 		{
 			description: "group found, but empty string version returns error",
-			query:       Group("test", "autoscaling").WithVersions(""),
+			query:       Group("test", "apps").WithVersions(""),
 			err:         errInvalidWithVersionsMethodArgument,
 		},
 		{
@@ -319,16 +337,16 @@ func TestGVRQueries(t *testing.T) {
 		},
 		{
 			description: "group, versions, resource found",
-			query: Group("test", "autoscaling").
-				WithVersions("v1", "v2", "v2beta2").
-				WithResource("horizontalpodautoscalers"),
+			query: Group("test", "core.tanzu.vmware.com").
+				WithVersions("v1alpha1", "v1alpha2").
+				WithResource("features"),
 			want: true,
 		},
 		{
 			description: "group, versions found, resource not found",
-			query: Group("test", "autoscaling").
-				WithVersions("v1", "v2beta1", "v2beta2").
-				WithResource("verticalscaler"),
+			query: Group("test", "core.tanzu.vmware.com").
+				WithVersions("v1alpha1", "v1alpha2").
+				WithResource("ingress"),
 			want: false,
 		},
 		{
