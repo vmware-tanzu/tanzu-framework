@@ -113,9 +113,6 @@ issues:
     - '(Expect directory permissions to be 0750 or less|Expect (WriteFile|file) permissions to be 0600 or less)'
 
   exclude-rules:
-    - path: apis/run/v1alpha1
-      linters:
-        - goimports
     - path: _test\.go
       linters:
         - dupl
@@ -126,11 +123,6 @@ issues:
     - linters:
         - gocritic
       text: "unnecessaryDefer:"
-
-    - path: pkg/v1/tkr/controllers/source/suite_test.go
-      linters:
-        - nolintlint
-      text: "is unused for linter staticcheck"
 
     - linters:
         - revive
