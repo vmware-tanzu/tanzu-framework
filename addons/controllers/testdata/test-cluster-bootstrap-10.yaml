@@ -836,7 +836,7 @@ spec:
     openAPIv3:
       title: foobar.tanzu.vmware.com.0.2.5+vmware.1-tkg.1 values schema
 ---
-apiVersion: cni.tanzu.vmware.com/v1alpha2
+apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
   name: antrea-config-custom-1

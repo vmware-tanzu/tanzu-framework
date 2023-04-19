@@ -400,7 +400,7 @@ spec:
           key: node.cloudprovider.kubernetes.io/uninitialized
           value: "true"
 ---
-apiVersion: cni.tanzu.vmware.com/v1alpha2
+apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
   name: test-cluster-8
@@ -412,7 +412,7 @@ spec:
     config:
       trafficEncapMode: encap
 ---
-apiVersion: cni.tanzu.vmware.com/v1alpha2
+apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
   name: test-cluster-8

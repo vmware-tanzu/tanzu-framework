@@ -87,6 +87,11 @@ func (r *AntreaConfig) ValidateUpdate(old runtime.Object) error {
 				r.Spec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload, "field is immutable"),
 		)
 	}
+	if !reflect.DeepEqual(r.Spec.AntreaNsx.Enable, oldObj.Spec.AntreaNsx.Enable) {
+		allErrs = append(allErrs, field.Invalid(field.NewPath("spec", "antreaNsx", "enable", ""),
+			r.Spec.AntreaNsx.Enable, "filed is immutable"),
+		)
+	}
 	if !reflect.DeepEqual(r.Spec.Antrea.AntreaConfigDataValue.TLSCipherSuites,
 		oldObj.Spec.Antrea.AntreaConfigDataValue.TLSCipherSuites) {
 		allErrs = append(allErrs,

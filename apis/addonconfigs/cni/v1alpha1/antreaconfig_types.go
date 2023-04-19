@@ -12,6 +12,8 @@ type AntreaProxyNodePortAddress []string
 // AntreaConfigSpec defines the desired state of AntreaConfig
 type AntreaConfigSpec struct {
 	Antrea Antrea `json:"antrea,omitempty"`
+	// AntreaNsx defines nsxt adapter related configurations
+	AntreaNsx AntreaNsx `json:"antreaNsx,omitempty"`
 }
 
 type Antrea struct {
@@ -120,6 +122,16 @@ type AntreaConfigDataValue struct {
 	// Tunnel protocols used for encapsulating traffic across Nodes. One of the following options =:> geneve, vxlan, gre, stt
 	// +kubebuilder:validation:Optional
 	TunnelType string `json:"tunnelType,omitempty"`
+
+	// TunnelPort is the destination port for UDP and TCP based tunnel protocols (Geneve, VXLAN, and STT).If zero, it will use the assigned IANA port for the protocol.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=0
+	TunnelPort int `json:"tunnelPort,omitempty"`
+
+	// TunnelCsum determines whether to compute UDP encapsulation header (Geneve or VXLAN) checksums on outgoing packets
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	TunnelCsum bool `json:"tunnelCsum,omitempty"`
 
 	// Determines how tunnel traffic is encrypted. One of the following options =:> none, ipsec, wireguard
 	// +kubebuilder:validation:Optional
@@ -254,13 +266,73 @@ type AntreaFeatureGates struct {
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
 	TrafficControl bool `json:"TrafficControl,omitempty"`
+
+	// Enable TopologyAwareHints in AntreaProxy. This requires AntreaProxy and EndpointSlice to be enabled, otherwise this flag will not take effect.
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	TopologyAwareHints bool `json:"TopologyAwareHints,omitempty"`
 }
 
 // AntreaConfigStatus defines the observed state of AntreaConfig
 type AntreaConfigStatus struct {
+	// Message to indicate failure reason
+	// +kubebuilder:validation:Optional
+	Message string `json:"message,omitempty"`
 	// Reference to the data value secret created by controller
 	// +kubebuilder:validation:Optional
 	SecretRef string `json:"secretRef,omitempty"`
+}
+
+type AntreaNsx struct {
+	// Enable indicates whether nsxt adapter shall be enabled in the cluster
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	Enable bool `json:"enable,omitempty"`
+	// BootstrapFrom either providerRef or inline configs
+	// +kubebuilder:validation:Optional
+	BootstrapFrom AntreaNsxBootstrapFrom `json:"bootstrapFrom,omitempty"`
+	// Config is  configuration for nsxt adapter
+	// +kubebuilder:validation:Optional
+	AntreaNsxConfig AntreaNsxConfig `json:"config,omitempty"`
+}
+
+type AntreaNsxBootstrapFrom struct {
+	// ProviderRef is used with uTKG, which will be filled by uTKG Addon Controller
+	// +kubebuilder:validation:Optional
+	ProviderRef *AntreaNsxProvider `json:"providerRef,omitempty"`
+	// Inline is used with TKGm, user need to fill in manually
+	// +kubebuilder:validation:Optional
+	Inline *AntreaNsxInline `json:"inline,omitempty"`
+}
+
+type AntreaNsxProvider struct {
+	// Api version for nsxServiceAccount, its value is "nsx.vmware.com/v1alpha1" now
+	// +kubebuilder:validation:Optional
+	ApiGroup string `json:"apigroup,omitempty"`
+	// Kind is the kind for crd, here its value is NsxServiceAccount
+	// +kubebuilder:validation:Optional
+	Kind string `json:"kind,omitempty"`
+	// Name is the name for NsxServiceAccount
+	// +kubebuilder:validation:Optional
+	Name string `json:"name,omitempty"`
+}
+
+type AntreaNsxInline struct {
+	// NsxManagers is the list for nsx managers, it can be either IP address or domain name
+	// +kubebuilder:validation:Optional
+	NsxManagers []string `json:"nsxManagers,omitempty"`
+	// ClusterName is the name for the created cluster
+	// +kubebuilder:validation:Optional
+	ClusterName string `json:"clusterName,omitempty"`
+	// NsxCertName is cert files to access nsx manager
+	// +kubebuilder:validation:Optional
+	NsxCertName string `json:"nsxCertName,omitempty"`
+}
+
+type AntreaNsxConfig struct {
+	// InfraType is the type for infrastructure, so far it is vSphere, VMC, AWS, Azure
+	// +kubebuilder:validation:Optional
+	InfraType string `json:"infraType,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -271,7 +343,8 @@ type AntreaConfigStatus struct {
 // +kubebuilder:printcolumn:name="AntreaProxy",type="string",JSONPath=".spec.antrea.config.featureGates.AntreaProxy",description="Flag to enable/disable antrea proxy"
 // +kubebuilder:printcolumn:name="AntreaPolicy",type="string",JSONPath=".spec.antrea.config.featureGates.AntreaPolicy",description="Flag to enable/disable antrea policy"
 // +kubebuilder:printcolumn:name="SecretRef",type="string",JSONPath=".status.secretRef",description="Name of the antrea data values secret"
-
+// +kubebuilder:storageversion
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // AntreaConfig is the Schema for the antreaconfigs API
 type AntreaConfig struct {
 	metav1.TypeMeta   `json:",inline"`

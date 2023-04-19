@@ -11,13 +11,13 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 )
 
 var _ = Describe("Addon config annotation predicate", func() {
 	Context("predicate: processIfConfigOfKindWithoutAnnotation()", func() {
 		var (
-			antreaConfigObj *cniv1alpha2.AntreaConfig
+			antreaConfigObj *cniv1alpha1.AntreaConfig
 			configKind      string
 			namespace       string
 			logger          logr.Logger
@@ -27,7 +27,7 @@ var _ = Describe("Addon config annotation predicate", func() {
 		BeforeEach(func() {
 			namespace = "test-ns"
 			logger = ctrl.Log.WithName("processIfConfigOfKindWithoutAnnotation")
-			antreaConfigObj = &cniv1alpha2.AntreaConfig{
+			antreaConfigObj = &cniv1alpha1.AntreaConfig{
 				TypeMeta: metav1.TypeMeta{Kind: constants.AntreaConfigKind},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-config-name",
