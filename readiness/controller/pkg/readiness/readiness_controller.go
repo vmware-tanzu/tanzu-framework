@@ -9,12 +9,19 @@ import (
 
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 )
+
+const contextTimeout = 30 * time.Second
 
 // ReadinessReconciler reconciles a Readiness object
 type ReadinessReconciler struct {
@@ -28,26 +35,21 @@ type ReadinessReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the Readiness object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.6.4/pkg/reconcile
 func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	ctxCancel, cancel := context.WithTimeout(ctx, contextTimeout)
+	defer cancel()
+
 	readiness := &corev1alpha2.Readiness{}
-	err := r.Client.Get(ctx, req.NamespacedName, readiness)
+	err := r.Client.Get(ctxCancel, req.NamespacedName, readiness)
 	if err != nil {
-		r.Log.Error(err, "Error while fetching readiness")
 		return ctrl.Result{}, err
 	}
 
 	updateRequired := false
-	oldStatus := readiness.Status
+	currentStatus := readiness.Status
 
 	if len(readiness.Spec.Checks) == 0 {
-		if !oldStatus.Ready {
+		if !currentStatus.Ready {
 			readiness.Status.Ready = true
 			readiness.Status.CheckStatus = []corev1alpha2.CheckStatus{}
 			updateRequired = true
@@ -56,10 +58,18 @@ func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		allChecks := make(map[string][]int)
 		readiness.Status.CheckStatus = []corev1alpha2.CheckStatus{}
 		providersList := &corev1alpha2.ReadinessProviderList{}
-		err = r.Client.List(ctx, providersList)
-		if err != nil {
-			r.Log.Error(err, "Error while fetching readiness providers")
-			return ctrl.Result{}, err
+
+		// TODO: Find a better way to index and fetch the proviers in a single list call
+		for _, check := range readiness.Spec.Checks {
+			providers := &corev1alpha2.ReadinessProviderList{}
+			err = r.Client.List(ctxCancel, providers, &client.ListOptions{
+				FieldSelector: fields.OneTermEqualSelector("spec.checkRef", check.Name),
+			})
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+
+			providersList.Items = append(providersList.Items, providers.Items...)
 		}
 
 		for i, provider := range providersList.Items {
@@ -77,8 +87,7 @@ func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 				Ready:     false,
 			}
 
-			indices, ok := allChecks[check.Name]
-			if ok {
+			if indices, ok := allChecks[check.Name]; ok {
 				for _, index := range indices {
 					provider := providersList.Items[index]
 
@@ -102,17 +111,16 @@ func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 			readiness.Status.Ready = readiness.Status.Ready && checkStatus.Ready
 		}
 
-		updateRequired = isUpdateRequired(oldStatus, readiness.Status)
+		updateRequired = isUpdateRequired(currentStatus, readiness.Status)
 
 	}
 
 	if updateRequired {
-		time := metav1.Time{Time: time.Now()}
-		readiness.Status.LastComputedTime = &time
+		time := metav1.Now()
+		readiness.Status.LastUpdatedTime = &time
 
-		err = r.Client.Status().Update(ctx, readiness)
+		err = r.Client.Status().Update(ctxCancel, readiness)
 		if err != nil {
-			r.Log.Error(err, "Error while updating readiness status")
 			return ctrl.Result{}, err
 		}
 	}
@@ -174,7 +182,59 @@ func isUpdateRequired(oldStatus, newStatus corev1alpha2.ReadinessStatus) bool {
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *ReadinessReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	mgr.GetFieldIndexer().IndexField(context.Background(), &corev1alpha2.ReadinessProvider{}, "spec.checkRef", func(rawObj client.Object) []string {
+		provider := rawObj.(*corev1alpha2.ReadinessProvider)
+		return []string{provider.Spec.CheckRef}
+	})
+
+	mgr.GetFieldIndexer().IndexField(context.Background(), &corev1alpha2.Readiness{}, "spec.checks.name", func(rawObj client.Object) []string {
+		provider := rawObj.(*corev1alpha2.Readiness)
+
+		keys := []string{}
+		for _, check := range provider.Spec.Checks {
+			keys = append(keys, check.Name)
+		}
+
+		return keys
+	})
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1alpha2.Readiness{}).
+		Watches(
+			&source.Kind{Type: &corev1alpha2.ReadinessProvider{}},
+			handler.EnqueueRequestsFromMapFunc(r.findObjectsForReadinessProvider),
+		).
 		Complete(r)
+}
+
+func (r *ReadinessReconciler) findObjectsForReadinessProvider(readinessProviderObject client.Object) []reconcile.Request {
+	ctxCancel, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	provider, _ := readinessProviderObject.(*corev1alpha2.ReadinessProvider)
+
+	readinessList := &corev1alpha2.ReadinessList{}
+	err := r.Client.List(ctxCancel, readinessList, &client.ListOptions{
+		FieldSelector: fields.OneTermEqualSelector("spec.checks.name", provider.Spec.CheckRef),
+	})
+	if err != nil {
+		r.Log.Error(err, "error while updating readiness status")
+		return []reconcile.Request{}
+	}
+
+	requests := []reconcile.Request{}
+
+	for _, readiness := range readinessList.Items {
+		for _, check := range readiness.Spec.Checks {
+			if check.Name == provider.Spec.CheckRef {
+				requests = append(requests, reconcile.Request{
+					NamespacedName: types.NamespacedName{
+						Name: readiness.Name,
+					},
+				})
+			}
+		}
+	}
+
+	return requests
 }

@@ -37,8 +37,8 @@ type ReadinessStatus struct {
 	// The time at which this field is evaluated is given by LastComputedTime
 	Ready bool `json:"ready"`
 
-	// LastComputedTime is the field that denotes the time at which the readiness is computed.
-	LastComputedTime *metav1.Time `json:"lastComputedTime"`
+	// LastUpdatedTime is the field that denotes the time at which the readiness is updated.
+	LastUpdatedTime *metav1.Time `json:"lastComputedTime"`
 }
 
 type CheckStatus struct {

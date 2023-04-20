@@ -131,7 +131,7 @@ var _ = Describe("Readiness controller", func() {
 		Eventually(func() bool {
 			ans := corev1alpha2.Readiness{}
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, &ans)
-			return err == nil && !ans.Status.Ready && ans.Status.LastComputedTime != nil && len(ans.Status.CheckStatus[0].Providers) == 0
+			return err == nil && !ans.Status.Ready && ans.Status.LastUpdatedTime != nil && len(ans.Status.CheckStatus[0].Providers) == 0
 		}, timeout, interval).Should(BeTrue())
 	})
 
@@ -155,7 +155,7 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, &ans)
 			return err == nil &&
 				!ans.Status.Ready &&
-				ans.Status.LastComputedTime != nil &&
+				ans.Status.LastUpdatedTime != nil &&
 				len(ans.Status.CheckStatus[0].Providers) == 1
 		}, timeout, interval).Should(BeTrue())
 	})
@@ -184,7 +184,7 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, &ans)
 			return err == nil &&
 				ans.Status.Ready &&
-				ans.Status.LastComputedTime != nil &&
+				ans.Status.LastUpdatedTime != nil &&
 				len(ans.Status.CheckStatus[0].Providers) == 1
 		}, timeout, interval).Should(BeTrue())
 	})
@@ -223,7 +223,7 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				!readiness.Status.Ready &&
-				readiness.Status.LastComputedTime != nil &&
+				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 2
 		}, timeout, interval).Should(BeTrue())
 
@@ -232,16 +232,12 @@ var _ = Describe("Readiness controller", func() {
 		err = k8sClient.Status().Update(ctx, provider2)
 		Expect(err).To(BeNil())
 
-		readiness.Annotations = map[string]string{"test": "test"}
-		err = k8sClient.Update(ctx, readiness)
-		Expect(err).To(BeNil())
-
 		// One of the providers is active
 		Eventually(func() bool {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				readiness.Status.Ready &&
-				readiness.Status.LastComputedTime != nil &&
+				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 2
 		}, timeout, interval).Should(BeTrue())
 
@@ -250,20 +246,125 @@ var _ = Describe("Readiness controller", func() {
 		err = k8sClient.Status().Update(ctx, provider1)
 		Expect(err).To(BeNil())
 
-		readiness.Annotations = map[string]string{"test": "test1"}
-		err = k8sClient.Update(ctx, readiness)
-		Expect(err).To(BeNil())
-
 		// Both proviers are active
 		Eventually(func() bool {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				readiness.Status.Ready &&
-				readiness.Status.LastComputedTime != nil &&
+				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 2
 		}, timeout, interval).Should(BeTrue())
 
 	})
+
+	It("Readiness with two checks", func() {
+		readiness := getTestReadiness()
+		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
+			Name: "check6",
+			Type: "basic",
+		})
+		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
+			Name: "check7",
+			Type: "basic",
+		})
+		err := k8sClient.Create(ctx, readiness)
+		Expect(err).To(BeNil())
+
+		// Two checks and no providers
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
+			return err == nil &&
+				!readiness.Status.Ready &&
+				readiness.Status.LastUpdatedTime != nil &&
+				len(readiness.Status.CheckStatus[0].Providers) == 0 &&
+				len(readiness.Status.CheckStatus[1].Providers) == 0
+		}, timeout, interval).Should(BeTrue())
+
+		provider1 := getTestReadinessProvider()
+		provider1.Spec.CheckRef = "check6"
+		err = k8sClient.Create(ctx, provider1)
+		Expect(err).To(BeNil())
+
+		// Provider is available for one check and the provider is not successful
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
+			return err == nil &&
+				!readiness.Status.Ready &&
+				readiness.Status.LastUpdatedTime != nil &&
+				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
+				len(readiness.Status.CheckStatus[1].Providers) == 0
+		}, timeout, interval).Should(BeTrue())
+
+		provider2 := getTestReadinessProvider()
+		provider2.Spec.CheckRef = "check7"
+		err = k8sClient.Create(ctx, provider2)
+		Expect(err).To(BeNil())
+
+		// Provider is available for two checks and both providers are not successful
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
+			return err == nil &&
+				!readiness.Status.Ready &&
+				readiness.Status.LastUpdatedTime != nil &&
+				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
+				len(readiness.Status.CheckStatus[1].Providers) == 1
+		}, timeout, interval).Should(BeTrue())
+
+		provider2.Status.State = corev1alpha2.ProviderSuccessState
+		provider2.Status.Conditions = []corev1alpha2.ReadinessConditionStatus{}
+		err = k8sClient.Status().Update(ctx, provider2)
+		Expect(err).To(BeNil())
+
+		// Provider is available for two checks and one of the providers is successful
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
+			return err == nil &&
+				!readiness.Status.Ready &&
+				readiness.Status.LastUpdatedTime != nil &&
+				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
+				len(readiness.Status.CheckStatus[1].Providers) == 1 &&
+				readiness.Status.CheckStatus[1].Ready &&
+				!readiness.Status.CheckStatus[0].Ready
+		}, timeout, interval).Should(BeTrue())
+
+		provider1.Status.State = corev1alpha2.ProviderSuccessState
+		provider1.Status.Conditions = []corev1alpha2.ReadinessConditionStatus{}
+		err = k8sClient.Status().Update(ctx, provider1)
+		Expect(err).To(BeNil())
+
+		// Providers for all the checks are successful
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
+			return err == nil &&
+				readiness.Status.Ready &&
+				readiness.Status.LastUpdatedTime != nil &&
+				len(readiness.Status.CheckStatus) == 2 &&
+				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
+				len(readiness.Status.CheckStatus[1].Providers) == 1 &&
+				readiness.Status.CheckStatus[1].Ready &&
+				readiness.Status.CheckStatus[0].Ready
+		}, timeout, interval).Should(BeTrue())
+
+		readiness.Spec.Checks = []corev1alpha2.Check{readiness.Spec.Checks[0]}
+		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
+			Name: "check8",
+			Type: "basic",
+		})
+		k8sClient.Update(ctx, readiness)
+		Expect(err).To(BeNil())
+
+		// One check is removed and a new check is added
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
+			return err == nil &&
+				!readiness.Status.Ready &&
+				readiness.Status.LastUpdatedTime != nil &&
+				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
+				len(readiness.Status.CheckStatus[1].Providers) == 0 &&
+				readiness.Status.CheckStatus[0].Ready
+		}, timeout, interval).Should(BeTrue())
+	})
+
 })
 
 func getTestReadiness() *corev1alpha2.Readiness {
