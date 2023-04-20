@@ -20,6 +20,7 @@ import (
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	readinesscontroller "github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/readiness"
+	readinessprovidercontroller "github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/readinessprovider"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -81,6 +82,15 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Readiness")
+		os.Exit(1)
+	}
+
+	if err = (&readinessprovidercontroller.ReadinessProviderReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("ReadinessProvider").WithValues("apigroup", "core"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ReadinessProvider")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

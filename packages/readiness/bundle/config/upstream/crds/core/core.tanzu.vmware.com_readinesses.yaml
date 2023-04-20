@@ -109,7 +109,7 @@ spec:
                 format: date-time
                 type: string
               ready:
-                description: Ready is the flag that denodes if the defined readiness
+                description: Ready is the flag that denotes if the defined readiness
                   is ready The readiness is marked ready if all the checks are satisfied
                   The time at which this field is evaluated is given by LastComputedTime
                 type: boolean

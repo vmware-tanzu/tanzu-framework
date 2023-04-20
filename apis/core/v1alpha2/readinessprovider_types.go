@@ -28,10 +28,13 @@ type ReadinessProviderSpec struct {
 	// CheckRef is the name of the check that the current provider satisfies
 	CheckRef string `json:"checkRef"`
 
-	// RepeatInterval is the re-evaluation interval
-	// If RepeatInterval is not provided or nil, the provider will be evaluated only once and the evaluation will not be repeated
+	// RepeatInterval is the re-evaluation interval;
+	// if RepeatInterval is not provided or nil,
+	// the provider will be evaluated only once and the evaluation will not be repeated.
+	// A valid value specifies a duration string, such as "1.5h", "1h10m" or "200s".
+	// Refer: https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration
 	//+kubebuilder:validation:Optional
-	RepeatInterval *metav1.Time `json:"repeatInterval"`
+	RepeatInterval *metav1.Duration `json:"repeatInterval"`
 
 	// Conditions is the set of checks that must be evaluated to true to mark the provider as ready
 	Conditions []ReadinessProviderCondition `json:"conditions"`
