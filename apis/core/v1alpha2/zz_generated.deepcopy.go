@@ -9,6 +9,7 @@
 package v1alpha2
 
 import (
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -666,7 +667,8 @@ func (in *ReadinessProviderSpec) DeepCopyInto(out *ReadinessProviderSpec) {
 	*out = *in
 	if in.RepeatInterval != nil {
 		in, out := &in.RepeatInterval, &out.RepeatInterval
-		*out = (*in).DeepCopy()
+		*out = new(v1.Duration)
+		**out = **in
 	}
 	if in.Conditions != nil {
 		in, out := &in.Conditions, &out.Conditions
