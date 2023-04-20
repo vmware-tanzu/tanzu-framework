@@ -4,7 +4,6 @@ go 1.18
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../apis/core
-	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ../client
 	github.com/vmware-tanzu/tanzu-framework/util => ../../util
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.8
@@ -15,7 +14,6 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.1
 	github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-00010101000000-000000000000
-	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/util v0.0.0-00010101000000-000000000000
 	k8s.io/api v0.25.4
@@ -61,6 +59,7 @@ require (
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-20230419030809-7081502ebf68 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
