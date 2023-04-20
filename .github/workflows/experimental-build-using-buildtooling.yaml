@@ -35,4 +35,4 @@ jobs:
 
       - name: run make docker-build-all
         run: |
-          make docker-build-all -f build-tooling.mk
+          make docker-build-all

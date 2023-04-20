@@ -1,3 +1,6 @@
+# Copyright 2023 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 .DEFAULT_GOAL := help
 
 REGISTRY_PORT := 8000
@@ -6,7 +9,6 @@ PACKAGE_PREFIX := $(REGISTRY_ENDPOINT)
 REGISTRY_NAME := tanzu-integration-registry
 
 DOCKER := DOCKER_BUILDKIT=1 docker
-MAKE := make -f build-tooling.mk
 
 IMG_DEFAULT_TAG := latest
 IMG_VERSION_OVERRIDE ?= $(IMG_DEFAULT_TAG)

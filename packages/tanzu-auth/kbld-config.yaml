@@ -1,5 +1,0 @@
-apiVersion: kbld.k14s.io/v1alpha1
-kind: Config
-overrides:
-- image: tanzu-auth-controller-manager:latest
-  newImage: ""
