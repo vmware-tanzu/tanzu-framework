@@ -15,6 +15,52 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
+var _ = Describe("PCI Parameters for node pools with GPUs", func() {
+	It("Should parse nested stuff", func() {
+
+		values1 := []interface{}{
+			map[string]interface{}{
+				"class": "tkg-worker",
+				"name":  "md-0-gpu",
+				"variables": map[string]interface{}{
+					"overrides": []interface{}{
+						map[string]interface{}{
+							"name": "worker",
+							"value": map[string]interface{}{
+								"count": 1,
+								"machine": map[string]interface{}{
+									"customVMXKeys": map[string]interface{}{
+										"pciPassthru.64bitMMIOSizeGB": "16",
+										"pciPassthru.RelaxACSforP2P":  "true",
+										"pciPassthru.allowP2P":        "true",
+										"pciPassthru.use64bitMMIO":    "true",
+									},
+									"diskGiB":         300,
+									"memoryMiB":       16384,
+									"numCPUs":         4,
+									"hardwareVersion": "vmx-17",
+									"pciDeviceId":     7864,
+									"pciVendorId":     4318,
+									"devices": []interface{}{
+										map[string]interface{}{
+											"deviceId": "7864",
+											"vendorId": "4318",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+
+		output1 := map[string]interface{}{}
+
+		processYamlObjectArrayInterfaceType(values1, constants.TopologyWorkersMachineDeployments, output1)
+	})
+})
+
 var _ = Describe("Cluster Class - IP Family Validation related test cases: ", func() {
 	var cidrsIpv6Ipv4 string
 	var cidrsIpv4 string
