@@ -18,9 +18,7 @@ import (
 
 	corev1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha1"
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/capabilities/core"
-	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/capabilities/run"
 	"github.com/vmware-tanzu/tanzu-framework/util/buildinfo"
 )
 
@@ -33,7 +31,6 @@ func init() {
 	utilruntime.Must(corev1.AddToScheme(scheme))
 	utilruntime.Must(corev1alpha1.AddToScheme(scheme))
 	utilruntime.Must(corev1alpha2.AddToScheme(scheme))
-	utilruntime.Must(runv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -52,16 +49,6 @@ func main() {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{Scheme: scheme, MetricsBindAddress: "0"})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
-		os.Exit(1)
-	}
-
-	if err = (&run.CapabilityReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Capability").WithValues("apigroup", "run"),
-		Scheme: mgr.GetScheme(),
-		Host:   mgr.GetConfig().Host,
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Capability", "apigroup", "run")
 		os.Exit(1)
 	}
 
