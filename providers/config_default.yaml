@@ -361,7 +361,7 @@ CONTROL_PLANE_NODE_LABELS:
 #! Azure account configurations
 
 #! The Azure cloud to deploy to, supported clouds are :
-#! AzurePublicCloud, AzureChinaCloud, AzureGermanCloud, AzureUSGovernmentCloud
+#! AzurePublicCloud, AzureChinaCloud, AzureGermanCloud, AzureUSGovernmentCloud, AzureStackCloud
 AZURE_ENVIRONMENT: "AzurePublicCloud"
 #! The tenant ID is the ID of the AAD directory in which the app for Tanzu Kubernetes Grid is created
 #! A Tenant is representative of an organization within Azure Active Directory.
