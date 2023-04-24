@@ -1,6 +1,3 @@
-# Copyright 2023 VMware, Inc. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
-
 .DEFAULT_GOAL := help
 
 REGISTRY_PORT := 8000
@@ -9,22 +6,23 @@ PACKAGE_PREFIX := $(REGISTRY_ENDPOINT)
 REGISTRY_NAME := tanzu-integration-registry
 
 DOCKER := DOCKER_BUILDKIT=1 docker
+MAKE := make
 
 IMG_DEFAULT_TAG := latest
 IMG_VERSION_OVERRIDE ?= $(IMG_DEFAULT_TAG)
 GOPROXY ?= "https://proxy.golang.org,direct"
 PLATFORM=local
-# check out step 2 in this documentation on how to set the COMPONENTS variable https://github.com/vmware-tanzu/build-tooling-for-integrations/blob/main/docs/build-tooling-getting-started.md
-COMPONENTS ?= capabilities/client \
-capabilities/controller.capabilities-controller-manager.capabilities \
-featuregates/client \
-featuregates/controller.featuregates-controller-manager.featuregates
+COMPONENTS ?=
 
 BUILD_TOOLING_CONTAINER_IMAGE ?= ghcr.io/vmware-tanzu/build-tooling
 PACKAGING_CONTAINER_IMAGE ?= ghcr.io/vmware-tanzu/package-tooling
-VERSION ?= v0.0.2
+VERSION ?= v0.0.3
 
-# utility functions to check for main.go in component path
+CLI_PLUGINS ?=
+CLI_PLUGIN_VERSION ?= v0.0.1
+IMGPKG_VERSION ?= v0.11.0
+
+# Utility functions check for main.go in component path.
 find_main_go = $(shell find $(1) -name main.go)
 check_main_go = $(if $(call find_main_go,$(1)),Found,NotFound)
 
@@ -92,7 +90,7 @@ docker-build-all: $(COMPONENTS)
 docker-publish-all: PUBLISH_IMAGES:=true
 docker-publish-all: $(COMPONENTS)
 
-.PHONY: build-all
+.PHONY: build-all cli-plugin-build
 # Run linter, tests and build binaries
 build-all: BUILD_BIN:=true
 build-all: $(COMPONENTS)
@@ -113,10 +111,10 @@ $(COMPONENTS):
 	@if [ "$(PUBLISH_IMAGES)" = "true" ]; then \
 		if [ "$(call check_main_go,$(COMPONENT))" = "Found" ]; then \
 			$(MAKE) validate-component IMAGE_NAME=$(IMAGE_NAME) PACKAGE_PATH=$(PACKAGE_PATH) || exit 1; \
-			$(MAKE) publish IMAGE=$(IMAGE) DEFAULT_IMAGE=$(DEFAULT_IMAGE) PACKAGE_PATH=$(PACKAGE_PATH) BUILD_BIN=$(BUILD_BIN); \
+			$(MAKE) publish-$@ IMAGE=$(IMAGE) DEFAULT_IMAGE=$(DEFAULT_IMAGE) PACKAGE_PATH=$(PACKAGE_PATH) BUILD_BIN=$(BUILD_BIN); \
 		fi \
 	else \
-		$(MAKE) build COMPONENT=$(COMPONENT) IMAGE_NAME=$(IMAGE_NAME) IMAGE=$(IMAGE) PACKAGE_PATH=$(PACKAGE_PATH) BUILD_BIN=$(BUILD_BIN); \
+		$(MAKE) build-$@ COMPONENT=$(COMPONENT) IMAGE_NAME=$(IMAGE_NAME) IMAGE=$(IMAGE) PACKAGE_PATH=$(PACKAGE_PATH) BUILD_BIN=$(BUILD_BIN); \
 	fi
 
 .PHONY: validate-component
@@ -127,8 +125,9 @@ else ifeq ($(strip $(PACKAGE_PATH)),)
 	$(error Path to the package of the component is not set in COMPONENTS variable, check https://github.com/vmware-tanzu/build-tooling-for-integrations/blob/main/docs/build-tooling-getting-started.md#steps-to-use-the-build-tooling for more help)
 endif
 
-.PHONY: build
-build:
+.PHONY: build-%
+build-%:
+	$(MAKE) COMPONENT=$(COMPONENT) lint
 	$(MAKE) COMPONENT=$(COMPONENT) test
 	@if [ "$(call check_main_go,$(COMPONENT))" = "Found" ]; then \
 		if [ "$(BUILD_BIN)" = "true" ]; then \
@@ -139,8 +138,8 @@ build:
 		fi \
 	fi
 
-.PHONY: publish
-publish:
+.PHONY: publish-%
+publish-%:
 	$(MAKE) IMAGE=$(IMAGE) docker-publish
 	$(MAKE) KBLD_CONFIG_FILE_PATH=packages/$(PACKAGE_PATH)/kbld-config.yaml DEFAULT_IMAGE=$(DEFAULT_IMAGE) IMAGE=$(IMAGE) kbld-image-replace
 
@@ -185,6 +184,47 @@ docker-build:
 # Publish docker image
 docker-publish:
 	$(DOCKER) push $(IMAGE)
+
+# Tanzu CLI Plugin Builder is used to compile and publish Tanzu CLI plugins.
+# https://github.com/vmware-tanzu/tanzu-cli/tree/main/cmd/plugin/builder
+.PHONY: cli-plugin-builder-install
+plugin-builder-install:
+	docker build . -f Dockerfile --target cli-plugin-builder-install
+
+.PHONY: cli-plugin-build
+CLI_PLUGIN_TARGETS := $(addprefix cli-plugin-build-, $(shell \
+	if [ -z "$(CLI_PLUGINS)" ]; \
+	then printf "$(shell [ -d "cmd/plugin" ] && cd cmd/plugin && ls -d * && cd ../..)"; \
+	else printf "$(CLI_PLUGINS)"; \
+	fi \
+))
+cli-plugin-build: install-registry cli-plugin-builder-install
+	$(MAKE) $(CLI_PLUGIN_TARGETS)
+
+.PHONY: cli-plugin-build-%
+cli-plugin-build-%:
+	$(MAKE) COMPONENT=cmd/plugin/$* lint
+	$(MAKE) COMPONENT=cmd/plugin/$* test
+	$(DOCKER) build --network=host . -f Dockerfile \
+	--target cli-plugin-build \
+	--output build \
+	--build-arg IMGPKG_VERSION=$(IMGPKG_VERSION) \
+	--build-arg CLI_PLUGIN_VERSION=$(CLI_PLUGIN_VERSION) \
+	--build-arg OCI_REGISTRY=$(REGISTRY_ENDPOINT) \
+	--build-arg CLI_PLUGIN=$* \
+	--build-arg COMPONENT=cmd/plugin/$*
+
+.PHONY: cli-plugin-publish
+cli-plugin-publish: cli-plugin-builder-install
+	$(DOCKER) build . -f Dockerfile \
+	--target cli-plugin-publish \
+	--build-arg IMGPKG_VERSION=$(IMGPKG_VERSION) \
+	--build-arg REPOSITORY=$(OCI_REGISTRY) \
+	--build-arg IMGPKG_USERNAME=$(REGISTRY_USERNAME) \
+	--build-arg IMGPKG_PASSWORD=$(REGISTRY_PASSWORD) \
+	--build-arg PUBLISHER=$(PUBLISHER) \
+	--build-arg VENDOR=$(VENDOR) \
+	--build-arg COMPONENT=cmd/plugin/*
 
 .PHONY: kbld-image-replace
 # Add newImage in kbld-config.yaml
