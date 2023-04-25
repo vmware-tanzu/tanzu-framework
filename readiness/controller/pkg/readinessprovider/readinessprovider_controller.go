@@ -22,8 +22,9 @@ const (
 // ReadinessProviderReconciler reconciles a ReadinessProvider object
 type ReadinessProviderReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	Log                        logr.Logger
+	Scheme                     *runtime.Scheme
+	ResourceExistenceCondition func(*corev1alpha2.ResourceExistenceCondition) (corev1alpha2.ReadinessConditionState, string)
 }
 
 //+kubebuilder:rbac:groups=core.tanzu.vmware.com,resources=readinessproviders,verbs=get;list;watch;create;update;patch;delete
@@ -58,7 +59,11 @@ func (r *ReadinessProviderReconciler) Reconcile(ctx context.Context, req ctrl.Re
 
 	for i, condition := range readinessProvider.Spec.Conditions {
 		readinessProvider.Status.Conditions[i].Name = condition.Name
-		state, message := evaluateResourceExistenceCondition(log.WithValues("condition", condition.Name), condition.ResourceExistenceCondition)
+		var state corev1alpha2.ReadinessConditionState
+		var message string
+		if condition.ResourceExistenceCondition != nil {
+			state, message = r.ResourceExistenceCondition(condition.ResourceExistenceCondition)
+		}
 		readinessProvider.Status.Conditions[i].State = state
 		readinessProvider.Status.Conditions[i].Message = message
 	}
@@ -78,17 +83,21 @@ func (r *ReadinessProviderReconciler) Reconcile(ctx context.Context, req ctrl.Re
 	return result, r.Status().Update(ctxCancel, &readinessProvider)
 }
 
-// Evaluate resourceExistenceCondition and returns status with message
-func evaluateResourceExistenceCondition(log logr.Logger, resourceCriteria corev1alpha2.ResourceExistenceCondition) (state corev1alpha2.ReadinessConditionState, message string) {
-	// TODO: Implementation
-	log.V(2).Info("evaluating resourceExistenceCondition")
-	return corev1alpha2.ConditionSuccessState, resourceExistenceSuccess
-}
-
 // Evaluate and return cumulative state of ReadinessProvider based on ReadinessConditionStatus values
 func determineProviderStatus(log logr.Logger, conditionStatusList []corev1alpha2.ReadinessConditionStatus) (state corev1alpha2.ReadinessProviderState) {
-	// TODO: Implementation
+	inProgress := false
+	for _, status := range conditionStatusList {
+		if status.State == corev1alpha2.ConditionFailureState {
+			return corev1alpha2.ProviderFailureState
+		} else if status.State == corev1alpha2.ConditionInProgressState {
+			inProgress = true
+		}
+	}
 	log.V(2).Info("evaluating ReadinessProviderState")
+	if inProgress {
+		return corev1alpha2.ProviderInProgressState
+	}
+
 	return corev1alpha2.ProviderSuccessState
 }
 

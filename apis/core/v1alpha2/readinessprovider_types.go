@@ -45,7 +45,7 @@ type ReadinessProviderCondition struct {
 	Name string `json:"name"`
 
 	// ResourceExistenceCondition is the condition that checks for the presence of a certain resource in the cluster
-	ResourceExistenceCondition ResourceExistenceCondition `json:"resourceExistenceCondition"`
+	ResourceExistenceCondition *ResourceExistenceCondition `json:"resourceExistenceCondition"`
 }
 
 type ResourceExistenceCondition struct {
