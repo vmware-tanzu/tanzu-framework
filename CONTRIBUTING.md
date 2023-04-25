@@ -30,8 +30,8 @@ not have a slack channel or email list (hopefully soon).
 
 ## Propose a Change
 
-We suggest beginning by submitting an issue so any high level feedback can be
-addressed early, particularly if significant effort will be involved.
+Begin by submitting an issue.
+Every PR requires an issue, regardless of how trivial it is, including fixing typos.
 
 Please submit feature requests and bug reports by using GitHub issues and filling
 in the supplied template with as much detail as you can.
@@ -86,9 +86,9 @@ understand the project better.
   can be useful on its own.
 * Have good commit messages. Please see the [Commit Messages](#commit-messages)
   section for guidelines.
-* Pull requests *should* reference an existing issue and include a `Fixes #NNNN`
+* Pull requests must reference an existing issue and include a `Fixes #NNNN`
   or `Updates #NNNN` comment. Remember that `Fixes` will close the associated
-  issue, and `Updates` will link the PR to it.
+  issue, and `Updates` will link the PR to it. 
 * Pull requests should normally target the `main` branch.
 
 ### Getting your Pull Request Reviewed, Approved, and Merged

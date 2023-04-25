@@ -2,11 +2,9 @@
 
 ### Which issue(s) this PR fixes
 <!--
-     Usage: Fixes #<issue number>.
-
-     Unless the PR is for a trivial change (e.g. fixing a typo), consider opening an issue first
-     (and reference it here) so that the problem the PR addresses can be discussed independently of
-     the solutions proposed by this PR.
+     Usage options: 
+     - Fixes #<issue number>.
+     - Updates #<issue number>.
 -->
 
 Fixes #
@@ -32,9 +30,10 @@ Fixes #
 
      Please ensure the following:
 
-     - Use good commit [messages](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CONTRIBUTING.md)
-     - Ensure PR contains terms all contributors can understand and links all contributors can access
-     - Squash the commits into one or a small number of logical commits
+     - Use good commit [messages](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CONTRIBUTING.md).
+     - Ensure PR contains terms all contributors can understand and links all contributors can access.
+     - Ensure there is at least one issue referenced by PR.
+     - Squash the commits into one or a small number of logical commits.
 
        | This repository adopts a linear git history model where no merge commits are necessary. To
        | keep the commit history tidy, it is recommended that authors be responsible for the decision
