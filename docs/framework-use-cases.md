@@ -3,26 +3,7 @@
 This document provides some use cases for Framework to understand the project's
 context.
 
-## Use Case #1 - CLI Plugins
-
-### Context
-
-Allow the teams and external partners to extend the Tanzu CLI so that they can
-build, own and release their own piece of functionality.
-
-### Solution
-
-The Tanzu CLI is based on a modular plugin architecture that consists of
-plugins. This architecture enables teams to build, own, and release their own
-piece of functionality as well as enable external partners to integrate with
-the system. The Tanzu CLI also provides tools to make creating and compiling
-new plugins straightforward.
-
-Check out this [document](../cli/core/docs/cli/cli-architecture.md) to learn more about the
-Tanzu CLI architecture and this [document](../cli/core/docs/cli/plugin_implementation_guide.md)
-to learn on how to bootstrap a new CLI plugin.
-
-## Use Case #2 - Features and FeatureGates
+## Use Case #1 - Features and FeatureGates
 
 ### Context
 
@@ -41,10 +22,10 @@ behavior of the plugin or controller without changing the code for more
 controlled experimentation, these can be incredibly useful for agile management
 style environments.
 
-Check out this [document](./api-machinery/features-and-featuregates.md) to
+Check out this [document](runtime-core/features-and-featuregates.md) to
 learn more about the Features and FeatureGates APIs and how to use them.
 
-## Use Case #3 - Capabilities
+## Use Case #2 - Capabilities
 
 ### Context
 
@@ -62,4 +43,4 @@ to query a cluster's capabilities. It can be used to understand the API surface
 area and query for objects in the cluster.
 
 For more detailed information on Capability functionality offered by Framework
-check out this [document](./api-machinery/capability-discovery.md).
+check out this [document](runtime-core/capability-discovery.md).
