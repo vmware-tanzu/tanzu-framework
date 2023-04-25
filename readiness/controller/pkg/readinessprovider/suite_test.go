@@ -5,7 +5,6 @@ package readinessprovider
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"testing"
 	"time"
@@ -93,7 +92,6 @@ var _ = BeforeSuite(func() {
 			}
 			if rec.Kind == "repeatkind" {
 				calls++
-				fmt.Println("## Updated calls to ", calls, "at", time.Now())
 			}
 
 			return corev1alpha2.ConditionSuccessState, "TestSuccess"
