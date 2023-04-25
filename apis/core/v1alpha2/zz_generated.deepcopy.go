@@ -737,8 +737,8 @@ func (in *ReadinessStatus) DeepCopyInto(out *ReadinessStatus) {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
-	if in.LastComputedTime != nil {
-		in, out := &in.LastComputedTime, &out.LastComputedTime
+	if in.LastUpdatedTime != nil {
+		in, out := &in.LastUpdatedTime, &out.LastUpdatedTime
 		*out = (*in).DeepCopy()
 	}
 }
