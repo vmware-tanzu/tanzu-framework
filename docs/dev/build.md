@@ -21,50 +21,11 @@ To build the APIs in Framework, the following commands exist:
 
 API controllers that exist in the Framework repo
 
-* [Addons](https://github.com/vmware-tanzu/tanzu-framework/tree/main/addons)
 * [FeatureGates](https://github.com/vmware-tanzu/tanzu-framework/tree/main/featuregates)
 * [Capabilities](https://github.com/vmware-tanzu/tanzu-framework/tree/main/capabilities)
-* [TKR](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/tkr)
 
 Each controller directory has its own Dockerfile, Makefile and manifests needed to build the image and
 deploy the controller to the cluster.
-
-### Framework CLI
-
-The CLI has specific targets for local development due to its distributed nature.
-
-`make build-install-cli-local`: cleans, builds and installs plugins locally for
-your platform
-
-`make test`: Performs a suite of tests on the CLI and API controllers.
-
-### Building Plugins
-
-The CLI builder can accept directories using a single, global Go module
-or multiple Go modules within sub directories.
-
-Generally, the directory structure when building plugins may look like:
-
-```sh
-plugins-directory
-|- foo-plugin
-|- bar-plugin
-```
-
-where `foo-plugin` and `bar-plugin` are within a single, global, top level Go module
-or are both individually, their own Go module. Both are accepted.
-
-Consider these command while building plugins:
-
-`make build-install-cli-all`: cleans, builds and installs plugins.
-
-`make build-install-cli-local`: cleans, builds, installs CLI and plugins locally
-for your platform.
-
-`make build-cli-local`: Only builds the Tanzu CLI locally.
-
-Check out the [plugin implementation guide](../../cli/core/docs/cli/plugin_implementation_guide.md)
-for more details on how to write plugins for Tanzu CLI.
 
 ### Capabilities
 
@@ -74,7 +35,7 @@ and Capability API to query a cluster's capabilities. It can be used to understa
 objects in the cluster.
 
 For more detailed information on Capability functionality offered by Framework check out this
-[doc](../api-machinery/capability-discovery.md)
+[doc](../runtime-core/capability-discovery.md)
 
 ### Features and FeatureGates
 
@@ -82,12 +43,4 @@ Framework offers Features and FeatureGates APIs to allow developers to deliver n
 safely. With these powerful APIs the teams can modify the system behavior without changing the code for more controlled
 experimentation over the lifecyle of features, these can be incredibly useful for agile management style environments.
 
-For more detailed information on these APIs check out this [doc](../api-machinery/features-and-featuregates.md)
-
-### Context-aware API-driven Plugin Discovery
-
-The Tanzu CLI is an amalgamation of all the Tanzu infrastructure elements under one unified core CLI experience. The core CLI supports a plugin model where the developers of different Tanzu services (bundled or SaaS) can distribute plugins that target functionalities of the services they own. When users switch between different services via the CLI context, we want to surface only the relevant plugins for the given context for a crisp user experience.
-
-This feature is gated by `features.global.context-aware-cli-for-plugins` CLI feature flag and can be turned on/off as described [here](../../cli/core/docs/cli/config-features.md). When this feature is enabled, the CLI will not honor plugins installed prior to this feature being enabled, instead users will need to install plugins again with either `tanzu plugin install <plugin_name>` or `tanzu plugin sync`.
-
-For more detailed information on these design check out this [doc](../../cli/core/docs/design/context-aware-plugin-discovery-design.md)
+For more detailed information on these APIs check out this [doc](../runtime-core/features-and-featuregates.md)
