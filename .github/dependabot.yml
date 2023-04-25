@@ -15,55 +15,7 @@ updates:
     open-pull-requests-limit: 0
 
   - package-ecosystem: "gomod"
-    directory: "addons/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
-
-  - package-ecosystem: "gomod"
-    directory: "pinniped-components/post-deploy/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
-
-  - package-ecosystem: "gomod"
     directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
-
-  - package-ecosystem: "gomod"
-    directory: "hack/packages/kbld-image-replace/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
-
-  - package-ecosystem: "gomod"
-    directory: "hack/tools/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
-
-  - package-ecosystem: "gomod"
-    directory: "pkg/v1/providers/tests/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
-
-  - package-ecosystem: "npm"
-    directory: "tkg/web/e2e/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
-
-  - package-ecosystem: "npm"
-    directory: "tkg/web/node-server/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
-
-  - package-ecosystem: "npm"
-    directory: "tkg/web/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 0

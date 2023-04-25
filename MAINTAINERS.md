@@ -2,34 +2,19 @@
 
 ## Maintainers
 
-| Maintainer | GitHub ID | Affiliation |
-|------------|-----------|-------------|
-|Vui Lam | [vuil](https://github.com/vuil) | [VMware](https://www.github.com/vmware/) |
-|Vijay Katam | [vijaykatam](https://github.com/vijaykatam ) | [VMware](https://www.github.com/vmware/) |
-|Jeff Moroski | [jmoroski](https://github.com/jmoroski ) | [VMware](https://www.github.com/vmware/) |
+| Maintainer   | GitHub ID                                | Affiliation                              |
+|--------------|------------------------------------------|------------------------------------------|
+| Jeff Moroski | [jmoroski](https://github.com/jmoroski ) | [VMware](https://www.github.com/vmware/) |
 
 ## Framework Core Contributors and Stakeholders
 
-| Feature Area | Lead |
-|--------------|------|
-| Tech Lead | Vui Lam [vuil](https://github.com/vuil) |
-| Tech Lead  | Vijay Katam [vijaykatam](https://github.com/vijaykatam) |
-| Tech Lead  | Jeff Moroski [jmoroski](https://github.com/jmoroski) |
-| Tech Lead | Justin Miclette [miclettej](https://github.com/miclettej) |
-| Eng Management | Shyaam Nagarajan [shyaamsn](https://github.com/shyaamsn) |
-| Eng Management | Maggie Cai [Maggiecai-vmw](https://github.com/Maggiecai-vmw) |
-| Eng Management | Maharshi Bhatt [bhattm-vmware](https://github.com/bhattm-vmware) |
-| Product Management | Natalie Fisher [nfisher-tkg](https://github.com/nfisher-tkg) |
-| Engineering | Danniel Guo [danniel1205](https://github.com/danniel1205) |
-| Engineering | Anuj Chaudhari [Anuj2512](https://github.com/Anuj2512) |
-| Engineering | Marjan Alavi [maralavi](https://github.com/maralavi) |
-| Engineering | Shivaani Gupta [shivaani0505](https://github.com/shivaani0505) |
-| Engineering | Guanpeng Gao [ggpaue](https://github.com/ggpaue) |
-| Engineering | Lucheng Bao [blc1996](https://github.com/blc1996) |
-| Engineering | Rajath Agasthya [rajathagasthya](https://github.com/rajathagasthya) |
-| Engineering | Harish Yayi [yharish991](https://github.com/yharish991) |
-
-## Emeritus
-
-* Ian Coffey [iancoffey](https://github.com/iancoffey)
-* Jesse Hu [jessehu](https://github.com/jessehu)
+| Feature Area           | Lead                                                                          |
+|------------------------|-------------------------------------------------------------------------------|
+| Tech Lead              | Jeff Moroski [jmoroski](https://github.com/jmoroski)                          |
+| Engineering Management | Daniel Guo [danniel1205](https://github.com/danniel1205)                      |
+| Engineering            | Rajath Agasthya [rajathagasthya](https://github.com/rajathagasthya)           |
+| Engineering            | Harish Yayi [yharish991](https://github.com/yharish991)                       |
+| Engineering            | Frankie Gold [codegold79](https://github.com/codegold79)                      |
+| Engineering            | Sathyanarayanan Saravanamuthu [sathyanarays](https://github.com/sathyanarays) |
+| Engineering            | Avi Sharma [avi-08](https://github.com/avi-08)                                |
+| Engineering            | Vandana Pathak [Vandy-P](https://github.com/Vandy-P)                          |
