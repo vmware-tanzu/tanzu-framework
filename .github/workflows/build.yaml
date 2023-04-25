@@ -1,4 +1,4 @@
-name: Build using build tooling[Experimental]
+name: Build
 
 on: [pull_request]
 jobs:
