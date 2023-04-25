@@ -26,12 +26,13 @@ import (
 const outputDir = "tmp"
 
 type PublishImagesToTarOptions struct {
-	TkgImageRepo  string
-	TkgVersion    string
-	PkgClient     imgpkginterface.ImgpkgClient
-	ImageDetails  map[string]string
-	CaCertificate string
-	Insecure      bool
+	TkgImageRepo                string
+	TkgVersion                  string
+	PkgClient                   imgpkginterface.ImgpkgClient
+	ImageDetails                map[string]string
+	CaCertificate               string
+	Insecure                    bool
+	TkgCustomCompatibilityImage string
 }
 
 var pullImage = &PublishImagesToTarOptions{}
@@ -60,6 +61,7 @@ func init() {
 	_ = PublishImagestotarCmd.MarkFlagRequired("tkg-version")
 	PublishImagestotarCmd.Flags().BoolVarP(&pullImage.Insecure, "insecure", "", false, "Trusts the server certificate without validating it (optional)")
 	PublishImagestotarCmd.Flags().StringVarP(&pullImage.CaCertificate, "ca-certificate", "", "", "The private repository’s CA certificate  (optional)")
+	PublishImagestotarCmd.Flags().StringVarP(&pullImage.TkgCustomCompatibilityImage, "tkg-custom-compatibility-image-path", "", "", "TKG compatibility image path in special case(optional)")
 	pullImage.ImageDetails = map[string]string{}
 }
 
@@ -70,9 +72,12 @@ func (p *PublishImagesToTarOptions) DownloadTkgCompatibilityImage() error {
 
 	tkgCompatibilityRelativeImagePath := "tkg-compatibility"
 
-	if !imgpkginterface.IsTKGRTMVersion(p.TkgVersion) {
+	if p.TkgCustomCompatibilityImage != "" {
+		tkgCompatibilityRelativeImagePath = p.TkgCustomCompatibilityImage
+	} else if !imgpkginterface.IsTKGRTMVersion(p.TkgVersion) {
 		tkgCompatibilityRelativeImagePath = path.Join(p.TkgVersion, tkgCompatibilityRelativeImagePath)
 	}
+
 	tkgCompatibilityImagePath := path.Join(p.TkgImageRepo, tkgCompatibilityRelativeImagePath)
 	imageTags := p.PkgClient.GetImageTagList(tkgCompatibilityImagePath)
 	if len(imageTags) == 0 {
