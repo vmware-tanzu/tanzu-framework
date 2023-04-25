@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/cmd/plugin/feature
 
-go 1.18
+go 1.19
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ./../../../apis/config
@@ -12,7 +12,6 @@ replace (
 require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/spf13/cobra v1.6.1
-	github.com/vmware-tanzu/tanzu-cli v0.89.1
 	github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/featuregates/client v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-plugin-runtime v0.80.0
@@ -23,6 +22,7 @@ require (
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.6 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/briandowns/spinner v1.19.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -72,8 +72,11 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/testify v1.8.2 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
+	go.uber.org/zap v1.23.0 // indirect
+	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.5.0 // indirect
