@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/tanzu-framework/cmd/plugin/codegen
 
-go 1.18
+go 1.19
 
 replace github.com/vmware-tanzu/tanzu-framework/apis/core => ./../../../apis/core
 
@@ -9,7 +9,6 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.27.2
 	github.com/spf13/cobra v1.6.1
-	github.com/vmware-tanzu/tanzu-cli v0.89.1
 	github.com/vmware-tanzu/tanzu-framework/apis/core v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-plugin-runtime v0.89.0
 	k8s.io/apimachinery v0.25.4
@@ -65,8 +64,10 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/testify v1.8.2 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
+	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.5.0 // indirect
