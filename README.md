@@ -4,25 +4,22 @@
 
 ## Overview
 
-Tanzu Framework provides a set of building blocks to build atop of the [Tanzu](https://tanzu.vmware.com/tanzu) platform, which includes the following:
+Tanzu Framework provides a set of building blocks to build on top of the [Tanzu](https://tanzu.vmware.com/tanzu)
+platform.
 
-* **API Machinery:** For defining and implementing APIs and their controllers
-* **CLI Machinery:** For extending the command line experience
-* **Packages:** For consistent delivery of core and optional components
+Framework provides APIs and Packages that enables Tanzu Kubernetes clusters to function in an enterprise-ready way.
 
-Framework leverages [Carvel](https://carvel.dev/) packaging and plugins to provide users with a much stronger, more integrated experience than the loose coupling and stand-alone commands of the previous generation of tools.
+Framework leverages [Carvel](https://carvel.dev/) packaging and plugins to provide users with a much stronger, more
+integrated experience than the loose coupling and stand-alone commands of the previous generation of tools.
 
 ## Documentation
 
-The [documentation](docs) provides a getting started guide and information about building from source, the Tanzu Framework architecture, extending the Tanzu platform, and more.
-
-## Getting Started
-
-The best way to get started with Tanzu Framework is by using the CLI. Please see our getting started with the CLI [guide](docs/cli/getting-started.md) for more details.
+The [documentation](docs) provides information about the project, including user and developer guides.
 
 ## Contributing
 
-Thanks for taking the time to join our community and start contributing! We welcome pull requests. Feel free to dig through the [issues](https://github.com/vmware-tanzu/tanzu-framework/issues) and jump in.
+Thanks for taking the time to join our community and start contributing! We welcome pull requests. Feel free to dig
+through the [issues](https://github.com/vmware-tanzu/tanzu-framework/issues) and jump in.
 
 ### Before you begin
 
@@ -34,6 +31,6 @@ Thanks for taking the time to join our community and start contributing! We welc
 
 Check out Framework's project [Roadmap](ROADMAP.md) and consider contributing!
 
-## Cherry-pick process
+## Release Process
 
-Check quick instructions [here](./docs/release/cherry-pick.md)
+Check quick instructions [here](./docs/release/README.md)
