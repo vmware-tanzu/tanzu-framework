@@ -6,15 +6,14 @@ package main
 import (
 	"github.com/aunum/log"
 
-	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
+	"github.com/vmware-tanzu/tanzu-cli/pkg/buildinfo"
+	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin"
 )
 
-var descriptor = cliapi.PluginDescriptor{
+var descriptor = plugin.PluginDescriptor{
 	Name:        "codegen",
 	Description: "Tanzu code generation tool",
-	Group:       cliapi.AdminCmdGroup,
+	Group:       plugin.AdminCmdGroup,
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,
 }

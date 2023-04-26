@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient"
+	"github.com/vmware-tanzu/tanzu-plugin-runtime/component"
 )
 
 var (
