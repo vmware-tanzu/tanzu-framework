@@ -7,12 +7,14 @@ import (
 	"github.com/aunum/log"
 
 	"github.com/vmware-tanzu/tanzu-cli/pkg/buildinfo"
+	plugintypes "github.com/vmware-tanzu/tanzu-plugin-runtime/config/types"
 	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin"
 )
 
 var descriptor = plugin.PluginDescriptor{
 	Name:        "codegen",
 	Description: "Tanzu code generation tool",
+	Target:      plugintypes.TargetGlobal,
 	Group:       plugin.AdminCmdGroup,
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,

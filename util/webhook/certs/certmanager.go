@@ -21,11 +21,14 @@ import (
 )
 
 // New returns a new instance of a CertificateManager.
-func New(options Options) (*CertificateManager, error) {
+func New(options *Options) (*CertificateManager, error) {
+	if options == nil {
+		options = &Options{}
+	}
 	if err := options.defaultOpts(); err != nil {
 		return nil, err
 	}
-	return &CertificateManager{opts: options}, nil
+	return &CertificateManager{opts: *options}, nil
 }
 
 // CertificateManager creates and rotates certificates required by a controller manager's webhook server.
@@ -179,7 +182,8 @@ func (cm *CertificateManager) updateWebhookConfigs(ctx context.Context, caCertDa
 		return fmt.Errorf("failed to list validating webhooks: %w", err)
 	}
 
-	for _, webhookConfig := range validatingWebhookList.Items {
+	for i := range validatingWebhookList.Items {
+		webhookConfig := validatingWebhookList.Items[i]
 		for i := range webhookConfig.Webhooks {
 			webhookConfig.Webhooks[i].ClientConfig.CABundle = caCertData
 		}
@@ -197,7 +201,8 @@ func (cm *CertificateManager) updateWebhookConfigs(ctx context.Context, caCertDa
 		return fmt.Errorf("failed to list mutating webhooks: %w", err)
 	}
 
-	for _, webhookConfig := range mutatingWebhookList.Items {
+	for i := range mutatingWebhookList.Items {
+		webhookConfig := mutatingWebhookList.Items[i]
 		for i := range webhookConfig.Webhooks {
 			webhookConfig.Webhooks[i].ClientConfig.CABundle = caCertData
 		}

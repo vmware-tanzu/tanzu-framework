@@ -24,7 +24,7 @@ import (
 
 var _ = Describe("Rotating certificates", func() {
 	var (
-		options                  Options
+		options                  *Options
 		rotationInterval         time.Duration
 		secretKey                client.ObjectKey
 		webhookConfigKey         client.ObjectKey
@@ -84,7 +84,7 @@ var _ = Describe("Rotating certificates", func() {
 		})
 
 		// Define the certificate manager options.
-		options = Options{
+		options = &Options{
 			Client:                        k8sClient,
 			Logger:                        ctrl.Log.WithName("certmanager-test"),
 			WebhookConfigLabel:            "certs.tanzu.vmware.com/managed-certs=true",
@@ -143,7 +143,7 @@ var _ = Describe("Rotating certificates", func() {
 	AfterEach(func() {
 		rotationInterval = 0
 		totalRotationDuration = 0
-		options = Options{}
+		options = &Options{}
 		secretKey = client.ObjectKey{}
 		webhookConfigKey = client.ObjectKey{}
 		waitForCertManagerToStop = sync.WaitGroup{}

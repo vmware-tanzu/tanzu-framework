@@ -16,6 +16,7 @@ import (
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-plugin-runtime/config"
+	"github.com/vmware-tanzu/tanzu-plugin-runtime/config/types"
 )
 
 // FeatureGateClient defines methods to interact with FeatureGate resources
@@ -277,11 +278,14 @@ func (f *FeatureGateClient) setDeactivated(ctx context.Context, gate *corev1alph
 
 // getCurrentClusterConfig gets the config of current logged in cluster
 func getCurrentClusterConfig() (*rest.Config, error) {
-	server, err := config.GetCurrentServer()
+	c, err := config.GetCurrentContext(types.TargetK8s)
 	if err != nil {
 		return nil, err
 	}
-	restConfig, err := getRestConfigWithContext(server.ManagementClusterOpts.Context, server.ManagementClusterOpts.Path)
+	if c.ClusterOpts == nil {
+		return nil, fmt.Errorf("unexpected error: context options is nil")
+	}
+	restConfig, err := getRestConfigWithContext(c.ClusterOpts.Context, c.ClusterOpts.Path)
 	if err != nil {
 		return nil, fmt.Errorf("could not get rest config: %w", err)
 	}
