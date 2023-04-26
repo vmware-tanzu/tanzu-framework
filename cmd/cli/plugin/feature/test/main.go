@@ -9,8 +9,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
+	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin"
+	clitest "github.com/vmware-tanzu/tanzu-plugin-runtime/test/framework"
 )
 
 var descriptor = clitest.NewTestFor("feature")

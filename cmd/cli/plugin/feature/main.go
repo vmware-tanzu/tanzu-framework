@@ -9,16 +9,15 @@ import (
 
 	"github.com/aunum/log"
 
-	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
+	"github.com/vmware-tanzu/tanzu-cli/pkg/buildinfo"
+	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin"
 )
 
-var descriptor = cliapi.PluginDescriptor{
+var descriptor = plugin.PluginDescriptor{
 	Name:        "feature",
 	Description: "Operate on features and featuregates",
 	Version:     buildinfo.Version,
-	Group:       cliapi.RunCmdGroup,
+	Group:       plugin.RunCmdGroup,
 	BuildSHA:    buildinfo.SHA,
 }
 

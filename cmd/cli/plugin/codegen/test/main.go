@@ -13,8 +13,8 @@ import (
 	"sigs.k8s.io/yaml"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
+	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin"
+	clitest "github.com/vmware-tanzu/tanzu-plugin-runtime/test/framework"
 )
 
 var descriptor = clitest.NewTestFor("codegen")
@@ -38,7 +38,7 @@ func initialize() error {
 	if err != nil {
 		return err
 	}
-	featureGenerationCommand := fmt.Sprintf("codegen generate paths=./cmd/cli/plugin-admin/codegen/test/fakeData/... feature output:feature:artifacts:config=%s", tempDir)
+	featureGenerationCommand := fmt.Sprintf("codegen generate paths=./cmd/cli/plugin/codegen/test/fakeData/... feature output:feature:artifacts:config=%s", tempDir)
 	featureGenerationTest = clitest.NewTest("feature generation", featureGenerationCommand, func(t *clitest.Test) error {
 		defer os.Remove(tempDir)
 		if err := t.Exec(); err != nil {
