@@ -35,8 +35,8 @@ var (
 	defaultWebhookServiceNamespace      = "default"
 	defaultWebhookServiceName           = "tanzu-featuregates-webhook-service"
 	defaultWebhookSecretNamespace       = "default"
-	defaultWebhookSecretName            = "tanzu-featuregates-webhook-server-cert"
-	defaultWebhookSecretVolumeMountPath = "/tmp/k8s-webhook-server/serving-certs"
+	defaultWebhookSecretName            = "tanzu-featuregates-webhook-server-cert" //nolint:gosec
+	defaultWebhookSecretVolumeMountPath = "/tmp/k8s-webhook-server/serving-certs"  //nolint:gosec
 )
 
 func init() {
@@ -57,6 +57,7 @@ func setCipherSuiteFunc(cipherSuiteString string) (func(cfg *tls.Config), error)
 	}, nil
 }
 
+//nolint:funlen
 func main() {
 	var (
 		webhookServerPort            int

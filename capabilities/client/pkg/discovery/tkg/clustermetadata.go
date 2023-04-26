@@ -10,6 +10,7 @@ type ClusterMetadata struct {
 	Cluster Cluster `json:"cluster" yaml:"cluster"`
 }
 
+// Cluster stores information about the cluster.
 // Deprecated: This struct type will be removed in a future release.
 type Cluster struct {
 	Name               string         `json:"name" yaml:"name"`
@@ -20,6 +21,7 @@ type Cluster struct {
 	Infrastructure     Infrastructure `json:"infrastructure" yaml:"infrastructure"`
 }
 
+// Infrastructure represents the cluster's infrastructure provider.
 // Deprecated: This struct type will be removed in a future release.
 type Infrastructure struct {
 	Provider string `json:"provider" yaml:"provider"`
