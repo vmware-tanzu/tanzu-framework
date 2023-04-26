@@ -22,6 +22,9 @@ func (c *TkgClient) DoClassyClusterUpgrade(regionalClusterClient clusterclient.C
 	log.Infof("Upgrading kubernetes cluster to `%v` version, tkr version: `%s`", kubernetesVersion, tkrVersion)
 	patchJSONString := fmt.Sprintf(`{"spec": {"topology": {"version": "%v"}}}`, tkrVersion)
 
+
+
+
 	// Timeout set to 30 minutes because the continuousTKRDiscoverFreq for tkr-source-controller's fetcher is 10 minutes.
 	// And kapp package reconcile frequency is 10 minutes.
 	// Wait time should be longer than the fetcher's frequency of pulling tkrs plus the frequency of kapp package reconciliation.
