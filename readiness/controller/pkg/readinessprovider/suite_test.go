@@ -83,7 +83,7 @@ var _ = BeforeSuite(func() {
 		Client: k8sManager.GetClient(),
 		Scheme: k8sManager.GetScheme(),
 		Log:    setupLog,
-		ResourceExistenceCondition: func(rec *corev1alpha2.ResourceExistenceCondition) (corev1alpha2.ReadinessConditionState, string) {
+		ResourceExistenceCondition: func(context context.Context, rec *corev1alpha2.ResourceExistenceCondition) (corev1alpha2.ReadinessConditionState, string) {
 			if rec.Kind == "failurekind" {
 				return corev1alpha2.ConditionFailureState, "TestFailure"
 			}
