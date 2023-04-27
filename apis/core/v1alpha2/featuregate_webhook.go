@@ -265,8 +265,8 @@ func computeFeaturesThatDoNotExist(spec FeatureGateSpec, features *FeatureList) 
 	}
 
 	allFeaturesInCluster := sets.String{}
-	for _, feature := range features.Items {
-		allFeaturesInCluster.Insert(feature.Name)
+	for i := range features.Items {
+		allFeaturesInCluster.Insert(features.Items[i].Name)
 	}
 	invalidFeatures := allFeaturesInSpec.Difference(allFeaturesInCluster)
 	return invalidFeatures.List()
@@ -303,7 +303,8 @@ func computeConflictingFeatures(featureGate *FeatureGate, featureGates *FeatureG
 
 	// Gather all the gated features in the cluster
 	allGatedFeaturesInCluster := sets.String{}
-	for _, fg := range featureGates.Items {
+	for i := range featureGates.Items {
+		fg := featureGates.Items[i]
 		// Skip comparing the object to itself during updates.
 		if fg.Name == featureGate.Name {
 			continue
@@ -331,7 +332,8 @@ func getPermanentlyVoidAllSupportGuaranteesFieldForFeature(featureGate *FeatureG
 
 // getFeatureStabilityLevel returns feature stability level for a feature from a list of Features
 func getFeatureStabilityLevel(list *FeatureList, featureName string) (StabilityLevel, bool) {
-	for _, feature := range list.Items {
+	for i := range list.Items {
+		feature := list.Items[i]
 		if featureName == feature.Name {
 			return feature.Spec.Stability, true
 		}

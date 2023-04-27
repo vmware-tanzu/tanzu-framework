@@ -141,7 +141,7 @@ func main() {
 
 	// Start certificate manager
 	setupLog.Info("Starting certificate manager")
-	certManagerOpts := certs.Options{
+	certManagerOpts := &certs.Options{
 		Client:                        mgr.GetClient(),
 		Logger:                        ctrl.Log.WithName("featuregates-webhook-cert-manager"),
 		CertDir:                       webhookSecretVolumeMountPath,
