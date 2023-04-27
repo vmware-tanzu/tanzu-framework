@@ -79,7 +79,7 @@ yamllint:
 
 # These are the modules that still contain issues reported by golangci-lint.
 # Once a module is updated to be lint-free, remove from list to catch lint regressions.
-MODULES_NEEDING_LINT_FIX= . ./apis/core ./capabilities/client
+MODULES_NEEDING_LINT_FIX= . ./apis/core
 
 .PHONY: go-lint
 # Run linting of go source

@@ -10,12 +10,14 @@ import (
 	"github.com/aunum/log"
 
 	"github.com/vmware-tanzu/tanzu-cli/pkg/buildinfo"
+	plugintypes "github.com/vmware-tanzu/tanzu-plugin-runtime/config/types"
 	"github.com/vmware-tanzu/tanzu-plugin-runtime/plugin"
 )
 
 var descriptor = plugin.PluginDescriptor{
 	Name:        "feature",
 	Description: "Operate on features and featuregates",
+	Target:      plugintypes.TargetK8s,
 	Version:     buildinfo.Version,
 	Group:       plugin.RunCmdGroup,
 	BuildSHA:    buildinfo.SHA,

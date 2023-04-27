@@ -15,6 +15,8 @@ import (
 // Capability v1alpha1 resource from a slice of QueryTarget.
 //
 // Deprecated: This API is deprecated. Use QueryTargetsToCapability instead
+//
+//nolint:dupl
 func QueryTargetsToCapabilityResource(queryTargets []QueryTarget) (*runv1alpha1.Capability, error) {
 	var (
 		gvrQueries           []runv1alpha1.QueryGVR
