@@ -73,11 +73,8 @@ func test(c *cobra.Command, _ []string) error {
 	}
 
 	m.AddTest(featureGenerationTest)
-	if err := featureGenerationTest.Run(); err != nil {
-		return err
-	}
 
-	return nil
+	return featureGenerationTest.Run()
 }
 
 // Cleanup the test.
