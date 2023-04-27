@@ -1,8 +1,8 @@
-module github.com/vmware-tanzu/tanzu-framework/codegen/plugin
+module github.com/vmware-tanzu/tanzu-framework/cmd/plugin/codegen
 
 go 1.18
 
-replace github.com/vmware-tanzu/tanzu-framework/apis/core => ../../../../apis/core
+replace github.com/vmware-tanzu/tanzu-framework/apis/core => ./../../../apis/core
 
 require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
