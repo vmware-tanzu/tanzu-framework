@@ -433,6 +433,8 @@ const (
 	operationDefaultTimeout           = 30 * time.Minute
 	CheckResourceInterval             = 5 * time.Second
 	CheckClusterInterval              = 10 * time.Second
+	CheckClusterInitInterval          = 1 * time.Second
+	CheckClusterInitTimout            = 1 * time.Minute
 	getClientDefaultInterval          = 10 * time.Second
 	getClientDefaultTimeout           = 5 * time.Minute
 	CheckAutoscalerDeploymentTimeout  = 2 * time.Minute

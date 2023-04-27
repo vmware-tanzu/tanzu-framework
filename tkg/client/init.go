@@ -17,6 +17,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apimachinery/pkg/util/wait"
 	capav1beta2 "sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
@@ -718,7 +719,14 @@ func (c *TkgClient) InitializeProviders(options *InitRegionOptions, clusterClien
 		TargetNamespace:         options.Namespace,
 	}
 
-	componentsList, err := c.clusterctlClient.Init(clusterctlClientInitOptions)
+	var componentsList []clusterctl.Components
+	err := wait.PollImmediate(clusterclient.CheckClusterInitInterval, clusterclient.CheckClusterInitTimout, func() (done bool, err error) {
+		componentsList, err = c.clusterctlClient.Init(clusterctlClientInitOptions)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	})
 	if err != nil {
 		return errors.Errorf("%s, this can be possible because of the outbound connectivity issue. Please check deployed nodes for outbound connectivity.", err.Error())
 	}
