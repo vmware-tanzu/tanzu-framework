@@ -10,7 +10,7 @@ import (
 	"sigs.k8s.io/controller-tools/pkg/genall"
 	"sigs.k8s.io/controller-tools/pkg/markers"
 
-	"github.com/vmware-tanzu/tanzu-framework/codegen/plugin/generators/feature"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/plugin/codegen/generators/feature"
 )
 
 var (

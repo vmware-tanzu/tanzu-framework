@@ -1,12 +1,12 @@
-module github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/feature
+module github.com/vmware-tanzu/tanzu-framework/cmd/plugin/feature
 
 go 1.18
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../../../apis/config
-	github.com/vmware-tanzu/tanzu-framework/apis/core => ../../../../apis/core
-	github.com/vmware-tanzu/tanzu-framework/featuregates/client => ../../../../featuregates/client
-	github.com/vmware-tanzu/tanzu-framework/util => ../../../../util
+	github.com/vmware-tanzu/tanzu-framework/apis/config => ./../../../apis/config
+	github.com/vmware-tanzu/tanzu-framework/apis/core => ./../../../apis/core
+	github.com/vmware-tanzu/tanzu-framework/featuregates/client => ./../../../featuregates/client
+	github.com/vmware-tanzu/tanzu-framework/util => ./../../../util
 )
 
 require (
