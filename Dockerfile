@@ -5,6 +5,7 @@
 # to build components in tanzu-framework, check out build-tooling.mk to understand how this is being consumed.
 
 ARG BUILDER_BASE_IMAGE=golang:1.18
+ARG ENVTEST_K8S_VERSION=1.26.1
 
 FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE as base
 ARG COMPONENT
@@ -38,11 +39,18 @@ RUN --mount=target=. \
     cd $COMPONENT && go vet ./...
 
 # Testing
+FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE as test-base
+ARG ENVTEST_K8S_VERSION
+RUN go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+RUN setup-envtest use ${ENVTEST_K8S_VERSION} --bin-dir /bin
+
 FROM base AS test
+ARG ENVTEST_K8S_VERSION
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    cd $COMPONENT && mkdir /out && go test -v -coverprofile=/out/cover.out ./...
+    --mount=from=test-base,src=/bin/k8s,target=/bin/k8s \
+    cd $COMPONENT && mkdir /out && KUBEBUILDER_ASSETS=/bin/k8s/${ENVTEST_K8S_VERSION}-linux-amd64 go test -v -coverprofile=/out/cover.out ./...
 
 # Build the manager binary
 FROM base as builder
