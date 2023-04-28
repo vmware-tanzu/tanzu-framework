@@ -127,11 +127,18 @@ func (c *PinnipedV3Controller) reconcileSecret(ctx context.Context, secret *core
 	cluster, err := getClusterFromSecret(ctx, c.client, secret)
 	if err != nil {
 		if k8serror.IsNotFound(err) {
+			// NOT INTENDED TO MERGE
+			// NOTE: temp PR to open to test against a 2.2.0 TKG build
+			// NOT INTENDED TO MERGE
+			//
 			// When cluster is deleted, secret will get deleted since it has an owner ref.
 			// Or it could be the case that the Secret was created just moments before its
 			// corresponding Cluster was created.
-			log.V(1).Info("cluster for secret was not found, skipping secret reconcile")
-			return nil
+			// In the Velero Backup & Restore use case, the Pinniped Package Secret is restored before the Cluster CR.
+			// The controller must retry until the Cluster CR appears so that it can set the audience value
+			// correctly to match the cluster.
+			log.V(1).Info("cluster for secret was not found, requeuing reconcile")
+			return fmt.Errorf("cluster for secret was not found, requeuing secret reconcile: %w", err)
 		}
 		log.Error(err, "error getting cluster for secret, skipping reconciliation")
 		return nil
