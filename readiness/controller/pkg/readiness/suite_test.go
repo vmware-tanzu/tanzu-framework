@@ -35,7 +35,7 @@ var testEnv *envtest.Environment
 var ctx context.Context
 var timeout = 5 * time.Second
 var interval = 100 * time.Millisecond
-var setupLog = ctrl.Log.WithName("controllers").WithName("Features")
+var setupLog = ctrl.Log.WithName("controllers").WithName("readiness")
 var cancel context.CancelFunc
 
 func TestAPIs(t *testing.T) {
