@@ -7,6 +7,10 @@ package azure
 import (
 	"context"
 	"errors"
+	"os"
+	"path"
+	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2019-12-01/compute"
@@ -170,6 +174,45 @@ var _ = Describe("Azure client", func() {
 			})
 		})
 
+		Context("with azureCloud set to 'AzureStackCloud'", func() {
+			Context("with AZURE_ENVIRONMENT_FILEPATH unset", func() {
+				It("should return error", func() {
+					err := setActiveDirectoryEndpoint(nil, "AzureStackCloud")
+					Expect(err).To(HaveOccurred())
+				})
+			})
+
+			Context("with AZURE_ENVIRONMENT_FILEPATH set", func() {
+				It("should not return error with valid file", func() {
+					_, currentFile, _, _ := runtime.Caller(0)
+					os.Setenv("AZURE_ENVIRONMENT_FILEPATH", filepath.Join(path.Dir(currentFile), "testdata", "test_environment_1.json"))
+
+					config := &auth.ClientCredentialsConfig{}
+					err := setActiveDirectoryEndpoint(config, "AzureStackCloud")
+					Expect(err).ToNot(HaveOccurred())
+
+					Expect(config.Resource).To(Equal("--resource-management-endpoint--"))
+					Expect(config.AADEndpoint).To(Equal("--active-directory-endpoint--"))
+				})
+
+				It("should return error with missing file", func() {
+					_, currentFile, _, _ := runtime.Caller(0)
+					os.Setenv("AZURE_ENVIRONMENT_FILEPATH", filepath.Join(path.Dir(currentFile), "testdata", "test_environment_2.json"))
+
+					err := setActiveDirectoryEndpoint(nil, "AzureStackCloud")
+					Expect(err).To(HaveOccurred())
+				})
+
+				It("should return error with invalid file", func() {
+					_, currentFile, _, _ := runtime.Caller(0)
+					os.Setenv("AZURE_ENVIRONMENT_FILEPATH", filepath.Join(path.Dir(currentFile), "mocks", "azure_mock.go"))
+
+					err := setActiveDirectoryEndpoint(nil, "AzureStackCloud")
+					Expect(err).To(HaveOccurred())
+				})
+			})
+		})
+
 		Context("with azureCloud set to 'AzurePublicCloud'", func() {
 			It("should not return error", func() {
 				config := &auth.ClientCredentialsConfig{}
@@ -180,5 +223,28 @@ var _ = Describe("Azure client", func() {
 				Expect(config.AADEndpoint).To(Equal(autorest.PublicCloud.ActiveDirectoryEndpoint))
 			})
 		})
+
+		Context("with azureCloud set to 'AzureGermanCloud'", func() {
+			It("should not return error", func() {
+				config := &auth.ClientCredentialsConfig{}
+				err := setActiveDirectoryEndpoint(config, "AzureGermanCloud")
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(config.Resource).To(Equal(autorest.GermanCloud.ResourceManagerEndpoint))
+				Expect(config.AADEndpoint).To(Equal(autorest.GermanCloud.ActiveDirectoryEndpoint))
+			})
+		})
+
+		Context("with azureCloud set to 'AzureChinaCloud'", func() {
+			It("should not return error", func() {
+				config := &auth.ClientCredentialsConfig{}
+				err := setActiveDirectoryEndpoint(config, "AzureChinaCloud")
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(config.Resource).To(Equal(autorest.ChinaCloud.ResourceManagerEndpoint))
+				Expect(config.AADEndpoint).To(Equal(autorest.ChinaCloud.ActiveDirectoryEndpoint))
+			})
+		})
+
 	})
 })

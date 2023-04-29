@@ -31,14 +31,8 @@ const (
 )
 
 const (
-	// ChinaCloud defines China cloud
-	ChinaCloud = "AzureChinaCloud"
-	// GermanCloud defines German cloud
-	GermanCloud = "AzureGermanCloud"
 	// PublicCloud defines Public cloud
 	PublicCloud = "AzurePublicCloud"
-	// USGovernmentCloud defines US Government cloud
-	USGovernmentCloud = "AzureUSGovernmentCloud"
 )
 
 // Supported Azure VM family types
@@ -108,22 +102,14 @@ func New(creds *Credentials) (Client, error) {
 }
 
 func setActiveDirectoryEndpoint(config *auth.ClientCredentialsConfig, azureCloud string) error {
-	switch azureCloud {
-	case USGovernmentCloud:
-		config.Resource = azure.USGovernmentCloud.ResourceManagerEndpoint
-		config.AADEndpoint = azure.USGovernmentCloud.ActiveDirectoryEndpoint
-	case ChinaCloud:
-		config.Resource = azure.ChinaCloud.ResourceManagerEndpoint
-		config.AADEndpoint = azure.ChinaCloud.ActiveDirectoryEndpoint
-	case GermanCloud:
-		config.Resource = azure.GermanCloud.ResourceManagerEndpoint
-		config.AADEndpoint = azure.GermanCloud.ActiveDirectoryEndpoint
-	case PublicCloud:
-		config.Resource = azure.PublicCloud.ResourceManagerEndpoint
-		config.AADEndpoint = azure.PublicCloud.ActiveDirectoryEndpoint
-	default:
-		return errors.Errorf("%q is not a supported cloud in Azure. Supported clouds are AzurePublicCloud, AzureUSGovernmentCloud, AzureGermanCloud, AzureChinaCloud", azureCloud)
+	environment, err := azure.EnvironmentFromName(azureCloud)
+	if err != nil {
+		return err
 	}
+
+	config.Resource = environment.ResourceManagerEndpoint
+	config.AADEndpoint = environment.ActiveDirectoryEndpoint
+
 	return nil
 }
 
