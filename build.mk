@@ -9,12 +9,14 @@ PACKAGE_PREFIX := $(REGISTRY_ENDPOINT)
 REGISTRY_NAME := tanzu-integration-registry
 
 DOCKER := DOCKER_BUILDKIT=1 docker
+MAKE := make
 
 IMG_DEFAULT_TAG := latest
 IMG_VERSION_OVERRIDE ?= $(IMG_DEFAULT_TAG)
 GOPROXY ?= "https://proxy.golang.org,direct"
 PLATFORM=local
-# check out step 2 in this documentation on how to set the COMPONENTS variable https://github.com/vmware-tanzu/build-tooling-for-integrations/blob/main/docs/build-tooling-getting-started.md
+# Step 2 in the [Build Tooling For Integrations documentation](https://github.com/vmware-tanzu/build-tooling-for-integrations/blob/main/docs/build-tooling-getting-started.md)
+# explains how to set the COMPONENTS variable.
 COMPONENTS ?= capabilities/client \
 capabilities/controller.capabilities-controller-manager.capabilities \
 featuregates/client \
@@ -22,9 +24,12 @@ featuregates/controller.featuregates-controller-manager.featuregates
 
 BUILD_TOOLING_CONTAINER_IMAGE ?= ghcr.io/vmware-tanzu/build-tooling
 PACKAGING_CONTAINER_IMAGE ?= ghcr.io/vmware-tanzu/package-tooling
-VERSION ?= v0.0.2
+VERSION ?= v0.2.0
 
-# utility functions to check for main.go in component path
+CLI_PLUGIN_VERSION ?= v0.0.1
+IMGPKG_VERSION ?= v0.11.0
+
+# Utility functions check for main.go in component path.
 find_main_go = $(shell find $(1) -name main.go)
 check_main_go = $(if $(call find_main_go,$(1)),Found,NotFound)
 
@@ -92,7 +97,7 @@ docker-build-all: $(COMPONENTS)
 docker-publish-all: PUBLISH_IMAGES:=true
 docker-publish-all: $(COMPONENTS)
 
-.PHONY: build-all
+.PHONY: build-all cli-plugin-build
 # Run linter, tests and build binaries
 build-all: BUILD_BIN:=true
 build-all: $(COMPONENTS)
@@ -129,6 +134,7 @@ endif
 
 .PHONY: build
 build:
+	$(MAKE) COMPONENT=$(COMPONENT) lint
 	$(MAKE) COMPONENT=$(COMPONENT) test
 	@if [ "$(call check_main_go,$(COMPONENT))" = "Found" ]; then \
 		if [ "$(BUILD_BIN)" = "true" ]; then \
@@ -186,6 +192,43 @@ docker-build:
 docker-publish:
 	$(DOCKER) push $(IMAGE)
 
+# Tanzu CLI Plugin Builder is used to compile and publish Tanzu CLI plugins.
+# https://github.com/vmware-tanzu/tanzu-cli/tree/main/cmd/plugin/builder
+.PHONY: cli-plugin-builder-install
+plugin-builder-install:
+	docker build . -f Dockerfile --target cli-plugin-builder-install
+
+.PHONY: cli-plugin-build
+CLI_PLUGIN_TARGETS := $(addprefix cli-plugin-build-, $(shell if [ -z "$(CLI_PLUGINS)" ]; then printf "$(shell [ -d "cmd/plugin" ] && cd cmd/plugin && printf "%s" */ | sed 's/\// /g' && cd ../..)"; else printf "$(CLI_PLUGINS)"; fi))
+cli-plugin-build: install-registry cli-plugin-builder-install
+	$(MAKE) $(CLI_PLUGIN_TARGETS)
+
+.PHONY: cli-plugin-build-%
+cli-plugin-build-%:
+	$(MAKE) COMPONENT=cmd/plugin/$* lint
+	$(MAKE) COMPONENT=cmd/plugin/$* test
+	$(DOCKER) build --network=host . -f Dockerfile \
+	--target cli-plugin-build \
+	--output build \
+	--build-arg IMGPKG_VERSION=$(IMGPKG_VERSION) \
+	--build-arg CLI_PLUGIN_VERSION=$(CLI_PLUGIN_VERSION) \
+	--build-arg OCI_REGISTRY=$(REGISTRY_ENDPOINT) \
+	--build-arg CLI_PLUGIN=$* \
+	--build-arg COMPONENT=cmd/plugin/$* \
+	--build-arg CLI_PLUGIN_GO_FLAGS=$(CLI_PLUGIN_GO_FLAGS)
+
+.PHONY: cli-plugin-publish
+cli-plugin-publish: cli-plugin-builder-install
+	$(DOCKER) build . -f Dockerfile \
+	--target cli-plugin-publish \
+	--build-arg IMGPKG_VERSION=$(IMGPKG_VERSION) \
+	--build-arg REPOSITORY=$(OCI_REGISTRY) \
+	--build-arg IMGPKG_USERNAME=$(REGISTRY_USERNAME) \
+	--build-arg IMGPKG_PASSWORD=$(REGISTRY_PASSWORD) \
+	--build-arg PUBLISHER=$(PUBLISHER) \
+	--build-arg VENDOR=$(VENDOR) \
+	--build-arg COMPONENT=cmd/plugin/*
+
 .PHONY: kbld-image-replace
 # Add newImage in kbld-config.yaml
 kbld-image-replace:
@@ -194,6 +237,7 @@ kbld-image-replace:
 	  -e KBLD_CONFIG_FILE_PATH=$(KBLD_CONFIG_FILE_PATH) \
 	  -e DEFAULT_IMAGE=$(DEFAULT_IMAGE) \
 	  -e NEW_IMAGE=$(IMAGE) \
+	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
 		$(PACKAGING_CONTAINER_IMAGE):$(VERSION)
@@ -208,6 +252,7 @@ package-bundle-generate:
 	  -e OCI_REGISTRY=$(OCI_REGISTRY) \
 	  -e PACKAGE_VERSION=$(PACKAGE_VERSION) \
 	  -e PACKAGE_SUB_VERSION=$(PACKAGE_SUB_VERSION) \
+	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
 		$(PACKAGING_CONTAINER_IMAGE):$(VERSION)
@@ -222,6 +267,7 @@ package-bundle-generate-all:
 	  -e OCI_REGISTRY=$(OCI_REGISTRY) \
 	  -e PACKAGE_VERSION=$(PACKAGE_VERSION) \
 	  -e PACKAGE_SUB_VERSION=$(PACKAGE_SUB_VERSION) \
+	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
 		$(PACKAGING_CONTAINER_IMAGE):$(VERSION)
@@ -238,6 +284,7 @@ package-bundle-push:
 	  -e REGISTRY_USERNAME=$(REGISTRY_USERNAME) \
 	  -e REGISTRY_PASSWORD=$(REGISTRY_PASSWORD) \
 	  -e REGISTRY_SERVER=$(REGISTRY_SERVER) \
+	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
 		$(PACKAGING_CONTAINER_IMAGE):$(VERSION)
@@ -254,6 +301,7 @@ package-bundle-push-all:
 	  -e REGISTRY_USERNAME=$(REGISTRY_USERNAME) \
 	  -e REGISTRY_PASSWORD=$(REGISTRY_PASSWORD) \
 	  -e REGISTRY_SERVER=$(REGISTRY_SERVER) \
+	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
 		$(PACKAGING_CONTAINER_IMAGE):$(VERSION)
@@ -268,6 +316,7 @@ repo-bundle-generate:
 	  -e REPO_BUNDLE_VERSION=$(REPO_BUNDLE_VERSION) \
 	  -e REPO_BUNDLE_SUB_VERSION=$(REPO_BUNDLE_SUB_VERSION) \
 	  -e PACKAGE_VALUES_FILE=$(PACKAGE_VALUES_FILE) \
+	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
 		$(PACKAGING_CONTAINER_IMAGE):$(VERSION)
@@ -284,6 +333,7 @@ repo-bundle-push:
 	  -e REGISTRY_USERNAME=$(REGISTRY_USERNAME) \
 	  -e REGISTRY_PASSWORD=$(REGISTRY_PASSWORD) \
 	  -e REGISTRY_SERVER=$(REGISTRY_SERVER) \
+	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
 		$(PACKAGING_CONTAINER_IMAGE):$(VERSION)
@@ -293,6 +343,7 @@ repo-bundle-push:
 package-vendir-sync:
 	@$(DOCKER) run \
 	  -e OPERATIONS=vendir_sync \
+	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
 		$(PACKAGING_CONTAINER_IMAGE):$(VERSION)
