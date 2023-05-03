@@ -12,14 +12,14 @@ import (
 
 // HasTanzuRunGroup checks if run.tanzu.vmware.com API group exists and optionally checks versions.
 // Deprecated: This function will be removed in a future release.
-func (dc *DiscoveryClient) HasTanzuRunGroup(ctx context.Context, versions ...string) (bool, error) {
+func (dc *DiscoveryClient) HasTanzuRunGroup(_ context.Context, versions ...string) (bool, error) {
 	query := discovery.Group("rungroup", runv1alpha1.GroupVersion.Group).WithVersions(versions...)
 	return dc.clusterQueryClient.PreparedQuery(query)()
 }
 
 // HasTanzuKubernetesClusterV1alpha1 checks if the cluster has TanzuKubernetesCluster v1alpha1 resource.
 // Deprecated: This function will be removed in a future release.
-func (dc *DiscoveryClient) HasTanzuKubernetesClusterV1alpha1(ctx context.Context) (bool, error) {
+func (dc *DiscoveryClient) HasTanzuKubernetesClusterV1alpha1(_ context.Context) (bool, error) {
 	query := discovery.Group("tkc", runv1alpha1.GroupVersion.Group).
 		WithVersions(runv1alpha1.GroupVersion.Version).
 		WithResource("tanzukubernetesclusters")
@@ -28,7 +28,7 @@ func (dc *DiscoveryClient) HasTanzuKubernetesClusterV1alpha1(ctx context.Context
 
 // HasTanzuKubernetesReleaseV1alpha1 checks if the cluster has TanzuKubernetesRelease v1alpha1 resource.
 // Deprecated: This function will be removed in a future release.
-func (dc *DiscoveryClient) HasTanzuKubernetesReleaseV1alpha1(ctx context.Context) (bool, error) {
+func (dc *DiscoveryClient) HasTanzuKubernetesReleaseV1alpha1(_ context.Context) (bool, error) {
 	query := discovery.Group("tkr", runv1alpha1.GroupVersion.Group).
 		WithVersions(runv1alpha1.GroupVersion.Version).
 		WithResource("tanzukubernetesreleases")

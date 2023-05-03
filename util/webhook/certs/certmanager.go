@@ -100,7 +100,7 @@ func (cm *CertificateManager) rotateCerts(ctx context.Context, scheduledNextRota
 	// rotation until that time. This usually happens when another certificate manager has updated the certs (perhaps
 	// from an earlier process that was exited).
 	nextRotationTime, _ := cm.getNextRotationTime(secret)
-	if !nextRotationTime.IsZero() && !nextRotationTime.Before(now) {
+	if !nextRotationTime.IsZero() && nextRotationTime.After(now) {
 		if !scheduledNextRotationTime.Equal(nextRotationTime) {
 			cm.opts.Logger.Info("Rescheduling next rotation", "nextRotationTime", nextRotationTime.String())
 			return nextRotationTime, nil

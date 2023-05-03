@@ -22,7 +22,7 @@ type unknownQueryType string
 func (unk unknownQueryType) Name() string {
 	return ""
 }
-func (unk unknownQueryType) Run(conf *clusterQueryClientConfig) (bool, error) {
+func (unk unknownQueryType) Run(_ *clusterQueryClientConfig) (bool, error) {
 	return false, nil
 }
 func (unk unknownQueryType) Reason() string {

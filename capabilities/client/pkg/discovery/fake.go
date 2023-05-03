@@ -41,7 +41,7 @@ paths:
 }
 
 // NewFakeClusterQueryClientWithSchema returns a fake ClusterQueryClient for use in tests.
-func NewFakeClusterQueryClientWithSchema(resources []*metav1.APIResourceList, scheme *runtime.Scheme, objs []runtime.Object) (*ClusterQueryClient, error) {
+func NewFakeClusterQueryClientWithSchema(_ []*metav1.APIResourceList, scheme *runtime.Scheme, objs []runtime.Object) (*ClusterQueryClient, error) {
 	fakeDynamicClient := dynamicFake.NewSimpleDynamicClient(scheme, objs...)
 
 	fakeDiscWithSchema := fakeWithSchema{

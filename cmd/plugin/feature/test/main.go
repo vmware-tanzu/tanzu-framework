@@ -26,6 +26,6 @@ func main() {
 	}
 }
 
-func test(c *cobra.Command, _ []string) error {
+func test(_ *cobra.Command, _ []string) error {
 	return nil
 }
