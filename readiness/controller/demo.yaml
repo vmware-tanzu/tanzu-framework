@@ -66,4 +66,32 @@ spec:
   - name: ssd-storage
     shellScriptCondition:
       script: |
-        kubectl get pods
+        count=`kubectl get storageclass -o json | jq '[.items | .[] | {provisioner: .provisioner, sku: .parameters.skuName} | select( .sku != null )| select(.provisioner == "disk.csi.azure.com") | select(.sku | contains("SSD"))] | length'`
+        echo $count
+        if [ $count -gt 0 ]
+        then
+          exit 0
+        else
+          exit 1
+        fi
+---
+apiVersion: core.tanzu.vmware.com/v1alpha2
+kind: ReadinessProvider
+metadata:
+  name: aws-ssd
+spec:
+  checkRefs:   
+  - com.vmware.tanzu.ssd-storage
+  repeatInterval: 60s
+  conditions:
+  - name: ssd-storage
+    shellScriptCondition:
+      script: |
+        count=`kubectl get storageclass -o json | jq '[.items | .[] | {type: .parameters.type} | select(.type == "gp2" or .type == "io1")] | length'`
+        echo $count
+        if [ $count -gt 0 ]
+        then
+          exit 0
+        else
+          exit 1
+        fi

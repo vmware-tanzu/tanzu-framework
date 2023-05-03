@@ -50,7 +50,7 @@ RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=from=test-base,src=/bin/k8s,target=/bin/k8s \
-    cd $COMPONENT && mkdir /out && KUBEBUILDER_ASSETS=/bin/k8s/${ENVTEST_K8S_VERSION}-linux-amd64 go test -v -coverprofile=/out/cover.out ./...
+    cd $COMPONENT && mkdir /out && KUBEBUILDER_ASSETS=/bin/k8s/${ENVTEST_K8S_VERSION}-linux-arm64 go test -v -coverprofile=/out/cover.out ./...
 
 # Build the manager binary
 FROM base as builder
