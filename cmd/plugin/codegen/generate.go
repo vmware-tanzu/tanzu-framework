@@ -80,13 +80,10 @@ func registerOptionsMarkers() error {
 	}
 
 	// add in the common options markers
-	if err := genall.RegisterOptionsMarkers(optionsRegistry); err != nil {
-		return err
-	}
-	return nil
+	return genall.RegisterOptionsMarkers(optionsRegistry)
 }
 
-func runGenerate(cmd *cobra.Command, args []string) error {
+func runGenerate(_ *cobra.Command, args []string) error {
 	if err := registerOptionsMarkers(); err != nil {
 		return err
 	}

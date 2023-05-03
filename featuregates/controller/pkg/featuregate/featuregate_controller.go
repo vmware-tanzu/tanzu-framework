@@ -82,7 +82,7 @@ func (r *FeatureGateReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (r *FeatureGateReconciler) toFeatureGateRequests(o client.Object) []reconcile.Request {
+func (r *FeatureGateReconciler) toFeatureGateRequests(_ client.Object) []reconcile.Request {
 	var requests []reconcile.Request
 
 	featuregates := &configv1alpha1.FeatureGateList{}

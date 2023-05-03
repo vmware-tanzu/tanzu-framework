@@ -30,9 +30,8 @@ func CreateResourcesFromManifest(manifestBytes []byte, cfg *rest.Config, dynamic
 		if err != nil {
 			if err == io.EOF {
 				break
-			} else {
-				return err
 			}
+			return err
 		}
 		_, err = resource.Create(context.Background(), unstructuredObj, metav1.CreateOptions{})
 		if err != nil {
@@ -43,7 +42,7 @@ func CreateResourcesFromManifest(manifestBytes []byte, cfg *rest.Config, dynamic
 }
 
 func getResource(decoder *yamlutil.YAMLOrJSONDecoder, mapper meta.RESTMapper, dynamicClient dynamic.Interface) (
-	dynamic.ResourceInterface, *unstructured.Unstructured, error) { // nolint:whitespace
+	dynamic.ResourceInterface, *unstructured.Unstructured, error) { //nolint:whitespace
 	var rawObj runtime.RawExtension
 	if err := decoder.Decode(&rawObj); err != nil {
 		return nil, nil, err

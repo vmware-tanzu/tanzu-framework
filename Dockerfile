@@ -18,7 +18,7 @@ RUN --mount=target=. \
     cd $COMPONENT && go mod download
 
 # Linting
-FROM harbor-repo.vmware.com/dockerhub-proxy-cache/golangci/golangci-lint:v1.50 AS lint-base
+FROM --platform=${BUILDPLATFORM} $LINTER_BASE_IMAGE AS lint-base
 FROM base AS lint
 RUN --mount=target=. \
     --mount=from=lint-base,src=/usr/bin/golangci-lint,target=/usr/bin/golangci-lint \
