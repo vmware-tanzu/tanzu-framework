@@ -74,9 +74,17 @@ spec:
                       - kind
                       - name
                       type: object
+                    shellScriptCondition:
+                      properties:
+                        script:
+                          type: string
+                      required:
+                      - script
+                      type: object
                   required:
                   - name
                   - resourceExistenceCondition
+                  - shellScriptCondition
                   type: object
                 type: array
               repeatInterval:
