@@ -45,8 +45,10 @@ type ReadinessProviderCondition struct {
 	Name string `json:"name"`
 
 	// ResourceExistenceCondition is the condition that checks for the presence of a certain resource in the cluster
+	//+kubebuilder:validation:Optional
 	ResourceExistenceCondition *ResourceExistenceCondition `json:"resourceExistenceCondition"`
 
+	//+kubebuilder:validation:Optional
 	ShellScriptCondition *ShellScriptCondition `json:"shellScriptCondition"`
 }
 

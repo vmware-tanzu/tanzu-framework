@@ -83,8 +83,6 @@ spec:
                       type: object
                   required:
                   - name
-                  - resourceExistenceCondition
-                  - shellScriptCondition
                   type: object
                 type: array
               repeatInterval:
