@@ -29,8 +29,7 @@ echo "Done vendir sync!"
 # because the package-vendir-sync operation renders
 # the pakcage directory contents inaccessible to the
 # host machine user.
-GITHUB_ACTIONS="${GITHUB_ACTIONS:-}"
-if [[ -n "${GITHUB_ACTIONS}" ]]; then
+if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
   echo "Resetting directory ownership"
   sudo chown -R $(id -nu):$(id -ng) .;
 fi

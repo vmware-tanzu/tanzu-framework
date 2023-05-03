@@ -39,7 +39,7 @@ func (dc *DiscoveryClient) IsTKGm(ctx context.Context) (bool, error) {
 
 // IsTKGS returns true if the cluster is a TKGS cluster. Checks for the existence of any TKC API version.
 // Deprecated: This function will be removed in a future release.
-func (dc *DiscoveryClient) IsTKGS(ctx context.Context) (bool, error) {
+func (dc *DiscoveryClient) IsTKGS(_ context.Context) (bool, error) {
 	query := discovery.Group("tkc", runv1alpha1.GroupVersion.Group).
 		WithResource("tanzukubernetesclusters")
 	return dc.clusterQueryClient.PreparedQuery(query)()
@@ -93,7 +93,7 @@ func clusterTypeFromMetadataConfigMap(ctx context.Context, c client.Client) (str
 
 // HasNSX indicates if a cluster has NSX capabilities.
 // Deprecated: This function will be removed in a future release.
-func (dc *DiscoveryClient) HasNSX(ctx context.Context) (bool, error) {
+func (dc *DiscoveryClient) HasNSX(_ context.Context) (bool, error) {
 	nsx := &corev1.ObjectReference{
 		Kind:       "Namespace",
 		Name:       namespaceNSX,
