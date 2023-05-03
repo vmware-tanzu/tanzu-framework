@@ -108,6 +108,7 @@ func main() {
 		Log:                        ctrl.Log.WithName("controllers").WithName("ReadinessProvider").WithValues("apigroup", "core"),
 		Scheme:                     mgr.GetScheme(),
 		ResourceExistenceCondition: conditions.NewResourceExistencConditionFunc(dynamicClient, discoveryClient),
+		ShellScriptCondition:       conditions.NewShellScriptConditionFunc(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ReadinessProvider")
 		os.Exit(1)
