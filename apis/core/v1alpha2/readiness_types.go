@@ -36,9 +36,6 @@ type ReadinessStatus struct {
 	// The readiness is marked ready if all the checks are satisfied
 	// The time at which this field is evaluated is given by LastComputedTime
 	Ready bool `json:"ready"`
-
-	// LastUpdatedTime is the field that denotes the time at which the readiness is updated.
-	LastUpdatedTime *metav1.Time `json:"lastComputedTime"`
 }
 
 type CheckStatus struct {

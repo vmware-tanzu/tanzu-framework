@@ -224,38 +224,6 @@ var _ = Describe("Readiness Provider controller", func() {
 				readinessProvider.Status.Conditions[1].State == corev1alpha2.ConditionFailureState
 		}, timeout, interval).Should(BeTrue())
 	})
-
-	It("should repeat evaluation after repeat interval", func() {
-		readinessProvider := getTestReadinessProvider()
-		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{
-			Name: "cond1",
-			ResourceExistenceCondition: &corev1alpha2.ResourceExistenceCondition{
-				Kind: "repeatkind",
-			},
-		})
-		readinessProvider.Spec.RepeatInterval = &v1.Duration{Duration: 5 * time.Second}
-		Expect(calls).To(Equal(0))
-		err := k8sClient.Create(ctx, readinessProvider)
-		Expect(err).To(BeNil())
-
-		Eventually(func() bool {
-			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
-			return err == nil &&
-				readinessProvider.Status.State == corev1alpha2.ProviderSuccessState &&
-				len(readinessProvider.Status.Conditions) == 1 &&
-				readinessProvider.Status.Conditions[0].State == corev1alpha2.ConditionSuccessState &&
-				calls == 2
-		}, timeout, interval).Should(BeTrue())
-
-		Eventually(func() bool {
-			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
-			return err == nil &&
-				readinessProvider.Status.State == corev1alpha2.ProviderSuccessState &&
-				len(readinessProvider.Status.Conditions) == 1 &&
-				readinessProvider.Status.Conditions[0].State == corev1alpha2.ConditionSuccessState &&
-				calls > 2
-		}, timeout, interval).Should(BeTrue())
-	})
 })
 
 func getTestReadinessProvider() *corev1alpha2.ReadinessProvider {

@@ -103,11 +103,6 @@ spec:
                   - status
                   type: object
                 type: array
-              lastComputedTime:
-                description: LastUpdatedTime is the field that denotes the time at
-                  which the readiness is updated.
-                format: date-time
-                type: string
               ready:
                 description: Ready is the flag that denotes if the defined readiness
                   is ready The readiness is marked ready if all the checks are satisfied
@@ -115,7 +110,6 @@ spec:
                 type: boolean
             required:
             - checkStatus
-            - lastComputedTime
             - ready
             type: object
         type: object

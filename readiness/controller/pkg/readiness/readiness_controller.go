@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -42,17 +41,15 @@ func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	readiness := &corev1alpha2.Readiness{}
 	err := r.Client.Get(ctxCancel, req.NamespacedName, readiness)
 	if err != nil {
-		return ctrl.Result{}, err
+		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	updateRequired := false
 	currentStatus := readiness.Status
 
 	if len(readiness.Spec.Checks) == 0 {
 		if !currentStatus.Ready {
 			readiness.Status.Ready = true
 			readiness.Status.CheckStatus = []corev1alpha2.CheckStatus{}
-			updateRequired = true
 		}
 	} else {
 		readiness.Status.CheckStatus = []corev1alpha2.CheckStatus{}
@@ -124,74 +121,14 @@ func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		for _, checkStatus := range readiness.Status.CheckStatus {
 			readiness.Status.Ready = readiness.Status.Ready && checkStatus.Ready
 		}
-
-		updateRequired = isUpdateRequired(currentStatus, readiness.Status)
-
 	}
 
-	if updateRequired {
-		time := metav1.Now()
-		readiness.Status.LastUpdatedTime = &time
-
-		err = r.Client.Status().Update(ctxCancel, readiness)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
+	err = r.Client.Status().Update(ctxCancel, readiness)
+	if err != nil {
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
-}
-
-func isUpdateRequired(oldStatus, newStatus corev1alpha2.ReadinessStatus) bool {
-	oldCheckStatusByName := make(map[string]corev1alpha2.CheckStatus)
-	for _, checkStatus := range oldStatus.CheckStatus {
-		oldCheckStatusByName[checkStatus.Name] = checkStatus
-	}
-
-	newCheckStatusByName := make(map[string]corev1alpha2.CheckStatus)
-	for _, checkStatus := range newStatus.CheckStatus {
-		newCheckStatusByName[checkStatus.Name] = checkStatus
-	}
-
-	if len(oldCheckStatusByName) != len(newCheckStatusByName) {
-		return true
-	}
-
-	for name, oldCheckStatus := range oldCheckStatusByName {
-		newCheckStatus, ok := newCheckStatusByName[name]
-		if !ok {
-			return true
-		}
-
-		if oldCheckStatus.Ready != newCheckStatus.Ready {
-			return true
-		}
-
-		if len(oldCheckStatus.Providers) != len(newCheckStatus.Providers) {
-			return true
-		}
-
-		for _, oldProvider := range oldCheckStatus.Providers {
-			found := false
-			for _, newProvider := range newCheckStatus.Providers {
-				if oldProvider.Name == newProvider.Name {
-					found = true
-
-					if oldProvider.IsActive != newProvider.IsActive {
-						return true
-					}
-
-					break
-				}
-			}
-
-			if !found {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 // SetupWithManager sets up the controller with the Manager.

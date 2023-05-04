@@ -7,19 +7,31 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// ReadinessProviderState defines the current state of the provider
 type ReadinessProviderState string
 
 const (
-	ProviderSuccessState    = ReadinessProviderState("success")
-	ProviderFailureState    = ReadinessProviderState("failure")
+	// ProviderSuccessState is a ReadinessProviderState that denotes success state
+	ProviderSuccessState = ReadinessProviderState("success")
+
+	// ProviderFailureState is a ReadinessProviderState that denotes failure state
+	ProviderFailureState = ReadinessProviderState("failure")
+
+	// ProviderInProgressState is a ReadinessProviderState that denotes in-progress state
 	ProviderInProgressState = ReadinessProviderState("inprogress")
 )
 
+// ReadinessProviderConditionState defines the state of indvidual conditions in a readiness provider
 type ReadinessConditionState string
 
 const (
-	ConditionSuccessState    = ReadinessConditionState("success")
-	ConditionFailureState    = ReadinessConditionState("failure")
+	// ConditionSuccessState is a ReadinessConditionState that denotes success state
+	ConditionSuccessState = ReadinessConditionState("success")
+
+	// ConditionFailureState is a ReadinessConditionState that denotes failure state
+	ConditionFailureState = ReadinessConditionState("failure")
+
+	// ConditionInProgressState is a ReadinessConditionState that denotes in-progress state
 	ConditionInProgressState = ReadinessConditionState("inprogress")
 )
 
@@ -28,26 +40,21 @@ type ReadinessProviderSpec struct {
 	// CheckRef is the name of the check that the current provider satisfies
 	CheckRefs []string `json:"checkRefs"`
 
-	// RepeatInterval is the re-evaluation interval;
-	// if RepeatInterval is not provided or nil,
-	// the provider will be evaluated only once and the evaluation will not be repeated.
-	// A valid value specifies a duration string, such as "1.5h", "1h10m" or "200s".
-	// Refer: https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration
-	//+kubebuilder:validation:Optional
-	RepeatInterval *metav1.Duration `json:"repeatInterval"`
-
 	// Conditions is the set of checks that must be evaluated to true to mark the provider as ready
 	Conditions []ReadinessProviderCondition `json:"conditions"`
 }
 
+// ReadinessProviderCondition defines the readiness provider condition
 type ReadinessProviderCondition struct {
 	// Name is the name of the condition
 	Name string `json:"name"`
 
 	// ResourceExistenceCondition is the condition that checks for the presence of a certain resource in the cluster
+	//+kubebuilder:validation:Optional
 	ResourceExistenceCondition *ResourceExistenceCondition `json:"resourceExistenceCondition"`
 }
 
+// ResourceExistenceCondition is a type of readiness provider condition that checks for existence of given resource
 type ResourceExistenceCondition struct {
 	// APIVersion is the API version of the resource that is being checked
 	APIVersion string `json:"apiVersion"`

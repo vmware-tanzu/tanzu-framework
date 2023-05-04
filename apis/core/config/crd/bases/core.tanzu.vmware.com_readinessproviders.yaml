@@ -76,15 +76,8 @@ spec:
                       type: object
                   required:
                   - name
-                  - resourceExistenceCondition
                   type: object
                 type: array
-              repeatInterval:
-                description: 'RepeatInterval is the re-evaluation interval; if RepeatInterval
-                  is not provided or nil, the provider will be evaluated only once
-                  and the evaluation will not be repeated. A valid value specifies
-                  a duration string, such as "1.5h", "1h10m" or "200s". Refer: https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration'
-                type: string
             required:
             - checkRefs
             - conditions

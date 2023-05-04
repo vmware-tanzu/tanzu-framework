@@ -131,7 +131,7 @@ var _ = Describe("Readiness controller", func() {
 		Eventually(func() bool {
 			ans := corev1alpha2.Readiness{}
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, &ans)
-			return err == nil && !ans.Status.Ready && ans.Status.LastUpdatedTime != nil && len(ans.Status.CheckStatus[0].Providers) == 0
+			return err == nil && !ans.Status.Ready && len(ans.Status.CheckStatus) > 0 && len(ans.Status.CheckStatus[0].Providers) == 0
 		}, timeout, interval).Should(BeTrue())
 	})
 
@@ -155,7 +155,7 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, &ans)
 			return err == nil &&
 				!ans.Status.Ready &&
-				ans.Status.LastUpdatedTime != nil &&
+				len(ans.Status.CheckStatus) == 1 &&
 				len(ans.Status.CheckStatus[0].Providers) == 1
 		}, timeout, interval).Should(BeTrue())
 	})
@@ -184,7 +184,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, &ans)
 			return err == nil &&
 				ans.Status.Ready &&
-				ans.Status.LastUpdatedTime != nil &&
 				len(ans.Status.CheckStatus[0].Providers) == 1
 		}, timeout, interval).Should(BeTrue())
 	})
@@ -223,7 +222,7 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				!readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
+				len(readiness.Status.CheckStatus) == 1 &&
 				len(readiness.Status.CheckStatus[0].Providers) == 2
 		}, timeout, interval).Should(BeTrue())
 
@@ -237,7 +236,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 2
 		}, timeout, interval).Should(BeTrue())
 
@@ -251,7 +249,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 2
 		}, timeout, interval).Should(BeTrue())
 
@@ -275,7 +272,7 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				!readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
+				len(readiness.Status.CheckStatus) == 2 &&
 				len(readiness.Status.CheckStatus[0].Providers) == 0 &&
 				len(readiness.Status.CheckStatus[1].Providers) == 0
 		}, timeout, interval).Should(BeTrue())
@@ -290,7 +287,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				!readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
 				len(readiness.Status.CheckStatus[1].Providers) == 0
 		}, timeout, interval).Should(BeTrue())
@@ -305,7 +301,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				!readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
 				len(readiness.Status.CheckStatus[1].Providers) == 1
 		}, timeout, interval).Should(BeTrue())
@@ -320,7 +315,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				!readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
 				len(readiness.Status.CheckStatus[1].Providers) == 1 &&
 				readiness.Status.CheckStatus[1].Ready &&
@@ -337,7 +331,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus) == 2 &&
 				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
 				len(readiness.Status.CheckStatus[1].Providers) == 1 &&
@@ -358,7 +351,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				!readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
 				len(readiness.Status.CheckStatus[1].Providers) == 0 &&
 				readiness.Status.CheckStatus[0].Ready
@@ -382,7 +374,7 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				!readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
+				len(readiness.Status.CheckStatus) == 2 &&
 				len(readiness.Status.CheckStatus[0].Providers) == 0 &&
 				len(readiness.Status.CheckStatus[1].Providers) == 0
 		}, timeout, interval).Should(BeTrue())
@@ -396,7 +388,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				!readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
 				len(readiness.Status.CheckStatus[1].Providers) == 1
 		}, timeout, interval).Should(BeTrue())
@@ -410,7 +401,6 @@ var _ = Describe("Readiness controller", func() {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readiness.Name}, readiness)
 			return err == nil &&
 				readiness.Status.Ready &&
-				readiness.Status.LastUpdatedTime != nil &&
 				len(readiness.Status.CheckStatus[0].Providers) == 1 &&
 				len(readiness.Status.CheckStatus[1].Providers) == 1
 		}, timeout, interval).Should(BeTrue())

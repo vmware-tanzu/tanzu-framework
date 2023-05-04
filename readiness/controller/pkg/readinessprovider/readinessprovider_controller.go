@@ -5,6 +5,7 @@ package readinessprovider
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -13,6 +14,10 @@ import (
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/constants"
+)
+
+const (
+	requeueInterval = 60 * time.Second
 )
 
 // ReadinessProviderReconciler reconciles a ReadinessProvider object
@@ -36,7 +41,9 @@ func (r *ReadinessProviderReconciler) Reconcile(ctx context.Context, req ctrl.Re
 	log.Info("starting reconcile")
 
 	readinessProvider := corev1alpha2.ReadinessProvider{}
-	result := ctrl.Result{}
+	result := ctrl.Result{
+		RequeueAfter: requeueInterval,
+	}
 
 	if err := r.Client.Get(ctxCancel, req.NamespacedName, &readinessProvider); err != nil {
 		log.Error(err, "unable to fetch ReadinessProvider")
@@ -60,14 +67,6 @@ func (r *ReadinessProviderReconciler) Reconcile(ctx context.Context, req ctrl.Re
 	readinessProvider.Status.State = determineProviderStatus(log, readinessProvider.Status.Conditions)
 
 	log.Info("Successfully reconciled")
-
-	// ReadinessProvider can be auto-evaluated periodically if
-	// RepeatInterval is configured in the spec
-	if readinessProvider.Spec.RepeatInterval != nil {
-		repeatAfterDuration := readinessProvider.Spec.RepeatInterval.Duration
-		log.V(2).Info("requeing for evaluation", "after", repeatAfterDuration)
-		result.RequeueAfter = repeatAfterDuration
-	}
 
 	return result, r.Status().Update(ctxCancel, &readinessProvider)
 }
