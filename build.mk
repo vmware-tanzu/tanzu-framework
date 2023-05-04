@@ -118,10 +118,10 @@ $(COMPONENTS):
 	@if [ "$(PUBLISH_IMAGES)" = "true" ]; then \
 		if [ "$(call check_main_go,$(COMPONENT))" = "Found" ]; then \
 			$(MAKE) validate-component IMAGE_NAME=$(IMAGE_NAME) PACKAGE_PATH=$(PACKAGE_PATH) || exit 1; \
-			$(MAKE) publish-$@ IMAGE=$(IMAGE) DEFAULT_IMAGE=$(DEFAULT_IMAGE) PACKAGE_PATH=$(PACKAGE_PATH) BUILD_BIN=$(BUILD_BIN); \
+			$(MAKE) publish IMAGE=$(IMAGE) DEFAULT_IMAGE=$(DEFAULT_IMAGE) PACKAGE_PATH=$(PACKAGE_PATH) BUILD_BIN=$(BUILD_BIN); \
 		fi \
 	else \
-		$(MAKE) build-$@ COMPONENT=$(COMPONENT) IMAGE_NAME=$(IMAGE_NAME) IMAGE=$(IMAGE) PACKAGE_PATH=$(PACKAGE_PATH) BUILD_BIN=$(BUILD_BIN); \
+		$(MAKE) build COMPONENT=$(COMPONENT) IMAGE_NAME=$(IMAGE_NAME) IMAGE=$(IMAGE) PACKAGE_PATH=$(PACKAGE_PATH) BUILD_BIN=$(BUILD_BIN); \
 	fi
 
 .PHONY: validate-component
@@ -132,8 +132,8 @@ else ifeq ($(strip $(PACKAGE_PATH)),)
 	$(error Path to the package of the component is not set in COMPONENTS variable, check https://github.com/vmware-tanzu/build-tooling-for-integrations/blob/main/docs/build-tooling-getting-started.md#steps-to-use-the-build-tooling for more help)
 endif
 
-.PHONY: build-%
-build-%:
+.PHONY: build
+build:
 	$(MAKE) COMPONENT=$(COMPONENT) lint
 	$(MAKE) COMPONENT=$(COMPONENT) test
 	@if [ "$(call check_main_go,$(COMPONENT))" = "Found" ]; then \
@@ -145,8 +145,8 @@ build-%:
 		fi \
 	fi
 
-.PHONY: publish-%
-publish-%:
+.PHONY: publish
+publish:
 	$(MAKE) IMAGE=$(IMAGE) docker-publish
 	$(MAKE) KBLD_CONFIG_FILE_PATH=packages/$(PACKAGE_PATH)/kbld-config.yaml DEFAULT_IMAGE=$(DEFAULT_IMAGE) IMAGE=$(IMAGE) kbld-image-replace
 
@@ -352,4 +352,3 @@ package-vendir-sync:
 # Show help
 help:
 	@cat $(MAKEFILE_LIST) | $(DOCKER) run --rm -i xanders/make-help
-	
