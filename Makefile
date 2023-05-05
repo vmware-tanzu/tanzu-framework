@@ -168,14 +168,7 @@ generate-go: $(COUNTERFEITER)
 
 .PHONY: generate
 # Generate code (legacy)
-generate: tools
-	$(MAKE) generate-controller-code
-	@for i in $(GO_MODULES); do \
-		echo "-- Running $(MAKE) -C $$i generate-controller-code --"; \
-		pushd $${i}; \
-		$(MAKE) -C $${i} generate-controller-code; \
-		popd; \
-	done
+generate: tools generate-controller-code
 
 .PHONY: generate-fakes
 # Generate fakes for writing unit tests
