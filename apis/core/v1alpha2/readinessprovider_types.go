@@ -96,6 +96,9 @@ type ReadinessConditionStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
+//+kubebuilder:printcolumn:name="State",type=string,JSONPath=`.status.state`
+//+kubebuilder:printcolumn:name="Checks",priority=1,type=string,JSONPath=`.spec.checkRefs`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // ReadinessProvider is the Schema for the readinessproviders API
 type ReadinessProvider struct {

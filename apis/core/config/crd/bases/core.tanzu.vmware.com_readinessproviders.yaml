@@ -15,7 +15,18 @@ spec:
     singular: readinessprovider
   scope: Cluster
   versions:
-  - name: v1alpha2
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    - jsonPath: .spec.checkRefs
+      name: Checks
+      priority: 1
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha2
     schema:
       openAPIV3Schema:
         description: ReadinessProvider is the Schema for the readinessproviders API
