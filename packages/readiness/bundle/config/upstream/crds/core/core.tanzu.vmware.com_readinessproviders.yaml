@@ -15,7 +15,18 @@ spec:
     singular: readinessprovider
   scope: Cluster
   versions:
-  - name: v1alpha2
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    - jsonPath: .spec.checkRefs
+      name: Checks
+      priority: 1
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha2
     schema:
       openAPIV3Schema:
         description: ReadinessProvider is the Schema for the readinessproviders API
@@ -35,10 +46,12 @@ spec:
           spec:
             description: ReadinessProviderSpec defines the desired state of ReadinessProvider
             properties:
-              checkRef:
+              checkRefs:
                 description: CheckRef is the name of the check that the current provider
                   satisfies
-                type: string
+                items:
+                  type: string
+                type: array
               conditions:
                 description: Conditions is the set of checks that must be evaluated
                   to true to mark the provider as ready
@@ -72,9 +85,15 @@ spec:
                       - kind
                       - name
                       type: object
+                    shellScriptCondition:
+                      properties:
+                        script:
+                          type: string
+                      required:
+                      - script
+                      type: object
                   required:
                   - name
-                  - resourceExistenceCondition
                   type: object
                 type: array
               repeatInterval:
@@ -84,7 +103,7 @@ spec:
                   a duration string, such as "1.5h", "1h10m" or "200s". Refer: https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration'
                 type: string
             required:
-            - checkRef
+            - checkRefs
             - conditions
             type: object
           status:
