@@ -15,7 +15,14 @@ spec:
     singular: readiness
   scope: Cluster
   versions:
-  - name: v1alpha2
+  - additionalPrinterColumns:
+    - jsonPath: .status.ready
+      name: Ready
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha2
     schema:
       openAPIV3Schema:
         description: Readiness is the Schema for the readinesses API
@@ -104,8 +111,8 @@ spec:
                   type: object
                 type: array
               lastComputedTime:
-                description: LastComputedTime is the field that denotes the time at
-                  which the readiness is computed.
+                description: LastUpdatedTime is the field that denotes the time at
+                  which the readiness is updated.
                 format: date-time
                 type: string
               ready:

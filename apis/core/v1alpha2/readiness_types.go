@@ -63,6 +63,8 @@ type Provider struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
+//+kubebuilder:printcolumn:name="Ready",type=boolean,JSONPath=`.status.ready`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // Readiness is the Schema for the readinesses API
 type Readiness struct {
