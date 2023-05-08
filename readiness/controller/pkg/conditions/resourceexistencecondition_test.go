@@ -108,7 +108,7 @@ var _ = Describe("Readiness controller", func() {
 		err := k8sClient.Create(context.TODO(), &newPod)
 		Expect(err).To(BeNil())
 
-		state, msg := NewResourceExistencConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "v1",
 			Kind:       "Pod",
 			Namespace:  &newPod.Namespace,
@@ -120,7 +120,7 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should fail when querying a non-existing namespaced resource", func() {
-		state, msg := NewResourceExistencConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "v1",
 			Kind:       "Pod",
 			Namespace: func() *string {
@@ -135,7 +135,7 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should succeed when querying an existing cluster scoped resource", func() {
-		state, msg := NewResourceExistencConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.core.tanzu.vmware.com",
@@ -146,7 +146,7 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should succeed when querying a non-existing cluster scoped resource", func() {
-		state, msg := NewResourceExistencConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.config.tanzu.vmware.com",

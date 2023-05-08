@@ -44,103 +44,99 @@ func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	currentStatus := readiness.Status
-
-	if len(readiness.Spec.Checks) == 0 {
-		if !currentStatus.Ready {
-			readiness.Status.Ready = true
-			readiness.Status.CheckStatus = []corev1alpha2.CheckStatus{}
-		}
-	} else {
-		readiness.Status.CheckStatus = []corev1alpha2.CheckStatus{}
-		providersList := &corev1alpha2.ReadinessProviderList{}
-
-		// TODO: Find a better way to index and fetch the proviers in a single list call
-		for _, check := range readiness.Spec.Checks {
-			providers := &corev1alpha2.ReadinessProviderList{}
-			err = r.Client.List(ctxCancel, providers, &client.ListOptions{
-				FieldSelector: fields.OneTermEqualSelector("spec.checkRef", check.Name),
-			})
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-
-			providersList.Items = append(providersList.Items, providers.Items...)
-		}
-
-		// uniqueProviders contain all the providers that satisfy at least one of the checks
-		uniqueProviders := make([]corev1alpha2.ReadinessProvider, 0)
-		uniqueProviderNames := make(map[string]bool)
-
-		for _, provider := range providersList.Items {
-			if _, ok := uniqueProviderNames[provider.Name]; !ok {
-				uniqueProviders = append(uniqueProviders, provider)
-				uniqueProviderNames[provider.Name] = true
-			}
-		}
-
-		// allChecks contain the check names and the list of associated providers
-		allChecks := make(map[string][]int)
-		for i, provider := range uniqueProviders {
-			for _, checkRef := range provider.Spec.CheckRefs {
-				if _, ok := allChecks[checkRef]; !ok {
-					allChecks[checkRef] = make([]int, 0)
-				}
-
-				allChecks[checkRef] = append(allChecks[checkRef], i)
-			}
-		}
-
-		for _, check := range readiness.Spec.Checks {
-			checkStatus := corev1alpha2.CheckStatus{
-				Name:      check.Name,
-				Providers: make([]corev1alpha2.Provider, 0),
-				Ready:     false,
-			}
-
-			if indices, ok := allChecks[check.Name]; ok {
-				for _, index := range indices {
-					provider := uniqueProviders[index]
-
-					if provider.Status.State == corev1alpha2.ProviderSuccessState {
-						checkStatus.Ready = true
-					}
-					checkStatus.Providers = append(checkStatus.Providers, corev1alpha2.Provider{
-						Name:     provider.Name,
-						IsActive: provider.Status.State == corev1alpha2.ProviderSuccessState,
-					})
-				}
-
-			}
-
-			readiness.Status.CheckStatus = append(readiness.Status.CheckStatus, checkStatus)
-		}
-
+	if len(readiness.Spec.Checks) == 0 && !readiness.Status.Ready {
 		readiness.Status.Ready = true
+		readiness.Status.CheckStatus = []corev1alpha2.CheckStatus{}
+		return ctrl.Result{}, r.Client.Status().Update(ctxCancel, readiness)
+	}
 
-		for _, checkStatus := range readiness.Status.CheckStatus {
-			readiness.Status.Ready = readiness.Status.Ready && checkStatus.Ready
+	readiness.Status.CheckStatus = []corev1alpha2.CheckStatus{}
+	providersList := &corev1alpha2.ReadinessProviderList{}
+
+	// TODO: Find a better way to index and fetch the proviers in a single list call
+	for _, check := range readiness.Spec.Checks {
+		providers := &corev1alpha2.ReadinessProviderList{}
+		err = r.Client.List(ctxCancel, providers, &client.ListOptions{
+			FieldSelector: fields.OneTermEqualSelector("spec.checkRef", check.Name),
+		})
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
+		providersList.Items = append(providersList.Items, providers.Items...)
+	}
+
+	// uniqueProviders contain all the providers that satisfy at least one of the checks
+	uniqueProviders := make([]corev1alpha2.ReadinessProvider, 0)
+	uniqueProviderNames := make(map[string]bool)
+
+	for i := 0; i < len(providersList.Items); i++ {
+		if _, ok := uniqueProviderNames[providersList.Items[i].Name]; !ok {
+			uniqueProviders = append(uniqueProviders, providersList.Items[i])
+			uniqueProviderNames[providersList.Items[i].Name] = true
 		}
 	}
 
-	err = r.Client.Status().Update(ctxCancel, readiness)
-	if err != nil {
-		return ctrl.Result{}, err
+	// allChecks contain the check names and the list of associated providers
+	allChecks := make(map[string][]int)
+	for i := 0; i < len(uniqueProviders); i++ {
+		for _, checkRef := range uniqueProviders[i].Spec.CheckRefs {
+			if _, ok := allChecks[checkRef]; !ok {
+				allChecks[checkRef] = make([]int, 0)
+			}
+
+			allChecks[checkRef] = append(allChecks[checkRef], i)
+		}
 	}
 
-	return ctrl.Result{}, nil
+	for _, check := range readiness.Spec.Checks {
+		checkStatus := corev1alpha2.CheckStatus{
+			Name:      check.Name,
+			Providers: make([]corev1alpha2.Provider, 0),
+			Ready:     false,
+		}
+
+		if indices, ok := allChecks[check.Name]; ok {
+			for _, index := range indices {
+				provider := uniqueProviders[index]
+
+				if provider.Status.State == corev1alpha2.ProviderSuccessState {
+					checkStatus.Ready = true
+				}
+				checkStatus.Providers = append(checkStatus.Providers, corev1alpha2.Provider{
+					Name:     provider.Name,
+					IsActive: provider.Status.State == corev1alpha2.ProviderSuccessState,
+				})
+			}
+
+		}
+
+		readiness.Status.CheckStatus = append(readiness.Status.CheckStatus, checkStatus)
+	}
+
+	readiness.Status.Ready = true
+
+	for _, checkStatus := range readiness.Status.CheckStatus {
+		readiness.Status.Ready = readiness.Status.Ready && checkStatus.Ready
+	}
+
+	return ctrl.Result{}, r.Client.Status().Update(ctxCancel, readiness)
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *ReadinessReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	mgr.GetFieldIndexer().IndexField(context.Background(), &corev1alpha2.ReadinessProvider{}, "spec.checkRef", func(rawObj client.Object) []string {
+	err := mgr.GetFieldIndexer().IndexField(context.Background(), &corev1alpha2.ReadinessProvider{}, "spec.checkRef", func(rawObj client.Object) []string {
 		provider := rawObj.(*corev1alpha2.ReadinessProvider)
 		var indices []string
 		indices = append(indices, provider.Spec.CheckRefs...)
 		return indices
 	})
 
-	mgr.GetFieldIndexer().IndexField(context.Background(), &corev1alpha2.Readiness{}, "spec.checks.name", func(rawObj client.Object) []string {
+	if err != nil {
+		return err
+	}
+
+	err = mgr.GetFieldIndexer().IndexField(context.Background(), &corev1alpha2.Readiness{}, "spec.checks.name", func(rawObj client.Object) []string {
 		provider := rawObj.(*corev1alpha2.Readiness)
 
 		keys := []string{}
@@ -150,6 +146,10 @@ func (r *ReadinessReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 		return keys
 	})
+
+	if err != nil {
+		return err
+	}
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1alpha2.Readiness{}).
@@ -181,10 +181,10 @@ func (r *ReadinessReconciler) findObjectsForReadinessProvider(readinessProviderO
 
 	requests := []reconcile.Request{}
 
-	for _, readiness := range totalReadinessList.Items {
+	for i := 0; i < len(totalReadinessList.Items); i++ {
 		requests = append(requests, reconcile.Request{
 			NamespacedName: types.NamespacedName{
-				Name: readiness.Name,
+				Name: totalReadinessList.Items[i].Name,
 			},
 		})
 	}

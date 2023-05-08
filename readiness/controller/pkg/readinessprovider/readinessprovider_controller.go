@@ -13,11 +13,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	"github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/constants"
 )
 
 const (
 	requeueInterval = 60 * time.Second
+	contextTimeout  = 60 * time.Second
 )
 
 // ReadinessProviderReconciler reconciles a ReadinessProvider object
@@ -34,7 +34,7 @@ type ReadinessProviderReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *ReadinessProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	ctxCancel, cancel := context.WithTimeout(ctx, constants.ContextTimeout)
+	ctxCancel, cancel := context.WithTimeout(ctx, contextTimeout)
 	defer cancel()
 
 	log := r.Log.WithValues("readinessprovider", req.NamespacedName)

@@ -343,7 +343,7 @@ var _ = Describe("Readiness controller", func() {
 			Name: "check8",
 			Type: "basic",
 		})
-		k8sClient.Update(ctx, readiness)
+		err = k8sClient.Update(ctx, readiness)
 		Expect(err).To(BeNil())
 
 		// One check is removed and a new check is added

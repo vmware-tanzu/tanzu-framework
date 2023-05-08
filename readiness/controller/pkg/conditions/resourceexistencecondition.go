@@ -2,7 +2,6 @@ package conditions
 
 import (
 	"context"
-	"strings"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,16 +11,14 @@ import (
 	"k8s.io/client-go/restmapper"
 )
 
-func NewResourceExistencConditionFunc(dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient) func(context.Context, *corev1alpha2.ResourceExistenceCondition) (corev1alpha2.ReadinessConditionState, string) {
+func NewResourceExistenceConditionFunc(dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient) func(context.Context, *corev1alpha2.ResourceExistenceCondition) (corev1alpha2.ReadinessConditionState, string) {
 	return func(ctx context.Context, c *corev1alpha2.ResourceExistenceCondition) (corev1alpha2.ReadinessConditionState, string) {
-		var group, version string
-		if strings.Contains(c.APIVersion, "/") {
-			group = strings.Split(c.APIVersion, "/")[0]
-			version = strings.Split(c.APIVersion, "/")[1]
-		} else {
-			version = c.APIVersion
-		}
+		var gv schema.GroupVersion
 		var err error
+
+		if gv, err = schema.ParseGroupVersion(c.APIVersion); err != nil {
+			return corev1alpha2.ConditionFailureState, err.Error()
+		}
 
 		groupResources, err := restmapper.GetAPIGroupResources(discoveryClient)
 		if err != nil {
@@ -31,9 +28,9 @@ func NewResourceExistencConditionFunc(dynamicClient *dynamic.DynamicClient, disc
 
 		restMapper := restmapper.NewDiscoveryRESTMapper(groupResources)
 		restMapping, err := restMapper.RESTMapping(schema.GroupKind{
-			Group: group,
+			Group: gv.Group,
 			Kind:  c.Kind,
-		}, version)
+		}, gv.Version)
 
 		if err != nil {
 			return corev1alpha2.ConditionFailureState, err.Error()

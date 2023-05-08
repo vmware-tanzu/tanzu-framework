@@ -21,7 +21,6 @@ COMPONENTS ?= capabilities/client \
 capabilities/controller.capabilities-controller-manager.capabilities \
 featuregates/client \
 featuregates/controller.featuregates-controller-manager.featuregates \
-readiness/client \
 readiness/controller.readiness-controller-manager.readiness
 
 BUILD_TOOLING_CONTAINER_IMAGE ?= ghcr.io/vmware-tanzu/build-tooling
