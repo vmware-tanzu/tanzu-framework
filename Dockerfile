@@ -12,6 +12,15 @@ ARG COMPONENT
 ARG GOPROXY_ARG
 ENV GOPROXY=${GOPROXY_ARG}
 WORKDIR /workspace
+RUN apt-get update && apt-get install -y ca-certificates curl
+RUN apt-get install -y apt-transport-https
+RUN mkdir -p /etc/apt/keyrings/
+RUN curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+RUN echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+RUN apt-get update
+RUN apt-get install -y kubectl
+RUN apt-get install -y jq
+RUN apt-get install -y bash
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     cd $COMPONENT && go mod download
@@ -66,10 +75,14 @@ RUN --mount=target=. \
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot as image
+# /go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+FROM base as image
 WORKDIR /
+#COPY --from=builder /bin/bash /bin/bash
+#COPY --from=builder /usr/sbin/jq /bin/jq
+#COPY --from=builder /bin/kubectl /bin/kubectl
 COPY --from=builder /out/manager .
-USER nonroot:nonroot
+#USER nonroot:nonroot
 
 ENTRYPOINT ["/manager"]
 
