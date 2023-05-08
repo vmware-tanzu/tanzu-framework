@@ -34,7 +34,6 @@ type ReadinessStatus struct {
 
 	// Ready is the flag that denotes if the defined readiness is ready
 	// The readiness is marked ready if all the checks are satisfied
-	// The time at which this field is evaluated is given by LastComputedTime
 	Ready bool `json:"ready"`
 }
 
@@ -60,6 +59,8 @@ type Provider struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
+//+kubebuilder:printcolumn:name="Ready",type=boolean,JSONPath=`.status.ready`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // Readiness is the Schema for the readinesses API
 type Readiness struct {

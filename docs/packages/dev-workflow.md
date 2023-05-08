@@ -22,11 +22,11 @@ This document provides guidance on how to build and publish package and repo bun
 
 3. Build the package bundles that belong to a particular package repository
 
-   To build the package bundles for all the packages in the `management` package [repository](../../packages/package-values.yaml) run:
+   To build the package bundles for all the packages in the `runtime-core` package [repository](../../packages/package-values.yaml) run:
 
    ```shell
       OCI_REGISTRY="****" \
-      PACKAGE_REPOSITORY="management" \
+      PACKAGE_REPOSITORY="runtime-core" \
       PACKAGE_VERSION="dev.0.0" \
       PACKAGE_SUB_VERSION="1" \
       REGISTRY_USERNAME="****" \
@@ -41,7 +41,7 @@ This document provides guidance on how to build and publish package and repo bun
    ```shell
       OCI_REGISTRY="****" \
       PACKAGE_NAME="readiness" \
-      PACKAGE_REPOSITORY="management" \
+      PACKAGE_REPOSITORY="runtime-core" \
       PACKAGE_VERSION="dev.0.0" \
       PACKAGE_SUB_VERSION="1" \
       REGISTRY_USERNAME="****" \
@@ -56,7 +56,7 @@ This document provides guidance on how to build and publish package and repo bun
    target:
 
    ```shell
-      PACKAGE_REPOSITORY="management" \
+      PACKAGE_REPOSITORY="runtime-core" \
       OCI_REGISTRY="****" \
       REPO_BUNDLE_VERSION="v1.0.0" \
       REPO_BUNDLE_SUB_VERSION="0" \
@@ -71,7 +71,7 @@ This document provides guidance on how to build and publish package and repo bun
 
    ```shell
       OCI_REGISTRY="****" \
-      PACKAGE_REPOSITORY="management" \
+      PACKAGE_REPOSITORY="runtime-core" \
       PACKAGE_VERSION="dev.0.0" \
       PACKAGE_SUB_VERSION="1" \
       REGISTRY_USERNAME="****" \
@@ -85,7 +85,7 @@ This document provides guidance on how to build and publish package and repo bun
    ```shell
       OCI_REGISTRY="****" \
       PACKAGE_NAME="readiness" \
-      PACKAGE_REPOSITORY="management" \
+      PACKAGE_REPOSITORY="runtime-core" \
       PACKAGE_VERSION="dev.0.0" \
       PACKAGE_SUB_VERSION="1" \
       REGISTRY_USERNAME="****" \
@@ -99,7 +99,7 @@ This document provides guidance on how to build and publish package and repo bun
    To push the generated repo bundle to an OCI registry, run:
 
    ```shell
-      PACKAGE_REPOSITORY="management" \
+      PACKAGE_REPOSITORY="runtime-core" \
       OCI_REGISTRY="****" \
       REPO_BUNDLE_VERSION="v1.0.0" \
       REPO_BUNDLE_SUB_VERSION="0" \
@@ -139,11 +139,11 @@ Follow the below steps to test the artifacts that are generated in previous step
       apiVersion: packaging.carvel.dev/v1alpha1
       kind: PackageRepository
       metadata:
-      name: tanzu-management-repo
+      name: tanzu-runtime-core-repo
       spec:
       fetch:
          imgpkgBundle:
-            image: ${OCI_REGISTRY}/management@sha256:1fb9f9c6f0c6ba1f995440885b02806551a79d9cef5b9c7c3d6f53a586facddd
+            image: ${OCI_REGISTRY}/runtime-core@sha256:1fb9f9c6f0c6ba1f995440885b02806551a79d9cef5b9c7c3d6f53a586facddd
    ```
 
    ```bash

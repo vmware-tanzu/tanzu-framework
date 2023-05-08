@@ -15,7 +15,18 @@ spec:
     singular: readinessprovider
   scope: Cluster
   versions:
-  - name: v1alpha2
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    - jsonPath: .spec.checkRefs
+      name: Checks
+      priority: 1
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha2
     schema:
       openAPIV3Schema:
         description: ReadinessProvider is the Schema for the readinessproviders API
@@ -36,8 +47,8 @@ spec:
             description: ReadinessProviderSpec defines the desired state of ReadinessProvider
             properties:
               checkRefs:
-                description: CheckRef is the name of the check that the current provider
-                  satisfies
+                description: CheckRefs contains names of the checks that the current
+                  provider satisfies
                 items:
                   type: string
                 type: array
@@ -45,6 +56,8 @@ spec:
                 description: Conditions is the set of checks that must be evaluated
                   to true to mark the provider as ready
                 items:
+                  description: ReadinessProviderCondition defines the readiness provider
+                    condition
                   properties:
                     name:
                       description: Name is the name of the condition

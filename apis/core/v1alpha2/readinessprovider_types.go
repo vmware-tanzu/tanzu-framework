@@ -37,7 +37,7 @@ const (
 
 // ReadinessProviderSpec defines the desired state of ReadinessProvider
 type ReadinessProviderSpec struct {
-	// CheckRef is the name of the check that the current provider satisfies
+	// CheckRefs contains names of the checks that the current provider satisfies
 	CheckRefs []string `json:"checkRefs"`
 
 	// Conditions is the set of checks that must be evaluated to true to mark the provider as ready
@@ -95,6 +95,9 @@ type ReadinessConditionStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
+//+kubebuilder:printcolumn:name="State",type=string,JSONPath=`.status.state`
+//+kubebuilder:printcolumn:name="Checks",priority=1,type=string,JSONPath=`.spec.checkRefs`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // ReadinessProvider is the Schema for the readinessproviders API
 type ReadinessProvider struct {

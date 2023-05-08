@@ -24,28 +24,13 @@ repositories:
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "featuregates:latest"
-      - name: readiness
-        path: packages/readiness
-        domain: tanzu.vmware.com
-        version: latest
-        sha256: "readiness:latest"
-
-  standalone:
-    version: null
-    sha256: null
-    name: standalone
-    domain: tanzu.vmware.com
-
-    packageSpec:
-      syncPeriod: 5m
-      deploy:
-        kappWaitTimeout: 5m
-        kubeAPIQPS: 20
-        kubeAPIBurst: 30
-
-    packages:
       - name: capabilities
         path: packages/capabilities
         domain: tanzu.vmware.com
         version: latest
         sha256: "capabilities:latest"
+      - name: readiness
+        path: packages/readiness
+        domain: tanzu.vmware.com
+        version: latest
+        sha256: "readiness:latest"
