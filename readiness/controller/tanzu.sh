@@ -46,7 +46,6 @@ print_readiness_detail () {
     if [ $code == 1 ]; then    
         exit 1 
     fi
-    cat readiness.json
     echo -e "CHECK-NAME\t\t\t\t\tPROVIDERS\t\t\t\tACTIVE-PROVIDERS"
     for row in $(cat readiness.json | jq -r '.status.checkStatus[] | @base64'); do        
         _parse_readiness() {
