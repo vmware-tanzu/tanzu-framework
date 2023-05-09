@@ -81,37 +81,28 @@ func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	allChecks := make(map[string][]int)
 	for i := 0; i < len(uniqueProviders); i++ {
 		for _, checkRef := range uniqueProviders[i].Spec.CheckRefs {
-			if _, ok := allChecks[checkRef]; !ok {
-				allChecks[checkRef] = make([]int, 0)
-			}
-
 			allChecks[checkRef] = append(allChecks[checkRef], i)
 		}
 	}
 
 	for _, check := range readiness.Spec.Checks {
-		checkStatus := corev1alpha2.CheckStatus{
+		checkStatusUpdate := corev1alpha2.CheckStatus{
 			Name:      check.Name,
 			Providers: make([]corev1alpha2.Provider, 0),
 			Ready:     false,
 		}
 
-		if indices, ok := allChecks[check.Name]; ok {
-			for _, index := range indices {
-				provider := uniqueProviders[index]
+		for _, index := range allChecks[check.Name] {
+			provider := uniqueProviders[index]
 
-				if provider.Status.State == corev1alpha2.ProviderSuccessState {
-					checkStatus.Ready = true
-				}
-				checkStatus.Providers = append(checkStatus.Providers, corev1alpha2.Provider{
-					Name:     provider.Name,
-					IsActive: provider.Status.State == corev1alpha2.ProviderSuccessState,
-				})
-			}
+			checkStatusUpdate.Ready = checkStatusUpdate.Ready || (provider.Status.State == corev1alpha2.ProviderSuccessState)
 
+			checkStatusUpdate.Providers = append(checkStatusUpdate.Providers, corev1alpha2.Provider{
+				Name:     provider.Name,
+				IsActive: provider.Status.State == corev1alpha2.ProviderSuccessState,
+			})
 		}
-
-		readiness.Status.CheckStatus = append(readiness.Status.CheckStatus, checkStatus)
+		readiness.Status.CheckStatus = append(readiness.Status.CheckStatus, checkStatusUpdate)
 	}
 
 	readiness.Status.Ready = true

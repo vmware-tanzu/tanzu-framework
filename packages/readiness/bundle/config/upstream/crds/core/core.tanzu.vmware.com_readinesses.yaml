@@ -49,7 +49,7 @@ spec:
                   properties:
                     category:
                       description: Category is the category of the check. Examples
-                        of catagories are availability and security.
+                        of categories are availability and security.
                       type: string
                     name:
                       description: Name is the name of the check

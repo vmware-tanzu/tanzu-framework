@@ -18,7 +18,8 @@ This document provides guidance on how to build and publish package and repo bun
    ```shell
       OCI_REGISTRY="****" make docker-publish-all -f build-tooling.mk
    ```
-   This would push contianer images for the components to specified registry and also replaces the newImage path in the [kbld-config.yaml](../../packages/readiness/kbld-config.yaml)
+
+   This would push container images for the components to specified registry and also replaces the newImage path in the [kbld-config.yaml](../../packages/readiness/kbld-config.yaml)
 
 3. Build the package bundles that belong to a particular package repository
 
@@ -64,7 +65,7 @@ This document provides guidance on how to build and publish package and repo bun
       make repo-bundle-generate -f build-tooling.mk
    ```
 
-5. Push package bundles 
+5. Push package bundles
 
    After the package bundles are generated, now it's time to push them to an OCI registry, so that they can be consumed.
    Run the below make target to push all the package bundles in the specified package repository:
@@ -115,25 +116,28 @@ Follow the below steps to test the artifacts that are generated in previous step
 
 > **Note**: A local cluster can be any k8s cluster. There are 2 ways to install the packages
 
-#### To install on a cluster without `kapp-controller` installed in it.
+**To install on a cluster without `kapp-controller` installed in it**
 
 1. Download the package bundle. The image sha tag can be noted from the registry where package was published.
+
    ```shell
       imgpkg pull -b ${OCI_REGISTRY}/readiness@sha256:1fb9f9c6f0c6ba1f995440885b02806551a79d9cef5b9c7c3d6f53a586facddd -o readiness-pkg
    ```
 
-1. Install the package
+2. Install the package
+
    ```shell
       ytt -f readiness-pkg/config/ | kbld -f - -f readiness-pkg/.imgpkg/images.yml | kubectl apply -f-
    ```
 
-#### To install on a cluster with `kapp-controller` installed in it.
+**To install on a cluster with `kapp-controller` installed in it**
 
 > For more details about these steps, see kapp [packaging tutorial](https://carvel.dev/kapp-controller/docs/v0.31.0/packaging-tutorial)
 
 1. Create a `PackageRepository` resource. The image sha tag can be noted from the registry where **repo bundle** was published.
 
    Create `repo.yaml`
+
    ```yaml
       ---
       apiVersion: packaging.carvel.dev/v1alpha1
@@ -151,14 +155,17 @@ Follow the below steps to test the artifacts that are generated in previous step
    ```
 
 2. Install kapp-controller service account [Optional if already present]
+
    ```bash
       kapp deploy -a default-ns-rbac -f https://raw.githubusercontent.com/vmware-tanzu/carvel-kapp-controller/develop/examples/rbac/default-ns.yml -y
    ```
+
    This will create a service account named `default-ns-sa`.
 
 3. Install the package
 
    Create `pkginstall.yaml`
+
    ```yaml
       ---
       apiVersion: packaging.carvel.dev/v1alpha1

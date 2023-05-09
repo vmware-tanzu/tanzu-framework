@@ -23,7 +23,7 @@ type Check struct {
 	// +kubebuilder:validation:Enum=basic;composite
 	Type string `json:"type"`
 
-	// Category is the category of the check. Examples of catagories are availability and security.
+	// Category is the category of the check. Examples of categories are availability and security.
 	Category string `json:"category"`
 }
 

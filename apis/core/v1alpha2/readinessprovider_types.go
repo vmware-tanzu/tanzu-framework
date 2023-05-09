@@ -21,7 +21,7 @@ const (
 	ProviderInProgressState = ReadinessProviderState("inprogress")
 )
 
-// ReadinessProviderConditionState defines the state of indvidual conditions in a readiness provider
+// ReadinessConditionState defines the state of indvidual conditions in a readiness provider
 type ReadinessConditionState string
 
 const (
