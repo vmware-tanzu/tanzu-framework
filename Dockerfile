@@ -7,7 +7,7 @@
 ARG BUILDER_BASE_IMAGE=golang:1.18
 ARG ENVTEST_K8S_VERSION=1.26.1
 
-FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE as base
+FROM $BUILDER_BASE_IMAGE as base
 ARG COMPONENT
 ARG GOPROXY_ARG
 ENV GOPROXY=${GOPROXY_ARG}
@@ -48,7 +48,7 @@ RUN --mount=target=. \
     cd $COMPONENT && go vet ./...
 
 # Testing
-FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE as test-base
+FROM $BUILDER_BASE_IMAGE as test-base
 ARG ENVTEST_K8S_VERSION
 RUN go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 RUN setup-envtest use ${ENVTEST_K8S_VERSION} --bin-dir /bin
