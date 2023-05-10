@@ -25,7 +25,7 @@ type ReadinessProviderReconciler struct {
 	client.Client
 	Log                        logr.Logger
 	Scheme                     *runtime.Scheme
-	ResourceExistenceCondition func(context.Context, *corev1alpha2.ResourceExistenceCondition) (corev1alpha2.ReadinessConditionState, string)
+	ResourceExistenceCondition func(context.Context, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string)
 }
 
 //+kubebuilder:rbac:groups=core.tanzu.vmware.com,resources=readinessproviders,verbs=get;list;watch;create;update;patch;delete
@@ -58,7 +58,7 @@ func (r *ReadinessProviderReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		var state corev1alpha2.ReadinessConditionState
 		var message string
 		if condition.ResourceExistenceCondition != nil {
-			state, message = r.ResourceExistenceCondition(ctxCancel, condition.ResourceExistenceCondition)
+			state, message = r.ResourceExistenceCondition(ctxCancel, condition.ResourceExistenceCondition, condition.Name)
 		}
 		readinessProvider.Status.Conditions[i].State = state
 		readinessProvider.Status.Conditions[i].Message = message

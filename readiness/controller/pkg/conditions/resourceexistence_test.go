@@ -116,7 +116,8 @@ var _ = Describe("Readiness controller", func() {
 			Kind:       "Pod",
 			Namespace:  &newPod.Namespace,
 			Name:       newPod.Name,
-		})
+		},
+			"podCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionSuccessState))
 		Expect(msg).To(Equal(""))
@@ -131,10 +132,11 @@ var _ = Describe("Readiness controller", func() {
 				return &n
 			}(),
 			Name: "somename",
-		})
+		},
+			"nonExistingCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
-		Expect(msg).To(Equal("pods \"somename\" not found"))
+		Expect(msg).To(Equal("resource not found"))
 	})
 
 	It("should succeed when querying an existing cluster scoped resource", func() {
@@ -142,7 +144,8 @@ var _ = Describe("Readiness controller", func() {
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.core.tanzu.vmware.com",
-		})
+		},
+			"crdCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionSuccessState))
 		Expect(msg).To(Equal(""))
@@ -153,9 +156,10 @@ var _ = Describe("Readiness controller", func() {
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.config.tanzu.vmware.com",
-		})
+		},
+			"crdCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
-		Expect(msg).To(Equal("customresourcedefinitions.apiextensions.k8s.io \"readinesses.config.tanzu.vmware.com\" not found"))
+		Expect(msg).To(Equal("resource not found"))
 	})
 })

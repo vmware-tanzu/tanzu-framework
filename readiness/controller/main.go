@@ -7,14 +7,10 @@ import (
 	"flag"
 	"os"
 
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	// to ensure that exec-entrypoint and run can make use of them.
-	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/dynamic"
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/dynamic"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"

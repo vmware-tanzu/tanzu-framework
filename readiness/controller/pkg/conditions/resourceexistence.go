@@ -6,48 +6,48 @@ package conditions
 import (
 	"context"
 
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/restmapper"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
+	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 )
 
-func NewResourceExistenceConditionFunc(dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient) func(context.Context, *corev1alpha2.ResourceExistenceCondition) (corev1alpha2.ReadinessConditionState, string) {
-	return func(ctx context.Context, c *corev1alpha2.ResourceExistenceCondition) (corev1alpha2.ReadinessConditionState, string) {
-		var gv schema.GroupVersion
+func NewResourceExistenceConditionFunc(dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient) func(context.Context, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string) {
+	return func(ctx context.Context, c *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
 		var err error
 
-		if gv, err = schema.ParseGroupVersion(c.APIVersion); err != nil {
-			return corev1alpha2.ConditionFailureState, err.Error()
-		}
-
-		groupResources, err := restmapper.GetAPIGroupResources(discoveryClient)
-		if err != nil {
-			// TODO: These are retriable failures; retries should be done instead of failing in the first attempt
-			return corev1alpha2.ConditionFailureState, err.Error()
-		}
-
-		restMapper := restmapper.NewDiscoveryRESTMapper(groupResources)
-		restMapping, err := restMapper.RESTMapping(schema.GroupKind{
-			Group: gv.Group,
-			Kind:  c.Kind,
-		}, gv.Version)
-
+		queryClient, err := capabilitiesDiscovery.NewClusterQueryClient(dynamicClient, discoveryClient)
 		if err != nil {
 			return corev1alpha2.ConditionFailureState, err.Error()
 		}
+
+		var resourceToFind corev1.ObjectReference
 
 		if c.Namespace == nil {
-			_, err = dynamicClient.Resource(restMapping.Resource).Get(ctx, c.Name, v1.GetOptions{})
+			resourceToFind = corev1.ObjectReference{
+				Kind:       c.Kind,
+				Name:       c.Name,
+				APIVersion: c.APIVersion,
+			}
 		} else {
-			_, err = dynamicClient.Resource(restMapping.Resource).Namespace(*c.Namespace).
-				Get(context.TODO(), c.Name, v1.GetOptions{})
+			resourceToFind = corev1.ObjectReference{
+				Kind:       c.Kind,
+				Name:       c.Name,
+				Namespace:  *(c.Namespace),
+				APIVersion: c.APIVersion,
+			}
 		}
+
+		queryObject := capabilitiesDiscovery.Object(conditionName, &resourceToFind)
+		ok, err := queryClient.PreparedQuery(queryObject)()
 		if err != nil {
 			return corev1alpha2.ConditionFailureState, err.Error()
+		}
+
+		if !ok {
+			return corev1alpha2.ConditionFailureState, "resource not found"
 		}
 		return corev1alpha2.ConditionSuccessState, ""
 	}
