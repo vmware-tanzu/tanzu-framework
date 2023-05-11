@@ -345,7 +345,7 @@ package-vendir-sync:
 	  -e OPERATIONS=vendir_sync \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
-		quay.io/hyayiv/tooling:v5
+		ghcr.io/vmware-tanzu/package-tooling:v0.0.2
 
 .PHONY: help
 # Show help
