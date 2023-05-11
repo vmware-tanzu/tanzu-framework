@@ -341,7 +341,7 @@ repo-bundle-push:
 .PHONY: package-vendir-sync
 # Performs vendir sync on each package
 package-vendir-sync:
-	@$(DOCKER) run \
+	$(DOCKER) run \
 	  -e OPERATIONS=vendir_sync \
 	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \

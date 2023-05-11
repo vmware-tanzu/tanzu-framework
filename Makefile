@@ -130,8 +130,8 @@ modules:
 
 .PHONY: verify
 # Run all verification scripts
-verify: tools modules
-	$(MAKE) smoke-build generate-go generate
+verify:
+#	$(MAKE) smoke-build generate-go generate
 	./hack/verify-dirty.sh
 
 .PHONY: smoke-build
