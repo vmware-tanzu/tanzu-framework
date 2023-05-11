@@ -346,7 +346,7 @@ package-vendir-sync:
 	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
-		$(PACKAGING_CONTAINER_IMAGE):$(VERSION)
+		quay.io/hyayiv/tooling:v5
 
 .PHONY: help
 # Show help
