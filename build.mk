@@ -343,7 +343,6 @@ repo-bundle-push:
 package-vendir-sync:
 	$(DOCKER) run \
 	  -e OPERATIONS=vendir_sync \
-	  -e SRC_PATH=$(SRC_PATH) \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $(PWD):/workspace \
 		quay.io/hyayiv/tooling:v5
