@@ -341,6 +341,8 @@ repo-bundle-push:
 .PHONY: package-vendir-sync
 # Performs vendir sync on each package
 package-vendir-sync:
+	docker pull projects.registry.vmware.com/tanzu_runtime_core/registry:2
+	docker tag projects.registry.vmware.com/tanzu_runtime_core/registry:2 mirror.gcr.io/library/registry:2
 	$(DOCKER) run \
 	  -e OPERATIONS=vendir_sync \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
