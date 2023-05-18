@@ -58,6 +58,19 @@ var vsphereAntreaConfigProviderServiceAccountAggregatedClusterRole = &rbacv1.Clu
 	},
 }
 
+var vsphereAntreaConfigProviderServiceAccountAggregatedClusterRoleRules = []rbacv1.PolicyRule{
+	{
+		APIGroups: []string{nsxServiceAccountAPIGroup},
+		Resources: []string{nsxServiceAccountKind},
+		Verbs:     []string{"get", "list", "watch"},
+	},
+	{
+		APIGroups: []string{""},
+		Resources: []string{"secrets"},
+		Verbs:     []string{"get", "list", "watch"},
+	},
+}
+
 // AntreaConfigReconciler reconciles a AntreaConfig object
 type AntreaConfigReconciler struct {
 	client.Client
@@ -292,12 +305,12 @@ func (r *AntreaConfigReconciler) ensureProviderServiceAccount(ctx context.Contex
 		{
 			APIGroups:     []string{""},
 			Resources:     []string{"secrets"},
-			ResourceNames: []string{fmt.Sprintf(nsxSecretName)},
+			ResourceNames: []string{nsxSecretName},
 			Verbs:         []string{"get", "list", "watch"},
 		},
 	}
 	_, err = controllerutil.CreateOrPatch(ctx, r.Client, vsphereAntreaConfigProviderServiceAccountAggregatedClusterRole, func() error {
-		vsphereAntreaConfigProviderServiceAccountAggregatedClusterRole.Rules = providerServiceAccountRBACRules
+		vsphereAntreaConfigProviderServiceAccountAggregatedClusterRole.Rules = vsphereAntreaConfigProviderServiceAccountAggregatedClusterRoleRules
 		return nil
 	})
 	if err != nil {
