@@ -47,4 +47,4 @@ jobs:
     - name: Upload coverage reports to Codecov with GitHub Action
       uses: codecov/codecov-action@v3
       with:
-        files: ./build/capabilities/controller/coverage/cover.out,./build/featuregates/controller/coverage/cover.out
+        files: ./build/capabilities/controller/coverage/cover.out,./build/capabilities/client/coverage/cover.out,./build/featuregates/controller/coverage/cover.out,./build/featuregates/client/coverage/cover.out
