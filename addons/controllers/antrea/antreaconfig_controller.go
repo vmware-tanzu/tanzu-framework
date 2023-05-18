@@ -279,21 +279,17 @@ func (r *AntreaConfigReconciler) ensureProviderServiceAccount(ctx context.Contex
 		return err
 	}
 	clusterName, _ := getClusterName(antreaConfig)
-	nsxSAName := clusterName + "-antrea"
-	nsxSecretName := clusterName + "-antrea-nsx-cert"
 	clusterName = vsphereCluster.Name
 	providerServiceAccountRBACRules := []rbacv1.PolicyRule{
 		{
-			APIGroups:     []string{nsxServiceAccountAPIGroup},
-			Resources:     []string{nsxServiceAccountKind},
-			ResourceNames: []string{nsxSAName},
-			Verbs:         []string{"get", "list", "watch"},
+			APIGroups: []string{nsxServiceAccountAPIGroup},
+			Resources: []string{nsxServiceAccountKind},
+			Verbs:     []string{"get", "list", "watch"},
 		},
 		{
-			APIGroups:     []string{""},
-			Resources:     []string{"secrets"},
-			ResourceNames: []string{fmt.Sprintf(nsxSecretName)},
-			Verbs:         []string{"get", "list", "watch"},
+			APIGroups: []string{""},
+			Resources: []string{"secrets"},
+			Verbs:     []string{"get", "list", "watch"},
 		},
 	}
 	_, err = controllerutil.CreateOrPatch(ctx, r.Client, vsphereAntreaConfigProviderServiceAccountAggregatedClusterRole, func() error {
