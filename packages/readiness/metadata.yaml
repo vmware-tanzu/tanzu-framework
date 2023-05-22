@@ -5,7 +5,7 @@ metadata:
   namespace: readiness
 spec:
   displayName: "readiness"
-  longDescription: "Readiness package provides Readiness APIs to allow users to define k8s cluster evaluation checks for suitability to run enterprise-workloads"
+  longDescription: "Readiness package provides Readiness APIs to allow users to define k8s cluster evaluation checks for suitability to run enterprise workloads"
   shortDescription: "Readiness"
   providerName: VMware
   maintainers:

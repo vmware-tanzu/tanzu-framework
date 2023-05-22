@@ -55,10 +55,10 @@ spec:
                       description: Name is the name of the check
                       type: string
                     type:
-                      description: Type is the type of the check. the Type can be
-                        either basic or composite The basic checks depend on its providers
-                        to be ready The composite checks depend on the basic checks
-                        for their readiness
+                      description: Type is the type of the check. Type can be either
+                        basic or composite. The basic checks depend on its providers
+                        to be ready. The composite checks depend on the basic checks
+                        for their readiness.
                       enum:
                       - basic
                       - composite
@@ -112,7 +112,7 @@ spec:
                 type: array
               ready:
                 description: Ready is the flag that denotes if the defined readiness
-                  is ready The readiness is marked ready if all the checks are satisfied
+                  is ready. The readiness is marked ready if all the checks are satisfied.
                 type: boolean
             required:
             - checkStatus

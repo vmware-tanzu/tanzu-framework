@@ -123,7 +123,7 @@ var _ = Describe("Readiness controller", func() {
 		readiness := getTestReadiness()
 		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
 			Name: "check1",
-			Type: "basic",
+			Type: corev1alpha2.BasicReadinessCheck,
 		})
 		err = k8sClient.Create(ctx, readiness)
 		Expect(err).To(BeNil())
@@ -145,7 +145,7 @@ var _ = Describe("Readiness controller", func() {
 		readiness := getTestReadiness()
 		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
 			Name: "check3",
-			Type: "basic",
+			Type: corev1alpha2.BasicReadinessCheck,
 		})
 		err = k8sClient.Create(ctx, readiness)
 		Expect(err).To(BeNil())
@@ -174,7 +174,7 @@ var _ = Describe("Readiness controller", func() {
 		readiness := getTestReadiness()
 		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
 			Name: "check4",
-			Type: "basic",
+			Type: corev1alpha2.BasicReadinessCheck,
 		})
 		err = k8sClient.Create(ctx, readiness)
 		Expect(err).To(BeNil())
@@ -212,7 +212,7 @@ var _ = Describe("Readiness controller", func() {
 		readiness := getTestReadiness()
 		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
 			Name: "check5",
-			Type: "basic",
+			Type: corev1alpha2.BasicReadinessCheck,
 		})
 		err = k8sClient.Create(ctx, readiness)
 		Expect(err).To(BeNil())
@@ -258,11 +258,11 @@ var _ = Describe("Readiness controller", func() {
 		readiness := getTestReadiness()
 		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
 			Name: "check6",
-			Type: "basic",
+			Type: corev1alpha2.BasicReadinessCheck,
 		})
 		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
 			Name: "check7",
-			Type: "basic",
+			Type: corev1alpha2.BasicReadinessCheck,
 		})
 		err := k8sClient.Create(ctx, readiness)
 		Expect(err).To(BeNil())
@@ -341,7 +341,7 @@ var _ = Describe("Readiness controller", func() {
 		readiness.Spec.Checks = []corev1alpha2.Check{readiness.Spec.Checks[0]}
 		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
 			Name: "check8",
-			Type: "basic",
+			Type: corev1alpha2.BasicReadinessCheck,
 		})
 		err = k8sClient.Update(ctx, readiness)
 		Expect(err).To(BeNil())
@@ -361,11 +361,11 @@ var _ = Describe("Readiness controller", func() {
 		readiness := getTestReadiness()
 		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
 			Name: "check8",
-			Type: "basic",
+			Type: corev1alpha2.BasicReadinessCheck,
 		})
 		readiness.Spec.Checks = append(readiness.Spec.Checks, corev1alpha2.Check{
 			Name: "check9",
-			Type: "basic",
+			Type: corev1alpha2.BasicReadinessCheck,
 		})
 		err := k8sClient.Create(ctx, readiness)
 		Expect(err).To(BeNil())

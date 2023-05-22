@@ -67,12 +67,13 @@ spec:
                         checks for the presence of a certain resource in the cluster
                       properties:
                         apiVersion:
-                          description: APIVersion is the API version of the resource
-                            that is being checked
+                          description: 'APIVersion is the API version of the resource
+                            that is being checked. This should be provided in <group>/<version>
+                            format. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#resources'
                           type: string
                         kind:
-                          description: Kind is the API kind of the resource that is
-                            being checked
+                          description: 'Kind is the API kind of the resource that
+                            is being checked More info: More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
                           type: string
                         name:
                           type: string
@@ -80,7 +81,7 @@ spec:
                           description: Namespace is the namespace of the resource
                             that is being checked; if the Namespace is nil, the resource
                             is assumed to be cluster scoped. Empty string for the
-                            namespace will throw error
+                            namespace will throw error.
                           type: string
                       required:
                       - apiVersion
@@ -125,8 +126,8 @@ spec:
                 type: array
               state:
                 description: State is the computed state of the provider. The state
-                  will be success if all the coditions pass; The state will be failure
-                  if any of the conditions fail. Otherwise, the state will be in-progress
+                  will be success if all the conditions pass; The state will be failure
+                  if any of the conditions fail. Otherwise, the state will be in-progress.
                 enum:
                 - success
                 - failure

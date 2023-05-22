@@ -7,6 +7,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// ReadinessCheckType defines the current state of the provider
+type ReadinessCheckType string
+
+const (
+	// BasicReadinessCheck depends directly on the ReadinessProviders to be ready
+	BasicReadinessCheck = ReadinessCheckType("basic")
+
+	// CompositeReadinessCheck depends on other basic checks to be ready
+	CompositeReadinessCheck = ReadinessCheckType("composite")
+)
+
 // ReadinessSpec defines the desired state of Readiness
 type ReadinessSpec struct {
 	// Checks is the set of checks that are required to mark the readiness
@@ -17,11 +28,11 @@ type Check struct {
 	// Name is the name of the check
 	Name string `json:"name"`
 
-	// Type is the type of the check. the Type can be either basic or composite
-	// The basic checks depend on its providers to be ready
-	// The composite checks depend on the basic checks for their readiness
+	// Type is the type of the check. Type can be either basic or composite.
+	// The basic checks depend on its providers to be ready.
+	// The composite checks depend on the basic checks for their readiness.
 	// +kubebuilder:validation:Enum=basic;composite
-	Type string `json:"type"`
+	Type ReadinessCheckType `json:"type"`
 
 	// Category is the category of the check. Examples of categories are availability and security.
 	Category string `json:"category"`
@@ -32,8 +43,8 @@ type ReadinessStatus struct {
 	// CheckStatus presents the status of check defined in the spec
 	CheckStatus []CheckStatus `json:"checkStatus"`
 
-	// Ready is the flag that denotes if the defined readiness is ready
-	// The readiness is marked ready if all the checks are satisfied
+	// Ready is the flag that denotes if the defined readiness is ready.
+	// The readiness is marked ready if all the checks are satisfied.
 	Ready bool `json:"ready"`
 }
 

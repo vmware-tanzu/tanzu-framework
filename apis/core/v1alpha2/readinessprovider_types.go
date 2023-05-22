@@ -56,14 +56,17 @@ type ReadinessProviderCondition struct {
 
 // ResourceExistenceCondition is a type of readiness provider condition that checks for existence of given resource
 type ResourceExistenceCondition struct {
-	// APIVersion is the API version of the resource that is being checked
+	// APIVersion is the API version of the resource that is being checked.
+	// This should be provided in <group>/<version> format.
+	// More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#resources
 	APIVersion string `json:"apiVersion"`
 
 	// Kind is the API kind of the resource that is being checked
+	// More info: More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	Kind string `json:"kind"`
 
 	// Namespace is the namespace of the resource that is being checked; if the Namespace is nil,
-	// the resource is assumed to be cluster scoped. Empty string for the namespace will throw error
+	// the resource is assumed to be cluster scoped. Empty string for the namespace will throw error.
 	//+kubebuilder:validation:Optional
 	Namespace *string `json:"namespace"`
 	Name      string  `json:"name"`
@@ -71,8 +74,8 @@ type ResourceExistenceCondition struct {
 
 // ReadinessProviderStatus defines the observed state of ReadinessProvider
 type ReadinessProviderStatus struct {
-	// State is the computed state of the provider. The state will be success if all the coditions pass;
-	// The state will be failure if any of the conditions fail. Otherwise, the state will be in-progress
+	// State is the computed state of the provider. The state will be success if all the conditions pass;
+	// The state will be failure if any of the conditions fail. Otherwise, the state will be in-progress.
 	// +kubebuilder:validation:Enum=success;failure;inprogress
 	State ReadinessProviderState `json:"state"`
 

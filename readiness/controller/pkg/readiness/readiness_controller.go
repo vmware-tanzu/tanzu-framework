@@ -53,7 +53,7 @@ func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	readiness.Status.CheckStatus = []corev1alpha2.CheckStatus{}
 	providersList := &corev1alpha2.ReadinessProviderList{}
 
-	// TODO: Find a better way to index and fetch the proviers in a single list call
+	// TODO: Find a better way to index and fetch the providers in a single list call
 	for _, check := range readiness.Spec.Checks {
 		providers := &corev1alpha2.ReadinessProviderList{}
 		err = r.Client.List(ctxCancel, providers, &client.ListOptions{
@@ -85,6 +85,7 @@ func (r *ReadinessReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		}
 	}
 
+	// TODO: Handle Composite checks
 	for _, check := range readiness.Spec.Checks {
 		checkStatusUpdate := corev1alpha2.CheckStatus{
 			Name:      check.Name,

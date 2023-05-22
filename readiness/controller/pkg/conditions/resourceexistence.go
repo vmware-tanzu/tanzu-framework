@@ -14,8 +14,13 @@ import (
 	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 )
 
+// NewResourceExistenceConditionFunc returns a function for evaluating evaluate a ResourceExistenceCondition
 func NewResourceExistenceConditionFunc(dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient) func(context.Context, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string) {
 	return func(ctx context.Context, c *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
+		if c == nil {
+			return corev1alpha2.ConditionFailureState, "resourceExistenceCondition is not defined"
+		}
+
 		var err error
 
 		queryClient, err := capabilitiesDiscovery.NewClusterQueryClient(dynamicClient, discoveryClient)
@@ -49,6 +54,6 @@ func NewResourceExistenceConditionFunc(dynamicClient *dynamic.DynamicClient, dis
 		if !ok {
 			return corev1alpha2.ConditionFailureState, "resource not found"
 		}
-		return corev1alpha2.ConditionSuccessState, ""
+		return corev1alpha2.ConditionSuccessState, "resource found"
 	}
 }

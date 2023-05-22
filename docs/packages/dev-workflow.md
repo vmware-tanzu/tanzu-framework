@@ -10,13 +10,13 @@ This document provides guidance on how to build and publish package and repo bun
    package bundles.
 
    ```shell
-      OCI_REGISTRY="****" make docker-build-all -f build-tooling.mk
+      OCI_REGISTRY="****" make docker-build-all
    ```
 
 2. Publish the container images for all the packages
 
    ```shell
-      OCI_REGISTRY="****" make docker-publish-all -f build-tooling.mk
+      OCI_REGISTRY="****" make docker-publish-all
    ```
 
    This would push container images for the components to specified registry and also replaces the newImage path in the [kbld-config.yaml](../../packages/readiness/kbld-config.yaml)
@@ -33,7 +33,7 @@ This document provides guidance on how to build and publish package and repo bun
       REGISTRY_USERNAME="****" \
       REGISTRY_PASSWORD="****" \
       REGISTRY_SERVER="****" \
-      make package-bundle-generate-all -f build-tooling.mk
+      make package-bundle-generate-all
    ```
 
    To build a particular package bundle, run the following command. `PACKAGE_NAME` should specify the directory name under [packages](../../packages)
@@ -48,7 +48,7 @@ This document provides guidance on how to build and publish package and repo bun
       REGISTRY_USERNAME="****" \
       REGISTRY_PASSWORD="****" \
       REGISTRY_SERVER="****" \
-      make package-bundle-generate -f build-tooling.mk
+      make package-bundle-generate
    ```
 
 4. Build package repo bundle [Optional]
@@ -62,7 +62,7 @@ This document provides guidance on how to build and publish package and repo bun
       REPO_BUNDLE_VERSION="v1.0.0" \
       REPO_BUNDLE_SUB_VERSION="0" \
       PACKAGE_VALUES_FILE=packages/package-values.yaml \
-      make repo-bundle-generate -f build-tooling.mk
+      make repo-bundle-generate
    ```
 
 5. Push package bundles
@@ -78,7 +78,7 @@ This document provides guidance on how to build and publish package and repo bun
       REGISTRY_USERNAME="****" \
       REGISTRY_PASSWORD="****" \
       REGISTRY_SERVER="****" \
-      make package-bundle-push-all -f build-tooling.mk
+      make package-bundle-push-all
    ```
 
    If you are interested in pushing only a specific package bundle, you could do that by running
@@ -92,7 +92,7 @@ This document provides guidance on how to build and publish package and repo bun
       REGISTRY_USERNAME="****" \
       REGISTRY_PASSWORD="****" \
       REGISTRY_SERVER="****" \
-      make package-bundle-push -f build-tooling.mk
+      make package-bundle-push
    ```
 
 6. Push repo bundle [Optional]
@@ -107,7 +107,7 @@ This document provides guidance on how to build and publish package and repo bun
       REGISTRY_USERNAME="****" \
       REGISTRY_PASSWORD="****" \
       REGISTRY_SERVER="****" \
-      make repo-bundle-generate repo-bundle-push -f build-tooling.mk
+      make repo-bundle-generate repo-bundle-push
    ```
 
 ----

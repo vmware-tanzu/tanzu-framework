@@ -1,6 +1,6 @@
 # readiness Package
 
-This package provides the functionality to define and evaluate k8s clusters for suitability of running enterprise-workloads using [readiness](https://INFO_NEEDED).
+This package provides the functionality to define and evaluate k8s clusters for suitability of running enterprise workloads using [readiness](https://INFO_NEEDED).
 
 ## Components
 
@@ -24,4 +24,4 @@ The following configuration values can be set to customize the readiness install
 
 ## Usage Example
 
-The following is a basic guide for getting started with readiness.
+Readiness and ReadinessProvider API concepts and usage guide can be found [here](../../docs/runtime-core/readiness-framework.md).

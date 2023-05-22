@@ -120,7 +120,7 @@ var _ = Describe("Readiness controller", func() {
 			"podCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionSuccessState))
-		Expect(msg).To(Equal(""))
+		Expect(msg).To(Equal("resource found"))
 	})
 
 	It("should fail when querying a non-existing namespaced resource", func() {
@@ -148,7 +148,7 @@ var _ = Describe("Readiness controller", func() {
 			"crdCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionSuccessState))
-		Expect(msg).To(Equal(""))
+		Expect(msg).To(Equal("resource found"))
 	})
 
 	It("should succeed when querying a non-existing cluster scoped resource", func() {
@@ -161,5 +161,12 @@ var _ = Describe("Readiness controller", func() {
 
 		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
 		Expect(msg).To(Equal("resource not found"))
+	})
+
+	It("should fail when resourceExistenceCondition is undefined", func() {
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, "undefinedCondition")
+
+		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
+		Expect(msg).To(Equal("resourceExistenceCondition is not defined"))
 	})
 })

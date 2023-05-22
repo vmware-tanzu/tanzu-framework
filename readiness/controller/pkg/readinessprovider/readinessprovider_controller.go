@@ -57,9 +57,7 @@ func (r *ReadinessProviderReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		readinessProvider.Status.Conditions[i].Name = condition.Name
 		var state corev1alpha2.ReadinessConditionState
 		var message string
-		if condition.ResourceExistenceCondition != nil {
-			state, message = r.ResourceExistenceCondition(ctxCancel, condition.ResourceExistenceCondition, condition.Name)
-		}
+		state, message = r.ResourceExistenceCondition(ctxCancel, condition.ResourceExistenceCondition, condition.Name)
 		readinessProvider.Status.Conditions[i].State = state
 		readinessProvider.Status.Conditions[i].Message = message
 	}
