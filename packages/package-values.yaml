@@ -24,9 +24,13 @@ repositories:
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "featuregates:latest"
-
       - name: capabilities
         path: packages/capabilities
         domain: tanzu.vmware.com
         version: latest
         sha256: "capabilities:latest"
+      - name: readiness
+        path: packages/readiness
+        domain: tanzu.vmware.com
+        version: latest
+        sha256: "readiness:latest"

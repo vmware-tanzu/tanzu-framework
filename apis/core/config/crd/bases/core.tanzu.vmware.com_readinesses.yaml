@@ -1,0 +1,125 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
+  name: readinesses.core.tanzu.vmware.com
+spec:
+  group: core.tanzu.vmware.com
+  names:
+    kind: Readiness
+    listKind: ReadinessList
+    plural: readinesses
+    singular: readiness
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.ready
+      name: Ready
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha2
+    schema:
+      openAPIV3Schema:
+        description: Readiness is the Schema for the readinesses API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ReadinessSpec defines the desired state of Readiness
+            properties:
+              checks:
+                description: Checks is the set of checks that are required to mark
+                  the readiness
+                items:
+                  properties:
+                    category:
+                      description: Category is the category of the check. Examples
+                        of categories are availability and security.
+                      type: string
+                    name:
+                      description: Name is the name of the check
+                      type: string
+                    type:
+                      description: Type is the type of the check. Type can be either
+                        basic or composite. The basic checks depend on its providers
+                        to be ready. The composite checks depend on the basic checks
+                        for their readiness.
+                      enum:
+                      - basic
+                      - composite
+                      type: string
+                  required:
+                  - category
+                  - name
+                  - type
+                  type: object
+                type: array
+            required:
+            - checks
+            type: object
+          status:
+            description: ReadinessStatus defines the observed state of Readiness
+            properties:
+              checkStatus:
+                description: CheckStatus presents the status of check defined in the
+                  spec
+                items:
+                  properties:
+                    name:
+                      description: Name is the name of the check
+                      type: string
+                    providers:
+                      description: Providers is the list of providers available for
+                        the given check
+                      items:
+                        properties:
+                          isActive:
+                            description: IsActive is the boolean flag indicating if
+                              the provider is active
+                            type: boolean
+                          name:
+                            description: Name is the name of the provider
+                            type: string
+                        required:
+                        - isActive
+                        - name
+                        type: object
+                      type: array
+                    status:
+                      description: Ready is the boolean flag indicating if the check
+                        is ready
+                      type: boolean
+                  required:
+                  - name
+                  - providers
+                  - status
+                  type: object
+                type: array
+              ready:
+                description: Ready is the flag that denotes if the defined readiness
+                  is ready. The readiness is marked ready if all the checks are satisfied.
+                type: boolean
+            required:
+            - checkStatus
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

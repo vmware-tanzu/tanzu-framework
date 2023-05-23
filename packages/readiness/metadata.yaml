@@ -1,0 +1,15 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: readiness.tanzu.vmware.com
+  namespace: readiness
+spec:
+  displayName: "readiness"
+  longDescription: "Readiness package provides Readiness APIs to allow users to define k8s cluster evaluation checks for suitability to run enterprise workloads"
+  shortDescription: "Readiness"
+  providerName: VMware
+  maintainers:
+    - name: "Sathyanarayanan Saravanamuthu"
+    - name: "Avi Sharma"
+  categories:
+    - "enterprise readiness"

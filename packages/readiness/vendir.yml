@@ -1,0 +1,16 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+minimumRequiredVersion: 0.12.0
+directories:
+  - path: bundle/config/upstream
+    contents:
+      - path: crds
+        directory:
+          path: ../../apis/core/config/crd/bases/
+        includePaths:
+          - core.tanzu.vmware.com_readinesses.yaml
+          - core.tanzu.vmware.com_readinessproviders.yaml
+      - path: rbac.yaml
+        manual: {}
+      - path: tanzu-readiness-manager.yaml
+        manual: {}

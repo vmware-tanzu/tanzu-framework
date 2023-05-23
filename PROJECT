@@ -38,4 +38,10 @@ resources:
 - group: core
   kind: Feature
   version: v1alpha2
+- group: core
+  kind: Readiness
+  version: v1alpha2
+- group: core
+  kind: ReadinessProvider
+  version: v1alpha2
 version: "2"
