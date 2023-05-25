@@ -1,0 +1,279 @@
+variables:
+  REPO_PATH: gitlab.eng.vmware.com/core-build
+  PROJECT_NAME: tkg
+  OK_TO_MERGE_LABEL: "ok-to-merge"
+  GOLANG_VERSION: "1.18"
+
+default:
+  interruptible: true
+  image: harbor-repo.vmware.com/dockerhub-proxy-cache/library/golang:${GOLANG_VERSION}
+  before_script:
+    - cp -r /.docker ~/.docker
+
+.default_rules:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TITLE !~ /^WIP:.*/ && $CI_MERGE_REQUEST_TITLE !~ /^Draft:.*/'
+
+.go-cache:
+  cache:
+    paths:
+      - $GOPATH/pkg/mod/
+      - $GOCACHE
+
+stages:          # List of stages for jobs, and their order of execution
+  - lint
+  - code-test
+  - build
+  - plugin-test
+  - merge-checker
+
+lint:
+  stage: lint
+  needs: []
+  script:
+    - apt-get update -y
+    - apt-get install -y docker.io
+    - make lint
+  rules:
+    - !reference [.default_rules, rules]
+    - if: $LINT_DISABLED == "true"
+      when: never
+
+yamllint:
+  stage: lint
+  needs: []
+  image: registry.gitlab.com/pipeline-components/yamllint:latest
+  script:
+    - yamllint -s -c hack/check/.yamllintconfig.yaml .
+    - yamllint -s -c providers/.yamllint providers
+  rules:
+    - !reference [.default_rules, rules]
+    - if: $YAML_LINT_DISABLED == "true"
+      when: never
+
+make-verify-test:
+  stage: code-test
+  needs: []
+  extends: .go-cache
+  script:
+    - echo "make verify..."
+    - make verify
+    - echo "make verify passed."
+  rules:
+    - !reference [.default_rules, rules]
+    - if: $MAKE_VERIFY_DISABLED == "true"
+      when: never
+
+unit-test:
+  stage: code-test
+  needs: []
+  extends: .go-cache
+  script:
+    - make test ENVS=linux-amd64
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -t $CODECOV_TOKEN
+  coverage: '/coverage: \d+.\d+% of statements/'
+  artifacts:
+    expose_as: 'code_cov'
+    paths:
+      - ./coverage1.txt
+      - ./coverage2.txt
+      - ./coverage3.txt
+      - ./addons/coverage.txt
+      - ./pinniped-components/post-deploy/coverage.txt
+      - ./pinniped-components/tanzu-auth-controller-manager/coverage.txt
+      - ./cli/core/coverage.txt
+      - ./cli/runtime/coverage.txt
+      - ./tkg/coverage.txt
+      - ./featuregates/client/cover.out
+      - ./featuregates/controller/cover.out
+      - ./capabilities/client/cover.out
+      - ./capabilities/controller/cover.out
+      - ./cmd/cli/plugin-admin/builder/cover.out
+      - ./cmd/cli/plugin-admin/codegen/cover.out
+      - ./cmd/cli/plugin-admin/test/cover.out
+      - ./apis/config/cover.out
+      - ./apis/run/cover.out
+      - ./packageclients/cover.out
+      - ./apis/addonconfigs/cover.out
+      - ./apis/cli/cover.out
+      - ./apis/core/cover.out
+      - ./cmd/cli/plugin/feature/cover.out
+      - ./cmd/cli/plugin/login/cover.out
+      - ./cmd/cli/plugin/package/cover.out
+      - ./cmd/cli/plugin/pinniped-auth/cover.out
+      - ./cmd/cli/plugin/secret/cover.out
+      - ./cmd/cli/plugin/cluster/coverage.txt
+      - ./cmd/cli/plugin/managementcluster/coverage.txt
+      - ./cmd/cli/plugin/isolated-cluster/coverage.txt
+    expire_in: 3 days
+  rules:
+    - !reference [.default_rules, rules]
+    - if: $UNIT_TEST_DISABLED == "true"
+      when: never
+
+provider-templates-test:
+  stage: code-test
+  tags: 
+   - provider
+  needs: []
+  script:
+    - echo "==========Setup dependencies=========="
+    - mkdir -p bin
+    - wget -q https://storage.googleapis.com/tkg-cli-builds/bin/pict.linux -O bin/pict
+    - chmod +x bin/pict
+    - wget -q https://storage.googleapis.com/tkg-cli-builds/bin/clusterctl -O bin/clusterctl
+    - chmod +x bin/clusterctl
+    - wget -q https://github.com/vmware-tanzu/carvel-ytt/releases/download/v0.30.0/ytt-linux-amd64 -O bin/ytt
+    - chmod +x bin/ytt
+    - export PATH="$PWD/bin:$PATH"
+    - wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+    - apt-get update -y
+    - apt-get install -y zip
+    - apt-get install -y docker.io
+    - apt-get install -y wdiff
+    - git fetch --all
+    - echo "==========Run clustergen verification tests=========="
+    - pwd
+    - status=$(test -s ./providers/tests/clustergen/testdata/clustergen.diff.txt; echo $?)
+    - CLUSTERCTL=clusterctl CLI_REPO=$PWD ./hack/clustergen/ci-validate-clustergen.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    - echo $status > ./providers/tests/clustergen/testdata/clustergen.status
+    - echo $CI_MERGE_REQUEST_ID > ./providers/tests/clustergen/testdata/prnum
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TITLE !~ /^WIP:.*/ && $CI_MERGE_REQUEST_TITLE !~ /^Draft:.*/'
+      changes:
+        - 'tkg/**'
+        - 'providers/**'
+        - '.gitlab-ci.yml'
+    - if: $PROVIDER_TEMPLATES_TEST_DISABLED == "true"
+      when: never
+  artifacts:
+    expose_as: 'providers_template_diff'
+    paths:
+      - ./providers/tests/clustergen/testdata/prnum
+      - ./providers/tests/clustergen/testdata/clustergen.status
+      - ./providers/tests/clustergen/testdata/clustergen.diff.txt
+      - ./providers/tests/clustergen/testdata/clustergen_cc.diff.txt
+      - ./providers/tests/clustergen/testdata/clustergen_noncc_vs_cc.diff.txt
+      - ./providers/tests/clustergen/testdata/clustergen.html
+    expire_in: 3 days
+
+build:
+  stage: build
+  needs: []
+  extends: .go-cache
+  script:
+    - echo "==========Get dependencies=========="
+    - go mod download
+    - apt-get update -y
+    - apt-get install -y zip
+    - apt-get install -y docker.io
+    - mkdir -p tkg/web/dist
+    - echo "==========run make all=========="
+    - make all ENVS=linux-amd64
+  rules:
+    - !reference [.default_rules, rules]
+    - if: $BUILD_JOB_DISABLED == "true"
+      when: never
+
+build-carvel-packages:
+  stage: build
+  needs: []
+  extends: .go-cache
+  variables:
+    OCI_REGISTRY: ${HARBOR_HOST}/${HARBOR_PROJECT}/${CI_PROJECT_NAME}/mr/${CI_MERGE_REQUEST_IID}
+    COMPONENTS: "tkr/controller/tkr-source tkr/controller/tkr-status featuregates addons capabilities tkr/webhook/tkr-conversion tkr/webhook/cluster/tkr-resolver tkg/vsphere-template-resolver pinniped-components/tanzu-auth-controller-manager object-propagation"
+    BUILD_VERSION: "v0.28.0"
+    IMG_VERSION_OVERRIDE: latest
+  script:
+    - echo "==========clean up space=========="
+    - df -h
+    - rm -rf /usr/share/dotnet
+    - rm -rf /opt/ghc
+    - rm -rf /usr/local/share/boost
+    - rm -rf /usr/lib/jvm
+    - rm -rf /usr/lib/firefox
+    - rm -rf /opt/microsoft/powershell
+    - rm -rf /opt/hostedtoolcache
+    - rm -rf ~/.cache
+    - rm -rf ~/.kube
+    - rm -rf ~/.local/share/tanzu-cli/*
+    - sh -c 'find /tmp -type d -name "go-build*" -mtime +3 | xargs rm -rf'
+    - echo "free space after cleanup:"
+    - df -h
+    - echo "==========build tools=========="
+    - make tools
+    - echo "==========build management packages=========="
+    - apt-get update -y && apt-get install -y docker.io
+    - make local-registry
+    - make docker-build
+    - echo "==========publish management packages=========="
+    - make docker-publish
+    - cp tkg/test/config/packages/core-management-plugins/kbld-config_test.yaml packages/core-management-plugins/kbld-config.yaml
+    - make kbld-image-replace
+    - make package-push-bundles-repo PACKAGE_REPOSITORY=management
+    - make clean-registry
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
+    - if: $BUILD_CARVEL_PACKAGES_DISABLED == "true"
+      when: never
+
+cluster-plugin-test:
+  stage: plugin-test
+  extends: .go-cache
+  needs:
+    - []
+  script:
+    - echo "==========Free disk space and clean up installed plugins on runner=========="
+    - rm -rf /usr/share/dotnet
+    - rm -rf ~/.cache
+    - rm -rf ~/.kube
+    - rm -rf ~/.local/share/tanzu-cli/*
+    - sh -c 'find /tmp -type d -name "go-build*" -mtime +3 | xargs rm -rf'
+    - echo "==========Get dependencies=========="
+    - go mod download
+    - apt-get update -y
+    - apt-get install -y zip
+    - echo "==========Build=========="
+    - make build-cli-local
+    - echo "==========Install=========="
+    - make install-cli
+    - tanzu config set features.global.context-aware-cli-for-plugins true
+    - tanzu plugin install all --local artifacts/linux/amd64/cli/
+    - tanzu plugin install all --local artifacts-admin/linux/amd64/cli/
+    - echo "==========Test Cluster Plugin=========="
+    - tanzu version
+    - tanzu cluster version
+    - tanzu management-cluster version
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TITLE !~ /^WIP:.*/ && $CI_MERGE_REQUEST_TITLE !~ /^Draft:.*/'
+      changes:
+        - "cmd/cli/plugin/cluster/**"
+        - "cmd/cli/plugin/managementcluster/**"
+        - 'tkg/**'
+        - 'providers/**'
+        - Makefile
+        - 'cli/**'
+        - '.gitlab-ci.yml'
+      when: always
+    - if: $CLUSTER_PLUGIN_TEST_DISABLED == "true"
+      when: never
+  
+merge-checker-job:
+  stage: merge-checker
+  needs:
+    - []
+  script:
+    - if [[ "${CI_MERGE_REQUEST_LABELS}" =~ .*"${OK_TO_MERGE_LABEL}"*. ]]; then
+    - echo "Label exists"
+    - else
+    - echo "Could not find required label -- ${OK_TO_MERGE_LABEL}"
+    - exit 1
+    - fi
+  rules:
+    - !reference [.default_rules, rules]
+    - if: $MERGE_CHECKER_DISABLED == "true"
+      when: never

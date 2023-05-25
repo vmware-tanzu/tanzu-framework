@@ -4,6 +4,7 @@ extends: relaxed
 ignore: |
   */tkg/web/node_modules/
   */providers/provider-bundle
+  .gitlab-ci.yml
 
 rules:
   line-length: disable

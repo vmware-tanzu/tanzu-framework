@@ -563,7 +563,7 @@ test-cli: build-cli-mocks ## Run tests
 	#Test core cli
 	$(MAKE) test -C cli/core
 
-lint: tools go-lint doc-lint misspell yamllint ## Run linting and misspell checks
+lint: tools go-lint doc-lint misspell ## Run linting and misspell checks
 	# Check licenses in shell scripts and Makefiles
 	hack/check-license.sh
 
