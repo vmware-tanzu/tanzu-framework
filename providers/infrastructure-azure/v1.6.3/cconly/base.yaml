@@ -759,7 +759,7 @@ spec:
             name: {{ if .network.vnet.name }} {{- .network.vnet.name }} {{- else }} {{- .builtin.cluster.name -}} -vnet {{- end }}
             resourceGroup: {{ if .network.vnet.resourceGroup }} {{- .network.vnet.resourceGroup }} {{- else if .resourceGroup }} {{- .resourceGroup }} {{- else }} {{- .builtin.cluster.name }} {{- end }}
             cidrBlocks:
-              {{ range .network.vnet.cidrBlocks -}}
+              {{ range .network.vnet.cidrBlocks }}
                 - {{ . }}
               {{- end }}
       - op: add
