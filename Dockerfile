@@ -6,6 +6,7 @@
 
 ARG BUILDER_BASE_IMAGE=golang:1.19
 ARG ENVTEST_K8S_VERSION=1.26.1
+ARG TANZU_CLI_VERSION=0.90.0-alpha.2
 
 FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE as base
 ARG COMPONENT
@@ -70,17 +71,17 @@ ARG BUILDARCH
 RUN wget -O /bin/imgpkg https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/${IMGPKG_VERSION}/imgpkg-linux-${BUILDARCH} && \
     chmod +x /bin/imgpkg
 
-# Download, extract, and install Tanzu CLI Plugin Builder
-# Note: Until the first version of Tanzu CLI is released, we will be cloning
-# the vmware-tanzu/tanzu-cli repo and building the plugin builder here.
-# When the first release is available, we'll get the plugin builder tool
-# from their central repository.
+# Install Tanzu CLI Plugin Builder
 FROM base AS cli-plugin-builder-install
-RUN cd /tmp && \
-    git clone https://github.com/vmware-tanzu/tanzu-cli.git && \
-    cd tanzu-cli/cmd/plugin/builder && \
-    go build -o /bin/tanzu-builder . && \
-    cd /workspace
+ARG TANZU_CLI_VERSION
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    printf "deb https://storage.googleapis.com/tanzu-cli-os-packages/apt tanzu-cli-jessie main" | tee /etc/apt/sources.list.d/tanzu.list && \
+    apt-get update --allow-insecure-repositories && \
+    apt-get install -y tanzu-cli=${TANZU_CLI_VERSION} --allow-unauthenticated && \
+    tanzu ceip set true && \
+    tanzu config eula accept && \
+    tanzu plugin install builder
 
 # Run Tanzu plugin builder and compile all plugins in the project's cmd/cli/plugin directory.
 FROM cli-plugin-builder-install AS cli-plugin-build-prep
@@ -90,13 +91,13 @@ ARG OCI_REGISTRY
 ARG CLI_PLUGIN_GO_FLAGS
 RUN --mount=type=bind,readwrite \
     --mount=from=carvel-base,src=/bin/imgpkg,target=/bin/imgpkg \
-    tanzu-builder plugin build \
+    tanzu builder plugin build \
         --match "${CLI_PLUGIN}" \
         --os-arch linux_amd64 --os-arch windows_amd64 --os-arch darwin_amd64 \
         --version "${CLI_PLUGIN_VERSION}" \
         --binary-artifacts "./artifacts/plugins" \
         --goflags "${CLI_PLUGIN_GO_FLAGS}" && \
-    tanzu-builder plugin build-package \
+    tanzu builder plugin build-package \
         --oci-registry "${OCI_REGISTRY}" && \
     mkdir -p /out/plugin-artifacts && \
     cp -r artifacts /out/plugin-artifacts
@@ -111,7 +112,7 @@ ARG IMGPKG_PASSWORD
 ENV IMGPKG_USERNAME=${IMGPKG_USERNAME} IMGPKG_PASSWORD=${IMGPKG_PASSWORD}
 RUN --mount=type=bind,readwrite \
     --mount=from=carvel-base,src=/bin/imgpkg,target=/bin/imgpkg \
-    tanzu-builder plugin publish-package \
+    tanzu builder plugin publish-package \
         --repository "${REPOSITORY}" \
         --publisher "${PUBLISHER}" \
         --vendor "${VENDOR}" \
