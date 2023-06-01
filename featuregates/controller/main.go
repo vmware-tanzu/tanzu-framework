@@ -15,6 +15,7 @@ import (
 	k8sscheme "k8s.io/client-go/kubernetes/scheme"
 	cliflag "k8s.io/component-base/cli/flag"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
@@ -139,10 +140,16 @@ func main() {
 
 	signalHandler := ctrl.SetupSignalHandler()
 
+	ctrlClient, err := client.New(ctrl.GetConfigOrDie(), client.Options{})
+	if err != nil {
+		setupLog.Error(err, "unable to create ctrl client")
+		os.Exit(1)
+	}
+
 	// Start certificate manager
 	setupLog.Info("Starting certificate manager")
 	certManagerOpts := &certs.Options{
-		Client:                        mgr.GetClient(),
+		Client:                        ctrlClient,
 		Logger:                        ctrl.Log.WithName("featuregates-webhook-cert-manager"),
 		CertDir:                       webhookSecretVolumeMountPath,
 		WebhookConfigLabel:            webhookConfigLabel,
