@@ -86,7 +86,7 @@ rules:
     verbs:
       - get
       - list
-      - update   
+      - update  
   - apiGroups:
       - "*"
     resources:
