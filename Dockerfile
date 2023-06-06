@@ -73,7 +73,7 @@ RUN wget -O /bin/imgpkg https://github.com/vmware-tanzu/carvel-imgpkg/releases/d
 
 # Install Tanzu CLI Plugin Builder.
 # Note: We are temporarily using a deactivated plugin until a bug fix is made to the plugin builder.
-FROM base AS cli-plugin-builder-install
+FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE AS cli-plugin-builder-install
 ARG TANZU_CLI_VERSION
 RUN apt-get update && \
     apt-get install -y ca-certificates && \
