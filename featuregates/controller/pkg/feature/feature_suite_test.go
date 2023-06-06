@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"net"
 	"os"
 	"path"
 	"path/filepath"
@@ -27,6 +28,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/util/cert"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -34,7 +36,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	testutil "github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/test"
+	testutil "github.com/vmware-tanzu/tanzu-framework/util/test"
 )
 
 func TestFeaturegate(t *testing.T) {
@@ -58,7 +60,7 @@ var (
 )
 
 func generateCertificateAndManifests() error {
-	key, cert, err := testutil.GenerateSelfSignedCertsForTest("tanzu-featuregates-webhook-service.tkg-system.svc")
+	cert, key, err := cert.GenerateSelfSignedCertKey("tanzu-featuregates-webhook-service.tkg-system.svc", []net.IP{}, []string{})
 	if err != nil {
 		return err
 	}

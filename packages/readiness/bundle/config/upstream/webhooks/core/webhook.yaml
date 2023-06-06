@@ -1,0 +1,29 @@
+#@ load("@ytt:data", "data")
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: tanzu-readinessprovider-validating-webhook-core
+  labels:
+    tanzu.vmware.com/readinessprovider-webhook-managed-certs: "true"
+webhooks:
+  - admissionReviewVersions:
+      - v1beta1
+    clientConfig:
+      service:
+        name: tanzu-readinessprovider-webhook-service
+        namespace: #@ data.values.namespace
+        path: /validate-core-tanzu-vmware-com-v1alpha2-readinessprovider
+    failurePolicy: Fail
+    name: readinessprovider.core.tanzu.vmware.com
+    rules:
+      - apiGroups:
+          - core.tanzu.vmware.com
+        apiVersions:
+          - v1alpha2
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - readinessproviders
+    sideEffects: None

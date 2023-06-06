@@ -5,7 +5,13 @@ package readinessprovider
 
 import (
 	"context"
+	"encoding/base64"
+	"log"
+	"net"
+	"os"
+	"path"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -14,8 +20,10 @@ import (
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/util/cert"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -23,6 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
+	testutil "github.com/vmware-tanzu/tanzu-framework/util/test"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -38,11 +47,49 @@ var setupLog = ctrl.Log.WithName("controllers").WithName("readinessprovider")
 var timeout = 10 * time.Second
 var interval = 100 * time.Millisecond
 var calls int
+var tmpDir string
+var generatedWebhookManifestBytes []byte
 
 func TestAPIs(t *testing.T) {
 	RegisterFailHandler(Fail)
 
 	RunSpecs(t, "Controller Suite")
+}
+
+func generateCertificateAndManifests() error {
+	cert, key, err := cert.GenerateSelfSignedCertKey("tanzu-readinessprovider-webhook-service.default.svc", []net.IP{}, []string{})
+	if err != nil {
+		return err
+	}
+
+	tmpDir, err = os.MkdirTemp("/tmp", "readinessprovider-test")
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(path.Join(tmpDir, "readinessprovider-webhook.crt"), cert, 0644)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(path.Join(tmpDir, "readinessprovider-webhook.key"), key, 0644)
+	if err != nil {
+		return err
+	}
+
+	input, err := os.ReadFile("testdata/webhook.yaml")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	lines := strings.Split(string(input), "\n")
+
+	for i, line := range lines {
+		if strings.Contains(line, "Cg==") {
+			lines[i] = strings.Replace(lines[i], "Cg==", base64.StdEncoding.EncodeToString(cert), 1)
+		}
+	}
+	generatedWebhookManifestBytes = []byte(strings.Join(lines, "\n"))
+	return nil
 }
 
 var _ = BeforeSuite(func() {
@@ -60,6 +107,8 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(cfg).NotTo(BeNil())
 
+	testEnv.ControlPlane.APIServer.Configure().Append("admission-control", "ValidatingAdmissionWebhook")
+
 	err = corev1alpha2.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -73,11 +122,24 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).ToNot(HaveOccurred())
 
+	err = generateCertificateAndManifests()
+	Expect(err).ToNot(HaveOccurred())
+
+	k8sManager.GetWebhookServer().TLSMinVersion = "1.2"
+	k8sManager.GetWebhookServer().CertDir = tmpDir
+	k8sManager.GetWebhookServer().CertName = "readinessprovider-webhook.crt"
+	k8sManager.GetWebhookServer().KeyName = "readinessprovider-webhook.key"
+	k8sManager.GetWebhookServer().Port = 9443
+
 	//+kubebuilder:scaffold:scheme
 
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme.Scheme})
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
+
+	dynamicClient, err := dynamic.NewForConfig(cfg)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(dynamicClient).ToNot(BeNil())
 
 	err = (&ReadinessProviderReconciler{
 		Client: k8sManager.GetClient(),
@@ -99,11 +161,17 @@ var _ = BeforeSuite(func() {
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
+	err = (&corev1alpha2.ReadinessProvider{}).SetupWebhookWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
 	go func() {
 		defer GinkgoRecover()
 		err = k8sManager.Start(ctx)
 		Expect(err).ToNot(HaveOccurred(), "failed to run manager")
 	}()
+
+	err = testutil.CreateResourcesFromManifest(generatedWebhookManifestBytes, cfg, dynamicClient)
+	Expect(err).ToNot(HaveOccurred())
 })
 
 var _ = AfterSuite(func() {
@@ -114,6 +182,13 @@ var _ = AfterSuite(func() {
 })
 
 var _ = Describe("Readiness Provider controller", func() {
+	It("should fail when the condition type is empty", func() {
+		readinessProvider := getTestReadinessProvider()
+		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{})
+		err := k8sClient.Create(ctx, readinessProvider)
+		Expect(err).NotTo(BeNil())
+	})
+
 	It("should succeed when the provider has no conditions", func() {
 		readinessProvider := getTestReadinessProvider()
 		err := k8sClient.Create(ctx, readinessProvider)

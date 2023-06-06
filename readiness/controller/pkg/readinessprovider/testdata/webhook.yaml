@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tanzu-readinessprovider-webhook-service
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: 127.0.0.1
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: tanzu-readinessprovider-validating-webhook-core
+  annotations:
+webhooks:
+  - admissionReviewVersions:
+      - v1beta1
+    clientConfig:
+      caBundle: Cg==
+      service:
+        name: tanzu-readinessprovider-webhook-service
+        namespace: default
+        path: /validate-core-tanzu-vmware-com-v1alpha2-readinessprovider
+        port: 9443
+    failurePolicy: Fail
+    name: readinessproviders.core.tanzu.vmware.com
+    rules:
+      - apiGroups:
+          - core.tanzu.vmware.com
+        apiVersions:
+          - v1alpha2
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - readinessproviders
+    sideEffects: None
