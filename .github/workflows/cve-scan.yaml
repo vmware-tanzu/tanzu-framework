@@ -25,7 +25,13 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
-          trivy-config: .trivy.yaml
+          ignore-unfixed: true
+          exit-code: 1
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          skip-dirs: 'docs'
+          scanners: 'vuln'
           limit-severities-for-sarif: true
 
       - name: Upload Trivy scan results to GitHub Security tab
