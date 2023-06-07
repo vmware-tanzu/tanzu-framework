@@ -8,6 +8,7 @@ import (
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
@@ -32,7 +33,7 @@ func (r *ReadinessProvider) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *ReadinessProvider) ValidateUpdate(old runtime.Object) error {
+func (r *ReadinessProvider) ValidateUpdate(_ runtime.Object) error {
 	readinessproviderlog.Info("validate update", "name", r.Name)
 	return r.validateObject()
 }
@@ -44,11 +45,21 @@ func (r *ReadinessProvider) ValidateDelete() error {
 }
 
 func (r *ReadinessProvider) validateObject() error {
+	var allErrors field.ErrorList
+
 	for _, condition := range r.Spec.Conditions {
 		if condition.ResourceExistenceCondition == nil {
-			return apierrors.NewBadRequest(fmt.Sprintf("Expected condition %s to have exactly one type defined", condition.Name))
+			allErrors = append(
+				allErrors,
+				field.Invalid(
+					field.NewPath("spec").Child("conditions"),
+					r.Spec.Conditions, fmt.Sprintf("Expected condition %s to have exactly one type defined", condition.Name)))
 		}
 	}
 
-	return nil
+	if len(allErrors) == 0 {
+		return nil
+	}
+
+	return apierrors.NewInvalid(GroupVersion.WithKind("ReadinessProvider").GroupKind(), r.Name, allErrors)
 }
