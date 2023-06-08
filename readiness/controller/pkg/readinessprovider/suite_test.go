@@ -299,6 +299,86 @@ var _ = Describe("Readiness Provider controller", func() {
 				readinessProvider.Status.Conditions[1].State == corev1alpha2.ConditionFailureState
 		}, timeout, interval).Should(BeTrue())
 	})
+
+	It("should fail when a newly added condition fails", func() {
+		readinessProvider := getTestReadinessProvider()
+		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{
+			Name:                       "cond1",
+			ResourceExistenceCondition: &corev1alpha2.ResourceExistenceCondition{},
+		})
+		err := k8sClient.Create(ctx, readinessProvider)
+		Expect(err).To(BeNil())
+
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
+			return err == nil &&
+				readinessProvider.Status.State == corev1alpha2.ProviderSuccessState &&
+				len(readinessProvider.Status.Conditions) == 1 &&
+				readinessProvider.Status.Conditions[0].State == corev1alpha2.ConditionSuccessState
+		}, timeout, interval).Should(BeTrue())
+
+		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{
+			Name: "cond1",
+			ResourceExistenceCondition: &corev1alpha2.ResourceExistenceCondition{
+				Kind: "failurekind",
+			},
+		})
+
+		err = k8sClient.Update(ctx, readinessProvider)
+		Expect(err).To(BeNil())
+
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
+			return err == nil &&
+				readinessProvider.Status.State == corev1alpha2.ProviderFailureState
+		}, timeout, interval).Should(BeTrue())
+	})
+
+	It("should fail when a newly added condition does not have any valid condition type", func() {
+		readinessProvider := getTestReadinessProvider()
+		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{
+			Name:                       "cond1",
+			ResourceExistenceCondition: &corev1alpha2.ResourceExistenceCondition{},
+		})
+		err := k8sClient.Create(ctx, readinessProvider)
+		Expect(err).To(BeNil())
+
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
+			return err == nil &&
+				readinessProvider.Status.State == corev1alpha2.ProviderSuccessState &&
+				len(readinessProvider.Status.Conditions) == 1 &&
+				readinessProvider.Status.Conditions[0].State == corev1alpha2.ConditionSuccessState
+		}, timeout, interval).Should(BeTrue())
+
+		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{
+			Name: "cond1",
+		})
+
+		err = k8sClient.Update(ctx, readinessProvider)
+		Expect(err).NotTo(BeNil())
+	})
+
+	It("should succeed when a readiness provider is deleted", func() {
+		readinessProvider := getTestReadinessProvider()
+		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{
+			Name:                       "cond1",
+			ResourceExistenceCondition: &corev1alpha2.ResourceExistenceCondition{},
+		})
+		err := k8sClient.Create(ctx, readinessProvider)
+		Expect(err).To(BeNil())
+
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
+			return err == nil &&
+				readinessProvider.Status.State == corev1alpha2.ProviderSuccessState &&
+				len(readinessProvider.Status.Conditions) == 1 &&
+				readinessProvider.Status.Conditions[0].State == corev1alpha2.ConditionSuccessState
+		}, timeout, interval).Should(BeTrue())
+
+		err = k8sClient.Delete(ctx, readinessProvider)
+		Expect(err).To(BeNil())
+	})
 })
 
 func getTestReadinessProvider() *corev1alpha2.ReadinessProvider {

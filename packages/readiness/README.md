@@ -21,6 +21,8 @@ The following configuration values can be set to customize the readiness install
 | `deployment.hostNetwork` | Optional | If true, use the host's network namespace. Defaults to `false` |
 | `deployment.nodeSelector` | Optional | node selectors for deployment of controller-manager pods |
 | `deployment.tolerations` | Optional | tolerations for deployment of controller-manager pods. Defaults to `NoSchedule` on `control-plane` nodes |
+| `deployment.webhookServerPort` | Optional | The port that the webhook server serves at |
+| `deployment.tlsCipherSuites` | Optional | Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be used. |
 
 ## Usage Example
 
