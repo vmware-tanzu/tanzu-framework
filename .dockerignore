@@ -1,5 +1,7 @@
 artifacts/
 artifacts-admin/
+build/
+!build/artifacts/
 hack/
 packages/
 docs/
