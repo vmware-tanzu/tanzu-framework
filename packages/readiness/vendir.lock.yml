@@ -7,5 +7,13 @@ directories:
     path: rbac.yaml
   - manual: {}
     path: tanzu-readiness-manager.yaml
+  - manual: {}
+    path: helpers.star
+  - manual: {}
+    path: service.yaml
+  - manual: {}
+    path: webhook-secret.yaml
+  - manual: {}
+    path: webhooks/core/webhook.yaml
   path: bundle/config/upstream
 kind: LockConfig

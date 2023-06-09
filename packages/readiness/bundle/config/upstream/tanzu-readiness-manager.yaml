@@ -1,4 +1,5 @@
 #@ load("@ytt:data", "data")
+#@ load("helpers.star", "getWebhookServerPort")
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -23,7 +24,28 @@ spec:
         - name: manager
           image: readiness-controller-manager:latest
           imagePullPolicy: IfNotPresent
+          args:
+            - #@ "--webhook-server-port={}".format(getWebhookServerPort())
+            - #@ "--tls-cipher-suites={}".format(data.values.deployment.tlsCipherSuites)
+            - "--webhook-config-label=tanzu.vmware.com/readinessprovider-webhook-managed-certs=true"
+            - #@ "--webhook-service-namespace={}".format(data.values.namespace)
+            - "--webhook-service-name=tanzu-readinessprovider-webhook-service"
+            - #@ "--webhook-secret-namespace={}".format(data.values.namespace)
+            - "--webhook-secret-name=tanzu-readinessprovider-webhook-server-cert"
+          ports:
+            - containerPort: #@ getWebhookServerPort()
+              name: webhook-server
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /tmp/k8s-webhook-server/serving-certs
+              name: cert
+              readOnly: true
       serviceAccount: tanzu-readiness-manager-sa
+      volumes:
+        - name: cert
+          secret:
+            defaultMode: 420
+            secretName: tanzu-readinessprovider-webhook-server-cert
       terminationGracePeriodSeconds: 10
       #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'hostNetwork') and data.values.deployment.hostNetwork:
       #@overlay/match missing_ok=True

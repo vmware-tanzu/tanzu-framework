@@ -70,6 +70,24 @@ rules:
       - patch
       - update
   - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - patch
+      - update
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - validatingwebhookconfigurations
+      - mutatingwebhookconfigurations
+    verbs:
+      - get
+      - list
+      - update
+  - apiGroups:
       - "*"
     resources:
       - "*"
