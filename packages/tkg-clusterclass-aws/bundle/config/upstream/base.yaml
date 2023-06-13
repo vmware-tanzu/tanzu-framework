@@ -298,6 +298,23 @@ spec:
               required:
               - name
               - data
+  - name: additionalImageRegistries
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: array
+        items:
+          type: object
+          required:
+          - host
+          properties:
+            host:
+              type: string
+            skipTlsVerify:
+              type: boolean
+              default: false
+            caCert:
+              type: string
   - name: auditLogging
     required: false
     schema:
@@ -1146,6 +1163,52 @@ spec:
             content: {{or $proxy $image}}
             encoding: base64
             permissions: "0444"
+  - name: additionalRegistryCACerts
+    enabledIf: '{{ not (empty .additionalImageRegistries) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: /tmp/insert_registry_ca_certs.sh
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: &insertCAScript |
+            path: /tmp/insert_registry_ca_certs.sh
+            content: |
+              #!/bin/bash
+              set -e
+              {{- range .additionalImageRegistries }}
+                {{- if eq .skipTlsVerify false }}
+              echo '{{ .caCert }}' | base64 -d > /etc/containerd/{{ .host }}.crt
+              echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{ .host }}".tls]' >> /etc/containerd/config.toml
+              echo '  ca_file = "/etc/containerd/{{ .host }}.crt"' >> /etc/containerd/config.toml
+                {{- else }}
+              echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{ .host }}".tls]' >> /etc/containerd/config.toml
+              echo "  insecure_skip_verify = true" >> /etc/containerd/config.toml
+                {{- end }}
+              {{- end }}
+            permissions: "0755"
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: /tmp/insert_registry_ca_certs.sh
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: *insertCAScript
   - name: auditLogging
     enabledIf: '{{ .auditLogging.enabled }}'
     definitions:
