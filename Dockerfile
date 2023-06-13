@@ -6,7 +6,7 @@
 
 ARG BUILDER_BASE_IMAGE=golang:1.19
 ARG ENVTEST_K8S_VERSION=1.26.1
-ARG TANZU_CLI_VERSION=0.90.0-alpha.2
+ARG TANZU_CLI_VERSION=0.90.0
 
 FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE as base
 ARG COMPONENT
@@ -71,8 +71,9 @@ ARG BUILDARCH
 RUN wget -O /bin/imgpkg https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/${IMGPKG_VERSION}/imgpkg-linux-${BUILDARCH} && \
     chmod +x /bin/imgpkg
 
-# Install Tanzu CLI Plugin Builder
-FROM base AS cli-plugin-builder-install
+# Install Tanzu CLI Plugin Builder.
+# Note: We are temporarily using a deactivated plugin until a bug fix is made to the plugin builder.
+FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE AS cli-plugin-builder-install
 ARG TANZU_CLI_VERSION
 RUN apt-get update && \
     apt-get install -y ca-certificates && \
@@ -81,16 +82,20 @@ RUN apt-get update && \
     apt-get install -y tanzu-cli=${TANZU_CLI_VERSION} --allow-unauthenticated && \
     tanzu ceip set true && \
     tanzu config eula accept && \
-    tanzu plugin install builder
+    TANZU_CLI_INCLUDE_DEACTIVATED_PLUGINS_TEST_ONLY=true tanzu plugin install builder -v v0.90.0-alpha.2
 
 # Run Tanzu plugin builder and compile all plugins in the project's cmd/cli/plugin directory.
-FROM cli-plugin-builder-install AS cli-plugin-build-prep
+FROM base AS cli-plugin-build-prep
 ARG CLI_PLUGIN_VERSION
 ARG CLI_PLUGIN
 ARG OCI_REGISTRY
 ARG CLI_PLUGIN_GO_FLAGS
 RUN --mount=type=bind,readwrite \
     --mount=from=carvel-base,src=/bin/imgpkg,target=/bin/imgpkg \
+    --mount=from=cli-plugin-builder-install,src=/usr/bin/tanzu,target=/bin/tanzu \
+    --mount=from=cli-plugin-builder-install,src=/root/.local/share/tanzu-cli/builder,target=/root/.local/share/tanzu-cli/builder \
+    --mount=from=cli-plugin-builder-install,src=/root/.config/tanzu/,target=/root/.config/tanzu/ \
+    --mount=from=cli-plugin-builder-install,src=/root/.cache/tanzu/,target=/root/.cache/tanzu/ \
     tanzu builder plugin build \
         --match "${CLI_PLUGIN}" \
         --os-arch linux_amd64 --os-arch windows_amd64 --os-arch darwin_amd64 \
@@ -102,8 +107,9 @@ RUN --mount=type=bind,readwrite \
     mkdir -p /out/plugin-artifacts && \
     cp -r artifacts /out/plugin-artifacts
 
-# Run Tanzu plugin builder and publish all plugins in the project's cmd/plugin directory.
-FROM cli-plugin-builder-install AS cli-plugin-publish 
+# Run Tanzu plugin builder and publish plugins listed in
+# build/artifacts/packages/plugin_manifest.yaml.
+FROM base AS cli-plugin-publish 
 ARG REPOSITORY
 ARG PUBLISHER
 ARG VENDOR
@@ -112,6 +118,10 @@ ARG IMGPKG_PASSWORD
 ENV IMGPKG_USERNAME=${IMGPKG_USERNAME} IMGPKG_PASSWORD=${IMGPKG_PASSWORD}
 RUN --mount=type=bind,readwrite \
     --mount=from=carvel-base,src=/bin/imgpkg,target=/bin/imgpkg \
+    --mount=from=cli-plugin-builder-install,src=/usr/bin/tanzu,target=/bin/tanzu \
+    --mount=from=cli-plugin-builder-install,src=/root/.local/share/tanzu-cli/builder,target=/root/.local/share/tanzu-cli/builder \
+    --mount=from=cli-plugin-builder-install,src=/root/.config/tanzu/,target=/root/.config/tanzu/ \
+    --mount=from=cli-plugin-builder-install,src=/root/.cache/tanzu/,target=/root/.cache/tanzu/ \
     tanzu builder plugin publish-package \
         --repository "${REPOSITORY}" \
         --publisher "${PUBLISHER}" \
