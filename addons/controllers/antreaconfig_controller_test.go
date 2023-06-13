@@ -6,21 +6,23 @@ package controllers
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	antreatype "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
-	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
+	cniv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha2"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -43,8 +45,11 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 	const (
 		waitTimeout                            = waitTimeout //use this to change test speed when debugging
 		antreaManifestsTestFile1               = "testdata/antrea-test-1.yaml"
+		antreamanifestsTestFile2               = "testdata/antrea-test-2.yaml"
 		antreaTemplateConfigManifestsTestFile1 = "testdata/antrea-test-template-config-1.yaml"
 		antreaTestCluster1                     = "test-cluster-4"
+		antreaTestCluster2                     = "test-cluster-5"
+		vsphereCluster1                        = "test-cluster-5-6gvvc"
 	)
 
 	JustBeforeEach(func() {
@@ -111,7 +116,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				return err == nil
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
-			config := &cniv1alpha1.AntreaConfig{}
+			config := &cniv1alpha2.AntreaConfig{}
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, configKey, config)
 				if err != nil {
@@ -180,23 +185,26 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
 
 				// check data value secret contents
-				secretData := string(secret.Data["values.yaml"])
-
-				Expect(strings.Contains(secretData, "serviceCIDR: 192.168.0.0/16")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "serviceCIDRv6: fd00:100:96::/48")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "infraProvider: docker")).Should(BeTrue())
-
-				Expect(strings.Contains(secretData, "trafficEncapMode: encap")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "AntreaProxy: true")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "AntreaPolicy: true")).Should(BeTrue())
+				content := secret.Data["values.yaml"]
+				spec := antreatype.AntreaConfigSpec{}
+				err = yaml.Unmarshal(content, &spec)
+				if err != nil {
+					return false
+				}
+				Expect(spec.Antrea.AntreaConfigDataValue.ServiceCIDR).Should(Equal("192.168.0.0/16"))
+				Expect(spec.Antrea.AntreaConfigDataValue.ServiceCIDRv6).Should(Equal("fd00:100:96::/48"))
+				Expect(spec.InfraProvider).Should(Equal("docker"))
+				Expect(spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).Should(Equal("encap"))
+				Expect(spec.Antrea.AntreaConfigDataValue.TLSCipherSuites).Should(Equal("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384"))
+				Expect(spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy).Should(Equal(true))
+				Expect(spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy).Should(Equal(true))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			Eventually(func() bool {
 				// Check status.secretRef after reconciliation
-				config := &cniv1alpha1.AntreaConfig{}
+				config := &cniv1alpha2.AntreaConfig{}
 				err := k8sClient.Get(ctx, configKey, config)
 				if err != nil {
 					return false
@@ -204,6 +212,148 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				return config.Status.SecretRef == util.GenerateDataValueSecretName(clusterName, constants.AntreaAddonName)
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
+		})
+
+	})
+
+	Context("Reconcile AntreaConfig with antreaNsx enabled for management cluster", func() {
+
+		BeforeEach(func() {
+			clusterName = antreaTestCluster2
+			clusterNamespace = defaultString
+			configCRName = util.GeneratePackageSecretName(clusterName, constants.AntreaDefaultRefName)
+			clusterResourceFilePath = antreamanifestsTestFile2
+		})
+
+		It("Should reconcile AntreaConfig and create data value secret on management cluster", func() {
+
+			clusterKey := client.ObjectKey{
+				Namespace: clusterNamespace,
+				Name:      clusterName,
+			}
+			configKey := client.ObjectKey{
+				Namespace: clusterNamespace,
+				Name:      configCRName,
+			}
+
+			cluster := &clusterapiv1beta1.Cluster{}
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, clusterKey, cluster)
+				return err == nil
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			config := &cniv1alpha2.AntreaConfig{}
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, configKey, config)
+				if err != nil {
+					return false
+				}
+
+				// Check owner reference
+				if len(config.OwnerReferences) == 0 {
+					return false
+				}
+
+				Expect(len(config.OwnerReferences)).Should(Equal(1))
+				Expect(config.OwnerReferences[0].Name).Should(Equal(clusterName))
+
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).Should(Equal("encap"))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy).Should(Equal(true))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.FlowExporter).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaIPAM).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.ServiceExternalIP).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.Multicast).Should(Equal(false))
+				Expect(config.Spec.AntreaNsx.Enable).Should(Equal(true))
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			Eventually(func() bool {
+				cluster := &clusterapiv1beta1.Cluster{}
+				err := k8sClient.Get(ctx, clusterKey, cluster)
+				if err != nil {
+					return false
+				}
+
+				serviceCIDR, serviceCIDRv6, err := util.GetServiceCIDRs(cluster)
+				if err != nil {
+					return false
+				}
+
+				infraProvider, err := util.GetInfraProvider(cluster)
+				if err != nil {
+					return false
+				}
+
+				// Check infraProvider values
+				Expect(infraProvider).Should(Equal("vsphere"))
+
+				// Check ServiceCIDR and ServiceCIDRv6 values
+				Expect(serviceCIDR).Should(Equal("192.168.0.0/16"))
+				Expect(serviceCIDRv6).Should(Equal("fd00:100:96::/48"))
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			Eventually(func() bool {
+				secretKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      util.GenerateDataValueSecretName(clusterName, constants.AntreaAddonName),
+				}
+				secret := &v1.Secret{}
+				err := k8sClient.Get(ctx, secretKey, secret)
+				if err != nil {
+					return false
+				}
+				Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
+
+				// check data value secret contents
+				content := secret.Data["values.yaml"]
+				spec := antreatype.AntreaConfigSpec{}
+				err = yaml.Unmarshal(content, &spec)
+				if err != nil {
+					return false
+				}
+				Expect(spec.Antrea.AntreaConfigDataValue.ServiceCIDR).Should(Equal("192.168.0.0/16"))
+				Expect(spec.Antrea.AntreaConfigDataValue.ServiceCIDRv6).Should(Equal("fd00:100:96::/48"))
+				Expect(spec.InfraProvider).Should(Equal("vsphere"))
+				Expect(spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).Should(Equal("encap"))
+				Expect(spec.Antrea.AntreaConfigDataValue.TLSCipherSuites).Should(Equal("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384"))
+				Expect(spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy).Should(Equal(true))
+				Expect(spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy).Should(Equal(true))
+
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			Eventually(func() bool {
+				// Check status.secretRef after reconciliation
+				config := &cniv1alpha2.AntreaConfig{}
+				err := k8sClient.Get(ctx, configKey, config)
+				if err != nil {
+					return false
+				}
+				return config.Status.SecretRef == util.GenerateDataValueSecretName(clusterName, constants.AntreaAddonName)
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// check if ProviderServiceAccount is created
+			By("check ProviderServiceAccount is created")
+			serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
+			Eventually(func() bool {
+				serviceAccountKey := client.ObjectKey{
+					Namespace: defaultString,
+					Name:      fmt.Sprintf("%s-antrea", vsphereCluster1),
+				}
+				if err := k8sClient.Get(ctx, serviceAccountKey, serviceAccount); err != nil {
+					return false
+				}
+				Expect(serviceAccount.Spec.Ref.Name).To(Equal(vsphereCluster1))
+				Expect(serviceAccount.Spec.Ref.Namespace).To(Equal(serviceAccountKey.Namespace))
+				Expect(serviceAccount.Spec.Rules).To(HaveLen(2))
+				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-antrea"))
+				Expect(serviceAccount.Spec.TargetSecretName).To(Equal("supervisor-cred"))
+				return true
+			})
+
+			// TODO: we shall check if nsxServiceAccount is created, but since it not registered, we do not check now
 		})
 
 	})
@@ -222,7 +372,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Namespace: addonNamespace,
 				Name:      configCRName,
 			}
-			config := &cniv1alpha1.AntreaConfig{}
+			config := &cniv1alpha2.AntreaConfig{}
 			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
 
 			By("OwnerReferences is not set")
@@ -245,7 +395,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Namespace: clusterNamespace,
 				Name:      configCRName,
 			}
-			config := &cniv1alpha1.AntreaConfig{}
+			config := &cniv1alpha2.AntreaConfig{}
 			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
 
 			By("Trying to update the immutable TrafficEncapMode field in Antrea Spec")
@@ -285,7 +435,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 			f.Close()
 
 			By("Create antrea config in the cluster's namespace with expected name pattern", func() {
-				datavalues := &cniv1alpha1.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
+				datavalues := &cniv1alpha2.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
 				antreaConfig := generateAntreaConfig(configName, clusterNamespace, datavalues)
 				err := k8sClient.Create(ctx, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
@@ -316,7 +466,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 			})
 
 			By("Verify contents of resulting antrea config", func() {
-				antreaConfig := &cniv1alpha1.AntreaConfig{}
+				antreaConfig := &cniv1alpha2.AntreaConfig{}
 				key := client.ObjectKey{Name: clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name, Namespace: clusterNamespace}
 				err := k8sClient.Get(ctx, key, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
@@ -360,7 +510,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 			})
 
 			By("Create antrea config in the cluster's namespace with random name", func() {
-				datavalues := &cniv1alpha1.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
+				datavalues := &cniv1alpha2.AntreaConfigDataValue{DefaultMTU: newDefaultMTU}
 				antreaConfig := generateAntreaConfig(configName, clusterNamespace, datavalues)
 				err := k8sClient.Create(ctx, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
@@ -387,7 +537,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 			By("Verify contents of resulting antrea config", func() {
 				// eventually the secret ref to the data values should be updated
-				antreaConfig := &cniv1alpha1.AntreaConfig{}
+				antreaConfig := &cniv1alpha2.AntreaConfig{}
 				Eventually(func() error {
 					configKey := client.ObjectKey{
 						Namespace: clusterNamespace,
@@ -403,7 +553,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 					return nil
 				}, waitTimeout, pollingInterval).Should(Succeed())
 
-				antreaConfig = &cniv1alpha1.AntreaConfig{}
+				antreaConfig = &cniv1alpha2.AntreaConfig{}
 				key := client.ObjectKey{Name: configName, Namespace: clusterNamespace}
 				err := k8sClient.Get(ctx, key, antreaConfig)
 				Expect(err).ToNot(HaveOccurred())
@@ -415,17 +565,17 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 	})
 })
 
-func generateAntreaConfig(name, namespace string, datavalues *cniv1alpha1.AntreaConfigDataValue) *cniv1alpha1.AntreaConfig {
+func generateAntreaConfig(name, namespace string, datavalues *cniv1alpha2.AntreaConfigDataValue) *cniv1alpha2.AntreaConfig {
 	labels := map[string]string{}
 	labels["tkg.tanzu.vmware.com/package-name"] = "antrea.tanzu.vmware.com.1.7.2---tkg.1-advanced"
-	config := &cniv1alpha1.AntreaConfig{
+	config := &cniv1alpha2.AntreaConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			Labels:    labels,
 		},
-		Spec: cniv1alpha1.AntreaConfigSpec{
-			Antrea: cniv1alpha1.Antrea{
+		Spec: cniv1alpha2.AntreaConfigSpec{
+			Antrea: cniv1alpha2.Antrea{
 				AntreaConfigDataValue: *datavalues,
 			},
 		},

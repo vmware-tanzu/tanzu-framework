@@ -884,6 +884,8 @@ github.com/vmware-tanzu/carvel-vendir v0.26.0 h1:Q98tPnH9WUAWE2vJSAP0lsHGsfwGjfW
 github.com/vmware-tanzu/carvel-vendir v0.26.0/go.mod h1:JcuNNVONFbZTbm/GjtGiWUfFrt17YBQzeGT9+gY1+yY=
 github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707 h1:2onys8tWlQh7DFiOz6+68AwJdW9EBOEv6RTKzwh1x7A=
 github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707/go.mod h1:pDB0pUiFYufuP3lUkQX9fZ67PYnKvqBpDcJN3mSrw5U=
+github.com/vmware-tanzu/nsx-operator v0.0.0-20221102072746-f7b4cc7cce41 h1:GM/KH7xmJQ8uPzrCQf3B1dhVbpIwYNPAmxLeWdKtcEA=
+github.com/vmware-tanzu/nsx-operator v0.0.0-20221102072746-f7b4cc7cce41/go.mod h1:Exsg90TOJ0FQBFzmdYurJNVCh9PMN3IkAr/tA+rKrLQ=
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd h1:BXz4aAPzRAYD8x8LEhjEsmvTj9mCvesnr4ApT1Ay4YY=
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd/go.mod h1:mubK0QMyaA2TbeAmGsu2GVfiqDFppNUAUqoMPoKFgzM=
 github.com/vmware-tanzu/vm-operator/external/ncp v0.0.0-20211209213435-0f4ab286f64f h1:RUuS5lh25citvQoXmDSfxJ1BB72LXOjD5cXvJETJ7Cc=
