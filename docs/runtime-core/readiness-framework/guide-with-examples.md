@@ -181,7 +181,7 @@ The manifests for the above readiness definitions are as follows
 
 ```
 apiVersion: core.tanzu.vmware.com/v1alpha2
-kind: Readiness # CapabilityClass
+kind: Readiness
 metadata:
   name: dev-class
 spec:

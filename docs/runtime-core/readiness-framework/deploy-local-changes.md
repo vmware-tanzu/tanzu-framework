@@ -26,7 +26,7 @@ make manifests
 This step is required only if there is a change in the readiness APIs. Run the following commands to sync the newly generated CRDs to the packages directory.
 
 ```
-make manifests
+make package-vendir-sync
 ```
 
 ## Step 4 - Build docker image
@@ -34,7 +34,7 @@ make manifests
 Run the following command from the `tanzu-framework` directory.
 
 ```
-make docker-build-all
+COMPONENTS=readiness/controller.readiness-controller-manager.readiness make docker-build-all
 ```
 
 ## Step 5 - Load readiness controller image
