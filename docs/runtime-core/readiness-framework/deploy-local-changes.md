@@ -1,15 +1,17 @@
 # Deploying the local changes to a Kind cluster
 
 ## Pre-requisites
+
 1. Docker
 2. Kind
 3. ytt
 4. Kubectl
 
 ## Step 1 - Create a Kind cluster
+
 A simple Kind cluster can be created for testing using the following command.
 
-```
+```bash
 kind create cluster
 ```
 
@@ -17,7 +19,7 @@ kind create cluster
 
 This step is required only if there is a change in the readiness APIs. Run the following commands to generage the CRD manifests for the updated APIs.
 
-```
+```bash
 make manifests
 ```
 
@@ -25,7 +27,7 @@ make manifests
 
 This step is required only if there is a change in the readiness APIs. Run the following commands to sync the newly generated CRDs to the packages directory.
 
-```
+```bash
 make package-vendir-sync
 ```
 
@@ -33,7 +35,7 @@ make package-vendir-sync
 
 Run the following command from the `tanzu-framework` directory.
 
-```
+```bash
 COMPONENTS=readiness/controller.readiness-controller-manager.readiness make docker-build-all
 ```
 
@@ -41,14 +43,14 @@ COMPONENTS=readiness/controller.readiness-controller-manager.readiness make dock
 
 Load the readiness controller image into the kind nodes by running the following command.
 
-```
+```bash
 kind load docker-image readiness-controller-manager:latest
 ```
 
 ## Step 6 - Deploy the manifests
 
-Run the following command to deploy CRDs and bring up the readiness controller 
+Run the following command to deploy CRDs and bring up the readiness controller.
 
-```
+```bash
 ytt -f packages/readiness/bundle/config | kubectl apply -f-
 ```
