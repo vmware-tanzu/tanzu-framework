@@ -18,9 +18,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/cert"
@@ -31,6 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
+	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 	testutil "github.com/vmware-tanzu/tanzu-framework/util/test"
 	//+kubebuilder:scaffold:imports
 )
@@ -142,10 +145,11 @@ var _ = BeforeSuite(func() {
 	Expect(dynamicClient).ToNot(BeNil())
 
 	err = (&ReadinessProviderReconciler{
-		Client: k8sManager.GetClient(),
-		Scheme: k8sManager.GetScheme(),
-		Log:    setupLog,
-		ResourceExistenceCondition: func(context context.Context, rec *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
+		Client:    k8sManager.GetClient(),
+		Clientset: kubernetes.NewForConfigOrDie(k8sManager.GetConfig()),
+		Scheme:    k8sManager.GetScheme(),
+		Log:       setupLog,
+		ResourceExistenceCondition: func(context context.Context, client *capabilitiesDiscovery.ClusterQueryClient, rec *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
 			if rec.Kind == "failurekind" {
 				return corev1alpha2.ConditionFailureState, "TestFailure"
 			}
@@ -158,6 +162,7 @@ var _ = BeforeSuite(func() {
 
 			return corev1alpha2.ConditionSuccessState, "TestSuccess"
 		},
+		RestConfig: k8sManager.GetConfig(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
@@ -171,6 +176,12 @@ var _ = BeforeSuite(func() {
 	}()
 
 	err = testutil.CreateResourcesFromManifest(generatedWebhookManifestBytes, cfg, dynamicClient)
+	Expect(err).ToNot(HaveOccurred())
+
+	manifestBytes, err := os.ReadFile("testdata/rbac.yaml")
+	Expect(err).ToNot(HaveOccurred())
+
+	err = testutil.CreateResourcesFromManifest(manifestBytes, cfg, dynamicClient)
 	Expect(err).ToNot(HaveOccurred())
 })
 
@@ -379,16 +390,123 @@ var _ = Describe("Readiness Provider controller", func() {
 		err = k8sClient.Delete(ctx, readinessProvider)
 		Expect(err).To(BeNil())
 	})
+
+	It("should fail when service account details are partial", func() {
+		readinessProvider := getTestReadinessProvider()
+		readinessProvider.Spec.ServiceAccount = &corev1alpha2.ServiceAccountSource{
+			Name:      "default",
+			Namespace: "",
+		}
+		err := k8sClient.Create(ctx, readinessProvider)
+		Expect(err).NotTo(BeNil())
+	})
+
+	It("should fail when service account does not exist", func() {
+		readinessProvider := getTestReadinessProvider()
+		readinessProvider.Spec.ServiceAccount = &corev1alpha2.ServiceAccountSource{
+			Name:      "non-existent-sa",
+			Namespace: "default",
+		}
+		err := k8sClient.Create(ctx, readinessProvider)
+		Expect(err).NotTo(BeNil())
+	})
+
+	It("should succeed when service account has required roles", func() {
+		newPod := corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "testpod",
+				Namespace: "default",
+			},
+			Spec: corev1.PodSpec{
+				Containers: []corev1.Container{
+					{
+						Name:  "test-container",
+						Image: "test:tag",
+					},
+				},
+			},
+		}
+
+		err := k8sClient.Create(context.TODO(), &newPod)
+		Expect(err).To(BeNil())
+
+		readinessProvider := getTestReadinessProvider()
+		readinessProvider.Spec.ServiceAccount = &corev1alpha2.ServiceAccountSource{
+			Name:      "pod-sa",
+			Namespace: "default",
+		}
+		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{
+			Name: "pod-exists",
+			ResourceExistenceCondition: &corev1alpha2.ResourceExistenceCondition{
+				APIVersion: "v1",
+				Kind:       "Pod",
+				Name:       newPod.Name,
+				Namespace:  &newPod.Namespace,
+			},
+		})
+		err = k8sClient.Create(ctx, readinessProvider)
+		Expect(err).To(BeNil())
+
+		var status corev1alpha2.ReadinessProviderStatus
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
+			status = readinessProvider.Status
+			log.Print(status)
+			return err == nil &&
+				readinessProvider.Status.State == corev1alpha2.ProviderSuccessState
+		}, timeout, interval).Should(BeTrue())
+		Expect(len(status.Conditions)).To(Equal(1))
+		Expect(status.Conditions[0].State).To(Equal(corev1alpha2.ConditionSuccessState))
+	})
+
+	It("should fail when service account token cannot be retrieved", func() {
+		sa := corev1.ServiceAccount{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "sa-to-be-deleted",
+				Namespace: "default",
+			},
+		}
+
+		// Create readiness provider
+		readinessProvider := getTestReadinessProvider()
+		readinessProvider.Spec.ServiceAccount = &corev1alpha2.ServiceAccountSource{
+			Name:      sa.ObjectMeta.Name,
+			Namespace: sa.ObjectMeta.Namespace,
+		}
+		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{
+			Name:                       "cond1",
+			ResourceExistenceCondition: &corev1alpha2.ResourceExistenceCondition{},
+		})
+		err := k8sClient.Create(ctx, readinessProvider)
+		Expect(err).To(BeNil())
+
+		// Delete the service account which leads to failure in token generation
+		err = k8sClient.Delete(ctx, &sa)
+		Expect(err).To(BeNil())
+
+		var status corev1alpha2.ReadinessProviderStatus
+		Eventually(func() bool {
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
+			status = readinessProvider.Status
+			log.Print(status)
+			return err == nil &&
+				readinessProvider.Status.State == corev1alpha2.ProviderFailureState
+		}, timeout, interval).Should(BeTrue())
+		Expect(len(status.Conditions)).To(Equal(0))
+		Expect(status.Message).To(Equal("failed to retrieve token from service account. serviceaccounts \"sa-to-be-deleted\" not found"))
+	})
+
 })
 
 func getTestReadinessProvider() *corev1alpha2.ReadinessProvider {
 	return &corev1alpha2.ReadinessProvider{
-		ObjectMeta: v1.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "test-readiness-provider-",
 		},
 		Spec: corev1alpha2.ReadinessProviderSpec{
-			Conditions: []corev1alpha2.ReadinessProviderCondition{},
-			CheckRefs:  []string{},
+			Conditions:     []corev1alpha2.ReadinessProviderCondition{},
+			CheckRefs:      []string{},
+			ServiceAccount: nil,
 		},
 	}
 }

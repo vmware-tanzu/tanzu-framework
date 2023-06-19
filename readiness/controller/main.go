@@ -14,6 +14,7 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	cliflag "k8s.io/component-base/cli/flag"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -108,6 +109,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	k8sClientset := kubernetes.NewForConfigOrDie(restConfig)
+
 	dynamicClient, err := dynamic.NewForConfig(restConfig)
 	if err != nil {
 		setupLog.Error(err, "unable to create dynamic client")
@@ -147,9 +150,11 @@ func main() {
 
 	if err = (&readinessprovidercontroller.ReadinessProviderReconciler{
 		Client:                     mgr.GetClient(),
+		Clientset:                  k8sClientset,
 		Log:                        ctrl.Log.WithName("controllers").WithName("ReadinessProvider").WithValues("apigroup", "core"),
 		Scheme:                     mgr.GetScheme(),
 		ResourceExistenceCondition: conditions.NewResourceExistenceConditionFunc(dynamicClient, discoveryClient),
+		RestConfig:                 restConfig,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ReadinessProvider")
 		os.Exit(1)

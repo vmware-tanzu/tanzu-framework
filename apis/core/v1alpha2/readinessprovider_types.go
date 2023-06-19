@@ -42,6 +42,22 @@ type ReadinessProviderSpec struct {
 
 	// Conditions is the set of checks that must be evaluated to true to mark the provider as ready
 	Conditions []ReadinessProviderCondition `json:"conditions"`
+
+	// ServiceAccount represents the service account to be used
+	// to make requests to the API server for evaluating conditions.
+	// If not provided, it uses the default service account
+	// of the readiness provider controller.
+	//+kubebuilder:validation:Optional
+	ServiceAccount *ServiceAccountSource `json:"serviceAccount"`
+}
+
+type ServiceAccountSource struct {
+	// Namespace is the namespace containing the service account.
+	Namespace string `json:"namespace"`
+
+	// Name is the name of the service account to be used
+	// to make requests to the API server for evaluating conditions.
+	Name string `json:"name"`
 }
 
 // ReadinessProviderCondition defines the readiness provider condition
@@ -78,6 +94,9 @@ type ReadinessProviderStatus struct {
 	// The state will be failure if any of the conditions fail. Otherwise, the state will be in-progress.
 	// +kubebuilder:validation:Enum=success;failure;inprogress
 	State ReadinessProviderState `json:"state"`
+
+	// Message provides information about the ReadinessProvider state
+	Message string `json:"message"`
 
 	// Conditions is the set of ReadinessConditions that are being evaluated
 	Conditions []ReadinessConditionStatus `json:"conditions"`

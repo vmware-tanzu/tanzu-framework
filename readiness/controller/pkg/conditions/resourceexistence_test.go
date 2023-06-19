@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
+	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 )
 
 var cfg *rest.Config
@@ -33,6 +34,7 @@ var ctx context.Context
 var cancel context.CancelFunc
 var dynamicClient *dynamic.DynamicClient
 var discoveryClient *discovery.DiscoveryClient
+var queryClient *capabilitiesDiscovery.ClusterQueryClient
 
 func TestResourceExistenceCondition(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -76,6 +78,9 @@ var _ = BeforeSuite(func() {
 	discoveryClient, err = discovery.NewDiscoveryClientForConfig(cfg)
 	Expect(err).NotTo(HaveOccurred())
 
+	queryClient, err = capabilitiesDiscovery.NewClusterQueryClient(dynamicClient, discoveryClient)
+	Expect(err).NotTo(HaveOccurred())
+
 	go func() {
 		defer GinkgoRecover()
 		err = k8sManager.Start(ctx)
@@ -111,7 +116,7 @@ var _ = Describe("Readiness controller", func() {
 		err := k8sClient.Create(context.TODO(), &newPod)
 		Expect(err).To(BeNil())
 
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "v1",
 			Kind:       "Pod",
 			Namespace:  &newPod.Namespace,
@@ -124,7 +129,7 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should fail when querying a non-existing namespaced resource", func() {
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "v1",
 			Kind:       "Pod",
 			Namespace: func() *string {
@@ -140,7 +145,7 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should succeed when querying an existing cluster scoped resource", func() {
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.core.tanzu.vmware.com",
@@ -151,8 +156,8 @@ var _ = Describe("Readiness controller", func() {
 		Expect(msg).To(Equal("resource found"))
 	})
 
-	It("should succeed when querying a non-existing cluster scoped resource", func() {
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), &corev1alpha2.ResourceExistenceCondition{
+	It("should fail when querying a non-existing cluster scoped resource", func() {
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.config.tanzu.vmware.com",
@@ -164,9 +169,21 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should fail when resourceExistenceCondition is undefined", func() {
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, "undefinedCondition")
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, nil, "undefinedCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
 		Expect(msg).To(Equal("resourceExistenceCondition is not defined"))
+	})
+
+	It("should succeed when custom query client is provided", func() {
+		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
+			APIVersion: "apiextensions.k8s.io/v1",
+			Kind:       "CustomResourceDefinition",
+			Name:       "readinesses.core.tanzu.vmware.com",
+		},
+			"crdCondition")
+
+		Expect(state).To(Equal(corev1alpha2.ConditionSuccessState))
+		Expect(msg).To(Equal("resource found"))
 	})
 })

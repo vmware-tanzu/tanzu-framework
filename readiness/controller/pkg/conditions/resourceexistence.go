@@ -15,17 +15,22 @@ import (
 )
 
 // NewResourceExistenceConditionFunc returns a function for evaluating evaluate a ResourceExistenceCondition
-func NewResourceExistenceConditionFunc(dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient) func(context.Context, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string) {
-	return func(ctx context.Context, c *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
+func NewResourceExistenceConditionFunc(dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient) func(context.Context, *capabilitiesDiscovery.ClusterQueryClient, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string) {
+	return func(ctx context.Context, client *capabilitiesDiscovery.ClusterQueryClient, c *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
 		if c == nil {
 			return corev1alpha2.ConditionFailureState, "resourceExistenceCondition is not defined"
 		}
 
 		var err error
+		var queryClient *capabilitiesDiscovery.ClusterQueryClient
 
-		queryClient, err := capabilitiesDiscovery.NewClusterQueryClient(dynamicClient, discoveryClient)
-		if err != nil {
-			return corev1alpha2.ConditionFailureState, err.Error()
+		// Create client using default config if no ClusterQueryClient provided
+		if client != nil {
+			queryClient = client
+		} else {
+			if queryClient, err = capabilitiesDiscovery.NewClusterQueryClient(dynamicClient, discoveryClient); err != nil {
+				return corev1alpha2.ConditionFailureState, err.Error()
+			}
 		}
 
 		var resourceToFind corev1.ObjectReference

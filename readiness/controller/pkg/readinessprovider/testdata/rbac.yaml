@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-to-be-deleted
+  namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-read-role
+  namespace: default
+rules:
+  - apiGroups:
+    - ""
+    resources:
+      - pods
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-read-rolebinding
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pod-read-role
+subjects:
+  - kind: ServiceAccount
+    name: pod-sa
+    namespace: default
