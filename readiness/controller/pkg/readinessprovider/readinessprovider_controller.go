@@ -33,6 +33,7 @@ type ReadinessProviderReconciler struct {
 	Scheme                     *runtime.Scheme
 	ResourceExistenceCondition func(context.Context, *capabilitiesDiscovery.ClusterQueryClient, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string)
 	RestConfig                 *rest.Config
+	DefaultQueryClient         *capabilitiesDiscovery.ClusterQueryClient
 }
 
 //+kubebuilder:rbac:groups=core.tanzu.vmware.com,resources=readinessproviders,verbs=get;list;watch;create;update;patch;delete
@@ -72,6 +73,8 @@ func (r *ReadinessProviderReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		if err != nil {
 			return ctrl.Result{}, errors.Errorf("unable to create ClusterQueryClient: %s", err.Error())
 		}
+	} else {
+		clusterQueryClient = r.DefaultQueryClient
 	}
 
 	// Evaluate provider conditions

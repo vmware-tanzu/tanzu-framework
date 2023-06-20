@@ -5,6 +5,7 @@ package conditions
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -13,8 +14,8 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -25,16 +26,21 @@ import (
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/util/config"
+	testutil "github.com/vmware-tanzu/tanzu-framework/util/test"
 )
 
-var cfg *rest.Config
-var k8sClient client.Client
-var testEnv *envtest.Environment
-var ctx context.Context
-var cancel context.CancelFunc
-var dynamicClient *dynamic.DynamicClient
-var discoveryClient *discovery.DiscoveryClient
-var queryClient *capabilitiesDiscovery.ClusterQueryClient
+var (
+	cfg          *rest.Config
+	k8sClient    client.Client
+	testEnv      *envtest.Environment
+	ctx          context.Context
+	cancel       context.CancelFunc
+	queryClient  *capabilitiesDiscovery.ClusterQueryClient
+	k8sClientset *kubernetes.Clientset
+)
+
+const defaultNamespace = "default"
 
 func TestResourceExistenceCondition(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -72,14 +78,24 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
 
-	dynamicClient, err = dynamic.NewForConfig(cfg)
+	queryClient, err = capabilitiesDiscovery.NewClusterQueryClientForConfig(cfg)
 	Expect(err).NotTo(HaveOccurred())
+	Expect(queryClient).NotTo(BeNil())
 
-	discoveryClient, err = discovery.NewDiscoveryClientForConfig(cfg)
+	// k8sClientset is package-scoped
+	k8sClientset, err = kubernetes.NewForConfig(cfg)
 	Expect(err).NotTo(HaveOccurred())
+	Expect(k8sClientset).NotTo(BeNil())
 
-	queryClient, err = capabilitiesDiscovery.NewClusterQueryClient(dynamicClient, discoveryClient)
+	manifestBytes, err := os.ReadFile("testdata/rbac.yaml")
+	Expect(err).ToNot(HaveOccurred())
+
+	dynamicClient, err := dynamic.NewForConfig(cfg)
 	Expect(err).NotTo(HaveOccurred())
+	Expect(dynamicClient).NotTo(BeNil())
+
+	err = testutil.CreateResourcesFromManifest(manifestBytes, cfg, dynamicClient)
+	Expect(err).ToNot(HaveOccurred())
 
 	go func() {
 		defer GinkgoRecover()
@@ -101,7 +117,7 @@ var _ = Describe("Readiness controller", func() {
 		newPod := v1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "testpod",
-				Namespace: "default",
+				Namespace: defaultNamespace,
 			},
 			Spec: v1.PodSpec{
 				Containers: []v1.Container{
@@ -116,7 +132,7 @@ var _ = Describe("Readiness controller", func() {
 		err := k8sClient.Create(context.TODO(), &newPod)
 		Expect(err).To(BeNil())
 
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "v1",
 			Kind:       "Pod",
 			Namespace:  &newPod.Namespace,
@@ -129,11 +145,11 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should fail when querying a non-existing namespaced resource", func() {
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "v1",
 			Kind:       "Pod",
 			Namespace: func() *string {
-				n := "default"
+				n := defaultNamespace
 				return &n
 			}(),
 			Name: "somename",
@@ -145,7 +161,7 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should succeed when querying an existing cluster scoped resource", func() {
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.core.tanzu.vmware.com",
@@ -157,7 +173,7 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should fail when querying a non-existing cluster scoped resource", func() {
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, &corev1alpha2.ResourceExistenceCondition{
+		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.config.tanzu.vmware.com",
@@ -169,21 +185,71 @@ var _ = Describe("Readiness controller", func() {
 	})
 
 	It("should fail when resourceExistenceCondition is undefined", func() {
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), nil, nil, "undefinedCondition")
+		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, nil, "undefinedCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
 		Expect(msg).To(Equal("resourceExistenceCondition is not defined"))
 	})
 
-	It("should succeed when custom query client is provided", func() {
-		state, msg := NewResourceExistenceConditionFunc(dynamicClient, discoveryClient)(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
-			APIVersion: "apiextensions.k8s.io/v1",
-			Kind:       "CustomResourceDefinition",
-			Name:       "readinesses.core.tanzu.vmware.com",
+	It("should succeed when query client has required permissions", func() {
+		customQueryClient, err := getCustomQueryClient()
+		Expect(err).To(BeNil())
+		Expect(customQueryClient).ToNot(BeNil())
+
+		newPod := v1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-pod",
+				Namespace: defaultNamespace,
+			},
+			Spec: v1.PodSpec{
+				Containers: []v1.Container{
+					{
+						Name:  "test-container",
+						Image: "test:tag",
+					},
+				},
+			},
+		}
+
+		err = k8sClient.Create(context.TODO(), &newPod)
+		Expect(err).To(BeNil())
+
+		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), customQueryClient, &corev1alpha2.ResourceExistenceCondition{
+			APIVersion: "v1",
+			Kind:       "Pod",
+			Namespace:  &newPod.Namespace,
+			Name:       newPod.Name,
 		},
-			"crdCondition")
+			"podCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionSuccessState))
 		Expect(msg).To(Equal("resource found"))
 	})
+
+	It("should fail when query client is missing required permissions", func() {
+		customQueryClient, err := getCustomQueryClient()
+		Expect(err).To(BeNil())
+		Expect(customQueryClient).ToNot(BeNil())
+
+		state, _ := NewResourceExistenceConditionFunc()(context.TODO(), customQueryClient, &corev1alpha2.ResourceExistenceCondition{
+			APIVersion: "apps/v1",
+			Kind:       "Deployment",
+			Name:       "test-deploy",
+			Namespace: func() *string {
+				n := defaultNamespace
+				return &n
+			}(),
+		},
+			"deploymentCondition")
+
+		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
+	})
 })
+
+func getCustomQueryClient() (*capabilitiesDiscovery.ClusterQueryClient, error) {
+	customCfg, err := config.GetConfigForServiceAccount(ctx, k8sClientset, cfg, defaultNamespace, "pod-sa")
+	if err != nil {
+		return nil, err
+	}
+	return capabilitiesDiscovery.NewClusterQueryClientForConfig(customCfg)
+}

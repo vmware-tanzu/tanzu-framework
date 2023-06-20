@@ -20,7 +20,7 @@ Readiness checks can be of 2 types:
 
 ### Example
 
-The following manifest defines a Readiness resource with 2 checks.
+The following manifest defines a Readiness resource with two checks.
 These checks are required to be satisfied by atleast one **active** ReadinessProvider (See [ReadinessProvider Example](#example-1)), so that `my-org-baseline` can be evaluated to ready.
 
 ```yaml
@@ -45,7 +45,7 @@ The ReadinessProvider API allows users to define a set of conditions. These cond
 
 ### Example
 
-The above manifest creates 2 ReadinessProvider resources which will evaluate if `cert-manager` and `kapp-controller` are available in the cluster. The providers also specify `checkRefs` which will aid in making the `my-org-baseline` Readiness resource **_ready_**.
+The below manifest creates two ReadinessProvider resources which will evaluate if `cert-manager` and `kapp-controller` are available in the cluster. The providers also specify `checkRefs` which will aid in making the `my-org-baseline` Readiness resource **_ready_**.
 
 ```yaml
 ---

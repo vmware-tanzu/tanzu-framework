@@ -35,6 +35,48 @@ Let's assume we have the following checks approved by the organization org1
 2. com.org1.k8s.secret-management
 3. com.org1.k8s.certificate-management
 
+### Service Account
+
+For the readiness providers to be able to query various reources, a service account which has required role bindings can be provided in the spec.
+A sample yaml is defined below, which grants permissions to read CRDs. For creating these resources, run `kubectl apply -f <filename>`. We'll be referring to the details of the created service account in the following sections.
+
+```yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crd-read-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: crd-read-role
+  namespace: default
+rules:
+  - apiGroups:
+    - "apiextensions.k8s.io"
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: crd-read-rolebinding
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: crd-read-role
+subjects:
+  - kind: ServiceAccount
+    name: crd-read-sa
+    namespace: default
+
+```
+
 ### Readiness Providers
 
 Now, let's defined three readiness providers, one for each of the above checks.
@@ -73,7 +115,10 @@ spec:
     resourceExistenceCondition:
       apiVersion: apiextensions.k8s.io/v1
       kind: CustomResourceDefinition
-      name: packagerepositories.packaging.carvel.dev  
+      name: packagerepositories.packaging.carvel.dev
+  serviceAccount:
+    name: crd-read-sa
+    namespace: default
 ```
 
 Save the above manifest in a file and run `kubectl apply -f <filename>` to deploy it on the Kubernetes cluster where the readiness framework is already installed.
@@ -126,6 +171,9 @@ spec:
       apiVersion: apiextensions.k8s.io/v1
       kind: CustomResourceDefinition
       name: secrettemplates.secretgen.carvel.dev
+  serviceAccount:
+    name: crd-read-sa
+    namespace: default
 ```
 
 #### Certificate Management Provider
@@ -134,7 +182,7 @@ The manifest for the certificate management provider is given as follows. Instal
 
 ```yaml
 apiVersion: core.tanzu.vmware.com/v1alpha2
-kind: ReadinessProvider # CapabilityProvider
+kind: ReadinessProvider
 metadata:
   name: cert-manager
 spec:
@@ -171,6 +219,9 @@ spec:
       apiVersion: apiextensions.k8s.io/v1
       kind: CustomResourceDefinition
       name: orders.acme.cert-manager.io
+  serviceAccount:
+    name: crd-read-sa
+    namespace: default
 ```
 
 ### Readiness Definition

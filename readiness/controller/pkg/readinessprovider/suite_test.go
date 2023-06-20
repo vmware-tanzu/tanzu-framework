@@ -144,6 +144,10 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(dynamicClient).ToNot(BeNil())
 
+	queryClient, err := capabilitiesDiscovery.NewClusterQueryClientForConfig(k8sManager.GetConfig())
+	Expect(err).ToNot(HaveOccurred())
+	Expect(queryClient).ToNot(BeNil())
+
 	err = (&ReadinessProviderReconciler{
 		Client:    k8sManager.GetClient(),
 		Clientset: kubernetes.NewForConfigOrDie(k8sManager.GetConfig()),
@@ -162,7 +166,8 @@ var _ = BeforeSuite(func() {
 
 			return corev1alpha2.ConditionSuccessState, "TestSuccess"
 		},
-		RestConfig: k8sManager.GetConfig(),
+		RestConfig:         k8sManager.GetConfig(),
+		DefaultQueryClient: queryClient,
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
@@ -411,54 +416,6 @@ var _ = Describe("Readiness Provider controller", func() {
 		Expect(err).NotTo(BeNil())
 	})
 
-	It("should succeed when service account has required roles", func() {
-		newPod := corev1.Pod{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "testpod",
-				Namespace: "default",
-			},
-			Spec: corev1.PodSpec{
-				Containers: []corev1.Container{
-					{
-						Name:  "test-container",
-						Image: "test:tag",
-					},
-				},
-			},
-		}
-
-		err := k8sClient.Create(context.TODO(), &newPod)
-		Expect(err).To(BeNil())
-
-		readinessProvider := getTestReadinessProvider()
-		readinessProvider.Spec.ServiceAccount = &corev1alpha2.ServiceAccountSource{
-			Name:      "pod-sa",
-			Namespace: "default",
-		}
-		readinessProvider.Spec.Conditions = append(readinessProvider.Spec.Conditions, corev1alpha2.ReadinessProviderCondition{
-			Name: "pod-exists",
-			ResourceExistenceCondition: &corev1alpha2.ResourceExistenceCondition{
-				APIVersion: "v1",
-				Kind:       "Pod",
-				Name:       newPod.Name,
-				Namespace:  &newPod.Namespace,
-			},
-		})
-		err = k8sClient.Create(ctx, readinessProvider)
-		Expect(err).To(BeNil())
-
-		var status corev1alpha2.ReadinessProviderStatus
-		Eventually(func() bool {
-			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
-			status = readinessProvider.Status
-			log.Print(status)
-			return err == nil &&
-				readinessProvider.Status.State == corev1alpha2.ProviderSuccessState
-		}, timeout, interval).Should(BeTrue())
-		Expect(len(status.Conditions)).To(Equal(1))
-		Expect(status.Conditions[0].State).To(Equal(corev1alpha2.ConditionSuccessState))
-	})
-
 	It("should fail when service account token cannot be retrieved", func() {
 		sa := corev1.ServiceAccount{
 			ObjectMeta: metav1.ObjectMeta{
@@ -488,7 +445,6 @@ var _ = Describe("Readiness Provider controller", func() {
 		Eventually(func() bool {
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: readinessProvider.Name}, readinessProvider)
 			status = readinessProvider.Status
-			log.Print(status)
 			return err == nil &&
 				readinessProvider.Status.State == corev1alpha2.ProviderFailureState
 		}, timeout, interval).Should(BeTrue())

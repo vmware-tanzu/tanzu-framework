@@ -7,32 +7,19 @@ import (
 	"context"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/dynamic"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 )
 
 // NewResourceExistenceConditionFunc returns a function for evaluating evaluate a ResourceExistenceCondition
-func NewResourceExistenceConditionFunc(dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient) func(context.Context, *capabilitiesDiscovery.ClusterQueryClient, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string) {
-	return func(ctx context.Context, client *capabilitiesDiscovery.ClusterQueryClient, c *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
+func NewResourceExistenceConditionFunc() func(context.Context, *capabilitiesDiscovery.ClusterQueryClient, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string) {
+	return func(ctx context.Context, queryClient *capabilitiesDiscovery.ClusterQueryClient, c *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
 		if c == nil {
 			return corev1alpha2.ConditionFailureState, "resourceExistenceCondition is not defined"
 		}
 
 		var err error
-		var queryClient *capabilitiesDiscovery.ClusterQueryClient
-
-		// Create client using default config if no ClusterQueryClient provided
-		if client != nil {
-			queryClient = client
-		} else {
-			if queryClient, err = capabilitiesDiscovery.NewClusterQueryClient(dynamicClient, discoveryClient); err != nil {
-				return corev1alpha2.ConditionFailureState, err.Error()
-			}
-		}
-
 		var resourceToFind corev1.ObjectReference
 
 		if c.Namespace == nil {
