@@ -92,11 +92,12 @@ spec:
                   - name
                   type: object
                 type: array
-              serviceAccount:
-                description: ServiceAccount represents the service account to be used
-                  to make requests to the API server for evaluating conditions. If
-                  not provided, it uses the default service account of the readiness
-                  provider controller.
+              serviceAccountRef:
+                description: ServiceAccountRef represents the service account to be
+                  used to make requests to the API server for evaluating conditions.
+                  If not provided, it uses the default service account of the readiness
+                  provider controller, which may not have appropriate RBAC for evaluating
+                  conditions.
                 properties:
                   name:
                     description: Name is the name of the service account to be used

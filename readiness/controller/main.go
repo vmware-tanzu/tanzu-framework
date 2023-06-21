@@ -21,7 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
+	capabilitiesdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/conditions"
 	readinesscontroller "github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/readiness"
 	readinessprovidercontroller "github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/readinessprovider"
@@ -110,7 +110,7 @@ func main() {
 
 	k8sClientset := kubernetes.NewForConfigOrDie(restConfig)
 
-	clusterQueryClient, err := capabilitiesDiscovery.NewClusterQueryClientForConfig(restConfig)
+	clusterQueryClient, err := capabilitiesdiscovery.NewClusterQueryClientForConfig(restConfig)
 	if err != nil {
 		setupLog.Error(err, "unable to create cluster query client")
 		os.Exit(1)

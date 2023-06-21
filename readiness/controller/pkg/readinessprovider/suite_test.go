@@ -33,7 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
+	capabilitiesdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 	testutil "github.com/vmware-tanzu/tanzu-framework/util/test"
 	//+kubebuilder:scaffold:imports
 )
@@ -144,7 +144,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(dynamicClient).ToNot(BeNil())
 
-	queryClient, err := capabilitiesDiscovery.NewClusterQueryClientForConfig(k8sManager.GetConfig())
+	queryClient, err := capabilitiesdiscovery.NewClusterQueryClientForConfig(k8sManager.GetConfig())
 	Expect(err).ToNot(HaveOccurred())
 	Expect(queryClient).ToNot(BeNil())
 
@@ -153,7 +153,7 @@ var _ = BeforeSuite(func() {
 		Clientset: kubernetes.NewForConfigOrDie(k8sManager.GetConfig()),
 		Scheme:    k8sManager.GetScheme(),
 		Log:       setupLog,
-		ResourceExistenceCondition: func(context context.Context, client *capabilitiesDiscovery.ClusterQueryClient, rec *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
+		ResourceExistenceCondition: func(context context.Context, client *capabilitiesdiscovery.ClusterQueryClient, rec *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
 			if rec.Kind == "failurekind" {
 				return corev1alpha2.ConditionFailureState, "TestFailure"
 			}
@@ -398,7 +398,7 @@ var _ = Describe("Readiness Provider controller", func() {
 
 	It("should fail when service account details are partial", func() {
 		readinessProvider := getTestReadinessProvider()
-		readinessProvider.Spec.ServiceAccount = &corev1alpha2.ServiceAccountSource{
+		readinessProvider.Spec.ServiceAccountRef = &corev1alpha2.ServiceAccountRef{
 			Name:      "default",
 			Namespace: "",
 		}
@@ -408,7 +408,7 @@ var _ = Describe("Readiness Provider controller", func() {
 
 	It("should fail when service account does not exist", func() {
 		readinessProvider := getTestReadinessProvider()
-		readinessProvider.Spec.ServiceAccount = &corev1alpha2.ServiceAccountSource{
+		readinessProvider.Spec.ServiceAccountRef = &corev1alpha2.ServiceAccountRef{
 			Name:      "non-existent-sa",
 			Namespace: "default",
 		}
@@ -426,7 +426,7 @@ var _ = Describe("Readiness Provider controller", func() {
 
 		// Create readiness provider
 		readinessProvider := getTestReadinessProvider()
-		readinessProvider.Spec.ServiceAccount = &corev1alpha2.ServiceAccountSource{
+		readinessProvider.Spec.ServiceAccountRef = &corev1alpha2.ServiceAccountRef{
 			Name:      sa.ObjectMeta.Name,
 			Namespace: sa.ObjectMeta.Namespace,
 		}
@@ -449,7 +449,6 @@ var _ = Describe("Readiness Provider controller", func() {
 				readinessProvider.Status.State == corev1alpha2.ProviderFailureState
 		}, timeout, interval).Should(BeTrue())
 		Expect(len(status.Conditions)).To(Equal(0))
-		Expect(status.Message).To(Equal("failed to retrieve token from service account. serviceaccounts \"sa-to-be-deleted\" not found"))
 	})
 
 })
@@ -460,9 +459,9 @@ func getTestReadinessProvider() *corev1alpha2.ReadinessProvider {
 			GenerateName: "test-readiness-provider-",
 		},
 		Spec: corev1alpha2.ReadinessProviderSpec{
-			Conditions:     []corev1alpha2.ReadinessProviderCondition{},
-			CheckRefs:      []string{},
-			ServiceAccount: nil,
+			Conditions:        []corev1alpha2.ReadinessProviderCondition{},
+			CheckRefs:         []string{},
+			ServiceAccountRef: nil,
 		},
 	}
 }

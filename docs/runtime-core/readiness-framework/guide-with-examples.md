@@ -116,7 +116,7 @@ spec:
       apiVersion: apiextensions.k8s.io/v1
       kind: CustomResourceDefinition
       name: packagerepositories.packaging.carvel.dev
-  serviceAccount:
+  serviceAccountRef:
     name: crd-read-sa
     namespace: default
 ```
@@ -171,7 +171,7 @@ spec:
       apiVersion: apiextensions.k8s.io/v1
       kind: CustomResourceDefinition
       name: secrettemplates.secretgen.carvel.dev
-  serviceAccount:
+  serviceAccountRef:
     name: crd-read-sa
     namespace: default
 ```
@@ -219,7 +219,7 @@ spec:
       apiVersion: apiextensions.k8s.io/v1
       kind: CustomResourceDefinition
       name: orders.acme.cert-manager.io
-  serviceAccount:
+  serviceAccountRef:
     name: crd-read-sa
     namespace: default
 ```

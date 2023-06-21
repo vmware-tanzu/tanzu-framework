@@ -5,10 +5,10 @@ package readinessprovider
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -16,8 +16,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
-	"github.com/vmware-tanzu/tanzu-framework/util/config"
+	capabilitiesdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/util/kubeclient"
 )
 
 const (
@@ -31,9 +31,9 @@ type ReadinessProviderReconciler struct {
 	Clientset                  *kubernetes.Clientset
 	Log                        logr.Logger
 	Scheme                     *runtime.Scheme
-	ResourceExistenceCondition func(context.Context, *capabilitiesDiscovery.ClusterQueryClient, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string)
+	ResourceExistenceCondition func(context.Context, *capabilitiesdiscovery.ClusterQueryClient, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string)
 	RestConfig                 *rest.Config
-	DefaultQueryClient         *capabilitiesDiscovery.ClusterQueryClient
+	DefaultQueryClient         *capabilitiesdiscovery.ClusterQueryClient
 }
 
 //+kubebuilder:rbac:groups=core.tanzu.vmware.com,resources=readinessproviders,verbs=get;list;watch;create;update;patch;delete
@@ -58,20 +58,20 @@ func (r *ReadinessProviderReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		return result, client.IgnoreNotFound(err)
 	}
 
-	var clusterQueryClient *capabilitiesDiscovery.ClusterQueryClient
+	var clusterQueryClient *capabilitiesdiscovery.ClusterQueryClient
 
 	// If provided in the spec, use the serviceAccount for evaluating conditions
-	if readinessProvider.Spec.ServiceAccount != nil {
-		cfg, err := config.GetConfigForServiceAccount(ctx, r.Clientset, r.RestConfig, readinessProvider.Spec.ServiceAccount.Namespace, readinessProvider.Spec.ServiceAccount.Name)
+	if readinessProvider.Spec.ServiceAccountRef != nil {
+		cfg, err := kubeclient.GetConfigForServiceAccount(ctx, r.Clientset, r.RestConfig, readinessProvider.Spec.ServiceAccountRef.Namespace, readinessProvider.Spec.ServiceAccountRef.Name)
 		if err != nil {
 			readinessProvider.Status.Message = err.Error()
 			readinessProvider.Status.State = corev1alpha2.ProviderFailureState
 			readinessProvider.Status.Conditions = []corev1alpha2.ReadinessConditionStatus{}
 			return result, r.Status().Update(ctxCancel, &readinessProvider)
 		}
-		clusterQueryClient, err = capabilitiesDiscovery.NewClusterQueryClientForConfig(cfg)
+		clusterQueryClient, err = capabilitiesdiscovery.NewClusterQueryClientForConfig(cfg)
 		if err != nil {
-			return ctrl.Result{}, errors.Errorf("unable to create ClusterQueryClient: %s", err.Error())
+			return ctrl.Result{}, fmt.Errorf("unable to create ClusterQueryClient: %w", err)
 		}
 	} else {
 		clusterQueryClient = r.DefaultQueryClient

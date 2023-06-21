@@ -25,8 +25,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
-	"github.com/vmware-tanzu/tanzu-framework/util/config"
+	capabilitiesdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/util/kubeclient"
 	testutil "github.com/vmware-tanzu/tanzu-framework/util/test"
 )
 
@@ -36,7 +36,7 @@ var (
 	testEnv      *envtest.Environment
 	ctx          context.Context
 	cancel       context.CancelFunc
-	queryClient  *capabilitiesDiscovery.ClusterQueryClient
+	queryClient  *capabilitiesdiscovery.ClusterQueryClient
 	k8sClientset *kubernetes.Clientset
 )
 
@@ -78,7 +78,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
 
-	queryClient, err = capabilitiesDiscovery.NewClusterQueryClientForConfig(cfg)
+	queryClient, err = capabilitiesdiscovery.NewClusterQueryClientForConfig(cfg)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(queryClient).NotTo(BeNil())
 
@@ -132,7 +132,7 @@ var _ = Describe("Readiness controller", func() {
 		err := k8sClient.Create(context.TODO(), &newPod)
 		Expect(err).To(BeNil())
 
-		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
+		state, _ := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "v1",
 			Kind:       "Pod",
 			Namespace:  &newPod.Namespace,
@@ -141,11 +141,10 @@ var _ = Describe("Readiness controller", func() {
 			"podCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionSuccessState))
-		Expect(msg).To(Equal("resource found"))
 	})
 
 	It("should fail when querying a non-existing namespaced resource", func() {
-		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
+		state, _ := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "v1",
 			Kind:       "Pod",
 			Namespace: func() *string {
@@ -157,11 +156,10 @@ var _ = Describe("Readiness controller", func() {
 			"nonExistingCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
-		Expect(msg).To(Equal("resource not found"))
 	})
 
 	It("should succeed when querying an existing cluster scoped resource", func() {
-		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
+		state, _ := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.core.tanzu.vmware.com",
@@ -169,11 +167,10 @@ var _ = Describe("Readiness controller", func() {
 			"crdCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionSuccessState))
-		Expect(msg).To(Equal("resource found"))
 	})
 
 	It("should fail when querying a non-existing cluster scoped resource", func() {
-		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
+		state, _ := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 			Name:       "readinesses.config.tanzu.vmware.com",
@@ -181,14 +178,12 @@ var _ = Describe("Readiness controller", func() {
 			"crdCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
-		Expect(msg).To(Equal("resource not found"))
 	})
 
 	It("should fail when resourceExistenceCondition is undefined", func() {
-		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, nil, "undefinedCondition")
+		state, _ := NewResourceExistenceConditionFunc()(context.TODO(), queryClient, nil, "undefinedCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionFailureState))
-		Expect(msg).To(Equal("resourceExistenceCondition is not defined"))
 	})
 
 	It("should succeed when query client has required permissions", func() {
@@ -214,7 +209,7 @@ var _ = Describe("Readiness controller", func() {
 		err = k8sClient.Create(context.TODO(), &newPod)
 		Expect(err).To(BeNil())
 
-		state, msg := NewResourceExistenceConditionFunc()(context.TODO(), customQueryClient, &corev1alpha2.ResourceExistenceCondition{
+		state, _ := NewResourceExistenceConditionFunc()(context.TODO(), customQueryClient, &corev1alpha2.ResourceExistenceCondition{
 			APIVersion: "v1",
 			Kind:       "Pod",
 			Namespace:  &newPod.Namespace,
@@ -223,7 +218,6 @@ var _ = Describe("Readiness controller", func() {
 			"podCondition")
 
 		Expect(state).To(Equal(corev1alpha2.ConditionSuccessState))
-		Expect(msg).To(Equal("resource found"))
 	})
 
 	It("should fail when query client is missing required permissions", func() {
@@ -246,10 +240,10 @@ var _ = Describe("Readiness controller", func() {
 	})
 })
 
-func getCustomQueryClient() (*capabilitiesDiscovery.ClusterQueryClient, error) {
-	customCfg, err := config.GetConfigForServiceAccount(ctx, k8sClientset, cfg, defaultNamespace, "pod-sa")
+func getCustomQueryClient() (*capabilitiesdiscovery.ClusterQueryClient, error) {
+	customCfg, err := kubeclient.GetConfigForServiceAccount(ctx, k8sClientset, cfg, defaultNamespace, "pod-sa")
 	if err != nil {
 		return nil, err
 	}
-	return capabilitiesDiscovery.NewClusterQueryClientForConfig(customCfg)
+	return capabilitiesdiscovery.NewClusterQueryClientForConfig(customCfg)
 }

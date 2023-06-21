@@ -9,12 +9,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
-	capabilitiesDiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
+	capabilitiesdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 )
 
 // NewResourceExistenceConditionFunc returns a function for evaluating evaluate a ResourceExistenceCondition
-func NewResourceExistenceConditionFunc() func(context.Context, *capabilitiesDiscovery.ClusterQueryClient, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string) {
-	return func(ctx context.Context, queryClient *capabilitiesDiscovery.ClusterQueryClient, c *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
+func NewResourceExistenceConditionFunc() func(context.Context, *capabilitiesdiscovery.ClusterQueryClient, *corev1alpha2.ResourceExistenceCondition, string) (corev1alpha2.ReadinessConditionState, string) {
+	return func(ctx context.Context, queryClient *capabilitiesdiscovery.ClusterQueryClient, c *corev1alpha2.ResourceExistenceCondition, conditionName string) (corev1alpha2.ReadinessConditionState, string) {
 		if c == nil {
 			return corev1alpha2.ConditionFailureState, "resourceExistenceCondition is not defined"
 		}
@@ -37,7 +37,7 @@ func NewResourceExistenceConditionFunc() func(context.Context, *capabilitiesDisc
 			}
 		}
 
-		queryObject := capabilitiesDiscovery.Object(conditionName, &resourceToFind)
+		queryObject := capabilitiesdiscovery.Object(conditionName, &resourceToFind)
 		ok, err := queryClient.PreparedQuery(queryObject)()
 		if err != nil {
 			return corev1alpha2.ConditionFailureState, err.Error()
