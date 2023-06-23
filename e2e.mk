@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 create-kind-cluster:
 	kind create cluster --name ${KIND_CLUSTER_NAME} --image "kindest/node:${KUBE_VERSION}"
 
