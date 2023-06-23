@@ -1,3 +1,6 @@
+// Copyright 2023 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package e2e
 
 import (
@@ -5,12 +8,13 @@ import (
 
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
-	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
+
+	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
 )
 
 var (
@@ -34,5 +38,4 @@ func TestE2E(t *testing.T) {
 
 	gomega.RegisterFailHandler(ginkgo.Fail)
 	ginkgo.RunSpecs(t, "readiness e2e suite")
-
 }
