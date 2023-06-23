@@ -6,51 +6,40 @@
 2. Kind
 3. ytt
 4. Kubectl
+5. Make
 
-## Step 1 - Create a Kind cluster
+### Create Kind cluster
 
-A simple Kind cluster can be created for testing using the following command.
+The kind cluster can be created by the following command.
 
 ```bash
-kind create cluster
+KIND_CLUSTER_NAME=<cluster_name> KUBE_VERSION=<kubernetes_version> make create-kind-cluster
 ```
 
-## Step 2 - Generate manifests
-
-This step is required only if there is a change in the readiness APIs. Run the following commands to generage the CRD manifests for the updated APIs.
+For example, the following command creates a kind cluster with name `kind1` and k8s version `v1.26.3`.
 
 ```bash
-make manifests
+KIND_CLUSTER_NAME=kind1 KUBE_VERSION=v1.26.3 make create-kind-cluster
 ```
 
-## Step 3 - Sync the generated manifests
+## Deploy local changes to a kind cluster
 
-This step is required only if there is a change in the readiness APIs. Run the following commands to sync the newly generated CRDs to the packages directory.
+Run the following command to install the readiness framework in the Kind cluster created.
 
 ```bash
-make package-vendir-sync
+KIND_CLUSTER_NAME=<cluster_name> make deploy-local-readiness
 ```
 
-## Step 4 - Build docker image
-
-Run the following command from the `tanzu-framework` directory.
+Example:
 
 ```bash
-COMPONENTS=readiness/controller.readiness-controller-manager.readiness make docker-build-all
+KIND_CLUSTER_NAME=kind1 make deploy-local-readiness
 ```
 
-## Step 5 - Load readiness controller image
+## Run end-to-end tests
 
-Load the readiness controller image into the kind nodes by running the following command.
-
-```bash
-kind load docker-image readiness-controller-manager:latest
-```
-
-## Step 6 - Deploy the manifests
-
-Run the following command to deploy CRDs and bring up the readiness controller.
+The end-to-end tests can be triggered on the local Kind cluster by running the following command.
 
 ```bash
-ytt -f packages/readiness/bundle/config | kubectl apply -f-
+make e2e-readiness
 ```

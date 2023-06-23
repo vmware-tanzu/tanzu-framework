@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include ./common.mk ./build.mk
+include ./common.mk ./build.mk ./e2e.mk
 
 .DEFAULT_GOAL:=help
 
