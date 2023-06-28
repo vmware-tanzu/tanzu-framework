@@ -92,6 +92,25 @@ spec:
                   - name
                   type: object
                 type: array
+              serviceAccountRef:
+                description: ServiceAccountRef represents the service account to be
+                  used to make requests to the API server for evaluating conditions.
+                  If not provided, it uses the default service account of the readiness
+                  provider controller, which may not have appropriate RBAC for evaluating
+                  conditions.
+                properties:
+                  name:
+                    description: Name is the name of the service account to be used
+                      to make requests to the API server for evaluating conditions.
+                    type: string
+                  namespace:
+                    description: Namespace is the namespace containing the service
+                      account.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
             required:
             - checkRefs
             - conditions
@@ -124,6 +143,10 @@ spec:
                   - state
                   type: object
                 type: array
+              message:
+                description: Message provides information about the ReadinessProvider
+                  state
+                type: string
               state:
                 description: State is the computed state of the provider. The state
                   will be success if all the conditions pass; The state will be failure
@@ -135,6 +158,7 @@ spec:
                 type: string
             required:
             - conditions
+            - message
             - state
             type: object
         type: object

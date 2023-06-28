@@ -12,8 +12,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	cliflag "k8s.io/component-base/cli/flag"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -22,6 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	corev1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha2"
+	capabilitiesdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/conditions"
 	readinesscontroller "github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/readiness"
 	readinessprovidercontroller "github.com/vmware-tanzu/tanzu-framework/readiness/controller/pkg/readinessprovider"
@@ -58,7 +58,7 @@ func setCipherSuiteFunc(cipherSuiteString string) (func(cfg *tls.Config), error)
 	}, nil
 }
 
-//nolint:funlen,gocyclo
+//nolint:funlen
 func main() {
 	var (
 		webhookServerPort            int
@@ -108,15 +108,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	dynamicClient, err := dynamic.NewForConfig(restConfig)
-	if err != nil {
-		setupLog.Error(err, "unable to create dynamic client")
-		os.Exit(1)
-	}
+	k8sClientset := kubernetes.NewForConfigOrDie(restConfig)
 
-	discoveryClient, err := discovery.NewDiscoveryClientForConfig(restConfig)
+	clusterQueryClient, err := capabilitiesdiscovery.NewClusterQueryClientForConfig(restConfig)
 	if err != nil {
-		setupLog.Error(err, "unable to create discovery client")
+		setupLog.Error(err, "unable to create cluster query client")
 		os.Exit(1)
 	}
 
@@ -147,9 +143,12 @@ func main() {
 
 	if err = (&readinessprovidercontroller.ReadinessProviderReconciler{
 		Client:                     mgr.GetClient(),
+		Clientset:                  k8sClientset,
 		Log:                        ctrl.Log.WithName("controllers").WithName("ReadinessProvider").WithValues("apigroup", "core"),
 		Scheme:                     mgr.GetScheme(),
-		ResourceExistenceCondition: conditions.NewResourceExistenceConditionFunc(dynamicClient, discoveryClient),
+		ResourceExistenceCondition: conditions.NewResourceExistenceConditionFunc(),
+		RestConfig:                 restConfig,
+		DefaultQueryClient:         clusterQueryClient,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ReadinessProvider")
 		os.Exit(1)
