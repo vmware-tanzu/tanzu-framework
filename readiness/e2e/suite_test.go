@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -472,6 +473,141 @@ var _ = Describe("Readiness", func() {
 					prodErr := cl.Get(context.TODO(), types.NamespacedName{Name: "prod-readiness"}, prodReadiness)
 
 					return devErr == nil && intErr == nil && prodErr == nil && devReadiness.Status.Ready && intReadiness.Status.Ready && prodReadiness.Status.Ready
+				}).WithTimeout(timeout).WithPolling(pollingInterval).Should(BeTrue())
+			})
+		})
+	})
+
+	Describe("Providers that require additional roles", func() {
+		Context("creating a provider that access config maps", func() {
+			It("should reconcile to failed state as the default service account does not have required roles", func() {
+				err := cl.Create(context.TODO(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "readiness-config1",
+						Namespace: "default",
+					},
+				})
+
+				Expect(err).To(BeNil())
+
+				err = cl.Create(context.TODO(), &v1alpha2.ReadinessProvider{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "configprovider",
+					},
+					Spec: v1alpha2.ReadinessProviderSpec{
+						CheckRefs: []string{"readinesscheck1"},
+						Conditions: []v1alpha2.ReadinessProviderCondition{
+							{
+								Name: "config1-exists",
+								ResourceExistenceCondition: &v1alpha2.ResourceExistenceCondition{
+									APIVersion: "v1",
+									Kind:       "ConfigMap",
+									Namespace:  &testNamespace,
+									Name:       "readiness-config1",
+								},
+							},
+						},
+					},
+				})
+
+				Expect(err).To(BeNil())
+
+				Eventually(func() bool {
+					provider := &v1alpha2.ReadinessProvider{}
+					err := cl.Get(context.TODO(), types.NamespacedName{Name: "configprovider"}, provider)
+
+					return err == nil &&
+						provider.Status.State == v1alpha2.ProviderFailureState &&
+						len(provider.Status.Conditions) == 1 &&
+						provider.Status.Conditions[0].Message == "configmaps \"readiness-config1\" is forbidden: User \"system:serviceaccount:default:tanzu-readiness-manager-sa\" cannot get resource \"configmaps\" in API group \"\" in the namespace \"default\""
+				}).WithTimeout(timeout).WithPolling(pollingInterval).Should(BeTrue())
+			})
+		})
+
+		Context("updating provider with required service account", func() {
+			AfterEach(func() {
+				deleteReadinessProviders("configprovider")
+				deleteResources(metav1.TypeMeta{
+					Kind:       "ConfigMap",
+					APIVersion: "v1",
+				}, "readiness-config1")
+				deleteResources(metav1.TypeMeta{
+					Kind:       "ServiceAccount",
+					APIVersion: "v1",
+				}, "test-sa")
+				deleteResources(metav1.TypeMeta{
+					Kind:       "ClusterRole",
+					APIVersion: "rbac.authorization.k8s.io/v1",
+				}, "test-cluster-role")
+				deleteResources(metav1.TypeMeta{
+					Kind:       "ClusterRoleBinding",
+					APIVersion: "rbac.authorization.k8s.io/v1",
+				}, "test-cluster-role-binding")
+
+			})
+
+			It("provider should reconcile to success state", func() {
+				err := cl.Create(context.TODO(), &rbacv1.ClusterRole{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-cluster-role",
+					},
+					Rules: []rbacv1.PolicyRule{
+						{
+							APIGroups: []string{""},
+							Resources: []string{"configmaps"},
+							Verbs:     []string{"get"},
+						},
+					},
+				})
+
+				Expect(err).To(BeNil())
+
+				err = cl.Create(context.TODO(), &corev1.ServiceAccount{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-sa",
+						Namespace: "default",
+					},
+				})
+
+				Expect(err).To(BeNil())
+
+				err = cl.Create(context.TODO(), &rbacv1.ClusterRoleBinding{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-cluster-role-binding",
+					},
+					RoleRef: rbacv1.RoleRef{
+						APIGroup: "rbac.authorization.k8s.io",
+						Kind:     "ClusterRole",
+						Name:     "test-cluster-role",
+					},
+					Subjects: []rbacv1.Subject{
+						{
+							Kind:      "ServiceAccount",
+							Name:      "test-sa",
+							Namespace: "default",
+						},
+					},
+				})
+
+				Expect(err).To(BeNil())
+
+				provider := &v1alpha2.ReadinessProvider{}
+				err = cl.Get(context.TODO(), types.NamespacedName{Name: "configprovider"}, provider)
+				Expect(err).To(BeNil())
+
+				provider.Spec.ServiceAccountRef = &v1alpha2.ServiceAccountRef{
+					Namespace: "default",
+					Name:      "test-sa",
+				}
+
+				err = cl.Update(context.TODO(), provider)
+				Expect(err).To(BeNil())
+
+				Eventually(func() bool {
+					provider := &v1alpha2.ReadinessProvider{}
+					err := cl.Get(context.TODO(), types.NamespacedName{Name: "configprovider"}, provider)
+
+					return err == nil && provider.Status.State == v1alpha2.ProviderSuccessState
 				}).WithTimeout(timeout).WithPolling(pollingInterval).Should(BeTrue())
 			})
 		})
