@@ -9,6 +9,7 @@ import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -25,6 +26,7 @@ var (
 func init() {
 	utilruntime.Must(corev1alpha2.AddToScheme(scheme))
 	utilruntime.Must(v1.AddToScheme(scheme))
+	utilruntime.Must(rbacv1.AddToScheme(scheme))
 }
 
 func TestE2E(t *testing.T) {
