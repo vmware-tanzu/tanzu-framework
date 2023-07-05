@@ -71,18 +71,27 @@ ARG BUILDARCH
 RUN wget -O /bin/imgpkg https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/${IMGPKG_VERSION}/imgpkg-linux-${BUILDARCH} && \
     chmod +x /bin/imgpkg
 
-# Install Tanzu CLI Plugin Builder.
+# Install Tanzu CLI Plugin Builder via Tanzu CLI or using Tanzu Builder binary, if it is provided.
 # Note: We are temporarily using a deactivated plugin until a bug fix is made to the plugin builder.
 FROM --platform=${BUILDPLATFORM} $BUILDER_BASE_IMAGE AS cli-plugin-builder-install
 ARG TANZU_CLI_VERSION
-RUN apt-get update && \
-    apt-get install -y ca-certificates && \
-    printf "deb https://storage.googleapis.com/tanzu-cli-os-packages/apt tanzu-cli-jessie main" | tee /etc/apt/sources.list.d/tanzu.list && \
-    apt-get update --allow-insecure-repositories && \
-    apt-get install -y tanzu-cli=${TANZU_CLI_VERSION} --allow-unauthenticated && \
-    tanzu ceip set true && \
-    tanzu config eula accept && \
-    TANZU_CLI_INCLUDE_DEACTIVATED_PLUGINS_TEST_ONLY=true tanzu plugin install builder -v v0.90.0-alpha.2
+RUN --mount=target=. \
+    if [ -e build/artifacts/plugins/tanzu-cli/tanzu_builder ]; then \
+        mkdir -p /root/.local/share/tanzu-cli/builder/ && \
+        cp build/artifacts/plugins/tanzu-cli/tanzu_builder /root/.local/share/tanzu-cli/builder/ && \
+        chmod +x /root/.local/share/tanzu-cli/builder/tanzu_builder && \
+        ln -s /root/.local/share/tanzu-cli/builder/tanzu_builder /usr/bin/tanzu_builder; \
+    else \
+        apt-get update && \
+        apt-get install -y ca-certificates && \
+        printf "deb https://storage.googleapis.com/tanzu-cli-os-packages/apt tanzu-cli-jessie main" | tee /etc/apt/sources.list.d/tanzu.list && \
+        apt-get update --allow-insecure-repositories && \
+        apt-get install -y tanzu-cli="${TANZU_CLI_VERSION}" --allow-unauthenticated && \
+        tanzu ceip set true && \
+        tanzu config eula accept && \
+        TANZU_CLI_INCLUDE_DEACTIVATED_PLUGINS_TEST_ONLY=true tanzu plugin install builder -v v0.90.0-alpha.2 && \
+        ln -s $(find /root/.local/share/tanzu-cli/builder/ -type f -name "v$TANZU_CLI_VERSION*") /usr/bin/tanzu_builder; \
+    fi
 
 # Run Tanzu plugin builder and compile all plugins in the project's cmd/cli/plugin directory.
 FROM base AS cli-plugin-build-prep
@@ -92,17 +101,14 @@ ARG OCI_REGISTRY
 ARG CLI_PLUGIN_GO_FLAGS
 RUN --mount=type=bind,readwrite \
     --mount=from=carvel-base,src=/bin/imgpkg,target=/bin/imgpkg \
-    --mount=from=cli-plugin-builder-install,src=/usr/bin/tanzu,target=/bin/tanzu \
-    --mount=from=cli-plugin-builder-install,src=/root/.local/share/tanzu-cli/builder,target=/root/.local/share/tanzu-cli/builder \
-    --mount=from=cli-plugin-builder-install,src=/root/.config/tanzu/,target=/root/.config/tanzu/ \
-    --mount=from=cli-plugin-builder-install,src=/root/.cache/tanzu/,target=/root/.cache/tanzu/ \
-    tanzu builder plugin build \
+    --mount=from=cli-plugin-builder-install,src=/usr/bin/tanzu_builder,target=/usr/bin/tanzu_builder \
+    tanzu_builder plugin build \
         --match "${CLI_PLUGIN}" \
         --os-arch linux_amd64 --os-arch windows_amd64 --os-arch darwin_amd64 \
         --version "${CLI_PLUGIN_VERSION}" \
         --binary-artifacts "./artifacts/plugins" \
         --goflags "${CLI_PLUGIN_GO_FLAGS}" && \
-    tanzu builder plugin build-package \
+    tanzu_builder plugin build-package \
         --oci-registry "${OCI_REGISTRY}" && \
     mkdir -p /out/plugin-artifacts && \
     cp -r artifacts /out/plugin-artifacts
@@ -118,11 +124,8 @@ ARG IMGPKG_PASSWORD
 ENV IMGPKG_USERNAME=${IMGPKG_USERNAME} IMGPKG_PASSWORD=${IMGPKG_PASSWORD}
 RUN --mount=type=bind,readwrite \
     --mount=from=carvel-base,src=/bin/imgpkg,target=/bin/imgpkg \
-    --mount=from=cli-plugin-builder-install,src=/usr/bin/tanzu,target=/bin/tanzu \
-    --mount=from=cli-plugin-builder-install,src=/root/.local/share/tanzu-cli/builder,target=/root/.local/share/tanzu-cli/builder \
-    --mount=from=cli-plugin-builder-install,src=/root/.config/tanzu/,target=/root/.config/tanzu/ \
-    --mount=from=cli-plugin-builder-install,src=/root/.cache/tanzu/,target=/root/.cache/tanzu/ \
-    tanzu builder plugin publish-package \
+    --mount=from=cli-plugin-builder-install,src=/usr/bin/tanzu_builder,target=/bin/tanzu_builder \
+    tanzu_builder plugin publish-package \
         --repository "${REPOSITORY}" \
         --publisher "${PUBLISHER}" \
         --vendor "${VENDOR}" \
