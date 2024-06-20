@@ -12,6 +12,8 @@ Framework provides APIs and Packages that enables Tanzu Kubernetes clusters to f
 Framework leverages [Carvel](https://carvel.dev/) packaging and plugins to provide users with a much stronger, more
 integrated experience than the loose coupling and stand-alone commands of the previous generation of tools.
 
+**NOTE**: Tanzu Framework is undergoing a migration at the moment.  The code in this repository will be changed in the near future, please wait for our roadmap update.
+
 ## Documentation
 
 The [documentation](docs) provides information about the project, including user and developer guides.
